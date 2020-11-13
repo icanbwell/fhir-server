@@ -35,9 +35,18 @@ helm:
 	rm ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz
 	helm package ./node-fhir-server-mongo --destination ./releases/node-fhir-server-mongo/ --app-version 1.0 --version 1.0
 
+.PHONY: clean-helm
+clean-helm:
+	helm delete node-fhir-server-mongo
+
 .PHONY: deploy
 deploy:
 	helm upgrade --install --set include_mongo=true node-fhir-server-mongo ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz
+	helm ls
+
+.PHONY: deploy-from-github
+deploy-from-github:
+	helm upgrade --install --set include_mongo=true node-fhir-server-mongo https://raw.githubusercontent.com/imranq2/node-fhir-server-mongo/master/releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz
 	helm ls
 
 TOKEN_NAME := "$(shell kubectl -n kube-system get secret | awk '/^deployment-controller-token-/{print $$1}')"
