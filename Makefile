@@ -59,6 +59,7 @@ deploy_to_aws:
 	helm upgrade --install --set include_mongo=false --set aws=true node-fhir-server-mongo ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz && \
 	helm ls && \
 	kubectl get services && \
+	kubectl get all --namespace=nodefhirservermongo
 
 .PHONY: deploy_to_aws
 deploy_to_aws:
