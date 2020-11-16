@@ -455,21 +455,7 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                 // const mergeIdentifiers = (array1, array2) => {
                 //     return array1.concat(array2);
                 // };
-                const mergeObjectOrArray = (item1, item2) => {
-                    if (Array.isArray(item1)) {
-                        var result_array = [];
-                        // see if items are equal then skip them
-                        for (var i = 0; i < item1.length; i++) {
-                            result_array.push(item1[i]);
-                            if (deepEqual(item1[i], item2[i]) === false) {
-                                result_array.push(item2[i]);
-                            }
-                        }
-                        return result_array;
-                    }
-                    return deepmerge;
-                };
-
+                let mergeObjectOrArray;
                 const options = {
                     // eslint-disable-next-line no-unused-vars
                     customMerge: (key) => {
@@ -481,6 +467,21 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                         // }
                         return mergeObjectOrArray;
                     }
+                };
+
+                mergeObjectOrArray = (item1, item2) => {
+                    if (Array.isArray(item1)) {
+                        var result_array = [];
+                        // see if items are equal then skip them
+                        for (var i = 0; i < item1.length; i++) {
+                            result_array.push(item1[i]);
+                            if (deepEqual(item1[i], item2[i]) === false) {
+                                result_array.push(item2[i]);
+                            }
+                        }
+                        return result_array;
+                    }
+                    return deepmerge(item1, item2, options);
                 };
 
                 let resource_merged = deepmerge(data, resource_incoming, options);
