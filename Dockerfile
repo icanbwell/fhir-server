@@ -20,7 +20,6 @@ RUN npm install
 COPY package-lock.json /srv/src/package-lock.json
 COPY .snyk /srv/src/.snyk
 
-
 # Copy the remaining application code.
 COPY . /srv/src
 
