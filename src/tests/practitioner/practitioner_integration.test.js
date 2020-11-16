@@ -52,7 +52,7 @@ describe('Practitioner Integration Tests', () => {
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .expect(200, (err, resp) => {
+            .expect(201, (err, resp) => {
               console.log('------- response 2 ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response 2  ------------');
@@ -64,7 +64,7 @@ describe('Practitioner Integration Tests', () => {
             .send(practitionerRoleResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .expect(200, (err, resp) => {
+            .expect(201, (err, resp) => {
               console.log('------- response 3 ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response 3  ------------');
@@ -75,7 +75,7 @@ describe('Practitioner Integration Tests', () => {
           .send(locationResource)
           .set('Content-Type', 'application/fhir+json')
           .set('Accept', 'application/fhir+json')
-          .expect(200, (err, resp) => {
+          .expect(201, (err, resp) => {
             console.log('------- response 4 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 4  ------------');
@@ -94,6 +94,7 @@ describe('Practitioner Integration Tests', () => {
       ],
         (err, results) => {
           console.log('done');
+          if (err) { console.error(err); done.fail(err); }
           done();
         });
     });
