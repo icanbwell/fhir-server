@@ -504,6 +504,7 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                 let history_resource = Object.assign(cleaned, { id: id });
                 delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
+                const created_entity = res.lastErrorObject && !res.lastErrorObject.updatedExisting;
                 // Insert our resource record to history but don't assign _id
                 return history_collection.insertOne(history_resource, (err3) => {
                     if (err3) {
@@ -513,7 +514,7 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
 
                     return resolve({
                         id: id,
-                        created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
+                        created: created_entity,
                         resource_version: doc.meta.versionId,
                     });
                 });

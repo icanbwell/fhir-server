@@ -13,7 +13,7 @@ const async = require('async');
 
 const request = supertest(app);
 
-describe('Practitioner Merge Tests', () => {
+describe('Practitioner Update Tests', () => {
   let connection;
   let db;
   // let resourceId;
@@ -51,11 +51,11 @@ describe('Practitioner Merge Tests', () => {
             }),
         (results, cb) =>
           request
-            .post('/4_0_0/Practitioner/4657/$merge')
+            .put('/4_0_0/Practitioner/4657')
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .expect(200, (err, resp) => {
+            .expect(201, (err, resp) => {
               console.log('------- response 2 ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response 2  ------------');
@@ -63,14 +63,14 @@ describe('Practitioner Merge Tests', () => {
             }),
         (results, cb) =>
           request
-            .post('/4_0_0/Practitioner/4657/$merge')
+            .put('/4_0_0/Practitioner/4657')
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
-              console.log('------- response 3 ------------');
+              console.log('------- response 2 ------------');
               console.log(JSON.stringify(resp.body, null, 2));
-              console.log('------- end response 3  ------------');
+              console.log('------- end response 2  ------------');
               return cb(err, resp);
             }),
         (results, cb) => request
@@ -92,8 +92,7 @@ describe('Practitioner Merge Tests', () => {
           }, cb),
       ],
         (err, results) => {
-          if (!err) { console.log('done'); }
-
+          console.log('done');
           if (err) { console.error(err); done.fail(err); }
           done();
         });
