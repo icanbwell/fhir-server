@@ -6,6 +6,8 @@ const globals = require('../../globals');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const { getUuid } = require('../../utils/uid.util');
 const { validate, applyPatch, compare } = require('fast-json-patch');
+const deepmerge = require('deepmerge');
+var deepEqual = require('deep-equal');
 
 let getResource = (base_version, resource_name) => {
     return resolveSchema(base_version, resource_name);
@@ -16,7 +18,7 @@ let getMeta = (base_version) => {
 };
 
 // let logInfo = (msg) => logger.info(msg);
-let logInfo = () => {};
+let logInfo = () => { };
 
 
 let buildR4SearchQuery = (resource_name, args) => {
@@ -446,9 +448,46 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                 logInfo(resource_incoming);
                 logInfo('------ end incoming document --------');
 
+                // merge new data with old
+                // const mergeNames = (nameA, nameB) => {
+                //     return `${nameA.first} and ${nameB.first}`;
+                // };
+                // const mergeIdentifiers = (array1, array2) => {
+                //     return array1.concat(array2);
+                // };
+                const mergeObjectOrArray = (item1, item2) => {
+                    if (Array.isArray(item1)) {
+                        var result_array = [];
+                        // see if items are equal then skip them
+                        for (var i = 0; i < item1.length; i++) {
+                            result_array.push(item1[i]);
+                            if (deepEqual(item1[i], item2[i]) === false) {
+                                result_array.push(item2[i]);
+                            }
+                        }
+                        return result_array;
+                    }
+                    return deepmerge;
+                };
+
+                const options = {
+                    // eslint-disable-next-line no-unused-vars
+                    customMerge: (key) => {
+                        // if (key === 'name') {
+                        //     return mergeNames;
+                        // }
+                        // if (key === 'identifier') {
+                        //     return mergeIdentifiers;
+                        // }
+                        return mergeObjectOrArray;
+                    }
+                };
+
+                let resource_merged = deepmerge(data, resource_incoming, options);
+
                 // now create a patch between the document in db and the incoming document
                 //  this returns an array of patches
-                let patchContent = compare(data, resource_incoming);
+                let patchContent = compare(data, resource_merged);
                 // ignore any changes to _id since that's an internal field
                 patchContent = patchContent.filter(item => item.path !== '/_id');
                 logInfo('------ patches --------');

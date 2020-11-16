@@ -68,9 +68,11 @@ describe('Practitioner Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
-              console.log('------- response 3 ------------');
-              console.log(JSON.stringify(resp.body, null, 2));
-              console.log('------- end response 3  ------------');
+              if (!err) {
+                console.log('------- response 3 ------------');
+                console.log(JSON.stringify(resp.body, null, 2));
+                console.log('------- end response 3  ------------');
+              }
               return cb(err, resp);
             }),
         (results, cb) => request
@@ -85,6 +87,7 @@ describe('Practitioner Merge Tests', () => {
             delete body[0]['meta']['lastUpdated'];
             let expected = expectedPractitionerResource;
             delete expected[0]['meta']['lastUpdated'];
+            expected[0]['meta']['versionId'] = '2';
             expect(body).toStrictEqual(expected);
             console.log('------- response 5 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
