@@ -13,12 +13,12 @@ const async = require('async');
 
 const request = supertest(app);
 
-describe('Practitioner Integration Tests', () => {
+describe('Practitioner Merge Tests', () => {
   let connection;
   let db;
   // let resourceId;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     connection = await MongoClient.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -29,8 +29,8 @@ describe('Practitioner Integration Tests', () => {
     globals.set(CLIENT_DB, db);
   });
 
-  afterAll(async () => {
-    await connection.db.dropDatabase();
+  afterEach(async () => {
+    await db.dropDatabase();
     await connection.close();
   });
 
@@ -50,7 +50,7 @@ describe('Practitioner Integration Tests', () => {
             }),
         (results, cb) =>
           request
-            .put('/4_0_0/Practitioner/4657')
+            .post('/4_0_0/Practitioner/')
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
@@ -59,7 +59,24 @@ describe('Practitioner Integration Tests', () => {
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response 2  ------------');
               return cb(err, resp);
-            })
+            }),
+        (results, cb) => request
+          .get('/4_0_0/Practitioner')
+          .set('Content-Type', 'application/fhir+json')
+          .set('Accept', 'application/fhir+json')
+          .expect(200, cb)
+          .expect((resp) => {
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(1);
+            delete body[0]['meta']['lastUpdated'];
+            let expected = expectedPractitionerResource;
+            delete expected[0]['meta']['lastUpdated'];
+            expect(body).toStrictEqual(expected);
+            console.log('------- response 5 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 5  ------------');
+          }, cb),
       ],
         (err, results) => {
           console.log('done');

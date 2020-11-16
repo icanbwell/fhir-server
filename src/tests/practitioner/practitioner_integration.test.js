@@ -18,7 +18,7 @@ describe('Practitioner Integration Tests', () => {
   let db;
   // let resourceId;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     connection = await MongoClient.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -29,8 +29,8 @@ describe('Practitioner Integration Tests', () => {
     globals.set(CLIENT_DB, db);
   });
 
-  afterAll(async () => {
-    await connection.db.dropDatabase();
+  afterEach(async () => {
+    await db.dropDatabase();
     await connection.close();
   });
 
@@ -91,6 +91,7 @@ describe('Practitioner Integration Tests', () => {
           .expect((resp) => {
             // clear out the lastUpdated column since that changes
             let body = resp.body;
+            expect(body.length).toBe(1);
             delete body[0]['meta']['lastUpdated'];
             let expected = expectedPractitionerResource;
             delete expected[0]['meta']['lastUpdated'];
