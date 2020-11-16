@@ -61,6 +61,18 @@ describe('Practitioner Merge Tests', () => {
               console.log('------- end response 2  ------------');
               return cb(err, resp);
             }),
+        (results, cb) =>
+          request
+            .put('/4_0_0/Practitioner/4657')
+            .send(practitionerResource)
+            .set('Content-Type', 'application/fhir+json')
+            .set('Accept', 'application/fhir+json')
+            .expect(200, (err, resp) => {
+              console.log('------- response 2 ------------');
+              console.log(JSON.stringify(resp.body, null, 2));
+              console.log('------- end response 2  ------------');
+              return cb(err, resp);
+            }),
         (results, cb) => request
           .get('/4_0_0/Practitioner')
           .set('Content-Type', 'application/fhir+json')
