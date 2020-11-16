@@ -68,6 +68,19 @@ describe('Practitioner Integration Tests', () => {
           // resourceId = resp.headers.location.split('/Practitioner/')[1];
           done();
         });
+        // now check the practitioner
+        request
+        .get('/4_0_0/Practitioner')
+        .set('Content-Type', 'application/fhir+json')
+        .set('Accept', 'application/fhir+json')
+        .end((err, resp) => {
+          console.log(JSON.stringify(resp.body, null, 2));
+          expect(err).toBeNull();
+          expect(resp.status).toBe(200);
+          // expect(resp.headers.location.includes('4_0_0/Practitioner'));
+          // resourceId = resp.headers.location.split('/Practitioner/')[1];
+          done();
+        });
     });
   });
 });
