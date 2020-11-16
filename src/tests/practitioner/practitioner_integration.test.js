@@ -88,6 +88,12 @@ describe('Practitioner Integration Tests', () => {
           .set('Accept', 'application/fhir+json')
           .expect(200, cb)
           .expect((resp) => {
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            delete body[0]['meta']['lastUpdated'];
+            let expected = expectedPractitionerResource;
+            delete expected[0]['meta']['lastUpdated'];
+            expect(body).toStrictEqual(expected);
             console.log('------- response 5 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
