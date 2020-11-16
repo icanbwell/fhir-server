@@ -8,6 +8,7 @@ const { CLIENT, CLIENT_DB } = require('../../constants');
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
 const practitionerRoleResource = require('./fixtures/providers/practitioner_role.json');
+const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 const async = require('async');
 
 const request = supertest(app);
@@ -85,12 +86,12 @@ describe('Practitioner Integration Tests', () => {
           .get('/4_0_0/Practitioner')
           .set('Content-Type', 'application/fhir+json')
           .set('Accept', 'application/fhir+json')
-          .expect(200, (err, resp) => {
+          .expect(200, cb)
+          .expect((resp) => {
             console.log('------- response 5 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
-            return cb(err, resp);
-          }),
+          }, cb),
       ],
         (err, results) => {
           console.log('done');
