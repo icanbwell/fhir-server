@@ -30,42 +30,8 @@ describe('Practitioner Integration Tests', () => {
     await connection.close();
   });
 
-  describe('Provider Files', () => {
-    // test('invalid payloads should return a 400 with OperationOutcome', (done) => {
-    //   request
-    //     .post('/4_0_0/Practitioner')
-    //     .send({ resourceType: 'Practitioner', valid: false })
-    //     .set('Content-Type', 'application/fhir+json')
-    //     .set('Accept', 'application/fhir+json')
-    //     .end((err, resp) => {
-    //       expect(err).toBeNull();
-    //       expect(resp.status).toBe(400);
-    //       expect(resp.body).toMatchObject({
-    //         resourceType: 'OperationOutcome',
-    //         issue: [
-    //           {
-    //             severity: 'error',
-    //             code: 'invalid',
-    //             details: {
-    //               text:
-    //                 '/4_0_0/Practitioner should NOT have additional properties :{"additionalProperty":"valid"}: at position root',
-    //             },
-    //           },
-    //           {
-    //             severity: 'error',
-    //             code: 'invalid',
-    //             details: {
-    //               text:
-    //                 '/4_0_0/Practitioner should match exactly one schema in oneOf :{"passingSchemas":null}: at position root',
-    //             },
-    //           },
-    //         ],
-    //       });
-    //       done();
-    //     });
-    // });
-
-    test('valid paylaods return 201 with header describing location', (done) => {
+  describe('Practitioner Integration Tests', () => {
+    test('Provider Files Loads', (done) => {
       request
         .post('/4_0_0/Practitioner')
         .send(practitionerResource)
