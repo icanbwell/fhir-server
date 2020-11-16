@@ -40,71 +40,36 @@ describe('Practitioner Integration Tests', () => {
             .get('/4_0_0/Practitioner')
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .end((err, resp) => {
-              console.log('------- response 1 ------------');
-              console.log(JSON.stringify(resp.body, null, 2));
-              console.log('------- end response 1 ------------');
-              expect(err).toBeNull();
-              expect(resp.status).toBe(200);
-              // expect(resp.headers.location.includes('4_0_0/Practitioner'));
-              // resourceId = resp.headers.location.split('/Practitioner/')[1];
-              done();
-            }),
-        (results, cb) => {
+            .expect(200, cb),
+        (results, cb) =>
           request
             .post('/4_0_0/Practitioner')
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .end((err, resp) => {
-              expect(err).toBeNull();
-              expect(resp.status).toBe(201);
-              expect(resp.headers.location.includes('4_0_0/Practitioner'));
-              // resourceId = resp.headers.location.split('/Practitioner/')[1];
-              done();
-            });
-        },
-        (results, cb) => {
+            .expect(200, cb),
+        (results, cb) =>
           request
             .post('/4_0_0/PractitionerRole')
             .send(practitionerRoleResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
-            .end((err, resp) => {
-              expect(err).toBeNull();
-              expect(resp.status).toBe(201);
-              expect(resp.headers.location.includes('4_0_0/Practitioner'));
-              // resourceId = resp.headers.location.split('/Practitioner/')[1];
-              done();
-            });
-        },
+            .expect(200, cb),
         (results, cb) => request
           .post('/4_0_0/Location')
           .send(locationResource)
           .set('Content-Type', 'application/fhir+json')
           .set('Accept', 'application/fhir+json')
-          .end((err, resp) => {
-            expect(err).toBeNull();
-            expect(resp.status).toBe(201);
-            expect(resp.headers.location.includes('4_0_0/Practitioner'));
-            // resourceId = resp.headers.location.split('/Practitioner/')[1];
-            done();
-          }),
+          .expect(200, cb),
         (results, cb) => request
           .get('/4_0_0/Practitioner')
           .set('Content-Type', 'application/fhir+json')
           .set('Accept', 'application/fhir+json')
-          .end((err, resp) => {
-            // console.log(JSON.stringify(resp.body, null, 2));
-            expect(err).toBeNull();
-            expect(resp.status).toBe(200);
-            // expect(resp.headers.location.includes('4_0_0/Practitioner'));
-            // resourceId = resp.headers.location.split('/Practitioner/')[1];
-            done();
-          }),
-        (results, cb) => request(app).get('/api/users').expect(200, cb),
+          .expect(200, cb),
       ],
         (err, results) => {
+          console.log('done');
+          done();
         });
     });
   });
