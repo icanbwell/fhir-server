@@ -43,6 +43,7 @@ describe('Practitioner Integration Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              expect(resp.body.length).toBe(0);
               console.log('------- response 1 ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response 1 ------------');
@@ -50,7 +51,7 @@ describe('Practitioner Integration Tests', () => {
             }),
         (results, cb) =>
           request
-            .post('/4_0_0/Practitioner')
+            .put('/4_0_0/Practitioner/4657')
             .send(practitionerResource)
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
