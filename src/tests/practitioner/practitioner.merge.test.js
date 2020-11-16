@@ -30,6 +30,7 @@ describe('Practitioner Integration Tests', () => {
   });
 
   afterAll(async () => {
+    await connection.db.dropDatabase();
     await connection.close();
   });
 

@@ -18,3 +18,4 @@ key.pem
 src/config_new.js
 .vscode
 globalConfig.json
+!/.vscode/launch.json
