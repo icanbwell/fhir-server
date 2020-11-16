@@ -16,8 +16,8 @@ WORKDIR /srv/src
 
 # Copy our package.json & install our dependencies
 COPY package.json /srv/src/package.json
-RUN npm install
-COPY package-lock.json /srv/src/package-lock.json
+RUN cd /srv/src && npm install
+# COPY package-lock.json /srv/src/package-lock.json
 COPY .snyk /srv/src/.snyk
 
 
