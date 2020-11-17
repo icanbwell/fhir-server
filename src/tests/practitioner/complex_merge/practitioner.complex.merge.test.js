@@ -18,8 +18,10 @@ const insurancePractitionerRoleResource = require('./fixtures/insurance/practiti
 const insuranceProviderOrganizationResource = require('./fixtures/insurance/provider_organization.json');
 // scheduler
 const schedulerPractitionerRoleResource = require('./fixtures/scheduler/practitioner_role.json');
+// expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 const expectedPractitionerRoleResource = require('./fixtures/expected/expected_practitioner_role.json');
+const expectedLocationResource = require('./fixtures/expected/expected_location.json');
 const async = require('async');
 
 const request = supertest(app);
@@ -217,6 +219,30 @@ describe('Practitioner Complex Merge Tests', () => {
               delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerRoleResource;
+            expected.forEach(element => {
+              delete element['meta']['lastUpdated'];
+              element['meta'] = { 'versionId': '1' };
+            });
+
+            expect(body).toStrictEqual(expected);
+          }, cb),
+        (results, cb) => request
+          .get('/4_0_0/Location')
+          .set('Content-Type', 'application/fhir+json')
+          .set('Accept', 'application/fhir+json')
+          .expect(200, cb)
+          .expect((resp) => {
+            console.log('------- response Location ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(2);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+              delete element['meta']['lastUpdated'];
+            });
+            let expected = expectedLocationResource;
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
