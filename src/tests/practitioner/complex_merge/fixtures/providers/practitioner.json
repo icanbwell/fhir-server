@@ -33,12 +33,10 @@
     "name": [
         {
             "use": "usual",
-            "family": "AL-ANI MBBS",
+            "text": "NAJJAR  MD, SAMER S.",
+            "family": "NAJJAR  MD",
             "given": [
-                "AWSSE",
-                null
-            ],
-            "suffix": [
+                "SAMER S.",
                 null
             ]
         }

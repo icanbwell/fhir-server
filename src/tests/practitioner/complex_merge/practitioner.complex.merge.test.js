@@ -134,6 +134,18 @@ describe('Practitioner Complex Merge Tests', () => {
               return cb(err, resp);
             }), (results, cb) =>
           request
+            .post('/4_0_0/Practitioner/1679033641/$merge')
+            .send(insurancePractitionerResource)
+            .set('Content-Type', 'application/fhir+json')
+            .set('Accept', 'application/fhir+json')
+            .expect(200, (err, resp) => {
+              console.log('------- response insurancePractitionerResource ------------');
+              console.log(JSON.stringify(resp.body, null, 2));
+              console.log('------- end response  ------------');
+              expect(resp.body['created']).toBe(false);
+              return cb(err, resp);
+            }), (results, cb) =>
+          request
             .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')
             .send(insurancePractitionerRoleResource)
             .set('Content-Type', 'application/fhir+json')
@@ -175,17 +187,17 @@ describe('Practitioner Complex Merge Tests', () => {
           .set('Accept', 'application/fhir+json')
           .expect(200, cb)
           .expect((resp) => {
+            console.log('------- response 5 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 5  ------------');
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             expect(body.length).toBe(1);
             delete body[0]['meta']['lastUpdated'];
             let expected = expectedPractitionerResource;
             // delete expected[0]['meta']['lastUpdated'];
-            expected[0]['meta'] = { 'versionId': '1' };
+            expected[0]['meta'] = { 'versionId': '2' };
             expect(body).toStrictEqual(expected);
-            console.log('------- response 5 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
           }, cb),
       ],
         (err, results) => {
