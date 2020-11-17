@@ -1,5 +1,6 @@
 [
     {
+        "$schema": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/fhir.schema.json",
         "resourceType": "Location",
         "id": "UF3-UADM",
         "meta": {

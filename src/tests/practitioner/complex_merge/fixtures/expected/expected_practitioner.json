@@ -1,5 +1,6 @@
 [
     {
+        "$schema": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/fhir.schema.json",
         "resourceType": "Practitioner",
         "id": "1679033641",
         "identifier": [

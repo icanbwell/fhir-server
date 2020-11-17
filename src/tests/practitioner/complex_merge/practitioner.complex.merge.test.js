@@ -201,6 +201,7 @@ describe('Practitioner Complex Merge Tests', () => {
             delete body[0]['meta']['lastUpdated'];
             let expected = expectedPractitionerResource;
             // delete expected[0]['meta']['lastUpdated'];
+            delete expected[0]['$schema'];
             expected[0]['meta'] = { 'versionId': '2' };
             expect(body).toStrictEqual(expected);
           }, cb),
@@ -224,6 +225,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
+              delete element['$schema'];
             });
 
             expect(body).toStrictEqual(expected);
@@ -248,6 +250,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
+              delete element['$schema'];
             });
 
             expect(body).toStrictEqual(expected);
@@ -272,6 +275,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
+              delete element['$schema'];
             });
 
             expect(body).toStrictEqual(expected);
@@ -296,6 +300,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
+              delete element['$schema'];
             });
 
             expect(body).toStrictEqual(expected);
