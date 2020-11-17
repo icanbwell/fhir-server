@@ -44,7 +44,8 @@
     "telecom": [
         {
             "system": "email",
-            "use": "work"
+            "use": "work",
+            "value": "foo@foo.com"
         }
     ],
     "gender": "unknown",
@@ -58,7 +59,9 @@
                     }
                 ]
             },
-            "period": {}
+            "period": {
+                "end": "2021-11-12"
+            }
         }
     ],
     "communication": [
