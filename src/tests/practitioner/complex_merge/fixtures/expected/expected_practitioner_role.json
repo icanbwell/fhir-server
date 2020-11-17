@@ -29,9 +29,9 @@
             {
                 "coding": [
                     {
-                        "system": "https://www.medstarhealth.org/",
-                        "code": "",
-                        "display": ""
+                        "system": "http://snomed.info/sct",
+                        "code": "408475000",
+                        "display": "Diabetic medicine"
                     }
                 ],
                 "text": ""

@@ -55,7 +55,8 @@
                 "code": {
                     "coding": [
                         {
-                            "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                            "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030",
+                            "code": "MD"
                         }
                     ]
                 },
@@ -66,6 +67,7 @@
             {
                 "coding": [
                     {
+                        "code": "en",
                         "system": "urn:ietf:bcp:47"
                     }
                 ]
