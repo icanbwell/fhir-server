@@ -18,7 +18,8 @@ const insurancePractitionerRoleResource = require('./fixtures/insurance/practiti
 const insuranceProviderOrganizationResource = require('./fixtures/insurance/provider_organization.json');
 // scheduler
 const schedulerPractitionerRoleResource = require('./fixtures/scheduler/practitioner_role.json');
-const expectedPractitionerResource = require('./fixtures/expected_practitioner.json');
+const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
+const expectedPractitionerRoleResource = require('./fixtures/expected/expected_practitioner_role.json');
 const async = require('async');
 
 const request = supertest(app);
@@ -187,9 +188,9 @@ describe('Practitioner Complex Merge Tests', () => {
           .set('Accept', 'application/fhir+json')
           .expect(200, cb)
           .expect((resp) => {
-            console.log('------- response 5 ------------');
+            console.log('------- response Practitioner ------------');
             console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
+            console.log('------- end response  ------------');
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             expect(body.length).toBe(1);
@@ -197,6 +198,30 @@ describe('Practitioner Complex Merge Tests', () => {
             let expected = expectedPractitionerResource;
             // delete expected[0]['meta']['lastUpdated'];
             expected[0]['meta'] = { 'versionId': '2' };
+            expect(body).toStrictEqual(expected);
+          }, cb),
+        (results, cb) => request
+          .get('/4_0_0/PractitionerRole')
+          .set('Content-Type', 'application/fhir+json')
+          .set('Accept', 'application/fhir+json')
+          .expect(200, cb)
+          .expect((resp) => {
+            console.log('------- response PractitionerRole ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(3);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+              delete element['meta']['lastUpdated'];
+            });
+            let expected = expectedPractitionerRoleResource;
+            expected.forEach(element => {
+              delete element['meta']['lastUpdated'];
+              element['meta'] = { 'versionId': '1' };
+            });
+
             expect(body).toStrictEqual(expected);
           }, cb),
       ],
