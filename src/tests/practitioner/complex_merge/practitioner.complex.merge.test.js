@@ -23,6 +23,7 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedPractitionerRoleResource = require('./fixtures/expected/expected_practitioner_role.json');
 const expectedLocationResource = require('./fixtures/expected/expected_location.json');
 const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
+const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
 const async = require('async');
 
 const request = supertest(app);
@@ -268,6 +269,30 @@ describe('Practitioner Complex Merge Tests', () => {
               delete element['meta']['lastUpdated'];
             });
             let expected = expectedOrganizationResource;
+            expected.forEach(element => {
+              delete element['meta']['lastUpdated'];
+              element['meta'] = { 'versionId': '1' };
+            });
+
+            expect(body).toStrictEqual(expected);
+          }, cb),
+        (results, cb) => request
+          .get('/4_0_0/InsurancePlan')
+          .set('Content-Type', 'application/fhir+json')
+          .set('Accept', 'application/fhir+json')
+          .expect(200, cb)
+          .expect((resp) => {
+            console.log('------- response InsurancePlan ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(1);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+              delete element['meta']['lastUpdated'];
+            });
+            let expected = expectedInsurancePlanResource;
             expected.forEach(element => {
               delete element['meta']['lastUpdated'];
               element['meta'] = { 'versionId': '1' };
