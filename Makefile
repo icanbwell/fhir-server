@@ -124,3 +124,7 @@ nginx:
 .PHONY:run
 run:
 	kubectl expose deployment hello-world --type=NodePort --name=example-service
+
+.PHONY:mongoclient
+mongoclient:
+	kubectl exec --stdin --tty deployment.apps/mongoclient --namespace=nodefhirservermongo -- /bin/bash
