@@ -39,6 +39,7 @@
         "state": "MD",
         "postalCode": "21218"
     },
+    "status": "active",
     "position": {
         "longitude": 42.256500,
         "latitude": -83.694710
