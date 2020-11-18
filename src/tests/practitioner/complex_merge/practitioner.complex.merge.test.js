@@ -343,7 +343,7 @@ describe('Practitioner Complex Merge Tests', () => {
               if ('$schema' in element) {
                 delete element['$schema'];
               }
-              if ('status' in element){
+              if ('status' in element) {
                 delete element['status']; //TODO: Not sure why we are not seeing this
               }
             });
@@ -393,9 +393,13 @@ describe('Practitioner Complex Merge Tests', () => {
             });
             let expected = expectedHealthcareServiceResource;
             expected.forEach(element => {
-              delete element['meta']['lastUpdated'];
+              if ('meta' in element) {
+                delete element['meta']['lastUpdated'];
+              }
               element['meta'] = { 'versionId': '1' };
-              delete element['$schema'];
+              if ('$schema' in element) {
+                delete element['$schema'];
+              }
             });
 
             expect(body).toStrictEqual(expected);
