@@ -286,9 +286,13 @@ describe('Practitioner Complex Merge Tests', () => {
             });
             let expected = expectedPractitionerRoleResource;
             expected.forEach(element => {
-              delete element['meta']['lastUpdated'];
+              if ('meta' in element) {
+                delete element['meta']['lastUpdated'];
+              }
               element['meta'] = { 'versionId': '1' };
-              delete element['$schema'];
+              if ('$schema' in element) {
+                delete element['$schema'];
+              }
             });
 
             expect(body).toStrictEqual(expected);
@@ -311,9 +315,13 @@ describe('Practitioner Complex Merge Tests', () => {
             });
             let expected = expectedLocationResource;
             expected.forEach(element => {
-              delete element['meta']['lastUpdated'];
+              if ('meta' in element) {
+                delete element['meta']['lastUpdated'];
+              }
               element['meta'] = { 'versionId': '1' };
-              delete element['$schema'];
+              if ('$schema' in element) {
+                delete element['$schema'];
+              }
             });
 
             expect(body).toStrictEqual(expected);
@@ -365,9 +373,13 @@ describe('Practitioner Complex Merge Tests', () => {
             });
             let expected = expectedInsurancePlanResource;
             expected.forEach(element => {
-              delete element['meta']['lastUpdated'];
+              if ('meta' in element) {
+                delete element['meta']['lastUpdated'];
+              }
               element['meta'] = { 'versionId': '1' };
-              delete element['$schema'];
+              if ('$schema' in element) {
+                delete element['$schema'];
+              }
             });
 
             expect(body).toStrictEqual(expected);
