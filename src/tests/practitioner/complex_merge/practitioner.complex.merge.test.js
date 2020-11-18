@@ -39,8 +39,17 @@ describe('Practitioner Complex Merge Tests', () => {
     connection = await MongoClient.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      server: {
+        auto_reconnect: true,
+        socketOptions: {
+
+          keepAlive: 1,
+          connectTimeoutMS: 60000,
+          socketTimeoutMS: 60000,
+        }
+      }
     });
-    db = await connection.db();
+    db = connection.db();
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
@@ -110,6 +119,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insuranceOrganizationResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -122,6 +134,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insurancePlanLocationResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -134,6 +149,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insurancePlanResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -146,6 +164,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insurancePractitionerResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -158,6 +179,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insurancePractitionerRoleResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -170,6 +194,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response insuranceProviderOrganizationResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -182,6 +209,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response schedulerPractitionerRoleResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
@@ -194,6 +224,9 @@ describe('Practitioner Complex Merge Tests', () => {
             .set('Content-Type', 'application/fhir+json')
             .set('Accept', 'application/fhir+json')
             .expect(200, (err, resp) => {
+              if (err) {
+                console.log(err);
+              }
               console.log('------- response schedulerHealthcareServiceResource ------------');
               console.log(JSON.stringify(resp.body, null, 2));
               console.log('------- end response  ------------');
