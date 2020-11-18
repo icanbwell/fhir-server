@@ -10,15 +10,21 @@
                 }
             ]
         }
-    ],    
+    ],
+    "status": "active",
     "identifier": [
         {
             "type": {
-                "coding": [{
-                    "code": "FI"
-                }]
+                "coding": [
+                    {
+                        "code": "FI"
+                    }
+                ]
             },
             "value": "MWHC"
         }
+    ],
+    "alias": [
+        "consumer_friendly_name"
     ]
 }

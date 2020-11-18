@@ -58,6 +58,10 @@
                 },
                 "value": "MWHC"
             }
+        ],
+        "status": "active",
+        "alias": [
+            "consumer_friendly_name"
         ]
     },
     {
