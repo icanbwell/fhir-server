@@ -1,0 +1,17 @@
+{
+    "resourceType": "Organization",
+    "id": "MWHC_Department",
+    "identifier": [
+        {
+            "type": {
+                "coding": [{
+                    "code": "FI"
+                }]
+            },
+            "value": "MWHC_Department"
+        }
+    ],
+    "partOf":{
+        "reference": "Organization/MWHC"
+    }
+}
