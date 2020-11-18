@@ -1,17 +1,29 @@
 {
     "resourceType": "Organization",
     "id": "MWHC_Department",
+    "type": [
+        {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+                    "code": "dept"
+                }
+            ]
+        }
+    ],
     "identifier": [
         {
             "type": {
-                "coding": [{
-                    "code": "FI"
-                }]
+                "coding": [
+                    {
+                        "code": "FI"
+                    }
+                ]
             },
             "value": "MWHC_Department"
         }
     ],
-    "partOf":{
+    "partOf": {
         "reference": "Organization/MWHC"
     }
 }
