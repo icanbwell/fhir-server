@@ -1,5 +1,5 @@
 images:
-  node_fhir_server_mongo_image: imranq2/node-fhir-server-mongo:1.2.13
+  node_fhir_server_mongo_image: imranq2/node-fhir-server-mongo:1.2.21
 
 # whether to include mondgo pods and services
 include_mongo: true
