@@ -1,11 +1,11 @@
-{{ if .Values.aws }}
+{{ if .Values.foo }}
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
     external-dns.alpha.kubernetes.io/hostname: fhir.dev.icanbwell.com
 # maps the fhirserverpublic Service in the nodefhirservermongo namespace to fhir.dev.icanbwell.com   
-  name: fhirserverpublic
+  name: fhir-server
 # namespace should match other services in this file  
   namespace: nodefhirservermongo  
 spec:
@@ -13,11 +13,4 @@ spec:
   externalName: fhir.dev.icanbwell.com
   sessionAffinity: None
   type: ExternalName
-  ports:
-    - name: http
-      port: 80
-      targetPort: 3000
-      protocol: TCP
-  selector:
-    io.kompose.service: fhir
 {{ end }}

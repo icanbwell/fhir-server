@@ -135,8 +135,15 @@ logs:
 	kubectl config use-context arn:aws:eks:us-east-1:875300655693:cluster/dev-eks-cluster && \
 	kubectl config current-context && \
 	kubectl cluster-info && \
-	kubectl get all --namespace=nodefhirservermongo && \
+	kubectl --namespace=nodefhirservermongo get all  && \
+	kubectl --namespace=nodefhirservermongo get pods --selector=io.kompose.service=fhir && \
+	kubectl --namespace=nodefhirservermongo get endpoints  && \
 	echo "----------------- Mongo logs -------------" && \
-	kubectl logs deployment.apps/mongo --namespace=nodefhirservermongo && \
+	kubectl --namespace=nodefhirservermongo logs deployment.apps/mongo && \
 	echo "----------------- FHIR logs -------------" && \
-	kubectl logs --follow deployment.apps/fhir --namespace=nodefhirservermongo
+	kubectl --namespace=nodefhirservermongo logs --follow deployment.apps/fhir 
+
+.PHONY:diagnosse
+diagnose:
+	kubectl --namespace=nodefhirservermongo  run client --image=appropriate/curl --rm -ti --restart=Never --command -- curl http://10.100.95.25:3000/4_0_0/metadata
+	kubectl --namespace=nodefhirservermongo logs --previous deployment.apps/fhir 

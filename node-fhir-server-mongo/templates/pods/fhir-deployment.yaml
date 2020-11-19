@@ -59,6 +59,4 @@ spec:
             - containerPort: 3000
               # name of the port
               name: fhir
-          resources: {}
-      restartPolicy: Always
-status: {}
+
