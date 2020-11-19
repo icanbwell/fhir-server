@@ -28,7 +28,7 @@ spec:
         io.kompose.service: fhir
     spec:
       containers:
-        # name of this pod          
+        # name of this pod is      
         - name: fhir
           args:
             - yarn
