@@ -146,7 +146,7 @@ logs:
 .PHONY:diagnose
 diagnose:
 	kubectl get all --all-namespaces
-	kubectl --namespace=nodefhirservermongo  run client --image=appropriate/curl --rm -ti --restart=Never --command -- curl http://fhir:3000/4_0_0/metadata
+	kubectl --namespace=nodefhirservermongo run client --image=appropriate/curl --rm -ti --restart=Never --command -- curl http://fhir:3000/4_0_0/metadata
 	kubectl --namespace=nodefhirservermongo logs --previous deployment.apps/fhir 
 
 .PHONY: busybox
