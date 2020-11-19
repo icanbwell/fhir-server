@@ -35,7 +35,7 @@ kompose:
 
 .PHONY:helm
 helm:
-	helm lint ./node-fhir-server-mongo
+	helm lint --strict ./node-fhir-server-mongo
 	rm ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz
 	helm package ./node-fhir-server-mongo --destination ./releases/node-fhir-server-mongo/ --app-version 1.0 --version 1.0
 
@@ -128,3 +128,15 @@ run:
 .PHONY:mongoclient
 mongoclient:
 	kubectl exec --stdin --tty deployment.apps/mongoclient --namespace=nodefhirservermongo -- /bin/bash
+
+.PHONY:logs
+logs:
+	export KUBECONFIG="${HOME}/.kube/config:${HOME}/.kube/config-dev-eks.config.yaml" && \
+	kubectl config use-context arn:aws:eks:us-east-1:875300655693:cluster/dev-eks-cluster && \
+	kubectl config current-context && \
+	kubectl cluster-info && \
+	kubectl get all --namespace=nodefhirservermongo && \
+	echo "----------------- Mongo logs -------------" && \
+	kubectl logs deployment.apps/mongo --namespace=nodefhirservermongo && \
+	echo "----------------- FHIR logs -------------" && \
+	kubectl logs --follow deployment.apps/fhir --namespace=nodefhirservermongo
