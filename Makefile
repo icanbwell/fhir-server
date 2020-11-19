@@ -145,5 +145,6 @@ logs:
 
 .PHONY:diagnosse
 diagnose:
+	kubectl get all --all-namespaces
 	kubectl --namespace=nodefhirservermongo  run client --image=appropriate/curl --rm -ti --restart=Never --command -- curl http://10.100.95.25:3000/4_0_0/metadata
 	kubectl --namespace=nodefhirservermongo logs --previous deployment.apps/fhir 
