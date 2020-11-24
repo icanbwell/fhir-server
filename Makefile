@@ -150,8 +150,6 @@ logs:
 	kubectl --namespace=nodefhirservermongo get all  && \
 	kubectl --namespace=nodefhirservermongo get pods --selector=io.kompose.service=fhir && \
 	kubectl --namespace=nodefhirservermongo get endpoints  && \
-	echo "----------------- Mongo logs -------------" && \
-	kubectl --namespace=nodefhirservermongo logs deployment.apps/mongo && \
 	echo "----------------- FHIR logs -------------" && \
 	kubectl --namespace=nodefhirservermongo logs --follow deployment.apps/fhir 
 

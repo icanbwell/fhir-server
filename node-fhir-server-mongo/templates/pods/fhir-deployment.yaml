@@ -12,7 +12,7 @@ metadata:
 # namespace for this pod
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: 3
   revisionHistoryLimit: 3  # Clean-up old Replica Sets deployed; only keep previous 3.  
   selector:
     matchLabels:
