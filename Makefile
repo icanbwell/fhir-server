@@ -94,7 +94,7 @@ deploy_local_to_aws_staging:
 	kubectl config current-context && \
 	kubectl cluster-info && \
 	kubectl get services && \
-	helm upgrade --install --set namespace=fhir-staging --set fhir.replicas=3 --set fhir.mongo_db_name=fhir_staging --set fhir.ingress_name=fhir.staging.icanbwell.com --set include_mongo=false --set use_ingress=true --set aws=true --set mongoPassword=$$mongoPassword node-fhir-server-mongo ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz && \
+	helm upgrade --install --set namespace=fhir-staging --set fhir.replicas=3 --set fhir.mongo_db_name=fhir_staging --set fhir.ingress_name=fhir.staging.icanbwell.com --set include_mongo=false --set use_ingress=true --set aws=true --set mongoPassword=$$mongoPassword fhir-staging ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz && \
 	helm ls && \
 	kubectl get services && \
 	kubectl get all --namespace=fhir-staging && \
