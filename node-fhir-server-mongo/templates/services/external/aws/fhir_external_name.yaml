@@ -1,4 +1,4 @@
-{{ if .Values.foo }}
+{{ if .Values.aws }}
 apiVersion: v1
 kind: Service
 metadata:
