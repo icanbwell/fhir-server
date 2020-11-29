@@ -23,12 +23,30 @@ let getMeta = (base_version) => {
 let logInfo = (msg) => logger.info(msg);
 // let logInfo = () => { };
 
+const {
+    stringQueryBuilder,
+    // tokenQueryBuilder,
+    // referenceQueryBuilder,
+    // addressQueryBuilder,
+    nameQueryBuilder,
+    // dateQueryBuilder,
+} = require('../../utils/querybuilder.util');
+
 
 let buildR4SearchQuery = (resource_name, args) => {
     // Common search params
     let { id } = args;
     let patient = args['patient'];
     let practitioner = args['practitioner'];
+    let organization = args['organization'];
+    let location = args['location'];
+    let healthcareService = args['healthcareService'];
+    let name = args['name'];
+
+    let address_city = args['address-city'];
+    let address_country = args['address-country'];
+    let address_postalcode = args['address-postalcode'];
+    let address_state = args['address-state'];
 
     // Search Result params
 
@@ -75,6 +93,84 @@ let buildR4SearchQuery = (resource_name, args) => {
         else {
             logger.error(`No mapping for searching by practitioner for ${resource_name}: `);
         }
+    }
+    if (organization) {
+        const organization_reference = 'Organization/' + organization;
+        // each Resource type has a different place to put the patient info
+        if (['Organization'].includes(resource_name)) {
+            query.id = organization;
+        }
+        else if (['HealthcareService'].includes(resource_name)) {
+            query['providedBy.reference'] = organization_reference;
+        }
+        else if (['InsurancePlan'].includes(resource_name)) {
+            query['ownedBy.reference'] = organization_reference;
+        }
+        else if (['PractitionerRole'].includes(resource_name)) {
+            query['organization.reference'] = organization_reference;
+        }
+        else {
+            logger.error(`No mapping for searching by organization for ${resource_name}: `);
+        }
+    }
+    if (location) {
+        const location_reference = 'Location/' + location;
+        // each Resource type has a different place to put the patient info
+        if (['Location'].includes(resource_name)) {
+            query.id = location;
+        }
+        else if (['PractitionerRole'].includes(resource_name)) {
+            query['location.reference'] = location_reference;
+        }
+        else {
+            logger.error(`No mapping for searching by location for ${resource_name}: `);
+        }
+    }
+    if (healthcareService) {
+        const healthcareService_reference = 'HealthcareService/' + healthcareService;
+        // each Resource type has a different place to put the patient info
+        if (['HealthcareService'].includes(resource_name)) {
+            query.id = healthcareService;
+        }
+        else if (['PractitionerRole'].includes(resource_name)) {
+            query['healthcareService.reference'] = healthcareService_reference;
+        }
+        else {
+            logger.error(`No mapping for searching by healthcareService for ${resource_name}: `);
+        }
+    }
+    if (name) {
+        if (['Practitioner'].includes(resource_name)) {
+            let ors = [];
+
+            if (name) {
+                let orsName = nameQueryBuilder(name);
+                for (let i = 0; i < orsName.length; i++) {
+                    ors.push(orsName[i]);
+                }
+            }
+            if (ors.length !== 0) {
+                query.$and = ors;
+            }
+        }
+        else {
+            query.name = name;
+        }
+    }
+    if (address_city) {
+        query['address.city'] = stringQueryBuilder(address_city);
+    }
+
+    if (address_country) {
+        query['address.country'] = stringQueryBuilder(address_country);
+    }
+
+    if (address_postalcode) {
+        query['address.postalCode'] = stringQueryBuilder(address_postalcode);
+    }
+
+    if (address_state) {
+        query['address.state'] = stringQueryBuilder(address_state);
     }
 
     if (active) {
