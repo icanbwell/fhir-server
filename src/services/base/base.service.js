@@ -42,6 +42,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     let location = args['location'];
     let healthcareService = args['healthcareService'];
     let name = args['name'];
+    let family = args['family'];
 
     let address_city = args['address-city'];
     let address_country = args['address-country'];
@@ -154,9 +155,13 @@ let buildR4SearchQuery = (resource_name, args) => {
             }
         }
         else {
-            query.name = name;
+            query['name'] = stringQueryBuilder(name);
         }
     }
+    if (family) {
+        query['name.family'] = stringQueryBuilder(family);
+    }
+
     if (address_city) {
         query['address.city'] = stringQueryBuilder(address_city);
     }
