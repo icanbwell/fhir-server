@@ -28,6 +28,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     // Common search params
     let { id } = args;
     let patient = args['patient'];
+    let practitioner = args['practitioner'];
 
     // Search Result params
 
@@ -60,6 +61,19 @@ let buildR4SearchQuery = (resource_name, args) => {
         }
         else {
             logger.error(`No mapping for searching by patient for ${resource_name}: `);
+        }
+    }
+    if (practitioner) {
+        const practitioner_reference = 'Practitioner/' + practitioner;
+        // each Resource type has a different place to put the patient info
+        if (['Practitioner'].includes(resource_name)) {
+            query.id = practitioner;
+        }
+        else if (['PractitionerRole'].includes(resource_name)) {
+            query['practitioner.reference'] = practitioner_reference;
+        }
+        else {
+            logger.error(`No mapping for searching by practitioner for ${resource_name}: `);
         }
     }
 
@@ -592,7 +606,70 @@ module.exports.everything = (args, context, resource_name) => {
     return new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> everything`);
         try {
-            // execute whatever custom operation you want.
+            let { base_version, id } = args;
+
+            logInfo(`Everything id=${id}`);
+
+            // for now we only support Practitioner
+            let query = {};
+            query.id = id;
+            // TODO: Build query from Parameters
+
+            // TODO: Query database
+            // Grab an instance of our DB and collection
+            let db = globals.get(CLIENT_DB);
+            var collection_name = 'Practitioner_4_0_0';
+            var collection = db.collection(`${collection_name}_${base_version}`);
+            let Resource = getResource(base_version, resource_name);
+
+            collection.findOne({ id: id.toString() }, (err, resource) => {
+                if (err) {
+                    logger.error(`Error with ${resource_name}.searchById: `, err);
+                    return reject(err);
+                }
+                if (resource) {
+                    var resources = [];
+                    var entries = [];
+                    // now look for practitioner_role
+                    collection_name = 'PractitionerRole_4_0_0';
+                    collection = db.collection(`${collection_name}_${base_version}`);
+                    query = {};
+                    const practitioner_reference = 'Practitioner/' + id;
+                    query['patient.reference'] = practitioner_reference;
+                    collection.find(query, (err_pr, data) => {
+                        if (err_pr) {
+                            logger.error(`Error with ${resource_name}.search: `, err);
+                            return reject(err);
+                        }
+                        // Resource is a resource cursor, pull documents out before resolving
+                        data.toArray().then((my_resources) => {
+                            my_resources.forEach(function (element, i, returnArray) {
+                                returnArray[i] = new Resource(element);
+                            });
+                            resources = resources.concat(my_resources);
+                            entries = resources.map(
+                                x => {
+                                    const entry = {
+                                        'resource': new Resource(x)
+                                    };
+                                    return entry;
+                                }
+                            );
+                            // create a bundle
+                            resolve(
+                                {
+                                    'resourceType': 'Bundle',
+                                    'id': 'bundle-example',
+                                    'entry': entries
+                                });
+                        });
+                    });
+                }
+                resolve();
+            });
+
+
+
             resolve([]);
         } catch (err) {
             reject(err);
