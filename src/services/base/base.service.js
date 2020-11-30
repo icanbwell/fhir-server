@@ -719,7 +719,7 @@ module.exports.everything = (args, context, resource_name) => {
             // TODO: Query database
             // Grab an instance of our DB and collection
             let db = globals.get(CLIENT_DB);
-            var collection_name = 'Practitioner_4_0_0';
+            var collection_name = 'Practitioner';
             var collection = db.collection(`${collection_name}_${base_version}`);
             let Resource = getResource(base_version, resource_name);
 
@@ -732,11 +732,12 @@ module.exports.everything = (args, context, resource_name) => {
                     var resources = [];
                     var entries = [];
                     // now look for practitioner_role
-                    collection_name = 'PractitionerRole_4_0_0';
+                    collection_name = 'PractitionerRole';
                     collection = db.collection(`${collection_name}_${base_version}`);
+                    Resource = getResource(base_version, 'PractitionerRole');
                     query = {};
                     const practitioner_reference = 'Practitioner/' + id;
-                    query['patient.reference'] = practitioner_reference;
+                    query['practitioner.reference'] = practitioner_reference;
                     collection.find(query, (err_pr, data) => {
                         if (err_pr) {
                             logger.error(`Error with ${resource_name}.search: `, err);
@@ -751,7 +752,8 @@ module.exports.everything = (args, context, resource_name) => {
                             entries = resources.map(
                                 x => {
                                     const entry = {
-                                        'resource': new Resource(x)
+                                        'link': `${x.resourceType}/${x.id}`,
+                                        'resource': x
                                     };
                                     return entry;
                                 }
@@ -766,12 +768,10 @@ module.exports.everything = (args, context, resource_name) => {
                         });
                     });
                 }
-                resolve();
+                else {
+                    resolve();
+                }
             });
-
-
-
-            resolve([]);
         } catch (err) {
             reject(err);
         }
