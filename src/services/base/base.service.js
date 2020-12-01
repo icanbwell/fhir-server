@@ -583,7 +583,11 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                 logInfo('------ end found document --------');
 
                 // use metadata of existing resource (overwrite any passed in metadata)
-                resource_incoming.meta = foundResource.meta;
+                if (!resource_incoming.meta) {
+                    resource_incoming.meta = {};
+                }
+                resource_incoming.meta.versionId = foundResource.meta.versionId;
+                resource_incoming.meta.lastUpdated = foundResource.meta.lastUpdated;
                 logInfo('------ incoming document --------');
                 logInfo(resource_incoming);
                 logInfo('------ end incoming document --------');
@@ -661,12 +665,19 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
             } else {
                 // not found so insert
                 logInfo('new resource: ' + data);
-                // create the metadata
-                let Meta = getMeta(base_version);
-                resource_incoming.meta = new Meta({
-                    versionId: '1',
-                    lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
-                });
+                if (!resource_incoming.meta) {
+                    // create the metadata
+                    let Meta = getMeta(base_version);
+                    resource_incoming.meta = new Meta({
+                        versionId: '1',
+                        lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
+                    });
+                }
+                else {
+                    resource_incoming.meta.versionId = '1';
+                    resource_incoming.meta.lastUpdated = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+                }
+
                 cleaned = JSON.parse(JSON.stringify(resource_incoming));
                 doc = Object.assign(cleaned, { _id: id });
             }

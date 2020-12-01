@@ -87,7 +87,7 @@ describe('Practitioner Merge Tests', () => {
             delete body[0]['meta']['lastUpdated'];
             let expected = expectedPractitionerResource;
             delete expected[0]['meta']['lastUpdated'];
-            expected[0]['meta']['versionId'] = '2';
+            expected[0]['meta']['versionId'] = '1';
             expect(body).toStrictEqual(expected);
             console.log('------- response 5 ------------');
             console.log(JSON.stringify(resp.body, null, 2));

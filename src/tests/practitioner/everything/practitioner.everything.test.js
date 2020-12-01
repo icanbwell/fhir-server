@@ -351,7 +351,7 @@ describe('Practitioner Everything Tests', () => {
             let expected = expectedPractitionerResource;
             // delete expected[0]['meta']['lastUpdated'];
             delete expected[0]['$schema'];
-            expected[0]['meta'] = { 'versionId': '2' };
+            expected[0]['meta'] = { 'versionId': '1' };
             expect(body).toStrictEqual(expected);
           }, cb),
         (results, cb) => request
