@@ -8,6 +8,7 @@ const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const { getUuid } = require('../../utils/uid.util');
 const { validate, applyPatch, compare } = require('fast-json-patch');
 const deepmerge = require('deepmerge');
+const deepcopy = require('deepcopy');
 const deepEqual = require('deep-equal');
 // const Validator = require('jsonschema').Validator;
 // const fhirSchema = require('../../fhir_schema/fhir.schema.json');
@@ -615,7 +616,7 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
 
                 mergeObjectOrArray = (item1, item2) => {
                     if (Array.isArray(item1)) {
-                        var result_array = item1;
+                        var result_array = deepcopy(item1); // deep copy so we don't change the original object
                         // see if items are equal then skip them
                         for (var i = 0; i < item2.length; i++) {
                             let my_item = item2[i];
@@ -629,6 +630,8 @@ module.exports.merge = (args, { req }, resource_name, collection_name) =>
                     return deepmerge(item1, item2, options);
                 };
 
+                // data seems to get updated below
+                // const data_copy = deepcopy(data);
                 let resource_merged = deepmerge(data, resource_incoming, options);
 
                 // now create a patch between the document in db and the incoming document
