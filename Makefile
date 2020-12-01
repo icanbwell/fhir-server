@@ -1,3 +1,7 @@
+.PHONY:build
+build:
+	docker build .
+
 .PHONY:up
 up:
 	docker-compose -p node-fhir-server-mongo -f docker-compose.yml up --detach
