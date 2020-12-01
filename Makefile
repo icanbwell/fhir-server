@@ -114,12 +114,12 @@ deploy_local_to_aws_pre-prod:
 	kubectl config current-context && \
 	kubectl cluster-info && \
 	kubectl get services && \
-	helm upgrade --install --set namespace=fhir-pre-prod --set fhir.replicas=3 --set fhir.mongo_db_name=fhir_pre_prod --set fhir.ingress_name=fhir-pre-prod.dev.icanbwell.com --set include_mongo=false --set use_ingress=true --set aws=true --set mongoPassword=$$mongoPassword fhir-staging ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz && \
+	helm upgrade --install --set namespace=fhir-pre-prod --set fhir.replicas=3 --set fhir.mongo_db_name=fhir_pre_prod --set fhir.ingress_name=fhir-pre-prod.dev.icanbwell.com --set include_mongo=false --set use_ingress=true --set aws=true --set mongoPassword=$$mongoPassword fhir-pre-prod ./releases/node-fhir-server-mongo/node-fhir-server-mongo-1.0.tgz && \
 	helm ls && \
 	kubectl get services && \
-	kubectl get all --namespace=fhir-staging && \
-	kubectl get deployment.apps/fhir --namespace=fhir-staging -o yaml && \
-	kubectl logs deployment.apps/fhir --namespace=fhir-staging
+	kubectl get all --namespace=fhir-pre-prod && \
+	kubectl get deployment.apps/fhir --namespace=fhir-pre-prod -o yaml && \
+	kubectl logs deployment.apps/fhir --namespace=fhir-pre-prod
 
 .PHONY: deploy_to_aws
 deploy_to_aws:
