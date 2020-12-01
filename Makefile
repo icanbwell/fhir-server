@@ -189,7 +189,7 @@ logs-dev:
 	kubectl --namespace=nodefhirservermongo get pods --selector=io.kompose.service=fhir && \
 	kubectl --namespace=nodefhirservermongo get endpoints  && \
 	echo "----------------- FHIR logs -------------" && \
-	kubectl --namespace=nodefhirservermongo logs --follow deployment.apps/fhir 
+	kubectl --namespace=nodefhirservermongo logs --follow deployment.apps/fhir
 
 .PHONY:logs-staging
 logs-staging:
@@ -202,7 +202,7 @@ logs-staging:
 	kubectl --namespace=fhir-staging get pods --selector=io.kompose.service=fhir && \
 	kubectl --namespace=fhir-staging get endpoints  && \
 	echo "----------------- FHIR logs -------------" && \
-	kubectl --namespace=fhir-staging logs --follow deployment.apps/fhir 
+	kubectl --namespace=fhir-staging logs --follow deployment.apps/fhir
 
 .PHONY:logs-pre-prod
 logs-pre-prod:
@@ -215,13 +215,13 @@ logs-pre-prod:
 	kubectl --namespace=fhir-pre-prod get pods --selector=io.kompose.service=fhir && \
 	kubectl --namespace=fhir-pre-prod get endpoints  && \
 	echo "----------------- FHIR logs -------------" && \
-	kubectl --namespace=fhir-pre-prod logs --follow deployment.apps/fhir 
+	kubectl --namespace=fhir-pre-prod logs --follow deployment.apps/fhir
 
 .PHONY:diagnose
 diagnose:
 	kubectl get all --all-namespaces
 	kubectl --namespace=nodefhirservermongo run client --image=appropriate/curl --rm -ti --restart=Never --command -- curl http://fhir:3000/4_0_0/metadata
-	kubectl --namespace=nodefhirservermongo logs --previous deployment.apps/fhir 
+	kubectl --namespace=nodefhirservermongo logs --previous deployment.apps/fhir
 	kubectl --namespace=nodefhirservermongo delete pod/fhir-84d98fdf6d-4bsrz
 
 .PHONY: busybox
