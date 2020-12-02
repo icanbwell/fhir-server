@@ -689,7 +689,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     }
 
     if (Array.isArray(resources_incoming)) {
-        logInfo( resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ');
+        logInfo( '==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
         await Promise.all(resources_incoming.map(async x => merge_resource(x)));
     } else {
         return await merge_resource(resources_incoming);
