@@ -12,7 +12,7 @@ use_ingress: false
 aws: false
 
 mongoPassword: ""
-namespace: "nodefhirservermongo"
+namespace: "fhir-dev"
 
 fhir:
   replicas: 3
