@@ -148,7 +148,7 @@ app.get('/index', async (req, res) => {
     } else {
         //create client by providing database name
         const db = client.db(mongoConfig.db_name);
-        var collection_names = [];
+        const collection_names = [];
         // const collections = await db.listCollections().toArray();
 
         await db.listCollections().forEach(collection => {

@@ -730,80 +730,66 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-module.exports.everything = (args, {req}, resource_name) => {
-    return new Promise((resolve, reject) => {
-        logInfo(`${resource_name} >>> everything`);
-        try {
-            let {base_version, id} = args;
+module.exports.everything = async (args, {req}, resource_name) => {
+    logInfo(`${resource_name} >>> everything`);
+    try {
+        let {base_version, id} = args;
 
-            logInfo(`id=${id}`);
-            logInfo(`req=${req}`);
+        logInfo(`id=${id}`);
+        logInfo(`req=${req}`);
 
-            const host = req.headers.host;
-            // for now we only support Practitioner
-            let query = {};
-            query.id = id;
-            // Grab an instance of our DB and collection
-            let db = globals.get(CLIENT_DB);
-            let collection_name = 'Practitioner';
-            let collection = db.collection(`${collection_name}_${base_version}`);
-            let Resource = getResource(base_version, resource_name);
+        const host = req.headers.host;
+        // for now we only support Practitioner
+        let query = {};
+        query.id = id;
+        // Grab an instance of our DB and collection
+        let db = globals.get(CLIENT_DB);
+        let collection_name = 'Practitioner';
+        let collection = db.collection(`${collection_name}_${base_version}`);
+        const PractitionerResource = getResource(base_version, resource_name);
 
-            collection.findOne({id: id.toString()}, (err, resource) => {
-                if (err) {
-                    logger.error(`Error with ${resource_name}.searchById: `, err);
-                    return reject(err);
-                }
-                if (resource) {
-                    let resources = [];
-                    let entries = [{
-                        'link': `https://${host}/${base_version}/${resource.resourceType}/${resource.id}`,
-                        'resource': resource
-                    }];
-                    // now look for practitioner_role
-                    collection_name = 'PractitionerRole';
-                    collection = db.collection(`${collection_name}_${base_version}`);
-                    Resource = getResource(base_version, 'PractitionerRole');
-                    query = {};
-                    query['practitioner.reference'] = 'Practitioner/' + id;
-                    collection.find(query, (err_pr, data) => {
-                        if (err_pr) {
-                            logger.error(`Error with ${resource_name}.search: `, err);
-                            return reject(err);
-                        }
-                        // Resource is a resource cursor, pull documents out before resolving
-                        data.toArray().then((my_resources) => {
-                            my_resources.forEach(function (element, i, returnArray) {
-                                returnArray[i] = new Resource(element);
-                            });
-                            resources = resources.concat(my_resources);
-                            entries = entries.concat(
-                                resources.map(
-                                    x => {
-                                        return {
-                                            'link': `https://${host}/${base_version}/${x.resourceType}/${x.id}`,
-                                            'resource': x
-                                        };
-                                    }
-                                )
-                            );
-                            // create a bundle
-                            resolve(
-                                {
-                                    'resourceType': 'Bundle',
-                                    'id': 'bundle-example',
-                                    'entry': entries
-                                });
-                        });
-                    });
-                } else {
-                    resolve();
-                }
-            });
-        } catch (err) {
-            reject(err);
+        let resource = await collection.findOne({id: id.toString()});
+        if (resource) {
+            // first add the Practitioner
+            let entries = [{
+                'link': `https://${host}/${base_version}/${resource.resourceType}/${resource.id}`,
+                'resource': new PractitionerResource(resource)
+            }];
+            // now look for practitioner_role
+            collection_name = 'PractitionerRole';
+            collection = db.collection(`${collection_name}_${base_version}`);
+            const PractitionerRoleResource = getResource(base_version, 'PractitionerRole');
+            query = {};
+            query['practitioner.reference'] = 'Practitioner/' + id;
+            const cursor = await collection.find(query);
+            const items = await cursor.toArray();
+
+            const practitioner_roles = items.map(x => new PractitionerRoleResource(x));
+            entries = entries.concat(
+                practitioner_roles.map(
+                    x => {
+                        return {
+                            'link': `https://${host}/${base_version}/${x.resourceType}/${x.id}`,
+                            'resource': x
+                        };
+                    }
+                )
+            );
+            // now for each PractitionerRole, get the Organization and location
+
+            // create a bundle
+            return (
+                {
+                    'resourceType': 'Bundle',
+                    'id': 'bundle-example',
+                    'entry': entries
+                });
         }
-    });
+
+    } catch (err) {
+        logger.error(`Error with ${resource_name}.searchById: `, err);
+        throw err;
+    }
 };
 
 // eslint-disable-next-line no-unused-vars
