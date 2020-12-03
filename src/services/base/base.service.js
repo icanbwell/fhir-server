@@ -27,9 +27,9 @@ let logInfo = (msg) => logger.info(msg);
 
 const {
     stringQueryBuilder,
-    // tokenQueryBuilder,
+    tokenQueryBuilder,
     // referenceQueryBuilder,
-    // addressQueryBuilder,
+    addressQueryBuilder,
     nameQueryBuilder,
     // dateQueryBuilder,
 } = require('../../utils/querybuilder.util');
@@ -46,17 +46,24 @@ let buildR4SearchQuery = (resource_name, args) => {
     let name = args['name'];
     let family = args['family'];
 
+    let address = args['address'];
     let address_city = args['address-city'];
     let address_country = args['address-country'];
     let address_postalcode = args['address-postalcode'];
     let address_state = args['address-state'];
 
+    let identifier = args['identifier'];
+
+    let gender = args['gender'];
+    let email = args['email'];
+    let phone = args['phone'];
     // Search Result params
 
     // Patient search params
     let active = args['active'];
 
     let query = {};
+    let ors = [];
 
     if (id) {
         query.id = id;
@@ -129,16 +136,11 @@ let buildR4SearchQuery = (resource_name, args) => {
     }
     if (name) {
         if (['Practitioner'].includes(resource_name)) {
-            let ors = [];
-
             if (name) {
                 let orsName = nameQueryBuilder(name);
                 for (let i = 0; i < orsName.length; i++) {
                     ors.push(orsName[i]);
                 }
-            }
-            if (ors.length !== 0) {
-                query.$and = ors;
             }
         } else {
             query['name'] = stringQueryBuilder(name);
@@ -146,6 +148,13 @@ let buildR4SearchQuery = (resource_name, args) => {
     }
     if (family) {
         query['name.family'] = stringQueryBuilder(family);
+    }
+
+    if (address) {
+        let orsAddress = addressQueryBuilder(address);
+        for (let i = 0; i < orsAddress.length; i++) {
+            ors.push(orsAddress[i]);
+        }
     }
 
     if (address_city) {
@@ -164,10 +173,38 @@ let buildR4SearchQuery = (resource_name, args) => {
         query['address.state'] = stringQueryBuilder(address_state);
     }
 
+    if (identifier) {
+        let queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier', '');
+        for (let i in queryBuilder) {
+            query[i] = queryBuilder[i];
+        }
+    }
     if (active) {
         query.active = active === 'true';
     }
 
+    if (gender) {
+        query.gender = gender;
+    }
+
+    // Forces system = 'email'
+    if (email) {
+        let queryBuilder = tokenQueryBuilder(email, 'value', 'telecom', 'email');
+        for (let i in queryBuilder) {
+            query[i] = queryBuilder[i];
+        }
+    }
+
+    // Forces system = 'phone'
+    if (phone) {
+        let queryBuilder = tokenQueryBuilder(phone, 'value', 'telecom', 'phone');
+        for (let i in queryBuilder) {
+            query[i] = queryBuilder[i];
+        }
+    }
+    if (ors.length !== 0) {
+        query.$and = ors;
+    }
     return query;
 };
 
