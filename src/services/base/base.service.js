@@ -736,14 +736,13 @@ module.exports.everything = (args, {req}, resource_name) => {
         try {
             let {base_version, id} = args;
 
-            logInfo(`Everything id=${id}`);
+            logInfo(`id=${id}`);
+            logInfo(`req=${req}`);
 
+            const host = req.headers.host;
             // for now we only support Practitioner
             let query = {};
             query.id = id;
-            // TODO: Build query from Parameters
-
-            // TODO: Query database
             // Grab an instance of our DB and collection
             let db = globals.get(CLIENT_DB);
             let collection_name = 'Practitioner';
@@ -757,7 +756,10 @@ module.exports.everything = (args, {req}, resource_name) => {
                 }
                 if (resource) {
                     let resources = [];
-                    let entries = [];
+                    let entries = [{
+                        'link': `https://${host}/${base_version}/${resource.resourceType}/${resource.id}`,
+                        'resource': resource
+                    }];
                     // now look for practitioner_role
                     collection_name = 'PractitionerRole';
                     collection = db.collection(`${collection_name}_${base_version}`);
@@ -775,13 +777,15 @@ module.exports.everything = (args, {req}, resource_name) => {
                                 returnArray[i] = new Resource(element);
                             });
                             resources = resources.concat(my_resources);
-                            entries = resources.map(
-                                x => {
-                                    return {
-                                        'link': `${x.resourceType}/${x.id}`,
-                                        'resource': x
-                                    };
-                                }
+                            entries = entries.concat(
+                                resources.map(
+                                    x => {
+                                        return {
+                                            'link': `https://${host}/${base_version}/${x.resourceType}/${x.id}`,
+                                            'resource': x
+                                        };
+                                    }
+                                )
                             );
                             // create a bundle
                             resolve(
