@@ -800,12 +800,12 @@ module.exports.everything = async (args, {req}, resource_name) => {
             query = {
                 'practitioner.reference': 'Practitioner/' + id
             };
-            const cursor = await collection.find(query);
+            const cursor = collection.find(query);
             // noinspection JSUnresolvedFunction
-            const items = await cursor.toArray();
+            const practitioner_roles = await cursor.toArray();
 
             // noinspection JSUnresolvedFunction
-            const practitioner_roles = items.map(x => new PractitionerRoleResource(x));
+            // const practitioner_roles = items;
             for (const index in practitioner_roles) {
                 // noinspection JSUnfilteredForInLoop
                 const practitioner_role = practitioner_roles[index];
@@ -814,7 +814,7 @@ module.exports.everything = async (args, {req}, resource_name) => {
                     [
                         {
                             'link': `https://${host}/${base_version}/${practitioner_role.resourceType}/${practitioner_role.id}`,
-                            'resource': practitioner_role
+                            'resource': new PractitionerRoleResource(practitioner_role)
                         }
                     ]
                 );
@@ -825,45 +825,48 @@ module.exports.everything = async (args, {req}, resource_name) => {
                 collection_name = 'Organization';
                 collection = db.collection(`${collection_name}_${base_version}`);
                 const OrganizationRoleResource = getResource(base_version, collection_name);
-                if (practitioner_role.organization && practitioner_role.organization.reference) {
-                    const organization_id = practitioner_role.organization.reference.replace('Organization/', '');
+                if (practitioner_role.organization && practitioner_role.organization.length > 0) {
+                    const organization_id = practitioner_role.organization[0].reference.replace('Organization/', '');
 
                     const organization = await collection.findOne({id: organization_id.toString()});
                     if (organization) {
-                        entries += {
-                            'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
-                            'resource': new OrganizationRoleResource(organization)
-                        };
+                        entries = entries.concat(
+                            [{
+                                'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
+                                'resource': new OrganizationRoleResource(organization)
+                            }]);
                     }
                 }
                 // now for each PractitionerRole, get the Location
                 collection_name = 'Location';
                 collection = db.collection(`${collection_name}_${base_version}`);
                 const LocationRoleResource = getResource(base_version, collection_name);
-                if (practitioner_role.location && practitioner_role.location.reference) {
-                    const location_id = practitioner_role.location.reference.replace(collection_name + '/', '');
+                if (practitioner_role.location && practitioner_role.location.length > 0) {
+                    const location_id = practitioner_role.location[0].reference.replace(collection_name + '/', '');
 
                     const location = await collection.findOne({id: location_id.toString()});
                     if (location) {
-                        entries += {
-                            'link': `https://${host}/${base_version}/${location.resourceType}/${location.id}`,
-                            'resource': new LocationRoleResource(location)
-                        };
+                        entries = entries.concat(
+                            [{
+                                'link': `https://${host}/${base_version}/${location.resourceType}/${location.id}`,
+                                'resource': new LocationRoleResource(location)
+                            }]);
                     }
                 }
                 // now for each PractitionerRole, get the HealthcareService
                 collection_name = 'HealthcareService';
                 collection = db.collection(`${collection_name}_${base_version}`);
                 const HealthcareServiceRoleResource = getResource(base_version, collection_name);
-                if (practitioner_role.healthcareService && practitioner_role.healthcareService.reference) {
-                    const healthcareService_id = practitioner_role.healthcareService.reference.replace(collection_name + '/', '');
+                if (practitioner_role.healthcareService && practitioner_role.healthcareService.length > 0) {
+                    const healthcareService_id = practitioner_role.healthcareService[0].reference.replace(collection_name + '/', '');
 
                     const healthcareService = await collection.findOne({id: healthcareService_id.toString()});
                     if (healthcareService) {
-                        entries += {
-                            'link': `https://${host}/${base_version}/${healthcareService.resourceType}/${healthcareService.id}`,
-                            'resource': new HealthcareServiceRoleResource(healthcareService)
-                        };
+                        entries = entries.concat(
+                            [{
+                                'link': `https://${host}/${base_version}/${healthcareService.resourceType}/${healthcareService.id}`,
+                                'resource': new HealthcareServiceRoleResource(healthcareService)
+                            }]);
                     }
                 }
             }
