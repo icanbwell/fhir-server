@@ -748,19 +748,20 @@ module.exports.everything = async (args, {req}, resource_name) => {
         let collection = db.collection(`${collection_name}_${base_version}`);
         const PractitionerResource = getResource(base_version, resource_name);
 
-        let resource = await collection.findOne({id: id.toString()});
-        if (resource) {
+        let practitioner = await collection.findOne({id: id.toString()});
+        if (practitioner) {
             // first add the Practitioner
             let entries = [{
-                'link': `https://${host}/${base_version}/${resource.resourceType}/${resource.id}`,
-                'resource': new PractitionerResource(resource)
+                'link': `https://${host}/${base_version}/${practitioner.resourceType}/${practitioner.id}`,
+                'resource': new PractitionerResource(practitioner)
             }];
             // now look for practitioner_role
             collection_name = 'PractitionerRole';
             collection = db.collection(`${collection_name}_${base_version}`);
             const PractitionerRoleResource = getResource(base_version, 'PractitionerRole');
-            query = {};
-            query['practitioner.reference'] = 'Practitioner/' + id;
+            query = {
+                'practitioner.reference': 'Practitioner/' + id
+            };
             const cursor = await collection.find(query);
             const items = await cursor.toArray();
 
@@ -775,7 +776,60 @@ module.exports.everything = async (args, {req}, resource_name) => {
                     }
                 )
             );
-            // now for each PractitionerRole, get the Organization and location
+            // now for each PractitionerRole, get the Organization
+            collection_name = 'Organization';
+            collection = db.collection(`${collection_name}_${base_version}`);
+            const OrganizationRoleResource = getResource(base_version, collection_name);
+            for (const index in practitioner_roles) {
+                const practitioner_role = practitioner_roles[index];
+                if (practitioner_role.organization && practitioner_role.organization.reference) {
+                    const organization_id = practitioner_role.organization.reference.replace('Organization/', '');
+
+                    const organization = await collection.findOne({id: organization_id.toString()});
+                    if (organization) {
+                        entries += {
+                            'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
+                            'resource': new OrganizationRoleResource(organization)
+                        };
+                    }
+                }
+            }
+            // now for each PractitionerRole, get the Location
+            collection_name = 'Location';
+            collection = db.collection(`${collection_name}_${base_version}`);
+            const LocationRoleResource = getResource(base_version, collection_name);
+            for (const index in practitioner_roles) {
+                const practitioner_role = practitioner_roles[index];
+                if (practitioner_role.location && practitioner_role.location.reference) {
+                    const location_id = practitioner_role.location.reference.replace(collection_name + '/', '');
+
+                    const location = await collection.findOne({id: location_id.toString()});
+                    if (location) {
+                        entries += {
+                            'link': `https://${host}/${base_version}/${location.resourceType}/${location.id}`,
+                            'resource': new LocationRoleResource(location)
+                        };
+                    }
+                }
+            }
+            // now for each PractitionerRole, get the HealthcareService
+            collection_name = 'HealthcareService';
+            collection = db.collection(`${collection_name}_${base_version}`);
+            const HealthcareServiceRoleResource = getResource(base_version, collection_name);
+            for (const index in practitioner_roles) {
+                const practitioner_role = practitioner_roles[index];
+                if (practitioner_role.healthcareService && practitioner_role.healthcareService.reference) {
+                    const healthcareService_id = practitioner_role.healthcareService.reference.replace(collection_name + '/', '');
+
+                    const healthcareService = await collection.findOne({id: healthcareService_id.toString()});
+                    if (healthcareService) {
+                        entries += {
+                            'link': `https://${host}/${base_version}/${healthcareService.resourceType}/${healthcareService.id}`,
+                            'resource': new HealthcareServiceRoleResource(healthcareService)
+                        };
+                    }
+                }
+            }
 
             // create a bundle
             return (
