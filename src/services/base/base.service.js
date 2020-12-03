@@ -1,9 +1,10 @@
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
-const JSONSchemaValidator = require('@asymmetrik/fhir-json-schema-validator');
+// const JSONSchemaValidator = require('@asymmetrik/fhir-json-schema-validator');
 const {CLIENT_DB} = require('../../constants');
 const moment = require('moment-timezone');
 const globals = require('../../globals');
+// noinspection JSCheckFunctionSignatures
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const {getUuid} = require('../../utils/uid.util');
 const {validate, applyPatch, compare} = require('fast-json-patch');
@@ -214,42 +215,55 @@ let buildDstu2SearchQuery = (args) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-let validateSchema = (instance) => {
-
-    // https://github.com/Asymmetrik/node-fhir-server-core/tree/master/packages/fhir-json-schema-validator
-    const validator = new JSONSchemaValidator();
-    let errors = validator.validate(instance);
-    console.log(errors);
-    return errors;
-
-    // var v = new Validator();
-    // var schema = fhirSchema;
-    // const validationResult = v.validate(instance, schema);
-    // console.log(validationResult);
-};
+// let validateSchema = (instance) => {
+//
+//     // https://github.com/Asymmetrik/node-fhir-server-core/tree/master/packages/fhir-json-schema-validator
+//     const validator = new JSONSchemaValidator();
+//     let errors = validator.validate(instance);
+//     console.log(errors);
+//     return errors;
+//
+//     // var v = new Validator();
+//     // var schema = fhirSchema;
+//     // const validationResult = v.validate(instance, schema);
+//     // console.log(validationResult);
+// };
 
 /**
  *
  * @param {*} args
+ * @param resource_name
+ * @param collection_name
  * @param {*} context
- * @param {*} logger
  */
-module.exports.search = (args, resource_name, collection_name) =>
+module.exports.search = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(resource_name + ' >>> search');
         logInfo('---- args ----');
         logInfo(args);
         logInfo('--------');
 
+        // asymmetric hides certain query parameters from us so we need to get them from the context
+        const my_args = {};
+        const my_args_array = Object.entries(req.query);
+        my_args_array.forEach(x => {
+            my_args[x[0]] = x[1];
+        });
+
+        const combined_args = Object.assign({}, args, my_args);
+        logInfo('---- combined_args ----');
+        logInfo(combined_args);
+        logInfo('--------');
+
         let {base_version} = args;
-        let query = {};
+        let query;
 
         if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
+            query = buildStu3SearchQuery(combined_args);
         } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
+            query = buildDstu2SearchQuery(combined_args);
         } else {
-            query = buildR4SearchQuery(resource_name, args);
+            query = buildR4SearchQuery(resource_name, combined_args);
         }
 
         // Grab an instance of our DB and collection
@@ -262,14 +276,25 @@ module.exports.search = (args, resource_name, collection_name) =>
         logInfo('--------');
 
         // Query our collection for this observation
-        collection.find(query, (err, data) => {
+        collection.find(query, (err, cursor) => {
             if (err) {
                 logger.error(`Error with ${resource_name}.search: `, err);
                 return reject(err);
             }
 
+
+            if (combined_args['_count']) {
+                const nPerPage = Number(combined_args['_count']);
+
+                if (combined_args['_getpagesoffset']) {
+                    const pageNumber = Number(combined_args['_getpagesoffset']);
+                    cursor = cursor.skip(pageNumber > 0 ? ((pageNumber - 1) * nPerPage) : 0);
+                }
+                cursor = cursor.limit(nPerPage);
+            }
+
             // Resource is a resource cursor, pull documents out before resolving
-            data.toArray().then((resources) => {
+            cursor.toArray().then((resources) => {
                 resources.forEach(function (element, i, returnArray) {
                     returnArray[i] = new Resource(element);
                 });
@@ -279,7 +304,8 @@ module.exports.search = (args, resource_name, collection_name) =>
 
     });
 
-module.exports.searchById = (args, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.searchById = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> searchById`);
         logInfo(args);
@@ -339,6 +365,7 @@ module.exports.create = (args, {req}, resource_name, collection_name) =>
         let Resource = getResource(base_version, resource_name);
         logInfo(`Resource: ${Resource}`);
         let resource = new Resource(resource_incoming);
+        // noinspection JSUnresolvedFunction
         logInfo(`resource: ${resource.toJSON()}`);
 
         // If no resource ID was provided, generate one.
@@ -353,6 +380,7 @@ module.exports.create = (args, {req}, resource_name, collection_name) =>
         });
 
         // Create the document to be inserted into Mongo
+        // noinspection JSUnresolvedFunction
         let doc = JSON.parse(JSON.stringify(resource.toJSON()));
         Object.assign(doc, {id: id});
 
@@ -407,6 +435,7 @@ module.exports.update = (args, {req}, resource_name, collection_name) =>
 
         // Get current record
         // Query our collection for this observation
+        // noinspection JSUnresolvedVariable
         collection.findOne({id: id.toString()}, (err, data) => {
             if (err) {
                 logger.error(`Error with finding resource ${resource_name}.update: `, err);
@@ -420,6 +449,7 @@ module.exports.update = (args, {req}, resource_name, collection_name) =>
             let doc;
 
             // check if resource was found in database or not
+            // noinspection JSUnresolvedVariable
             if (data && data.meta) {
                 // found an existing resource
                 logInfo('found resource: ' + data);
@@ -558,7 +588,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             // check if resource was found in database or not
             if (data && data.meta) {
                 // found an existing resource
-                logInfo( resource_name + ': merge found resource ' + '[' + data.id + ']: ' + data);
+                logInfo(resource_name + ': merge found resource ' + '[' + data.id + ']: ' + data);
                 let foundResource = new Resource(data);
                 logInfo('------ found document --------');
                 logInfo(data);
@@ -582,6 +612,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 //     return array1.concat(array2);
                 // };
                 let mergeObjectOrArray;
+                // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
                 const options = {
                     // eslint-disable-next-line no-unused-vars
                     customMerge: (key) => {
@@ -691,14 +722,15 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     }
 
     if (Array.isArray(resources_incoming)) {
-        logInfo( '==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
+        logInfo('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
         return await Promise.all(resources_incoming.map(async x => merge_resource(x)));
     } else {
         return await merge_resource(resources_incoming);
     }
 };
 
-module.exports.everything = (args, context, resource_name) => {
+// eslint-disable-next-line no-unused-vars
+module.exports.everything = (args, {req}, resource_name) => {
     return new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> everything`);
         try {
@@ -714,8 +746,8 @@ module.exports.everything = (args, context, resource_name) => {
             // TODO: Query database
             // Grab an instance of our DB and collection
             let db = globals.get(CLIENT_DB);
-            var collection_name = 'Practitioner';
-            var collection = db.collection(`${collection_name}_${base_version}`);
+            let collection_name = 'Practitioner';
+            let collection = db.collection(`${collection_name}_${base_version}`);
             let Resource = getResource(base_version, resource_name);
 
             collection.findOne({id: id.toString()}, (err, resource) => {
@@ -724,15 +756,14 @@ module.exports.everything = (args, context, resource_name) => {
                     return reject(err);
                 }
                 if (resource) {
-                    var resources = [];
-                    var entries = [];
+                    let resources = [];
+                    let entries = [];
                     // now look for practitioner_role
                     collection_name = 'PractitionerRole';
                     collection = db.collection(`${collection_name}_${base_version}`);
                     Resource = getResource(base_version, 'PractitionerRole');
                     query = {};
-                    const practitioner_reference = 'Practitioner/' + id;
-                    query['practitioner.reference'] = practitioner_reference;
+                    query['practitioner.reference'] = 'Practitioner/' + id;
                     collection.find(query, (err_pr, data) => {
                         if (err_pr) {
                             logger.error(`Error with ${resource_name}.search: `, err);
@@ -746,11 +777,10 @@ module.exports.everything = (args, context, resource_name) => {
                             resources = resources.concat(my_resources);
                             entries = resources.map(
                                 x => {
-                                    const entry = {
+                                    return {
                                         'link': `${x.resourceType}/${x.id}`,
                                         'resource': x
                                     };
-                                    return entry;
                                 }
                             );
                             // create a bundle
@@ -772,7 +802,8 @@ module.exports.everything = (args, context, resource_name) => {
     });
 };
 
-module.exports.remove = (args, context, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.remove = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> remove`);
 
@@ -817,7 +848,8 @@ module.exports.remove = (args, context, resource_name, collection_name) =>
         });
     });
 
-module.exports.searchByVersionId = (args, context, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.searchByVersionId = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> searchByVersionId`);
 
@@ -846,7 +878,8 @@ module.exports.searchByVersionId = (args, context, resource_name, collection_nam
         );
     });
 
-module.exports.history = (args, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.history = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> history`);
 
@@ -883,7 +916,8 @@ module.exports.history = (args, resource_name, collection_name) =>
         });
     });
 
-module.exports.historyById = (args, context, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.historyById = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo(`${resource_name} >>> historyById`);
 
@@ -920,7 +954,8 @@ module.exports.historyById = (args, context, resource_name, collection_name) =>
         });
     });
 
-module.exports.patch = (args, context, resource_name, collection_name) =>
+// eslint-disable-next-line no-unused-vars
+module.exports.patch = (args, {req}, resource_name, collection_name) =>
     new Promise((resolve, reject) => {
         logInfo('Patient >>> patch');
 
@@ -953,6 +988,7 @@ module.exports.patch = (args, context, resource_name, collection_name) =>
             if (data && data.meta) {
                 let foundResource = new Resource(data);
                 let meta = foundResource.meta;
+                // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 resource.meta = meta;
             } else {
