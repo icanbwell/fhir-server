@@ -773,6 +773,14 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             };
         } catch (e) {
             logger.error(`Error with finding resource ${resource_name}.merge: `, e);
+            return {
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        diagnostics: e.toString()
+                    }
+                ]
+            };
         }
     }
 
