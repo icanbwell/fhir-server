@@ -772,7 +772,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 resource_version: doc.meta.versionId,
             };
         } catch (e) {
-            logger.error(`Error with finding resource ${resource_name}.merge: `, e);
+            logger.error(`Error with merging resource ${resource_name}.merge: `, e);
             return {
                 resourceType: 'OperationOutcome',
                 issue: [
