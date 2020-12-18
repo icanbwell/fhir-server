@@ -1,3 +1,4 @@
+require('newrelic');
 const { app, fhirApp } = require('./app');
 
 const asyncHandler = require('./lib/async-handler');
