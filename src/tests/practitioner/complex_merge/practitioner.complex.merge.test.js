@@ -78,7 +78,8 @@ describe('Practitioner Complex Merge Tests', () => {
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
                             .expect(200, (err, resp) => {
-                                expect(resp.body.length).toBe(0);
+                                console.log("REPO: ", resp.body)
+                                expect(resp.body).toMatchObject({ resourceType: 'Bundle', type: 'searchset', entry: [] });
                                 console.log('------- response 1 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
                                 console.log('------- end response 1 ------------');
@@ -346,13 +347,13 @@ describe('Practitioner Complex Merge Tests', () => {
                             console.log('------- end response  ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(1);
-                            delete body[0]['meta']['lastUpdated'];
+                            expect(body.entry.length).toBe(1);
+                            delete body['entry'][0]['resource']['meta']['lastUpdated'];
                             let expected = expectedPractitionerResource;
                             // delete expected[0]['meta']['lastUpdated'];
                             delete expected[0]['$schema'];
                             expected[0]['meta'] = {'versionId': '2'};
-                            expect(body).toStrictEqual(expected);
+                            expect([body.entry[0].resource]).toStrictEqual(expected);
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/PractitionerRole')
@@ -365,10 +366,10 @@ describe('Practitioner Complex Merge Tests', () => {
                             console.log('------- end response  ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(3);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
+                            expect(body.entry.length).toBe(3);
+                            delete body['entry'][0]['resource']['meta']['lastUpdated'];
+                            body.entry.forEach(element => {
+                                delete element['resource']['meta']['lastUpdated'];
                             });
                             let expected = expectedPractitionerRoleResource;
                             expected.forEach(element => {
@@ -381,7 +382,7 @@ describe('Practitioner Complex Merge Tests', () => {
                                 }
                             });
 
-                            expect(body).toStrictEqual(expected);
+                            expect(body.entry[0].resource).toStrictEqual(expected);
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/Location')
@@ -394,10 +395,10 @@ describe('Practitioner Complex Merge Tests', () => {
                             console.log('------- end response  ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(2);
+                            expect(body.entry.length).toBe(2);
                             delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
+                            body.entry.forEach(element => {
+                                delete element['resource']['meta']['lastUpdated'];
                             });
                             let expected = expectedLocationResource;
                             expected.forEach(element => {

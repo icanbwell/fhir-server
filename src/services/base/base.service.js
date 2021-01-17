@@ -337,7 +337,7 @@ module.exports.search = (args, {req}, resource_name, collection_name) =>
 
 
             if (combined_args['_count']) {
-                const nPerPage = Number(combined_args['_count']);
+                const nPerPage = Number(combined_args['_count']) || 100;
 
                 if (combined_args['_getpagesoffset']) {
                     const pageNumber = Number(combined_args['_getpagesoffset']);
@@ -351,7 +351,13 @@ module.exports.search = (args, {req}, resource_name, collection_name) =>
                 resources.forEach(function (element, i, returnArray) {
                     returnArray[i] = new Resource(element);
                 });
-                resolve(resources);
+
+                const Bundle = getResource(base_version, 'bundle');
+                const entries = resources.map(resource => {
+                    return {resource: resource };
+                });
+                const bundle = new Bundle({type: 'searchset', entry: entries});
+                resolve(bundle);
             });
         });
 
