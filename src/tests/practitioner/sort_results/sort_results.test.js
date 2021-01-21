@@ -7,6 +7,7 @@ const globals = require('../../../globals');
 const {CLIENT, CLIENT_DB} = require('../../../constants');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
+const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
 
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
@@ -80,6 +81,19 @@ describe('PractitionerReturnIdTests', () => {
                             }),
                     (results, cb) =>
                         request
+                            .post('/4_0_0/Practitioner/0/$merge')
+                            .send(practitionerResource2)
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                console.log('------- response practitionerResource ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response  ------------');
+                                expect(resp.body['created']).toBe(true);
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
                             .get('/4_0_0/Practitioner')
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
@@ -95,16 +109,20 @@ describe('PractitionerReturnIdTests', () => {
                         .set('Accept', 'application/fhir+json')
                         .expect(200, cb)
                         .expect((resp) => {
-                            console.log('------- response Practitioner ------------');
+                            console.log('------- response Practitioner sorted ------------');
                             console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
+                            console.log('------- end response sort ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(1);
-                            delete body[0]['meta']['lastUpdated'];
+                            expect(body.length).toBe(2);
+                            body.forEach(element => {
+                                delete element['meta']['lastUpdated'];
+                            });
                             let expected = expectedPractitionerResource;
-                            delete expected[0]['meta']['lastUpdated'];
-                            delete expected[0]['$schema'];
+                            expected.forEach(element => {
+                                delete element['meta']['lastUpdated'];
+                                delete element['$schema'];
+                            });
                             // expected[0]['meta'] = { 'versionId': '2' };
                             expect(body).toStrictEqual(expected);
                         }, cb),

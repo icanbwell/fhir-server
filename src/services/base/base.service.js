@@ -357,9 +357,9 @@ module.exports.search = (args, {req}, resource_name, collection_name) =>
                     if (x.startsWith('-')) {
                         // eslint-disable-next-line no-unused-vars
                         const x1 = x.substring(1);
-                        cursor = cursor.sort({x1: 1});
+                        cursor = cursor.sort({[x1]: -1});
                     } else {
-                       cursor = cursor.sort({x: 1});
+                       cursor = cursor.sort({[x]: 1});
                     }
                 }
             }

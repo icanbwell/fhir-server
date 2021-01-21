@@ -300,24 +300,9 @@ let dateQueryBuilder = function (date, type, path) {
                         'i'
                     ),
                 };
-            } else if (prefix === '$gte') {
+            } else {
                 return {
-                    $gte: str
-                };
-            }
-            else if (prefix === '$lte') {
-                return {
-                    $lte: str
-                };
-            }
-            else if (prefix === '$gt') {
-                return {
-                    $gt: str
-                };
-            }
-            else if (prefix === '$lt') {
-                return {
-                    $lt: str
+                    [prefix]: str
                 };
             }
         }
