@@ -310,6 +310,16 @@ let dateQueryBuilder = function (date, type, path) {
                     $lte: str
                 };
             }
+            else if (prefix === '$gt') {
+                return {
+                    $gt: str
+                };
+            }
+            else if (prefix === '$lt') {
+                return {
+                    $lt: str
+                };
+            }
         }
 
         if (type === 'dateTime' || type === 'instant' || type === 'period' || type === 'timing') {
