@@ -69,7 +69,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     let active = args['active'];
 
     let query = {};
-    let ors = [];
+    let and_segments = [];
 
     if (id) {
         query.id = id;
@@ -85,8 +85,18 @@ let buildR4SearchQuery = (resource_name, args) => {
 
     if (lastUpdated) {
         logInfo('meta.lastUpdated:' + lastUpdated);
-
-        query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'date', '');
+        if (Array.isArray(lastUpdated)) {
+            for (const lastUpdatedItem of lastUpdated) {
+                and_segments.push({'meta.lastUpdated': dateQueryBuilder(lastUpdatedItem, 'date', '')});
+            }
+        } else {
+            query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'date', '');
+        }
+        // and_segments.push(orsName[i]);
+        // let orsName = nameQueryBuilder(name);
+        // for (let i = 0; i < orsName.length; i++) {
+        //     and_segments.push(orsName[i]);
+        // }
     }
     if (patient) {
         const patient_reference = 'Patient/' + patient;
@@ -158,7 +168,7 @@ let buildR4SearchQuery = (resource_name, args) => {
             if (name) {
                 let orsName = nameQueryBuilder(name);
                 for (let i = 0; i < orsName.length; i++) {
-                    ors.push(orsName[i]);
+                    and_segments.push(orsName[i]);
                 }
             }
         } else {
@@ -172,7 +182,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     if (address) {
         let orsAddress = addressQueryBuilder(address);
         for (let i = 0; i < orsAddress.length; i++) {
-            ors.push(orsAddress[i]);
+            and_segments.push(orsAddress[i]);
         }
     }
 
@@ -225,8 +235,8 @@ let buildR4SearchQuery = (resource_name, args) => {
         }
     }
 
-    if (ors.length !== 0) {
-        query.$and = ors;
+    if (and_segments.length !== 0) {
+        query.$and = and_segments;
     }
     return query;
 };

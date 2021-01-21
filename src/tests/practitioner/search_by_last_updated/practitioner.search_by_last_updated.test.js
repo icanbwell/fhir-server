@@ -401,5 +401,139 @@ describe('PractitionerReturnIdTests', () => {
                     done();
                 });
         });
+        test('search by lastUpdated less than and greater than (found)', (done) => {
+            async.waterfall([
+                    (cb) => // first confirm there are no practitioners
+                        request
+                            .get('/4_0_0/Practitioner')
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                expect(resp.body.length).toBe(0);
+                                console.log('------- response 1 ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response 1 ------------');
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
+                            .post('/4_0_0/Practitioner/1679033641/$merge')
+                            .send(practitionerResource)
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                console.log('------- response practitionerResource ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response  ------------');
+                                expect(resp.body['created']).toBe(true);
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
+                            .get('/4_0_0/Practitioner')
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                console.log('------- response 3 ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response 3 ------------');
+                                return cb(err, resp);
+                            }),
+                    (results, cb) => request
+                        .get('/4_0_0/Practitioner?_lastUpdated=lt2029-01-01&_lastUpdated=gt2021-01-01')
+                        .set('Content-Type', 'application/fhir+json')
+                        .set('Accept', 'application/fhir+json')
+                        .expect(200, cb)
+                        .expect((resp) => {
+                            console.log('------- response Practitioner ------------');
+                            console.log(JSON.stringify(resp.body, null, 2));
+                            console.log('------- end response  ------------');
+                            // clear out the lastUpdated column since that changes
+                            let body = resp.body;
+                            expect(body.length).toBe(1);
+                            delete body[0]['meta']['lastUpdated'];
+                            let expected = expectedPractitionerResource;
+                            delete expected[0]['meta']['lastUpdated'];
+                            delete expected[0]['$schema'];
+                            // expected[0]['meta'] = { 'versionId': '2' };
+                            expect(body).toStrictEqual(expected);
+                        }, cb),
+                ],
+                (err, results) => {
+                    if (!err) {
+                        console.log('done');
+                    }
+
+                    if (err) {
+                        console.error(err);
+                        done.fail(err);
+                    }
+                    done();
+                });
+        });
+        test('search by lastUpdated less than and greater than (not found)', (done) => {
+            async.waterfall([
+                    (cb) => // first confirm there are no practitioners
+                        request
+                            .get('/4_0_0/Practitioner')
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                expect(resp.body.length).toBe(0);
+                                console.log('------- response 1 ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response 1 ------------');
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
+                            .post('/4_0_0/Practitioner/1679033641/$merge')
+                            .send(practitionerResource)
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                console.log('------- response practitionerResource ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response  ------------');
+                                expect(resp.body['created']).toBe(true);
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
+                            .get('/4_0_0/Practitioner')
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .expect(200, (err, resp) => {
+                                console.log('------- response 3 ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response 3 ------------');
+                                return cb(err, resp);
+                            }),
+                    (results, cb) => request
+                        .get('/4_0_0/Practitioner?_lastUpdated=lt2021-01-10&_lastUpdated=gt2021-01-01')
+                        .set('Content-Type', 'application/fhir+json')
+                        .set('Accept', 'application/fhir+json')
+                        .expect(200, cb)
+                        .expect((resp) => {
+                            console.log('------- response Practitioner ------------');
+                            console.log(JSON.stringify(resp.body, null, 2));
+                            console.log('------- end response  ------------');
+                            // clear out the lastUpdated column since that changes
+                            let body = resp.body;
+                            expect(body.length).toBe(0);
+                        }, cb),
+                ],
+                (err, results) => {
+                    if (!err) {
+                        console.log('done');
+                    }
+
+                    if (err) {
+                        console.error(err);
+                        done.fail(err);
+                    }
+                    done();
+                });
+        });
     });
 });
