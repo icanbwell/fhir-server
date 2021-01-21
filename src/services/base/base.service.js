@@ -92,11 +92,6 @@ let buildR4SearchQuery = (resource_name, args) => {
         } else {
             query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'date', '');
         }
-        // and_segments.push(orsName[i]);
-        // let orsName = nameQueryBuilder(name);
-        // for (let i = 0; i < orsName.length; i++) {
-        //     and_segments.push(orsName[i]);
-        // }
     }
     if (patient) {
         const patient_reference = 'Patient/' + patient;
