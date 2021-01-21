@@ -346,7 +346,23 @@ module.exports.search = (args, {req}, resource_name, collection_name) =>
                 logger.error(`Error with ${resource_name}.search: `, err);
                 return reject(err);
             }
-
+            if (combined_args['_sort']) {
+                // GET [base]/Observation?_sort=status,-date,category
+                // Each item in the comma separated list is a search parameter, optionally with a '-' prefix.
+                // The prefix indicates decreasing order; in its absence, the parameter is applied in increasing order.
+                const sort_properties_as_csv = combined_args['_sort'];
+                const sort_properties_list = sort_properties_as_csv.split(',');
+                for (let i in sort_properties_list) {
+                    const x = sort_properties_list[i];
+                    if (x.startsWith('-')) {
+                        // eslint-disable-next-line no-unused-vars
+                        const x1 = x.substring(1);
+                        cursor = cursor.sort({x1: 1});
+                    } else {
+                       cursor = cursor.sort({x: 1});
+                    }
+                }
+            }
 
             if (combined_args['_count']) {
                 const nPerPage = Number(combined_args['_count']);
