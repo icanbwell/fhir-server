@@ -31,7 +31,7 @@ const {
     // referenceQueryBuilder,
     addressQueryBuilder,
     nameQueryBuilder,
-    // dateQueryBuilder,
+    dateQueryBuilder,
 } = require('../../utils/querybuilder.util');
 
 
@@ -59,6 +59,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     let phone = args['phone'];
     let source = args['source'];
     let versionId = args['versionId'];
+    let lastUpdated = args['_lastUpdated']; // _lastUpdated=gt2010-10-01
     // Search Result params
 
     // let extension_missing = args['extension:missing'];
@@ -82,6 +83,11 @@ let buildR4SearchQuery = (resource_name, args) => {
         query['meta.versionId'] = versionId;
     }
 
+    if (lastUpdated) {
+        logInfo('meta.lastUpdated:' + lastUpdated);
+
+        query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'date', '');
+    }
     if (patient) {
         const patient_reference = 'Patient/' + patient;
         // each Resource type has a different place to put the patient info
@@ -218,6 +224,7 @@ let buildR4SearchQuery = (resource_name, args) => {
             query[i] = queryBuilder[i];
         }
     }
+
     if (ors.length !== 0) {
         query.$and = ors;
     }
