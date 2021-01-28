@@ -410,7 +410,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
         }
         return (resources);
     } catch (err) {
-        logger.error(`Error with ${resource_name}.searchB: `, err);
+        logger.error(`Error with ${resource_name}.search: `, err);
         throw err;
     }
 };
