@@ -130,7 +130,7 @@ module.exports.validate = (args, {{ req }}) =>
     with open(config_file_name, "w+") as file:
         file.write("const { VERSIONS } = require('@asymmetrik/node-fhir-server-core').constants;\n")
         file.write("// noinspection SpellCheckingInspection\n")
-        file.write("let profiles = {\n")
+        file.write("const profiles = {\n")
         for config_entry in config_entries:
             print(config_entry)
             file.write(config_entry)
