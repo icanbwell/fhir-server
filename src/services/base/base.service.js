@@ -843,7 +843,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 };
 
 // eslint-disable-next-line no-unused-vars
-module.exports.everything = async (args, {req}, resource_name) => {
+module.exports.everything = async (args, {req}, resource_name, collection_name) => {
     logInfo(`${resource_name} >>> everything`);
     try {
         let {base_version, id} = args;
@@ -857,7 +857,7 @@ module.exports.everything = async (args, {req}, resource_name) => {
         query.id = id;
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
-        let collection_name = 'Practitioner';
+        collection_name = 'Practitioner'; // for now we only support this for Practitioner
         let collection = db.collection(`${collection_name}_${base_version}`);
         const PractitionerResource = getResource(base_version, resource_name);
 
@@ -1209,7 +1209,22 @@ module.exports.validate = async (args, {req}, resource_name, collection_name) =>
     logInfo('--- validate schema ----');
     const errors = validateSchema(resource_incoming);
     if (errors.length > 0) {
-        throw new NotValidatedError(errors);
+        return {
+            resourceType: 'OperationOutcome',
+            issue: errors.map(x => {
+                return {
+                    severity: 'error',
+                    code: 'validation',
+                    details: {
+                        text: x.dataPath + ' ' + x.message
+                    },
+                    expression: [
+                        x.dataPath
+                    ],
+                    diagnostics: JSON.stringify(x)
+                };
+            })
+        };
     }
     logInfo('-----------------');
 

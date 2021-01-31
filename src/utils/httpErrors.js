@@ -88,22 +88,23 @@ class NotAllowedError extends ServerError {
 
 class NotValidatedError extends ServerError {
     constructor(errors, options = {}) {
-        const error_message = errors.map(x =>
-            JSON.stringify(x)
-        ).join('\n');
         super('Validation Failed', {
             // Set this to make the HTTP status code 409
             statusCode: 400,
             // Add any normal operation outcome stuff here
-            issue: [
-                {
+            issue: errors.map(x => {
+                return {
                     severity: 'error',
                     code: 'validation',
                     details: {
-                        text: error_message
+                        text: x.dataPath + ' ' + x.message
                     },
-                },
-            ],
+                    expression: [
+                        x.dataPath
+                    ],
+                    diagnostics: JSON.stringify(x)
+                };
+            })
         });
 
         // You can attach relevant information to the error instance
