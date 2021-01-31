@@ -89,7 +89,7 @@ class NotAllowedError extends ServerError {
 class NotValidatedError extends ServerError {
     constructor(errors, options = {}) {
         const error_message = errors.map(x =>
-            'keyword:' + x.keyword + ', dataPath=' + x.dataPath + ', schemaPath=' + x.schemaPath + ', message=' + x.message
+            JSON.stringify(x)
         ).join('\n');
         super('Validation Failed', {
             // Set this to make the HTTP status code 409

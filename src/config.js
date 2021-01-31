@@ -1,6 +1,5 @@
 const { VERSIONS } = require('@asymmetrik/node-fhir-server-core').constants;
 const env = require('var');
-// const waitForMongo = require('wait-for-mongo');
 const Sentry = require('./middleware/sentry');
 
 console.log(`MONGO_URL=${env.MONGO_URL}`);
@@ -14,13 +13,6 @@ console.log(`MONGO_DB=${env.MONGO_DB_NAME}`);
 console.log(`MONGO_USERNAME=${env.MONGO_USERNAME}`);
 console.log(`MONGO_PASSWORD=${env.MONGO_PASSWORD}`);
 
-// waitForMongo(env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`, { timeout: 1000 * 60 * 2 }, function (err) {
-//   if (err) {
-//     console.log('timeout exceeded');
-//   } else {
-//     console.log('mongodb comes online');
-//   }
-// });
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 console.log('Waiting for MongoDB connection: ' + mongoUrl);
 if (env.MONGO_USERNAME !== undefined) {

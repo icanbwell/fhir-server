@@ -297,7 +297,7 @@ let validateSchema = (instance) => {
     return errors;
 };
 
-function get_all_args(req, args) {
+let get_all_args = (req, args) => {
     // asymmetric hides certain query parameters from us so we need to get them from the context
     const my_args = {};
     const my_args_array = Object.entries(req.query);
@@ -310,7 +310,7 @@ function get_all_args(req, args) {
     logInfo(combined_args);
     logInfo('--------');
     return combined_args;
-}
+};
 
 /**
  *
@@ -1185,5 +1185,47 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
         id: doc.id,
         created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
         resource_version: doc.meta.versionId,
+    };
+};
+
+// eslint-disable-next-line no-unused-vars
+module.exports.validate = async (args, {req}, resource_name, collection_name) => {
+    logInfo(`${resource_name} >>> validate`);
+
+    let resource_incoming = req.body;
+
+    // eslint-disable-next-line no-unused-vars
+    let {base_version} = args;
+
+    logInfo('--- request ----');
+    logInfo(req);
+    logInfo('-----------------');
+
+    logInfo('--- body ----');
+    logInfo(resource_incoming);
+    logInfo('-----------------');
+
+
+    logInfo('--- validate schema ----');
+    const errors = validateSchema(resource_incoming);
+    if (errors.length > 0) {
+        throw new NotValidatedError(errors);
+    }
+    logInfo('-----------------');
+
+    return {
+        resourceType: 'OperationOutcome',
+        issue: [
+            {
+                severity: 'information',
+                code: 'informational',
+                details: {
+                    text: 'OK'
+                },
+                expression: [
+                    resource_name
+                ]
+            }
+        ]
     };
 };
