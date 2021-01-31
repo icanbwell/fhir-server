@@ -297,6 +297,21 @@ let validateSchema = (instance) => {
     return errors;
 };
 
+function get_all_args(req, args) {
+    // asymmetric hides certain query parameters from us so we need to get them from the context
+    const my_args = {};
+    const my_args_array = Object.entries(req.query);
+    my_args_array.forEach(x => {
+        my_args[x[0]] = x[1];
+    });
+
+    const combined_args = Object.assign({}, args, my_args);
+    logInfo('---- combined_args ----');
+    logInfo(combined_args);
+    logInfo('--------');
+    return combined_args;
+}
+
 /**
  *
  * @param {*} args
@@ -309,18 +324,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     logInfo('---- args ----');
     logInfo(args);
     logInfo('--------');
-
-    // asymmetric hides certain query parameters from us so we need to get them from the context
-    const my_args = {};
-    const my_args_array = Object.entries(req.query);
-    my_args_array.forEach(x => {
-        my_args[x[0]] = x[1];
-    });
-
-    const combined_args = Object.assign({}, args, my_args);
-    logInfo('---- combined_args ----');
-    logInfo(combined_args);
-    logInfo('--------');
+    const combined_args = get_all_args(req, args);
 
     let {base_version} = args;
     let query;
@@ -458,7 +462,8 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
     logInfo(resource_incoming);
     logInfo('-----------------');
 
-    if (env.VALIDATE_SCHEMA) {
+    const combined_args = get_all_args(req, args);
+    if (env.VALIDATE_SCHEMA || combined_args['validate']) {
         logInfo('--- validate schema ----');
         const errors = validateSchema(resource_incoming);
         if (errors.length > 0) {
@@ -531,7 +536,8 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
     logInfo('--- body ----');
     logInfo(resource_incoming);
 
-    if (env.VALIDATE_SCHEMA) {
+    const combined_args = get_all_args(req, args);
+    if (env.VALIDATE_SCHEMA || combined_args['validate']) {
         logInfo('--- validate schema ----');
         const errors = validateSchema(resource_incoming);
         if (errors.length > 0) {
@@ -654,7 +660,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
         let id = resource_to_merge.id;
 
-        if (env.VALIDATE_SCHEMA) {
+        const combined_args = get_all_args(req, args);
+        if (env.VALIDATE_SCHEMA || combined_args['validate']) {
             logInfo('--- validate schema ----');
             const errors = validateSchema(resource_to_merge);
             if (errors.length > 0) {
