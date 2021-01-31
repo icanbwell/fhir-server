@@ -412,7 +412,11 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
         const entries = resources.map(resource => {
             return {resource: resource};
         });
-        return new Bundle({type: 'searchset', entry: entries});
+        return new Bundle({
+            type: 'searchset',
+            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+            entry: entries
+        });
     } else {
         return resources;
     }
@@ -1197,6 +1201,7 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
     };
 };
 
+// noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
 module.exports.validate = async (args, {req}, resource_name, collection_name) => {
     logInfo(`${resource_name} >>> validate`);
@@ -1204,7 +1209,7 @@ module.exports.validate = async (args, {req}, resource_name, collection_name) =>
     let resource_incoming = req.body;
 
     // eslint-disable-next-line no-unused-vars
-    let {base_version} = args;
+    // let {base_version} = args;
 
     logInfo('--- request ----');
     logInfo(req);
