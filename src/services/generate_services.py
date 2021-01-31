@@ -115,7 +115,19 @@ module.exports.validate = (args, {{ req }}) =>
           route: '/:id/$merge',
           method: 'POST',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
-        }}
+        }},
+        {{
+          name: 'merge',
+          route: '/$merge',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        }},
+        {{
+          name: 'validate',
+          route: '/$validate',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        }},
       ],
     }},""")
         else:
