@@ -44,6 +44,7 @@ describe('PractitionerReturnIdTests', () => {
 
         globals.set(CLIENT, connection);
         globals.set(CLIENT_DB, db);
+        jest.setTimeout(30000);
     });
 
     afterEach(async () => {
