@@ -7,6 +7,7 @@ const ACCESS_SECRET =
     process.env.AWS_SECRET;
 const AWS_BUCKET = process.env.AWS_BUCKET || 'fhir-server';
 const REGION = process.env.AWS_REGION || 'us-east-1';
+const AWS_FOLDER = process.env.AWS_FOLDER;
 
 const s3 = new AWS.S3({
     accessKeyId: ACCESS_KEY,
@@ -28,7 +29,7 @@ module.exports = function sendToS3(resourceType, resource, currentDate, id) {
         return Promise.resolve(null);
     }
     return new Promise((resolve, reject) => {
-        const key = `${currentDate}/${resourceType}/${id}.json`;
+        const key = `${AWS_FOLDER}/${resourceType}/${currentDate}/${id}.json`;
         const params = {
             Body: JSON.stringify(resource),
             Bucket: AWS_BUCKET,
