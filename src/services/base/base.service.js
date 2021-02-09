@@ -12,6 +12,8 @@ const {validate, applyPatch, compare} = require('fast-json-patch');
 const deepmerge = require('deepmerge');
 const deepcopy = require('deepcopy');
 const deepEqual = require('deep-equal');
+const sendToS3 = require('../../utils/aws-s3');
+
 const env = require('var');
 
 let getResource = (base_version, resource_name) => {
@@ -480,6 +482,16 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         logInfo('--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming, resource_name, req.path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+            const uuid = getUuid(resource_incoming);
+            await sendToS3(resource_name,
+                resource_incoming,
+                currentDate,
+                uuid);
+            await sendToS3('OperationOutcome',
+                operationOutcome,
+                currentDate,
+                uuid);
             throw new NotValidatedError(operationOutcome);
         }
         logInfo('-----------------');
@@ -554,6 +566,16 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
         logInfo('--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming, resource_name, req.path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+            const uuid = getUuid(resource_incoming);
+            await sendToS3(resource_name,
+                resource_incoming,
+                currentDate,
+                uuid);
+            await sendToS3('OperationOutcome',
+                operationOutcome,
+                currentDate,
+                uuid);
             throw new NotValidatedError(operationOutcome);
         }
         logInfo('-----------------');
@@ -678,6 +700,15 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             logInfo('--- validate schema ----');
             const operationOutcome = validateResource(resource_to_merge, resource_name, req.path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
+                const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+                await sendToS3(resource_name,
+                    resource_to_merge,
+                    currentDate,
+                    id);
+                await sendToS3('OperationOutcome',
+                    operationOutcome,
+                    currentDate,
+                    id);
                 throw new NotValidatedError(operationOutcome);
             }
             logInfo('-----------------');
@@ -829,7 +860,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             };
         } catch (e) {
             logger.error(`Error with merging resource ${resource_name}.merge: `, e);
-            return {
+            const operationOutcome = {
                 resourceType: 'OperationOutcome',
                 issue: [
                     {
@@ -845,6 +876,16 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     }
                 ]
             };
+            const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+            await sendToS3(resource_name,
+                resource_to_merge,
+                currentDate,
+                id);
+            await sendToS3('OperationOutcome',
+                operationOutcome,
+                currentDate,
+                id);
+            return operationOutcome;
         }
     }
 
