@@ -544,6 +544,13 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
 
     // Insert our resource record to history but don't assign _id
     await history_collection.insertOne(history_doc);
+    if (env.LOG_ALL_SAVES) {
+        const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+        await sendToS3(resource_name,
+            doc,
+            currentDate,
+            id);
+    }
     return {id: doc.id, resource_version: doc.meta.versionId};
 };
 
@@ -667,6 +674,14 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 
     // Insert our resource record to history but don't assign _id
     await history_collection.insertOne(history_resource);
+
+    if (env.LOG_ALL_SAVES) {
+        const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+        await sendToS3(resource_name,
+            doc,
+            currentDate,
+            id);
+    }
 
     return {
         id: id,
@@ -851,6 +866,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             // Insert our resource record to history but don't assign _id
             delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
             await history_collection.insertOne(history_resource);
+            if (env.LOG_ALL_SAVES) {
+                const currentDate = moment.utc().toDate().format('YYYY-MM-DD');
+                await sendToS3(resource_name,
+                    doc,
+                    currentDate,
+                    id);
+            }
 
             return {
                 id: id,
