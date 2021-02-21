@@ -970,14 +970,17 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     if (Array.isArray(resources_incoming)) {
         logRequest('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
         // find items without duplicates and run them in parallel
+        // but items with duplicate ids should run in serial so we can merge them properly (otherwise the first item
+        //  may not finish adding to the db before the next item tries to merge
         // https://stackoverflow.com/questions/53212020/get-list-of-duplicate-objects-in-an-array-of-objects
-        const lookup = resources_incoming.reduce((a, e) => {
+        // create a lookup_by_id for duplicate ids
+        const lookup_by_id = resources_incoming.reduce((a, e) => {
             a[e.id] = ++a[e.id] || 0;
             return a;
         }, {});
 
-        const duplicate_id_resources = resources_incoming.filter(e => lookup[e.id]);
-        const non_duplicate_id_resources = resources_incoming.filter(e => !lookup[e.id]);
+        const duplicate_id_resources = resources_incoming.filter(e => lookup_by_id[e.id]);
+        const non_duplicate_id_resources = resources_incoming.filter(e => !lookup_by_id[e.id]);
 
         return await Promise.all([
             async.map(non_duplicate_id_resources, async x => await merge_resource(x)), // run in parallel
