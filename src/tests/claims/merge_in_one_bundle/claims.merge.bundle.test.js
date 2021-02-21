@@ -74,7 +74,7 @@ describe('Claim Merge Tests', () => {
                             console.log('------- response 5 ------------');
                             console.log(JSON.stringify(resp.body, null, 2));
                             console.log('------- end response 5  ------------');
-                            expect(body.length).toBe(1);
+                            expect(body.length).toBe(2);
                             body.forEach(element => {
                                 delete element['meta']['lastUpdated'];
                             });
