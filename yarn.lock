@@ -3789,7 +3789,7 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
-docusaurus@^1.11.1:
+docusaurus@^1.14.6:
   version "1.14.6"
   resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.14.6.tgz#ffab9f6dafe8c48c477e0ebc7f491e554143b2b5"
   integrity sha512-Hpo6xqYIHwazwuhXW25AKYv/os+dWoJ87qql/m1j1xp83h/BnfYV2l8PA8zLggF1wGUbJQbTx7GWo6QvD8z+4Q==
