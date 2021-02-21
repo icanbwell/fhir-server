@@ -55,7 +55,7 @@
     "deep-equal": "^2.0.5",
     "deepcopy": "^2.1.0",
     "deepmerge": "^4.2.2",
-    "docusaurus": "^1.14.6",
+    "docusaurus": "^2.0.0-alpha.32",
     "express": "^4.17.1",
     "fast-json-patch": "^3.0.0-1",
     "http-terminator": "^3.0.0",
