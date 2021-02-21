@@ -14,6 +14,7 @@ const deepcopy = require('deepcopy');
 const deepEqual = require('deep-equal');
 const sendToS3 = require('../../utils/aws-s3');
 
+const async = require('async');
 const env = require('var');
 
 let getResource = (base_version, resource_name) => {
@@ -968,7 +969,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
     if (Array.isArray(resources_incoming)) {
         logRequest('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
-        return await Promise.all(resources_incoming.map(async x => merge_resource(x)));
+        // async function func() {for (const x of resources_incoming) await merge_resource(x);}
+        // return func();
+        // return await Promise.all(resources_incoming.map(async x => await merge_resource(x)));
+        // return async.map(resources_incoming, async x => await merge_resource(x));
+        return async.mapSeries(resources_incoming, async x => await merge_resource(x));
+        // const newVar = await async.series(resources_incoming.map(async x => await merge_resource(x)));
+        // return newVar;
     } else {
         return await merge_resource(resources_incoming);
     }
