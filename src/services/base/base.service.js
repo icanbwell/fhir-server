@@ -973,7 +973,23 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         // return func();
         // return await Promise.all(resources_incoming.map(async x => await merge_resource(x)));
         // return async.map(resources_incoming, async x => await merge_resource(x));
-        return async.mapSeries(resources_incoming, async x => await merge_resource(x));
+        // find items without duplicates and run them in parallel
+
+        // https://stackoverflow.com/questions/53212020/get-list-of-duplicate-objects-in-an-array-of-objects
+        const lookup = resources_incoming.reduce((a, e) => {
+            a[e.id] = ++a[e.id] || 0;
+            return a;
+        }, {});
+
+        const duplicate_id_resources = resources_incoming.filter(e => lookup[e.id]);
+        const non_duplicate_id_resources = resources_incoming.filter(e => !lookup[e.id]);
+
+        return await Promise.all([
+            async.map(non_duplicate_id_resources, async x => await merge_resource(x)), // run in parallel
+            async.mapSeries(duplicate_id_resources, async x => await merge_resource(x)) // run in series
+        ]);
+        // but run items with duplicates in series so merging works properly
+        // return async.mapSeries(resources_incoming, async x => await merge_resource(x));
         // const newVar = await async.series(resources_incoming.map(async x => await merge_resource(x)));
         // return newVar;
     } else {
