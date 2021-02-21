@@ -59,6 +59,7 @@
     "express": "^4.17.1",
     "fast-json-patch": "^3.0.0-1",
     "http-terminator": "^3.0.0",
+    "immer": "^8.0.1",
     "joi": "^17.4.0",
     "moment-timezone": "^0.5.33",
     "mongodb": "^3.6.4",

@@ -35,6 +35,7 @@ init:
 .PHONY:update
 update:
 	yarn install --no-optional --verbose
+	npm i --package-lock-only
 
 .PHONY:tests
 tests:
