@@ -835,8 +835,12 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logInfo(resource_to_merge);
                 logInfo('------ end incoming document --------');
 
+                const my_data = deepcopy(data);
+                delete my_data['_id']; // remove _id since that is an internal
+
+                // new Resource(data)
                 // for speed, first check if the incoming resource is exactly the same
-                if (deepEqual(resource_to_merge, foundResource) === true) {
+                if (deepEqual(my_data, resource_to_merge) === true) {
                     logInfo('No changes detected in updated resource');
                     return {
                         id: id,
