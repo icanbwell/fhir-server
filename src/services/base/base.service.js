@@ -11,7 +11,8 @@ const {NotAllowedError, NotFoundError, BadRequestError, NotValidatedError} = req
 const {validate, applyPatch, compare} = require('fast-json-patch');
 const deepmerge = require('deepmerge');
 const deepcopy = require('deepcopy');
-const deepEqual = require('deep-equal');
+// const deepEqual = require('deep-equal');
+const deepEqual = require('fast-deep-equal');
 const sendToS3 = require('../../utils/aws-s3');
 
 const async = require('async');
@@ -562,6 +563,7 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         try {
             await collection.insertOne(doc);
         } catch (e) {
+            // noinspection ExceptionCaughtLocallyJS
             throw new BadRequestError(e);
         }
         // Save the resource to history
@@ -832,6 +834,18 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logInfo('------ incoming document --------');
                 logInfo(resource_to_merge);
                 logInfo('------ end incoming document --------');
+
+                // for speed, first check if the incoming resource is exactly the same
+                if (deepEqual(resource_to_merge, foundResource) === true) {
+                    logInfo('No changes detected in updated resource');
+                    return {
+                        id: id,
+                        created: false,
+                        updated: false,
+                        resource_version: foundResource.meta.versionId,
+                        message: 'No changes detected in updated resource'
+                    };
+                }
 
                 let mergeObjectOrArray;
                 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
@@ -1337,9 +1351,8 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
     };
 };
 
-// noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
-module.exports.validate = async (args, {req}, resource_name, collection_name) => {
+module.exports.validate = async (args, {req}, resource_name) => {
     logRequest(`${resource_name} >>> validate`);
 
     let resource_incoming = req.body;
