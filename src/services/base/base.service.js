@@ -908,6 +908,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                         message: 'No changes detected in updated resource'
                     };
                 }
+                logRequest(`${resource_name} >>> merging ${id}`);
                 // now apply the patches to the found resource
                 let patched_incoming_data = applyPatch(data, patchContent).newDocument;
                 let patched_resource_incoming = new Resource(patched_incoming_data);
