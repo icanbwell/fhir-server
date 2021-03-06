@@ -11,7 +11,7 @@ class BadRequestError extends ServerError {
             issue: [
                 {
                     severity: 'error',
-                    code: 'internal',
+                    code: 'invalid',
                     details: {text: error.message},
                     diagnostics: env.IS_PRODUCTION ? error.message : error.toString(),
                 },
@@ -41,7 +41,7 @@ class NotFoundError extends ServerError {
             issue: [
                 {
                     severity: 'error',
-                    code: 'internal',
+                    code: 'not-found',
                     details: {text: message},
                 },
             ],
@@ -69,7 +69,7 @@ class NotAllowedError extends ServerError {
             issue: [
                 {
                     severity: 'error',
-                    code: 'internal',
+                    code: 'forbidden',
                     details: {text: message},
                 },
             ],

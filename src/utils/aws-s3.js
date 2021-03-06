@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get({});
-const Sentry = require('./sentry');
+const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
+// const Sentry = require('./sentry');
 
 const AWS_BUCKET = process.env.AWS_BUCKET;
 const REGION = process.env.AWS_REGION || 'us-east-1';
@@ -24,33 +24,42 @@ module.exports = function sendToS3(prefix, resourceType, resource, currentDate, 
     if (!AWS_BUCKET) {
         return Promise.resolve(null);
     }
+    const key = `${AWS_FOLDER}/${prefix}/${resourceType}/${currentDate}/${id}.json`;
     return new Promise((resolve, reject) => {
-        const key = `${AWS_FOLDER}/${prefix}/${resourceType}/${currentDate}/${id}.json`;
-        const params = {
-            Body: JSON.stringify(resource),
-            Bucket: AWS_BUCKET,
-            Key: key,
-            ContentType: 'application/json',
-            ServerSideEncryption: 'AES256',
-        };
-        s3.putObject(params, function (err, data) {
-            if (err) {
-                const sts = new AWS.STS();
-                sts.getCallerIdentity(function (_error, role_data) {
-                    logger.error('[AWS-S3] Failed to put object: ' +
-                        key + ' in bucket: ' + AWS_BUCKET + ' with user: ' + JSON.stringify(role_data));
-                    logger.error(
-                        '[AWS-S3] Object: ',
-                        JSON.stringify(resource)
-                    );
-                    logger.error('[AWS-S3] Error: ' + key + ':', err);
-                    Sentry.captureException(err);
-                    return reject(err);
-                });
-            } else {
-                logger.info('[AWS-S3] Successfully placed object in bucket');
-                return resolve(data);
-            }
-        });
+        try {
+            const params = {
+                Body: JSON.stringify(resource),
+                Bucket: AWS_BUCKET,
+                Key: key,
+                ContentType: 'application/json',
+                ServerSideEncryption: 'AES256',
+            };
+            s3.putObject(params, function (err, data) {
+                if (err) {
+                    const sts = new AWS.STS();
+                    sts.getCallerIdentity(function (_error, role_data) {
+                        logger.error('[AWS-S3] Failed to put object: ' +
+                            key + ' in bucket: ' + AWS_BUCKET + ' with user: ' + JSON.stringify(role_data));
+                        logger.error(
+                            '[AWS-S3] Object: ',
+                            JSON.stringify(resource)
+                        );
+                        logger.error('[AWS-S3] Error: ' + key + ':', err);
+                        // Sentry.captureException(err);
+                        return reject(err);
+                    });
+                } else {
+                    logger.info('[AWS-S3] Successfully placed object in bucket');
+                    return resolve(data);
+                }
+            });
+        } catch (e) {
+            logger.error('[AWS-S3] Error to put object: ' +
+                key + ' in bucket: ' + AWS_BUCKET + '. Error=' + e);
+            return resolve(null);
+        }
+    }).catch(function (e) {
+        logger.error('[AWS-S3] Error in promise to put object: ' +
+            key + ' in bucket: ' + AWS_BUCKET + '. Error=' + e);
     });
 };
