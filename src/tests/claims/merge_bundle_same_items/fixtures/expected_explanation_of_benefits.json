@@ -436,7 +436,134 @@
             }
           }
         ]
-      }
+      },
+      {
+      "id": "WPS-Claim-19A000000400-2",
+      "sequence": 2,
+      "revenue": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/ex-revenue-center",
+            "code": "0730"
+          }
+        ]
+      },
+      "productOrService": {},
+      "modifier": [],
+      "servicedPeriod": {},
+      "locationCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace",
+            "code": "NA"
+          }
+        ]
+      },
+      "quantity": {
+        "value": 1
+      },
+      "adjudication": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "submittedamount",
+                "display": "Submitted Amount"
+              }
+            ]
+          },
+          "amount": {
+            "value": 201.96
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "allowedamount",
+                "display": "Allowed Amount"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "deductibleamount",
+                "display": "Deductible"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "coinsuranceamount",
+                "display": "CoInsurance Amount"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "copayamount",
+                "display": "Copay Amount"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                "code": "cobamount",
+                "display": "Coordination of Benefit Paid Amount"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+                "code": "paymentamount",
+                "display": "Amount Paid"
+              }
+            ]
+          },
+          "amount": {
+            "value": 0
+          }
+        }
+      ]
+    }
+
     ]
   }
 ]
