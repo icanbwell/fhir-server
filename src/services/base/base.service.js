@@ -914,11 +914,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                                     let insertedItem = false;
                                     while (index < oldItem.length) {
                                         const element = oldItem[index];
-                                        if (element['sequence'] > my_item['sequence']) {
+                                        // if item has not already been inserted then insert before the next sequence
+                                        if (!insertedItem && (element['sequence'] > my_item['sequence'])) {
                                             result_array.push(my_item); // add the new item before
                                             result_array.push(element); // then add the old item
                                             insertedItem = true;
-                                            break;
                                         } else {
                                             result_array.push(element); // just add the old item
                                         }
@@ -929,11 +929,10 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                                         result_array.push(my_item);
                                     }
                                 } else {
+                                    // no sequence property is set on this item so just insert at the end
                                     if (result_array === null) {
                                         result_array = deepcopy(oldItem); // deep copy so we don't change the original object
                                     }
-
-                                    // no sequence property is set on this item so just insert at the end
                                     result_array.push(my_item);
                                 }
                             }
