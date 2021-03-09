@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 // const Sentry = require('./sentry');
+const moment = require('moment-timezone');
 
 const AWS_BUCKET = process.env.AWS_BUCKET;
 const REGION = process.env.AWS_REGION || 'us-east-1';
@@ -18,13 +19,16 @@ const s3 = new AWS.S3({
  * @param {*} resource - parsed form body
  * @param currentDate
  * @param {*} id - first name for key
+ * @param filename_postfix - Optional postfix for filename
  * @return {Promise<data|err>}
  */
-module.exports = function sendToS3(prefix, resourceType, resource, currentDate, id) {
+module.exports = function sendToS3(prefix, resourceType, resource, currentDate, id, filename_postfix) {
     if (!AWS_BUCKET) {
         return Promise.resolve(null);
     }
-    const key = `${AWS_FOLDER}/${prefix}/${resourceType}/${currentDate}/${id}.json`;
+    const currentTime = moment.utc().format('HH-mm-ss');
+    const randomString = Math.random().toString(36).substring(0, 5);
+    const key = `${AWS_FOLDER}/${prefix}/${resourceType}/${currentDate}/${id}/${currentTime}-${filename_postfix}-${randomString}.json`;
     return new Promise((resolve, reject) => {
         try {
             const params = {
