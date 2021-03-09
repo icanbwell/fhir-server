@@ -905,10 +905,37 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                                         continue;
                                     }
                                 }
-                                if (result_array === null) {
-                                    result_array = deepcopy(oldItem); // deep copy so we don't change the original object
+                                // insert based on sequence if present
+                                if ('sequence' in my_item) {
+                                    result_array = [];
+                                    // go through the list until you find a sequence number that is greater than the new
+                                    // item and then insert before it
+                                    let index = 0;
+                                    let insertedItem = false;
+                                    while (index < oldItem.length) {
+                                        const element = oldItem[index];
+                                        if (element['sequence'] > my_item['sequence']) {
+                                            result_array.push(my_item); // add the new item before
+                                            result_array.push(element); // then add the old item
+                                            insertedItem = true;
+                                            break;
+                                        } else {
+                                            result_array.push(element); // just add the old item
+                                        }
+                                        index += 1;
+                                    }
+                                    if (!insertedItem) {
+                                        // if no sequence number greater than this was found then add at the end
+                                        result_array.push(my_item);
+                                    }
+                                } else {
+                                    if (result_array === null) {
+                                        result_array = deepcopy(oldItem); // deep copy so we don't change the original object
+                                    }
+
+                                    // no sequence property is set on this item so just insert at the end
+                                    result_array.push(my_item);
                                 }
-                                result_array.push(my_item);
                             }
                         }
                         if (result_array !== null) {
