@@ -756,6 +756,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     logInfo('-----------------');
 
     // this function is called for each resource
+    // returns an OperationOutcome
     async function merge_resource(resource_to_merge) {
 
         let id = resource_to_merge.id;
@@ -766,7 +767,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             const operationOutcome = validateResource(resource_to_merge, resource_name, req.path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                operationOutcome.expression = [
+                operationOutcome['expression'] = [
                     resource_name + '/' + id
                 ];
                 await sendToS3('validation_failures',
@@ -779,7 +780,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     operationOutcome,
                     currentDate,
                     id);
-                throw new NotValidatedError(operationOutcome);
+                return operationOutcome;
             }
             logInfo('-----------------');
         }
@@ -803,8 +804,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             let db = globals.get(CLIENT_DB);
             let collection = db.collection(`${collection_name}_${base_version}`);
 
-            // Get current record
-            // Query our collection for this observation
+            // Query our collection for this id
             let data = await collection.findOne({id: id.toString()});
 
             // create a resource with incoming data
@@ -838,7 +838,6 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 const my_data = deepcopy(data);
                 delete my_data['_id']; // remove _id since that is an internal
 
-                // new Resource(data)
                 // for speed, first check if the incoming resource is exactly the same
                 if (deepEqual(my_data, resource_to_merge) === true) {
                     logInfo('No changes detected in updated resource');
