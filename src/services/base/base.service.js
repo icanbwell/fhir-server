@@ -996,7 +996,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                         },
                         currentDate,
                         id,
-                        'merge_' + requestId + '_' + meta.versionId);
+                        'merge_' + meta.versionId + '_' + requestId);
                 }
             } else {
                 // not found so insert
