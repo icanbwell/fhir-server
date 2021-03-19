@@ -108,9 +108,14 @@ let tokenQueryBuilder = function (target, type, field, required) {
  * @return {JSON} queryBuilder
  */
 let referenceQueryBuilder = function (target, field) {
+    let queryBuilder = {};
+    // noinspection JSIncompatibleTypesComparison
+    if (target === null){
+        queryBuilder[field] = {$exists: false};
+        return queryBuilder;
+    }
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = target.match(regex);
-    let queryBuilder = {};
 
     // Check if target is a url
     if (match) {

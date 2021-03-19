@@ -64,7 +64,7 @@ describe('Questionnaire Response Tests', () => {
                                 return cb(err, resp);
                             }),
                     (results, cb) => request
-                        .get('/4_0_0/QuestionnaireResponse?patient=')
+                        .get('/4_0_0/QuestionnaireResponse?patient:missing=true')
                         .set('Content-Type', 'application/fhir+json')
                         .set('Accept', 'application/fhir+json')
                         .expect(200, cb)

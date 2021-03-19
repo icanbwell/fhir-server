@@ -39,7 +39,7 @@ let logRequest = (msg) => {
 const {
     stringQueryBuilder,
     tokenQueryBuilder,
-    // referenceQueryBuilder,
+    referenceQueryBuilder,
     addressQueryBuilder,
     nameQueryBuilder,
     dateQueryBuilder,
@@ -112,18 +112,19 @@ let buildR4SearchQuery = (resource_name, args) => {
             query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
         }
     }
-    if (Object.prototype.hasOwnProperty.call(args, 'patient')) {
+    if (Object.prototype.hasOwnProperty.call(args, 'patient') || Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
         let patient_reference = 'Patient/' + patient;
-        if (!args['patient']){
+        if (Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
             patient_reference = null;
         }
         // each Resource type has a different place to put the patient info
         if (['Patient'].includes(resource_name)) {
             query.id = patient;
         } else if (['AllergyIntolerance', 'Immunization', 'RelatedPerson', 'Device'].includes(resource_name)) {
-            query['patient.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'patient.reference'));
         } else if (['Appointment'].includes(resource_name)) {
-            query['participant.actor.reference'] = patient_reference; //TODO: participant is a list
+            //TODO: participant is a list
+            and_segments.push(referenceQueryBuilder(patient_reference, 'participant.actor.reference'));
         } else if (['CarePlan',
             'Condition',
             'DocumentReference',
@@ -134,9 +135,9 @@ let buildR4SearchQuery = (resource_name, args) => {
             'ServiceRequest',
             'CareTeam',
             'QuestionnaireResponse'].includes(resource_name)) {
-            query['subject.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'subject.reference'));
         } else if (['Coverage'].includes(resource_name)) {
-            query['beneficiary.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'beneficiary.reference'));
         } else {
             logger.error(`No mapping for searching by patient for ${resource_name}: `);
         }
