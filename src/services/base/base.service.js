@@ -112,8 +112,11 @@ let buildR4SearchQuery = (resource_name, args) => {
             query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
         }
     }
-    if (patient) {
-        const patient_reference = 'Patient/' + patient;
+    if (Object.prototype.hasOwnProperty.call(args, 'patient')) {
+        let patient_reference = 'Patient/' + patient;
+        if (!args[patient]){
+            patient_reference = null;
+        }
         // each Resource type has a different place to put the patient info
         if (['Patient'].includes(resource_name)) {
             query.id = patient;
