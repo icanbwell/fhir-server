@@ -154,50 +154,82 @@ let buildR4SearchQuery = (resource_name, args) => {
             logger.error(`No mapping for searching by patient for ${resource_name}: `);
         }
     }
-    if (practitioner) {
+    if (practitioner || args['practitioner:missing']) {
         const practitioner_reference = 'Practitioner/' + practitioner;
+        /**
+         * @type {?boolean}
+         */
+        let practitioner_exists_flag = null;
+        if (args['practitioner:missing']) {
+            practitioner_exists_flag = !isTrue(args['practitioner:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Practitioner'].includes(resource_name)) {
             query.id = practitioner;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['practitioner.reference'] = practitioner_reference;
+            and_segments.push(referenceQueryBuilder(practitioner_reference, 'practitioner.reference', practitioner_exists_flag));
         } else {
             logger.error(`No mapping for searching by practitioner for ${resource_name}: `);
         }
     }
-    if (organization) {
+    if (organization || args['organization:missing']) {
         const organization_reference = 'Organization/' + organization;
+        /**
+         * @type {?boolean}
+         */
+        let organization_exists_flag = null;
+        if (args['organization:missing']) {
+            organization_exists_flag = !isTrue(args['organization:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Organization'].includes(resource_name)) {
             query.id = organization;
         } else if (['HealthcareService'].includes(resource_name)) {
-            query['providedBy.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'providedBy.reference', organization_exists_flag));
         } else if (['InsurancePlan'].includes(resource_name)) {
-            query['ownedBy.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'ownedBy.reference', organization_exists_flag));
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['organization.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'organization.reference', organization_exists_flag));
         } else {
             logger.error(`No mapping for searching by organization for ${resource_name}: `);
         }
     }
-    if (location) {
+    if (location || args['location:missing']) {
         const location_reference = 'Location/' + location;
+        /**
+         * @type {?boolean}
+         */
+        let location_exists_flag = null;
+        if (args['location:missing']) {
+            location_exists_flag = !isTrue(args['location:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Location'].includes(resource_name)) {
             query.id = location;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['location.reference'] = location_reference;
+            and_segments.push(referenceQueryBuilder(location_reference, 'location.reference', location_exists_flag));
         } else {
             logger.error(`No mapping for searching by location for ${resource_name}: `);
         }
     }
-    if (healthcareService) {
+    if (healthcareService || args['healthcareService:missing']) {
         const healthcareService_reference = 'HealthcareService/' + healthcareService;
+        /**
+         * @type {?boolean}
+         */
+        let healthcareService_exists_flag = null;
+        if (args['healthcareService:missing']) {
+            healthcareService_exists_flag = !isTrue(args['healthcareService:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['HealthcareService'].includes(resource_name)) {
             query.id = healthcareService;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['healthcareService.reference'] = healthcareService_reference;
+            and_segments.push(referenceQueryBuilder(healthcareService_reference, 'healthcareService.reference', healthcareService_exists_flag));
         } else {
             logger.error(`No mapping for searching by healthcareService for ${resource_name}: `);
         }
