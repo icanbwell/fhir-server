@@ -45,6 +45,14 @@ const {
     dateQueryBuilder,
 } = require('../../utils/querybuilder.util');
 
+/**
+ * returns whether the parameter is false or a string "false"
+ * @param s
+ * @returns {boolean}
+ */
+let isTrue = function(s) {
+    return String(s).toLowerCase() === 'true';
+};
 
 let buildR4SearchQuery = (resource_name, args) => {
     // Common search params
@@ -113,18 +121,22 @@ let buildR4SearchQuery = (resource_name, args) => {
         }
     }
     if (Object.prototype.hasOwnProperty.call(args, 'patient') || Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
-        let patient_reference = 'Patient/' + patient;
+        const patient_reference = 'Patient/' + patient;
+        /**
+         * @type {?boolean}
+         */
+        let patient_exists_flag = null;
         if (Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
-            patient_reference = null;
+            patient_exists_flag = !isTrue(args['patient:missing']);
         }
         // each Resource type has a different place to put the patient info
         if (['Patient'].includes(resource_name)) {
             query.id = patient;
         } else if (['AllergyIntolerance', 'Immunization', 'RelatedPerson', 'Device'].includes(resource_name)) {
-            and_segments.push(referenceQueryBuilder(patient_reference, 'patient.reference'));
+            and_segments.push(referenceQueryBuilder(patient_reference, 'patient.reference', patient_exists_flag));
         } else if (['Appointment'].includes(resource_name)) {
             //TODO: participant is a list
-            and_segments.push(referenceQueryBuilder(patient_reference, 'participant.actor.reference'));
+            and_segments.push(referenceQueryBuilder(patient_reference, 'participant.actor.reference', patient_exists_flag));
         } else if (['CarePlan',
             'Condition',
             'DocumentReference',
@@ -135,9 +147,9 @@ let buildR4SearchQuery = (resource_name, args) => {
             'ServiceRequest',
             'CareTeam',
             'QuestionnaireResponse'].includes(resource_name)) {
-            and_segments.push(referenceQueryBuilder(patient_reference, 'subject.reference'));
+            and_segments.push(referenceQueryBuilder(patient_reference, 'subject.reference', patient_exists_flag));
         } else if (['Coverage'].includes(resource_name)) {
-            and_segments.push(referenceQueryBuilder(patient_reference, 'beneficiary.reference'));
+            and_segments.push(referenceQueryBuilder(patient_reference, 'beneficiary.reference', patient_exists_flag));
         } else {
             logger.error(`No mapping for searching by patient for ${resource_name}: `);
         }

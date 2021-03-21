@@ -7,6 +7,7 @@ const globals = require('../../../globals');
 const {CLIENT, CLIENT_DB} = require('../../../constants');
 const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.json');
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
+const expectedQuestionnaireResponseBundle2 = require('./fixtures/expected_questionnaire_responses_2.json');
 const async = require('async');
 const env = require('var');
 
@@ -79,6 +80,33 @@ describe('Questionnaire Response Tests', () => {
                                 delete element['meta']['lastUpdated'];
                             });
                             let expected = expectedQuestionnaireResponseBundle;
+                            expected.forEach(element => {
+                                if ('meta' in element) {
+                                    delete element['meta']['lastUpdated'];
+                                }
+                                // element['meta'] = {'versionId': '1'};
+                                if ('$schema' in element) {
+                                    delete element['$schema'];
+                                }
+                            });
+                            expect(body).toStrictEqual(expected);
+                        }, cb),
+                    (results, cb) => request
+                        .get('/4_0_0/QuestionnaireResponse?patient:missing=false')
+                        .set('Content-Type', 'application/fhir+json')
+                        .set('Accept', 'application/fhir+json')
+                        .expect(200, cb)
+                        .expect((resp) => {
+                            // clear out the lastUpdated column since that changes
+                            let body = resp.body;
+                            console.log('------- response 5 ------------');
+                            console.log(JSON.stringify(resp.body, null, 2));
+                            console.log('------- end response 5  ------------');
+                            expect(body.length).toBe(1);
+                            body.forEach(element => {
+                                delete element['meta']['lastUpdated'];
+                            });
+                            let expected = expectedQuestionnaireResponseBundle2;
                             expected.forEach(element => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
