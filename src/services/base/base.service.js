@@ -50,7 +50,7 @@ const {
  * @param s
  * @returns {boolean}
  */
-let isTrue = function(s) {
+let isTrue = function (s) {
     return String(s).toLowerCase() === 'true';
 };
 
@@ -120,13 +120,13 @@ let buildR4SearchQuery = (resource_name, args) => {
             query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
         }
     }
-    if (Object.prototype.hasOwnProperty.call(args, 'patient') || Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
+    if (patient || args['patient:missing']) {
         const patient_reference = 'Patient/' + patient;
         /**
          * @type {?boolean}
          */
         let patient_exists_flag = null;
-        if (Object.prototype.hasOwnProperty.call(args, 'patient:missing')) {
+        if (args['patient:missing']) {
             patient_exists_flag = !isTrue(args['patient:missing']);
         }
         // each Resource type has a different place to put the patient info
