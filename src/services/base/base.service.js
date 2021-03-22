@@ -450,7 +450,7 @@ let get_all_args = (req, args) => {
  */
 module.exports.search = async (args, {req}, resource_name, collection_name) => {
     /**
-     * combinbed args
+     * combined args
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
