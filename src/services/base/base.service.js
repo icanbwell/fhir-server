@@ -4,6 +4,9 @@ const {CLIENT_DB} = require('../../constants');
 const moment = require('moment-timezone');
 const globals = require('../../globals');
 // noinspection JSCheckFunctionSignatures
+/**
+ * @type {import('winston').logger}
+ */
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const {getUuid} = require('../../utils/uid.util');
 const {validateResource} = require('../../utils/validator.util');
@@ -18,20 +21,54 @@ const sendToS3 = require('../../utils/aws-s3');
 const async = require('async');
 const env = require('var');
 
+/**
+ * @typedef Resource
+ * @type {object}
+ * @property {string} id - an ID.
+ * @property {string} resourceType
+ */
+
+/**
+ * @typedef Meta
+ * @type {object}
+ * @property {string} versionId - an ID.
+ * @property {string} lastUpdated
+ * @property {string} source
+ */
+
+/**
+ * Gets class for the given resource_name and version
+ * @param {string} base_version
+ * @param {string} resource_name
+ * @returns {function(?Object):Resource}
+ */
 let getResource = (base_version, resource_name) => {
     return resolveSchema(base_version, resource_name);
 };
 
+/**
+ * Gets class for Meta
+ * @param {string} base_version
+ * @returns {function({Object}):Meta} Meta class
+ */
 let getMeta = (base_version) => {
     return resolveSchema(base_version, 'Meta');
 };
 
+/**
+ * Logs as info if env.IS_PRODUCTION is not set
+ * @param {*} msg
+ */
 let logInfo = (msg) => {
     if (!env.IS_PRODUCTION) {
         logger.info(msg);
     }
 };
 
+/**
+ * Always logs regardless of env.IS_PRODUCTION
+ * @param {*} msg
+ */
 let logRequest = (msg) => {
     logger.info(msg);
 };
@@ -39,13 +76,27 @@ let logRequest = (msg) => {
 const {
     stringQueryBuilder,
     tokenQueryBuilder,
-    // referenceQueryBuilder,
+    referenceQueryBuilder,
     addressQueryBuilder,
     nameQueryBuilder,
     dateQueryBuilder,
 } = require('../../utils/querybuilder.util');
 
+/**
+ * returns whether the parameter is false or a string "false"
+ * @param {string | boolean} s
+ * @returns {boolean}
+ */
+let isTrue = function (s) {
+    return String(s).toLowerCase() === 'true';
+};
 
+/**
+ * Builds a mongo query for search parameters
+ * @param {string} resource_name
+ * @param {string[]} args
+ * @returns {Object} A query object to use with Mongo
+ */
 let buildR4SearchQuery = (resource_name, args) => {
     // Common search params
     let {id} = args;
@@ -60,7 +111,7 @@ let buildR4SearchQuery = (resource_name, args) => {
     let address = args['address'];
     let address_city = args['address-city'];
     let address_country = args['address-country'];
-    let address_postalcode = args['address-postalcode'];
+    let addressPostalCode = args['address-postalcode'];
     let address_state = args['address-state'];
 
     let identifier = args['identifier'];
@@ -80,6 +131,10 @@ let buildR4SearchQuery = (resource_name, args) => {
     let active = args['active'];
 
     let query = {};
+    /**
+     * and segments
+     * @type {Object[]}
+     */
     let and_segments = [];
 
     if (id) {
@@ -112,15 +167,23 @@ let buildR4SearchQuery = (resource_name, args) => {
             query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
         }
     }
-    if (patient) {
+    if (patient || args['patient:missing']) {
         const patient_reference = 'Patient/' + patient;
+        /**
+         * @type {?boolean}
+         */
+        let patient_exists_flag = null;
+        if (args['patient:missing']) {
+            patient_exists_flag = !isTrue(args['patient:missing']);
+        }
         // each Resource type has a different place to put the patient info
         if (['Patient'].includes(resource_name)) {
             query.id = patient;
         } else if (['AllergyIntolerance', 'Immunization', 'RelatedPerson', 'Device'].includes(resource_name)) {
-            query['patient.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'patient.reference', patient_exists_flag));
         } else if (['Appointment'].includes(resource_name)) {
-            query['participant.actor.reference'] = patient_reference; //TODO: participant is a list
+            //TODO: participant is a list
+            and_segments.push(referenceQueryBuilder(patient_reference, 'participant.actor.reference', patient_exists_flag));
         } else if (['CarePlan',
             'Condition',
             'DocumentReference',
@@ -131,57 +194,89 @@ let buildR4SearchQuery = (resource_name, args) => {
             'ServiceRequest',
             'CareTeam',
             'QuestionnaireResponse'].includes(resource_name)) {
-            query['subject.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'subject.reference', patient_exists_flag));
         } else if (['Coverage'].includes(resource_name)) {
-            query['beneficiary.reference'] = patient_reference;
+            and_segments.push(referenceQueryBuilder(patient_reference, 'beneficiary.reference', patient_exists_flag));
         } else {
             logger.error(`No mapping for searching by patient for ${resource_name}: `);
         }
     }
-    if (practitioner) {
+    if (practitioner || args['practitioner:missing']) {
         const practitioner_reference = 'Practitioner/' + practitioner;
+        /**
+         * @type {?boolean}
+         */
+        let practitioner_exists_flag = null;
+        if (args['practitioner:missing']) {
+            practitioner_exists_flag = !isTrue(args['practitioner:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Practitioner'].includes(resource_name)) {
             query.id = practitioner;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['practitioner.reference'] = practitioner_reference;
+            and_segments.push(referenceQueryBuilder(practitioner_reference, 'practitioner.reference', practitioner_exists_flag));
         } else {
             logger.error(`No mapping for searching by practitioner for ${resource_name}: `);
         }
     }
-    if (organization) {
+    if (organization || args['organization:missing']) {
         const organization_reference = 'Organization/' + organization;
+        /**
+         * @type {?boolean}
+         */
+        let organization_exists_flag = null;
+        if (args['organization:missing']) {
+            organization_exists_flag = !isTrue(args['organization:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Organization'].includes(resource_name)) {
             query.id = organization;
         } else if (['HealthcareService'].includes(resource_name)) {
-            query['providedBy.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'providedBy.reference', organization_exists_flag));
         } else if (['InsurancePlan'].includes(resource_name)) {
-            query['ownedBy.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'ownedBy.reference', organization_exists_flag));
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['organization.reference'] = organization_reference;
+            and_segments.push(referenceQueryBuilder(organization_reference, 'organization.reference', organization_exists_flag));
         } else {
             logger.error(`No mapping for searching by organization for ${resource_name}: `);
         }
     }
-    if (location) {
+    if (location || args['location:missing']) {
         const location_reference = 'Location/' + location;
+        /**
+         * @type {?boolean}
+         */
+        let location_exists_flag = null;
+        if (args['location:missing']) {
+            location_exists_flag = !isTrue(args['location:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['Location'].includes(resource_name)) {
             query.id = location;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['location.reference'] = location_reference;
+            and_segments.push(referenceQueryBuilder(location_reference, 'location.reference', location_exists_flag));
         } else {
             logger.error(`No mapping for searching by location for ${resource_name}: `);
         }
     }
-    if (healthcareService) {
+    if (healthcareService || args['healthcareService:missing']) {
         const healthcareService_reference = 'HealthcareService/' + healthcareService;
+        /**
+         * @type {?boolean}
+         */
+        let healthcareService_exists_flag = null;
+        if (args['healthcareService:missing']) {
+            healthcareService_exists_flag = !isTrue(args['healthcareService:missing']);
+        }
+
         // each Resource type has a different place to put the patient info
         if (['HealthcareService'].includes(resource_name)) {
             query.id = healthcareService;
         } else if (['PractitionerRole'].includes(resource_name)) {
-            query['healthcareService.reference'] = healthcareService_reference;
+            and_segments.push(referenceQueryBuilder(healthcareService_reference, 'healthcareService.reference', healthcareService_exists_flag));
         } else {
             logger.error(`No mapping for searching by healthcareService for ${resource_name}: `);
         }
@@ -217,8 +312,8 @@ let buildR4SearchQuery = (resource_name, args) => {
         query['address.country'] = stringQueryBuilder(address_country);
     }
 
-    if (address_postalcode) {
-        query['address.postalCode'] = stringQueryBuilder(address_postalcode);
+    if (addressPostalCode) {
+        query['address.postalCode'] = stringQueryBuilder(addressPostalCode);
     }
 
     if (address_state) {
@@ -264,7 +359,11 @@ let buildR4SearchQuery = (resource_name, args) => {
     return query;
 };
 
-
+/**
+ * Builds a mongo query for search parameters
+ * @param {string[]} args
+ * @returns {Object}
+ */
 let buildStu3SearchQuery = (args) => {
     // Common search params
     let {id} = args;
@@ -287,6 +386,11 @@ let buildStu3SearchQuery = (args) => {
     return query;
 };
 
+/**
+ * Builds a mongo query for search parameters
+ * @param {string[]} args
+ * @returns {Object}
+ */
 let buildDstu2SearchQuery = (args) => {
     // Common search params
     let {id} = args;
@@ -307,14 +411,28 @@ let buildDstu2SearchQuery = (args) => {
     return query;
 };
 
+/**
+ * combines args with args from request
+ * @param {IncomingMessage} req
+ * @param {string[]} args
+ * @returns {string[]} array of combined arguments
+ */
 let get_all_args = (req, args) => {
     // asymmetric hides certain query parameters from us so we need to get them from the context
     const my_args = {};
+    /**
+     * args array
+     * @type {[string][]}
+     */
     const my_args_array = Object.entries(req.query);
     my_args_array.forEach(x => {
         my_args[x[0]] = x[1];
     });
 
+    /**
+     * combined args
+     * @type {string[]}
+     */
     const combined_args = Object.assign({}, args, my_args);
     logInfo('---- combined_args ----');
     logInfo(combined_args);
@@ -332,20 +450,31 @@ let check_fhir_mismatch = (cleaned, patched) => {
 
 
 /**
- *
- * @param {*} args
- * @param resource_name
- * @param collection_name
- * @param {*} context
+ * does a FHIR Search
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ * @return {Resource[] | Resource} array of resources
  */
 module.exports.search = async (args, {req}, resource_name, collection_name) => {
+    /**
+     * combined args
+     * @type {string[]}
+     */
     const combined_args = get_all_args(req, args);
     logRequest(resource_name + ' >>> search');
     logRequest('---- combined_args ----');
     logRequest(args);
     logRequest('--------');
 
+    /**
+     * @type {string}
+     */
     let {base_version} = args;
+    /**
+     * @type {Object}
+     */
     let query;
 
     if (base_version === VERSIONS['3_0_1']) {
@@ -357,14 +486,28 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
 
     // Grab an instance of our DB and collection
+    /**
+     * mongo db connection
+     * @type {Db}
+     */
     let db = globals.get(CLIENT_DB);
+    /**
+     * mongo collection
+     * @type {Collection}
+     */
     let collection = db.collection(`${collection_name}_${base_version}`);
+    /**
+     * @type {function(?Object): Resource}
+     */
     let Resource = getResource(base_version, resource_name);
 
     logInfo('---- query ----');
     logInfo(query);
     logInfo('--------');
 
+    /**
+     * @type {Object}
+     */
     let options = {};
     if (combined_args['_elements']) {
         const properties_to_return_as_csv = combined_args['_elements'];
@@ -372,20 +515,39 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
         options = {['projection']: properties_to_return_list};
     }
     // Query our collection for this observation
+    /**
+     * @type {number}
+     */
     const maxMongoTimeMS = 30 * 1000;
+    /**
+     * mongo db cursor
+     * @type {Cursor}
+     */
     let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
     // noinspection JSUnfilteredForInLoop
     if (combined_args['_sort']) {
         // GET [base]/Observation?_sort=status,-date,category
         // Each item in the comma separated list is a search parameter, optionally with a '-' prefix.
         // The prefix indicates decreasing order; in its absence, the parameter is applied in increasing order.
+        /**
+         * @type {string}
+         */
         const sort_properties_as_csv = combined_args['_sort'];
+        /**
+         * @type {string[]}
+         */
         const sort_properties_list = sort_properties_as_csv.split(',');
         for (let i in sort_properties_list) {
             // noinspection JSUnfilteredForInLoop
+            /**
+             * @type {string}
+             */
             const x = sort_properties_list[i];
             if (x.startsWith('-')) {
                 // eslint-disable-next-line no-unused-vars
+                /**
+                 * @type {string}
+                 */
                 const x1 = x.substring(1);
                 cursor = cursor.sort({[x1]: -1});
             } else {
@@ -395,9 +557,18 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
 
     if (combined_args['_count']) {
+        // for consistency in results while paging, always sort by _id
+        // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
+        cursor = cursor.sort({'_id': 1});
+        /**
+         * @type {number}
+         */
         const nPerPage = Number(combined_args['_count']);
 
         if (combined_args['_getpagesoffset']) {
+            /**
+             * @type {number}
+             */
             const pageNumber = Number(combined_args['_getpagesoffset']);
             cursor = cursor.skip(pageNumber > 0 ? (pageNumber * nPerPage) : 0);
         }
@@ -410,13 +581,30 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
 
     // Resource is a resource cursor, pull documents out before resolving
+    /**
+     * resources to return
+     * @type {Resource[]}
+     */
     const resources = [];
     while (await cursor.hasNext()) {
+        /**
+         * element
+         * @type {Object}
+         */
         const element = await cursor.next();
         if (combined_args['_elements']) {
+            /**
+             * @type {string}
+             */
             const properties_to_return_as_csv = combined_args['_elements'];
+            /**
+             * @type {string[]}
+             */
             const properties_to_return_list = properties_to_return_as_csv.split(',');
-            const element_to_return = new Resource();
+            /**
+             * @type {Resource}
+             */
+            const element_to_return = new Resource(null);
             for (const property of properties_to_return_list) {
                 if (property in element_to_return) {
                     // noinspection JSUnfilteredForInLoop
@@ -430,7 +618,13 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
 
     if (env.RETURN_BUNDLE || combined_args['_bundle']) {
+        /**
+         * @type {function({Object}):Resource}
+         */
         const Bundle = getResource(base_version, 'bundle');
+        /**
+         * @type {{resource: Resource}[]}
+         */
         const entries = resources.map(resource => {
             return {resource: resource};
         });
@@ -444,6 +638,13 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
 };
 
+/**
+ * does a FHIR Search By Id
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> searchById`);
@@ -482,6 +683,13 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
     }
 };
 
+/**
+ * does a FHIR Create (POST)
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 module.exports.create = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> create`);
 
@@ -552,6 +760,9 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         logInfo(`id: ${id}`);
 
         // Create the resource's metadata
+        /**
+         * @type {function({Object}): Meta}
+         */
         let Meta = getMeta(base_version);
         resource.meta = new Meta({
             versionId: '1',
@@ -599,6 +810,13 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
     }
 };
 
+/**
+ * does a FHIR Update (PUT)
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 module.exports.update = async (args, {req}, resource_name, collection_name) => {
     logRequest(`'${resource_name} >>> update`);
 
@@ -711,6 +929,9 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
             let patched_incoming_data = applyPatch(data, patchContent).newDocument;
             let patched_resource_incoming = new Resource(patched_incoming_data);
             // update the metadata to increment versionId
+            /**
+             * @type {Meta}
+             */
             let meta = foundResource.meta;
             meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
             meta.lastUpdated = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
@@ -767,12 +988,26 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
     }
 };
 
+/**
+ * does a FHIR Merge
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ * @return {Resource | Resource[]}
+ */
 module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     logRequest(`'${resource_name} >>> merge`);
 
     // read the incoming resource from request body
+    /**
+     * @type {Object[]}
+     */
     let resources_incoming = req.body;
-    logInfo('args', args);
+    logInfo(args);
+    /**
+     * @type {String}
+     */
     let {base_version} = args;
 
     // logInfo('--- request ----');
@@ -780,7 +1015,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     // logInfo('-----------------');
 
     // Assign a random number to this batch request
+    /**
+     * @type {string}
+     */
     const requestId = Math.random().toString(36).substring(0, 5);
+    /**
+     * @type {string}
+     */
     const currentDate = moment.utc().format('YYYY-MM-DD');
 
     logInfo('--- body ----');
@@ -789,8 +1030,14 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
     // this function is called for each resource
     // returns an OperationOutcome
+    /**
+     * @param {Object} resource_to_merge
+     * @return {Promise<{issue: [{severity: string, diagnostics: *, code: string, expression: [string], details: {text: string}}], resourceType: string}|{created: boolean, id: String, message: string, updated: boolean, resource_version}|{created: (*|boolean), id: String, updated: *, resource_version}|*>}
+     */
     async function merge_resource(resource_to_merge) {
-
+        /**
+         * @type {String}
+         */
         let id = resource_to_merge.id;
 
         if (env.LOG_ALL_SAVES) {
@@ -802,9 +1049,15 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 'merge_' + requestId);
         }
 
+        /**
+         * @type {string[]}
+         */
         const combined_args = get_all_args(req, args);
         if (env.VALIDATE_SCHEMA || combined_args['_validate']) {
             logInfo('--- validate schema ----');
+            /**
+             * @type {?OperationOutcome}
+             */
             const operationOutcome = validateResource(resource_to_merge, resource_name, req.path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 operationOutcome['expression'] = [
@@ -833,22 +1086,44 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             logInfo(resource_to_merge);
 
             // Grab an instance of our DB and collection
+            /**
+             * @type {Db}
+             */
             let db = globals.get(CLIENT_DB);
+            /**
+             * @type {Collection}
+             */
             let collection = db.collection(`${collection_name}_${base_version}`);
 
             // Query our collection for this id
+            /**
+             * @type {Object}
+             */
             let data = await collection.findOne({id: id.toString()});
 
             // create a resource with incoming data
+            /**
+             * @type {function({Object}):Resource}
+             */
             let Resource = getResource(base_version, resource_name);
 
+            /**
+             * @type {Object}
+             */
             let cleaned;
+            /**
+             * @type {Object}
+             */
             let doc;
 
             // check if resource was found in database or not
+            // noinspection JSUnusedLocalSymbols
             if (data && data.meta) {
                 // found an existing resource
                 logInfo(resource_name + ': merge found resource ' + '[' + data.id + ']: ' + data);
+                /**
+                 * @type {Resource}
+                 */
                 let foundResource = new Resource(data);
                 logInfo('------ found document --------');
                 logInfo(data);
@@ -859,6 +1134,9 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     resource_to_merge.meta = {};
                 }
                 // compare without checking source so we don't create a new version just because of a difference in source
+                /**
+                 * @type {string}
+                 */
                 const original_source = resource_to_merge.meta.source;
                 resource_to_merge.meta.versionId = foundResource.meta.versionId;
                 resource_to_merge.meta.lastUpdated = foundResource.meta.lastUpdated;
@@ -867,6 +1145,9 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logInfo(resource_to_merge);
                 logInfo('------ end incoming document --------');
 
+                /**
+                 * @type {Object}
+                 */
                 const my_data = deepcopy(data);
                 delete my_data['_id']; // remove _id since that is an internal
 
@@ -883,27 +1164,43 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 }
 
                 let mergeObjectOrArray;
+                /**
+                 * @type {{customMerge: (function(*): *)}}
+                 */
                 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
                 const options = {
                     // eslint-disable-next-line no-unused-vars
-                    customMerge: (key) => {
+                    customMerge: (/*key*/) => {
                         return mergeObjectOrArray;
                     }
                 };
-
+                /**
+                 * @param {?Object | Object[]} oldItem
+                 * @param {?Object | Object[]} newItem
+                 * @return {?Object | Object[]}
+                 */
                 mergeObjectOrArray = (oldItem, newItem) => {
                     if (deepEqual(oldItem, newItem)) {
                         return oldItem;
                     }
                     if (Array.isArray(oldItem)) {
+                        /**
+                         * @type {? Object[]}
+                         */
                         let result_array = null;
                         // iterate through all the new array and find any items that are not present in old array
                         for (let i = 0; i < newItem.length; i++) {
+                            /**
+                             * @type {Object}
+                             */
                             let my_item = newItem[i];
                             // if newItem[i] does not matches any item in oldItem then insert
                             if (oldItem.every(a => deepEqual(a, my_item) === false)) {
                                 if ('id' in my_item) {
                                     // find item in oldItem array that matches this one by id
+                                    /**
+                                     * @type {number}
+                                     */
                                     const matchingOldItemIndex = oldItem.findIndex(x => x['id'] === my_item['id']);
                                     if (matchingOldItemIndex > -1) {
                                         // check if id column exists and is the same
@@ -917,12 +1214,24 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                                 }
                                 // insert based on sequence if present
                                 if ('sequence' in my_item) {
+                                    /**
+                                     * @type {Object[]}
+                                     */
                                     result_array = [];
                                     // go through the list until you find a sequence number that is greater than the new
                                     // item and then insert before it
+                                    /**
+                                     * @type {number}
+                                     */
                                     let index = 0;
+                                    /**
+                                     * @type {boolean}
+                                     */
                                     let insertedItem = false;
                                     while (index < oldItem.length) {
+                                        /**
+                                         * @type {Object}
+                                         */
                                         const element = oldItem[index];
                                         // if item has not already been inserted then insert before the next sequence
                                         if (!insertedItem && (element['sequence'] > my_item['sequence'])) {
@@ -957,10 +1266,16 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 };
 
                 // data seems to get updated below
+                /**
+                 * @type {Object}
+                 */
                 let resource_merged = deepmerge(data, resource_to_merge, options);
 
                 // now create a patch between the document in db and the incoming document
                 //  this returns an array of patches
+                /**
+                 * @type {Operation[]}
+                 */
                 let patchContent = compare(data, resource_merged);
                 // ignore any changes to _id since that's an internal field
                 patchContent = patchContent.filter(item => item.path !== '/_id');
@@ -980,9 +1295,19 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 }
                 logRequest(`${resource_name} >>> merging ${id}`);
                 // now apply the patches to the found resource
+                // noinspection JSCheckFunctionSignatures
+                /**
+                 * @type {Object}
+                 */
                 let patched_incoming_data = applyPatch(data, patchContent).newDocument;
+                /**
+                 * @type {Object}
+                 */
                 let patched_resource_incoming = new Resource(patched_incoming_data);
                 // update the metadata to increment versionId
+                /**
+                 * @type {{versionId: string, lastUpdated: string, source: string}}
+                 */
                 let meta = foundResource.meta;
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 meta.lastUpdated = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
@@ -1014,6 +1339,9 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logInfo(resource_name + ': merge new resource ' + '[' + resource_to_merge.id + ']: ' + resource_to_merge);
                 if (!resource_to_merge.meta) {
                     // create the metadata
+                    /**
+                     * @type {function({Object}): Meta}
+                     */
                     let Meta = getMeta(base_version);
                     resource_to_merge.meta = new Meta({
                         versionId: '1',
@@ -1030,13 +1358,23 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
             // Insert/update our resource record
             // When using the $set operator, only the specified fields are updated
+            /**
+             * @type {Object}
+             */
             let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
 
             // save to history
+            /**
+             * @type {Collection}
+             */
             let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-
+            /**
+             * @type {Object & {_id: string}}
+             */
             let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-
+            /**
+             * @type {boolean}
+             */
             const created_entity = res.lastErrorObject && !res.lastErrorObject.updatedExisting;
             // Insert our resource record to history but don't assign _id
             delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
@@ -1088,12 +1426,20 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         //  may not finish adding to the db before the next item tries to merge
         // https://stackoverflow.com/questions/53212020/get-list-of-duplicate-objects-in-an-array-of-objects
         // create a lookup_by_id for duplicate ids
+        /**
+         * @type {Object}
+         */
         const lookup_by_id = resources_incoming.reduce((a, e) => {
             a[e.id] = ++a[e.id] || 0;
             return a;
         }, {});
-
+        /**
+         * @type {Object[]}
+         */
         const duplicate_id_resources = resources_incoming.filter(e => lookup_by_id[e.id]);
+        /**
+         * @type {Object[]}
+         */
         const non_duplicate_id_resources = resources_incoming.filter(e => !lookup_by_id[e.id]);
 
         return await Promise.all([
@@ -1105,6 +1451,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     }
 };
 
+/**
+ * does a FHIR $everything
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.everything = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> everything`);
@@ -1244,6 +1597,13 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
     }
 };
 
+/**
+ * does a FHIR Remove (DELETE)
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> remove`);
@@ -1274,6 +1634,13 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
     return {deleted: res.result && res.result.n};
 };
 
+/**
+ * does a FHIR Search By Version
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> searchByVersionId`);
@@ -1300,6 +1667,13 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
     }
 };
 
+/**
+ * does a FHIR History
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> history`);
@@ -1338,6 +1712,13 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
     return (resources);
 };
 
+/**
+ * does a FHIR History By Id
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> historyById`);
@@ -1377,6 +1758,13 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
     return (resources);
 };
 
+/**
+ * does a FHIR Patch
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (args, {req}, resource_name, collection_name) => {
     logRequest('Patient >>> patch');
@@ -1451,6 +1839,13 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
     };
 };
 
+/**
+ * does a FHIR Validate
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ */
 // eslint-disable-next-line no-unused-vars
 module.exports.validate = async (args, {req}, resource_name) => {
     logRequest(`${resource_name} >>> validate`);
