@@ -12,11 +12,11 @@ services:
       MONGO_HOSTNAME: mongo
       MONGO_DB_NAME: fhir
       MONGO_PORT: 27017
-      RESOURCE_SERVER: https://staging-icanbwell.auth.us-east-1.amazoncognito.com
-      AUTH_SERVER_URI: https://staging-icanbwell.auth.us-east-1.amazoncognito.com
-      CLIENT_ID: 6s1imi9c23l9um75tt15ffvqof
-      CLIENT_SECRET: rven14br5nl11sms9rpufsipafmj34es2q2n24oepahc8c24nn7
-      INTROSPECTION_URL: https://staging-icanbwell.auth.us-east-1.amazoncognito.com/us-east-1_wrEVOihnT/.well-known/openid-configuration
+      RESOURCE_SERVER: http://localhost:3000/
+      AUTH_SERVER_URI: http://myauthzserver.com
+      CLIENT_ID: client
+      CLIENT_SECRET: secret
+      INTROSPECTION_URL: https://myauthzserver.com/introspect
     ports:
       - '3000:3000'
     volumes:

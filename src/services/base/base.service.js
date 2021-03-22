@@ -1332,7 +1332,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                         },
                         currentDate,
                         id,
-                        'merge_' + meta.versionId + '_' + requestId);
+                        'merge_' + requestId + '_' + meta.versionId);
                 }
             } else {
                 // not found so insert
