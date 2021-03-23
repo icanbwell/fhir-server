@@ -9,7 +9,9 @@ publish:
 
 .PHONY:up
 up:
-	docker-compose -p fhir-dev -f docker-compose.yml up --detach
+	docker-compose -p fhir-dev -f docker-compose.yml up --detach && \
+	echo FHIR server: http://localhost:3000/stats && \
+	echo FHIR server: http://localhost:3000/4_0_0/Practitioner/
 
 .PHONY:down
 down:
