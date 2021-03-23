@@ -1428,16 +1428,14 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
      */
     async function merge_resource_with_retry(resource_to_merge) {
         let triesLeft = 2;
-        let keepTrying = false;
 
         do {
             try {
                 return await merge_resource(resource_to_merge);
             } catch (e) {
-                keepTrying = true;
                 triesLeft = triesLeft - 1;
             }
-        } while (keepTrying && (triesLeft > 0));
+        } while (triesLeft >= 0);
     }
 
     if (Array.isArray(resources_incoming)) {
