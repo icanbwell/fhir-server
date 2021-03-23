@@ -16,6 +16,7 @@ module.exports.strategy = new Strategy(function (token, done) {
         }
         const client_id = decodedToken.client_id;
         const scope = decodedToken.scope;
+        console.info('client_id: ' + client_id + 'scope: ' + scope);
         const context = null;
         return done(null, client_id, {scope, context});
     });

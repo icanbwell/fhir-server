@@ -20,9 +20,8 @@ module.exports.validate = function (token, callback) {
                     const exponent = keys[i].e;
                     const key_type = keys[i].kty;
                     const jwk = {kty: key_type, n: modulus, e: exponent};
-                    const pem = jwkToPem(jwk);
                     // console.info('pem: ' + pem);
-                    pems[key_id] = pem;
+                    pems[key_id] = jwkToPem(jwk);
                 }
                 const decodedJwt = jwt.decode(token, {complete: true});
                 if (!decodedJwt) {
@@ -40,12 +39,11 @@ module.exports.validate = function (token, callback) {
                         console.log('Invalid Token.');
                         callback(new Error('Invalid token'));
                     } else {
-                        console.log('Valid Token.' + payload);
+                        // console.log('Valid Token.');
                         callback(null, 'Valid token', payload);
                     }
                 });
             } else {
-                // console.log('Error! Unable to download JWKs: [' + (response.statusCode || 'No') + ']: ' + error);
                 console.log('Error! Unable to download JWKs: ' + response);
                 callback(response);
             }
