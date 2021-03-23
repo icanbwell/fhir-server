@@ -11,7 +11,7 @@ const globals = require('../../globals');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const {getUuid} = require('../../utils/uid.util');
 const {validateResource} = require('../../utils/validator.util');
-const {NotAllowedError, NotFoundError, BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
+const {NotAllowedError, NotFoundError, BadRequestError, NotValidatedError, UnauthorizedError} = require('../../utils/httpErrors');
 const {validate, applyPatch, compare} = require('fast-json-patch');
 const deepmerge = require('deepmerge');
 const deepcopy = require('deepcopy');
@@ -112,7 +112,7 @@ let verifyHasValidScopes = (name, action, user, scope) => {
             return;
         }
         console.info('user ' + user + ' with scopes [' + scopes + '] failed access check to [' + name + '.' + action + ']');
-        throw error;
+        throw new UnauthorizedError(error);
     }
 };
 

@@ -110,9 +110,40 @@ class NotValidatedError extends ServerError {
     }
 }
 
+class UnauthorizedError extends ServerError {
+    constructor(error, options = {}) {
+        super(error.message, {
+            // Set this to make the HTTP status code 401
+            statusCode: 401,
+            // Add any normal operation outcome stuff here
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'security',
+                    details: {text: error.message},
+                    diagnostics: env.IS_PRODUCTION ? error.message : error.toString(),
+                },
+            ],
+        });
+
+        // You can attach relevant information to the error instance
+        // (e.g.. the username)
+
+        for (const [key, value] of Object.entries(options)) {
+            this[key] = value;
+        }
+    }
+
+    get statusCode() {
+        return 401;
+    }
+}
+
+
 module.exports = {
     BadRequestError,
     NotFoundError,
     NotAllowedError,
-    NotValidatedError
+    NotValidatedError,
+    UnauthorizedError
 };

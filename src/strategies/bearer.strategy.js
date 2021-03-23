@@ -1,6 +1,8 @@
 const Strategy = require('passport-http-bearer').Strategy;
 const request = require('superagent');
 const env = require('var');
+const {UnauthorizedError} = require('../../utils/httpErrors');
+
 
 /**
  * Bearer Strategy
@@ -33,6 +35,6 @@ module.exports.strategy = new Strategy(function (token, done) {
       }
 
       // default return unauthorized
-      return done(new Error('Invalid token'));
+      return done(new UnauthorizedError(Error('Invalid token')));
     });
 });
