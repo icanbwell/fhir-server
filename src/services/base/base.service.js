@@ -501,7 +501,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     logRequest(resource_name + ' >>> search');
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
     logRequest('---- combined_args ----');
     logRequest(args);
     logRequest('--------');
@@ -688,7 +688,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
     logRequest(`${resource_name} >>> searchById`);
     logInfo(args);
 
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
     // Common search params
     let {id} = args;
@@ -733,7 +733,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
 module.exports.create = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> create`);
 
-    verifyHasValidScopes(resource_name.toLowerCase(), 'write', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
 
     let resource_incoming = req.body;
 
@@ -862,7 +862,7 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
 module.exports.update = async (args, {req}, resource_name, collection_name) => {
     logRequest(`'${resource_name} >>> update`);
 
-    verifyHasValidScopes(resource_name.toLowerCase(), 'write', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
 
     logInfo('--- request ----');
     logInfo(req);
@@ -1043,7 +1043,7 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     logRequest(`'${resource_name} >>> merge`);
 
-    verifyHasValidScopes(resource_name.toLowerCase(), 'write', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
     // read the incoming resource from request body
     /**
      * @type {Object[]}
@@ -1506,7 +1506,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 // eslint-disable-next-line no-unused-vars
 module.exports.everything = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> everything`);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
     try {
         let {base_version, id} = args;
 
@@ -1653,7 +1653,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> remove`);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'write', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
 
     let {base_version, id} = args;
 
@@ -1691,7 +1691,7 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> searchByVersionId`);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
     let {base_version, id, version_id} = args;
 
@@ -1725,7 +1725,7 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> history`);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
     // Common search params
     let {base_version} = args;
@@ -1771,7 +1771,7 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> historyById`);
-    verifyHasValidScopes(resource_name.toLowerCase(), 'read', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
     let {base_version, id} = args;
     let query = {};
@@ -1818,7 +1818,7 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (args, {req}, resource_name, collection_name) => {
     logRequest('Patient >>> patch');
-    verifyHasValidScopes(resource_name.toLowerCase(), 'write', req.user, req.authInfo && req.authInfo.scope);
+    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
 
     let {base_version, id, patchContent} = args;
 
