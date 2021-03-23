@@ -111,8 +111,9 @@ let verifyHasValidScopes = (name, action, user, scope) => {
         if (success) {
             return;
         }
-        console.info('user ' + user + ' with scopes [' + scopes + '] failed access check to [' + name + '.' + action + ']');
-        throw new UnauthorizedError(error);
+        let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + name + '.' + action + ']';
+        console.info(errorMessage);
+        throw new UnauthorizedError(error.message + ': ' + errorMessage);
     }
 };
 
