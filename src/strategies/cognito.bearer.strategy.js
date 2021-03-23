@@ -13,7 +13,7 @@ module.exports.strategy = new Strategy(function (token, done) {
     // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
     cognitoAuthService.validate(token, function (err, result, decodedToken) {
         if (err) {
-            return done(new Error('Invalid token'));
+            return done(null, false);
         }
         const client_id = decodedToken.client_id;
         const scope = decodedToken.scope;
