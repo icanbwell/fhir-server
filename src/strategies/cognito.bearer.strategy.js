@@ -1,6 +1,5 @@
 const Strategy = require('passport-http-bearer').Strategy;
 const cognitoAuthService = require('../utils/cognitoAuthService');
-const {UnauthorizedError} = require('../../utils/httpErrors');
 
 /**
  * Bearer Strategy
@@ -14,7 +13,7 @@ module.exports.strategy = new Strategy(function (token, done) {
     // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
     cognitoAuthService.validate(token, function (err, result, decodedToken) {
         if (err) {
-            return done(new UnauthorizedError(Error('Invalid token')));
+            return done(new Error('Invalid token'));
         }
         const client_id = decodedToken.client_id;
         const scope = decodedToken.scope;
