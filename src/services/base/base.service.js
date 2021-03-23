@@ -1465,6 +1465,25 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         }
     }
 
+        /**
+     * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
+     *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
+     *  and then the other ones tries to insert too
+     * @param {Object} resource_to_merge
+     * @return {Promise<{issue: [{severity: string, diagnostics: *, code: string, expression: [string], details: {text: string}}], resourceType: string}|{created: boolean, id: String, message: string, updated: boolean, resource_version}|{created: (*|boolean), id: String, updated: *, resource_version}|*>}
+     */
+    async function merge_resource_with_retry(resource_to_merge) {
+        let triesLeft = 2;
+
+        do {
+            try {
+                return await merge_resource(resource_to_merge);
+            } catch (e) {
+                triesLeft = triesLeft - 1;
+            }
+        } while (triesLeft >= 0);
+    }
+
     if (Array.isArray(resources_incoming)) {
         logRequest('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
         // find items without duplicates and run them in parallel
@@ -1489,11 +1508,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         const non_duplicate_id_resources = resources_incoming.filter(e => !lookup_by_id[e.id]);
 
         return await Promise.all([
-            async.map(non_duplicate_id_resources, async x => await merge_resource(x)), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await merge_resource(x)) // run in series
+            async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x)), // run in parallel
+            async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x)) // run in series
         ]);
     } else {
-        return await merge_resource(resources_incoming);
+        return await merge_resource_with_retry(resources_incoming);
     }
 };
 
