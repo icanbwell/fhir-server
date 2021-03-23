@@ -11264,7 +11264,7 @@
     "postcss" "^7.0.0"
     "postcss-selector-parser" "^3.0.0"
 
-"superagent@^3.8.3", "superagent@3.8.3":
+"superagent@^3.8.3":
   "integrity" "sha512-GLQtLMCoEIK4eDv6OGtkOoSMt3D+oq0y3dsxMuYuDvaNUvuT8eFBuLmfR0iYYzHC1e8hpzC6ZsxbuP6DIalMFA=="
   "resolved" "https://registry.npmjs.org/superagent/-/superagent-3.8.3.tgz"
   "version" "3.8.3"
