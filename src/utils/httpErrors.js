@@ -111,8 +111,8 @@ class NotValidatedError extends ServerError {
 }
 
 class UnauthorizedError extends ServerError {
-    constructor(error, options = {}) {
-        super(error.message, {
+    constructor(message, options = {}) {
+        super(message, {
             // Set this to make the HTTP status code 401
             statusCode: 401,
             // Add any normal operation outcome stuff here
@@ -120,8 +120,7 @@ class UnauthorizedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'security',
-                    details: {text: error.message},
-                    diagnostics: env.IS_PRODUCTION ? error.message : error.toString(),
+                    details: {text: message},
                 },
             ],
         });
