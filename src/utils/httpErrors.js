@@ -144,6 +144,7 @@ class ForbiddenError extends ServerError {
             // Set this to make the HTTP status code 401
             statusCode: 403,
             // Add any normal operation outcome stuff here
+            // https://www.hl7.org/fhir/valueset-issue-type.html
             issue: [
                 {
                     severity: 'error',
