@@ -7151,7 +7151,7 @@
   "resolved" "https://registry.npmjs.org/jsonschema/-/jsonschema-1.4.0.tgz"
   "version" "1.4.0"
 
-"jsonwebtoken@^8.1.0":
+"jsonwebtoken@^8.1.0", "jsonwebtoken@^8.5.1":
   "integrity" "sha512-XjwVfRS6jTMsqYs0EsuJ4LGxXV14zQybNd4L2r0UvbVnSF9Af8x7p5MzbJ90Ioz/9TI41/hTCvznF/loiSzn8w=="
   "resolved" "https://registry.npmjs.org/jsonwebtoken/-/jsonwebtoken-8.5.1.tgz"
   "version" "8.5.1"
@@ -7206,7 +7206,7 @@
     "ecdsa-sig-formatter" "1.0.11"
     "safe-buffer" "^5.0.1"
 
-"jwk-to-pem@^2.0.2":
+"jwk-to-pem@^2.0.2", "jwk-to-pem@^2.0.4":
   "integrity" "sha512-4CCK9UBHNWjWtfSHdyu3I6rA8vlN5cWqnVuwY0cOMyXtw6M1tP+yrM8GZpwk+P932Dc3cLag4d35B6CqyIf89A=="
   "resolved" "https://registry.npmjs.org/jwk-to-pem/-/jwk-to-pem-2.0.4.tgz"
   "version" "2.0.4"
@@ -11264,7 +11264,7 @@
     "postcss" "^7.0.0"
     "postcss-selector-parser" "^3.0.0"
 
-"superagent@^3.8.3":
+"superagent@^3.8.3", "superagent@3.8.3":
   "integrity" "sha512-GLQtLMCoEIK4eDv6OGtkOoSMt3D+oq0y3dsxMuYuDvaNUvuT8eFBuLmfR0iYYzHC1e8hpzC6ZsxbuP6DIalMFA=="
   "resolved" "https://registry.npmjs.org/superagent/-/superagent-3.8.3.tgz"
   "version" "3.8.3"

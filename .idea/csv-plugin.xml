@@ -38,6 +38,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/src/utils/cognitoAuthService.js">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/src/utils/httpErrors.js">
           <value>
             <Attribute>
