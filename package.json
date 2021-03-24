@@ -65,6 +65,7 @@
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.4",
+    "jwks-rsa": "^2.0.1",
     "moment-timezone": "^0.5.33",
     "mongodb": "^3.6.4",
     "object-hash": "^2.1.1",
