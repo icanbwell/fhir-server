@@ -11562,7 +11562,7 @@
     "lodash.clonedeep" "^4.3.0"
     "lru-cache" "^5.1.1"
 
-"snyk@^1.334.0", "snyk@^1.464.0":
+"snyk@^1.334.0", "snyk@^1.465.0":
   "integrity" "sha512-DFK5DCTw0Y4ygTffHME03ObudiFW3bGXWM6gngtQXLMkNYGcqzhMZTJC9CFBfLBHNalh8QUBriDhj9FxilAPVA=="
   "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.508.0.tgz"
   "version" "1.508.0"
