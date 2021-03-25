@@ -35,11 +35,11 @@ init:
 	nvm install 14.15.4
 	make update
 
-# nvm use 14.15.4 && \
+# nvm use 15.12.0 && \
 
 .PHONY:update
 update:
-	echo "NOTE: Run nvm use 14.15.4 if you get node conflicts" && \
+	echo "NOTE: Run nvm use 15.12.0 if you get node conflicts" && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
@@ -61,4 +61,4 @@ generate:
 
 .PHONY:shell
 shell: ## Brings up the bash shell in dev docker
-	docker-compose -f docker-compose.yml run --rm --name fhir fhir /bin/sh
+	docker-compose -p fhir-dev -f docker-compose.yml run --rm --name fhir fhir /bin/sh
