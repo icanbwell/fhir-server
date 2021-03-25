@@ -6207,6 +6207,11 @@
     "referrer-policy" "1.2.0"
     "x-xss-protection" "1.3.0"
 
+"helmet@^4.4.1":
+  "integrity" "sha512-G8tp0wUMI7i8wkMk2xLcEvESg5PiCitFMYgGRc/PwULB0RVhTP5GFdxOwvJwp9XVha8CuS8mnhmE8I/8dx/pbw=="
+  "resolved" "https://registry.npmjs.org/helmet/-/helmet-4.4.1.tgz"
+  "version" "4.4.1"
+
 "hex-color-regex@^1.1.0":
   "integrity" "sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ=="
   "resolved" "https://registry.npmjs.org/hex-color-regex/-/hex-color-regex-1.1.0.tgz"

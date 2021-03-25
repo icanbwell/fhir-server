@@ -8,8 +8,10 @@ const mongoClient = require('./lib/mongo');
 const {fhirServerConfig, mongoConfig} = require('./config');
 const Prometheus = require('./utils/prometheus.utils');
 const env = require('var');
+const helmet = require('helmet');
 
 const app = express();
+app.use(helmet());
 app.use(Prometheus.requestCounters);
 app.use(Prometheus.responseCounters);
 Prometheus.injectMetricsRoute(app);
