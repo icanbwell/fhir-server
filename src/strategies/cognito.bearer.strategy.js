@@ -1,5 +1,6 @@
 const Strategy = require('passport-http-bearer').Strategy;
-// const cognitoAuthService = require('../utils/cognitoAuthService');
+// eslint-disable-next-line no-unused-vars
+const cognitoAuthService = require('../utils/cognitoAuthService');
 
 /**
  * Bearer Strategy
