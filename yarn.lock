@@ -2724,7 +2724,7 @@
   "resolved" "https://registry.npmjs.org/bodec/-/bodec-0.1.0.tgz"
   "version" "0.1.0"
 
-"body-parser@^1.18.2", "body-parser@1.19.0":
+"body-parser@^1.18.2", "body-parser@^1.19.0", "body-parser@1.19.0":
   "integrity" "sha512-dhEPs72UPbDnAQJ9ZKMNTP6ptJaionhP5cBb541nXPlW60Jepo9RV/a4fX4XWW9CuFNK22krhrj1+rgzifNCsw=="
   "resolved" "https://registry.npmjs.org/body-parser/-/body-parser-1.19.0.tgz"
   "version" "1.19.0"
@@ -3493,7 +3493,7 @@
   dependencies:
     "mime-db" ">= 1.43.0 < 2"
 
-"compression@^1.7.1":
+"compression@^1.7.1", "compression@^1.7.4":
   "integrity" "sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ=="
   "resolved" "https://registry.npmjs.org/compression/-/compression-1.7.4.tgz"
   "version" "1.7.4"
