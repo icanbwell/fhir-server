@@ -10,7 +10,7 @@ const env = require('var');
  * @return {*}
  */
 const verify = (jwt_payload, done) => {
-    console.log('Verify user:', jwt_payload);
+    // console.log('Verify user:', jwt_payload);
 
     if (jwt_payload) {
         /**
@@ -21,7 +21,7 @@ const verify = (jwt_payload, done) => {
          * @type {string}
          */
         const scope = jwt_payload.scope;
-        console.info('client_id: ' + client_id + 'scope: ' + scope);
+        console.info('Verified client_id: ' + client_id + 'scope: ' + scope);
         const context = null;
         return done(null, client_id, {scope, context});
     }
