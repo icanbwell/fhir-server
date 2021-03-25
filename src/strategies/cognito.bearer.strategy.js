@@ -1,6 +1,17 @@
-const Strategy = require('passport-http-bearer').Strategy;
-// eslint-disable-next-line no-unused-vars
-const cognitoAuthService = require('../utils/cognitoAuthService');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const jwksRsa = require('jwks-rsa');
+const env = require('var');
+
+const verify = (jwt_payload, done) => {
+    console.log('Verify user:', jwt_payload);
+
+    if (jwt_payload && jwt_payload.sub) {
+        return done(null, jwt_payload);
+    }
+
+    return done(null, false);
+};
 
 /**
  * Bearer Strategy
@@ -10,21 +21,19 @@ const cognitoAuthService = require('../utils/cognitoAuthService');
  *
  * Requires ENV variables for introspecting the token
  */
-module.exports.strategy = new Strategy(
-    function (token, done) {
-        return done(null, false);
-    }
-    // async function (token, done) {
-    //     // https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
-    //     try {
-    //         const decodedToken = await cognitoAuthService.validate(token);
-    //         const client_id = decodedToken.client_id;
-    //         const scope = decodedToken.scope;
-    //         console.info('client_id: ' + client_id + 'scope: ' + scope);
-    //         const context = null;
-    //         return done(null, client_id, {scope, context});
-    //     } catch (e) {
-    //         return done(null, false);
-    //     }
-    // }
-);
+module.exports.strategy = new JwtStrategy({
+        // Dynamically provide a signing key based on the kid in the header and the signing keys provided by the JWKS endpoint.
+        secretOrKeyProvider: jwksRsa.passportJwtSecret({
+            cache: true,
+            rateLimit: true,
+            jwksRequestsPerMinute: 5,
+            jwksUri: `https://cognito-idp.${env.AUTH_COGNITO_POOL_REGION}.amazonaws.com/${env.AUTH_COGNITO_USER_POOL_ID}/.well-known/jwks.json`
+        }),
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+
+        // Validate the audience and the issuer.
+        audience: 'urn:my-resource-server',
+        issuer: 'https://my-authz-server/',
+        algorithms: ['RS256']
+    },
+    verify);

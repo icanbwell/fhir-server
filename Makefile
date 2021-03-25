@@ -39,7 +39,7 @@ init:
 .PHONY:update
 update:
 	echo "NOTE: Run nvm use 14.15.4 if you get node conflicts" && \
-	yarn install --no-optional --verbose && \
+	yarn install --no-optional && \
 	npm i --package-lock-only
 
 .PHONY:tests
