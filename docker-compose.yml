@@ -12,8 +12,8 @@ services:
       MONGO_HOSTNAME: mongo
       MONGO_DB_NAME: fhir
       MONGO_PORT: 27017
-      RESOURCE_SERVER: https://staging-icanbwell.auth.us-east-1.amazoncognito.com
-      AUTH_SERVER_URI: https://staging-icanbwell.auth.us-east-1.amazoncognito.com
+      RESOURCE_SERVER: http://localhost:3000/
+      AUTH_SERVER_URI: http://myauthzserver.com
       CLIENT_ID: client
       CLIENT_SECRET: secret
       AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_wrEVOihnT/.well-known/openid-configuration
