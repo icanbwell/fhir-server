@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const env = require('var');
 const jwksClient = require('jwks-rsa');
 
-// eslint-disable-next-line no-unused-vars
 const validateToken = async function (token) {
     const client = jwksClient({
         cache: true, // Default Value
@@ -38,11 +37,10 @@ const validateToken = async function (token) {
 };
 
 // https://janitha000.medium.com/authentication-using-amazon-cognito-and-nodejs-c4485679eed8
-// eslint-disable-next-line no-unused-vars
 module.exports.validate = async function (token) {
-    return Promise.resolve({
-        client_id: 'foo',
-        scope: 'bar'
-    });
-    // return await validateToken(token);
+    // return Promise.resolve({
+    //     client_id: 'foo',
+    //     scope: 'bar'
+    // });
+    return await validateToken(token);
 };
