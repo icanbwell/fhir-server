@@ -102,7 +102,7 @@ if (env.AUTH_ENABLED === '1') {
         // if you use this strategy, you need to add the corresponding env vars to docker-compose
         //
         strategy: {
-            name: 'bearer',
+            name: 'jwt',
             useSession: false,
             service: './src/strategies/cognito.bearer.strategy.js'
         },

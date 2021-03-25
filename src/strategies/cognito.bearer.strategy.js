@@ -6,8 +6,12 @@ const env = require('var');
 const verify = (jwt_payload, done) => {
     console.log('Verify user:', jwt_payload);
 
-    if (jwt_payload && jwt_payload.sub) {
-        return done(null, jwt_payload);
+    if (jwt_payload) {
+        const client_id = jwt_payload.client_id;
+        const scope = jwt_payload.scope;
+        console.info('client_id: ' + client_id + 'scope: ' + scope);
+        const context = null;
+        return done(null, client_id, {scope, context});
     }
 
     return done(null, false);
@@ -27,13 +31,13 @@ module.exports.strategy = new JwtStrategy({
             cache: true,
             rateLimit: true,
             jwksRequestsPerMinute: 5,
-            jwksUri: `https://cognito-idp.${env.AUTH_COGNITO_POOL_REGION}.amazonaws.com/${env.AUTH_COGNITO_USER_POOL_ID}/.well-known/jwks.json`
+            jwksUri: env.AUTH_JWKS_URL
         }),
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 
         // Validate the audience and the issuer.
-        audience: 'urn:my-resource-server',
-        issuer: 'https://my-authz-server/',
+        // audience: 'urn:my-resource-server',
+        issuer: env.AUTH_ISSUER,
         algorithms: ['RS256']
     },
     verify);
