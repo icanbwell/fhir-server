@@ -1749,13 +1749,14 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                 }];
                 // now for each PractitionerRole, get the HealthcareService
                 entries = entries.concat(
-                    await get_related_resources(
+                    await get_reverse_related_resources(
                         db,
-                        'HealthcareService',
+                        'Organization',
+                        'Location',
                         base_version,
                         organization,
                         host,
-                        'healthcareService'
+                        'managingOrganization'
                     )
                 );
 
