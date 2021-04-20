@@ -3,13 +3,13 @@
   "id": "bundle-example",
   "entry": [
     {
-      "link": "https://127.0.0.1:54484/4_0_0/Organization/733797173",
+      "link": "https://127.0.0.1:55016/4_0_0/Organization/733797173",
       "resource": {
         "resourceType": "Organization",
         "id": "733797173",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2021-04-20T03:13:13+00:00"
+          "lastUpdated": "2021-04-20T03:18:37+00:00"
         },
         "extension": [
           {
@@ -99,13 +99,13 @@
       }
     },
     {
-      "link": "https://127.0.0.1:54484/4_0_0/Location/UHG-MDER",
+      "link": "https://127.0.0.1:55016/4_0_0/Location/UHG-MDER",
       "resource": {
         "resourceType": "Location",
         "id": "UHG-MDER",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2021-04-20T03:13:13+00:00"
+          "lastUpdated": "2021-04-20T03:18:37+00:00"
         },
         "identifier": [
           {
@@ -236,6 +236,39 @@
           "reference": "Organization/733797173",
           "type": "Organization"
         }
+      }
+    },
+    {
+      "link": "https://127.0.0.1:55016/4_0_0/HealthcareService/-733797173",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "-733797173",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2021-04-20T03:18:37+00:00"
+        },
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "bwell",
+            "value": "-733797173"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/733797173"
+        },
+        "type": [],
+        "specialty": [
+          {
+            "coding": [
+              {
+                "system": "http://nucc.org/provider-taxonomy",
+                "code": "261QP2300X",
+                "display": "Primary Care and Student Health"
+              }
+            ]
+          }
+        ]
       }
     }
   ]

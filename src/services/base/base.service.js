@@ -1599,7 +1599,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
     async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
-        if (!(reverse_property)){
+        if (!(reverse_property)) {
             throw new Error('reverse_property must be set');
         }
         const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
@@ -1750,7 +1750,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
                     'resource': new OrganizationResource(organization)
                 }];
-                // now for each PractitionerRole, get the HealthcareService
+                // now for each Organization, get the Location
                 entries = entries.concat(
                     await get_reverse_related_resources(
                         db,
@@ -1764,7 +1764,20 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         'managingOrganization'
                     )
                 );
-
+                // now for each Organization, get the HealthcareService
+                entries = entries.concat(
+                    await get_reverse_related_resources(
+                        db,
+                        'Organization',
+                        'HealthcareService',
+                        base_version,
+                        organization,
+                        host,
+                        null,
+                        null,
+                        'providedBy'
+                    )
+                );
                 // create a bundle
                 return (
                     {
