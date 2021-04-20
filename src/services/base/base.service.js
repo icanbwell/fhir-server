@@ -1585,6 +1585,51 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         return entries;
     }
 
+    /**
+     * Gets related resources
+     * @param db
+     * @param parentCollectionName
+     * @param relatedResourceCollectionName
+     * @param base_version
+     * @param parent parent entity
+     * @param host
+     * @param filterProperty (Optional) filter the sublist by this property
+     * @param filterValue (Optional) match filterProperty to this value
+     * @param reverse_property (Optional) Do a reverse link from child to parent using this property
+     * @return {Promise<[{resource: Resource, link: string}]|*[]>}
+     */
+    async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
+        const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
+        const RelatedResource = getResource(base_version, relatedResourceCollectionName);
+        let relatedResourceProperty;
+        // find elements in other collection that link to this object
+        const query = {
+            [reverse_property + '.reference']: parentCollectionName + '/' + parent['id']
+        };
+        const cursor = collection.find(query);
+        // noinspection JSUnresolvedFunction
+        relatedResourceProperty = await cursor.toArray();
+        let entries = [];
+        if (relatedResourceProperty) {
+            for (const relatedResourceIndex in relatedResourceProperty) {
+                // noinspection JSUnfilteredForInLoop
+                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+                if (filterProperty !== null) {
+                    // eslint-disable-next-line security/detect-object-injection
+                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                        continue;
+                    }
+                }
+                entries = entries.concat([{
+                    'link': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
+                    'resource': new RelatedResource(relatedResourcePropertyCurrent)
+                }]);
+
+            }
+        }
+        return entries;
+    }
+
     try {
         let {base_version, id} = args;
 
@@ -1609,30 +1654,25 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     'resource': new PractitionerResource(practitioner)
                 }];
                 // now look for practitioner_role
-                collection_name = 'PractitionerRole';
-                collection = db.collection(`${collection_name}_${base_version}`);
-                const PractitionerRoleResource = getResource(base_version, collection_name);
-                query = {
-                    'practitioner.reference': 'Practitioner/' + id
-                };
-                const cursor = collection.find(query);
-                // noinspection JSUnresolvedFunction
-                const practitioner_roles = await cursor.toArray();
+                const practitioner_role_entries = await get_reverse_related_resources(
+                    db,
+                    'Practitioner',
+                    'PractitionerRole',
+                    base_version,
+                    practitioner,
+                    host,
+                    null,
+                    null,
+                    'practitioner'
+                );
 
-                // noinspection JSUnresolvedFunction
-                // const practitioner_roles = items;
+                entries = entries.concat(practitioner_role_entries);
+
+                const practitioner_roles = practitioner_role_entries.map(e => e.resource);
+
                 for (const index in practitioner_roles) {
                     // noinspection JSUnfilteredForInLoop
                     const practitioner_role = practitioner_roles[`${index}`];
-                    // for some reason a simple append doesn't work here
-                    entries = entries.concat(
-                        [
-                            {
-                                'link': `https://${host}/${base_version}/${practitioner_role.resourceType}/${practitioner_role.id}`,
-                                'resource': new PractitionerRoleResource(practitioner_role)
-                            }
-                        ]
-                    );
                     // now for each PractitionerRole, get the Organization
                     entries = entries.concat(
                         await get_related_resources(
@@ -1686,6 +1726,38 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         }
                     }
                 }
+
+                // create a bundle
+                return (
+                    {
+                        'resourceType': 'Bundle',
+                        'id': 'bundle-example',
+                        'entry': entries
+                    });
+            }
+        } else if (collection_name === 'Organization') {
+            let collection = db.collection(`${collection_name}_${base_version}`);
+            const OrganizationResource = getResource(base_version, resource_name);
+
+            let organization = await collection.findOne({id: id.toString()});
+            // noinspection JSUnresolvedFunction
+            if (organization) {
+                // first add the Practitioner
+                let entries = [{
+                    'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
+                    'resource': new OrganizationResource(organization)
+                }];
+                // now for each PractitionerRole, get the HealthcareService
+                entries = entries.concat(
+                    await get_related_resources(
+                        db,
+                        'HealthcareService',
+                        base_version,
+                        organization,
+                        host,
+                        'healthcareService'
+                    )
+                );
 
                 // create a bundle
                 return (
