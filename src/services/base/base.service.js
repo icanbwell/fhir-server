@@ -1599,6 +1599,9 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
     async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
+        if (!(reverse_property)){
+            throw new Error('reverse_property must be set');
+        }
         const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
         const RelatedResource = getResource(base_version, relatedResourceCollectionName);
         let relatedResourceProperty;
@@ -1756,6 +1759,8 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         base_version,
                         organization,
                         host,
+                        null,
+                        null,
                         'managingOrganization'
                     )
                 );
