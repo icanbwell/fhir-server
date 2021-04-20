@@ -1657,6 +1657,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     'resource': new PractitionerResource(practitioner)
                 }];
                 // now look for practitioner_role
+                verifyHasValidScopes('PractitionerRole', 'read', req.user, req.authInfo && req.authInfo.scope);
                 const practitioner_role_entries = await get_reverse_related_resources(
                     db,
                     'Practitioner',
@@ -1677,6 +1678,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     // noinspection JSUnfilteredForInLoop
                     const practitioner_role = practitioner_roles[`${index}`];
                     // now for each PractitionerRole, get the Organization
+                    verifyHasValidScopes('Organization', 'read', req.user, req.authInfo && req.authInfo.scope);
                     entries = entries.concat(
                         await get_related_resources(
                             db,
@@ -1688,6 +1690,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         )
                     );
                     // now for each PractitionerRole, get the Location
+                    verifyHasValidScopes('Location', 'read', req.user, req.authInfo && req.authInfo.scope);
                     entries = entries.concat(
                         await get_related_resources(
                             db,
@@ -1699,6 +1702,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         )
                     );
                     // now for each PractitionerRole, get the HealthcareService
+                    verifyHasValidScopes('HealthcareService', 'read', req.user, req.authInfo && req.authInfo.scope);
                     entries = entries.concat(
                         await get_related_resources(
                             db,
@@ -1710,6 +1714,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         )
                     );
                     // now for each PractitionerRole, get the InsurancePlan
+                    verifyHasValidScopes('InsurancePlan', 'read', req.user, req.authInfo && req.authInfo.scope);
                     collection_name = 'InsurancePlan';
                     collection = db.collection(`${collection_name}_${base_version}`);
                     const InsurancePlanResource = getResource(base_version, collection_name);
@@ -1751,6 +1756,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     'resource': new OrganizationResource(organization)
                 }];
                 // now for each Organization, get the Location
+                verifyHasValidScopes('Location', 'read', req.user, req.authInfo && req.authInfo.scope);
                 entries = entries.concat(
                     await get_reverse_related_resources(
                         db,
@@ -1765,6 +1771,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     )
                 );
                 // now for each Organization, get the HealthcareService
+                verifyHasValidScopes('HealthcareService', 'read', req.user, req.authInfo && req.authInfo.scope);
                 entries = entries.concat(
                     await get_reverse_related_resources(
                         db,
@@ -1787,7 +1794,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     });
             }
         } else {
-            throw new Error('$everything is not supported for this resource: ' + collection_name);
+            throw new Error('$everything is not supported for resource: ' + collection_name);
         }
     } catch (err) {
         logger.error(`Error with ${resource_name}.searchById: `, err);
