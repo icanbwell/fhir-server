@@ -1545,9 +1545,11 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @param parent parent entity
      * @param host
      * @param property name of property to link
+     * @param filterProperty (Optional) filter the sublist by this property
+     * @param filterValue (Optional) match filterProperty to this value
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
-    async function get_related_resources(db, collectionName, base_version, parent, host, property) {
+    async function get_related_resources(db, collectionName, base_version, parent, host, property, filterProperty, filterValue) {
         const collection = db.collection(`${collectionName}_${base_version}`);
         const RelatedResource = getResource(base_version, collectionName);
         // eslint-disable-next-line security/detect-object-injection
@@ -1558,9 +1560,15 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
             if (!(Array.isArray(relatedResourceProperty))) {
                 relatedResourceProperty = [relatedResourceProperty];
             }
-            for (const index in relatedResourceProperty) {
+            for (const relatedResourceIndex in relatedResourceProperty) {
                 // noinspection JSUnfilteredForInLoop
-                const relatedResourcePropertyCurrent = relatedResourceProperty[`${index}`];
+                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+                if (filterProperty !== null) {
+                    // eslint-disable-next-line security/detect-object-injection
+                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                        continue;
+                    }
+                }
                 // eslint-disable-next-line security/detect-object-injection
                 const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
 
@@ -1584,13 +1592,11 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         logInfo(`req=${req}`);
 
         const host = req.headers.host;
-        // for now we only support Practitioner
         let query = {};
         query.id = id;
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
-        if (['Practitioner'].includes(collection_name)) {
-            collection_name = 'Practitioner'; // for now we only support this for Practitioner
+        if (collection_name === 'Practitioner') {
             let collection = db.collection(`${collection_name}_${base_version}`);
             const PractitionerResource = getResource(base_version, resource_name);
 
@@ -1627,9 +1633,6 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                             }
                         ]
                     );
-                    // entries += {
-                    //     'resource': 'foo'
-                    // };
                     // now for each PractitionerRole, get the Organization
                     entries = entries.concat(
                         await get_related_resources(
