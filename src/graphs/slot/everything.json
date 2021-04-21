@@ -1,0 +1,25 @@
+{
+  "name": "organization_everything",
+  "status": "active",
+  "start": "Organization",
+  "link": [
+    {
+      "path": "schedule",
+      "target": [
+        {
+          "type": "Schedule"
+        }
+      ],
+      "link": [
+        {
+          "path": "actor",
+          "target": [
+            {
+              "type": "PractitionerRole"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

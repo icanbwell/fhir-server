@@ -25,8 +25,8 @@ const deepcopy = require('deepcopy');
 const deepEqual = require('fast-deep-equal');
 const sendToS3 = require('../../utils/aws-s3');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
-// eslint-disable-next-line no-unused-vars
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
+const slotEverythingGraph = require('../../graphs/slot/everything.json');
 
 const async = require('async');
 const env = require('var');
@@ -1821,52 +1821,15 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                 organizationEverythingGraph
             );
         } else if (collection_name === 'Slot') {
-            let collection = db.collection(`${collection_name}_${base_version}`);
-            const SlotResource = getResource(base_version, resource_name);
-
-            let slot = await collection.findOne({id: id.toString()});
-            // noinspection JSUnresolvedFunction
-            if (slot) {
-                // first add the Slot
-                let entries = [{
-                    'link': `https://${host}/${base_version}/${slot.resourceType}/${slot.id}`,
-                    'resource': new SlotResource(slot)
-                }];
-                // now for each Slot, get the Schedule
-                verifyHasValidScopes('Schedule', 'read', req.user, req.authInfo && req.authInfo.scope);
-                const schedule_entries = await get_related_resources(
-                    db,
-                    'Schedule',
-                    base_version,
-                    slot,
-                    host,
-                    'schedule',
-                );
-                entries = entries.concat(
-                    schedule_entries
-                );
-                for (const schedule of schedule_entries) {
-                    // get the PractitionerRole
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            'PractitionerRole',
-                            base_version,
-                            schedule,
-                            host,
-                            'actor'
-                        )
-                    );
-                }
-                // create a bundle
-                return (
-                    {
-                        'resourceType': 'Bundle',
-                        'id': 'bundle-example',
-                        'entry': entries
-                    });
-            }
+            return await processGraph(
+                db,
+                base_version,
+                host,
+                id,
+                slotEverythingGraph
+            );
         } else {
+            // noinspection ExceptionCaughtLocallyJS
             throw new Error('$everything is not supported for resource: ' + collection_name);
         }
     } catch (err) {
