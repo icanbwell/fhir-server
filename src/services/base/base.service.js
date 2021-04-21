@@ -24,6 +24,7 @@ const deepcopy = require('deepcopy');
 // const deepEqual = require('deep-equal');
 const deepEqual = require('fast-deep-equal');
 const sendToS3 = require('../../utils/aws-s3');
+const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 
 const async = require('async');
 const env = require('var');
@@ -1744,47 +1745,103 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     });
             }
         } else if (collection_name === 'Organization') {
+            const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
+            const graphDefinitionRaw = organizationEverythingGraph;
+            const graphDefinition = new GraphDefinitionResource(graphDefinitionRaw);
+            // first get the top level object
+            // const start = graphDefinition.start;
             let collection = db.collection(`${collection_name}_${base_version}`);
-            const OrganizationResource = getResource(base_version, resource_name);
+            const StartResource = getResource(base_version, resource_name);
 
-            let organization = await collection.findOne({id: id.toString()});
+            let start_entry = await collection.findOne({id: id.toString()});
             // noinspection JSUnresolvedFunction
-            if (organization) {
-                // first add the Practitioner
+            if (start_entry) {
+                // first add this object
                 let entries = [{
-                    'link': `https://${host}/${base_version}/${organization.resourceType}/${organization.id}`,
-                    'resource': new OrganizationResource(organization)
+                    'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+                    'resource': new StartResource(start_entry)
                 }];
-                // now for each Organization, get the Location
-                verifyHasValidScopes('Location', 'read', req.user, req.authInfo && req.authInfo.scope);
-                entries = entries.concat(
-                    await get_reverse_related_resources(
-                        db,
-                        'Organization',
-                        'Location',
-                        base_version,
-                        organization,
-                        host,
-                        null,
-                        null,
-                        'managingOrganization'
-                    )
+                for (const link of graphDefinition.link) {
+                    const resourceType = link.target[0].type;
+                    if (link.path) {
+                        // forward link
+                        const property = link.path;
+                        verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                        entries = entries.concat(
+                            await get_related_resources(
+                                db,
+                                resourceType,
+                                base_version,
+                                start_entry,
+                                host,
+                                property
+                            )
+                        );
+                    } else if (link.params) {
+                        // reverse link
+                        const reverseProperty = link.params.replace('={ref}', '');
+                        verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                        entries = entries.concat(
+                            await get_reverse_related_resources(
+                                db,
+                                start_entry.resourceType,
+                                resourceType,
+                                base_version,
+                                start_entry,
+                                host,
+                                null,
+                                null,
+                                reverseProperty
+                            )
+                        );
+                    }
+                }
+                // create a bundle
+                return (
+                    {
+                        'resourceType': 'Bundle',
+                        'id': 'bundle-example',
+                        'entry': entries
+                    });
+            }
+        } else if (collection_name === 'Slot') {
+            let collection = db.collection(`${collection_name}_${base_version}`);
+            const SlotResource = getResource(base_version, resource_name);
+
+            let slot = await collection.findOne({id: id.toString()});
+            // noinspection JSUnresolvedFunction
+            if (slot) {
+                // first add the Slot
+                let entries = [{
+                    'link': `https://${host}/${base_version}/${slot.resourceType}/${slot.id}`,
+                    'resource': new SlotResource(slot)
+                }];
+                // now for each Slot, get the Schedule
+                verifyHasValidScopes('Schedule', 'read', req.user, req.authInfo && req.authInfo.scope);
+                const schedule_entries = await get_related_resources(
+                    db,
+                    'Schedule',
+                    base_version,
+                    slot,
+                    host,
+                    'schedule',
                 );
-                // now for each Organization, get the HealthcareService
-                verifyHasValidScopes('HealthcareService', 'read', req.user, req.authInfo && req.authInfo.scope);
                 entries = entries.concat(
-                    await get_reverse_related_resources(
-                        db,
-                        'Organization',
-                        'HealthcareService',
-                        base_version,
-                        organization,
-                        host,
-                        null,
-                        null,
-                        'providedBy'
-                    )
+                    schedule_entries
                 );
+                for (const schedule of schedule_entries) {
+                    // get the PractitionerRole
+                    entries = entries.concat(
+                        await get_related_resources(
+                            db,
+                            'PractitionerRole',
+                            base_version,
+                            schedule,
+                            host,
+                            'actor'
+                        )
+                    );
+                }
                 // create a bundle
                 return (
                     {
