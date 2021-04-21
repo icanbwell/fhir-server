@@ -1864,7 +1864,14 @@ module.exports.validate = async (args, {req}, resource_name) => {
     };
 };
 
-
+/**
+ * Supports $graph
+ * @param {string[]} args
+ * @param {IncomingMessage} req
+ * @param {string} resource_name
+ * @param {string} collection_name
+ * @return {Promise<{entry: {resource: Resource, link: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+ */
 module.exports.graph = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> everything`);
     verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
