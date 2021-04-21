@@ -1540,14 +1540,14 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 
     /**
      * Gets related resources
-     * @param db
-     * @param collectionName
-     * @param base_version
-     * @param parent parent entity
-     * @param host
-     * @param property name of property to link
-     * @param filterProperty (Optional) filter the sublist by this property
-     * @param filterValue (Optional) match filterProperty to this value
+     * @param {Db} db
+     * @param {string} collectionName
+     * @param {string} base_version
+     * @param {Resource} parent parent entity
+     * @param {string} host
+     * @param {string} property name of property to link
+     * @param {string} filterProperty (Optional) filter the sublist by this property
+     * @param {string} filterValue (Optional) match filterProperty to this value
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
     async function get_related_resources(db, collectionName, base_version, parent, host, property, filterProperty, filterValue) {
@@ -1588,15 +1588,15 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 
     /**
      * Gets related resources
-     * @param db
-     * @param parentCollectionName
-     * @param relatedResourceCollectionName
-     * @param base_version
-     * @param parent parent entity
-     * @param host
-     * @param filterProperty (Optional) filter the sublist by this property
-     * @param filterValue (Optional) match filterProperty to this value
-     * @param reverse_property (Optional) Do a reverse link from child to parent using this property
+     * @param {Db} db
+     * @param {string} parentCollectionName
+     * @param {string} relatedResourceCollectionName
+     * @param {string} base_version
+     * @param {Resource} parent parent entity
+     * @param {string} host
+     * @param {string} filterProperty (Optional) filter the sublist by this property
+     * @param {*} filterValue (Optional) match filterProperty to this value
+     * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
     async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
@@ -1632,6 +1632,82 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
             }
         }
         return entries;
+    }
+
+    /**
+     * process GraphDefinition and returns a bundle with all the related resources
+     * @param {Db} db
+     * @param {string} base_version
+     * @param {string} host
+     * @param {string} id
+     * @return {Promise<{entry: [{resource: Resource, link: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     */
+    async function processGraph(db, base_version, host, id) {
+        const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
+        const graphDefinition = new GraphDefinitionResource(organizationEverythingGraph);
+        // first get the top level object
+        // const start = graphDefinition.start;
+        let collection = db.collection(`${collection_name}_${base_version}`);
+        const StartResource = getResource(base_version, resource_name);
+
+        let start_entry = await collection.findOne({id: id.toString()});
+        // noinspection JSUnresolvedFunction
+        if (start_entry) {
+            // first add this object
+            let entries = [{
+                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+                'resource': new StartResource(start_entry)
+            }];
+            for (const link of graphDefinition.link) {
+                const resourceType = link.target[0].type;
+                if (link.path) {
+                    // forward link
+                    const property = link.path;
+                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                    entries = entries.concat(
+                        await get_related_resources(
+                            db,
+                            resourceType,
+                            base_version,
+                            start_entry,
+                            host,
+                            property
+                        )
+                    );
+                } else if (link.params) {
+                    // reverse link
+                    const reverseProperty = link.params.replace('={ref}', '');
+                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                    entries = entries.concat(
+                        await get_reverse_related_resources(
+                            db,
+                            start_entry.resourceType,
+                            resourceType,
+                            base_version,
+                            start_entry,
+                            host,
+                            null,
+                            null,
+                            reverseProperty
+                        )
+                    );
+                }
+            }
+            // create a bundle
+            return (
+                {
+                    'resourceType': 'Bundle',
+                    'id': 'bundle-example',
+                    'entry': entries
+                });
+        } else {
+            return (
+                {
+                    'resourceType': 'Bundle',
+                    'id': 'bundle-example',
+                    'entry': []
+                });
+        }
     }
 
     try {
@@ -1745,65 +1821,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     });
             }
         } else if (collection_name === 'Organization') {
-            const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-            const graphDefinitionRaw = organizationEverythingGraph;
-            const graphDefinition = new GraphDefinitionResource(graphDefinitionRaw);
-            // first get the top level object
-            // const start = graphDefinition.start;
-            let collection = db.collection(`${collection_name}_${base_version}`);
-            const StartResource = getResource(base_version, resource_name);
-
-            let start_entry = await collection.findOne({id: id.toString()});
-            // noinspection JSUnresolvedFunction
-            if (start_entry) {
-                // first add this object
-                let entries = [{
-                    'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-                    'resource': new StartResource(start_entry)
-                }];
-                for (const link of graphDefinition.link) {
-                    const resourceType = link.target[0].type;
-                    if (link.path) {
-                        // forward link
-                        const property = link.path;
-                        verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                        entries = entries.concat(
-                            await get_related_resources(
-                                db,
-                                resourceType,
-                                base_version,
-                                start_entry,
-                                host,
-                                property
-                            )
-                        );
-                    } else if (link.params) {
-                        // reverse link
-                        const reverseProperty = link.params.replace('={ref}', '');
-                        verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                        entries = entries.concat(
-                            await get_reverse_related_resources(
-                                db,
-                                start_entry.resourceType,
-                                resourceType,
-                                base_version,
-                                start_entry,
-                                host,
-                                null,
-                                null,
-                                reverseProperty
-                            )
-                        );
-                    }
-                }
-                // create a bundle
-                return (
-                    {
-                        'resourceType': 'Bundle',
-                        'id': 'bundle-example',
-                        'entry': entries
-                    });
-            }
+            return await processGraph(db, base_version, host, id);
         } else if (collection_name === 'Slot') {
             let collection = db.collection(`${collection_name}_${base_version}`);
             const SlotResource = getResource(base_version, resource_name);
