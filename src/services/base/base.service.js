@@ -1535,315 +1535,28 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
  * @param {string} resource_name
  * @param {string} collection_name
  */
-// eslint-disable-next-line no-unused-vars
 module.exports.everything = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> everything`);
     verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
-    /**
-     * Gets related resources
-     * @param {Db} db
-     * @param {string} collectionName
-     * @param {string} base_version
-     * @param {Resource} parent parent entity
-     * @param {string} host
-     * @param {string} property name of property to link
-     * @param {string | null} filterProperty (Optional) filter the sublist by this property
-     * @param {*} filterValue (Optional) match filterProperty to this value
-     * @return {Promise<[{resource: Resource, link: string}]|*[]>}
-     */
-    async function get_related_resources(db, collectionName, base_version, parent, host, property, filterProperty, filterValue) {
-        const collection = db.collection(`${collectionName}_${base_version}`);
-        const RelatedResource = getResource(base_version, collectionName);
-        // eslint-disable-next-line security/detect-object-injection
-        let relatedResourceProperty = parent[property];
-        /**
-         * entries
-         * @type {[{resource: Resource, link: string}]}
-         */
-        let entries = [];
-        if (relatedResourceProperty) {
-            // check if property is a list or not.  If not make it a list to make the code below handle both
-            if (!(Array.isArray(relatedResourceProperty))) {
-                relatedResourceProperty = [relatedResourceProperty];
-            }
-            for (const relatedResourceIndex in relatedResourceProperty) {
-                // noinspection JSUnfilteredForInLoop
-                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
-                if (filterProperty !== null) {
-                    // eslint-disable-next-line security/detect-object-injection
-                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
-                        continue;
-                    }
-                }
-                // eslint-disable-next-line security/detect-object-injection
-                /**
-                 * @type {string}
-                 */
-                const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
-
-                const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
-                if (found_related_resource) {
-                    // noinspection UnnecessaryLocalVariableJS
-                    entries = entries.concat([{
-                        'link': `https://${host}/${base_version}/${found_related_resource.resourceType}/${found_related_resource.id}`,
-                        'resource': new RelatedResource(found_related_resource)
-                    }]);
-                }
-            }
-        }
-        return entries;
-    }
-
-    /**
-     * Gets related resources using reverse link
-     * @param {Db} db
-     * @param {string} parentCollectionName
-     * @param {string} relatedResourceCollectionName
-     * @param {string} base_version
-     * @param {Resource} parent parent entity
-     * @param {string} host
-     * @param {string | null} filterProperty (Optional) filter the sublist by this property
-     * @param {*} filterValue (Optional) match filterProperty to this value
-     * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
-     * @return {Promise<[{resource: Resource, link: string}]>}
-     */
-    async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
-        if (!(reverse_property)) {
-            throw new Error('reverse_property must be set');
-        }
-        const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
-        const RelatedResource = getResource(base_version, relatedResourceCollectionName);
-        let relatedResourceProperty;
-        // find elements in other collection that link to this object
-        const query = {
-            [reverse_property + '.reference']: parentCollectionName + '/' + parent['id']
-        };
-        const cursor = collection.find(query);
-        // noinspection JSUnresolvedFunction
-        relatedResourceProperty = await cursor.toArray();
-        /**
-         * entries
-         * @type {[{resource: Resource, link: string}]}
-         */
-        let entries = [];
-        if (relatedResourceProperty) {
-            for (const relatedResourceIndex in relatedResourceProperty) {
-                // noinspection JSUnfilteredForInLoop
-                /**
-                 * relatedResourcePropertyCurrent
-                 * @type Resource
-                 */
-                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
-                if (filterProperty !== null) {
-                    // eslint-disable-next-line security/detect-object-injection
-                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
-                        continue;
-                    }
-                }
-                entries = entries.concat([{
-                    'link': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
-                    'resource': new RelatedResource(relatedResourcePropertyCurrent)
-                }]);
-
-            }
-        }
-        return entries;
-    }
-
-    /**
-     * process GraphDefinition and returns a bundle with all the related resources
-     * @param {Db} db
-     * @param {string} base_version
-     * @param {string} host
-     * @param {string} id
-     * @param {*} graphDefinitionJson
-     * @return {Promise<{entry: [{resource: Resource, link: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
-     */
-    async function processGraph(db, base_version, host, id, graphDefinitionJson) {
-        const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-        const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
-        // first get the top level object
-        // const start = graphDefinition.start;
-        let collection = db.collection(`${collection_name}_${base_version}`);
-        const StartResource = getResource(base_version, resource_name);
-
-        let start_entry = await collection.findOne({id: id.toString()});
-
-        /**
-         * processes a list of graph links
-         * @param {Resource} parent_entity
-         * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
-         * @return {Promise<[{resource: Resource, link: string}]>}
-         */
-        async function processGraphLinks(parent_entity, linkItems) {
-            /**
-             * entries
-             * @type {[{resource: Resource, link: string}]}
-             */
-            let entries = [];
-            for (const link of linkItems) {
-                const resourceType = link.target[0].type;
-                if (link.path) {
-                    // forward link
-                    const property = link.path.replace('[x]', '');
-                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            resourceType,
-                            base_version,
-                            parent_entity,
-                            host,
-                            property,
-                            null,
-                            null
-                        )
-                    );
-                } else if (link.params) {
-                    // reverse link
-                    const reverseProperty = link.params.replace('={ref}', '');
-                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                    const relatedResources = await get_reverse_related_resources(
-                        db,
-                        parent_entity.resourceType,
-                        resourceType,
-                        base_version,
-                        parent_entity,
-                        host,
-                        null,
-                        null,
-                        reverseProperty
-                    );
-                    entries = entries.concat(
-                        relatedResources
-                    );
-                }
-                const childLinks = link.link;
-                if (childLinks) {
-                    for (const entryItem of entries) {
-                        entries = entries.concat(
-                            await processGraphLinks(entryItem.resource, childLinks)
-                        );
-                    }
-                }
-            }
-            return entries;
-        }
-
-        if (start_entry) {
-            // first add this object
-            let entries = [{
-                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-                'resource': new StartResource(start_entry)
-            }];
-            const linkItems = graphDefinition.link;
-            entries = entries.concat(await processGraphLinks(start_entry, linkItems));
-            // create a bundle
-            return (
-                {
-                    'resourceType': 'Bundle',
-                    'id': 'bundle-example',
-                    'type': 'collection',
-                    'entry': entries
-                });
-        } else {
-            return (
-                {
-                    'resourceType': 'Bundle',
-                    'id': 'bundle-example',
-                    'entry': []
-                });
-        }
-    }
-
     try {
-        let {base_version, id} = args;
+        let {id} = args;
 
         logRequest(`id=${id}`);
         logInfo(`req=${req}`);
 
-        const host = req.headers.host;
         let query = {};
         query.id = id;
         // Grab an instance of our DB and collection
-        let db = globals.get(CLIENT_DB);
         if (collection_name === 'Practitioner') {
-            /**
-             * bundle
-             * @type {{entry: {resource: Resource, link: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
-             */
-            let bundle = await processGraph(
-                db,
-                base_version,
-                host,
-                id,
-                practitionerEverythingGraph
-            );
-            // return result_entries;
-            let collection = db.collection(`${collection_name}_${base_version}`);
-
-            let practitioner = await collection.findOne({id: id.toString()});
-            // noinspection JSUnresolvedFunction
-            if (practitioner) {
-                // now look for practitioner_role
-                verifyHasValidScopes('PractitionerRole', 'read', req.user, req.authInfo && req.authInfo.scope);
-                const practitioner_role_entries = await get_reverse_related_resources(
-                    db,
-                    'Practitioner',
-                    'PractitionerRole',
-                    base_version,
-                    practitioner,
-                    host,
-                    null,
-                    null,
-                    'practitioner'
-                );
-
-                const practitioner_roles = practitioner_role_entries.map(e => e.resource);
-
-                for (const index in practitioner_roles) {
-                    // noinspection JSUnfilteredForInLoop
-                    const practitioner_role = practitioner_roles[`${index}`];
-                    // now for each PractitionerRole, get the InsurancePlan
-                    verifyHasValidScopes('InsurancePlan', 'read', req.user, req.authInfo && req.authInfo.scope);
-                    collection_name = 'InsurancePlan';
-                    collection = db.collection(`${collection_name}_${base_version}`);
-                    const InsurancePlanResource = getResource(base_version, collection_name);
-                    if (practitioner_role.extension && practitioner_role.extension.length > 0) {
-                        const first_level_extension = practitioner_role.extension[0];
-                        if (first_level_extension.url.endsWith('insurance_plan') && first_level_extension.extension.length > 0) {
-                            const insurancePlanId = first_level_extension.extension[0].valueReference.reference.replace(collection_name + '/', '');
-
-                            const insurancePlan = await collection.findOne({id: insurancePlanId.toString()});
-                            if (insurancePlan) {
-                                bundle.entry = bundle.entry.concat(
-                                    [{
-                                        'link': `https://${host}/${base_version}/${insurancePlan.resourceType}/${insurancePlan.id}`,
-                                        'resource': new InsurancePlanResource(insurancePlan)
-                                    }]);
-                            }
-                        }
-                    }
-                }
-                return bundle;
-            }
+            req.body = practitionerEverythingGraph;
+            return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Organization') {
-            return await processGraph(
-                db,
-                base_version,
-                host,
-                id,
-                organizationEverythingGraph
-            );
+            req.body = organizationEverythingGraph;
+            return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Slot') {
-            return await processGraph(
-                db,
-                base_version,
-                host,
-                id,
-                slotEverythingGraph
-            );
+            req.body = slotEverythingGraph;
+            return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('$everything is not supported for resource: ' + collection_name);
@@ -2149,4 +1862,252 @@ module.exports.validate = async (args, {req}, resource_name) => {
             }
         ]
     };
+};
+
+
+module.exports.graph = async (args, {req}, resource_name, collection_name) => {
+    logRequest(`${resource_name} >>> everything`);
+    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
+
+    /**
+     * Gets related resources
+     * @param {Db} db
+     * @param {string} collectionName
+     * @param {string} base_version
+     * @param {Resource} parent parent entity
+     * @param {string} host
+     * @param {string} property name of property to link
+     * @param {string | null} filterProperty (Optional) filter the sublist by this property
+     * @param {*} filterValue (Optional) match filterProperty to this value
+     * @return {Promise<[{resource: Resource, link: string}]|*[]>}
+     */
+    async function get_related_resources(db, collectionName, base_version, parent, host, property, filterProperty, filterValue) {
+        const collection = db.collection(`${collectionName}_${base_version}`);
+        const RelatedResource = getResource(base_version, collectionName);
+        // eslint-disable-next-line security/detect-object-injection
+        let relatedResourceProperty = parent[property];
+        /**
+         * entries
+         * @type {[{resource: Resource, link: string}]}
+         */
+        let entries = [];
+        if (relatedResourceProperty) {
+            // check if property is a list or not.  If not make it a list to make the code below handle both
+            if (!(Array.isArray(relatedResourceProperty))) {
+                relatedResourceProperty = [relatedResourceProperty];
+            }
+            for (const relatedResourceIndex in relatedResourceProperty) {
+                // noinspection JSUnfilteredForInLoop
+                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+                if (filterProperty !== null) {
+                    // eslint-disable-next-line security/detect-object-injection
+                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                        continue;
+                    }
+                }
+                // eslint-disable-next-line security/detect-object-injection
+                /**
+                 * @type {string}
+                 */
+                const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
+
+                const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
+                if (found_related_resource) {
+                    // noinspection UnnecessaryLocalVariableJS
+                    entries = entries.concat([{
+                        'link': `https://${host}/${base_version}/${found_related_resource.resourceType}/${found_related_resource.id}`,
+                        'resource': new RelatedResource(found_related_resource)
+                    }]);
+                }
+            }
+        }
+        return entries;
+    }
+
+    /**
+     * Gets related resources using reverse link
+     * @param {Db} db
+     * @param {string} parentCollectionName
+     * @param {string} relatedResourceCollectionName
+     * @param {string} base_version
+     * @param {Resource} parent parent entity
+     * @param {string} host
+     * @param {string | null} filterProperty (Optional) filter the sublist by this property
+     * @param {*} filterValue (Optional) match filterProperty to this value
+     * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
+     * @return {Promise<[{resource: Resource, link: string}]>}
+     */
+    async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
+        if (!(reverse_property)) {
+            throw new Error('reverse_property must be set');
+        }
+        const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
+        const RelatedResource = getResource(base_version, relatedResourceCollectionName);
+        let relatedResourceProperty;
+        // find elements in other collection that link to this object
+        const query = {
+            [reverse_property + '.reference']: parentCollectionName + '/' + parent['id']
+        };
+        const cursor = collection.find(query);
+        // noinspection JSUnresolvedFunction
+        relatedResourceProperty = await cursor.toArray();
+        /**
+         * entries
+         * @type {[{resource: Resource, link: string}]}
+         */
+        let entries = [];
+        if (relatedResourceProperty) {
+            for (const relatedResourceIndex in relatedResourceProperty) {
+                // noinspection JSUnfilteredForInLoop
+                /**
+                 * relatedResourcePropertyCurrent
+                 * @type Resource
+                 */
+                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+                if (filterProperty !== null) {
+                    // eslint-disable-next-line security/detect-object-injection
+                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                        continue;
+                    }
+                }
+                entries = entries.concat([{
+                    'link': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
+                    'resource': new RelatedResource(relatedResourcePropertyCurrent)
+                }]);
+
+            }
+        }
+        return entries;
+    }
+
+    /**
+     * process GraphDefinition and returns a bundle with all the related resources
+     * @param {Db} db
+     * @param {string} base_version
+     * @param {string} host
+     * @param {string} id
+     * @param {*} graphDefinitionJson
+     * @return {Promise<{entry: [{resource: Resource, link: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     */
+    async function processGraph(db, base_version, host, id, graphDefinitionJson) {
+        const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
+        const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
+        // first get the top level object
+        // const start = graphDefinition.start;
+        let collection = db.collection(`${collection_name}_${base_version}`);
+        const StartResource = getResource(base_version, resource_name);
+
+        let start_entry = await collection.findOne({id: id.toString()});
+
+        /**
+         * processes a list of graph links
+         * @param {Resource} parent_entity
+         * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
+         * @return {Promise<[{resource: Resource, link: string}]>}
+         */
+        async function processGraphLinks(parent_entity, linkItems) {
+            /**
+             * entries
+             * @type {[{resource: Resource, link: string}]}
+             */
+            let entries = [];
+            for (const link of linkItems) {
+                const resourceType = link.target[0].type;
+                if (link.path) {
+                    // forward link
+                    const property = link.path.replace('[x]', '');
+                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                    entries = entries.concat(
+                        await get_related_resources(
+                            db,
+                            resourceType,
+                            base_version,
+                            parent_entity,
+                            host,
+                            property,
+                            null,
+                            null
+                        )
+                    );
+                } else if (link.params) {
+                    // reverse link
+                    const reverseProperty = link.params.replace('={ref}', '');
+                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                    const relatedResources = await get_reverse_related_resources(
+                        db,
+                        parent_entity.resourceType,
+                        resourceType,
+                        base_version,
+                        parent_entity,
+                        host,
+                        null,
+                        null,
+                        reverseProperty
+                    );
+                    entries = entries.concat(
+                        relatedResources
+                    );
+                }
+                const childLinks = link.link;
+                if (childLinks) {
+                    for (const entryItem of entries) {
+                        entries = entries.concat(
+                            await processGraphLinks(entryItem.resource, childLinks)
+                        );
+                    }
+                }
+            }
+            return entries;
+        }
+
+        if (start_entry) {
+            // first add this object
+            let entries = [{
+                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+                'resource': new StartResource(start_entry)
+            }];
+            const linkItems = graphDefinition.link;
+            entries = entries.concat(await processGraphLinks(start_entry, linkItems));
+            // create a bundle
+            return (
+                {
+                    'resourceType': 'Bundle',
+                    'id': 'bundle-example',
+                    'type': 'collection',
+                    'entry': entries
+                });
+        } else {
+            return (
+                {
+                    'resourceType': 'Bundle',
+                    'id': 'bundle-example',
+                    'entry': []
+                });
+        }
+    }
+
+    try {
+        let {base_version, id} = args;
+
+        logRequest(`id=${id}`);
+        logInfo(`req=${req}`);
+
+        const host = req.headers.host;
+        let query = {};
+        query.id = id;
+        // Grab an instance of our DB and collection
+        let db = globals.get(CLIENT_DB);
+        // get GraphDefinition from body
+        const graphDefinitionRaw = req.body;
+        return await processGraph(
+            db,
+            base_version,
+            host,
+            id,
+            graphDefinitionRaw
+        );
+    } catch (err) {
+        logger.error(`Error with ${resource_name}.searchById: `, err);
+        throw new BadRequestError(err);
+    }
 };

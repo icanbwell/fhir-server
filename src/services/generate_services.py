@@ -92,7 +92,10 @@ module.exports.patch = (args, {{ req }}) =>
   base_service.patch(args, {{ req }}, resource_name, collection_name);
 
 module.exports.validate = (args, {{ req }}) =>
-  base_service.validate(args, {{ req }}, resource_name, collection_name);
+  base_service.validate(args, {{ req }}, resource_name);
+
+module.exports.graph = (args, {{ req }}) =>
+  base_service.graph(args, {{ req }}, resource_name, collection_name);
 """
             # 3. add config.js entry
             with open(resource_file_name, "w+") as file:
@@ -128,6 +131,12 @@ module.exports.validate = (args, {{ req }}) =>
           method: 'POST',
           reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
         }},
+        {{
+          name: 'graph',
+          route: '/$graph',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        }}
       ],
     }},""")
         else:
