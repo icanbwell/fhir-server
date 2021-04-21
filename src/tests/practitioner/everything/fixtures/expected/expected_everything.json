@@ -196,6 +196,10 @@
               }
             ],
             "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan"
+          },
+          {
+            "url": "foo",
+            "valueString": "bar"
           }
         ],
         "practitioner": {

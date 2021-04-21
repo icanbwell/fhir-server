@@ -2084,11 +2084,44 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                             );
                         }
                     } else {
-                        if (parentEntity[link.path]) {
+                        /**
+                         * @type {string}
+                         */
+                        let property = link.path.replace('[x]', '');
+                        /**
+                         * @type {string}
+                         */
+                        let filterProperty;
+                        /**
+                         * @type {string}
+                         */
+                        let filterValue;
+                        // if path is more complex and includes filter
+                        if (property.includes(':')) {
+                            const property_split = property.split(':');
+                            property = property_split[0];
+                            const filterPropertySplit = property_split[1].split('=');
+                            filterProperty = filterPropertySplit[0];
+                            filterValue = filterPropertySplit[1];
+                        }
+                        /**
+                         * @type { Resource | [Resource]}
+                         */
+                            // eslint-disable-next-line security/detect-object-injection
+                        let parentEntityProperty = parentEntity[property];
+                        if (parentEntityProperty) {
+                            if (filterProperty) {
+                                // noinspection JSValidateTypes
+                                parentEntityProperty = (Array.isArray(parentEntityProperty)
+                                    ? parentEntityProperty
+                                    : [parentEntityProperty])
+                                    // eslint-disable-next-line security/detect-object-injection
+                                    .filter(e => e[filterProperty] === filterValue);
+                            }
                             // if no target specified then we don't write the resource but try to process the links
                             entries_for_current_link = [
                                 {
-                                    'resource': parentEntity[link.path],
+                                    'resource': parentEntityProperty,
                                     'link': ''
                                 }
                             ];

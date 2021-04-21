@@ -40,7 +40,7 @@
           "path": "extension",
           "link": [
             {
-              "path": "extension",
+              "path": "extension:url=plan",
               "link": [
                 {
                   "path": "valueReference",
