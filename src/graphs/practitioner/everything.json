@@ -37,10 +37,20 @@
           ]
         },
         {
-          "path": "extension:url=insurance_plan",
-          "target": [
+          "path": "extension",
+          "link": [
             {
-              "type": "InsurancePlan"
+              "path": "extension",
+              "link": [
+                {
+                  "path": "valueReference",
+                  "target": [
+                    {
+                      "type": "InsurancePlan"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

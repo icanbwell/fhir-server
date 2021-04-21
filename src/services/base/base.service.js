@@ -1906,7 +1906,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             for (const relatedResourceIndex in relatedResourceProperty) {
                 // noinspection JSUnfilteredForInLoop
                 const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
-                if (filterProperty !== null) {
+                if (filterProperty) {
                     // eslint-disable-next-line security/detect-object-injection
                     if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
                         continue;
@@ -2008,7 +2008,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 
         /**
          * processes a list of graph links
-         * @param {Resource} parent_entity
+         * @param {Resource | [Resource]} parent_entity
          * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
          * @return {Promise<[{resource: Resource, link: string}]>}
          */
@@ -2018,49 +2018,89 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
              * @type {[{resource: Resource, link: string}]}
              */
             let entries = [];
+            const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
             for (const link of linkItems) {
-                const resourceType = link.target[0].type;
-                if (link.path) {
-                    // forward link
-                    const property = link.path.replace('[x]', '');
-                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            resourceType,
-                            base_version,
-                            parent_entity,
-                            host,
-                            property,
-                            null,
-                            null
-                        )
-                    );
-                } else if (link.params) {
-                    // reverse link
-                    const reverseProperty = link.params.replace('={ref}', '');
-                    verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                    const relatedResources = await get_reverse_related_resources(
-                        db,
-                        parent_entity.resourceType,
-                        resourceType,
-                        base_version,
-                        parent_entity,
-                        host,
-                        null,
-                        null,
-                        reverseProperty
-                    );
-                    entries = entries.concat(
-                        relatedResources
-                    );
-                }
-                const childLinks = link.link;
-                if (childLinks) {
-                    for (const entryItem of entries) {
-                        entries = entries.concat(
-                            await processGraphLinks(entryItem.resource, childLinks)
-                        );
+                for (const parentEntity of parentEntities) {
+                    /**
+                     * entries
+                     * @type {[{resource: Resource, link: string}]}
+                     */
+                    let entries_for_current_link = [];
+                    if (link.target) {
+                        const resourceType = link.target[0].type;
+                        if (link.path) {
+                            // forward link
+                            /**
+                             * @type {string}
+                             */
+                            let property = link.path.replace('[x]', '');
+                            /**
+                             * @type {string}
+                             */
+                            let filterProperty;
+                            /**
+                             * @type {string}
+                             */
+                            let filterValue;
+                            // if path is more complex and includes filter
+                            if (property.includes(':')) {
+                                const property_split = property.split(':');
+                                property = property_split[0];
+                                const filterPropertySplit = property_split[1].split('=');
+                                filterProperty = filterPropertySplit[0];
+                                filterValue = filterPropertySplit[1];
+                            }
+                            verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                            entries_for_current_link = await get_related_resources(
+                                db,
+                                resourceType,
+                                base_version,
+                                parentEntity,
+                                host,
+                                property,
+                                filterProperty,
+                                filterValue
+                            );
+                            entries = entries.concat(
+                                entries_for_current_link
+                            );
+                        } else if (link.params) {
+                            // reverse link
+                            const reverseProperty = link.params.replace('={ref}', '');
+                            verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                            entries_for_current_link = await get_reverse_related_resources(
+                                db,
+                                parent_entity.resourceType,
+                                resourceType,
+                                base_version,
+                                parentEntity,
+                                host,
+                                null,
+                                null,
+                                reverseProperty
+                            );
+                            entries = entries.concat(
+                                entries_for_current_link
+                            );
+                        }
+                    } else {
+                        if (parentEntity[link.path]) {
+                            // if no target specified then we don't write the resource but try to process the links
+                            entries_for_current_link = [
+                                {
+                                    'resource': parentEntity[link.path],
+                                    'link': ''
+                                }
+                            ];
+                        }
+                    }
+                    const childLinks = link.link;
+                    if (childLinks) {
+                        for (const entryItem of entries_for_current_link) {
+                            entries = entries.concat(
+                                await processGraphLinks(entryItem.resource, childLinks)
+                            );
+                        }
                     }
                 }
             }

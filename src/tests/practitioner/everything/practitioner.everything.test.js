@@ -182,7 +182,7 @@ describe('Practitioner Everything Tests', () => {
                                 return cb(err, resp);
                             }), (results, cb) =>
                         request
-                            .post('/4_0_0/InsurancePlan/AETNA-AetnaElectChoice/$merge')
+                            .post('/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He/$merge')
                             .send(insurancePlanResource)
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
