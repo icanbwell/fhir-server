@@ -1557,6 +1557,10 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         const RelatedResource = getResource(base_version, collectionName);
         // eslint-disable-next-line security/detect-object-injection
         let relatedResourceProperty = parent[property];
+        /**
+         * entries
+         * @type {[{resource: Resource, link: string}]}
+         */
         let entries = [];
         if (relatedResourceProperty) {
             // check if property is a list or not.  If not make it a list to make the code below handle both
@@ -1573,6 +1577,9 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     }
                 }
                 // eslint-disable-next-line security/detect-object-injection
+                /**
+                 * @type {string}
+                 */
                 const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
 
                 const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
@@ -1589,7 +1596,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
     }
 
     /**
-     * Gets related resources
+     * Gets related resources using reverse link
      * @param {Db} db
      * @param {string} parentCollectionName
      * @param {string} relatedResourceCollectionName
@@ -1599,7 +1606,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
      * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
-     * @return {Promise<[{resource: Resource, link: string}]|*[]>}
+     * @return {Promise<[{resource: Resource, link: string}]>}
      */
     async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_property) {
         if (!(reverse_property)) {
@@ -1615,10 +1622,18 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         const cursor = collection.find(query);
         // noinspection JSUnresolvedFunction
         relatedResourceProperty = await cursor.toArray();
+        /**
+         * entries
+         * @type {[{resource: Resource, link: string}]}
+         */
         let entries = [];
         if (relatedResourceProperty) {
             for (const relatedResourceIndex in relatedResourceProperty) {
                 // noinspection JSUnfilteredForInLoop
+                /**
+                 * relatedResourcePropertyCurrent
+                 * @type Resource
+                 */
                 const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
                 if (filterProperty !== null) {
                     // eslint-disable-next-line security/detect-object-injection
@@ -1659,7 +1674,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
          * processes a list of graph links
          * @param {Resource} parent_entity
          * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
-         * @return {Promise<*[]>}
+         * @return {Promise<[{resource: Resource, link: string}]>}
          */
         async function processGraphLinks(parent_entity, linkItems) {
             /**
@@ -1729,6 +1744,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                 {
                     'resourceType': 'Bundle',
                     'id': 'bundle-example',
+                    'type': 'collection',
                     'entry': entries
                 });
         } else {

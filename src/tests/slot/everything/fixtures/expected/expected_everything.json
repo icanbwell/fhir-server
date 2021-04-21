@@ -1,6 +1,7 @@
 {
   "resourceType": "Bundle",
   "id": "bundle-example",
+  "type": "collection",
   "entry": [
     {
       "link": "https://127.0.0.1:50217/4_0_0/Slot/1275501447-UHG-MMMA-existing",
