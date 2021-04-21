@@ -1640,11 +1640,12 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @param {string} base_version
      * @param {string} host
      * @param {string} id
+     * @param {*} graphDefinitionJson
      * @return {Promise<{entry: [{resource: Resource, link: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
-    async function processGraph(db, base_version, host, id) {
+    async function processGraph(db, base_version, host, id, graphDefinitionJson) {
         const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-        const graphDefinition = new GraphDefinitionResource(organizationEverythingGraph);
+        const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
         // first get the top level object
         // const start = graphDefinition.start;
         let collection = db.collection(`${collection_name}_${base_version}`);
@@ -1821,7 +1822,13 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     });
             }
         } else if (collection_name === 'Organization') {
-            return await processGraph(db, base_version, host, id);
+            return await processGraph(
+                db,
+                base_version,
+                host,
+                id,
+                organizationEverythingGraph
+            );
         } else if (collection_name === 'Slot') {
             let collection = db.collection(`${collection_name}_${base_version}`);
             const SlotResource = getResource(base_version, resource_name);
