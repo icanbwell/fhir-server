@@ -25,6 +25,8 @@ const deepcopy = require('deepcopy');
 const deepEqual = require('fast-deep-equal');
 const sendToS3 = require('../../utils/aws-s3');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
+// eslint-disable-next-line no-unused-vars
+const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 
 const async = require('async');
 const env = require('var');
@@ -1546,8 +1548,8 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @param {Resource} parent parent entity
      * @param {string} host
      * @param {string} property name of property to link
-     * @param {string} filterProperty (Optional) filter the sublist by this property
-     * @param {string} filterValue (Optional) match filterProperty to this value
+     * @param {string | null} filterProperty (Optional) filter the sublist by this property
+     * @param {*} filterValue (Optional) match filterProperty to this value
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
      */
     async function get_related_resources(db, collectionName, base_version, parent, host, property, filterProperty, filterValue) {
@@ -1594,7 +1596,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @param {string} base_version
      * @param {Resource} parent parent entity
      * @param {string} host
-     * @param {string} filterProperty (Optional) filter the sublist by this property
+     * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
      * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
      * @return {Promise<[{resource: Resource, link: string}]|*[]>}
@@ -1652,14 +1654,16 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         const StartResource = getResource(base_version, resource_name);
 
         let start_entry = await collection.findOne({id: id.toString()});
-        // noinspection JSUnresolvedFunction
-        if (start_entry) {
-            // first add this object
-            let entries = [{
-                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-                'resource': new StartResource(start_entry)
-            }];
-            for (const link of graphDefinition.link) {
+
+        /**
+         * processes a list of graph links
+         * @param {Resource} parent_entity
+         * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
+         * @return {Promise<*[]>}
+         */
+        async function processGraphLinks(parent_entity, linkItems) {
+            let entries = [];
+            for (const link of linkItems) {
                 const resourceType = link.target[0].type;
                 if (link.path) {
                     // forward link
@@ -1670,30 +1674,44 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                             db,
                             resourceType,
                             base_version,
-                            start_entry,
+                            parent_entity,
                             host,
-                            property
+                            property,
+                            null,
+                            null
                         )
                     );
                 } else if (link.params) {
                     // reverse link
                     const reverseProperty = link.params.replace('={ref}', '');
                     verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                    const relatedResources = await get_reverse_related_resources(
+                        db,
+                        parent_entity.resourceType,
+                        resourceType,
+                        base_version,
+                        parent_entity,
+                        host,
+                        null,
+                        null,
+                        reverseProperty
+                    );
                     entries = entries.concat(
-                        await get_reverse_related_resources(
-                            db,
-                            start_entry.resourceType,
-                            resourceType,
-                            base_version,
-                            start_entry,
-                            host,
-                            null,
-                            null,
-                            reverseProperty
-                        )
+                        relatedResources
                     );
                 }
             }
+            return entries;
+        }
+
+        if (start_entry) {
+            // first add this object
+            let entries = [{
+                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+                'resource': new StartResource(start_entry)
+            }];
+            const linkItems = graphDefinition.link;
+            entries = entries.concat(await processGraphLinks(start_entry, linkItems));
             // create a bundle
             return (
                 {
@@ -1723,6 +1741,14 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
         if (collection_name === 'Practitioner') {
+            // const result_entries = await processGraph(
+            //     db,
+            //     base_version,
+            //     host,
+            //     id,
+            //     practitionerEverythingGraph
+            // );
+            // return result_entries;
             let collection = db.collection(`${collection_name}_${base_version}`);
             const PractitionerResource = getResource(base_version, resource_name);
 
