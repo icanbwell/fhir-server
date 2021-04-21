@@ -1662,12 +1662,16 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
          * @return {Promise<*[]>}
          */
         async function processGraphLinks(parent_entity, linkItems) {
+            /**
+             * entries
+             * @type {[{resource: Resource, link: string}]}
+             */
             let entries = [];
             for (const link of linkItems) {
                 const resourceType = link.target[0].type;
                 if (link.path) {
                     // forward link
-                    const property = link.path;
+                    const property = link.path.replace('[x]', '');
                     verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
                     entries = entries.concat(
                         await get_related_resources(
@@ -1699,6 +1703,14 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     entries = entries.concat(
                         relatedResources
                     );
+                }
+                const childLinks = link.link;
+                if (childLinks) {
+                    for (const entryItem of entries) {
+                        entries = entries.concat(
+                            await processGraphLinks(entryItem.resource, childLinks)
+                        );
+                    }
                 }
             }
             return entries;
@@ -1741,25 +1753,23 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
         if (collection_name === 'Practitioner') {
-            // const result_entries = await processGraph(
-            //     db,
-            //     base_version,
-            //     host,
-            //     id,
-            //     practitionerEverythingGraph
-            // );
+            /**
+             * bundle
+             * @type {{entry: {resource: Resource, link: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
+             */
+            let bundle = await processGraph(
+                db,
+                base_version,
+                host,
+                id,
+                practitionerEverythingGraph
+            );
             // return result_entries;
             let collection = db.collection(`${collection_name}_${base_version}`);
-            const PractitionerResource = getResource(base_version, resource_name);
 
             let practitioner = await collection.findOne({id: id.toString()});
             // noinspection JSUnresolvedFunction
             if (practitioner) {
-                // first add the Practitioner
-                let entries = [{
-                    'link': `https://${host}/${base_version}/${practitioner.resourceType}/${practitioner.id}`,
-                    'resource': new PractitionerResource(practitioner)
-                }];
                 // now look for practitioner_role
                 verifyHasValidScopes('PractitionerRole', 'read', req.user, req.authInfo && req.authInfo.scope);
                 const practitioner_role_entries = await get_reverse_related_resources(
@@ -1774,49 +1784,11 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                     'practitioner'
                 );
 
-                entries = entries.concat(practitioner_role_entries);
-
                 const practitioner_roles = practitioner_role_entries.map(e => e.resource);
 
                 for (const index in practitioner_roles) {
                     // noinspection JSUnfilteredForInLoop
                     const practitioner_role = practitioner_roles[`${index}`];
-                    // now for each PractitionerRole, get the Organization
-                    verifyHasValidScopes('Organization', 'read', req.user, req.authInfo && req.authInfo.scope);
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            'Organization',
-                            base_version,
-                            practitioner_role,
-                            host,
-                            'organization'
-                        )
-                    );
-                    // now for each PractitionerRole, get the Location
-                    verifyHasValidScopes('Location', 'read', req.user, req.authInfo && req.authInfo.scope);
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            'Location',
-                            base_version,
-                            practitioner_role,
-                            host,
-                            'location'
-                        )
-                    );
-                    // now for each PractitionerRole, get the HealthcareService
-                    verifyHasValidScopes('HealthcareService', 'read', req.user, req.authInfo && req.authInfo.scope);
-                    entries = entries.concat(
-                        await get_related_resources(
-                            db,
-                            'HealthcareService',
-                            base_version,
-                            practitioner_role,
-                            host,
-                            'healthcareService'
-                        )
-                    );
                     // now for each PractitionerRole, get the InsurancePlan
                     verifyHasValidScopes('InsurancePlan', 'read', req.user, req.authInfo && req.authInfo.scope);
                     collection_name = 'InsurancePlan';
@@ -1829,7 +1801,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 
                             const insurancePlan = await collection.findOne({id: insurancePlanId.toString()});
                             if (insurancePlan) {
-                                entries = entries.concat(
+                                bundle.entry = bundle.entry.concat(
                                     [{
                                         'link': `https://${host}/${base_version}/${insurancePlan.resourceType}/${insurancePlan.id}`,
                                         'resource': new InsurancePlanResource(insurancePlan)
@@ -1838,14 +1810,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
                         }
                     }
                 }
-
-                // create a bundle
-                return (
-                    {
-                        'resourceType': 'Bundle',
-                        'id': 'bundle-example',
-                        'entry': entries
-                    });
+                return bundle;
             }
         } else if (collection_name === 'Organization') {
             return await processGraph(
