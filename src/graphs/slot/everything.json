@@ -17,6 +17,16 @@
             {
               "type": "PractitionerRole"
             }
+          ],
+          "link": [
+            {
+              "path": "practitioner",
+              "target": [
+                {
+                  "type": "Practitioner"
+                }
+              ]
+            }
           ]
         }
       ]
