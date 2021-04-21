@@ -1822,7 +1822,7 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
  * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.validate = async (args, {req}, resource_name) => {
+module.exports.validate = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> validate`);
 
     // no auth check needed to call validate
