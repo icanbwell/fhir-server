@@ -1499,6 +1499,16 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         } while (triesLeft >= 0);
     }
 
+    // if the incoming request is a bundle then unwrap the bundle
+    if ((!(Array.isArray(resources_incoming))) && resources_incoming['resourceType'] === 'Bundle') {
+        logInfo('--- validate schema of Bundle ----');
+        const operationOutcome = validateResource(resources_incoming, 'Bundle', req.path);
+        if (operationOutcome && operationOutcome.statusCode === 400) {
+            return operationOutcome;
+        }
+        // unwrap the resources
+        resources_incoming = resources_incoming.entry.map(e => e.resource);
+    }
     if (Array.isArray(resources_incoming)) {
         logRequest('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
         // find items without duplicates and run them in parallel

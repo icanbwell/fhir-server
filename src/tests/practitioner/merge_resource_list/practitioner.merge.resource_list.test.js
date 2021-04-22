@@ -12,7 +12,7 @@ const env = require('var');
 
 const request = supertest(app);
 
-describe('Practitioner Merge Bundle Tests', () => {
+describe('Practitioner Merge Resource List Tests', () => {
     let connection;
     let db;
     // let resourceId;
@@ -35,8 +35,8 @@ describe('Practitioner Merge Bundle Tests', () => {
         await connection.close();
     });
 
-    describe('Practitioner Merge Bundles', () => {
-        test('Multiple calls to Practitioner merge bundles properly', async (done) => {
+    describe('Practitioner Merge Resource List', () => {
+        test('Multiple calls to Practitioner merge resource list properly', async (done) => {
             await async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request
@@ -90,7 +90,7 @@ describe('Practitioner Merge Bundle Tests', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb),
                 ],
-                (err, results) => {
+                (err) => {
                     if (!err) {
                         console.log('done');
                     }
