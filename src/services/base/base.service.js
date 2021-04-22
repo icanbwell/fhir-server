@@ -114,6 +114,9 @@ let parseScopes = (scope) => {
 let verifyHasValidScopes = (name, action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+        /**
+         * @type {string[]}
+         */
         let scopes = parseScopes(scope);
         let {error, success} = scopeChecker(name, action, scopes);
 
@@ -1549,12 +1552,15 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         query.id = id;
         // Grab an instance of our DB and collection
         if (collection_name === 'Practitioner') {
+            // noinspection JSUndefinedPropertyAssignment
             req.body = practitionerEverythingGraph;
             return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Organization') {
+            // noinspection JSUndefinedPropertyAssignment
             req.body = organizationEverythingGraph;
             return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Slot') {
+            // noinspection JSUndefinedPropertyAssignment
             req.body = slotEverythingGraph;
             return await module.exports.graph(args, {req}, resource_name, collection_name);
         } else {
@@ -1821,7 +1827,6 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
  * @param {string} resource_name
  * @param {string} collection_name
  */
-// eslint-disable-next-line no-unused-vars
 module.exports.validate = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> validate`);
 
@@ -1834,6 +1839,7 @@ module.exports.validate = async (args, {req}, resource_name, collection_name) =>
 
     logInfo('--- request ----');
     logInfo(req);
+    logInfo(collection_name);
     logInfo('-----------------');
 
     logInfo('--- body ----');
@@ -1992,8 +1998,8 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
      * @param {Db} db
      * @param {string} base_version
      * @param {string} host
-     * @param {string} id
-     * @param {*} graphDefinitionJson
+     * @param {string | string[]} id (accepts a single id or a list of ids)
+     * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @return {Promise<{entry: [{resource: Resource, link: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
     async function processGraph(db, base_version, host, id, graphDefinitionJson) {
@@ -2004,7 +2010,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         let collection = db.collection(`${collection_name}_${base_version}`);
         const StartResource = getResource(base_version, resource_name);
 
-        let start_entry = await collection.findOne({id: id.toString()});
+        if (!(Array.isArray(id))) {
+            id = [id];
+        }
 
         /**
          * processes a list of graph links
@@ -2132,30 +2140,32 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             return entries;
         }
 
-        if (start_entry) {
-            // first add this object
-            let entries = [{
-                'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-                'resource': new StartResource(start_entry)
-            }];
-            const linkItems = graphDefinition.link;
-            entries = entries.concat(await processGraphLinks(start_entry, linkItems));
-            // create a bundle
-            return (
-                {
-                    'resourceType': 'Bundle',
-                    'id': 'bundle-example',
-                    'type': 'collection',
-                    'entry': entries
-                });
-        } else {
-            return (
-                {
-                    'resourceType': 'Bundle',
-                    'id': 'bundle-example',
-                    'entry': []
-                });
+        /**
+         * @type {[{resource: Resource, link: string}]}
+         */
+        let entries = [];
+        for (const id1 of id) {
+            let start_entry = await collection.findOne({id: id1.toString()});
+
+            if (start_entry) {
+                // first add this object
+                entries = entries.concat([{
+                    'link': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+                    'resource': new StartResource(start_entry)
+                }]);
+                const linkItems = graphDefinition.link;
+                entries = entries.concat(await processGraphLinks(start_entry, linkItems));
+            }
         }
+        // create a bundle
+        return (
+            {
+                resourceType: 'Bundle',
+                id: 'bundle-example',
+                type: 'collection',
+                timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+                entry: entries
+            });
     }
 
     try {
