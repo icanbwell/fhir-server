@@ -2157,6 +2157,16 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                 entries = entries.concat(await processGraphLinks(start_entry, linkItems));
             }
         }
+        // remove duplicate resources
+        /**
+         * @type {[{resource: Resource, link: string}]}
+         */
+        const uniqueEntries = entries.reduce((acc, item) => {
+            if (!acc.find(a => a.resourceType === item.resource.resourceType && a.id === item.resource.id)) {
+                acc.push(item);
+            }
+            return acc;
+        }, []);
         // create a bundle
         return (
             {
@@ -2164,7 +2174,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                 id: 'bundle-example',
                 type: 'collection',
                 timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-                entry: entries
+                entry: uniqueEntries
             });
     }
 
@@ -2175,13 +2185,16 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         logInfo(`req=${req}`);
 
         const host = req.headers.host;
-        let query = {};
-        query.id = id;
+        const combined_args = get_all_args(req, args);
+        if (combined_args['id']) {
+            // if id is passed in query string
+            id = combined_args['id'];
+        }
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
         // get GraphDefinition from body
         const graphDefinitionRaw = req.body;
-        logInfo('--- validate schema ----');
+        logInfo('--- validate schema of GraphDefinition ----');
         const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', req.path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             return operationOutcome;
