@@ -2050,23 +2050,58 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                 filterProperty = filterPropertySplit[0];
                                 filterValue = filterPropertySplit[1];
                             }
-                            verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                            entries_for_current_link = await get_related_resources(
-                                db,
-                                resourceType,
-                                base_version,
-                                parentEntity,
-                                host,
-                                property,
-                                filterProperty,
-                                filterValue
-                            );
-                            entries = entries.concat(
-                                entries_for_current_link
-                            );
-                        } else if (link.params) {
+                            if (property.includes('.')) {
+                                const property_split = property.split('.');
+                                /**
+                                 * @type { Resource | [Resource]}
+                                 */
+                                let parentEntityProperty = parentEntity;
+                                for (const propertyName of property_split) {
+                                    if (parentEntityProperty) {
+                                        if (Array.isArray(parentEntityProperty)) {
+                                            parentEntityProperty = parentEntityProperty[0];
+                                        }
+                                        if (parentEntityProperty) {
+                                            // eslint-disable-next-line security/detect-object-injection
+                                            parentEntityProperty = parentEntityProperty[propertyName];
+                                        }
+                                    }
+                                }
+                                if (parentEntityProperty) {
+                                    if (filterProperty) {
+                                        // noinspection JSValidateTypes
+                                        parentEntityProperty = (Array.isArray(parentEntityProperty)
+                                            ? parentEntityProperty
+                                            : [parentEntityProperty])
+                                            // eslint-disable-next-line security/detect-object-injection
+                                            .filter(e => e[filterProperty] === filterValue);
+                                    }
+                                    for (const p of parentEntityProperty) {
+                                        // if no target specified then we don't write the resource but try to process the links
+                                        entries_for_current_link = entries_for_current_link.concat([
+                                            {
+                                                'resource': p,
+                                                'link': ''
+                                            }
+                                        ]);
+                                    }
+                                }
+                            } else {
+                                verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                                entries_for_current_link = await get_related_resources(
+                                    db,
+                                    resourceType,
+                                    base_version,
+                                    parentEntity,
+                                    host,
+                                    property,
+                                    filterProperty,
+                                    filterValue
+                                );
+                            }
+                        } else if (link.target[0].params) {
                             // reverse link
-                            const reverseProperty = link.params.replace('={ref}', '');
+                            const reverseProperty = link.target[0].params.replace('={ref}', '');
                             verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
                             entries_for_current_link = await get_reverse_related_resources(
                                 db,
@@ -2079,55 +2114,12 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                 null,
                                 reverseProperty
                             );
-                            entries = entries.concat(
-                                entries_for_current_link
-                            );
-                        }
-                    } else {
-                        /**
-                         * @type {string}
-                         */
-                        let property = link.path.replace('[x]', '');
-                        /**
-                         * @type {string}
-                         */
-                        let filterProperty;
-                        /**
-                         * @type {string}
-                         */
-                        let filterValue;
-                        // if path is more complex and includes filter
-                        if (property.includes(':')) {
-                            const property_split = property.split(':');
-                            property = property_split[0];
-                            const filterPropertySplit = property_split[1].split('=');
-                            filterProperty = filterPropertySplit[0];
-                            filterValue = filterPropertySplit[1];
-                        }
-                        /**
-                         * @type { Resource | [Resource]}
-                         */
-                            // eslint-disable-next-line security/detect-object-injection
-                        let parentEntityProperty = parentEntity[property];
-                        if (parentEntityProperty) {
-                            if (filterProperty) {
-                                // noinspection JSValidateTypes
-                                parentEntityProperty = (Array.isArray(parentEntityProperty)
-                                    ? parentEntityProperty
-                                    : [parentEntityProperty])
-                                    // eslint-disable-next-line security/detect-object-injection
-                                    .filter(e => e[filterProperty] === filterValue);
-                            }
-                            // if no target specified then we don't write the resource but try to process the links
-                            entries_for_current_link = [
-                                {
-                                    'resource': parentEntityProperty,
-                                    'link': ''
-                                }
-                            ];
                         }
                     }
-                    const childLinks = link.link;
+                    entries = entries.concat(
+                        entries_for_current_link.filter(e => e.resource['resourceType'] && e.link)
+                    );
+                    const childLinks = link.target[0].link;
                     if (childLinks) {
                         for (const entryItem of entries_for_current_link) {
                             entries = entries.concat(
@@ -2179,6 +2171,11 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         let db = globals.get(CLIENT_DB);
         // get GraphDefinition from body
         const graphDefinitionRaw = req.body;
+        logInfo('--- validate schema ----');
+        const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', req.path);
+        if (operationOutcome && operationOutcome.statusCode === 400) {
+            return operationOutcome;
+        }
         return await processGraph(
             db,
             base_version,
