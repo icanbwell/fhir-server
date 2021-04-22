@@ -186,7 +186,7 @@ describe('Organization Everything Tests', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb)
                 ],
-                (err, results) => {
+                (err) => {
                     if (!err) {
                         console.log('done');
                     }
