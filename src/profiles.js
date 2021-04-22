@@ -14,6 +14,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -46,6 +52,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -86,6 +98,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -118,6 +136,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -158,6 +182,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -190,6 +220,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -230,6 +266,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -262,6 +304,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -302,6 +350,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -334,6 +388,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -374,6 +434,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -406,6 +472,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -446,6 +518,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -478,6 +556,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -518,6 +602,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -550,6 +640,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -590,6 +686,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -622,6 +724,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -662,6 +770,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -694,6 +808,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -734,6 +854,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -766,6 +892,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -806,6 +938,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -838,6 +976,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -878,6 +1022,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -910,6 +1060,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -950,6 +1106,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -982,6 +1144,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1022,6 +1190,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1054,6 +1228,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1094,6 +1274,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1126,6 +1312,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1166,6 +1358,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1198,6 +1396,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1238,6 +1442,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1270,6 +1480,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1310,6 +1526,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1342,6 +1564,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1382,6 +1610,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1414,6 +1648,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1454,6 +1694,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1486,6 +1732,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1526,6 +1778,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1558,6 +1816,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1598,6 +1862,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1630,6 +1900,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1670,6 +1946,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1702,6 +1984,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1742,6 +2030,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1774,6 +2068,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1814,6 +2114,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1846,6 +2152,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1886,6 +2198,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1918,6 +2236,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -1958,6 +2282,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -1990,6 +2320,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2030,6 +2366,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2062,6 +2404,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2102,6 +2450,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2134,6 +2488,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2174,6 +2534,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2206,6 +2572,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2246,6 +2618,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2278,6 +2656,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2318,6 +2702,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2350,6 +2740,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2390,6 +2786,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2422,6 +2824,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2462,6 +2870,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2494,6 +2908,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2534,6 +2954,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2566,6 +2992,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2606,6 +3038,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2638,6 +3076,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2678,6 +3122,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2710,6 +3160,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2750,6 +3206,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2782,6 +3244,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2822,6 +3290,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2854,6 +3328,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2894,6 +3374,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2926,6 +3412,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -2966,6 +3458,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -2998,6 +3496,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3038,6 +3542,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3070,6 +3580,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3110,6 +3626,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3142,6 +3664,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3182,6 +3710,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3214,6 +3748,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3254,6 +3794,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3286,6 +3832,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3326,6 +3878,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3358,6 +3916,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3398,6 +3962,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3430,6 +4000,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3470,6 +4046,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3502,6 +4084,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3542,6 +4130,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3574,6 +4168,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3614,6 +4214,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3646,6 +4252,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3686,6 +4298,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3718,6 +4336,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3758,6 +4382,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3790,6 +4420,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3830,6 +4466,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3862,6 +4504,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3902,6 +4550,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -3934,6 +4588,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -3974,6 +4634,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4006,6 +4672,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4046,6 +4718,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4078,6 +4756,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4118,6 +4802,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4150,6 +4840,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4190,6 +4886,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4222,6 +4924,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4262,6 +4970,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4294,6 +5008,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4334,6 +5054,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4366,6 +5092,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4406,6 +5138,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4438,6 +5176,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4478,6 +5222,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4510,6 +5260,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4550,6 +5306,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4582,6 +5344,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
@@ -4622,6 +5390,12 @@ const profiles = {
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },
         {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',
@@ -4654,6 +5428,12 @@ const profiles = {
         {
           name: 'everything',
           route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         },

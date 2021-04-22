@@ -113,6 +113,12 @@ module.exports.graph = (args, {{ req }}) =>
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }},
         {{
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        }},
+        {{
           name: 'merge',
           route: '/:id/$merge',
           method: 'POST',

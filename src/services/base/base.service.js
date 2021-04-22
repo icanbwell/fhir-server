@@ -2190,6 +2190,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             // if id is passed in query string
             id = combined_args['id'];
         }
+        id = id.split(',');
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
         // get GraphDefinition from body
