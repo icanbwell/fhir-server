@@ -2173,11 +2173,11 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             return entries;
         }
 
-        /**
-         * @type {[{resource: Resource, fullUrl: string}]}
-         */
-        let entries = [];
-        for (const id1 of id) {
+        async function processSingleId(id1) {
+            /**
+             * @type {[{resource: Resource, fullUrl: string}]}
+             */
+            let entries = [];
             let start_entry = await collection.findOne({id: id1.toString()});
 
             if (start_entry) {
@@ -2202,11 +2202,23 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                     }
                 }
                 entries = entries.concat([current_entity]);
-                if (!contained){
+                if (!contained) {
                     entries = entries.concat(related_entries);
                 }
             }
+            return entries;
         }
+
+        /**
+         * @type {[[{resource: Resource, fullUrl: string}]]}]
+         */
+        const entriesById = await Promise.all([
+            async.map(id, async x => await processSingleId(x))
+        ]);
+        /**
+         * @type {[{resource: Resource, fullUrl: string}]}
+         */
+        let entries = entriesById.flat(2);
         // remove duplicate resources
         /**
          * @type {[{resource: Resource, fullUrl: string}]}
