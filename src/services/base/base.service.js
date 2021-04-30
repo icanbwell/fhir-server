@@ -132,11 +132,11 @@ let verifyHasValidScopes = (name, action, user, scope) => {
 
 /**
  * returns whether the parameter is false or a string "false"
- * @param {string | boolean} s
+ * @param {string | boolean | null} s
  * @returns {boolean}
  */
 let isTrue = function (s) {
-    return String(s).toLowerCase() === 'true';
+    return String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1';
 };
 
 /**
@@ -2244,7 +2244,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         /**
          * @type {boolean}
          */
-        const contained = combined_args['contained'] || false;
+        const contained = isTrue(combined_args['contained']);
         // Grab an instance of our DB and collection
         let db = globals.get(CLIENT_DB);
         // get GraphDefinition from body
