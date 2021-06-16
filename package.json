@@ -69,7 +69,7 @@
     "jwks-rsa": "^2.0.3",
     "moment-timezone": "^0.5.33",
     "mongodb": "^3.6.8",
-    "object-hash": "^2.1.1",
+    "object-hash": "^2.2.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.0",
     "prom-client": "^13.1.0",
