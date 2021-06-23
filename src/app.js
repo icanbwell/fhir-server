@@ -95,7 +95,7 @@ app.get('/clean/:collection?', async (req, res) => {
                 console.log(collection.name);
                 if (collection.name.indexOf('system.') === -1) {
                     if (
-                        specific_collection === undefined || (
+                        !specific_collection || (
                             collection.name === (specific_collection + '_4_0_0') || collection.name === (specific_collection + '_4_0_0_History')
                         )
                     ) {
