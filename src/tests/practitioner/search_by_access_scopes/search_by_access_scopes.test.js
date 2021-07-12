@@ -9,6 +9,7 @@ const {CLIENT, CLIENT_DB} = require('../../../constants');
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
 const practitionerResource3 = require('./fixtures/practitioner/practitioner3.json');
+const practitionerResource4 = require('./fixtures/practitioner/practitioner4.json');
 
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
@@ -121,6 +122,20 @@ describe('search_by_security_tag', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource3)
+                            .set('Content-Type', 'application/fhir+json')
+                            .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
+                            .expect(200, (err, resp) => {
+                                console.log('------- response practitionerResource3 ------------');
+                                console.log(JSON.stringify(resp.body, null, 2));
+                                console.log('------- end response  ------------');
+                                expect(resp.body['created']).toBe(true);
+                                return cb(err, resp);
+                            }),
+                    (results, cb) =>
+                        request
+                            .post('/4_0_0/Practitioner/0/$merge')
+                            .send(practitionerResource4)
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
                             .set('Authorization', `Bearer ${token}`)
