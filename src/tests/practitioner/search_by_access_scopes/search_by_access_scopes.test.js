@@ -18,8 +18,8 @@ const env = require('var');
 
 // const {getToken} = require('../../token');
 const {jwksEndpoint} = require('../../mocks/jwks');
-const {publicKey, privateKey, randomPublicKey1} = require('../../mocks/keys');
-const {createToken, createSymmetricToken} = require('../../mocks/tokens');
+const {publicKey, privateKey} = require('../../mocks/keys');
+const {createToken} = require('../../mocks/tokens');
 
 const request = supertest(app);
 
@@ -50,7 +50,7 @@ describe('search_by_security_tag', () => {
         globals.set(CLIENT_DB, db);
         jest.setTimeout(30000);
         env['VALIDATE_SCHEMA'] = true;
-
+        process.env.AUTH_ENABLED = '1';
     });
 
     afterEach(async () => {
@@ -168,7 +168,7 @@ describe('search_by_security_tag', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb),
                 ],
-                (err, results) => {
+                (err) => {
                     if (!err) {
                         console.log('done');
                     }

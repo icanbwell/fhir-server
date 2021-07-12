@@ -6,7 +6,6 @@ let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_POR
 if (env.MONGO_USERNAME !== undefined) {
     mongoUrl = mongoUrl.replace('mongodb://', `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
 }
-
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
 /**
@@ -95,18 +94,20 @@ let fhirServerConfig = {
     profiles: profiles,
 };
 
-fhirServerConfig.auth = {
-    // This servers URI
-    resourceServer: env.RESOURCE_SERVER,
-    //
-    // if you use this strategy, you need to add the corresponding env vars to docker-compose
-    //
-    strategy: {
-        name: 'jwt',
-        useSession: false,
-        service: './src/strategies/jwt.bearer.strategy.js'
-    },
-};
+if (env.AUTH_ENABLED === '1') {
+    fhirServerConfig.auth = {
+        // This servers URI
+        resourceServer: env.RESOURCE_SERVER,
+        //
+        // if you use this strategy, you need to add the corresponding env vars to docker-compose
+        //
+        strategy: {
+            name: 'jwt',
+            useSession: false,
+            service: './src/strategies/jwt.bearer.strategy.js'
+        },
+    };
+}
 
 module.exports = {
     fhirServerConfig,
