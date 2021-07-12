@@ -75,7 +75,6 @@ describe('search_by_security_tag', () => {
                 scope: 'user/Practitioner.read user/Practitioner.write access/medstar.* access/thedacare.*'
             });
             jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
-            sleep(3000);
             async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request
