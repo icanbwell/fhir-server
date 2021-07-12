@@ -71,7 +71,7 @@ describe('search_by_security_tag', () => {
             const token = createToken(privateKey, '123', {
                 sub: 'john',
                 client_id: 'my_client_id',
-                scope: 'user/Practitioner.read access/medstar.* access/thedacare.*'
+                scope: 'user/Practitioner.read user/Practitioner.write access/medstar.*'
             });
             jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
             sleep(3000);
@@ -95,6 +95,7 @@ describe('search_by_security_tag', () => {
                             .send(practitionerResource)
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -108,6 +109,7 @@ describe('search_by_security_tag', () => {
                             .send(practitionerResource2)
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -121,6 +123,7 @@ describe('search_by_security_tag', () => {
                             .send(practitionerResource3)
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -133,6 +136,7 @@ describe('search_by_security_tag', () => {
                             .get('/4_0_0/Practitioner')
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
                             .expect(200, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -143,6 +147,7 @@ describe('search_by_security_tag', () => {
                         .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
                         .set('Content-Type', 'application/fhir+json')
                         .set('Accept', 'application/fhir+json')
+                        .set('Authorization', `Bearer ${token}`)
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner sorted ------------');
