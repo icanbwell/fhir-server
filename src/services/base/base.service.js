@@ -157,7 +157,7 @@ let getAccessCodesFromScopes = (name, action, user, scope) => {
                 /**
                  * @type {string}
                  */
-                const inner_scope = scope1.replace('access/');
+                const inner_scope = scope1.replace('access/', '');
                 /**
                  * @type {string}
                  */
@@ -604,7 +604,11 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     // add any access codes from scopes
     const accessCodes = getAccessCodesFromScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
     for (const accessCode of accessCodes) {
-        combined_args.push('_security=https://www.icanbwell.com/access|' + accessCode);
+        if (combined_args['_security']) {
+            combined_args['_security'] = combined_args['_security'] + ',' + accessCode;
+        } else {
+            combined_args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+        }
     }
     // TODO: fail if there are no access codes
     /**
