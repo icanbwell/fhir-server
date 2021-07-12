@@ -129,6 +129,46 @@ let verifyHasValidScopes = (name, action, user, scope) => {
     }
 };
 
+/**
+ * Returns all the access codes present in scopes
+ * @param {string} name
+ * @param {string} action
+ * @param {string} user
+ * @param {?string} scope
+ * @return {string[]}
+ */
+let getAccessCodesFromScopes = (name, action, user, scope) => {
+    if (env.AUTH_ENABLED === '1') {
+        // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+        /**
+         * @type {string[]}
+         */
+        let scopes = parseScopes(scope);
+        /**
+         * @type {string[]}
+         */
+        const access_codes = [];
+        /**
+         * @type {string}
+         */
+        for (const scope1 of scopes) {
+            if (scope1.startsWith('access')) {
+                // ex: access/medstar.*
+                /**
+                 * @type {string}
+                 */
+                const inner_scope = scope1.replace('access/');
+                /**
+                 * @type {string}
+                 */
+                const access_code = inner_scope.split('.')[0];
+                access_codes.push(access_code);
+            }
+        }
+        return access_codes;
+    }
+};
+
 
 /**
  * returns whether the parameter is false or a string "false"
@@ -561,6 +601,12 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     logRequest(args);
     logRequest('--------');
 
+    // add any access codes from scopes
+    const accessCodes = getAccessCodesFromScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
+    for (const accessCode of accessCodes) {
+        combined_args.push('_security=https://www.icanbwell.com/access|' + accessCode);
+    }
+    // TODO: fail if there are no access codes
     /**
      * @type {string}
      */

@@ -2085,6 +2085,13 @@
   dependencies:
     "multimatch" "*"
 
+"@types/nock@^11.0.0":
+  "integrity" "sha512-jI/ewavBQ7X5178262JQR0ewicPAcJhXS/iFaNJl0VHLfyosZ/kwSrsa6VNQNSO8i9d8SqdRgOtZSOKJ/+iNMw=="
+  "resolved" "https://registry.npmjs.org/@types/nock/-/nock-11.1.0.tgz"
+  "version" "11.1.0"
+  dependencies:
+    "nock" "*"
+
 "@types/node@*":
   "integrity" "sha512-vFHy/ezP5qI0rFgJ7aQnjDXwAMrG0KqqIH7tQG5PPv3BWBayOPIQNBjVc/P6hhdZfMx51REc6tfDNXHUio893g=="
   "resolved" "https://registry.npmjs.org/@types/node/-/node-14.14.31.tgz"
@@ -8105,7 +8112,7 @@
   "resolved" "https://registry.npmjs.org/jsonschema/-/jsonschema-1.4.0.tgz"
   "version" "1.4.0"
 
-"jsonwebtoken@^8.1.0", "jsonwebtoken@^8.2.0":
+"jsonwebtoken@^8.1.0", "jsonwebtoken@^8.2.0", "jsonwebtoken@^8.5.1":
   "integrity" "sha512-XjwVfRS6jTMsqYs0EsuJ4LGxXV14zQybNd4L2r0UvbVnSF9Af8x7p5MzbJ90Ioz/9TI41/hTCvznF/loiSzn8w=="
   "resolved" "https://registry.npmjs.org/jsonwebtoken/-/jsonwebtoken-8.5.1.tgz"
   "version" "8.5.1"
@@ -9321,6 +9328,16 @@
   "integrity" "sha512-0L9FvHG3nfnnmaEQPjT9xhfN4ISk0A8/2j4M37Np4mcDesJjHgEUfgPhdCyZuFI954tjokaIj/A3NdpFNdEh4Q=="
   "resolved" "https://registry.npmjs.org/nocache/-/nocache-2.1.0.tgz"
   "version" "2.1.0"
+
+"nock@*", "nock@^13.0.0":
+  "integrity" "sha512-YKTR9MjfK3kS9/l4nuTxyYm30cgOExRHzkLNhL8nhEUyU4f8Za/dRxOqjhVT1vGs0svWo3dDnJTUX1qxYeWy5w=="
+  "resolved" "https://registry.npmjs.org/nock/-/nock-13.1.1.tgz"
+  "version" "13.1.1"
+  dependencies:
+    "debug" "^4.1.0"
+    "json-stringify-safe" "^5.0.1"
+    "lodash.set" "^4.3.2"
+    "propagate" "^2.0.0"
 
 "node-int64@^0.4.0":
   "integrity" "sha1-h6kGXNs1XTGC2PlM4RGIuCXGijs="
@@ -10636,6 +10653,11 @@
     "loose-envify" "^1.4.0"
     "object-assign" "^4.1.1"
     "react-is" "^16.8.1"
+
+"propagate@^2.0.0":
+  "integrity" "sha512-vGrhOavPSTz4QVNuBNdcNXePNdNMaO1xj9yBeH1ScQPjk/rhg9sSlCXPhMkFuaNNW/syTvYqsnbIJxMBfRbbag=="
+  "resolved" "https://registry.npmjs.org/propagate/-/propagate-2.0.1.tgz"
+  "version" "2.0.1"
 
 "proto-list@~1.2.1":
   "integrity" "sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk="

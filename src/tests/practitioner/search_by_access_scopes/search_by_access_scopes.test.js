@@ -16,12 +16,19 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const async = require('async');
 const env = require('var');
 
+// const {getToken} = require('../../token');
+const {jwksEndpoint} = require('../../mocks/jwks');
+const {publicKey, privateKey, randomPublicKey1} = require('../../mocks/keys');
+const {createToken, createSymmetricToken} = require('../../mocks/tokens');
+
 const request = supertest(app);
 
 describe('search_by_security_tag', () => {
     let connection;
     let db;
+
     // let resourceId;
+    // const token = getToken();
 
     beforeEach(async () => {
         connection = await MongoClient.connect(process.env.MONGO_URL, {
@@ -43,6 +50,7 @@ describe('search_by_security_tag', () => {
         globals.set(CLIENT_DB, db);
         jest.setTimeout(30000);
         env['VALIDATE_SCHEMA'] = true;
+
     });
 
     afterEach(async () => {
@@ -60,12 +68,20 @@ describe('search_by_security_tag', () => {
 
     describe('Practitioner Search By Security Tests', () => {
         test('search by security tag works', (done) => {
+            const token = createToken(privateKey, '123', {
+                sub: 'john',
+                client_id: 'my_client_id',
+                scope: 'user/Practitioner.read access/medstar.* access/thedacare.*'
+            });
+            jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
+            sleep(3000);
             async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
                             .set('Content-Type', 'application/fhir+json')
                             .set('Accept', 'application/fhir+json')
+                            .set('Authorization', `Bearer ${token}`)
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');

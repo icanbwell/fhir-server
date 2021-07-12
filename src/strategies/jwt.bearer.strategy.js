@@ -49,7 +49,7 @@ module.exports.strategy = new JwtStrategy({
 
         // Validate the audience and the issuer.
         // audience: 'urn:my-resource-server',
-        issuer: env.AUTH_ISSUER,
+        // issuer: env.AUTH_ISSUER,
         algorithms: ['RS256']
     },
     verify);
