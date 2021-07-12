@@ -71,7 +71,7 @@ describe('search_by_security_tag', () => {
             const token = createToken(privateKey, '123', {
                 sub: 'john',
                 client_id: 'my_client_id',
-                scope: 'user/Practitioner.read user/Practitioner.write access/medstar.*'
+                scope: 'user/Practitioner.read user/Practitioner.write access/medstar.* access/thedacare.*'
             });
             jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
             sleep(3000);
@@ -155,7 +155,7 @@ describe('search_by_security_tag', () => {
                             console.log('------- end response sort ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(2);
+                            expect(body.length).toBe(3);
                             body.forEach(element => {
                                 delete element['meta']['lastUpdated'];
                             });
