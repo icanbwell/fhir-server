@@ -135,5 +135,27 @@ describe('search_by_security_tag', () => {
                     done();
                 });
         });
+        test('search without scopes fails', (done) => {
+            async.waterfall([
+                    (cb) => // first confirm there are no practitioners
+                        request
+                            .get('/4_0_0/Practitioner')
+                            .set(getHeaders('user/*.read user/*.write'))
+                            .expect(403, (err, resp) => {
+                                return cb(err, resp);
+                            })
+                ],
+                (err) => {
+                    if (!err) {
+                        console.log('done');
+                    }
+
+                    if (err) {
+                        console.error(err);
+                        done.fail(err);
+                    }
+                    done();
+                });
+        });
     });
 });
