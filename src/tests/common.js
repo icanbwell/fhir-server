@@ -55,7 +55,7 @@ const getToken = module.exports.getToken = (scope) => {
 
 const getDefaultToken = module.exports.getDefaultToken = () => {
     return getToken(
-        'user/Practitioner.read user/Practitioner.write access/medstar.* access/thedacare.*'
+        'user/*.read user/*.write access/medstar.* access/thedacare.*'
     );
 };
 
