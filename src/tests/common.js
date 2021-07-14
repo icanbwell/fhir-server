@@ -59,11 +59,17 @@ const getDefaultToken = module.exports.getDefaultToken = () => {
     );
 };
 
+const getFullAccessToken = module.exports.getFullAccessToken = () => {
+    return getToken(
+        'user/*.read user/*.write access/*.*'
+    );
+};
+
 module.exports.getHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
         'Accept': 'application/fhir+json',
-        'Authorization': `Bearer ${getDefaultToken()}`
+        'Authorization': `Bearer ${getFullAccessToken()}`
     };
 };
 

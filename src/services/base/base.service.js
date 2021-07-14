@@ -603,11 +603,16 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
 
     // add any access codes from scopes
     const accessCodes = getAccessCodesFromScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-    for (const accessCode of accessCodes) {
-        if (combined_args['_security']) {
-            combined_args['_security'] = combined_args['_security'] + ',' + accessCode;
-        } else {
-            combined_args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+    // see if we have the * access code
+    if (accessCodes.includes('*')) {
+        // no security check since user has full access to everything
+    } else {
+        for (const accessCode of accessCodes) {
+            if (combined_args['_security']) {
+                combined_args['_security'] = combined_args['_security'] + ',' + accessCode;
+            } else {
+                combined_args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+            }
         }
     }
     // TODO: fail if there are no access codes

@@ -1,16 +1,12 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 const explanationOfBenefitBundleResource1 = require('./fixtures/explanation_of_benefits1.json');
 const explanationOfBenefitBundleResource2 = require('./fixtures/explanation_of_benefits2.json');
 const explanationOfBenefitBundleResource3 = require('./fixtures/explanation_of_benefits3.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 
