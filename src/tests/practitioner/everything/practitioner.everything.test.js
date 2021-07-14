@@ -52,7 +52,7 @@ describe('Practitioner Everything Tests', () => {
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -64,7 +64,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge')
                             .send(practitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -76,7 +76,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Location/UF3-UADM/$merge')
                             .send(locationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -87,7 +87,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/4657-3437/$merge')
                             .send(practitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response locationResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -98,7 +98,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Organization/StanfordMedicalSchool/$merge')
                             .send(practitionerMedicalSchoolResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -112,7 +112,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/$merge')
                             .send(practitionerHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -126,7 +126,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Organization/AETNA/$merge')
                             .send(insuranceOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -140,7 +140,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Location/AetnaElectChoice/$merge')
                             .send(insurancePlanLocationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -154,7 +154,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He/$merge')
                             .send(insurancePlanResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -168,7 +168,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge')
                             .send(insurancePractitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -182,7 +182,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')
                             .send(insurancePractitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -196,7 +196,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Organization/MWHC/$merge')
                             .send(insuranceProviderOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -210,7 +210,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/1679033641/$merge')
                             .send(schedulerPractitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -224,7 +224,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/1679033641-MAX-MALX/$merge')
                             .send(schedulerHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -238,7 +238,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/MWHC_Department-207RE0101X/$merge')
                             .send(practiceHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -253,7 +253,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Organization/MWHC/$merge')
                             .send(practiceOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -268,7 +268,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
                             .send(practiceParentOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -283,7 +283,7 @@ describe('Practitioner Everything Tests', () => {
                         request
                             .post('/4_0_0/Location/$merge')
                             .send(practiceLocationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -296,7 +296,7 @@ describe('Practitioner Everything Tests', () => {
                             }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner ------------');
@@ -314,7 +314,7 @@ describe('Practitioner Everything Tests', () => {
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner/1679033641/$everything')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner 1679033641 $everything ------------');

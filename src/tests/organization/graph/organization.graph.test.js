@@ -38,7 +38,7 @@ describe('Organization Graph Contained Tests', () => {
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -50,7 +50,7 @@ describe('Organization Graph Contained Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/MWHC_Department-207RE0101X/$merge')
                             .send(practiceHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -65,7 +65,7 @@ describe('Organization Graph Contained Tests', () => {
                         request
                             .post('/4_0_0/Organization/MWHC/$merge')
                             .send(practiceOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -80,7 +80,7 @@ describe('Organization Graph Contained Tests', () => {
                         request
                             .post('/4_0_0/Organization/1234/$merge')
                             .send(practiceOrganization2Resource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -95,7 +95,7 @@ describe('Organization Graph Contained Tests', () => {
                         request
                             .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
                             .send(practiceParentOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -110,7 +110,7 @@ describe('Organization Graph Contained Tests', () => {
                         request
                             .post('/4_0_0/Location/$merge')
                             .send(practiceLocationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -124,7 +124,7 @@ describe('Organization Graph Contained Tests', () => {
                     (results, cb) => request
                         .post('/4_0_0/Organization/$graph?id=733797173,1234&contained=true')
                         .send(graphDefinitionResource)
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Organization 733797173 $graph ------------');
@@ -148,7 +148,7 @@ describe('Organization Graph Contained Tests', () => {
                                 if ('meta' in element['resource']) {
                                     delete element['resource']['meta']['lastUpdated'];
                                 }
-                                element['resource']['meta'] = {'versionId': '1'};
+                                element['resource']['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }

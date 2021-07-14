@@ -131,13 +131,12 @@ let verifyHasValidScopes = (name, action, user, scope) => {
 
 /**
  * Returns all the access codes present in scopes
- * @param {string} name
  * @param {string} action
  * @param {string} user
  * @param {?string} scope
  * @return {string[]}
  */
-let getAccessCodesFromScopes = (name, action, user, scope) => {
+let getAccessCodesFromScopes = (action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -619,7 +618,7 @@ let isAccessToResourceAllowedBySecurityTags = (resource, req) => {
     // add any access codes from scopes
     const user = req.user;
     const scope = req.authInfo.scope;
-    const accessCodes = getAccessCodesFromScopes(resource.resourceType, 'read', user, req.authInfo && scope);
+    const accessCodes = getAccessCodesFromScopes('read', user, req.authInfo && scope);
     return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
 
 };
@@ -647,7 +646,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     logRequest('--------');
 
     // add any access codes from scopes
-    const accessCodes = getAccessCodesFromScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
+    const accessCodes = getAccessCodesFromScopes('read', req.user, req.authInfo && req.authInfo.scope);
     // fail if there are no access codes
     if (accessCodes.length === 0) {
         let errorMessage = 'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access scopes';
@@ -2062,6 +2061,8 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
     logRequest(`${resource_name} >>> graph`);
     verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
 
+    const accessCodes = getAccessCodesFromScopes('read', req.user, req.authInfo && req.authInfo.scope);
+
     /**
      * Gets related resources
      * @param {Db} db
@@ -2369,12 +2370,19 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         /**
          * @type {[{resource: Resource, fullUrl: string}]}
          */
-        const uniqueEntries = entries.reduce((acc, item) => {
+        let uniqueEntries = entries.reduce((acc, item) => {
             if (!acc.find(a => a.resourceType === item.resource.resourceType && a.id === item.resource.id)) {
                 acc.push(item);
             }
             return acc;
         }, []);
+
+        // filter to only resources the current request has access to
+        uniqueEntries = uniqueEntries.filter(
+            e => doesResourceHaveAnyAccessCodeFromThisList(
+                accessCodes, req.user, req.authInfo.scope, e.resource
+            )
+        );
         // create a bundle
         return (
             {
@@ -2416,7 +2424,8 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             host,
             id,
             graphDefinitionRaw,
-            contained
+            contained,
+            accessCodes
         );
         // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
