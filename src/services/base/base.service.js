@@ -578,6 +578,39 @@ let check_fhir_mismatch = (cleaned, patched) => {
     }
 };
 
+/**
+ * Returns true if resource can be accessed with scope
+ * @param {Resource} resource
+ * @param {IncomingMessage} req
+ * @return {boolean}
+ */
+let isResourceAllowedByAccessScopes = (resource, req) => {
+    // get the security tags for resource
+
+    // add any access codes from scopes
+    const accessCodes = getAccessCodesFromScopes(resource.resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+    // fail if there are no access codes
+    if (accessCodes.length === 0) {
+        let errorMessage = 'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access scopes';
+        throw new ForbiddenError(errorMessage);
+    }
+    // see if we have the * access code
+    else if (accessCodes.includes('*')) {
+        // no security check since user has full access to everything
+        return true;
+    } else {
+        const accessCodesForResource = resource.meta.security
+            .filter(s => s.system === '"https://www.icanbwell.com/access"')
+            .map(s => s.code);
+        for (const accessCode of accessCodes) {
+            if (accessCodesForResource.includes(accessCode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+};
 
 /**
  * does a FHIR Search
@@ -831,6 +864,11 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
         throw new BadRequestError(e);
     }
     if (resource) {
+        if (!(isResourceAllowedByAccessScopes(resource, req))) {
+            throw new ForbiddenError(
+                'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
+                resource.resourceType + ' with id ' + id);
+        }
         return new Resource(resource);
     } else {
         throw new NotFoundError();

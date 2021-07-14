@@ -1,10 +1,6 @@
-/* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
@@ -15,7 +11,6 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -28,14 +23,6 @@ describe('PractitionerReturnIdTests', () => {
     afterEach(async () => {
         await commonAfterEach();
     });
-
-    function sleep(milliseconds) {
-        const date = Date.now();
-        let currentDate = null;
-        do {
-            currentDate = Date.now();
-        } while (currentDate - date < milliseconds);
-    }
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', (done) => {
@@ -108,7 +95,7 @@ describe('PractitionerReturnIdTests', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb),
                 ],
-                (err, results) => {
+                (err) => {
                     if (!err) {
                         console.log('done');
                     }
@@ -202,7 +189,7 @@ describe('PractitionerReturnIdTests', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb),
                 ],
-                (err, results) => {
+                (err) => {
                     if (!err) {
                         console.log('done');
                     }
