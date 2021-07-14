@@ -603,8 +603,13 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
 
     // add any access codes from scopes
     const accessCodes = getAccessCodesFromScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
+    // fail if there are no access codes
+    if (accessCodes.length === 0) {
+        let errorMessage = 'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access scopes';
+        throw new ForbiddenError(errorMessage);
+    }
     // see if we have the * access code
-    if (accessCodes.includes('*')) {
+    else if (accessCodes.includes('*')) {
         // no security check since user has full access to everything
     } else {
         for (const accessCode of accessCodes) {
@@ -615,7 +620,6 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             }
         }
     }
-    // TODO: fail if there are no access codes
     /**
      * @type {string}
      */
