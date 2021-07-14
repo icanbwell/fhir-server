@@ -579,19 +579,17 @@ let check_fhir_mismatch = (cleaned, patched) => {
 };
 
 /**
- * Returns true if resource can be accessed with scope
+ * Checks whether the resource has any access codes that are in the passed in accessCodes list
+ * @param {string[]} accessCodes
+ * @param {string} user
+ * @param {string} scope
  * @param {Resource} resource
- * @param {IncomingMessage} req
  * @return {boolean}
  */
-let isResourceAllowedByAccessScopes = (resource, req) => {
-    // get the security tags for resource
-
-    // add any access codes from scopes
-    const accessCodes = getAccessCodesFromScopes(resource.resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+function doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
     // fail if there are no access codes
     if (accessCodes.length === 0) {
-        let errorMessage = 'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access scopes';
+        let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
         throw new ForbiddenError(errorMessage);
     }
     // see if we have the * access code
@@ -609,6 +607,20 @@ let isResourceAllowedByAccessScopes = (resource, req) => {
         }
         return false;
     }
+}
+
+/**
+ * Returns true if resource can be accessed with scope
+ * @param {Resource} resource
+ * @param {IncomingMessage} req
+ * @return {boolean}
+ */
+let isAccessToResourceAllowedBySecurityTags = (resource, req) => {
+    // add any access codes from scopes
+    const user = req.user;
+    const scope = req.authInfo.scope;
+    const accessCodes = getAccessCodesFromScopes(resource.resourceType, 'read', user, req.authInfo && scope);
+    return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
 
 };
 
@@ -864,7 +876,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
         throw new BadRequestError(e);
     }
     if (resource) {
-        if (!(isResourceAllowedByAccessScopes(resource, req))) {
+        if (!(isAccessToResourceAllowedBySecurityTags(resource, req))) {
             throw new ForbiddenError(
                 'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
@@ -1085,6 +1097,12 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
             // found an existing resource
             logInfo('found resource: ' + data);
             let foundResource = new Resource(data);
+            if (!(isAccessToResourceAllowedBySecurityTags(foundResource, req))) {
+                throw new ForbiddenError(
+                    'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
+                    foundResource.resourceType + ' with id ' + id);
+            }
+
             logInfo('------ found document --------');
             logInfo(data);
             logInfo('------ end found document --------');
@@ -1325,6 +1343,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logInfo('------ found document --------');
                 logInfo(data);
                 logInfo('------ end found document --------');
+                if (!(isAccessToResourceAllowedBySecurityTags(foundResource, req))) {
+                    throw new ForbiddenError(
+                        'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
+                        foundResource.resourceType + ' with id ' + id);
+                }
 
                 // use metadata of existing resource (overwrite any passed in metadata)
                 if (!resource_to_merge.meta) {
@@ -1785,6 +1808,11 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
         throw new BadRequestError(e);
     }
     if (resource) {
+        if (!(isAccessToResourceAllowedBySecurityTags(resource, req))) {
+            throw new ForbiddenError(
+                'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
+                resource.resourceType + ' with id ' + id);
+        }
         return (new Resource(resource));
     } else {
         throw new NotFoundError();
@@ -1829,7 +1857,10 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
     const resources = [];
     while (await cursor.hasNext()) {
         const element = await cursor.next();
-        resources.push(new Resource(element));
+        const resource = new Resource(element);
+        if (isAccessToResourceAllowedBySecurityTags(resource, req)) {
+            resources.push(resource);
+        }
     }
     if (resources.length === 0) {
         throw new NotFoundError();
@@ -1876,7 +1907,10 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
     const resources = [];
     while (await cursor.hasNext()) {
         const element = await cursor.next();
-        resources.push(new Resource(element));
+        const resource = new Resource(element);
+        if (isAccessToResourceAllowedBySecurityTags(resource, req)) {
+            resources.push(resource);
+        }
     }
     if (resources.length === 0) {
         throw new NotFoundError();
