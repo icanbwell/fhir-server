@@ -65,11 +65,11 @@ const getFullAccessToken = module.exports.getFullAccessToken = () => {
     );
 };
 
-module.exports.getHeaders = () => {
+module.exports.getHeaders = (scope) => {
     return {
         'Content-Type': 'application/fhir+json',
         'Accept': 'application/fhir+json',
-        'Authorization': `Bearer ${getFullAccessToken()}`
+        'Authorization': `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
