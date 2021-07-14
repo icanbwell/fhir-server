@@ -2343,9 +2343,16 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                 const related_entries = await processGraphLinks(start_entry, linkItems);
                 if (contained) {
                     /**
-                     * @type {{Resource}[]}
+                     * @type {Resource[]}
                      */
-                    const related_resources = related_entries.map(e => e.resource);
+                    let related_resources = related_entries.map(e => e.resource);
+                    // filter to only resources the current request has access to
+                    related_resources = related_resources.filter(
+                        resource => doesResourceHaveAnyAccessCodeFromThisList(
+                            accessCodes, req.user, req.authInfo.scope, resource
+                        )
+                    );
+
                     if (related_resources.length > 0) {
                         current_entity['resource']['contained'] = related_resources;
                     }
@@ -2424,8 +2431,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             host,
             id,
             graphDefinitionRaw,
-            contained,
-            accessCodes
+            contained
         );
         // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
