@@ -1,6 +1,12 @@
 const nock = require('nock');
 const jose = require('jose');
 
+/**
+ * creates a mock endpoint for /.well-known/jwks.json
+ * @param {string} host
+ * @param {[{pub: string, kid: string}]} certs
+ * @return {Scope}
+ */
 function jwksEndpoint(host, certs) {
     return nock(host)
         .persist()

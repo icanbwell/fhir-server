@@ -1,10 +1,8 @@
-/* eslint-disable no-unused-vars */
 const {MongoClient} = require('mongodb');
 
 const globals = require('../globals');
 const {CLIENT, CLIENT_DB} = require('../constants');
 
-const async = require('async');
 const env = require('var');
 
 // const {getToken} = require('../../token');
@@ -15,6 +13,10 @@ const {createToken} = require('./mocks/tokens');
 let connection;
 let db;
 
+/**
+ * sets up the mongo db and token endpoint
+ * @return {Promise<void>}
+ */
 module.exports.commonBeforeEach = async () => {
     connection = await MongoClient.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
@@ -39,24 +41,26 @@ module.exports.commonBeforeEach = async () => {
     jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
 };
 
+/**
+ * cleans up the mongo db
+ * @return {Promise<void>}
+ */
 module.exports.commonAfterEach = async () => {
     await db.dropDatabase();
     await connection.close();
 };
 
 
+/**
+ * @param {string} scope
+ * @return {string}
+ */
 const getToken = module.exports.getToken = (scope) => {
     return createToken(privateKey, '123', {
         sub: 'john',
         client_id: 'my_client_id',
         scope: scope
     });
-};
-
-const getDefaultToken = module.exports.getDefaultToken = () => {
-    return getToken(
-        'user/*.read user/*.write access/medstar.* access/thedacare.*'
-    );
 };
 
 const getFullAccessToken = module.exports.getFullAccessToken = () => {
