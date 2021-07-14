@@ -1,10 +1,8 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
+
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
@@ -15,73 +13,27 @@ const practitionerResource4 = require('./fixtures/practitioner/practitioner4.jso
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
 const async = require('async');
-const env = require('var');
-
-// const {getToken} = require('../../token');
-const {jwksEndpoint} = require('../../mocks/jwks');
-const {publicKey, privateKey} = require('../../mocks/keys');
-const {createToken} = require('../../mocks/tokens');
 
 const request = supertest(app);
 
+const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+
 describe('search_by_security_tag', () => {
-    let connection;
-    let db;
-
-    // let resourceId;
-    // const token = getToken();
-
     beforeEach(async () => {
-        connection = await MongoClient.connect(process.env.MONGO_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            server: {
-                auto_reconnect: true,
-                socketOptions: {
-
-                    keepAlive: 1,
-                    connectTimeoutMS: 60000,
-                    socketTimeoutMS: 60000,
-                }
-            }
-        });
-        db = connection.db();
-
-        globals.set(CLIENT, connection);
-        globals.set(CLIENT_DB, db);
-        jest.setTimeout(30000);
-        env['VALIDATE_SCHEMA'] = true;
-        process.env.AUTH_ENABLED = '1';
+        await commonBeforeEach();
     });
 
     afterEach(async () => {
-        await db.dropDatabase();
-        await connection.close();
+        await commonAfterEach();
     });
-
-    function sleep(milliseconds) {
-        const date = Date.now();
-        let currentDate = null;
-        do {
-            currentDate = Date.now();
-        } while (currentDate - date < milliseconds);
-    }
 
     describe('Practitioner Search By Security Tests', () => {
         test('search by security tag works', (done) => {
-            const token = createToken(privateKey, '123', {
-                sub: 'john',
-                client_id: 'my_client_id',
-                scope: 'user/Practitioner.read user/Practitioner.write access/medstar.* access/thedacare.*'
-            });
-            jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
             async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -93,9 +45,7 @@ describe('search_by_security_tag', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                             .send(practitionerResource)
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -107,9 +57,7 @@ describe('search_by_security_tag', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource2)
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -121,9 +69,7 @@ describe('search_by_security_tag', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource3)
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -135,9 +81,7 @@ describe('search_by_security_tag', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource4)
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -148,9 +92,7 @@ describe('search_by_security_tag', () => {
                     (results, cb) =>
                         request
                             .get('/4_0_0/Practitioner')
-                            .set('Content-Type', 'application/fhir+json')
-                            .set('Accept', 'application/fhir+json')
-                            .set('Authorization', `Bearer ${token}`)
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -159,9 +101,7 @@ describe('search_by_security_tag', () => {
                             }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
-                        .set('Content-Type', 'application/fhir+json')
-                        .set('Accept', 'application/fhir+json')
-                        .set('Authorization', `Bearer ${token}`)
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner sorted ------------');
