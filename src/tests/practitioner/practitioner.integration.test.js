@@ -1,16 +1,13 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../app');
 const globals = require('../../globals');
-const {CLIENT, CLIENT_DB} = require('../../constants');
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
 const practitionerRoleResource = require('./fixtures/providers/practitioner_role.json');
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../common');
@@ -30,7 +27,7 @@ describe('Practitioner Integration Tests', () => {
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -42,7 +39,7 @@ describe('Practitioner Integration Tests', () => {
                         request
                             .put('/4_0_0/Practitioner/4657')
                             .send(practitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(201, (err, resp) => {
                                 console.log('------- response 2 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -53,7 +50,7 @@ describe('Practitioner Integration Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole')
                             .send(practitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(201, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -63,7 +60,7 @@ describe('Practitioner Integration Tests', () => {
                     (results, cb) => request
                         .post('/4_0_0/Location')
                         .send(locationResource)
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(201, (err, resp) => {
                             console.log('------- response 4 ------------');
                             console.log(JSON.stringify(resp.body, null, 2));
@@ -72,7 +69,7 @@ describe('Practitioner Integration Tests', () => {
                         }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             // clear out the lastUpdated column since that changes

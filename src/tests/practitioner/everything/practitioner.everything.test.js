@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 // provider file
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
@@ -32,7 +29,6 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -307,9 +303,9 @@ describe('Practitioner Everything Tests', () => {
                             expect(body.length).toBe(1);
                             delete body[0]['meta']['lastUpdated'];
                             let expected = expectedPractitionerResource;
-                            // delete expected[0]['meta']['lastUpdated'];
+                            delete expected[0]['meta']['lastUpdated'];
                             delete expected[0]['$schema'];
-                            expected[0]['meta'] = {'versionId': '2'};
+                            expected[0]['meta']['versionId'] = '2';
                             expect(body).toStrictEqual(expected);
                         }, cb),
                     (results, cb) => request

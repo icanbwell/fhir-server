@@ -28,7 +28,7 @@ describe('Practitioner Merge Resource List Tests', () => {
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -40,7 +40,7 @@ describe('Practitioner Merge Resource List Tests', () => {
                         request
                             .post('/4_0_0/Practitioner/4657/$merge')
                             .send(practitionerBundleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response 2 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -49,7 +49,7 @@ describe('Practitioner Merge Resource List Tests', () => {
                             }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             // clear out the lastUpdated column since that changes
@@ -66,7 +66,7 @@ describe('Practitioner Merge Resource List Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }

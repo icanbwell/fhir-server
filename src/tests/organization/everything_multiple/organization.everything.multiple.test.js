@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 // practice
 const practiceHealthcareServiceResource = require('./fixtures/practice/healthcare_service.json');
 const practiceOrganizationResource = require('./fixtures/practice/practice_organization.json');
@@ -16,7 +13,6 @@ const practiceLocationResource = require('./fixtures/practice/location.json');
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -140,7 +136,7 @@ describe('Organization Multiple Everything Tests', () => {
                                 if ('meta' in element['resource']) {
                                     delete element['resource']['meta']['lastUpdated'];
                                 }
-                                element['resource']['meta'] = {'versionId': '1'};
+                                element['resource']['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }

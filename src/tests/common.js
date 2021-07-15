@@ -21,15 +21,7 @@ module.exports.commonBeforeEach = async () => {
     connection = await MongoClient.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        server: {
-            auto_reconnect: true,
-            socketOptions: {
-
-                keepAlive: 1,
-                connectTimeoutMS: 60000,
-                socketTimeoutMS: 60000,
-            }
-        }
+        auto_reconnect: true
     });
     db = connection.db();
 
@@ -39,7 +31,7 @@ module.exports.commonBeforeEach = async () => {
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
     const urlObject = new URL(env.AUTH_JWKS_URL);
-    jwksEndpoint( urlObject.protocol + '//' + urlObject.host, [{pub: publicKey, kid: '123'}]);
+    jwksEndpoint(urlObject.protocol + '//' + urlObject.host, [{pub: publicKey, kid: '123'}]);
 };
 
 /**

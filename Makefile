@@ -55,6 +55,10 @@ tests_integration:
 tests_everything:
 	npm run test:everything
 
+.PHONY:lint
+lint:
+	npm run test:lint
+
 .PHONY:generate
 generate:
 	python3 src/services/generate_services.py

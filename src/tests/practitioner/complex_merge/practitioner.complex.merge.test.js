@@ -1,11 +1,8 @@
 /*jshint esversion: 8 */
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 // provider file
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
@@ -36,7 +33,6 @@ const expectedOrganizationResource = require('./fixtures/expected/expected_organ
 const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
 const expectedHealthcareServiceResource = require('./fixtures/expected/expected_healthcare_service.json');
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -56,7 +52,7 @@ describe('Practitioner Complex Merge Tests', () => {
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -68,7 +64,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge')
                             .send(practitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -80,7 +76,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Location/UF3-UADM/$merge')
                             .send(locationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -91,7 +87,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/4657-3437/$merge')
                             .send(practitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response locationResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -102,7 +98,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Organization/StanfordMedicalSchool/$merge')
                             .send(practitionerMedicalSchoolResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -116,7 +112,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/$merge')
                             .send(practitionerHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -130,7 +126,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Organization/AETNA/$merge')
                             .send(insuranceOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -144,7 +140,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Location/AetnaElectChoice/$merge')
                             .send(insurancePlanLocationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -158,7 +154,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/InsurancePlan/AETNA-AetnaElectChoice/$merge')
                             .send(insurancePlanResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -172,7 +168,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge')
                             .send(insurancePractitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -186,7 +182,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')
                             .send(insurancePractitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -200,7 +196,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Organization/MWHC/$merge')
                             .send(insuranceProviderOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -214,7 +210,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/PractitionerRole/1679033641/$merge')
                             .send(schedulerPractitionerRoleResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -228,7 +224,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/1679033641-MAX-MALX/$merge')
                             .send(schedulerHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -242,7 +238,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/HealthcareService/MWHC_Department-207RE0101X/$merge')
                             .send(practiceHealthcareServiceResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -257,7 +253,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Organization/MWHC/$merge')
                             .send(practiceOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -272,7 +268,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
                             .send(practiceParentOrganizationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -287,7 +283,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         request
                             .post('/4_0_0/Location/$merge')
                             .send(practiceLocationResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 if (err) {
                                     console.log(err);
@@ -300,7 +296,7 @@ describe('Practitioner Complex Merge Tests', () => {
                             }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner ------------');
@@ -311,14 +307,14 @@ describe('Practitioner Complex Merge Tests', () => {
                             expect(body.length).toBe(1);
                             delete body[0]['meta']['lastUpdated'];
                             let expected = expectedPractitionerResource;
-                            // delete expected[0]['meta']['lastUpdated'];
+                            delete expected[0]['meta']['lastUpdated'];
                             delete expected[0]['$schema'];
-                            expected[0]['meta'] = {'versionId': '2'};
+                            expected[0]['meta']['versionId'] = '2';
                             expect(body).toStrictEqual(expected);
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/PractitionerRole')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response PractitionerRole ------------');
@@ -336,7 +332,7 @@ describe('Practitioner Complex Merge Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }
@@ -346,7 +342,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/Location')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Location ------------');
@@ -364,7 +360,7 @@ describe('Practitioner Complex Merge Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }
@@ -374,7 +370,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/Organization')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Organization ------------');
@@ -401,7 +397,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/InsurancePlan')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response InsurancePlan ------------');
@@ -419,7 +415,7 @@ describe('Practitioner Complex Merge Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }
@@ -429,7 +425,7 @@ describe('Practitioner Complex Merge Tests', () => {
                         }, cb),
                     (results, cb) => request
                         .get('/4_0_0/HealthcareService')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response HealthcareService ------------');
@@ -447,7 +443,7 @@ describe('Practitioner Complex Merge Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }

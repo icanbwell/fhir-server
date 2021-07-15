@@ -90,7 +90,7 @@ describe('Organization Everything Tests', () => {
                                 if ('meta' in element) {
                                     delete element['meta']['lastUpdated'];
                                 }
-                                element['meta'] = {'versionId': '1'};
+                                element['meta']['versionId'] = '1';
                                 if ('$schema' in element) {
                                     delete element['$schema'];
                                 }

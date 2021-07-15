@@ -989,10 +989,15 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
          * @type {function({Object}): Meta}
          */
         let Meta = getMeta(base_version);
-        resource.meta = new Meta({
-            versionId: '1',
-            lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
-        });
+        if (!resource_incoming.meta) {
+            resource_incoming.meta = new Meta({
+                versionId: '1',
+                lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
+            });
+        } else {
+            resource_incoming.meta['versionId'] = '1';
+            resource_incoming.meta['lastUpdated'] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+        }
 
         // Create the document to be inserted into Mongo
         // noinspection JSUnresolvedFunction
@@ -1187,10 +1192,16 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 
             // create the metadata
             let Meta = getMeta(base_version);
-            resource_incoming.meta = new Meta({
-                versionId: '1',
-                lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
-            });
+            if (!resource_incoming.meta) {
+                resource_incoming.meta = new Meta({
+                    versionId: '1',
+                    lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
+                });
+            } else {
+                resource_incoming.meta['versionId'] = '1';
+                resource_incoming.meta['lastUpdated'] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
+            }
+
             cleaned = JSON.parse(JSON.stringify(resource_incoming));
             doc = Object.assign(cleaned, {_id: id});
         }
