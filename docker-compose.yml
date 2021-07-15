@@ -20,6 +20,7 @@ services:
       AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_wrEVOihnT/.well-known/jwks.json
       AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_wrEVOihnT
       AUTH_ENABLED: 1
+      CHECK_ACCESS_TAG_ON_SAVE: 1
     ports:
       - '3000:3000'
     volumes:

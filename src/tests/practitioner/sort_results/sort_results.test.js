@@ -1,24 +1,15 @@
 /* eslint-disable no-unused-vars */
-const {MongoClient} = require('mongodb');
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-const globals = require('../../../globals');
-const {CLIENT, CLIENT_DB} = require('../../../constants');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
 
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
-// const expectedPractitionerRoleResource = require('./fixtures/expected/expected_practitioner_role.json');
-// const expectedLocationResource = require('./fixtures/expected/expected_location.json');
-// const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
-// const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
-// const expectedHealthcareServiceResource = require('./fixtures/expected/expected_healthcare_service.json');
 
 const async = require('async');
-const env = require('var');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');

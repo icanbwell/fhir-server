@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const env = require('var');
 
 /**
  * Creates and signs a token
@@ -8,7 +9,12 @@ const jwt = require('jsonwebtoken');
  * @return {string}
  */
 function createToken(key, kid, payload) {
-    return jwt.sign(payload, key, {noTimestamp: true, algorithm: 'RS256', header: {alg: 'RS256', kid}});
+    return jwt.sign(payload, key, {
+        noTimestamp: true,
+        algorithm: 'RS256',
+        issuer: env.AUTH_ISSUER,
+        header: {alg: 'RS256', kid}
+    });
 }
 
 /**
@@ -18,7 +24,12 @@ function createToken(key, kid, payload) {
  * @return {string}
  */
 function createSymmetricToken(key, payload) {
-    return jwt.sign(payload, key, {noTimestamp: true, algorithm: 'HS256', header: {alg: 'HS256'}});
+    return jwt.sign(payload, key, {
+        noTimestamp: true,
+        algorithm: 'HS256',
+        issuer: env.AUTH_ISSUER,
+        header: {alg: 'HS256'}
+    });
 }
 
 module.exports = {

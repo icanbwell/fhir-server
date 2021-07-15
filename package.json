@@ -15,7 +15,7 @@
     "failed_tests": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
     "test:lint": "eslint \"src/**/*.js\"",
     "test:jest": "NODE_ENV=test jest --forceExit --detectOpenHandles -i .",
-    "test:integration": "DEBUG=nock.* NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/search_by_access_scopes",
+    "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
     "test:everything": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/everything",
     "test:return_specific_elements": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/search_return_specific_elements",
     "test:merge": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/practitioner.merge.test.js",

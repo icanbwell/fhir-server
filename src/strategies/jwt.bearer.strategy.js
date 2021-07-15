@@ -21,7 +21,7 @@ const verify = (jwt_payload, done) => {
          * @type {string}
          */
         const scope = jwt_payload.scope;
-        console.info('Verified client_id: ' + client_id + 'scope: ' + scope);
+        // console.info('Verified client_id: ' + client_id + 'scope: ' + scope);
         const context = null;
         return done(null, client_id, {scope, context});
     }
@@ -49,7 +49,7 @@ module.exports.strategy = new JwtStrategy({
 
         // Validate the audience and the issuer.
         // audience: 'urn:my-resource-server',
-        // issuer: env.AUTH_ISSUER,
+        issuer: env.AUTH_ISSUER,
         algorithms: ['RS256']
     },
     verify);

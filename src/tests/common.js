@@ -38,7 +38,8 @@ module.exports.commonBeforeEach = async () => {
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
-    jwksEndpoint('http://foo:80', [{pub: publicKey, kid: '123'}]);
+    const urlObject = new URL(env.AUTH_JWKS_URL);
+    jwksEndpoint( urlObject.protocol + '//' + urlObject.host, [{pub: publicKey, kid: '123'}]);
 };
 
 /**
