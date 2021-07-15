@@ -61,7 +61,7 @@ const {
  * @param {string} resource_name
  * @returns {function(?Object):Resource}
  */
-let getResource = (base_version, resource_name) => {
+const getResource = (base_version, resource_name) => {
     return resolveSchema(base_version, resource_name);
 };
 
@@ -70,7 +70,7 @@ let getResource = (base_version, resource_name) => {
  * @param {string} base_version
  * @returns {function({Object}):Meta} Meta class
  */
-let getMeta = (base_version) => {
+const getMeta = (base_version) => {
     return resolveSchema(base_version, 'Meta');
 };
 
@@ -78,7 +78,7 @@ let getMeta = (base_version) => {
  * Logs as info if env.IS_PRODUCTION is not set
  * @param {*} msg
  */
-let logInfo = (msg) => {
+const logInfo = (msg) => {
     if (!env.IS_PRODUCTION) {
         logger.info(msg);
     }
@@ -88,7 +88,7 @@ let logInfo = (msg) => {
  * Always logs regardless of env.IS_PRODUCTION
  * @param {*} msg
  */
-let logRequest = (msg) => {
+const logRequest = (msg) => {
     logger.info(msg);
 };
 
@@ -97,7 +97,7 @@ let logRequest = (msg) => {
  * @param {string} scope
  * @return {string[]}
  */
-let parseScopes = (scope) => {
+const parseScopes = (scope) => {
     if (!scope) {
         return [];
     }
@@ -111,7 +111,7 @@ let parseScopes = (scope) => {
  * @param {string} user
  * @param {?string} scope
  */
-let verifyHasValidScopes = (name, action, user, scope) => {
+const verifyHasValidScopes = (name, action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -136,7 +136,7 @@ let verifyHasValidScopes = (name, action, user, scope) => {
  * @param {?string} scope
  * @return {string[]}
  */
-let getAccessCodesFromScopes = (action, user, scope) => {
+const getAccessCodesFromScopes = (action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -174,7 +174,7 @@ let getAccessCodesFromScopes = (action, user, scope) => {
  * @param {string | boolean | null} s
  * @returns {boolean}
  */
-let isTrue = function (s) {
+const isTrue = function (s) {
     return String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1';
 };
 
@@ -184,7 +184,7 @@ let isTrue = function (s) {
  * @param {string[]} args
  * @returns {Object} A query object to use with Mongo
  */
-let buildR4SearchQuery = (resource_name, args) => {
+const buildR4SearchQuery = (resource_name, args) => {
     // Common search params
     let {id} = args;
     let patient = args['patient'];
@@ -487,7 +487,7 @@ let buildR4SearchQuery = (resource_name, args) => {
  * @param {string[]} args
  * @returns {Object}
  */
-let buildStu3SearchQuery = (args) => {
+const buildStu3SearchQuery = (args) => {
     // Common search params
     let {id} = args;
 
@@ -514,7 +514,7 @@ let buildStu3SearchQuery = (args) => {
  * @param {string[]} args
  * @returns {Object}
  */
-let buildDstu2SearchQuery = (args) => {
+const buildDstu2SearchQuery = (args) => {
     // Common search params
     let {id} = args;
 
@@ -540,7 +540,7 @@ let buildDstu2SearchQuery = (args) => {
  * @param {string[]} args
  * @returns {string[]} array of combined arguments
  */
-let get_all_args = (req, args) => {
+const get_all_args = (req, args) => {
     // asymmetric hides certain query parameters from us so we need to get them from the context
     const query_param_args = {};
     /**
@@ -569,7 +569,7 @@ let get_all_args = (req, args) => {
     return combined_args;
 };
 
-let check_fhir_mismatch = (cleaned, patched) => {
+const check_fhir_mismatch = (cleaned, patched) => {
     if (deepEqual(cleaned, patched) === false) {
         let diff = compare(cleaned, patched);
         logger.warn('Possible FHIR mismatch - ' + cleaned.resourceType + cleaned.id + ':' + cleaned.resourceType);
@@ -585,7 +585,7 @@ let check_fhir_mismatch = (cleaned, patched) => {
  * @param {Resource} resource
  * @return {boolean}
  */
-function doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
+const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, resource) => {
     // fail if there are no access codes
     if (accessCodes.length === 0) {
         let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
@@ -597,7 +597,7 @@ function doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, res
         return true;
     } else {
         const accessCodesForResource = resource.meta.security
-            .filter(s => s.system === '"https://www.icanbwell.com/access"')
+            .filter(s => s.system === 'https://www.icanbwell.com/access')
             .map(s => s.code);
         for (const accessCode of accessCodes) {
             if (accessCodesForResource.includes(accessCode)) {
@@ -606,7 +606,7 @@ function doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, res
         }
         return false;
     }
-}
+};
 
 /**
  * Returns true if resource can be accessed with scope
@@ -614,13 +614,27 @@ function doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, res
  * @param {IncomingMessage} req
  * @return {boolean}
  */
-let isAccessToResourceAllowedBySecurityTags = (resource, req) => {
+const isAccessToResourceAllowedBySecurityTags = (resource, req) => {
     // add any access codes from scopes
     const user = req.user;
     const scope = req.authInfo.scope;
     const accessCodes = getAccessCodesFromScopes('read', user, req.authInfo && scope);
     return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
 
+};
+
+/**
+ * Returns whether the resource has an access tag
+ * @param {Resource} resource
+ * @return {boolean}
+ */
+const doesResourceHaveAccessTags = (resource) => {
+    return !!(
+        resource &&
+        resource.meta &&
+        resource.meta.security &&
+        resource.meta.security.some(s => s.system === 'https://www.icanbwell.com/access')
+    );
 };
 
 /**
@@ -960,6 +974,12 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         // noinspection JSUnresolvedFunction
         logInfo(`resource: ${resource.toJSON()}`);
 
+        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (!doesResourceHaveAccessTags(resource)) {
+                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+            }
+        }
+
         // If no resource ID was provided, generate one.
         let id = getUuid(resource);
         logInfo(`id: ${id}`);
@@ -1159,6 +1179,12 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
         } else {
             // not found so insert
             logInfo('update: new resource: ' + resource_incoming);
+            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+                if (!doesResourceHaveAccessTags(resource_incoming)) {
+                    throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                }
+            }
+
             // create the metadata
             let Meta = getMeta(base_version);
             resource_incoming.meta = new Meta({
@@ -1293,6 +1319,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             }
             logInfo('-----------------');
         }
+
+        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (!doesResourceHaveAccessTags(resource_to_merge)) {
+                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+            }
+        }
+
         try {
             logInfo('-----------------');
             logInfo(base_version);
@@ -1556,6 +1589,12 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             } else {
                 // not found so insert
                 logInfo(resource_name + ': merge new resource ' + '[' + resource_to_merge.id + ']: ' + resource_to_merge);
+                if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+                    if (!doesResourceHaveAccessTags(resource_to_merge)) {
+                        throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                    }
+                }
+
                 if (!resource_to_merge.meta) {
                     // create the metadata
                     /**
