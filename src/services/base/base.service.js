@@ -595,10 +595,18 @@ const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, res
     else if (accessCodes.includes('*')) {
         // no security check since user has full access to everything
         return true;
+    } else if (!resource.meta || !resource.meta.security) {
+        return false;
     } else {
+        /**
+         * @type {string[]}
+         */
         const accessCodesForResource = resource.meta.security
             .filter(s => s.system === 'https://www.icanbwell.com/access')
             .map(s => s.code);
+        /**
+         * @type {string}
+         */
         for (const accessCode of accessCodes) {
             if (accessCodesForResource.includes(accessCode)) {
                 return true;
@@ -616,11 +624,19 @@ const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, res
  */
 const isAccessToResourceAllowedBySecurityTags = (resource, req) => {
     // add any access codes from scopes
+    /**
+     * @type {string}
+     */
     const user = req.user;
+    /**
+     * @type {string?}
+     */
     const scope = req.authInfo.scope;
+    /**
+     * @type {string[]}
+     */
     const accessCodes = getAccessCodesFromScopes('read', user, req.authInfo && scope);
     return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
-
 };
 
 /**
@@ -670,6 +686,9 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     else if (accessCodes.includes('*')) {
         // no security check since user has full access to everything
     } else {
+        /**
+         * @type {string}
+         */
         for (const accessCode of accessCodes) {
             if (combined_args['_security']) {
                 combined_args['_security'] = combined_args['_security'] + ',' + accessCode;
