@@ -2101,6 +2101,23 @@ module.exports.validate = async (args, {req}, resource_name, collection_name) =>
         return operationOutcome;
     }
 
+    if (!doesResourceHaveAccessTags(resource_incoming)) {
+        return {
+            resourceType: 'OperationOutcome',
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'invalid',
+                    details: {
+                        text: 'Resource is missing a security access tag with system: https://www.icanbwell.com/access'
+                    },
+                    expression: [
+                        resource_name
+                    ]
+                }
+            ]
+        };
+    }
     return {
         resourceType: 'OperationOutcome',
         issue: [
