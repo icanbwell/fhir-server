@@ -2431,9 +2431,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                     /**
                      * @type {Resource[]}
                      */
-                    let related_resources = related_entries.map(e => e.resource);
-                    // filter to only resources the current request has access to
-                    related_resources = related_resources.filter(
+                    const related_resources = related_entries.map(e => e.resource).filter(
                         resource => doesResourceHaveAnyAccessCodeFromThisList(
                             accessCodes, req.user, req.authInfo.scope, resource
                         )
@@ -2463,15 +2461,12 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         /**
          * @type {[{resource: Resource, fullUrl: string}]}
          */
-        let uniqueEntries = entries.reduce((acc, item) => {
+        const uniqueEntries = entries.reduce((acc, item) => {
             if (!acc.find(a => a.resourceType === item.resource.resourceType && a.id === item.resource.id)) {
                 acc.push(item);
             }
             return acc;
-        }, []);
-
-        // filter to only resources the current request has access to
-        uniqueEntries = uniqueEntries.filter(
+        }, []).filter(
             e => doesResourceHaveAnyAccessCodeFromThisList(
                 accessCodes, req.user, req.authInfo.scope, e.resource
             )
