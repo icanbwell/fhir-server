@@ -592,30 +592,32 @@ const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, res
     if (!accessCodes || accessCodes.length === 0) {
         return false;
     }
+
     // see if we have the * access code
-    else if (accessCodes.includes('*')) {
+    if (accessCodes.includes('*')) {
         // no security check since user has full access to everything
         return true;
-    } else if (!resource.meta || !resource.meta.security) {
+    }
+
+    if (!resource.meta || !resource.meta.security) {
         // resource has not meta or security tags so don't return it
         return false;
-    } else {
-        /**
-         * @type {string[]}
-         */
-        const accessCodesForResource = resource.meta.security
-            .filter(s => s.system === 'https://www.icanbwell.com/access')
-            .map(s => s.code);
-        /**
-         * @type {string}
-         */
-        for (const accessCode of accessCodes) {
-            if (accessCodesForResource.includes(accessCode)) {
-                return true;
-            }
-        }
-        return false;
     }
+    /**
+     * @type {string[]}
+     */
+    const accessCodesForResource = resource.meta.security
+        .filter(s => s.system === 'https://www.icanbwell.com/access')
+        .map(s => s.code);
+    /**
+     * @type {string}
+     */
+    for (const accessCode of accessCodes) {
+        if (accessCodesForResource.includes(accessCode)) {
+            return true;
+        }
+    }
+    return false;
 };
 
 /**
