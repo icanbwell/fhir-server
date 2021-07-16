@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
@@ -587,15 +589,15 @@ const check_fhir_mismatch = (cleaned, patched) => {
  */
 const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, resource) => {
     // fail if there are no access codes
-    if (accessCodes.length === 0) {
-        let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-        throw new ForbiddenError(errorMessage);
+    if (!accessCodes || accessCodes.length === 0) {
+        return false;
     }
     // see if we have the * access code
     else if (accessCodes.includes('*')) {
         // no security check since user has full access to everything
         return true;
     } else if (!resource.meta || !resource.meta.security) {
+        // resource has not meta or security tags so don't return it
         return false;
     } else {
         /**
@@ -629,13 +631,17 @@ const isAccessToResourceAllowedBySecurityTags = (resource, req) => {
      */
     const user = req.user;
     /**
-     * @type {string?}
+     * @type {?string}
      */
-    const scope = req.authInfo.scope;
+    const scope = req.authInfo ? req.authInfo.scope : null;
     /**
      * @type {string[]}
      */
     const accessCodes = getAccessCodesFromScopes('read', user, req.authInfo && scope);
+    if (accessCodes.length === 0) {
+        let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+        throw new ForbiddenError(errorMessage);
+    }
     return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
 };
 
@@ -1047,7 +1053,7 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         return {id: doc.id, resource_version: doc.meta.versionId};
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logger.error(`Error with merging resource ${resource_name}.merge with id: ${uuid} `, e);
+        logger.error(`Error with creating resource ${resource_name} with id: ${uuid} `, e);
 
         await sendToS3('errors',
             resource_name,
