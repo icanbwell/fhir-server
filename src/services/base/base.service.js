@@ -1330,7 +1330,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     /**
      * Merges a single resource
      * @param {Object} resource_to_merge
-     * @return {Promise<{issue: [{severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}], created: boolean, id: String, updated: boolean}>}
+     * @return {Promise<{issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
      */
     async function merge_resource(resource_to_merge) {
         /**
