@@ -1358,7 +1358,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 id: id,
                 created: false,
                 updated: false,
-                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                operationOutcome: operationOutcome
             };
         }
 
@@ -1398,7 +1399,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     id: id,
                     created: false,
                     updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                    operationOutcome: operationOutcome
                 };
             }
         }
@@ -1429,7 +1431,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     id: id,
                     created: false,
                     updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                    operationOutcome: operationOutcome
                 };
             }
             logInfo('-----------------');
@@ -1457,7 +1460,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                     id: id,
                     created: false,
                     updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                    operationOutcome: operationOutcome
                 };
             }
         }
@@ -1813,7 +1817,8 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 id: id,
                 created: false,
                 updated: false,
-                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                operationOutcome: operationOutcome
             };
         }
     }
