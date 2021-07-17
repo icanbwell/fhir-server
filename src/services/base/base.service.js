@@ -1285,7 +1285,17 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     logRequest(`'${resource_name} >>> merge`);
 
-    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
+    /**
+     * @type {string}
+     */
+    const scope = req.authInfo && req.authInfo.scope;
+    /**
+     * @type {string[]}
+     */
+    const scopes = parseScopes(scope);
+
+    verifyHasValidScopes(resource_name, 'write', req.user, scope);
+
     // read the incoming resource from request body
     /**
      * @type {Object[]}
@@ -1341,6 +1351,58 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
+        if (!(resource_to_merge.resourceType)) {
+            const operationOutcome = {
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        details: {
+                            text: 'Error merging: ' + JSON.stringify(resource_to_merge)
+                        },
+                        diagnostics: 'resource is missing resourceType',
+                        expression: [
+                            resource_name + '/' + id
+                        ]
+                    }
+                ]
+            };
+            return {
+                id: id,
+                created: false,
+                updated: false,
+                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+            };
+        }
+        if (isTrue(env.AUTH_ENABLED)) {
+            let {success} = scopeChecker(resource_to_merge.resourceType, 'write', scopes);
+            if (!success) {
+                const operationOutcome = {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            details: {
+                                text: 'Error merging: ' + JSON.stringify(resource_to_merge)
+                            },
+                            diagnostics: 'user ' + req.user + ' with scopes [' + scopes + '] failed access check to [' + resource_to_merge.resourceType + '.' + 'write' + ']',
+                            expression: [
+                                resource_name + '/' + id
+                            ]
+                        }
+                    ]
+                };
+                return {
+                    id: id,
+                    created: false,
+                    updated: false,
+                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null
+                };
+            }
+        }
+
         if (env.VALIDATE_SCHEMA || combined_args['_validate']) {
             logInfo('--- validate schema ----');
             /**
