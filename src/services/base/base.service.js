@@ -1522,12 +1522,6 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                 logDebug('------ found document --------');
                 logDebug(data);
                 logDebug('------ end found document --------');
-                if (!(isAccessToResourceAllowedBySecurityTags(foundResource, req))) {
-                    throw new ForbiddenError(
-                        'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
-                        foundResource.resourceType + ' with id ' + id);
-                }
-
                 // use metadata of existing resource (overwrite any passed in metadata)
                 if (!resource_to_merge.meta) {
                     resource_to_merge.meta = {};
@@ -1691,6 +1685,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                         resource_version: foundResource.meta.versionId,
                         message: 'No changes detected in updated resource'
                     };
+                }
+                if (!(isAccessToResourceAllowedBySecurityTags(foundResource, req))) {
+                    throw new ForbiddenError(
+                        'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
+                        foundResource.resourceType + ' with id ' + id);
                 }
                 logRequest(`${resource_to_merge.resourceType} >>> merging ${id}`);
                 // now apply the patches to the found resource
