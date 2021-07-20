@@ -1840,7 +1840,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     /**
      * merges resources and retries on error
      * @param resource_to_merge
-     * @return {Promise<{issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}[], created: boolean, id: String, updated: boolean}>}
+     * @return {Promise<{issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
      */
     async function merge_resource_with_retry(resource_to_merge) {
         let triesLeft = 2;
@@ -1897,9 +1897,17 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x)), // run in parallel
             async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x)) // run in series
         ]);
-        return result.flat(1);
+        const returnVal = result.flat(1);
+        logInfo('--- Merge array result ----');
+        logInfo(returnVal);
+        logInfo('-----------------');
+        return returnVal;
     } else {
-        return await merge_resource_with_retry(resources_incoming);
+        const returnVal = await merge_resource_with_retry(resources_incoming);
+        logInfo('--- Merge result ----');
+        logInfo(returnVal);
+        logInfo('-----------------');
+        return returnVal;
     }
 };
 
