@@ -81,7 +81,7 @@ const getMeta = (base_version) => {
  * @param {*} msg
  */
 const logInfo = (msg) => {
-    if (!env.IS_PRODUCTION) {
+    if (!env.IS_PRODUCTION || (env.LOGLEVEL === 'DEBUG')) {
         logger.info(msg);
     }
 };
@@ -1865,7 +1865,13 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
         resources_incoming = resources_incoming.entry.map(e => e.resource);
     }
     if (Array.isArray(resources_incoming)) {
-        logRequest('==================' + resource_name + ': Merge received array ' + '(' + resources_incoming.length + ') ' + '====================');
+        const ids_of_resources = resources_incoming.map(r => r.id);
+        logRequest(
+            '==================' + resource_name + ': Merge received array ' +
+            ', len= ' + resources_incoming.length +
+            ' [' + ids_of_resources.toString() + '] ' +
+            '===================='
+        );
         // find items without duplicates and run them in parallel
         // but items with duplicate ids should run in serial so we can merge them properly (otherwise the first item
         //  may not finish adding to the db before the next item tries to merge
