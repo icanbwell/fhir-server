@@ -54,6 +54,27 @@ class MyFHIRServer extends FHIRServer.Server {
 // const fhirApp = MyFHIRServer.initialize(fhirServerConfig);
 const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configureSession().configureHelmet().configurePassport().setPublicDirectory().setProfileRoutes().setErrorRoutes();
 
+app.use(function (req, res, next) {
+            res.setHeader(
+              'Content-Security-Policy',
+              "default-src 'self'; object-src data: 'unsafe-eval'; font-src 'self'; img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self' https://bwell-dev.auth.us-east-1.amazoncognito.com/oauth2/token;"
+            );
+            next();
+        });
+
+const swaggerUi = require('swagger-ui-express'),
+swaggerDocument = require('./swagger.json');
+
+var options = {
+    explorer: true
+};
+
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument, options)
+);
+
 app.get('/health', (req, res) => res.json({status: 'ok'}));
 app.get('/version', (req, res) => {
     const image = env.DOCKER_IMAGE || '';
