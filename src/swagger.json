@@ -9,8 +9,16 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "localhost:3000",
-  "basePath": "/4_0_0/",
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local environment"
+    },
+    {
+      "url": "https://fhir.dev.bwell.zone",
+      "description": "DEV environment"
+    }
+  ],
   "tags": [
     {
       "name": "Patient",
@@ -49,7 +57,7 @@
     "application/json"
   ],
   "paths": {
-    "/Patient/{id}": {
+    "/4_0_0/Patient/{id}": {
       "parameters": [
         {
           "name": "id",
@@ -63,7 +71,7 @@
           "tags": [
             "Patient"
           ],
-          "summary": "Get Patient information",
+          "summary": "Get R4 Patient",
           "responses": {
             "200": {
               "description": "OK"
