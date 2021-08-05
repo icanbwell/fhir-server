@@ -22,9 +22,9 @@
 
         const data = {
             grant_type: 'authorization_code',
-            client_id: '63t861pcp8pe5mfli6nusa7af5',
+            client_id: parameters['clientId'],
             code: authCode,
-            redirect_uri: 'http://localhost:3000/authcallback'
+            redirect_uri: window.location.origin + '/authcallback'
         };
 
         var querystring = $.param(data);
@@ -40,7 +40,7 @@
             var accessToken = res.data.access_token;
             
             axios.request({
-                url: 'http://localhost:3000' + parameters['resourceUrl'],
+                url: window.location.origin + parameters['resourceUrl'],
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + accessToken

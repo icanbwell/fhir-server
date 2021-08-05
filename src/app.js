@@ -15,6 +15,7 @@ const helmet = require('helmet');
 const https = require('https');
 const async = require('async');
 const app = express();
+
 app.use(helmet());
 app.use(Prometheus.requestCounters);
 app.use(Prometheus.responseCounters);
@@ -56,18 +57,18 @@ const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configu
 app.use(function (req, res, next) {
             res.setHeader(
               'Content-Security-Policy',
-              "default-src 'self'; object-src data: 'unsafe-eval'; font-src 'self'; img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data:; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com/ https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self' https://bwell-dev.auth.us-east-1.amazoncognito.com/oauth2/token https://fhir.dev.bwell.zone;"
+              "default-src 'self'; object-src data: 'unsafe-eval'; font-src 'self'; img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data:; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com/ https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self' " + env.AUTH_CODE_FLOW_URL + '/oauth2/token;'
             );
             next();
         });
 
 const swaggerUi = require('swagger-ui-express'),
-swaggerDocument = require('./swagger.json');
+swaggerDocument = require('./swagger_local.json');
 
 var options = {
     explorer: true,
     swaggerOptions: {
-        oauth2RedirectUrl: 'http://localhost:3000/api-docs/oauth2-redirect.html',
+        oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
         oauth: {
             appName: 'Swagger Doc',
             usePkceWithAuthorizationCodeGrant: true
@@ -85,13 +86,13 @@ var path = require('path');
 app.use(express.static(path.join(__dirname, 'oauth')));
 
 app.get('/authcallback', (req, res) => {
-    res.redirect(`/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=63t861pcp8pe5mfli6nusa7af5&redirectUri=http://localhost:3000/authcallback&tokenUrl=https://bwell-dev.auth.us-east-1.amazoncognito.com/oauth2/token`);
+    res.redirect(`/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${env.HOST_SERVER}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`);
 });
 
 app.get('/fhir', (req, res) => {
     var resourceUrl = req.query.resource;
-    res.redirect('https://bwell-dev.auth.us-east-1.amazoncognito.com/login?response_type=code&client_id=63t861pcp8pe5mfli6nusa7af5&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauthcallback&state=' + resourceUrl);
-});
+    var redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${env.HOST_SERVER}/authcallback&state=${resourceUrl}`;
+    res.redirect(redirectUrl);});
 
 app.get('/health', (req, res) => res.json({status: 'ok'}));
 app.get('/version', (req, res) => {

@@ -11,12 +11,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Local environment"
-    },
-    {
-      "url": "https://fhir.dev.bwell.zone",
-      "description": "DEV environment"
+      "url": "https://fhir.prod-mstarvac.icanbwell.com/",
+      "description": "Prod environment"
     }
   ],
   "tags": [
@@ -26,7 +22,7 @@
     }
   ],
   "schemes": [
-    "http"
+    "https"
   ],
   "components": {
     "securitySchemes": {
@@ -38,8 +34,8 @@
         "bearerFormat": "jwt",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://bwell-dev.auth.us-east-1.amazoncognito.com/oauth2/authorize",
-            "tokenUrl": "https://bwell-dev.auth.us-east-1.amazoncognito.com/oauth2/token",
+            "authorizationUrl": "https://fhir-bwell.auth.us-east-1.amazoncognito.com/oauth2/authorize",
+            "tokenUrl": "https://fhir-bwell.auth.us-east-1.amazoncognito.com/oauth2/token",
             "scopes": {}
           }
         }
