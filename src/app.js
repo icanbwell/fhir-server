@@ -62,8 +62,9 @@ app.use(function (req, res, next) {
             next();
         });
 
-const swaggerUi = require('swagger-ui-express'),
-swaggerDocument = require('./swagger_local.json');
+const swaggerUi = require('swagger-ui-express');
+// eslint-disable-next-line security/detect-non-literal-require
+var swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
 var options = {
     explorer: true,
