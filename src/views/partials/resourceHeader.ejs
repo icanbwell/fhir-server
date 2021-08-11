@@ -1,1 +1,12 @@
 <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
+<div>
+    <h4>Identifiers</h4>
+    <% res.identifier.forEach(function(identifier){ %>
+        <div>
+        <% identifier.type.coding.forEach(function(coding){ %>
+        <%= coding.code %> (<%= coding.system %>)
+        <%})%>
+        <%= identifier.value %> (<%= identifier.system %>)
+        </div>
+    <%})%>
+</div>
