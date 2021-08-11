@@ -68,15 +68,18 @@ class MyFHIRServer extends FHIRServer.Server {
             //     // return res.send(data); // just call as normal with data
             //     return res.render(__dirname + '/views/pages/index', { resource: data});
             // };
-            if (req.accepts('text/html')) {
+            if (req.accepts('text/html') && req.method === 'GET') {
                 let oldJson = res.json;
                 res.json = function (data) {
-                    console.log(data); // do something with the data
+                    // const myReq = req;
+                    const resourceName = req.url.split('/')[2].toLowerCase();
+                    const parsedData = JSON.parse(JSON.stringify(data));
+                    console.log(parsedData); // do something with the data
                     res.json = oldJson; // set function back to avoid the 'double-send'
                     // return res.json(data); // just call as normal with data
                     res.set('Content-Type', 'text/html');
                     res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
-                    return res.render(__dirname + '/views/pages/index', {resource: data});
+                    return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
                 };
             }
             next();
