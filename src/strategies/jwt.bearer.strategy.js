@@ -45,8 +45,9 @@ class MyJwtStrategy extends JwtStrategy {
 
         // console.log('No token found in request: ');
         // console.log(req);
+        console.log('Accepts text/html: ' + req.accepts('text/html'));
 
-        if (!token) {
+        if (!token && req.accepts('text/html')) {
             const resourceUrl = req.url;
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${env.HOST_SERVER}/authcallback&state=${resourceUrl}`;
             return self.redirect(redirectUrl);
@@ -62,7 +63,7 @@ const cookieExtractor = function (req) {
     let token = null;
     // console.log('Cookie req: ');
     // console.log(req);
-    if (req && req.cookies) {
+    if (req && req.accepts('text/html') && req.cookies) {
         token = req.cookies['jwt'];
         // console.log('Found cookie jwt with value: ' + token);
     } else {
