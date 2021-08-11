@@ -7,10 +7,54 @@
 
 <header>
   <%- include('../partials/header'); %>
+
 </header>
 
 <main>
   <div class="jumbotron">
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="inputName">Name</label>
+        <input type="text" class="form-control" id="inputName" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label for="inputNpi">NPI</label>
+        <input type="text" class="form-control" id="inputNpi" placeholder="NPI">
+      </div>
+      <div class="form-group">
+        <label for="inputSource">Source</label>
+        <input type="text" class="form-control" id="inputSource" placeholder="Source">
+      </div>
+      <button type="button" class="btn btn-default" onclick="search();">Search</button>
+    </form>
+
+    <script>
+        function search(){
+            // Selecting the input element and get its value
+            var inputName = document.getElementById("inputName").value;
+            if (inputName){
+                window.location.assign("/4_0_0/Practitioner?name=" + inputName);
+                return;
+            }
+
+            var inputNpi = document.getElementById("inputNpi").value;
+            if (inputNpi){
+                window.location.assign("/4_0_0/Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|" + inputNpi);
+                return;
+            }
+
+            var inputSource = document.getElementById("inputSource").value;
+            if (inputSource){
+                window.location.assign("/4_0_0/Practitioner?source=" + inputSource);
+                return;
+            }
+
+            // Displaying the value
+            // alert(inputVal);
+
+        }
+    </script>
+
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
