@@ -11,9 +11,16 @@
 
 <main>
   <div class="jumbotron">
-    <h1>This is Patient</h1>
     <% resource.forEach(function(res){ %>
-        <b><%= res.id %></b>
+        <h1>Patient (id: <%= res.id %>)</h1>
+        <div>
+            <% res.name.forEach(function(name){ %>
+                <div>
+                    <%= name.family %>, <% name.given.forEach(function(given){ %> <%= given %> <%})%>
+                </div>
+            <%})%>
+        </div>
+        <div>Gender: <%= res.gender %></div>
     <%})%>
   </div>
 </main>
