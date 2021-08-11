@@ -1,22 +1,53 @@
 <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
 <div>
     <h4>Identifiers</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Value</th>
+          <th scope="col">System</th>
+          <th scope="col">Type Code</th>
+        </tr>
+      </thead>
+      <tbody>
     <% res.identifier.forEach(function(identifier){ %>
-        <div>
-        <% identifier.type.coding.forEach(function(coding){ %>
-        <%= coding.code %> (<%= coding.system %>)
-        <%})%>
-        <b><%= identifier.value %></b> (<%= identifier.system %>)
-        </div>
+        <tr>
+          <th scope="row">1</th>
+          <td><%= identifier.value %></td>
+          <td><%= identifier.system %></td>
+          <td>
+            <% identifier.type.coding.forEach(function(coding){ %>
+            <%= coding.code %> (<%= coding.system %>)
+            <%})%>
+          </td>
+        </tr>
     <%})%>
+      </tbody>
+    </table>
+
 </div>
 <div>
     <h4>Meta</h4>
     <div>Source: <%= res.meta.source %></div>
     <h5>Security</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Code</th>
+          <th scope="col">System</th>
+        </tr>
+      </thead>
+      <tbody>
     <% res.meta.security.forEach(function(security){ %>
-        <div>
-        <%= security.code %> (<%= security.system %>)
-        </div>
+        <tr>
+          <th scope="row">1</th>
+          <td><%= security.code %></td>
+          <td><%= security.system %></td>
+        </tr>
     <%})%>
+
+      </tbody>
+    </table>
 </div>
