@@ -34,6 +34,15 @@ Prometheus.startCollection();
 app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'ejs');
 
+/**
+ * returns whether the parameter is false or a string "false"
+ * @param {string | boolean | null} s
+ * @returns {boolean}
+ */
+const isTrue = function (s) {
+    return String(s).toLowerCase() === 'true' || String(s).toLowerCase() === '1';
+};
+
 // implement our subclass to set higher request limit
 class MyFHIRServer extends FHIRServer.Server {
     configureMiddleware() {
@@ -63,49 +72,44 @@ class MyFHIRServer extends FHIRServer.Server {
     }
 
     configureHtmlRenderer() {
-        this.app.use((req, res, next) => {
-            // let oldSend = res.send;
-            // res.send = function (data) {
-            //     console.log(data); // do something with the data
-            //     res.send = oldSend; // set function back to avoid the 'double-send'
-            //     // return res.send(data); // just call as normal with data
-            //     return res.render(__dirname + '/views/pages/index', { resource: data});
-            // };
-            // console.log('--- user agent ----');
-            // console.log(req.useragent);
-            const parts = req.url.split(/[/?,]+/);
-            console.log('----- parts -----');
-            console.log(parts);
-            if (parts && parts.length > 1) {
-                const resourceName = parts[2].toLowerCase();
-                if (req.accepts('text/html') && req.method === 'GET' && req.useragent && req.useragent.isDesktop) {
-                    let oldJson = res.json;
-                    res.json = (data) => {
-                        // const myReq = req;
-                        let parsedData = JSON.parse(JSON.stringify(data));
-                        console.log(parsedData); // do something with the data
-                        if (parsedData.entry) {
-                            parsedData = parsedData.entry.map((entry) => entry.resource);
-                        } else if (!Array.isArray(parsedData)) {
-                            parsedData = [parsedData];
-                        }
-                        res.json = oldJson; // set function back to avoid the 'double-send'
-                        // return res.json(data); // just call as normal with data
-                        res.set('Content-Type', 'text/html');
-                        // This is so we can include the bootstrap css from CDN
-                        res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
-                        console.log('resource: ' + resourceName);
-                        const customViews = ['patient', 'practitioner', 'practitionerrole'];
-                        if (customViews.includes(resourceName)) {
-                            return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
-                        } else {
-                            return res.render(__dirname + '/views/pages/index', {resource: parsedData});
-                        }
-                    };
+        if (isTrue(env.RENDER_HTML)) {
+            this.app.use((req, res, next) => {
+                // console.log('--- user agent ----');
+                // console.log(req.useragent);
+                const parts = req.url.split(/[/?,&]+/);
+                console.log('----- parts -----');
+                console.log(parts);
+                if (parts && parts.length > 1 && !parts.includes('raw=1')) {
+                    const resourceName = parts[2].toLowerCase();
+                    if (req.accepts('text/html') && req.method === 'GET' && req.useragent && req.useragent.isDesktop) {
+                        let oldJson = res.json;
+                        res.json = (data) => {
+                            // const myReq = req;
+                            let parsedData = JSON.parse(JSON.stringify(data));
+                            console.log(parsedData); // do something with the data
+                            if (parsedData.entry) {
+                                parsedData = parsedData.entry.map((entry) => entry.resource);
+                            } else if (!Array.isArray(parsedData)) {
+                                parsedData = [parsedData];
+                            }
+                            res.json = oldJson; // set function back to avoid the 'double-send'
+                            // return res.json(data); // just call as normal with data
+                            res.set('Content-Type', 'text/html');
+                            // This is so we can include the bootstrap css from CDN
+                            res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
+                            console.log('resource: ' + resourceName);
+                            const customViews = ['patient', 'practitioner', 'practitionerrole'];
+                            if (customViews.includes(resourceName)) {
+                                return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
+                            } else {
+                                return res.render(__dirname + '/views/pages/index', {resource: parsedData});
+                            }
+                        };
+                    }
                 }
-            }
-            next();
-        });
+                next();
+            });
+        }
         return this;
     }
 }
