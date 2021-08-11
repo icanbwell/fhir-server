@@ -47,7 +47,7 @@ class MyJwtStrategy extends JwtStrategy {
         // console.log(req);
         // console.log('Accepts text/html: ' + req.accepts('text/html'));
 
-        if (!token && req.accepts('text/html')) {
+        if (!token && req.accepts('text/html') && req.useragent && req.useragent.isDesktop) {
             const resourceUrl = req.url;
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${env.HOST_SERVER}/authcallback&state=${resourceUrl}`;
             return self.redirect(redirectUrl);
@@ -88,7 +88,7 @@ module.exports.strategy = new MyJwtStrategy({
             jwksRequestsPerMinute: 5,
             jwksUri: env.AUTH_JWKS_URL
         }),
-       /* specify a list of extractors and it will use the first one that returns the token */
+        /* specify a list of extractors and it will use the first one that returns the token */
         jwtFromRequest: ExtractJwt.fromExtractors([
             ExtractJwt.fromAuthHeaderAsBearerToken(),
             cookieExtractor,
