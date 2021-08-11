@@ -15,11 +15,14 @@ const helmet = require('helmet');
 const https = require('https');
 const async = require('async');
 const path = require('path');
+const useragent = require('express-useragent');
 
 const app = express();
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
+app.use(useragent.express());
 
 app.use(helmet());
 app.use(Prometheus.requestCounters);
@@ -68,19 +71,24 @@ class MyFHIRServer extends FHIRServer.Server {
             //     // return res.send(data); // just call as normal with data
             //     return res.render(__dirname + '/views/pages/index', { resource: data});
             // };
-            if (req.accepts('text/html') && req.method === 'GET') {
+            console.log('--- user agent ----');
+            console.log(req.useragent);
+            if (req.accepts('text/html') && req.method === 'GET' && req.useragent && req.useragent.browser) {
                 let oldJson = res.json;
-                res.json = function (data) {
+                res.json = (data) => {
                     // const myReq = req;
                     const resourceName = req.url.split('/')[2].toLowerCase();
                     let parsedData = JSON.parse(JSON.stringify(data));
                     console.log(parsedData); // do something with the data
-                    if (!Array.isArray(parsedData)) {
+                    if (parsedData.entry) {
+                        parsedData = parsedData.entry.map((entry) => entry.resource);
+                    } else if (!Array.isArray(parsedData)) {
                         parsedData = [parsedData];
                     }
                     res.json = oldJson; // set function back to avoid the 'double-send'
                     // return res.json(data); // just call as normal with data
                     res.set('Content-Type', 'text/html');
+                    // This is so we can include the bootstrap css from CDN
                     res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
                     return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
                 };

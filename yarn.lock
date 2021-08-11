@@ -5517,6 +5517,11 @@
     "jest-message-util" "^26.6.2"
     "jest-regex-util" "^26.0.0"
 
+"express-useragent@^1.0.15":
+  "integrity" "sha512-eq5xMiYCYwFPoekffMjvEIk+NWdlQY9Y38OsTyl13IvA728vKT+q/CSERYWzcw93HGBJcIqMIsZC5CZGARPVdg=="
+  "resolved" "https://registry.npmjs.org/express-useragent/-/express-useragent-1.0.15.tgz"
+  "version" "1.0.15"
+
 "express@^4.16.2", "express@^4.17.1", "express@>=4.0.0":
   "integrity" "sha512-mHJ9O79RqluphRrcw2X/GTh3k9tVv8YcoyY4Kkh4WDMUYKRZUq0h1o0w2rrrxBqM7VoeUVqgb27xlEMXTnYt4g=="
   "resolved" "https://registry.npmjs.org/express/-/express-4.17.1.tgz"

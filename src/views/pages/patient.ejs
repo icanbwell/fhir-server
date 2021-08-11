@@ -28,12 +28,7 @@
                 <div><a href="/4_0_0/<%= generalPractitioner.reference %>"><%= generalPractitioner.display %></a></div>
             <%})%>
         </div>
-        <div>
-            <h4>Raw Json</h4>
-            <pre><code>
-<%- JSON.stringify(res, null, 4) %>
-            </code></pre>
-        </div>
+        <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
 </main>

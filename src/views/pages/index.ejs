@@ -13,12 +13,7 @@
   <div class="jumbotron">
     <% resource.forEach(function(res){ %>
         <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
-        <div>
-            <h4>Raw Json</h4>
-            <pre><code>
-<%- JSON.stringify(res, null, 4) %>
-            </code></pre>
-        </div>
+        <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
 </main>
