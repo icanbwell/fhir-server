@@ -52,7 +52,7 @@ class MyJwtStrategy extends JwtStrategy {
 
         const token = self._jwtFromRequest(req);
 
-        // console.log('No token found in request: ');
+        console.log('No token found in request');
         // console.log(req);
         // console.log('Accepts text/html: ' + req.accepts('text/html'));
 
