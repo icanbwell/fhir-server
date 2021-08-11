@@ -79,14 +79,15 @@ class MyFHIRServer extends FHIRServer.Server {
                 const parts = req.url.split(/[/?,&]+/);
                 console.log('----- parts -----');
                 console.log(parts);
-                if (parts && parts.length > 1 && !parts.includes('raw=1')) {
+                console.log(parts.length);
+                if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0') {
                     const resourceName = parts[2].toLowerCase();
                     if (req.accepts('text/html') && req.method === 'GET' && req.useragent && req.useragent.isDesktop) {
                         let oldJson = res.json;
                         res.json = (data) => {
                             // const myReq = req;
                             let parsedData = JSON.parse(JSON.stringify(data));
-                            console.log(parsedData); // do something with the data
+                            // console.log(parsedData); // do something with the data
                             if (parsedData.entry) {
                                 parsedData = parsedData.entry.map((entry) => entry.resource);
                             } else if (!Array.isArray(parsedData)) {
@@ -97,12 +98,13 @@ class MyFHIRServer extends FHIRServer.Server {
                             res.set('Content-Type', 'text/html');
                             // This is so we can include the bootstrap css from CDN
                             res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
-                            console.log('resource: ' + resourceName);
+                            // console.log('resource: ' + resourceName);
                             const customViews = ['patient', 'practitioner', 'practitionerrole'];
+                            const options = {resources: parsedData, url: req.url};
                             if (customViews.includes(resourceName)) {
-                                return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
+                                return res.render(__dirname + '/views/pages/' + resourceName, options);
                             } else {
-                                return res.render(__dirname + '/views/pages/index', {resource: parsedData});
+                                return res.render(__dirname + '/views/pages/index', options);
                             }
                         };
                     }

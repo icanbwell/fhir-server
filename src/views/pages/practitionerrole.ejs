@@ -11,7 +11,7 @@
 
 <main>
   <div class="jumbotron">
-    <% resource.forEach(function(res){ %>
+    <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
         <% if (res.practitioner) { %>
