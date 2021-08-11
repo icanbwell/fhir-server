@@ -1,4 +1,5 @@
 <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
+<% if (res.identifier) { %>
 <div>
     <h4>Identifiers</h4>
     <table class="table">
@@ -31,6 +32,8 @@
     </table>
 
 </div>
+<%}%>
+<% if (res.meta) { %>
 <div>
     <h4>Meta</h4>
     <div>Source: <%= res.meta.source %></div>
@@ -53,3 +56,4 @@
       </tbody>
     </table>
 </div>
+<%}%>
