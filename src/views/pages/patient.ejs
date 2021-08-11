@@ -12,7 +12,7 @@
 <main>
   <div class="jumbotron">
     <% resource.forEach(function(res){ %>
-        <h2>Patient (id: <%= res.id %>)</h2>
+        <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
         <div>
             <h4>Names</h4>
             <% res.name.forEach(function(name){ %>
@@ -25,13 +25,13 @@
         <div>
             <h4>General Practitioners</h4>
             <% res.generalPractitioner.forEach(function(generalPractitioner){ %>
-                <div><a href="/4_0_0/<%= generalPractitioner.reference %>" target="_blank"><%= generalPractitioner.display %></a></div>
+                <div><a href="/4_0_0/<%= generalPractitioner.reference %>"><%= generalPractitioner.display %></a></div>
             <%})%>
         </div>
         <div>
             <h4>Raw Json</h4>
             <pre><code>
-                <%- JSON.stringify(res, null, 4) %>
+<%- JSON.stringify(res, null, 4) %>
             </code></pre>
         </div>
     <%})%>

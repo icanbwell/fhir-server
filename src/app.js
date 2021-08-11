@@ -73,8 +73,11 @@ class MyFHIRServer extends FHIRServer.Server {
                 res.json = function (data) {
                     // const myReq = req;
                     const resourceName = req.url.split('/')[2].toLowerCase();
-                    const parsedData = JSON.parse(JSON.stringify(data));
+                    let parsedData = JSON.parse(JSON.stringify(data));
                     console.log(parsedData); // do something with the data
+                    if (!Array.isArray(parsedData)) {
+                        parsedData = [parsedData];
+                    }
                     res.json = oldJson; // set function back to avoid the 'double-send'
                     // return res.json(data); // just call as normal with data
                     res.set('Content-Type', 'text/html');

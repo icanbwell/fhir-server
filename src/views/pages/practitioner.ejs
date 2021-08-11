@@ -13,8 +13,14 @@
   <div class="jumbotron">
     <h1>This is Practitioner</h1>
     <% resource.forEach(function(res){ %>
-        <b><%= res.id %></b>
+        <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
     <%})%>
+        <div>
+            <h4>Raw Json</h4>
+            <pre><code>
+<%- JSON.stringify(res, null, 4) %>
+            </code></pre>
+        </div>
   </div>
 </main>
 
