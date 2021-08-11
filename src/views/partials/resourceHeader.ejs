@@ -6,7 +6,17 @@
         <% identifier.type.coding.forEach(function(coding){ %>
         <%= coding.code %> (<%= coding.system %>)
         <%})%>
-        <%= identifier.value %> (<%= identifier.system %>)
+        <b><%= identifier.value %></b> (<%= identifier.system %>)
+        </div>
+    <%})%>
+</div>
+<div>
+    <h4>Meta</h4>
+    <div>Source: <%= res.meta.source %></div>
+    <h5>Security</h5>
+    <% res.meta.security.forEach(function(security){ %>
+        <div>
+        <%= security.code %> (<%= security.system %>)
         </div>
     <%})%>
 </div>

@@ -23,6 +23,38 @@
             <%})%>
         </div>
         <div>Gender: <%= res.gender %></div>
+
+        <div>
+            <h4>Qualifications</h4>
+            <% res.qualification.forEach(function(qualification){ %>
+                <div>
+                <% qualification.code.coding.forEach(function(coding){ %>
+                <%= coding.code %> (<%= coding.system %>)
+                <%})%>
+                </div>
+            <%})%>
+        </div>
+
+        <div>
+            <h4>Communication</h4>
+            <% res.communication.forEach(function(communication){ %>
+                <div>
+                <% communication.coding.forEach(function(coding){ %>
+                <%= coding.code %> (<%= coding.system %>)
+                <%})%>
+                </div>
+            <%})%>
+        </div>
+
+        <div>
+            <h4>Telecom</h4>
+            <% res.telecom.forEach(function(telecom){ %>
+                <div>
+                <%= telecom.value %> (<%= telecom.system %>)
+                </div>
+            <%})%>
+        </div>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
