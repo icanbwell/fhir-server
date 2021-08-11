@@ -52,25 +52,57 @@
         </div>
         <%}%>
 
+        <% if (res.communication) { %>
         <div>
             <h4>Communication</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Code</th>
+                  <th scope="col">Display</th>
+                  <th scope="col">System</th>
+                </tr>
+              </thead>
+              <tbody>
             <% res.communication.forEach(function(communication){ %>
-                <div>
-                <% communication.coding.forEach(function(coding){ %>
-                <%= coding.code %> (<%= coding.system %>)
-                <%})%>
-                </div>
+                <% if (communication.coding) { %>
+                    <% communication.coding.forEach(function(coding){ %>
+                <tr>
+                  <td><%= coding.code %></td>
+                  <td><%= coding.display %></td>
+                  <td><%= coding.system %></td>
+                </tr>
+                    <%})%>
+                <%}%>
             <%})%>
+              </tbody>
+            </table>
         </div>
+        <%}%>
 
+        <% if (res.telecom) { %>
         <div>
             <h4>Telecom</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Value</th>
+                  <th scope="col">Display</th>
+                  <th scope="col">System</th>
+                </tr>
+              </thead>
+              <tbody>
             <% res.telecom.forEach(function(telecom){ %>
-                <div>
-                <%= telecom.value %> (<%= telecom.system %>)
-                </div>
+                <tr>
+                  <td><%= telecom.value %></td>
+                  <td><%= telecom.display %></td>
+                  <td><%= telecom.system %></td>
+                </tr>
             <%})%>
+              </tbody>
+            </table>
         </div>
+        <%}%>
 
         <div>
             <h4>Practitioner Roles</h4>

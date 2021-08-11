@@ -94,6 +94,7 @@ class MyFHIRServer extends FHIRServer.Server {
                         res.set('Content-Type', 'text/html');
                         // This is so we can include the bootstrap css from CDN
                         res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
+                        console.log('resource: ' + resourceName);
                         const customViews = ['patient', 'practitioner', 'practitionerrole'];
                         if (customViews.includes(resourceName)) {
                             return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
