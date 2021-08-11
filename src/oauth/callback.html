@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"
             integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
@@ -44,7 +47,7 @@
             setCookie(
                 "jwt",
                 accessToken,
-                1
+                10  // expire in 60 minutes
             )
 
             window.location.replace(parameters['resourceUrl'])
@@ -64,7 +67,7 @@
     function getUrlVars() {
         let vars = [], hash;
         const hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        for (const i = 0; i < hashes.length; i++) {
+        for (let i = 0; i < hashes.length; i++) {
             hash = hashes[i].split('=');
             vars.push(hash[0]);
             vars[hash[0]] = hash[1];
@@ -72,11 +75,11 @@
         return vars;
     }
 
-    function setCookie(cname, cvalue, exdays) {
+    function setCookie(cookie_name, cookie_value, expirationInMinutes) {
         const d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        d.setTime(d.getTime() + (expirationInMinutes * 60 * 1000));
         let expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        document.cookie = cookie_name + "=" + cookie_value + ";" + expires + ";path=/";
     }
 </script>
 </html>
