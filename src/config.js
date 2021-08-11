@@ -104,10 +104,8 @@ if (env.AUTH_ENABLED === '1') {
         strategy: {
             name: 'jwt',
             useSession: false,
-            service: './src/strategies/jwt.bearer.strategy.js',
+            service: './src/strategies/jwt.bearer.strategy.js'
         },
-        failureRedirect: `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${env.HOST_SERVER}/authcallback&state={resourceUrl}`
-
     };
 }
 
