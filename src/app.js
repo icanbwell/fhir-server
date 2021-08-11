@@ -15,6 +15,7 @@ const helmet = require('helmet');
 const https = require('https');
 const async = require('async');
 const path = require('path');
+
 const app = express();
 
 const cookieParser = require('cookie-parser');
@@ -59,25 +60,15 @@ class MyFHIRServer extends FHIRServer.Server {
     }
 
     configureHtmlRenderer() {
-        // this.app.use(
-        //     function (req, res, next) {
-        //         console.log('in configureHtmlRenderer2');
-        //         next();
-        //     }
-        // );
-        this.app.use(
-            (req, res, next) => {
-                console.log('in configureHtmlRenderer');
-                next();
-                // res.on(
-                //     'finish',
-                //     () => {
-                //         console.log('in response');
-                //     }
-                // );
-                // return res.render(__dirname + '/views/pages/index', {});
-            }
-        );
+        this.app.use((req, res, next) => {
+            let oldSend = res.send;
+            res.send = function (data) {
+                console.log(data); // do something with the data
+                res.send = oldSend; // set function back to avoid the 'double-send'
+                return res.send(data); // just call as normal with data
+            };
+            next();
+        });
         return this;
     }
 }
