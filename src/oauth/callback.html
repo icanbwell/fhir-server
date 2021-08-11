@@ -47,7 +47,7 @@
             setCookie(
                 "jwt",
                 accessToken,
-                10  // expire in 60 minutes
+                60  // expire in 60 minutes
             )
 
             window.location.replace(parameters['resourceUrl'])
