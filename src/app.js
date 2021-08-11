@@ -75,6 +75,7 @@ class MyFHIRServer extends FHIRServer.Server {
                     res.json = oldJson; // set function back to avoid the 'double-send'
                     // return res.json(data); // just call as normal with data
                     res.set('Content-Type', 'text/html');
+                    res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
                     return res.render(__dirname + '/views/pages/index', {resource: data});
                 };
             }
