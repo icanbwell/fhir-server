@@ -24,16 +24,33 @@
         </div>
         <div><h4>Gender</h4><%= res.gender %></div>
 
+        <% if (res.qualification) { %>
         <div>
             <h4>Qualifications</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Code</th>
+                  <th scope="col">Display</th>
+                  <th scope="col">System</th>
+                </tr>
+              </thead>
+              <tbody>
             <% res.qualification.forEach(function(qualification){ %>
-                <div>
-                <% qualification.code.coding.forEach(function(coding){ %>
-                <%= coding.code %> (<%= coding.system %>)
-                <%})%>
-                </div>
+                <% if (qualification.code) { %>
+                    <% qualification.code.coding.forEach(function(coding){ %>
+                <tr>
+                  <td><%= coding.code %></td>
+                  <td><%= coding.display %></td>
+                  <td><%= coding.system %></td>
+                </tr>
+                    <%})%>
+                <%}%>
             <%})%>
+              </tbody>
+            </table>
         </div>
+        <%}%>
 
         <div>
             <h4>Communication</h4>
@@ -57,7 +74,7 @@
 
         <div>
             <h4>Practitioner Roles</h4>
-            <a href="/4_0_0/PractitionerRole?practitioner=<%= res.id %>">Practitioner Roles</a>
+            <a href="/4_0_0/PractitionerRole?practitioner=<%= res.id %>">PractitionerRole?practitioner=<%= res.id %></a>
         </div>
 
         <%- include('../partials/json', {res: res}); %>

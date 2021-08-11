@@ -73,7 +73,9 @@ class MyFHIRServer extends FHIRServer.Server {
             // };
             // console.log('--- user agent ----');
             // console.log(req.useragent);
-            const parts = req.url.split('/');
+            const parts = req.url.split(/[/?,]+/);
+            console.log('----- parts -----');
+            console.log(parts);
             if (parts && parts.length > 1) {
                 const resourceName = parts[2].toLowerCase();
                 if (req.accepts('text/html') && req.method === 'GET' && req.useragent && req.useragent.isDesktop) {
@@ -92,7 +94,7 @@ class MyFHIRServer extends FHIRServer.Server {
                         res.set('Content-Type', 'text/html');
                         // This is so we can include the bootstrap css from CDN
                         res.set('Content-Security-Policy', "style-src 'self' stackpath.bootstrapcdn.com;");
-                        const customViews = ['patient', 'practitioner'];
+                        const customViews = ['patient', 'practitioner', 'practitionerrole'];
                         if (customViews.includes(resourceName)) {
                             return res.render(__dirname + '/views/pages/' + resourceName, {resource: parsedData});
                         } else {
