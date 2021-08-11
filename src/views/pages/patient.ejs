@@ -12,7 +12,7 @@
 <main>
   <div class="jumbotron">
     <% resource.forEach(function(res){ %>
-        <h2><%= res.resourceType %> (id: <%= res.id %>)</h2>
+        <%- include('../partials/resourceHeader', {res: res}); %>
         <div>
             <h4>Names</h4>
             <% res.name.forEach(function(name){ %>
