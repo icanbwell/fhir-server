@@ -11,6 +11,8 @@ publish:
 up:
 	docker-compose -f docker-compose.yml  -p fhir-dev build --parallel && \
 	docker-compose -p fhir-dev -f docker-compose.yml up --detach && \
+	echo "waiting for Fhir server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; do printf "." && sleep 2; done
 	echo FHIR server: http://localhost:3000/stats && \
 	echo FHIR server: http://localhost:3000/4_0_0/Practitioner/
 

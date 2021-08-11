@@ -27,6 +27,8 @@ services:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
     command: npm run dev
+    healthcheck:
+        test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
 
   mongo:
     image: mongo:4.0.24
