@@ -56,16 +56,6 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-// const fromUrlQueryParameterCode = function (param_name) {
-//     return function (request) {
-//         let token = null,
-//             parsed_url = url.parse(request.url, true);
-//         if (parsed_url.query && Object.prototype.hasOwnProperty.call(parsed_url.query, param_name)) {
-//             token = parsed_url.query[param_name];
-//         }
-//         return token;
-//     };
-// };
 /* This function is called to extract the token from the jwt cookie
 */
 const cookieExtractor = function (req) {
