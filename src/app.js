@@ -61,12 +61,23 @@ class MyFHIRServer extends FHIRServer.Server {
 
     configureHtmlRenderer() {
         this.app.use((req, res, next) => {
-            let oldSend = res.send;
-            res.send = function (data) {
-                console.log(data); // do something with the data
-                res.send = oldSend; // set function back to avoid the 'double-send'
-                return res.send(data); // just call as normal with data
-            };
+            // let oldSend = res.send;
+            // res.send = function (data) {
+            //     console.log(data); // do something with the data
+            //     res.send = oldSend; // set function back to avoid the 'double-send'
+            //     // return res.send(data); // just call as normal with data
+            //     return res.render(__dirname + '/views/pages/index', { resource: data});
+            // };
+            if (req.accepts('text/html')) {
+                let oldJson = res.json;
+                res.json = function (data) {
+                    console.log(data); // do something with the data
+                    res.json = oldJson; // set function back to avoid the 'double-send'
+                    // return res.json(data); // just call as normal with data
+                    res.set('Content-Type', 'text/html');
+                    return res.render(__dirname + '/views/pages/index', {resource: data});
+                };
+            }
             next();
         });
         return this;
