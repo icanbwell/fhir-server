@@ -40,9 +40,9 @@
 <% if (res.meta) { %>
 <div>
     <h4>Meta</h4>
-    <div>Last Updated: <%= res.meta.lastUpdated %></div>
+    <div>Last Updated: <%= res.meta.lastUpdated %> <a href="/4_0_0/<%= res.resourceType %>?_lastUpdated=lt<%= res.meta.lastUpdated %>">[Before This]</a>&nbsp;<a href="/4_0_0/<%= res.resourceType %>?_lastUpdated=gt<%= res.meta.lastUpdated %>">[After This]</a></div>
     <div>Version: <a href="/4_0_0/<%= res.resourceType %>/<%= res.id %>/_history"><%= res.meta.versionId %></a> </div>
-    <div>Source: <%= res.meta.source %></div>
+    <div>Source: <a href="/4_0_0/<%= res.resourceType %>?source=<%= res.meta.source %>"><%= res.meta.source %></a></div>
     <h5>Security</h5>
     <table class="table">
       <thead>
