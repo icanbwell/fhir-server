@@ -1,12 +1,8 @@
 <% if (resources.length > 1) { %>
 <nav className="navbar navbar-expand-lg navbar-light bg-light">
-    <a className="navbar-brand" href="/">Resources In Current Page (<%= resources.length %>)</a>
-    <ul className="navbar-nav mr-auto">
+    <a className="navbar-brand" href="/">Resources In Current Page (<%= resources.length %> out of <%= total %> total)</a>
     <% resources.forEach(function(res){ %>
-        <li className="nav-item">
-            <a className="nav-link" href="#<%= res.id %>"><%= res.id %></a>
-        </li>
+        <a className="nav-link" href="#<%= res.id %>"><%= res.id %></a>&nbsp;
     <%})%>
-    </ul>
 </nav>
 <%}%>

@@ -15,6 +15,10 @@ const htmlRenderer = (req, res, next) => {
                 // const myReq = req;
                 let parsedData = JSON.parse(JSON.stringify(data));
                 // console.log(parsedData); // do something with the data
+                let total = 0;
+                if (parsedData.total) {
+                    total = parsedData.total;
+                }
                 if (parsedData.entry) {
                     parsedData = parsedData.entry.map((entry) => entry.resource);
                 } else if (!Array.isArray(parsedData)) {
@@ -29,7 +33,13 @@ const htmlRenderer = (req, res, next) => {
                 const env = require('var');
 
                 const customViews = ['patient', 'practitioner', 'practitionerrole', 'location', 'organization', 'explanationofbenefit'];
-                const options = {resources: parsedData, url: req.url, idpUrl: env.AUTH_CODE_FLOW_URL, clientId: env.AUTH_CODE_FLOW_CLIENT_ID};
+                const options = {
+                    resources: parsedData,
+                    url: req.url,
+                    idpUrl: env.AUTH_CODE_FLOW_URL,
+                    clientId: env.AUTH_CODE_FLOW_CLIENT_ID,
+                    total: total
+                };
                 if (customViews.includes(resourceName)) {
                     return res.render(__dirname + '/../views/pages/' + resourceName, options);
                 } else {
