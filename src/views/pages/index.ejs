@@ -6,12 +6,11 @@
 <body class="container">
 
 <header>
+  <%- include('../partials/header', {resources: resources}); %>
 </header>
 
 <main>
   <div class="jumbotron">
-    <%- include('../partials/header', {resources: resources, total: total}); %>
-
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
