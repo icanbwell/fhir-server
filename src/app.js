@@ -135,6 +135,11 @@ app.get('/version', (req, res) => {
         return res.json({version: 'unknown', image: 'unknown'});
     }
 });
+app.get('/logout', (req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write('<html><head></head><body>Logout Successful</body></html>');
+    res.end();
+});
 
 app.get('/clean/:collection?', async (req, res) => {
     // const query_args_array = Object.entries(req.query);
