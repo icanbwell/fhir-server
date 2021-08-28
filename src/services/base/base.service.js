@@ -787,7 +787,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
         // https://www.hl7.org/fhir/search.html#total
         // if _total is passed then calculate the total count for matching records also
-        total_count = cursor.count();
+        total_count = await cursor.count();
     }
     // noinspection JSUnfilteredForInLoop
     if (combined_args['_sort']) {

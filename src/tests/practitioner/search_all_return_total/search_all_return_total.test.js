@@ -71,7 +71,7 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
                                 return cb(err, resp);
                             }),
                     (results, cb) => request
-                        .get('/4_0_0/Practitioner?_count=10&_bundle=1')
+                        .get('/4_0_0/Practitioner?_count=10&_bundle=1&_total=accurate')
                         .set(getHeaders('user/*.* access/*.*'))
                         .expect(200, cb)
                         .expect((resp) => {
