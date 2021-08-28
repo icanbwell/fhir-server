@@ -71,7 +71,7 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
                                 return cb(err, resp);
                             }),
                     (results, cb) => request
-                        .get('/4_0_0/Practitioner?_count=10')
+                        .get('/4_0_0/Practitioner?_count=10&_bundle=1')
                         .set(getHeaders('user/*.* access/*.*'))
                         .expect(200, cb)
                         .expect((resp) => {
@@ -80,14 +80,15 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
                             console.log('------- end response sort ------------');
                             // clear out the lastUpdated column since that changes
                             let body = resp.body;
-                            expect(body.length).toBe(2);
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
+                            expect(body.entry.length).toBe(2);
+                            delete body.timestamp;
+                            body.entry.forEach(element => {
+                                delete element['resource']['meta']['lastUpdated'];
                             });
                             let expected = expectedPractitionerResource;
-                            expected.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                                delete element['$schema'];
+                            expected.entry.forEach(element => {
+                                delete element['resource']['meta']['lastUpdated'];
+                                delete element['resource']['$schema'];
                             });
                             // expected[0]['meta'] = { 'versionId': '2' };
                             expect(body).toStrictEqual(expected);
