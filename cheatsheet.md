@@ -1,6 +1,8 @@
 # FHIR Server Cheatsheet
 
-## Searching for Resources
+Note: Make sure you set Content-Type: application/fhir+json in your HTTP call.
+
+## 1. Searching for Resources
 You can search for patients by going to the /4_0_0/{resource} url e.g., 
 https://fhir.prod-mstarvac.icanbwell.com/4_0_0/Patient
 
@@ -23,6 +25,9 @@ https://fhir.prod-mstarvac.bwell.zone/4_0_0/QuestionnaireResponse?_count=10&_sor
 Multiple sort fields can be specified:
 https://fhir.prod-mstarvac.bwell.zone/4_0_0/QuestionnaireResponse?_count=10&_sort=-meta.lastUpdated,id 
 
+## Paging
+To page through the data specify the `_count` and the `_getpageoffset` query parameters e.g., https://fhir.staging.bwell.zone/4_0_0/ExplanationOfBenefit?_count=2&_getpagesoffset=2
+
 
 #### Additional Filters
 
@@ -42,7 +47,7 @@ https://fhir.prod-mstarvac.bwell.zone/4_0_0/QuestionnaireResponse?_count=10&_sor
 | By field and value | {field name}={field value} | https://fhir.dev.icanbwell.com/4_0_0/PractitionerRole?organization=-824888254&practitioner=1487831681 | All |  |
 
 
-## Requesting a single resource
+## 2. Requesting a single resource
 Add the id of the resource in the url e.g.,
 https://fhir.dev.icanbwell.com/4_0_0/HealthcareService/1952669236-MGB-MGTB
 
@@ -50,28 +55,25 @@ https://fhir.dev.icanbwell.com/4_0_0/HealthcareService/1952669236-MGB-MGTB
 Add `/_history` to a resource url to get the history of changes to that resource e.g.,
 https://fhir.dev.icanbwell.com/4_0_0/HealthcareService/1952669236-MGB-MGTB/_history
 
-## Creating a resource
+## 3. Creating a resource
 There are two ways to do this:
-1. (Recommended) Use the $merge endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may add that resource between the time you checked the resource exists and sent the call to add it.
+1. (Recommended) Use the [$merge](merge.md) endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may add that resource between the time you checked the resource exists and sent the call to add it.
 2. Use the POST method.  You can POST the resource as the body to /4_0_0/{resource} e.g., /4_0_0/Patient.
 
 
-## Updating a resource
+## 4. Updating a resource
 There are two ways to do this:
-1. (Recommended) Use the $merge endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may update that resource between the time you checked the resource exists and sent the call to add it.
+1. (Recommended) Use the [$merge](merge.md) endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may update that resource between the time you checked the resource exists and sent the call to add it.
 2. Use the PUT method.  You can PUT the resource as the body to /4_0_0/{resource}/{id} e.g., /4_0_0/Patient/123
 
-## Updating a set of resources
-The $merge method supports sending a list of resources (which can be of different resource types).
+### Updating a set of resources
+The [$merge](merge.md) method supports sending a list of resources (which can be of different resource types).
 
-## Deleting a resource
+## 5. Deleting a resource
 The DELETE method allows you to logically delete a resource.  You can send a DELETE call to /4_0_0/{resource}/{id} e.g., /4_0_0/Patient/123
 
-## Requesting a graph
+## 6. Requesting a graph
 Use the $graph endpoint which accepts a GraphDefinition as the body.
-
-## Paging
-To page through the data specify the `_count` and the `_getpageoffset` query parameters e.g., https://fhir.staging.bwell.zone/4_0_0/ExplanationOfBenefit?_count=2&_getpagesoffset=2
 
 ## Fhir Client SDK
 This is a python package that can make it easier to talk to FHIR servers.  Note this is optional; You can talk to our FHIR server using standard HTTP REST API.
