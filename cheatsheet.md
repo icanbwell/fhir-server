@@ -46,10 +46,13 @@ To page through the data specify the `_count` and the `_getpageoffset` query par
 | By missing field | {field_name}:missing={true or false} | https://fhir.staging.bwell.zone/4_0_0/ExplanationOfBenefit?patient:missing=true |  |  |
 | By field and value | {field name}={field value} | https://fhir.dev.icanbwell.com/4_0_0/PractitionerRole?organization=-824888254&practitioner=1487831681 | All |  |
 
+FHIR Specification: https://www.hl7.org/fhir/search.html.
 
 ## 2. Requesting a single resource
 Add the id of the resource in the url e.g.,
 https://fhir.dev.icanbwell.com/4_0_0/HealthcareService/1952669236-MGB-MGTB
+
+FHIR Specification: https://www.hl7.org/fhir/http.html#read
 
 #### Getting history for a resource
 Add `/_history` to a resource url to get the history of changes to that resource e.g.,
@@ -60,11 +63,14 @@ There are two ways to do this:
 1. (Recommended) Use the [$merge](merge.md) endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may add that resource between the time you checked the resource exists and sent the call to add it.
 2. Use the POST method.  You can POST the resource as the body to /4_0_0/{resource} e.g., /4_0_0/Patient.
 
+FHIR Specification: https://www.hl7.org/fhir/http.html#create
 
 ## 4. Updating a resource
 There are two ways to do this:
 1. (Recommended) Use the [$merge](merge.md) endpoint which handles both creating a new resource and updating an existing resource.  This is the recommended path to avoid the timing issue where someone else may update that resource between the time you checked the resource exists and sent the call to add it.
 2. Use the PUT method.  You can PUT the resource as the body to /4_0_0/{resource}/{id} e.g., /4_0_0/Patient/123
+
+FHIR Specification: https://www.hl7.org/fhir/http.html#update
 
 ### Updating a set of resources
 The [$merge](merge.md) method supports sending a list of resources (which can be of different resource types).
@@ -72,8 +78,22 @@ The [$merge](merge.md) method supports sending a list of resources (which can be
 ## 5. Deleting a resource
 The DELETE method allows you to logically delete a resource.  You can send a DELETE call to /4_0_0/{resource}/{id} e.g., /4_0_0/Patient/123
 
+FHIR Specification: https://www.hl7.org/fhir/http.html#delete
+
 ## 6. Requesting a graph
-Use the $graph endpoint which accepts a GraphDefinition as the body.
+Use the [$graph](graph.md) endpoint which accepts a GraphDefinition as the body.
+
+## 7. Authentication
+FHIR Server uses OAuth Authentication.  You can authenticate either:
+1. Service to Service via a `client id` and `client secret`
+2. User via a user account
+
+## 8. Authorization
+FHIR Server uses the SMART on FHIR scopes:
+1. user/{resource}.{read or write}
+   * This determines what resource types you can access and whether you can read or write (or both)
+2. access/{access tag}.*
+   * This determines which resources you can access within a resource type.
 
 ## Fhir Client SDK
 This is a python package that can make it easier to talk to FHIR servers.  Note this is optional; You can talk to our FHIR server using standard HTTP REST API.
