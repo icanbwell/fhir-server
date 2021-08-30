@@ -1,11 +1,13 @@
 <div>
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Show Raw Json v
+  </a>
+</div>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
     <h4>Raw Json</h4> (Use raw=1 on url if you want JUST the raw json)
     <pre><code>
 <%- JSON.stringify(res, null, 4) %>
     </code></pre>
-</div>
-<a href="#demo" data-toggle="collapse">Collapsible</a>
-
-<div id="demo" class="collapse">
-Lorem ipsum dolor text....
+      </div>
 </div>

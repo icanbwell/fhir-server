@@ -12,28 +12,30 @@
 
 <main>
   <div class="jumbotron">
-    <form class="form-inline">
-      <div class="form-group">
-        <label for="inputName">Name</label>
+    <form class="row g-3">
+      <div class="col-auto">
+        <label for="inputName" class="visually-hidden">Name</label>
         <input type="text" class="form-control" id="inputName" placeholder="Name">
       </div>
-      <div class="form-group">
-        <label for="inputNpi">NPI</label>
+      <div class="col-auto">
+        <label for="inputNpi" class="visually-hidden">NPI</label>
         <input type="text" class="form-control" id="inputNpi" placeholder="NPI">
       </div>
-      <div class="form-group">
-        <label for="inputSource">Source</label>
+      <div class="col-auto">
+        <label for="inputSource" class="visually-hidden">Source</label>
         <input type="text" class="form-control" id="inputSource" placeholder="Source">
       </div>
-      <div class="form-group">
-        <label for="inputLastUpdatedGreaterThan">Updated After</label>
-        <input type="text" class="form-control" id="inputLastUpdatedGreaterThan" placeholder="2021-01-18">
+      <div class="col-auto">
+        <label for="inputLastUpdatedGreaterThan" class="visually-hidden">Updated After</label>
+        <input type="text" class="form-control" id="inputLastUpdatedGreaterThan" placeholder="Updated After">
       </div>
-      <div class="form-group">
-        <label for="inputLastUpdatedLessThan">Updated Before</label>
-        <input type="text" class="form-control" id="inputLastUpdatedLessThan" placeholder="2021-01-18">
+      <div class="col-auto">
+        <label for="inputLastUpdatedLessThan" class="visually-hidden">Updated Before</label>
+        <input type="text" class="form-control" id="inputLastUpdatedLessThan" placeholder="Updated Before">
       </div>
-      <button type="button" class="btn btn-default" onclick="search();">Search</button>
+      <div class="col-auto">
+        <button type="button" class="btn btn-primary mb-3" id="search" onclick="search();">Search</button>
+      </div>
     </form>
     <script>
         function search(){
