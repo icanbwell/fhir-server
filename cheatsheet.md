@@ -111,12 +111,16 @@ FHIR Server uses OAuth Authentication.  You can authenticate either:
 1. Service to Service via a `client id` and `client secret`
 2. User via a `user id` and `password`
 
+See [Security](security.md) for details.
+
 ## 8. Authorization
 FHIR Server uses the SMART on FHIR scopes:
 1. user/{resource}.{read or write} e.g., `user/Patient.read`
    * This determines what resource types you can access and whether you can read or write (or both)
 2. access/{access tag}.* e.g., `access/my_client.*`
    * This determines which resources you can access within a resource type.
+
+See [Security](security.md) for details.
 
 ## Fhir Client SDK
 This is a python package that can make it easier to talk to FHIR servers.  Note this is optional; You can talk to our FHIR server using standard HTTP REST API.
