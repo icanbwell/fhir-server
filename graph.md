@@ -1,6 +1,6 @@
 # FHIR $graph endpoint
 
-The b.well Helix FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/resource-operation-graph.html).  
+The Helix FHIR server supports the $graph endpoint of FHIR specification (https://www.hl7.org/fhir/resource-operation-graph.html).  
 
 The $graph endpoint accepts a GraphDefinition resource: https://www.hl7.org/fhir/graphdefinition.html.
 
@@ -171,10 +171,20 @@ Linked resources can be nested.  For example, this graph has nested linked resou
 }
 ```
 
+### Filtering
 Filtering can also be done:
 ```json
-"path": "extension.extension:url=plan"
+{
+  "path": "extension.extension:url=plan"
+}
 ```
 
 This means return extensions where url property is equal to “plan”.
 
+### Contained query parameter
+By default, the FHIR returns all the related resources in the top level bundle.  
+However if you pass in the `contained` query parameter then the FHIR server will put the related resources in a `contained` field under each resource.
+
+For example: https://fhir.dev.bwell.zone/4_0_0/Organization/$graph?id=733797173,1234&contained=true
+
+FHIR Specification: https://www.hl7.org/fhir/references.html#contained

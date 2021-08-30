@@ -4,7 +4,7 @@
 
 ## Intro
 
-This projects implements a FHIR Server.  It was initially forked from https://github.com/Asymmetrik/node-fhir-server-mongo and then most of the internals were re-written to support the various FHIR functionality.
+This projects implements the Helix FHIR Server.  It was initially forked from https://github.com/Asymmetrik/node-fhir-server-mongo and then most of the internals were re-written to support the missing FHIR functionality.
 
 For example:
 1. Added support for every FHIR resource
