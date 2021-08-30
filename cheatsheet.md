@@ -4,13 +4,17 @@
 
 ## 1. Searching for Resources
 You can search for resources by going to the /4_0_0/{resource} url e.g., 
-https://fhir.prod-mstarvac.icanbwell.com/4_0_0/Patient
+https://fhir.icanbwell.com/4_0_0/Patient
+
+**Note**: The server will return only 10 records unless the _count query parameter is specified per below.
 
 ### 1.1 Specifying how many records to return
 Use the `_count` query parameter e.g., 
 https://fhir.icanbwell.com/4_0_0/Practitioner?_count=10
 
 The default is 10
+
+FHIR Specification: https://www.hl7.org/fhir/search.html#count
 
 ### 1.2 Select only specific fields from the resource
 Specify a comma separated list in `_elements` query parameter e.g.,
