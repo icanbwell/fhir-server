@@ -2453,6 +2453,11 @@
   "resolved" "https://registry.npmjs.org/boolean/-/boolean-3.0.2.tgz"
   "version" "3.0.2"
 
+"bootstrap-icons@^1.5.0":
+  "integrity" "sha512-44feMc7DE1Ccpsas/1wioN8ewFJNquvi5FewA06wLnqct7CwMdGDVy41ieHaacogzDqLfG8nADIvMNp9e4bfbA=="
+  "resolved" "https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.5.0.tgz"
+  "version" "1.5.0"
+
 "bootstrap@^5.1.0":
   "integrity" "sha512-bs74WNI9BgBo3cEovmdMHikSKoXnDgA6VQjJ7TyTotU6L7d41ZyCEEelPwkYEzsG/Zjv3ie9IE3EMAje0W9Xew=="
   "resolved" "https://registry.npmjs.org/bootstrap/-/bootstrap-5.1.0.tgz"
@@ -7020,11 +7025,6 @@
   "version" "2.0.5"
   dependencies:
     "@panva/asn1.js" "^1.0.0"
-
-"jose@^3.15.4":
-  "integrity" "sha512-SXeGi+g5ZcNgV6o7f+Mx3Q1gaYMSBzAi3cmcZPxoeCEZPgfSCnnyfmMXzXoLDh+XL4KMtGvhOsYBoqQhnuR2rQ=="
-  "resolved" "https://registry.npmjs.org/jose/-/jose-3.15.4.tgz"
-  "version" "3.15.4"
 
 "jpegtran-bin@^4.0.0":
   "integrity" "sha512-2cRl1ism+wJUoYAYFt6O/rLBfpXNWG2dUWbgcEkTt5WGMnqI46eEro8T4C5zGROxKRqyKpCBSdHPvt5UYCtxaQ=="
