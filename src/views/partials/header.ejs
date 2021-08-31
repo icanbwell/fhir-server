@@ -13,7 +13,7 @@
     <% if (resources.length > 0) { %>
         <% resources.forEach(function(res){ %>
         <li class="nav-item">
-            <a class="nav-link" href="#<%= res.id %>"><%= res.id %></a>
+            <a class="nav-link  text-truncate" href="#<%= res.id %>" style="max-width: 250px"><%= res.id %></a>
         </li>
         <%})%>
     <%}%>
