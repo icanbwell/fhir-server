@@ -31,8 +31,7 @@ const sendErrorToSlack = (token, channel, err, req) => {
         fields: [
             {
                 title: 'Request URL',
-                value: req.url,
-                short: true
+                value: req.url
             },
             {
                 title: 'Request Method',
