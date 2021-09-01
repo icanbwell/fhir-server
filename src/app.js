@@ -301,7 +301,7 @@ app.get('/index', async (req, res) => {
     async function create_multikey_index_if_not_exists(db, properties_to_index, collection_name) {
         const index_name = properties_to_index.join('_') + '_1';
         if (!await db.collection(collection_name).indexExists(index_name)) {
-            console.log('Creating index ' + index_name + ' in ' + collection_name);
+            console.log('Creating multi key index ' + index_name + ' in ' + collection_name);
             const my_dict = {};
             for (const property_to_index of properties_to_index){
                 my_dict[String(property_to_index)] = 1;
