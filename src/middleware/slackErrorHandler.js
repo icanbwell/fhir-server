@@ -30,17 +30,18 @@ const sendErrorToSlack = (token, channel, err, req) => {
         title: 'FHIR Server Error',
         fields: [
             {
-                title: 'Request URL',
-                value: req.url
-            },
-            {
                 title: 'Request Method',
                 value: req.method,
                 short: true
             },
             {
-                title: 'Status Code',
-                value: err.statusCode,
+                title: 'Request URL',
+                value: req.url,
+                short: true
+            },
+            {
+                title: 'User',
+                value: req.user,
                 short: true
             },
             {
@@ -48,9 +49,10 @@ const sendErrorToSlack = (token, channel, err, req) => {
                 value: getRemoteAddress(req),
                 short: true
             },
+
             {
-                title: 'User',
-                value: req.user,
+                title: 'Status Code',
+                value: err.statusCode,
                 short: true
             }
         ],
