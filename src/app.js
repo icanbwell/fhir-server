@@ -302,6 +302,8 @@ app.get('/index', async (req, res) => {
         // check if index exists
         let createdIndex = await create_index_if_not_exists(db, 'id', collection_name);
         createdIndex = await create_index_if_not_exists(db, 'meta.lastUpdated', collection_name) || createdIndex;
+        createdIndex = await create_index_if_not_exists(db, 'meta.source', collection_name) || createdIndex;
+        createdIndex = await create_index_if_not_exists(db, 'meta.security', collection_name) || createdIndex;
         const indexes = await db.collection(collection_name).indexes();
         const count = await db.collection(collection_name).countDocuments({});
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
