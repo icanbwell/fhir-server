@@ -14,7 +14,6 @@ function createCodeBlock(title, code) {
 }
 
 const sendErrorToSlack = (token, channel, err, req) => {
-    const web = new WebClient(token);
     const request = {
         method: req.method,
         url: req.url,
@@ -72,6 +71,8 @@ const sendErrorToSlack = (token, channel, err, req) => {
         ts: parseInt(Date.now() / 1000)
     };
     (async () => {
+        const web = new WebClient(token);
+
         // console.log(`Sending error message ${attachment} in channel ${channel}`);
 
         // Post a message to the channel, and await the result.
