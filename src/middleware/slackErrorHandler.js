@@ -20,26 +20,50 @@ const sendErrorToSlack = (token, channel, err, req) => {
         url: req.url,
         headers: req.headers,
         query: req.query,
-        body: req.body || {}
+        body: req.body || {},
+        user: req.user
     };
     const attachment = {
         fallback: 'FHIR Server Error',
         color: err.statusCode < 500 ? 'warning' : 'danger',
         author_name: req.headers.host,
         title: 'FHIR Server Error',
-        fields: [{title: 'Request URL', value: req.url, short: true}, {
-            title: 'Request Method',
-            value: req.method,
-            short: true
-        }, {title: 'Status Code', value: err.statusCode, short: true}, {
-            title: 'Remote Address',
-            value: getRemoteAddress(req),
-            short: true
-        }],
-        text: [{title: 'Stack trace:', code: err.stack}, {
-            title: 'Request',
-            code: request
-        }].map(function (data) {
+        fields: [
+            {
+                title: 'Request URL',
+                value: req.url,
+                short: true
+            },
+            {
+                title: 'Request Method',
+                value: req.method,
+                short: true
+            },
+            {
+                title: 'Status Code',
+                value: err.statusCode,
+                short: true
+            },
+            {
+                title: 'Remote Address',
+                value: getRemoteAddress(req),
+                short: true
+            },
+            {
+                title: 'User',
+                value: req.user,
+                short: true
+            }
+        ],
+        text: [
+            {
+                title: 'Stack trace:', code: err.stack
+            },
+            {
+                title: 'Request',
+                code: request
+            }
+        ].map(function (data) {
             return createCodeBlock(data.title, data.code);
         }).join(''),
         mrkdwn_in: ['text'],
