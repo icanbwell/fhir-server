@@ -19,7 +19,10 @@ const useragent = require('express-useragent');
 const {htmlRenderer} = require('./middleware/htmlRenderer');
 const {slackErrorHandler} = require('./middleware/slackErrorHandler');
 
-const {indexAllCollections} = require('./utils/index.util');
+// const {indexAllCollections} = require('./utils/index.util');
+
+// eslint-disable-next-line security/detect-child-process
+const childProcess = require('child_process');
 
 const app = express();
 
@@ -282,7 +285,16 @@ app.get('/index', async (req, res) => {
     } else {
         await client.close();
 
-        const collection_stats = await indexAllCollections();
+        //create new instance of node for running separate task in another thread
+        const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
+        //send some params to our separate task
+        const params = {
+            message: 'Hello from main thread'
+        };
+
+        taskProcessor.send(params);
+        // const collection_stats = await indexAllCollections();
+        const collection_stats = {};
 
         res.status(200).json({success: true, collections: collection_stats});
     }

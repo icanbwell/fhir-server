@@ -7,6 +7,7 @@ process.on('message', function (message) {
     //long calculations ..
     setTimeout(function () {
         process.send({status: 'Done!'});
+        console.log({status: 'Done!'});
 
         //notify node, that we are done with this task
         process.disconnect();
