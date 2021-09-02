@@ -36,6 +36,7 @@ async function create_index_if_not_exists(db, property_to_index, collection_name
         }
     } catch (e) {
         console.log('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
+        await logMessageToSlack('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
     }
     return false;
 }
@@ -62,6 +63,7 @@ async function create_multikey_index_if_not_exists(db, properties_to_index, coll
         }
     } catch (e) {
         console.log('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
+        await logMessageToSlack('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
     }
     return false;
 }
