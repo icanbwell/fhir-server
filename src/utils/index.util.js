@@ -88,7 +88,7 @@ async function indexAllCollections() {
         console.error(mongoError.message);
         console.error(mongoConfig.connection);
         await client.close();
-        return Promise.reject(mongoError.message);
+        throw new Error(mongoError.message);
     }
     //create client by providing database name
     const db = client.db(mongoConfig.db_name);
@@ -152,7 +152,7 @@ async function getIndexesInAllCollections() {
         console.error(mongoError.message);
         console.error(mongoConfig.connection);
         await client.close();
-        return Promise.reject(mongoError.message);
+        throw new Error(mongoError.message);
     }
     //create client by providing database name
     /**
