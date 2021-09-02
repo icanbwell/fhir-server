@@ -28,11 +28,18 @@ process.on('message', function (message) {
     process.send({status: 'We have started processing your data.'});
 
     (async () => {
-        const collection_stats = await indexAllCollections();
-        console.log('===== Done Indexing in separate process ======');
-        logMessageToSlack('Finished indexing in separate process');
-        console.log(JSON.stringify(collection_stats));
-        logMessageToSlack(JSON.stringify(collection_stats));
+        try {
+            const collection_stats = await indexAllCollections();
+            console.log('===== Done Indexing in separate process ======');
+            logMessageToSlack('Finished indexing in separate process');
+            console.log(JSON.stringify(collection_stats));
+            logMessageToSlack(JSON.stringify(collection_stats));
+        }
+        catch (e) {
+            console.log('===== ERROR Indexing in separate process ======', e);
+            console.log(JSON.stringify(e));
+            logMessageToSlack(JSON.stringify(e));
+        }
         //notify node, that we are done with this task
         process.disconnect();
     })();

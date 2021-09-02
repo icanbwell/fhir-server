@@ -4,9 +4,17 @@ const mongoClient = require('../lib/mongo');
 const {mongoConfig} = require('../config');
 const async = require('async');
 
+const customIndexes = {
+    'PractitionerRole_4_0_0': [
+        'practitioner.reference',
+        'organization.reference',
+        'location.reference'
+    ]
+};
+
 /**
  * creates an index if it does not exist
- * @param {IDBDatabase} db
+ * @param {import('mongodb').Db} db
  * @param {string} property_to_index
  * @param {string} collection_name
  * @return {Promise<boolean>}
@@ -25,7 +33,7 @@ async function create_index_if_not_exists(db, property_to_index, collection_name
 
 /**
  * creates an multi key index if it does not exist
- * @param {IDBDatabase} db
+ * @param {import('mongodb').Db} db
  * @param {string[]} properties_to_index
  * @param {string} collection_name
  * @return {Promise<boolean>}
@@ -47,7 +55,7 @@ async function create_multikey_index_if_not_exists(db, properties_to_index, coll
 /**
  * creates indexes on a collection
  * @param {string} collection_name
- * @param {IDBDatabase} db
+ * @param {import('mongodb').Db} db
  * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
  */
 async function indexCollection(collection_name, db) {
@@ -76,6 +84,12 @@ async function indexAllCollections() {
         mongoClient(mongoConfig.connection, mongoConfig.options)
     );
 
+    if (mongoError) {
+        console.error(mongoError.message);
+        console.error(mongoConfig.connection);
+        await client.close();
+        return Promise.reject(mongoError.message);
+    }
     //create client by providing database name
     const db = client.db(mongoConfig.db_name);
     const collection_names = [];
@@ -88,14 +102,18 @@ async function indexAllCollections() {
     });
 
     // now add custom indices
-    const practitionerRoleCollection = 'PractitionerRole_4_0_0';
-    if (collection_names.includes(practitionerRoleCollection)) {
-        await create_index_if_not_exists(db, 'practitioner.reference', practitionerRoleCollection);
-        await create_index_if_not_exists(db, 'organization.reference', practitionerRoleCollection);
-        await create_index_if_not_exists(db, 'location.reference', practitionerRoleCollection);
+    for (const collection in Object.keys(customIndexes)) {
+        console.log('custom_indexes', collection);
+        if (collection_names.includes(collection)) {
+            // eslint-disable-next-line security/detect-object-injection
+            for (const index of customIndexes[collection]) {
+                await create_index_if_not_exists(db, index, collection);
+                // console.log(index);
+            }
+        }
     }
 
-    // now add indices on id column for every collection
+// now add indices on id column for every collection
     const collection_stats = await async.map(
         collection_names,
         async collection_name => await indexCollection(collection_name, db)
@@ -108,7 +126,7 @@ async function indexAllCollections() {
 /**
  * Gets the current indexes on the specified collection
  * @param {string} collection_name
- * @param {IDBDatabase} db
+ * @param {import('mongodb').Db} db
  * @return {Promise<{indexes: *, name}>}
  */
 async function getIndexesInCollection(collection_name, db) {
@@ -130,7 +148,16 @@ async function getIndexesInAllCollections() {
         mongoClient(mongoConfig.connection, mongoConfig.options)
     );
 
+    if (mongoError) {
+        console.error(mongoError.message);
+        console.error(mongoConfig.connection);
+        await client.close();
+        return Promise.reject(mongoError.message);
+    }
     //create client by providing database name
+    /**
+     * @type {import('mongodb').Db}
+     */
     const db = client.db(mongoConfig.db_name);
     const collection_names = [];
     // const collections = await db.listCollections().toArray();

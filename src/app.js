@@ -280,7 +280,7 @@ app.get('/index/:run?', async (req, res) => {
     if (mongoError) {
         console.error(mongoError.message);
         console.error(mongoConfig.connection);
-        client.close();
+        await client.close();
         res.status(500).json({success: false, error: mongoError});
     } else {
         await client.close();
