@@ -5,7 +5,7 @@ const async = require('async');
 
 /**
  * creates an index if it does not exist
- * @param {Db} db
+ * @param {IDBDatabase} db
  * @param {string} property_to_index
  * @param {string} collection_name
  * @return {Promise<boolean>}
@@ -24,7 +24,7 @@ async function create_index_if_not_exists(db, property_to_index, collection_name
 
 /**
  * creates an multi key index if it does not exist
- * @param {Db} db
+ * @param {IDBDatabase} db
  * @param {string[]} properties_to_index
  * @param {string} collection_name
  * @return {Promise<boolean>}
@@ -46,7 +46,7 @@ async function create_multikey_index_if_not_exists(db, properties_to_index, coll
 /**
  * creates indexes on a collection
  * @param {string} collection_name
- * @param {Db} db
+ * @param {IDBDatabase} db
  * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
  */
 async function indexCollection(collection_name, db) {

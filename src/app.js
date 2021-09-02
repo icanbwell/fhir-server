@@ -227,7 +227,7 @@ app.get('/stats', async (req, res) => {
     /**
      * gets stats for a collection
      * @param {string} collection_name
-     * @param {Db} db
+     * @param {IDBDatabase} db
      * @return {Promise<{name, count: *}>}
      */
     async function getStatsForCollection(collection_name, db) {
@@ -270,7 +270,7 @@ app.get('/stats', async (req, res) => {
     }
 });
 
-app.get('/index/:show?', async (req, res) => {
+app.get('/index/:run?', async (req, res) => {
     // console.info('Running index');
 
     // Connect to mongo and pass any options here
@@ -285,11 +285,11 @@ app.get('/index/:show?', async (req, res) => {
     } else {
         await client.close();
 
-        const showOnly = req.params['show'];
-        // console.log('showOnly: ' + showOnly);
+        const runIndex = req.params['run'];
+        // console.log('runIndex: ' + runIndex);
 
         let collection_stats = {};
-        if (!(showOnly)) {
+        if (runIndex) {
             //create new instance of node for running separate task in another thread
             const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
             //send some params to our separate task
@@ -306,7 +306,7 @@ app.get('/index/:show?', async (req, res) => {
         res.status(200).json({
             success: true,
             collections: collection_stats,
-            message: showOnly ? '' : 'Index Task started'
+            message: runIndex ? 'Index Creation Task started.  Check logs for output.' : 'Listing current indexes.  Use /index/run if you want to run index creation'
         });
     }
 });
