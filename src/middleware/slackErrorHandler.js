@@ -1,7 +1,7 @@
 const env = require('var');
 const {logErrorAndRequestToSlack} = require('../utils/slack.logger');
 
-const slackErrorHandler = (err, req, res, next) => {
+const slackErrorHandler = async (err, req, res, next) => {
     // console.log('env.SLACK_STATUS_CODES_TO_IGNORE', env.SLACK_STATUS_CODES_TO_IGNORE);
     /**
      * status codes to ignore
@@ -16,7 +16,7 @@ const slackErrorHandler = (err, req, res, next) => {
         const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
         err.statusCode = err.statusCode || 500;
         // if (skip !== false && skip(err, req, res)) return next(err);
-        logErrorAndRequestToSlack(options.token, options.channel, err, req);
+        await logErrorAndRequestToSlack(options.token, options.channel, err, req);
         next(err);
     }
 };

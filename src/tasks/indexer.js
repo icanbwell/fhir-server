@@ -6,28 +6,25 @@ const {logMessageToSlack} = require('../utils/slack.logger');
 
 
 // eslint-disable-next-line no-unused-vars
-process.on('message', function (message) {
+process.on('message', async (message) => {
     console.log('==== Starting indexing in separate process ====');
-    logMessageToSlack('Starting indexing in separate process');
+    await logMessageToSlack('Starting indexing in separate process');
     //send status update to the main app
     process.send({status: 'We have started processing your data.'});
 
-    (async () => {
-        try {
-            const collection_stats = await indexAllCollections();
-            logMessageToSlack('Finished indexing in separate process');
-            console.log(JSON.stringify(collection_stats));
-            console.log('===== Done Indexing in separate process ======');
-            logMessageToSlack(JSON.stringify(collection_stats));
-        }
-        catch (e) {
-            console.log('===== ERROR Indexing in separate process ======', e);
-            console.log(JSON.stringify(e));
-            logMessageToSlack(JSON.stringify(e));
-        }
-        //notify node, that we are done with this task
-        process.disconnect();
-    })();
+    try {
+        const collection_stats = await indexAllCollections();
+        await logMessageToSlack('Finished indexing in separate process');
+        console.log(JSON.stringify(collection_stats));
+        console.log('===== Done Indexing in separate process ======');
+        await logMessageToSlack(JSON.stringify(collection_stats));
+    } catch (e) {
+        console.log('===== ERROR Indexing in separate process ======', e);
+        console.log(JSON.stringify(e));
+        await logMessageToSlack(JSON.stringify(e));
+    }
+    //notify node, that we are done with this task
+    process.disconnect();
 });
 
 process.on('uncaughtException', function (err) {

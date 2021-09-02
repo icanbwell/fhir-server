@@ -1,33 +1,29 @@
 const {WebClient} = require('@slack/web-api');
 const env = require('var');
 
-function logMessageToSlack(message) {
+async function logMessageToSlack(message) {
     if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
         const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
-        (async () => {
-            const web = new WebClient(options.token);
-            // Post a message to the channel, and await the result.
-            // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-            await web.chat.postMessage({
-                text: message,
-                channel: options.channel,
-            });
-        })();
+        const web = new WebClient(options.token);
+        // Post a message to the channel, and await the result.
+        // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+        await web.chat.postMessage({
+            text: message,
+            channel: options.channel,
+        });
     }
 }
 
-function logErrorToSlack(err) {
+async function logErrorToSlack(err) {
     if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
         const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
-        (async () => {
-            const web = new WebClient(options.token);
-            // Post a message to the channel, and await the result.
-            // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-            await web.chat.postMessage({
-                text: err.stack,
-                channel: options.channel,
-            });
-        })();
+        const web = new WebClient(options.token);
+        // Post a message to the channel, and await the result.
+        // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+        await web.chat.postMessage({
+            text: err.stack,
+            channel: options.channel,
+        });
     }
 }
 
@@ -43,7 +39,7 @@ function createCodeBlock(title, code) {
     return '_' + title + '_' + tripleBackticks + code + tripleBackticks + '\n';
 }
 
-const logErrorAndRequestToSlack = (token, channel, err, req) => {
+const logErrorAndRequestToSlack = async (token, channel, err, req) => {
     const request = {
         method: req.method,
         url: req.url,
@@ -100,22 +96,20 @@ const logErrorAndRequestToSlack = (token, channel, err, req) => {
         footer: 'express-errors-to-slack',
         ts: parseInt(Date.now() / 1000)
     };
-    (async () => {
-        const web = new WebClient(token);
+    const web = new WebClient(token);
 
-        // console.log(`Sending error message ${attachment} in channel ${channel}`);
+    // console.log(`Sending error message ${attachment} in channel ${channel}`);
 
-        // Post a message to the channel, and await the result.
-        // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-        const result = await web.chat.postMessage({
-            text: attachment.fallback,
-            attachments: [attachment],
-            channel: channel,
-        });
+    // Post a message to the channel, and await the result.
+    // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+    const result = await web.chat.postMessage({
+        text: attachment.fallback,
+        attachments: [attachment],
+        channel: channel,
+    });
 
-        // The result contains an identifier for the message, `ts`.
-        console.log(`Successfully sent error message ${result.ts} in channel ${channel}`);
-    })();
+    // The result contains an identifier for the message, `ts`.
+    console.log(`Successfully sent error message ${result.ts} in channel ${channel}`);
 };
 
 module.exports = {
