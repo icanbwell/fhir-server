@@ -306,7 +306,7 @@ app.get('/index/:run?', async (req, res) => {
         res.status(200).json({
             success: true,
             collections: collection_stats,
-            message: runIndex ? 'Index Creation Task started.  Check logs for output.' : 'Listing current indexes.  Use /index/run if you want to run index creation'
+            message: runIndex ? 'Index Creation Task started.  Check logs or Slack for output.' : 'Listing current indexes.  Use /index/run if you want to run index creation'
         });
     }
 });
