@@ -77,7 +77,6 @@ async function indexAllCollections() {
     // const collections = await db.listCollections().toArray();
 
     await db.listCollections().forEach(collection => {
-        console.log(collection.name);
         if (collection.name.indexOf('system.') === -1) {
             collection_names.push(collection.name);
         }
@@ -92,7 +91,6 @@ async function indexAllCollections() {
     }
 
     // now add indices on id column for every collection
-    console.info('Collection_names:' + collection_names);
     const collection_stats = await async.map(
         collection_names,
         async collection_name => await indexCollection(collection_name, db)
@@ -103,7 +101,6 @@ async function indexAllCollections() {
 }
 
 async function getIndexesInCollection(collection_name, db) {
-    console.log(collection_name);
     // check if index exists
     const indexes = await db.collection(collection_name).indexes();
     return {
@@ -124,14 +121,12 @@ async function getIndexesInAllCollections() {
     // const collections = await db.listCollections().toArray();
 
     await db.listCollections().forEach(collection => {
-        console.log(collection.name);
         if (collection.name.indexOf('system.') === -1) {
             collection_names.push(collection.name);
         }
     });
 
     // now add indices on id column for every collection
-    console.info('Collection_names:' + collection_names);
     const collection_stats = await async.map(
         collection_names,
         async collection_name => await getIndexesInCollection(collection_name, db)

@@ -270,8 +270,8 @@ app.get('/stats', async (req, res) => {
     }
 });
 
-app.get('/index', async (req, res) => {
-    console.info('Running index');
+app.get('/index/:show?', async (req, res) => {
+    // console.info('Running index');
 
     // Connect to mongo and pass any options here
     let [mongoError, client] = await asyncHandler(
@@ -285,18 +285,29 @@ app.get('/index', async (req, res) => {
     } else {
         await client.close();
 
-        //create new instance of node for running separate task in another thread
-        const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
-        //send some params to our separate task
-        const params = {
-            message: 'Start Index'
-        };
+        const showOnly = req.params['show'];
+        // console.log('showOnly: ' + showOnly);
 
-        taskProcessor.send(params);
-        // const collection_stats = await indexAllCollections();
-        const collection_stats = await getIndexesInAllCollections();
+        let collection_stats = {};
+        if (!(showOnly)) {
+            //create new instance of node for running separate task in another thread
+            const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
+            //send some params to our separate task
+            const params = {
+                message: 'Start Index'
+            };
 
-        res.status(200).json({success: true, collections: collection_stats, message: 'Index Task started'});
+            taskProcessor.send(params);
+        } else {
+            collection_stats = await getIndexesInAllCollections();
+        }
+
+
+        res.status(200).json({
+            success: true,
+            collections: collection_stats,
+            message: showOnly ? '' : 'Index Task started'
+        });
     }
 });
 
