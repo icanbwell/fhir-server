@@ -102,9 +102,9 @@ async function indexAllCollections() {
     });
 
     // now add custom indices
-    for (const collection in Object.keys(customIndexes)) {
-        console.log('custom_indexes', collection);
+    for (const collection of Object.keys(customIndexes)) {
         if (collection_names.includes(collection)) {
+            console.log('Creating Custom Indexes: ', collection);
             // eslint-disable-next-line security/detect-object-injection
             for (const index of customIndexes[collection]) {
                 await create_index_if_not_exists(db, index, collection);
@@ -113,7 +113,7 @@ async function indexAllCollections() {
         }
     }
 
-// now add indices on id column for every collection
+    // now add indices on id column for every collection
     const collection_stats = await async.map(
         collection_names,
         async collection_name => await indexCollection(collection_name, db)

@@ -30,9 +30,9 @@ process.on('message', function (message) {
     (async () => {
         try {
             const collection_stats = await indexAllCollections();
-            console.log('===== Done Indexing in separate process ======');
             logMessageToSlack('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
+            console.log('===== Done Indexing in separate process ======');
             logMessageToSlack(JSON.stringify(collection_stats));
         }
         catch (e) {
