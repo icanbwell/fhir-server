@@ -289,7 +289,7 @@ app.get('/index', async (req, res) => {
         const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
         //send some params to our separate task
         const params = {
-            message: 'Hello from main thread'
+            message: 'Start Index'
         };
 
         taskProcessor.send(params);

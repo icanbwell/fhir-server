@@ -3,23 +3,17 @@
 const {indexAllCollections} = require('../utils/index.util');
 
 process.on('message', function (message) {
-    console.log('message', message);
+    console.log('Worker thread received message', message);
     //send status update to the main app
     process.send({status: 'We have started processing your data.'});
 
     (async () => {
         const collection_stats = await indexAllCollections();
+        console.log('Indexing done in separate process');
         console.log(collection_stats);
-    })();
-
-    //long calculations ..
-    setTimeout(function () {
-        process.send({status: 'Done!'});
-        console.log({status: 'Done!'});
-
         //notify node, that we are done with this task
         process.disconnect();
-    }, 5000);
+    })();
 });
 
 process.on('uncaughtException', function (err) {

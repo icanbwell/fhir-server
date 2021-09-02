@@ -33,10 +33,12 @@ process.on('unhandledRejection', (err) => {
 });
 
 process.on('exit', function (code) {
-    const stack = new Error().stack;
-    console.log('===== PROCESS EXIT ======');
-    console.log('exit code:', code);
-    console.log(stack);
+    if (code !== 0) {
+        const stack = new Error().stack;
+        console.log('===== PROCESS EXIT ======');
+        console.log('exit code:', code);
+        console.log(stack);
+    }
 });
 
 module.exports = Sentry;
