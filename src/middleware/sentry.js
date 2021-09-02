@@ -7,15 +7,15 @@ const {logErrorToSlack} = require('../utils/slack.logger');
 Sentry.init({dsn: process.env.SENTRY_DSN});
 
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', async (err) => {
     Sentry.captureException(err);
-    logErrorToSlack(err);
+    await logErrorToSlack(err);
     process.exit(1);
 });
 
-process.on('unhandledRejection', (err) => {
+process.on('unhandledRejection', async (err) => {
     Sentry.captureException(err);
-    logErrorToSlack(err);
+    await logErrorToSlack(err);
     process.exit(1);
 });
 
