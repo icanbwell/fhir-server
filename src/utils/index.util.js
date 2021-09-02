@@ -1,3 +1,4 @@
+// This file implements code to index the mongo database and to list the current indexes
 const asyncHandler = require('../lib/async-handler');
 const mongoClient = require('../lib/mongo');
 const {mongoConfig} = require('../config');
@@ -64,6 +65,10 @@ async function indexCollection(collection_name, db) {
     };
 }
 
+/**
+ * Indexes all the collections
+ * @return {Promise<*>}
+ */
 // noinspection UnnecessaryLocalVariableJS
 async function indexAllCollections() {
     // eslint-disable-next-line no-unused-vars
@@ -100,6 +105,12 @@ async function indexAllCollections() {
     return collection_stats;
 }
 
+/**
+ * Gets the current indexes on the specified collection
+ * @param {string} collection_name
+ * @param {IDBDatabase} db
+ * @return {Promise<{indexes: *, name}>}
+ */
 async function getIndexesInCollection(collection_name, db) {
     // check if index exists
     const indexes = await db.collection(collection_name).indexes();
@@ -109,6 +120,10 @@ async function getIndexesInCollection(collection_name, db) {
     };
 }
 
+/**
+ * Gets indexes on all the collections
+ * @return {Promise<*>}
+ */
 async function getIndexesInAllCollections() {
     // eslint-disable-next-line no-unused-vars
     let [mongoError, client] = await asyncHandler(
