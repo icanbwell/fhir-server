@@ -32,7 +32,7 @@ process.on('message', function (message) {
         console.log('===== Done Indexing in separate process ======');
         logMessageToSlack('Finished indexing in separate process');
         console.log(JSON.stringify(collection_stats));
-        logMessageToSlack(collection_stats);
+        logMessageToSlack(JSON.stringify(collection_stats));
         //notify node, that we are done with this task
         process.disconnect();
     })();
