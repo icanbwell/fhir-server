@@ -1,8 +1,17 @@
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
+
+const {indexAllCollections} = require('../utils/index.util');
+const {WebClient} = require("@slack/web-api");
+
 process.on('message', function (message) {
     console.log('message', message);
     //send status update to the main app
     process.send({status: 'We have started processing your data.'});
+
+    (async () => {
+        const collection_stats = await indexAllCollections();
+        console.log(collection_stats);
+    })();
 
     //long calculations ..
     setTimeout(function () {

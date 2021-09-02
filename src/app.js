@@ -19,8 +19,6 @@ const useragent = require('express-useragent');
 const {htmlRenderer} = require('./middleware/htmlRenderer');
 const {slackErrorHandler} = require('./middleware/slackErrorHandler');
 
-// const {indexAllCollections} = require('./utils/index.util');
-
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
 
@@ -296,7 +294,7 @@ app.get('/index', async (req, res) => {
         // const collection_stats = await indexAllCollections();
         const collection_stats = {};
 
-        res.status(200).json({success: true, collections: collection_stats});
+        res.status(200).json({success: true, collections: collection_stats, message: 'Task started'});
     }
 });
 
