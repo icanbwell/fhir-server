@@ -2,23 +2,8 @@
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
 const {indexAllCollections} = require('../utils/index.util');
-const env = require('var');
-const {WebClient} = require('@slack/web-api');
+const {logMessageToSlack} = require('../utils/slack.logger');
 
-function logMessageToSlack(message) {
-    if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
-        const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
-        (async () => {
-            const web = new WebClient(options.token);
-            // Post a message to the channel, and await the result.
-            // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-            await web.chat.postMessage({
-                text: message,
-                channel: options.channel,
-            });
-        })();
-    }
-}
 
 // eslint-disable-next-line no-unused-vars
 process.on('message', function (message) {

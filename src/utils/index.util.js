@@ -5,6 +5,8 @@ const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
 
+const {logMessageToSlack} = require('./slack.logger');
+
 const customIndexes = {
     'PractitionerRole_4_0_0': [
         'practitioner.reference',
@@ -26,6 +28,7 @@ async function create_index_if_not_exists(db, property_to_index, collection_name
         // https://www.tutorialspoint.com/mongodb/mongodb_indexing_limitations.htm#:~:text=A%20collection%20cannot%20have%20more,have%20maximum%2031%20fields%20indexed.
         if (!await db.collection(collection_name).indexExists(index_name)) {
             console.log('Creating index ' + index_name + ' in ' + collection_name);
+            logMessageToSlack('Creating index ' + index_name + ' in ' + collection_name);
             const my_dict = {};
             my_dict[String(property_to_index)] = 1;
             await db.collection(collection_name).createIndex(my_dict, {name: index_name});
@@ -49,6 +52,7 @@ async function create_multikey_index_if_not_exists(db, properties_to_index, coll
     try {
         if (!await db.collection(collection_name).indexExists(index_name)) {
             console.log('Creating multi key index ' + index_name + ' in ' + collection_name);
+            logMessageToSlack('Creating multi key index ' + index_name + ' in ' + collection_name);
             const my_dict = {};
             for (const property_to_index of properties_to_index) {
                 my_dict[String(property_to_index)] = 1;
