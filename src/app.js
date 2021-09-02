@@ -22,6 +22,8 @@ const {slackErrorHandler} = require('./middleware/slackErrorHandler');
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
 
+const {getIndexesInAllCollections} = require('./utils/index.util');
+
 const app = express();
 
 const cookieParser = require('cookie-parser');
@@ -292,9 +294,9 @@ app.get('/index', async (req, res) => {
 
         taskProcessor.send(params);
         // const collection_stats = await indexAllCollections();
-        const collection_stats = {};
+        const collection_stats = await getIndexesInAllCollections();
 
-        res.status(200).json({success: true, collections: collection_stats, message: 'Task started'});
+        res.status(200).json({success: true, collections: collection_stats, message: 'Index Task started'});
     }
 });
 
