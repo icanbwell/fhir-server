@@ -14,11 +14,10 @@
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
-        <h4>Status</h4>
-        <%= res.status %>
+        <h4>Status</h4><%= res.status %>
 
-        <h4>Outcome</h4>
-        <%= res.outcome %>
+        <h4>Outcome</h4><%= res.outcome %>
+        <h4>Created</h4><%= res.created %>
 
         <%- include('../partials/codeableConcept', {codeableConcepts: [res.type], name: "Type"}); %>
 
@@ -59,6 +58,28 @@
                         <%= item.quantity.value %>
                     <%}%>
                  </td>
+                 </tr>
+            <%})%>
+              </tbody>
+            </table>
+        </div>
+        <%}%>
+
+        <% if (res.careTeam) { %>
+        <div>
+            <h4>Care Team</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Sequence</th>
+                  <th scope="col">Provider</th>
+                </tr>
+              </thead>
+              <tbody>
+            <% res.careTeam.forEach(function(item){ %>
+                <tr>
+                    <td><%= item.sequence %></td>
+                    <td><a href="/4_0_0/<%= item.provider.reference %>"><%= item.provider.reference %></a></td>
                  </tr>
             <%})%>
               </tbody>
