@@ -30,6 +30,31 @@
 
         <%- include('../partials/reference', {references: [res.managingOrganization], name: "Managing Organization"}); %>
 
+        <% if (res.hoursOfOperation) {%>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Days Of Week</th>
+              <th scope="col">Opening Time</th>
+              <th scope="col">Closing Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% res.hoursOfOperation.forEach(function(hoursOfOperation){%>
+            <tr>
+                <td>
+                <% hoursOfOperation.daysOfWeek.forEach(function(daysOfWeek){%>
+                    <%= daysOfWeek %>
+                <%})%>
+                </td>
+                <td><%= hoursOfOperation.openingTime %></td>
+                <td><%= hoursOfOperation.closingTime %></td>
+            </tr>
+            <%})%>
+          </tbody>
+        </table>
+        <%}%>
+
         <div>
             <h4>Practitioner Roles</h4>
             <a href="/4_0_0/PractitionerRole?location=<%= res.id %>">PractitionerRole?location=<%= res.id %></a>
