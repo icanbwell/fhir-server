@@ -34,6 +34,10 @@
             <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
         <% } %>
 
+        <% if (res.component) { %>
+            <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.component, name: "Code"}); %>
+        <% } %>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
