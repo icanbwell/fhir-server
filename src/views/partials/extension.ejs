@@ -3,21 +3,41 @@
 <table class="table">
     <thead>
         <tr>
-          <th scope="col">Type</th>
+          <th scope="col">Url</th>
+          <th scope="col">Detail Url</th>
           <th scope="col">Value</th>
         </tr>
     </thead>
     <tbody>
     <% extensions.forEach(function(extension){ %>
-        <tr>
-        <td><%= extension.url %></td>
-        <td>
         <% if (extension.extension) { %>
             <% extension.extension.forEach(function(detailExtension){ %>
-            <%= detailExtension.url %> = <%= detailExtension.valueString %>
+            <tr>
+                <td><%= extension.url %></td>
+                <td><%= detailExtension.url %></td>
+                <td>
+                <% if (detailExtension.valueCodeableConcept) { %>
+                    <%= detailExtension.valueCodeableConcept.coding[0].code %> (<%= detailExtension.valueCodeableConcept.text %>)
+                <% } else { %>
+                    <%= detailExtension.valueString %><%= detailExtension.valueUri %>
+                <% } %>
+                </td>
+            </tr>
             <%})%>
+        <%} else {%>
+            <tr>
+                <td><%= extension.url %></td>
+                <td></td>
+                <td>
+                <% if (extension.valueCodeableConcept) { %>
+                    <%= extension.valueCodeableConcept.coding[0].code %> (<%= extension.valueCodeableConcept.text %>)
+                <% } else { %>
+                    <%= extension.valueString %><%= extension.valueUri %>
+                <% } %>
+
+                </td>
+            </tr>
         <%}%>
-        </tr>
     <%})%>
     </tbody>
 </table>
