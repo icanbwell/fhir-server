@@ -1,0 +1,24 @@
+<% if (extensions) { %>
+<h4>Extension</h4>
+<table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Type</th>
+          <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+    <% extensions.forEach(function(extension){ %>
+        <tr>
+        <td><%= extension.url %></td>
+        <td>
+        <% if (extension.extension) { %>
+            <% extension.extension.forEach(function(detailExtension){ %>
+            <%= detailExtension.url %> = <%= detailExtension.valueString %>
+            <%})%>
+        <%}%>
+        </tr>
+    <%})%>
+    </tbody>
+</table>
+<%}%>
