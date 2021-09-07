@@ -50,7 +50,8 @@ const htmlRenderer = (req, res, next) => {
                     'schedule',
                     'encounter',
                     'account',
-                    'careteam'
+                    'careteam',
+                    'healthcareservice'
                 ];
                 const options = {
                     resources: parsedData,
