@@ -17,7 +17,19 @@
           <td><%= codeableConceptWithValue.code.text %></td>
           <td><%= coding.system %></td>
           <td><%= coding.code %></td>
-          <td><%= codeableConceptWithValue.valueQuantity %></td>
+          <td>
+          <% if (codeableConceptWithValue.valueQuantity) { %>
+            <%= codeableConceptWithValue.valueQuantity.value %> <%= codeableConceptWithValue.valueQuantity.unit %>
+          <% } else if (codeableConceptWithValue.valueString) { %>
+            <%= codeableConceptWithValue.valueString %>
+          <% } else if (codeableConceptWithValue.valueBoolean) { %>
+            <%= codeableConceptWithValue.valueBoolean %>
+          <% } else if (codeableConceptWithValue.valueInteger) { %>
+            <%= codeableConceptWithValue.valueInteger %>
+          <% } else if (codeableConceptWithValue.valueRange) { %>
+            <%= codeableConceptWithValue.valueRange.low %> to <%= codeableConceptWithValue.valueRange.high %>
+          <% } %>
+          </td>
         </tr>
        <%})%>
     <%})%>
