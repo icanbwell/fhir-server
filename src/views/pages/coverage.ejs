@@ -25,6 +25,8 @@
 
         <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.class, codePropertyName: "type", name: "Class"}); %>
 
+        <%- include('../partials/reference', {references: res.contract, name: "Contract"}); %>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
