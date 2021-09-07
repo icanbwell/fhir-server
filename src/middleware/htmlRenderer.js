@@ -35,7 +35,7 @@ const htmlRenderer = (req, res, next) => {
                 // console.log('resource: ' + resourceName);
                 const env = require('var');
 
-                const customViews = ['patient', 'practitioner', 'practitionerrole', 'location', 'organization', 'explanationofbenefit', 'auditevent', 'person', 'observation', 'appointment', 'coverage', 'schedule'];
+                const customViews = ['patient', 'practitioner', 'practitionerrole', 'location', 'organization', 'explanationofbenefit', 'auditevent', 'person', 'observation', 'appointment', 'coverage', 'schedule', 'encounter'];
                 const options = {
                     resources: parsedData,
                     url: req.url,
