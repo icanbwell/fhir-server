@@ -53,7 +53,8 @@ const htmlRenderer = (req, res, next) => {
                     'careteam',
                     'healthcareservice',
                     'insuranceplan',
-                    'measurereport'
+                    'measurereport',
+                    'organizationaffiliation'
                 ];
                 const options = {
                     resources: parsedData,
