@@ -70,6 +70,30 @@
         </table>
         <%}%>
 
+        <% if (res.entity) { %>
+        <h4>Entity</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% res.entity.forEach(function(entity){ %>
+                <% if (entity.detail) { %>
+                    <% entity.detail.forEach(function(detail){ %>
+                <tr>
+                    <td><%= detail.type %></td>
+                    <td><%= detail.valueString %></td>
+                </tr>
+                    <%})%>
+                <%}%>
+            <%})%>
+            </tbody>
+        </table>
+        <%}%>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
