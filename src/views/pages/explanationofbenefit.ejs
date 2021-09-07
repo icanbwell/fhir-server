@@ -66,6 +66,28 @@
         </div>
         <%}%>
 
+        <% if (res.insurance) { %>
+        <div>
+            <h4>Insurance</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Focal</th>
+                  <th scope="col">Coverage</th>
+                </tr>
+              </thead>
+              <tbody>
+            <% res.insurance.forEach(function(item){ %>
+                <tr>
+                    <td><%= item.focal %></td>
+                    <td><a href="/4_0_0/<%= item.coverage.reference %>"><%= item.coverage.reference %></a></td>
+                 </tr>
+            <%})%>
+              </tbody>
+            </table>
+        </div>
+        <%}%>
+
         <% if (res.total) { %>
         <div>
             <h4>Totals</h4>
