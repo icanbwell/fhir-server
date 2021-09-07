@@ -20,59 +20,15 @@
         <h4>Outcome</h4>
         <%= res.outcome %>
 
-        <% if (res.type) { %>
-        <div>
-            <h4>Type</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Code</th>
-                  <th scope="col">System</th>
-                  <th scope="col">Text</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (res.type.coding) { %>
-                    <% res.type.coding.forEach(function(coding){ %>
-                <tr>
-                  <td><%= coding.code %></td>
-                  <td><%= coding.system %></td>
-                  <td><%= res.type.text %></td>
-                </tr>
-                    <%})%>
-                <%}%>
-              </tbody>
-            </table>
-        </div>
-        <%}%>
+        <%- include('../partials/codeableConcept', {codeableConcepts: [res.type], name: "Type"}); %>
 
-        <% if (res.patient) { %>
-        <div>
-            <h4>Patient</h4>
-            <a href="/4_0_0/<%= res.patient.reference %>"><%= res.patient.reference %></a>
-        </div>
-        <%}%>
+        <%- include('../partials/reference', {references: [res.patient], name: "Patient"}); %>
 
-        <% if (res.insurer) { %>
-        <div>
-            <h4>Insurer</h4>
-            <a href="/4_0_0/<%= res.insurer.reference %>"><%= res.insurer.reference %></a>
-        </div>
-        <%}%>
+        <%- include('../partials/reference', {references: [res.insurer], name: "Insurer"}); %>
 
-        <% if (res.provider) { %>
-        <div>
-            <h4>Provider</h4>
-            <a href="/4_0_0/<%= res.provider.reference %>"><%= res.provider.reference %></a>
-        </div>
-        <%}%>
+        <%- include('../partials/reference', {references: [res.provider], name: "Provider"}); %>
 
-        <% if (res.claim) { %>
-        <div>
-            <h4>Claim</h4>
-            <a href="/4_0_0/<%= res.claim.reference %>"><%= res.claim.reference %></a>
-        </div>
-        <%}%>
+        <%- include('../partials/reference', {references: [res.claim], name: "Claim"}); %>
 
         <% if (res.item) { %>
         <div>
