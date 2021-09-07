@@ -48,6 +48,28 @@
             </table>
         <%}%>
 
+        <% if (res.source) { %>
+        <h4>Source</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                  <th scope="col">Site</th>
+                  <th scope="col">Observer</th>
+                  <th scope="col">Type System</th>
+                  <th scope="col">Type Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><%= res.source.site %></td>
+                    <td><%= res.source.observer.reference %></td>
+                    <td><%= res.source.type[0].system %></td>
+                    <td><%= res.source.type[0].code %></td>
+                </tr>
+            </tbody>
+        </table>
+        <%}%>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
