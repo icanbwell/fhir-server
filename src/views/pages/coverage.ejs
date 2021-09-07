@@ -21,6 +21,10 @@
         <%- include('../partials/reference', {references: [res.beneficiary], name: "Beneficiary"}); %>
         <%- include('../partials/reference', {references: res.payor, name: "Payor"}); %>
 
+        <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
+
+        <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.class, codePropertyName: "type", name: "Class"}); %>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>

@@ -12,14 +12,16 @@
       </thead>
       <tbody>
     <% codeableConceptsWithValue.forEach(function(codeableConceptWithValue){ %>
-       <% codeableConceptWithValue.code.coding.forEach(function(coding){ %>
+       <% codeableConceptWithValue[codePropertyName].coding.forEach(function(coding){ %>
         <tr>
-          <td><%= codeableConceptWithValue.code.text %></td>
+          <td><%= codeableConceptWithValue[codePropertyName].text %></td>
           <td><%= coding.system %></td>
           <td><%= coding.code %></td>
           <td>
           <% if (codeableConceptWithValue.valueQuantity) { %>
             <%= codeableConceptWithValue.valueQuantity.value %> <%= codeableConceptWithValue.valueQuantity.unit %>
+          <% } else if (codeableConceptWithValue.value) { %>
+            <%= codeableConceptWithValue.value %>
           <% } else if (codeableConceptWithValue.valueString) { %>
             <%= codeableConceptWithValue.valueString %>
           <% } else if (codeableConceptWithValue.valueBoolean) { %>

@@ -35,7 +35,7 @@
         <% } %>
 
         <% if (res.component) { %>
-            <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.component, name: "Code"}); %>
+            <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.component, codePropertyName: "code", name: "Code"}); %>
         <% } %>
 
         <%- include('../partials/json', {res: res}); %>
