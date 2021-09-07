@@ -25,7 +25,14 @@
         <p>Display: <%= res.subject.display %></p>
         <% } %>
 
-        <%- include('../partials/reference', {reference: res.encounter, name: "Encounter"}); %>
+        <%- include('../partials/reference', {references: [res.encounter], name: "Encounter"}); %>
+
+        <h4>Effective</h4><%= res.effectiveDateTime %>
+        <h4>Issued</h4><%= res.issued %>
+
+        <% if (res.performer) { %>
+            <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
+        <% } %>
 
         <%- include('../partials/json', {res: res}); %>
     <%})%>
