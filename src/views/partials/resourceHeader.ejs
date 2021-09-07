@@ -5,31 +5,6 @@
 
 <%- include('../partials/identifier', {identifiers: res.identifier, name: "Identifier"}); %>
 
-<% if (res.meta) { %>
-<div>
-    <h4>Meta</h4>
-    <div><b>Last Updated:</b> <%= res.meta.lastUpdated %> <a title="Get <%= res.resourceType %> resources before this date" href="/4_0_0/<%= res.resourceType %>?_lastUpdated=lt<%= res.meta.lastUpdated %>">[Before This]</a>&nbsp;<a title="Get <%= res.resourceType %> resources after this date" href="/4_0_0/<%= res.resourceType %>?_lastUpdated=gt<%= res.meta.lastUpdated %>">[After This]</a></div>
-    <div><b>Version:</b> <%= res.meta.versionId %>&nbsp;<a title="Show history for this resource" href="/4_0_0/<%= res.resourceType %>/<%= res.id %>/_history">[History]</a> </div>
-    <div><b>Source:</b> <a title="Filter <%= res.resourceType %> by <%= res.meta.source %>" href="/4_0_0/<%= res.resourceType %>?source=<%= res.meta.source %>"><%= res.meta.source %></a></div>
-    <h5>Security</h5>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Code</th>
-          <th scope="col">System</th>
-        </tr>
-      </thead>
-      <tbody>
-      <% if (res.meta.security) { %>
-        <% res.meta.security.forEach(function(security){ %>
-        <tr>
-          <td><a title="Filter <%= res.resourceType %> by <%= security.code %>" href="/4_0_0/<%= res.resourceType %>?_security=<%= security.system %>|<%= security.code %>"><%= security.code %></a></td>
-          <td><%= security.system %></td>
-        </tr>
-        <%})%>
-    <%}%>
-      </tbody>
-    </table>
-</div>
-<%}%>
+<%- include('../partials/meta', {meta: res.meta, name: "Meta"}); %>
+
 <%- include('../partials/extension', {extensions: res.extension}); %>
