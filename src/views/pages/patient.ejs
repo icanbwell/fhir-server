@@ -112,6 +112,8 @@
 
          <%- include('../partials/contactpoint', {contacts: res.telecom, name: "Telecom"}); %>
 
+         <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
+
          <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
