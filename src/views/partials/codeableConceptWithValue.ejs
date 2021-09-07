@@ -1,4 +1,4 @@
-<% if (codeableConceptsWithValue) { %>
+<% if (codeableConceptsWithValue && codeableConceptsWithValue.length > 0) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">
@@ -12,7 +12,8 @@
       </thead>
       <tbody>
     <% codeableConceptsWithValue.forEach(function(codeableConceptWithValue){ %>
-       <% codeableConceptWithValue[codePropertyName].coding.forEach(function(coding){ %>
+       <% if(codeableConceptWithValue[codePropertyName] && codeableConceptWithValue[codePropertyName].coding){%>
+        <% codeableConceptWithValue[codePropertyName].coding.forEach(function(coding){ %>
         <tr>
           <td><%= codeableConceptWithValue[codePropertyName].text %></td>
           <td><%= coding.system %></td>
@@ -33,7 +34,8 @@
           <% } %>
           </td>
         </tr>
-       <%})%>
+           <%})%>
+        <%}%>
     <%})%>
       </tbody>
     </table>

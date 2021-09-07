@@ -39,11 +39,15 @@
                      <%}%>
                     </td>
                     <td>
-                        <% participant.role.forEach(function(role){%>
+                       <% if (participant.role){ %>
+                       <% participant.role.forEach(function(role){%>
+                            <% if (role.coding){ %>
                             <% role.coding.forEach(function(coding){%>
                                 <%= coding.code %> (<%= coding.display %>)
                             <%})%>
+                            <%}%>
                         <%})%>
+                        <%}%>
                     </td>
                 </tr>
             <%})%>

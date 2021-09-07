@@ -157,7 +157,7 @@
                 <tr>
                 <td><%= item.sequence %></td>
                 <td>
-                    <% if (item.category) { %>
+                    <% if (item.category && item.category.coding) { %>
                         <% item.category.coding.forEach(function(coding){ %>
                             <%= coding.code %> (<%= coding.system %>)
                         <%})%>

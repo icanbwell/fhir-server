@@ -14,37 +14,7 @@
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
-        <% if (res.address) { %>
-        <div>
-            <h4>Addresses</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Line</th>
-                  <th scope="col">City</th>
-                  <th scope="col">State</th>
-                  <th scope="col">Zip</th>
-                </tr>
-              </thead>
-              <tbody>
-            <% res.address.forEach(function(address){ %>
-                <tr>
-                    <td>
-                    <% if (address.line) { %>
-                        <% address.line.forEach(function(line){ %>
-                        <%= line %>
-                        <%})%>
-                    <%}%>
-                    </td>
-                  <td><%= address.city %></td>
-                  <td><%= address.state %></td>
-                  <td><%= address.postalCode %></td>
-                </tr>
-            <%})%>
-              </tbody>
-            </table>
-        </div>
-        <%}%>
+         <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
 
         <div>
             <h4>Practitioner Roles</h4>

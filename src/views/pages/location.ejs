@@ -43,9 +43,11 @@
             <% res.hoursOfOperation.forEach(function(hoursOfOperation){%>
             <tr>
                 <td>
+                <% if (hoursOfOperation.daysOfWeek) {%>
                 <% hoursOfOperation.daysOfWeek.forEach(function(daysOfWeek){%>
                     <%= daysOfWeek %>
                 <%})%>
+                <%}%>
                 </td>
                 <td><%= hoursOfOperation.openingTime %></td>
                 <td><%= hoursOfOperation.closingTime %></td>

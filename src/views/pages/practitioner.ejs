@@ -100,7 +100,7 @@
               </thead>
               <tbody>
             <% res.qualification.forEach(function(qualification){ %>
-                <% if (qualification.code) { %>
+                <% if (qualification.code && qualification.code.coding) { %>
                     <% qualification.code.coding.forEach(function(coding){ %>
                 <tr>
                   <td><%= coding.code %></td>
@@ -115,57 +115,9 @@
         </div>
         <%}%>
 
-        <% if (res.communication) { %>
-        <div>
-            <h4>Communication</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Code</th>
-                  <th scope="col">Display</th>
-                  <th scope="col">System</th>
-                </tr>
-              </thead>
-              <tbody>
-            <% res.communication.forEach(function(communication){ %>
-                <% if (communication.coding) { %>
-                    <% communication.coding.forEach(function(coding){ %>
-                <tr>
-                  <td><%= coding.code %></td>
-                  <td><%= coding.display %></td>
-                  <td><%= coding.system %></td>
-                </tr>
-                    <%})%>
-                <%}%>
-            <%})%>
-              </tbody>
-            </table>
-        </div>
-        <%}%>
+        <%- include('../partials/codeableConcept', {codeableConcepts: res.communication, name: "Communication"}); %>
 
-        <% if (res.telecom) { %>
-        <div>
-            <h4>Telecom</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Value</th>
-                  <th scope="col">Display</th>
-                  <th scope="col">System</th>
-                </tr>
-              </thead>
-              <tbody>
-            <% res.telecom.forEach(function(telecom){ %>
-                <tr>
-                  <td><%= telecom.value %></td>
-                  <td><%= telecom.display %></td>
-                  <td><%= telecom.system %></td>
-                </tr>
-            <%})%>
-              </tbody>
-            </table>
-        </div>
-        <%}%>
+         <%- include('../partials/contactpoint', {contacts: res.telecom, name: "Telecom"}); %>
 
         <div>
             <h4>Practitioner Roles</h4>

@@ -13,8 +13,10 @@
       </thead>
       <tbody>
     <% participants.forEach(function(participant){ %>
-       <% participant.type.forEach(function(type){ %>
-        <% type.coding.forEach(function(coding){ %>
+       <% if (participant.type) {%>
+        <% participant.type.forEach(function(type){ %>
+            <% if (type.coding) {%>
+                <% type.coding.forEach(function(coding){ %>
         <tr>
           <td><a href="/4_0_0/<%= participant.actor.reference %>"><%= participant.actor.reference %></a></td>
           <td><%= participant.status %></td>
@@ -22,8 +24,10 @@
           <td><%= coding.system %></td>
           <td><%= coding.code %></td>
         </tr>
+                <%})%>
+            <%}%>
         <%})%>
-       <%})%>
+       <%}%>
     <%})%>
       </tbody>
     </table>

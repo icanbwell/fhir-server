@@ -28,18 +28,22 @@
           </thead>
           <tbody>
             <% res.plan.forEach(function(plan){%>
+                <% if (plan.identifier) {%>
                 <% plan.identifier.forEach(function(identifier){%>
                 <tr>
                     <td>
+                    <% if (identifier.type && identifier.type.coding) {%>
                     <% identifier.type.coding.forEach(function(coding){%>
                         <%= coding.code %> (<%= coding.display %>)
                     <%})%>
+                    <%}%>
                     </td>
                     <td>
                         <%= identifier.value %>
                     </td>
                 </tr>
                 <%})%>
+                <%}%>
             <%})%>
           </tbody>
        </table>

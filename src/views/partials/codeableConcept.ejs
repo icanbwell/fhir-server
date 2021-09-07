@@ -11,13 +11,15 @@
       </thead>
       <tbody>
     <% codeableConcepts.forEach(function(codeableConcept){ %>
-       <% codeableConcept.coding.forEach(function(coding){ %>
+       <% if (codeableConcept.coding) {%>
+            <% codeableConcept.coding.forEach(function(coding){ %>
         <tr>
           <td><%= codeableConcept.text || coding.display %></td>
           <td><%= coding.system %></td>
           <td><%= coding.code %></td>
         </tr>
-       <%})%>
+            <%})%>
+        <%}%>
     <%})%>
       </tbody>
     </table>

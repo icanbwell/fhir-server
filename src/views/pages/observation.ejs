@@ -30,13 +30,9 @@
         <h4>Effective</h4><%= res.effectiveDateTime %>
         <h4>Issued</h4><%= res.issued %>
 
-        <% if (res.performer) { %>
-            <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
-        <% } %>
+        <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
 
-        <% if (res.component) { %>
-            <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.component, codePropertyName: "code", name: "Code"}); %>
-        <% } %>
+        <%- include('../partials/codeableConceptWithValue', {codeableConceptsWithValue: res.component, codePropertyName: "code", name: "Code"}); %>
 
         <%- include('../partials/json', {res: res}); %>
     <%})%>
