@@ -14,6 +14,19 @@
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
+        <%- include('../partials/reference', {references: [res.providedBy], name: "Provided By"}); %>
+
+        <%- include('../partials/codeableConcept', {codeableConcepts: res.type, name: "Type"}); %>
+
+        <%- include('../partials/codeableConcept', {codeableConcepts: res.specialty, name: "Specialty"}); %>
+
+        <%- include('../partials/reference', {references: res.location, name: "Location"}); %>
+
+        <%- include('../partials/codeableConcept', {codeableConcepts: res.characteristic, name: "Characteristic"}); %>
+
+        <%- include('../partials/codeableConcept', {codeableConcepts: res.communication, name: "Communication"}); %>
+
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
