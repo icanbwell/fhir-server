@@ -4,6 +4,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th scope="col">Id</th>
           <th scope="col">System</th>
           <th scope="col">Value</th>
           <th scope="col">Use</th>
@@ -14,6 +15,7 @@
       <tbody>
     <% contacts.forEach(function(contact){ %>
         <tr>
+          <td><%= contact.id %></td>
           <td><%= contact.system %></td>
           <td><%= contact.value %></td>
           <td><%= contact.use %></td>

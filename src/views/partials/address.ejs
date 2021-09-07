@@ -4,6 +4,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th scope="col">Id</th>
           <th scope="col">Use</th>
           <th scope="col">Type</th>
           <th scope="col">Line</th>
@@ -15,6 +16,7 @@
       <tbody>
     <% addresses.forEach(function(address){ %>
         <tr>
+          <td><%= address.id %></td>
           <td><%= address.use %></td>
           <td><%= address.type %></td>
           <td><%= address.line %></td>
