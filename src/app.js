@@ -23,6 +23,7 @@ const {slackErrorHandler} = require('./middleware/slackErrorHandler');
 const childProcess = require('child_process');
 
 const {getIndexesInAllCollections} = require('./utils/index.util');
+const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
 const app = express();
 
@@ -156,7 +157,7 @@ app.get('/logout', (req, res) => {
 
 app.get('/', (req, res) => {
     const home_options = {
-        resources: ['Patient', 'Practitioner'],
+        resources: resourceDefinitions,
     };
     return res.render(__dirname + '/views/pages/home', home_options);
 });

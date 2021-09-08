@@ -32,15 +32,17 @@
       <thead>
         <tr>
           <th scope="col">Resource</th>
+          <th scope="col">Description</th>
           <th scope="col">Url</th>
         </tr>
       </thead>
       <tbody>
       <% resources.forEach(function(resource){%>
       <tr>
-        <td><%= resource %></td>
+        <td><a href="<%= resource.url %>" title="FHIR Specification for <%= resource.name %>"><%= resource.name %></a></td>
+        <td><%= resource.description %></td>
         <td>
-            <a href="/4_0_0/<%= resource %>">/4_0_0/<%= resource %></a>
+            <a href="/4_0_0/<%= resource.name %>">/4_0_0/<%= resource.name %></a>
         </td>
       </tr>
       <%})%>
