@@ -45,7 +45,8 @@ const htmlRenderer = (req, res, next) => {
                     idpUrl: env.AUTH_CODE_FLOW_URL,
                     clientId: env.AUTH_CODE_FLOW_CLIENT_ID,
                     total: total,
-                    resourceDefinition: resourceDefinition
+                    resourceDefinition: resourceDefinition,
+                    environment: env.ENV || 'local'
                 };
 
                 if (resourceDefinition) {
