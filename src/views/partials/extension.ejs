@@ -11,8 +11,9 @@
     </thead>
     <tbody>
     <% extensions.forEach(function(extension){ %>
-        <% if (extension.extension) { %>
+        <% if (extension && extension.extension) { %>
             <% extension.extension.forEach(function(detailExtension){ %>
+            <% if (detailExtension) {%>
             <tr>
                 <td><%= extension.id %></td>
                 <td><%= extension.url %></td>
@@ -27,8 +28,9 @@
                 <% } %>
                 </td>
             </tr>
+            <%}%>
             <%})%>
-        <%} else {%>
+        <%} else if (extension) {%>
             <tr>
                 <td><%= extension.id %></td>
                 <td><%= extension.url %></td>
