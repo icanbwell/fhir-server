@@ -116,6 +116,8 @@
 
          <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
 
+        <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:res.id, name: "Account"}); %>
+
          <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
