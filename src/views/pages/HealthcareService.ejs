@@ -26,6 +26,7 @@
 
         <%- include('../partials/codeableConcept', {codeableConcepts: res.communication, name: "Communication"}); %>
 
+        <%- include('../partials/reverse_reference', {reverseReferences: [{target:'PractitionerRole', property:'healthcareService'}], id:res.id, name: "Practitioner Role"}); %>
 
         <%- include('../partials/json', {res: res}); %>
     <%})%>

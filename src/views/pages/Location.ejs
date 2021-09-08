@@ -57,20 +57,11 @@
         </table>
         <%}%>
 
-        <div>
-            <h4>Practitioner Roles</h4>
-            <a href="/4_0_0/PractitionerRole?location=<%= res.id %>">PractitionerRole?location=<%= res.id %></a>
-        </div>
+        <%- include('../partials/reverse_reference', {reverseReferences: [{target:'PractitionerRole', property:'location'}], id:res.id, name: "PractitionerRole"}); %>
 
-        <div>
-            <h4>Healthcare Services</h4>
-            <a href="/4_0_0/HealthcareService?location=<%= res.id %>">HealthcareService?location=<%= res.id %></a>
-        </div>
+        <%- include('../partials/reverse_reference', {reverseReferences: [{target:'HealthcareService', property:'location'}], id:res.id, name: "HealthcareService"}); %>
 
-        <div>
-            <h4>Organizations</h4>
-            <a href="/4_0_0/Organization?location=<%= res.id %>">Organization?location=<%= res.id %></a>
-        </div>
+        <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Organization', property:'location'}], id:res.id, name: "Organization"}); %>
 
         <%- include('../partials/json', {res: res}); %>
     <%})%>
