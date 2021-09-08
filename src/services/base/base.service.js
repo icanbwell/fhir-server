@@ -421,7 +421,7 @@ const buildR4SearchQuery = (resource_name, args) => {
         }
     }
     if (agent || args['agent:missing']) {
-        const agent_reference = 'Person/' + agent;
+        const agent_reference = agent.includes('/') ? agent : ('Person/' + agent);
         /**
          * @type {?boolean}
          */
