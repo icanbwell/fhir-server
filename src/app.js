@@ -155,7 +155,10 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    return res.render(__dirname + '/views/pages/home', options);
+    const home_options = {
+        resources: ['Patient', 'Practitioner'],
+    };
+    return res.render(__dirname + '/views/pages/home', home_options);
 });
 
 app.get('/clean/:collection?', async (req, res) => {
