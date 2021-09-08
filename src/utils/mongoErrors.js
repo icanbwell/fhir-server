@@ -1,10 +1,18 @@
 class MongoError extends Error {
-    constructor(message, query, options = {}) {
+    constructor(message, error, query, options = {}) {
         super(message + ': ' + JSON.stringify(query));
         this['query'] = query;
         for (const [key, value] of Object.entries(options)) {
             this[`${key}`] = value;
         }
+        if (!error) {
+            throw new Error('RethrownError requires a message and error')
+        }
+        this.original_error = error;
+        this.stack_before_rethrow = this.stack;
+        const message_lines = (message.match(/\n/g) || []).length + 1;
+        this.stack = this.stack.split('\n').slice(0, message_lines + 1).join('\n') + '\n' +
+            error.stack;
     }
 }
 
