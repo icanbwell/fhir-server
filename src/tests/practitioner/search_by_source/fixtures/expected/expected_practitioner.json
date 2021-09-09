@@ -1,12 +1,16 @@
 [
   {
     "resourceType": "Practitioner",
-    "id": "1679033641",
+    "id": "1",
     "meta": {
       "versionId": "1",
       "lastUpdated": "2021-04-28T17:48:50+00:00",
       "source": "https://thedacare.org",
       "tag": [
+        {
+          "system": "http://www.foo.com/bar",
+          "code": "thedacare"
+        },
         {
           "system": "http://www.foo.com/bar",
           "code": "medstar"
@@ -108,16 +112,12 @@
   },
   {
     "resourceType": "Practitioner",
-    "id": "1",
+    "id": "1679033641",
     "meta": {
       "versionId": "1",
       "lastUpdated": "2021-04-28T17:48:50+00:00",
       "source": "https://thedacare.org",
       "tag": [
-        {
-          "system": "http://www.foo.com/bar",
-          "code": "thedacare"
-        },
         {
           "system": "http://www.foo.com/bar",
           "code": "medstar"
