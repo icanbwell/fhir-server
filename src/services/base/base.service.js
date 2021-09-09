@@ -178,10 +178,16 @@ const getAccessCodesFromScopes = (action, user, scope) => {
                  */
                 const inner_scope = scope1.replace('access/', '');
                 /**
-                 * @type {string}
+                 * @type {[string]}
                  */
-                const access_code = inner_scope.split('.')[0];
-                access_codes.push(access_code);
+                const innerScopes = inner_scope.split('.');
+                if (innerScopes && innerScopes.length > 0) {
+                    /**
+                     * @type {string}
+                     */
+                    const access_code = innerScopes[0];
+                    access_codes.push(access_code);
+                }
             }
         }
         return access_codes;
@@ -1865,7 +1871,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             resourceToMerge.resourceType +
             ': merge new resource ' +
             '[' + resourceToMerge.id + ']: '
-            + resourceToMerge
+            + JSON.stringify(resourceToMerge)
         );
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!doesResourceHaveAccessTags(resourceToMerge)) {
@@ -2613,7 +2619,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                      * @type {[{resource: Resource, fullUrl: string}]}
                      */
                     let entries_for_current_link = [];
-                    if (link.target) {
+                    if (link.target && link.target.length > 0) {
                         const resourceType = link.target[0].type;
                         if (link.path) {
                             // forward link
@@ -2632,10 +2638,14 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                             // if path is more complex and includes filter
                             if (property.includes(':')) {
                                 const property_split = property.split(':');
-                                property = property_split[0];
-                                const filterPropertySplit = property_split[1].split('=');
-                                filterProperty = filterPropertySplit[0];
-                                filterValue = filterPropertySplit[1];
+                                if (property_split && property_split.length > 0) {
+                                    property = property_split[0];
+                                    const filterPropertySplit = property_split[1].split('=');
+                                    if (filterPropertySplit.length > 1) {
+                                        filterProperty = filterPropertySplit[0];
+                                        filterValue = filterPropertySplit[1];
+                                    }
+                                }
                             }
                             if (property.includes('.')) {
                                 const property_split = property.split('.');
@@ -2677,7 +2687,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                             // eslint-disable-next-line security/detect-object-injection
                                             .filter(e => e[filterProperty] === filterValue);
                                     }
-                                    if (link.target && link.target[0].link) {
+                                    if (link.target && link.target.length > 0 && link.target[0].link) {
                                         for (const p of parentEntityProperty) {
                                             // if no target specified then we don't write the resource but try to process the links
                                             entries_for_current_link = entries_for_current_link.concat([
@@ -2688,15 +2698,19 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                             ]);
                                         }
                                     } else {
-                                        entries_for_current_link = await get_related_resources(
-                                            db,
-                                            resourceType,
-                                            base_version,
-                                            host,
-                                            parentEntityProperty[0],
-                                            filterProperty,
-                                            filterValue
-                                        );
+                                        for (const parentEntityProperty1 of parentEntityProperty) {
+                                            entries_for_current_link = entries_for_current_link.concat(
+                                                await get_related_resources(
+                                                    db,
+                                                    resourceType,
+                                                    base_version,
+                                                    host,
+                                                    parentEntityProperty1,
+                                                    filterProperty,
+                                                    filterValue
+                                                )
+                                            );
+                                        }
                                     }
                                 }
                             } else {
@@ -2711,7 +2725,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                     filterValue
                                 );
                             }
-                        } else if (link.target[0].params) {
+                        } else if (link.target && link.target.length > 0 && link.target[0].params) {
                             // reverse link
                             const reverseProperty = link.target[0].params.replace('={ref}', '');
                             verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
@@ -2731,12 +2745,14 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                     entries = entries.concat(
                         entries_for_current_link.filter(e => e.resource['resourceType'] && e.fullUrl)
                     );
-                    const childLinks = link.target[0].link;
-                    if (childLinks) {
-                        for (const entryItem of entries_for_current_link) {
-                            entries = entries.concat(
-                                await processGraphLinks(entryItem.resource, childLinks)
-                            );
+                    if (link.target && link.target.length > 0) {
+                        const childLinks = link.target[0].link;
+                        if (childLinks) {
+                            for (const entryItem of entries_for_current_link) {
+                                entries = entries.concat(
+                                    await processGraphLinks(entryItem.resource, childLinks)
+                                );
+                            }
                         }
                     }
                 }
