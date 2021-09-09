@@ -847,7 +847,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     /**
      * @type {number}
      */
-    const maxMongoTimeMS = 30 * 1000;
+    const maxMongoTimeMS = env.MONGO_TIMEOUT || (30 * 1000);
 
     try {
         if (combined_args['_elements']) {
