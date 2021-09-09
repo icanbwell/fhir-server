@@ -58,11 +58,12 @@ const {
  * @property {string} source
  */
 
+// from https://www.hl7.org/fhir/operationoutcome.html
 /**
  * @typedef OperationOutcome
  * @type {object}
  * @property {string} resourceType
- * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:{[string]}}]} issue
+ * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
  */
 
 
@@ -801,7 +802,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
      */
     let {base_version} = args;
     /**
-     * @type {Object}
+     * @type {import('mongodb').Document}
      */
     let query;
 
@@ -837,12 +838,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
      * @type {import('mongodb').FindOptions}
      */
     let options = {};
-    // if _elements is specified then use projection to get just those elements
-    if (combined_args['_elements']) {
-        const properties_to_return_as_csv = combined_args['_elements'];
-        const properties_to_return_list = properties_to_return_as_csv.split(',');
-        options = {['projection']: properties_to_return_list};
-    }
+
     // Query our collection for this observation
     /**
      * @type {number}
@@ -850,7 +846,9 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     const maxMongoTimeMS = env.MONGO_TIMEOUT || (30 * 1000);
 
     try {
+        // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
         if (combined_args['_elements']) {
+            // GET [base]/Observation?_elements=status,date,category
             /**
              * @type {string}
              */
@@ -859,16 +857,18 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
              * @type {string[]}
              */
             const properties_to_return_list = properties_to_return_as_csv.split(',');
-            /**
-             * @type {import('mongodb').Document}
-             */
-            const projection = {};
-            for (const property of properties_to_return_list) {
-                projection[`${property}`] = 1;
+            if (properties_to_return_list.length > 0) {
+                /**
+                 * @type {import('mongodb').Document}
+                 */
+                const projection = {};
+                for (const property of properties_to_return_list) {
+                    projection[`${property}`] = 1;
+                }
+                options['projection'] = projection;
             }
-            options['projection'] = projection;
         }
-        // noinspection JSUnfilteredForInLoop
+        // if _sort is specified then add sort criteria to mongo query
         if (combined_args['_sort']) {
             // GET [base]/Observation?_sort=status,-date,category
             // Each item in the comma separated list is a search parameter, optionally with a '-' prefix.
@@ -881,30 +881,33 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
              * @type {string[]}
              */
             const sort_properties_list = sort_properties_as_csv.split(',');
-            /**
-             * @type {import('mongodb').Sort}
-             */
-            const sort = {};
-            for (let i in sort_properties_list) {
-                // noinspection JSUnfilteredForInLoop
+            if (sort_properties_list.length > 0) {
                 /**
-                 * @type {string}
+                 * @type {import('mongodb').Sort}
                  */
-                const x = sort_properties_list[`${i}`];
-                if (x.startsWith('-')) {
-                    // eslint-disable-next-line no-unused-vars
+                const sort = {};
+                for (let i in sort_properties_list) {
+                    // noinspection JSUnfilteredForInLoop
                     /**
                      * @type {string}
                      */
-                    const x1 = x.substring(1);
-                    sort[`${x1}`] = -1;
-                } else {
-                    sort[`${x}`] = 1;
+                    const x = sort_properties_list[`${i}`];
+                    if (x.startsWith('-')) {
+                        // eslint-disable-next-line no-unused-vars
+                        /**
+                         * @type {string}
+                         */
+                        const x1 = x.substring(1);
+                        sort[`${x1}`] = -1;
+                    } else {
+                        sort[`${x}`] = 1;
+                    }
                 }
+                options['sort'] = sort;
             }
-            options['sort'] = sort;
         }
 
+        // if _count is specified then limit mongo query to that
         if (combined_args['_count']) {
             // for consistency in results while paging, always sort by _id
             // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
@@ -914,6 +917,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
              */
             const nPerPage = Number(combined_args['_count']);
 
+            // if _getpagesoffset is specified then skip to the page starting with that offset
             if (combined_args['_getpagesoffset']) {
                 /**
                  * @type {number}
@@ -929,11 +933,14 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             }
         }
 
+        // Now run the query to get a cursor we will enumerate next
         /**
          * mongo db cursor
          * @type {import('mongodb').FindCursor}
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+
+        // if _total is specified then ask mongo for the total else set total to 0
         let total_count = 0;
         if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
             // https://www.hl7.org/fhir/search.html#total
@@ -966,6 +973,9 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
                  * @type {Resource}
                  */
                 const element_to_return = new Resource(null);
+                /**
+                 * @type {string}
+                 */
                 for (const property of properties_to_return_list) {
                     if (property in element_to_return) {
                         // noinspection JSUnfilteredForInLoop
@@ -978,6 +988,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             }
         }
 
+        // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || combined_args['_bundle']) {
             /**
              * @type {function({Object}):Resource}
@@ -2479,9 +2490,14 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
      * @return {Promise<[{resource: Resource, fullUrl: string}]|*[]>}
      */
     async function get_related_resources(db, collectionName, base_version, host, relatedResourceProperty, filterProperty, filterValue) {
+        /**
+         * @type {import('mongodb').Collection<Document>}
+         */
         const collection = db.collection(`${collectionName}_${base_version}`);
+        /**
+         * @type {function(?Object): Resource}
+         */
         const RelatedResource = getResource(base_version, collectionName);
-        // eslint-disable-next-line security/detect-object-injection
         /**
          * entries
          * @type {[{resource: Resource, fullUrl: string}]}
@@ -2492,21 +2508,27 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             if (!(Array.isArray(relatedResourceProperty))) {
                 relatedResourceProperty = [relatedResourceProperty];
             }
+            /**
+             * @type {int}
+             */
             for (const relatedResourceIndex in relatedResourceProperty) {
-                // noinspection JSUnfilteredForInLoop
+                /**
+                 * @type {string}
+                 */
                 const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
                 if (filterProperty) {
-                    // eslint-disable-next-line security/detect-object-injection
-                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
                         continue;
                     }
                 }
-                // eslint-disable-next-line security/detect-object-injection
                 /**
                  * @type {string}
                  */
                 const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
 
+                /**
+                 * @type {Document | null}
+                 */
                 const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
                 if (found_related_resource) {
                     // noinspection UnnecessaryLocalVariableJS
@@ -2537,32 +2559,44 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         if (!(reverse_property)) {
             throw new Error('reverse_property must be set');
         }
+        /**
+         * @type {import('mongodb').Collection<Document>}
+         */
         const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
+        /**
+         * @type {function(?Object): Resource}
+         */
         const RelatedResource = getResource(base_version, relatedResourceCollectionName);
-        let relatedResourceProperty;
+        /**
+         * @type {[import('mongodb').Document]}
+         */
+        let relatedResourcePropertyDocuments;
         // find elements in other collection that link to this object
+        /**
+         * @type {import('mongodb').Document}
+         */
         const query = {
             [reverse_property + '.reference']: parentCollectionName + '/' + parent['id']
         };
+        /**
+         * @type {import('mongodb').FindCursor}
+         */
         const cursor = collection.find(query);
         // noinspection JSUnresolvedFunction
-        relatedResourceProperty = await cursor.toArray();
+        relatedResourcePropertyDocuments = await cursor.toArray();
         /**
          * entries
          * @type {[{resource: Resource, fullUrl: string}]}
          */
         let entries = [];
-        if (relatedResourceProperty) {
-            for (const relatedResourceIndex in relatedResourceProperty) {
-                // noinspection JSUnfilteredForInLoop
-                /**
-                 * relatedResourcePropertyCurrent
-                 * @type Resource
-                 */
-                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+        if (relatedResourcePropertyDocuments) {
+            /**
+             * relatedResourcePropertyCurrent
+             * @type Resource
+             */
+            for (const relatedResourcePropertyCurrent of relatedResourcePropertyDocuments) {
                 if (filterProperty !== null) {
-                    // eslint-disable-next-line security/detect-object-injection
-                    if (relatedResourcePropertyCurrent[filterProperty] !== filterValue) {
+                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
                         continue;
                     }
                 }
@@ -2588,11 +2622,21 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
      * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
     async function processGraph(db, base_version, host, id, graphDefinitionJson, contained, hash_references) {
+        /**
+         * @type {function(?Object): Resource}
+         */
         const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
+        /**
+         * @type {Resource}
+         */
         const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
-        // first get the top level object
-        // const start = graphDefinition.start;
+        /**
+         * @type {import('mongodb').Collection<Document>}
+         */
         let collection = db.collection(`${collection_name}_${base_version}`);
+        /**
+         * @type {function(?Object): Resource}
+         */
         const StartResource = getResource(base_version, resource_name);
 
         if (!(Array.isArray(id))) {
@@ -2611,6 +2655,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
              * @type {[{resource: Resource, fullUrl: string}]}
              */
             let entries = [];
+            /**
+             * @type {[Resource]}
+             */
             const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
             for (const link of linkItems) {
                 for (const parentEntity of parentEntities) {
@@ -2620,6 +2667,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                      */
                     let entries_for_current_link = [];
                     if (link.target && link.target.length > 0) {
+                        /**
+                         * @type {string}
+                         */
                         const resourceType = link.target[0].type;
                         if (link.path) {
                             // forward link
@@ -2637,68 +2687,105 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                             let filterValue;
                             // if path is more complex and includes filter
                             if (property.includes(':')) {
+                                /**
+                                 * @type {string[]}
+                                 */
                                 const property_split = property.split(':');
                                 if (property_split && property_split.length > 0) {
+                                    /**
+                                     * @type {string}
+                                     */
                                     property = property_split[0];
+                                    /**
+                                     * @type {string[]}
+                                     */
                                     const filterPropertySplit = property_split[1].split('=');
                                     if (filterPropertySplit.length > 1) {
+                                        /**
+                                         * @type {string}
+                                         */
                                         filterProperty = filterPropertySplit[0];
+                                        /**
+                                         * @type {string}
+                                         */
                                         filterValue = filterPropertySplit[1];
                                     }
                                 }
                             }
+                            // if the property name includes . then it is a nested link
+                            // e.g, "path": "extension.extension:url=plan"
                             if (property.includes('.')) {
-                                const property_split = property.split('.');
+                                /**
+                                 * @type {string[]}
+                                 */
+                                const nestedProperties = property.split('.');
                                 /**
                                  * @type { Resource | [Resource]}
                                  */
-                                let parentEntityProperty = parentEntity;
-                                for (const propertyName of property_split) {
-                                    let resultParentEntityProperty = [];
-                                    if (parentEntityProperty) {
-                                        parentEntityProperty = (
-                                            Array.isArray(parentEntityProperty)
-                                                ? parentEntityProperty
-                                                : [parentEntityProperty]
-                                        );
+                                let parentEntityResources = parentEntity;
+                                if (parentEntityResources) {
+                                    parentEntityResources = (
+                                        Array.isArray(parentEntityResources)
+                                            ? parentEntityResources
+                                            : [parentEntityResources]
+                                    );
+                                }
+                                /**
+                                 * @type {string}
+                                 */
+                                for (const nestedPropertyName of nestedProperties) {
+                                    /**
+                                     * @type {[Resource]}
+                                     */
+                                    let resultParentEntityPropertyResources = [];
+                                    if (parentEntityResources) {
                                         /**
                                          * @type {Resource}
                                          */
-                                        for (const entity of parentEntityProperty) {
-                                            if (entity[`${propertyName}`]) {
-                                                if (Array.isArray(entity[`${propertyName}`])) {
-                                                    resultParentEntityProperty = resultParentEntityProperty.concat(entity[`${propertyName}`]);
+                                        for (const parentEntityResource of parentEntityResources) {
+                                            // since this is a nested entity the value of parentEntityResource[`${nestedPropertyName}`]
+                                            //  will be a Resource
+                                            if (parentEntityResource[`${nestedPropertyName}`]) {
+                                                if (Array.isArray(parentEntityResource[`${nestedPropertyName}`])) {
+                                                    resultParentEntityPropertyResources = resultParentEntityPropertyResources.concat(
+                                                        parentEntityResource[`${nestedPropertyName}`]
+                                                    );
                                                 } else {
-                                                    resultParentEntityProperty.push(entity[`${propertyName}`]);
+                                                    resultParentEntityPropertyResources.push(parentEntityResource[`${nestedPropertyName}`]);
                                                 }
                                             }
                                         }
-                                        parentEntityProperty = resultParentEntityProperty;
+                                        parentEntityResources = resultParentEntityPropertyResources;
                                     } else {
                                         break;
                                     }
                                 }
-                                if (parentEntityProperty) {
+                                if (parentEntityResources) {
                                     if (filterProperty) {
-                                        // noinspection JSValidateTypes
-                                        parentEntityProperty = (Array.isArray(parentEntityProperty)
-                                            ? parentEntityProperty
-                                            : [parentEntityProperty])
-                                            // eslint-disable-next-line security/detect-object-injection
-                                            .filter(e => e[filterProperty] === filterValue);
+                                        parentEntityResources = (Array.isArray(parentEntityResources)
+                                            ? parentEntityResources
+                                            : [parentEntityResources])
+                                            .filter(e => e[`${filterProperty}`] === filterValue);
                                     }
                                     if (link.target && link.target.length > 0 && link.target[0].link) {
-                                        for (const p of parentEntityProperty) {
+                                        /**
+                                         * @type {Resource}
+                                         */
+                                        for (const parentResource of parentEntityResources) {
                                             // if no target specified then we don't write the resource but try to process the links
                                             entries_for_current_link = entries_for_current_link.concat([
                                                 {
-                                                    'resource': p,
+                                                    'resource': parentResource,
                                                     'fullUrl': ''
                                                 }
                                             ]);
                                         }
                                     } else {
-                                        for (const parentEntityProperty1 of parentEntityProperty) {
+                                        /**
+                                         * @type {Resource}
+                                         */
+                                        for (const parentEntityProperty1 of parentEntityResources) {
+                                            verifyHasValidScopes(parentEntityProperty1.resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
                                             entries_for_current_link = entries_for_current_link.concat(
                                                 await get_related_resources(
                                                     db,
@@ -2714,31 +2801,38 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                     }
                                 }
                             } else {
-                                verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                                entries_for_current_link = await get_related_resources(
-                                    db,
-                                    resourceType,
-                                    base_version,
-                                    host,
-                                    parentEntity[`${property}`],
-                                    filterProperty,
-                                    filterValue
+                                verifyHasValidScopes(parentEntity.resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                                entries_for_current_link = entries_for_current_link.concat(
+                                    await get_related_resources(
+                                        db,
+                                        resourceType,
+                                        base_version,
+                                        host,
+                                        parentEntity[`${property}`],
+                                        filterProperty,
+                                        filterValue
+                                    )
                                 );
                             }
                         } else if (link.target && link.target.length > 0 && link.target[0].params) {
                             // reverse link
+                            /**
+                             * @type {string}
+                             */
                             const reverseProperty = link.target[0].params.replace('={ref}', '');
-                            verifyHasValidScopes(resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
-                            entries_for_current_link = await get_reverse_related_resources(
-                                db,
-                                parent_entity.resourceType,
-                                resourceType,
-                                base_version,
-                                parentEntity,
-                                host,
-                                null,
-                                null,
-                                reverseProperty
+                            verifyHasValidScopes(parentEntity.resourceType, 'read', req.user, req.authInfo && req.authInfo.scope);
+                            entries_for_current_link = entries_for_current_link.concat(
+                                await get_reverse_related_resources(
+                                    db,
+                                    parent_entity.resourceType,
+                                    resourceType,
+                                    base_version,
+                                    parentEntity,
+                                    host,
+                                    null,
+                                    null,
+                                    reverseProperty
+                                )
                             );
                         }
                     }
@@ -2746,8 +2840,14 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                         entries_for_current_link.filter(e => e.resource['resourceType'] && e.fullUrl)
                     );
                     if (link.target && link.target.length > 0) {
+                        /**
+                         * @type {[{path:string, params: string,target:[{type: string}]}]}
+                         */
                         const childLinks = link.target[0].link;
                         if (childLinks) {
+                            /**
+                             * @type {resource: Resource, fullUrl: string}
+                             */
                             for (const entryItem of entries_for_current_link) {
                                 entries = entries.concat(
                                     await processGraphLinks(entryItem.resource, childLinks)
@@ -2783,7 +2883,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
              */
             let entries = [];
             /**
-             * @type {?Resource}
+             * @type {?import('mongodb').Document | null}
              */
             let start_entry = await collection.findOne({id: id1.toString()});
 
@@ -2796,17 +2896,23 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                     'fullUrl': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
                     'resource': new StartResource(start_entry)
                 };
+                /**
+                 * @type {[{path:string, params: string,target:[{type: string}]}]}
+                 */
                 const linkItems = graphDefinition.link;
                 // add related resources as container
                 /**
                  * @type {[{resource: Resource, fullUrl: string}]}
                  */
-                const related_entries = await processGraphLinks(start_entry, linkItems);
+                const related_entries = await processGraphLinks(new StartResource(start_entry), linkItems);
                 if (env.HASH_REFERENCE || hash_references) {
                     /**
                      * @type {[string]}
                      */
                     const related_references = [];
+                    /**
+                     * @type {resource: Resource, fullUrl: string}
+                     */
                     for (const related_item of related_entries) {
                         related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
                     }
@@ -2868,6 +2974,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
     }
 
     try {
+        /**
+         * @type {string}
+         */
         const host = req.headers.host;
         const combined_args = get_all_args(req, args);
         let {base_version, id} = combined_args;
@@ -2880,8 +2989,14 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
          * @type {boolean}
          */
         const contained = isTrue(combined_args['contained']);
+        /**
+         * @type {boolean}
+         */
         const hash_references = isTrue(combined_args['_hash_references']);
         // Grab an instance of our DB and collection
+        /**
+         * @type {import('mongodb').Db}
+         */
         let db = globals.get(CLIENT_DB);
         // get GraphDefinition from body
         const graphDefinitionRaw = req.body;
@@ -2892,6 +3007,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
             return operationOutcome;
         }
         // noinspection UnnecessaryLocalVariableJS
+        /**
+         * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
+         */
         const result = await processGraph(
             db,
             base_version,
