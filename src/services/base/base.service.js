@@ -810,12 +810,12 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     // Grab an instance of our DB and collection
     /**
      * mongo db connection
-     * @type {Db}
+     * @type {import('mongodb').Db}
      */
     let db = globals.get(CLIENT_DB);
     /**
      * mongo collection
-     * @type {Collection}
+     * @type {import('mongodb').Collection}
      */
     let collection = db.collection(`${collection_name}_${base_version}`);
     /**
@@ -1573,11 +1573,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
     async function performMergeDbUpdate(resourceToMerge, doc, cleaned) {
         let id = resourceToMerge.id;
         /**
-         * @type {Db}
+         * @type {import('mongodb').Db}
          */
         let db = globals.get(CLIENT_DB);
         /**
-         * @type {Collection}
+         * @type {import('mongodb').Collection}
          */
         let collection = db.collection(`${resourceToMerge.resourceType}_${base_version}`);
         // Insert/update our resource record
@@ -1589,11 +1589,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
         // save to history
         /**
-         * @type {Collection}
+         * @type {import('mongodb').Collection}
          */
         let history_collection = db.collection(`${collection_name}_${base_version}_History`);
         /**
-         * @type {Object & {_id: string}}
+         * @type {import('mongodb').Document}
          */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
         /**
@@ -1702,7 +1702,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
                     // if newItem[i] does not matches any item in oldItem then insert
                     if (oldItem.every(a => deepEqual(a, my_item) === false)) {
-                        if (typeof my_item === 'object' && my_item !== null && 'id' in my_item) {
+                        if (typeof my_item === 'object' && 'id' in my_item) {
                             // find item in oldItem array that matches this one by id
                             /**
                              * @type {number}
@@ -1719,7 +1719,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
                             }
                         }
                         // insert based on sequence if present
-                        if (typeof my_item === 'object' && my_item !== null && 'sequence' in my_item) {
+                        if (typeof my_item === 'object' && 'sequence' in my_item) {
                             /**
                              * @type {Object[]}
                              */
@@ -1929,11 +1929,11 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
             // Grab an instance of our DB and collection
             /**
-             * @type {Db}
+             * @type {import('mongodb').Db}
              */
             let db = globals.get(CLIENT_DB);
             /**
-             * @type {Collection}
+             * @type {import('mongodb').Collection}
              */
             let collection = db.collection(`${resource_to_merge.resourceType}_${base_version}`);
 
@@ -2463,11 +2463,11 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 
     /**
      * Gets related resources
-     * @param {Db} db
+     * @param {import('mongodb').Db} db
      * @param {string} collectionName
      * @param {string} base_version
      * @param {string} host
-     * @param {string} relatedResourceProperty property to link
+     * @param {string | [string]} relatedResourceProperty property to link
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
      * @return {Promise<[{resource: Resource, fullUrl: string}]|*[]>}
@@ -2516,7 +2516,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 
     /**
      * Gets related resources using reverse link
-     * @param {Db} db
+     * @param {import('mongodb').Db} db
      * @param {string} parentCollectionName
      * @param {string} relatedResourceCollectionName
      * @param {string} base_version
@@ -2572,7 +2572,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 
     /**
      * process GraphDefinition and returns a bundle with all the related resources
-     * @param {Db} db
+     * @param {import('mongodb').Db} db
      * @param {string} base_version
      * @param {string} host
      * @param {string | string[]} id (accepts a single id or a list of ids)
@@ -2651,12 +2651,15 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                                 ? parentEntityProperty
                                                 : [parentEntityProperty]
                                         );
+                                        /**
+                                         * @type {Resource}
+                                         */
                                         for (const entity of parentEntityProperty) {
-                                            if (entity[propertyName]) {
-                                                if (Array.isArray(entity[propertyName])) {
-                                                    resultParentEntityProperty = resultParentEntityProperty.concat(entity[propertyName]);
+                                            if (entity[`${propertyName}`]) {
+                                                if (Array.isArray(entity[`${propertyName}`])) {
+                                                    resultParentEntityProperty = resultParentEntityProperty.concat(entity[`${propertyName}`]);
                                                 } else {
-                                                    resultParentEntityProperty.push(entity[propertyName]);
+                                                    resultParentEntityProperty.push(entity[`${propertyName}`]);
                                                 }
                                             }
                                         }
@@ -2690,7 +2693,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                             resourceType,
                                             base_version,
                                             host,
-                                            parentEntityProperty,
+                                            parentEntityProperty[0],
                                             filterProperty,
                                             filterValue
                                         );
@@ -2703,7 +2706,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                                     resourceType,
                                     base_version,
                                     host,
-                                    parentEntity[property],
+                                    parentEntity[`${property}`],
                                     filterProperty,
                                     filterValue
                                 );
@@ -2745,11 +2748,12 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
          * prepends # character in references
          * @param {Resource} parent_entity
          * @param {[reference:string]} linkReferences
-         * @return {Promise<[{resource: Resource, fullUrl: string}]>}
+         * @return {Promise<Resource>}
          */
         async function processReferences(parent_entity, linkReferences) {
             if (parent_entity) {
                 for (const link_reference of linkReferences) {
+                    // eslint-disable-next-line security/detect-non-literal-regexp
                     let re = new RegExp('\\b' + link_reference + '\\b', 'g');
                     parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
                 }
@@ -2762,11 +2766,17 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
              * @type {[{resource: Resource, fullUrl: string}]}
              */
             let entries = [];
+            /**
+             * @type {?Resource}
+             */
             let start_entry = await collection.findOne({id: id1.toString()});
 
             if (start_entry) {
                 // first add this object
-                var current_entity = {
+                /**
+                 * @type {{resource: Resource, fullUrl: string}}
+                 */
+                let current_entity = {
                     'fullUrl': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
                     'resource': new StartResource(start_entry)
                 };
@@ -2778,13 +2788,13 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                 const related_entries = await processGraphLinks(start_entry, linkItems);
                 if (env.HASH_REFERENCE || hash_references) {
                     /**
-                     * @type {function({Object}):Resource}
+                     * @type {[string]}
                      */
                     const related_references = [];
                     for (const related_item of related_entries) {
                         related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
                     }
-                    current_entity = await processReferences(current_entity, related_references);
+                    current_entity.resource = await processReferences(current_entity.resource, related_references);
                 }
                 if (contained) {
                     /**
