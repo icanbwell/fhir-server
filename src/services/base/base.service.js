@@ -503,7 +503,6 @@ const buildR4SearchQuery = (resource_name, args) => {
          * @type {string}
          */
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -513,7 +512,6 @@ const buildR4SearchQuery = (resource_name, args) => {
          * @type {string}
          */
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -523,7 +521,6 @@ const buildR4SearchQuery = (resource_name, args) => {
          * @type {string}
          */
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -533,7 +530,6 @@ const buildR4SearchQuery = (resource_name, args) => {
          * @type {string}
          */
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -549,7 +545,6 @@ const buildR4SearchQuery = (resource_name, args) => {
     if (email) {
         let queryBuilder = tokenQueryBuilder(email, 'value', 'telecom', 'email');
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -558,7 +553,6 @@ const buildR4SearchQuery = (resource_name, args) => {
     if (phone) {
         let queryBuilder = tokenQueryBuilder(phone, 'value', 'telecom', 'phone');
         for (let i in queryBuilder) {
-            // noinspection JSUnfilteredForInLoop
             query[`${i}`] = queryBuilder[`${i}`];
         }
     }
@@ -886,21 +880,18 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
                  * @type {import('mongodb').Sort}
                  */
                 const sort = {};
-                for (let i in sort_properties_list) {
-                    // noinspection JSUnfilteredForInLoop
-                    /**
-                     * @type {string}
-                     */
-                    const x = sort_properties_list[`${i}`];
-                    if (x.startsWith('-')) {
-                        // eslint-disable-next-line no-unused-vars
+                /**
+                 * @type {string}
+                 */
+                for (const sortProperty of sort_properties_list) {
+                    if (sortProperty.startsWith('-')) {
                         /**
                          * @type {string}
                          */
-                        const x1 = x.substring(1);
-                        sort[`${x1}`] = -1;
+                        const sortPropertyWithoutMinus = sortProperty.substring(1);
+                        sort[`${sortPropertyWithoutMinus}`] = -1;
                     } else {
-                        sort[`${x}`] = 1;
+                        sort[`${sortProperty}`] = 1;
                     }
                 }
                 options['sort'] = sort;
@@ -978,7 +969,6 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
                  */
                 for (const property of properties_to_return_list) {
                     if (property in element_to_return) {
-                        // noinspection JSUnfilteredForInLoop
                         element_to_return[`${property}`] = element[`${property}`];
                     }
                 }
@@ -2509,13 +2499,9 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
                 relatedResourceProperty = [relatedResourceProperty];
             }
             /**
-             * @type {int}
+             * @type {string}
              */
-            for (const relatedResourceIndex in relatedResourceProperty) {
-                /**
-                 * @type {string}
-                 */
-                const relatedResourcePropertyCurrent = relatedResourceProperty[`${relatedResourceIndex}`];
+            for (const relatedResourcePropertyCurrent of relatedResourceProperty) {
                 if (filterProperty) {
                     if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
                         continue;
