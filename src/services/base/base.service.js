@@ -1010,7 +1010,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, query, options);
+        throw new MongoError(e.message, e, collection_name, query, options);
     }
 };
 
