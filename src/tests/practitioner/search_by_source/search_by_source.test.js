@@ -93,7 +93,7 @@ describe('search_by_source', () => {
                                 return cb(err, resp);
                             }),
                     (results, cb) => request
-                        .get('/4_0_0/Practitioner?_tag=http://www.foo.com/bar|medstar')
+                        .get('/4_0_0/Practitioner?source=https://thedacare.org')
                                 .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
