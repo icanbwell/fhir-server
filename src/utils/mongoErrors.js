@@ -7,7 +7,7 @@ class MongoError extends Error {
      * @param {*} options
      */
     constructor(message, error, query, options = {}) {
-        super(message + ': ' + JSON.stringify(query));
+        super(message + ': ' + JSON.stringify(query) + ' | ' + JSON.stringify(options));
         this.query = query;
         for (const [key, value] of Object.entries(options)) {
             this[`${key}`] = value;

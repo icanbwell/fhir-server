@@ -70,7 +70,7 @@ const {
 // https://stackoverflow.com/questions/12075927/serialization-of-regexp
 // eslint-disable-next-line no-extend-native
 Object.defineProperty(RegExp.prototype, 'toJSON', {
-  value: RegExp.prototype.toString
+    value: RegExp.prototype.toString
 });
 
 /**
@@ -828,9 +828,10 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     logDebug(req.user, '--------');
 
     /**
-     * @type {Object}
+     * @type {import('mongodb').FindOptions}
      */
     let options = {};
+    // if _elements is specified then use projection to get just those elements
     if (combined_args['_elements']) {
         const properties_to_return_as_csv = combined_args['_elements'];
         const properties_to_return_list = properties_to_return_as_csv.split(',');
@@ -841,11 +842,30 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
      * @type {number}
      */
     const maxMongoTimeMS = 30 * 1000;
-    /**
-     * mongo db cursor
-     * @type {Cursor}
-     */
+
     try {
+        if (combined_args['_elements']) {
+            /**
+             * @type {string}
+             */
+            const properties_to_return_as_csv = combined_args['_elements'];
+            /**
+             * @type {string[]}
+             */
+            const properties_to_return_list = properties_to_return_as_csv.split(',');
+            /**
+             * @type {import('mongodb').Document}
+             */
+            const projection = {};
+            for (const property of properties_to_return_list) {
+                projection[`${property}`] = 1;
+            }
+            options['projection'] = projection;
+        }
+        /**
+         * mongo db cursor
+         * @type {import('mongodb').FindCursor}
+         */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
         let total_count = 0;
         if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
@@ -967,7 +987,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, query);
+        throw new MongoError(e.message, e, query, options);
     }
 };
 
