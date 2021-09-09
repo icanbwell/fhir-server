@@ -843,7 +843,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     /**
      * @type {number}
      */
-    const maxMongoTimeMS = env.MONGO_TIMEOUT || (30 * 1000);
+    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
 
     try {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
