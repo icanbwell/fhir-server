@@ -862,17 +862,6 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             }
             options['projection'] = projection;
         }
-        /**
-         * mongo db cursor
-         * @type {import('mongodb').FindCursor}
-         */
-        let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
-        let total_count = 0;
-        if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
-            // https://www.hl7.org/fhir/search.html#total
-            // if _total is passed then calculate the total count for matching records also
-            total_count = await cursor.count();
-        }
         // noinspection JSUnfilteredForInLoop
         if (combined_args['_sort']) {
             // GET [base]/Observation?_sort=status,-date,category
@@ -886,6 +875,10 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
              * @type {string[]}
              */
             const sort_properties_list = sort_properties_as_csv.split(',');
+            /**
+             * @type {import('mongodb').Sort}
+             */
+            const sort = {};
             for (let i in sort_properties_list) {
                 // noinspection JSUnfilteredForInLoop
                 /**
@@ -898,17 +891,18 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
                      * @type {string}
                      */
                     const x1 = x.substring(1);
-                    cursor = cursor.sort({[x1]: -1});
+                    sort[`${x1}`] = -1;
                 } else {
-                    cursor = cursor.sort({[x]: 1});
+                    sort[`${x}`] = 1;
                 }
             }
+            options['sort'] = sort;
         }
 
         if (combined_args['_count']) {
             // for consistency in results while paging, always sort by _id
             // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
-            cursor = cursor.sort({'_id': 1});
+            options['sort'] = {'_id': 1};
             /**
              * @type {number}
              */
@@ -919,16 +913,28 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
                  * @type {number}
                  */
                 const pageNumber = Number(combined_args['_getpagesoffset']);
-                cursor = cursor.skip(pageNumber > 0 ? (pageNumber * nPerPage) : 0);
+                options['skip'] = pageNumber > 0 ? (pageNumber * nPerPage) : 0;
             }
-            cursor = cursor.limit(nPerPage);
+            options['limit'] = nPerPage;
         } else {
             if (!combined_args['id'] && !combined_args['_elements']) {
                 // set a limit so the server does not come down due to volume of data
-                cursor = cursor.limit(10);
+                options['limit'] = 10;
             }
         }
 
+        /**
+         * mongo db cursor
+         * @type {import('mongodb').FindCursor}
+         */
+        let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+        let total_count = 0;
+        if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
+            // https://www.hl7.org/fhir/search.html#total
+            // if _total is passed then calculate the total count for matching records also
+            // don't use the options since they set a limit and skip
+            total_count = await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
+        }
         // Resource is a resource cursor, pull documents out before resolving
         /**
          * resources to return
