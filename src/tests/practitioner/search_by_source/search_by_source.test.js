@@ -34,11 +34,11 @@ describe('search_by_source', () => {
 
     describe('Practitioner Search By Source Tests', () => {
         test('search by source works', async () => {
-            await async.waterfall([
+                await async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 expect(resp.body.length).toBe(0);
                                 console.log('------- response 1 ------------');
@@ -50,7 +50,7 @@ describe('search_by_source', () => {
                         request
                             .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                             .send(practitionerResource)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -62,7 +62,7 @@ describe('search_by_source', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource2)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -74,7 +74,7 @@ describe('search_by_source', () => {
                         request
                             .post('/4_0_0/Practitioner/0/$merge')
                             .send(practitionerResource3)
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response practitionerResource3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -85,7 +85,7 @@ describe('search_by_source', () => {
                     (results, cb) =>
                         request
                             .get('/4_0_0/Practitioner')
-                                .set(getHeaders())
+                            .set(getHeaders())
                             .expect(200, (err, resp) => {
                                 console.log('------- response 3 ------------');
                                 console.log(JSON.stringify(resp.body, null, 2));
@@ -94,7 +94,7 @@ describe('search_by_source', () => {
                             }),
                     (results, cb) => request
                         .get('/4_0_0/Practitioner?source=https://thedacare.org')
-                                .set(getHeaders())
+                        .set(getHeaders())
                         .expect(200, cb)
                         .expect((resp) => {
                             console.log('------- response Practitioner sorted ------------');
@@ -115,6 +115,7 @@ describe('search_by_source', () => {
                             expect(body).toStrictEqual(expected);
                         }, cb),
                 ]);
-        });
+            },
+            30000);
     });
 });
