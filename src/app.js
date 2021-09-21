@@ -351,20 +351,37 @@ app.use('/icons', express.static(path.join(__dirname, 'dist/icons')));
 
 app.use(fhirApp.app);
 
+// async function startApolloServer(typeDefs, resolvers) {
+//     // const httpServer = http.createServer(app);
+//     const server = new ApolloServer({
+//         typeDefs,
+//         resolvers,
+//     });
+//     await server.start();
+//     server.applyMiddleware({app});
+//     // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
+//     // console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
+// }
+
+const {ApolloServerPluginDrainHttpServer} = require('apollo-server-core');
+
 async function startApolloServer(typeDefs, resolvers) {
-    // const httpServer = http.createServer(app);
+    const httpServer = http.createServer(app);
     const server = new ApolloServer({
         typeDefs,
         resolvers,
+        // eslint-disable-next-line new-cap
+        plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
+        playground: true,
     });
     await server.start();
     server.applyMiddleware({app});
-    // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
-    // console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
+    await new Promise(resolve => httpServer.listen({port: 4000}, resolve));
+    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 }
 
 // startServer();
-    //types query/mutation/subscription
+//types query/mutation/subscription
 const typeDefs = `
     type Query {
         totalPosts: Int!
