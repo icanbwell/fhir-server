@@ -26,6 +26,7 @@ const {getIndexesInAllCollections} = require('./utils/index.util');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
 const {ApolloServer} = require('apollo-server-express');
+const http = require('http');
 
 const app = express();
 
@@ -350,33 +351,32 @@ app.use('/icons', express.static(path.join(__dirname, 'dist/icons')));
 
 app.use(fhirApp.app);
 
-let apolloServer = null;
-
-async function startServer() {
-    //graphql server
-
-    //types query/mutation/subscription
-    const typeDefs = `
-        type Query {
-            totalPosts: Int!
-        }
-    `;
-
-    //resolvers
-    const resolvers = {
-        Query: {
-            totalPosts: () => 42,
-        },
-    };
-
-    apolloServer = new ApolloServer({
+async function startApolloServer(typeDefs, resolvers) {
+    // const httpServer = http.createServer(app);
+    const server = new ApolloServer({
         typeDefs,
         resolvers,
     });
-    await apolloServer.start();
-    apolloServer.applyMiddleware({app});
+    await server.start();
+    server.applyMiddleware({app});
+    // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
+    // console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
 }
 
-startServer();
+// startServer();
+    //types query/mutation/subscription
+const typeDefs = `
+    type Query {
+        totalPosts: Int!
+    }
+`;
+
+//resolvers
+const resolvers = {
+    Query: {
+        totalPosts: () => 42,
+    },
+};
+startApolloServer(typeDefs, resolvers);
 
 module.exports = {app, fhirApp};
