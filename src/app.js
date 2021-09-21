@@ -25,6 +25,8 @@ const childProcess = require('child_process');
 const {getIndexesInAllCollections} = require('./utils/index.util');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
+const {ApolloServer} = require('apollo-server-express');
+
 const app = express();
 
 const cookieParser = require('cookie-parser');
@@ -41,6 +43,7 @@ Prometheus.startCollection();
 // Set EJS as templating engine
 app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'ejs');
+
 
 /**
  * returns whether the parameter is false or a string "false"
@@ -346,5 +349,34 @@ app.use('/js', express.static(path.join(__dirname, 'dist/js')));
 app.use('/icons', express.static(path.join(__dirname, 'dist/icons')));
 
 app.use(fhirApp.app);
+
+let apolloServer = null;
+
+async function startServer() {
+    //graphql server
+
+    //types query/mutation/subscription
+    const typeDefs = `
+        type Query {
+            totalPosts: Int!
+        }
+    `;
+
+    //resolvers
+    const resolvers = {
+        Query: {
+            totalPosts: () => 42,
+        },
+    };
+
+    apolloServer = new ApolloServer({
+        typeDefs,
+        resolvers,
+    });
+    await apolloServer.start();
+    apolloServer.applyMiddleware({app});
+}
+
+startServer();
 
 module.exports = {app, fhirApp};
