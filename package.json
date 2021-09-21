@@ -57,7 +57,7 @@
     "@popperjs/core": "^2.9.3",
     "@sentry/node": "^6.11.0",
     "@slack/web-api": "^6.4.0",
-    "aws-sdk": "^2.979.0",
+    "aws-sdk": "^2.980.0",
     "body-parser": "^1.19.0",
     "bootstrap": "^5.1.0",
     "bootstrap-icons": "^1.5.0",
