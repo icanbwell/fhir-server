@@ -55,7 +55,7 @@
     "@asymmetrik/node-fhir-server-core": "^2.2.3",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@popperjs/core": "^2.9.3",
-    "@sentry/node": "^6.11.0",
+    "@sentry/node": "^6.12.0",
     "@slack/web-api": "^6.4.0",
     "aws-sdk": "^2.979.0",
     "body-parser": "^1.19.0",
