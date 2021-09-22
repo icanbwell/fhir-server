@@ -11,15 +11,10 @@ const globals = require('../../globals');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const {validateResource} = require('../../utils/validator.util');
 const {
-    NotAllowedError,
     NotFoundError,
     BadRequestError,
-    ForbiddenError
 } = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
-const organizationEverythingGraph = require('../../graphs/organization/everything.json');
-const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
-const slotEverythingGraph = require('../../graphs/slot/everything.json');
 
 const async = require('async');
 const env = require('var');
@@ -37,6 +32,10 @@ const {searchById} = require('../../operations/searchById/searchById');
 const {create} = require('../../operations/create/create');
 const {update} = require('../../operations/update/update');
 const {merge} = require('../../operations/merge/merge');
+const {everything} = require('../../operations/everything/everything');
+const {remove} = require('../../operations/remove/remove');
+const {searchByVersionId} = require('../../operations/searchByVersionId/searchByVersionId');
+const {history} = require('../../operations/history/history');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -112,38 +111,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
  * @param {string} collection_name
  */
 module.exports.everything = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> everything`);
-    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-
-    try {
-        let {id} = args;
-
-        logRequest(req.user, `id=${id}`);
-        logDebug(req.user, `req=${req}`);
-
-        let query = {};
-        query.id = id;
-        // Grab an instance of our DB and collection
-        if (collection_name === 'Practitioner') {
-            // noinspection JSUndefinedPropertyAssignment
-            req.body = practitionerEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
-        } else if (collection_name === 'Organization') {
-            // noinspection JSUndefinedPropertyAssignment
-            req.body = organizationEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
-        } else if (collection_name === 'Slot') {
-            // noinspection JSUndefinedPropertyAssignment
-            req.body = slotEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
-        } else {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new Error('$everything is not supported for resource: ' + collection_name);
-        }
-    } catch (err) {
-        logger.error(`Error with ${resource_name}.everything: `, err);
-        throw new BadRequestError(err);
-    }
+    return everything(args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -155,33 +123,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> remove`);
-    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
-
-    let {base_version, id} = args;
-
-    logDebug(req.user, `Deleting id=${id}`);
-
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    // Delete our resource record
-    let res;
-    try {
-        res = await collection.deleteOne({id: id});
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.remove`);
-        throw new NotAllowedError(e.message);
-    }
-    // delete history as well.  You can chose to save history.  Up to you
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    try {
-        await history_collection.deleteMany({id: id});
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.remove`);
-        throw new NotAllowedError(e.message);
-    }
-    return {deleted: res.result && res.result.n};
+    return remove(args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -193,34 +135,7 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> searchByVersionId`);
-    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-
-    let {base_version, id, version_id} = args;
-
-    let Resource = getResource(base_version, resource_name);
-
-    let db = globals.get(CLIENT_DB);
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-
-    // Query our collection for this observation
-    let resource;
-    try {
-        resource = await history_collection.findOne(
-            {id: id.toString(), 'meta.versionId': `${version_id}`});
-    } catch (e) {
-        throw new BadRequestError(e);
-    }
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, req))) {
-            throw new ForbiddenError(
-                'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-        }
-        return (new Resource(resource));
-    } else {
-        throw new NotFoundError();
-    }
+    return searchByVersionId(args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -232,44 +147,7 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> history`);
-    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-
-    // Common search params
-    let {base_version} = args;
-
-    let query = {};
-
-    if (base_version === VERSIONS['3_0_1']) {
-        query = buildStu3SearchQuery(args);
-    } else if (base_version === VERSIONS['1_0_2']) {
-        query = buildDstu2SearchQuery(args);
-    }
-
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    let Resource = getResource(base_version, resource_name);
-
-    // Query our collection for this observation
-    let cursor;
-    try {
-        cursor = await history_collection.find(query);
-    } catch (e) {
-        throw new NotFoundError(e.message);
-    }
-    const resources = [];
-    while (await cursor.hasNext()) {
-        const element = await cursor.next();
-        const resource = new Resource(element);
-        if (isAccessToResourceAllowedBySecurityTags(resource, req)) {
-            resources.push(resource);
-        }
-    }
-    if (resources.length === 0) {
-        throw new NotFoundError();
-    }
-    return (resources);
+    return history(args, {req}, resource_name, collection_name);
 };
 
 /**
