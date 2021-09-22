@@ -18,15 +18,13 @@ const path = require('path');
 const useragent = require('express-useragent');
 const {htmlRenderer} = require('./middleware/htmlRenderer');
 const {slackErrorHandler} = require('./middleware/slackErrorHandler');
+const {graphql, getGraphQLMiddleware} = require('./middleware/graphqlServer');
 
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
 
 const {getIndexesInAllCollections} = require('./utils/index.util');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
-
-const {ApolloServer} = require('apollo-server-express');
-const http = require('http');
 
 const app = express();
 
@@ -97,15 +95,59 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    configureGraphQL() {
+        // const {ApolloServerPluginDrainHttpServer} = require('apollo-server-core');
+        // const {ApolloServerPluginLandingPageGraphQLPlayground} = require('apollo-server-core');
+        //
+        // async function startApolloServer(myApp, typeDefs, resolvers) {
+        //     // console.log(myApp);
+        //     // const httpServer = http.createServer(myApp);
+        //     const server = new ApolloServer({
+        //         typeDefs,
+        //         resolvers,
+        //         // eslint-disable-next-line new-cap
+        //         // plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
+        //         // eslint-disable-next-line new-cap
+        //         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+        //         // graphqlPath: '/api/graphql'
+        //     });
+        //     await server.start();
+        //     myApp.use(server.getMiddleware());
+        //     // server.applyMiddleware({myApp});
+        //     // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
+        //     console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
+        // }
+        //
+        // // startServer();
+        // //types query/mutation/subscription
+        // const typeDefs = `
+        //     type Query {
+        //         totalPosts: Int!
+        //     }
+        // `;
+        //
+        // //resolvers
+        // const resolvers = {
+        //     Query: {
+        //         totalPosts: () => 42,
+        //     },
+        // };
+        // // noinspection JSIgnoredPromiseFromCall
+        // startApolloServer(this.app, typeDefs, resolvers);
+
+        // (async () => {await graphql(this.app);}());
+        return this;
+    }
+
 }
 
 // const fhirApp = MyFHIRServer.initialize(fhirServerConfig);
-const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configureSession().configureHelmet().configurePassport().configureHtmlRenderer().setPublicDirectory().setProfileRoutes().configureSlackErrorHandler().setErrorRoutes();
+const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configureSession().configureHelmet().configurePassport().configureGraphQL().configureHtmlRenderer().setPublicDirectory().setProfileRoutes().configureSlackErrorHandler().setErrorRoutes();
 
 app.use(function (req, res, next) {
     res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self'; object-src data: 'unsafe-eval'; font-src 'self'; img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data:; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com/ https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; frame-src 'self'; connect-src 'self' " + env.AUTH_CODE_FLOW_URL + '/oauth2/token;'
+        "default-src 'self'; object-src data: 'unsafe-eval'; font-src 'self' https://fonts.gstatic.com; img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data: http://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com/ https://cdnjs.cloudflare.com http://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com/ http://cdn.jsdelivr.net; frame-src 'self'; connect-src 'self' " + env.AUTH_CODE_FLOW_URL + '/oauth2/token;'
     );
     next();
 });
@@ -349,7 +391,15 @@ app.use('/css', express.static(path.join(__dirname, 'dist/css')));
 app.use('/js', express.static(path.join(__dirname, 'dist/js')));
 app.use('/icons', express.static(path.join(__dirname, 'dist/icons')));
 
-app.use(fhirApp.app);
+graphql().then(x => {
+    // app.use(fhirApp.app);
+
+    // fhirApp.app.use('/', x);
+    app.use('/api', x);
+    // app.use(x);
+});
+// app.use(getGraphQLMiddleware());
+
 
 // async function startApolloServer(typeDefs, resolvers) {
 //     // const httpServer = http.createServer(app);
@@ -362,38 +412,5 @@ app.use(fhirApp.app);
 //     // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
 //     // console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
 // }
-
-const {ApolloServerPluginDrainHttpServer} = require('apollo-server-core');
-
-async function startApolloServer(typeDefs, resolvers) {
-    const httpServer = http.createServer(app);
-    const server = new ApolloServer({
-        typeDefs,
-        resolvers,
-        // eslint-disable-next-line new-cap
-        plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
-        playground: true,
-    });
-    await server.start();
-    server.applyMiddleware({app});
-    await new Promise(resolve => httpServer.listen({port: 4000}, resolve));
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
-}
-
-// startServer();
-//types query/mutation/subscription
-const typeDefs = `
-    type Query {
-        totalPosts: Int!
-    }
-`;
-
-//resolvers
-const resolvers = {
-    Query: {
-        totalPosts: () => 42,
-    },
-};
-startApolloServer(typeDefs, resolvers);
 
 module.exports = {app, fhirApp};
