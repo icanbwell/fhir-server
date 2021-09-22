@@ -1525,72 +1525,72 @@
   "resolved" "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.0.tgz"
   "version" "1.1.0"
 
-"@sentry/core@6.11.0":
-  "integrity" "sha512-09TB+f3pqEq8LFahFWHO6I/4DxHo+NcS52OkbWMDqEi6oNZRD7PhPn3i14LfjsYVv3u3AESU8oxSEGbFrr2UjQ=="
-  "resolved" "https://registry.npmjs.org/@sentry/core/-/core-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/core@6.13.2":
+  "integrity" "sha512-snXNNFLwlS7yYxKTX4DBXebvJK+6ikBWN6noQ1CHowvM3ReFBlrdrs0Z0SsSFEzXm2S4q7f6HHbm66GSQZ/8FQ=="
+  "resolved" "https://registry.npmjs.org/@sentry/core/-/core-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/hub" "6.11.0"
-    "@sentry/minimal" "6.11.0"
-    "@sentry/types" "6.11.0"
-    "@sentry/utils" "6.11.0"
+    "@sentry/hub" "6.13.2"
+    "@sentry/minimal" "6.13.2"
+    "@sentry/types" "6.13.2"
+    "@sentry/utils" "6.13.2"
     "tslib" "^1.9.3"
 
-"@sentry/hub@6.11.0":
-  "integrity" "sha512-pT9hf+ZJfVFpoZopoC+yJmFNclr4NPqPcl2cgguqCHb69DklD1NxgBNWK8D6X05qjnNFDF991U6t1mxP9HrGuw=="
-  "resolved" "https://registry.npmjs.org/@sentry/hub/-/hub-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/hub@6.13.2":
+  "integrity" "sha512-sppSuJdNMiMC/vFm/dQowCBh11uTrmvks00fc190YWgxHshodJwXMdpc+pN61VSOmy2QA4MbQ5aMAgHzPzel3A=="
+  "resolved" "https://registry.npmjs.org/@sentry/hub/-/hub-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/types" "6.11.0"
-    "@sentry/utils" "6.11.0"
+    "@sentry/types" "6.13.2"
+    "@sentry/utils" "6.13.2"
     "tslib" "^1.9.3"
 
-"@sentry/minimal@6.11.0":
-  "integrity" "sha512-XkZ7qrdlGp4IM/gjGxf1Q575yIbl5RvPbg+WFeekpo16Ufvzx37Mr8c2xsZaWosISVyE6eyFpooORjUlzy8EDw=="
-  "resolved" "https://registry.npmjs.org/@sentry/minimal/-/minimal-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/minimal@6.13.2":
+  "integrity" "sha512-6iJfEvHzzpGBHDfLxSHcGObh73XU1OSQKWjuhDOe7UQDyI4BQmTfcXAC+Fr8sm8C/tIsmpVi/XJhs8cubFdSMw=="
+  "resolved" "https://registry.npmjs.org/@sentry/minimal/-/minimal-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/hub" "6.11.0"
-    "@sentry/types" "6.11.0"
+    "@sentry/hub" "6.13.2"
+    "@sentry/types" "6.13.2"
     "tslib" "^1.9.3"
 
-"@sentry/node@^6.11.0":
-  "integrity" "sha512-vbk+V/n7ZIFD8rHPYy03t/gIG5V7LGdjU4qJxVDgNZzticfWPnd2sLgle/r+l60XF6SKW/epG4rnxnBcgPdWaw=="
-  "resolved" "https://registry.npmjs.org/@sentry/node/-/node-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/node@^6.13.2":
+  "integrity" "sha512-0Vw22amG143MTiNaSny66YGU3+uW7HxyGI9TLGE7aJY1nNmC0DE+OgqQYGBRCrrPu+VFXRDxrOg9b15A1gKqjA=="
+  "resolved" "https://registry.npmjs.org/@sentry/node/-/node-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/core" "6.11.0"
-    "@sentry/hub" "6.11.0"
-    "@sentry/tracing" "6.11.0"
-    "@sentry/types" "6.11.0"
-    "@sentry/utils" "6.11.0"
+    "@sentry/core" "6.13.2"
+    "@sentry/hub" "6.13.2"
+    "@sentry/tracing" "6.13.2"
+    "@sentry/types" "6.13.2"
+    "@sentry/utils" "6.13.2"
     "cookie" "^0.4.1"
     "https-proxy-agent" "^5.0.0"
     "lru_map" "^0.3.3"
     "tslib" "^1.9.3"
 
-"@sentry/tracing@6.11.0":
-  "integrity" "sha512-9VA1/SY++WeoMQI4K6n/sYgIdRtCu9NLWqmGqu/5kbOtESYFgAt1DqSyqGCr00ZjQiC2s7tkDkTNZb38K6KytQ=="
-  "resolved" "https://registry.npmjs.org/@sentry/tracing/-/tracing-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/tracing@6.13.2":
+  "integrity" "sha512-bHJz+C/nd6biWTNcYAu91JeRilsvVgaye4POkdzWSmD0XoLWHVMrpCQobGpXe7onkp2noU3YQjhqgtBqPHtnpw=="
+  "resolved" "https://registry.npmjs.org/@sentry/tracing/-/tracing-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/hub" "6.11.0"
-    "@sentry/minimal" "6.11.0"
-    "@sentry/types" "6.11.0"
-    "@sentry/utils" "6.11.0"
+    "@sentry/hub" "6.13.2"
+    "@sentry/minimal" "6.13.2"
+    "@sentry/types" "6.13.2"
+    "@sentry/utils" "6.13.2"
     "tslib" "^1.9.3"
 
-"@sentry/types@6.11.0":
-  "integrity" "sha512-gm5H9eZhL6bsIy/h3T+/Fzzz2vINhHhqd92CjHle3w7uXdTdFV98i2pDpErBGNTSNzbntqOMifYEB5ENtZAvcg=="
-  "resolved" "https://registry.npmjs.org/@sentry/types/-/types-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/types@6.13.2":
+  "integrity" "sha512-6WjGj/VjjN8LZDtqJH5ikeB1o39rO1gYS6anBxiS3d0sXNBb3Ux0pNNDFoBxQpOhmdDHXYS57MEptX9EV82gmg=="
+  "resolved" "https://registry.npmjs.org/@sentry/types/-/types-6.13.2.tgz"
+  "version" "6.13.2"
 
-"@sentry/utils@6.11.0":
-  "integrity" "sha512-IOvyFHcnbRQxa++jO+ZUzRvFHEJ1cZjrBIQaNVc0IYF0twUOB5PTP6joTcix38ldaLeapaPZ9LGfudbvYvxkdg=="
-  "resolved" "https://registry.npmjs.org/@sentry/utils/-/utils-6.11.0.tgz"
-  "version" "6.11.0"
+"@sentry/utils@6.13.2":
+  "integrity" "sha512-foF4PbxqPMWNbuqdXkdoOmKm3quu3PP7Q7j/0pXkri4DtCuvF/lKY92mbY0V9rHS/phCoj+3/Se5JvM2ymh2/w=="
+  "resolved" "https://registry.npmjs.org/@sentry/utils/-/utils-6.13.2.tgz"
+  "version" "6.13.2"
   dependencies:
-    "@sentry/types" "6.11.0"
+    "@sentry/types" "6.13.2"
     "tslib" "^1.9.3"
 
 "@shelf/jest-mongodb@^2.0.3":
@@ -2420,10 +2420,10 @@
     "postcss" "^7.0.32"
     "postcss-value-parser" "^4.1.0"
 
-"aws-sdk@^2.979.0":
-  "integrity" "sha512-pKKhpYZwmihCvuH3757WHY8JQI9g2wvtF3s0aiyH2xCUmX/6uekhExz/utD4uqZP3m3PwKZPGQkQkH30DtHrPw=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.979.0.tgz"
-  "version" "2.979.0"
+"aws-sdk@^2.993.0":
+  "integrity" "sha512-uAxPVkGM0+hWt+OmFUtNgQmmo3tQUW1MJD8wBWFpfw97QpG2WPMv6fEFBJmuaVt0LkElgTs+9oKJsu9WkPIC9Q=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.993.0.tgz"
+  "version" "2.993.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -6301,10 +6301,10 @@
     "pify" "^4.0.1"
     "replace-ext" "^1.0.0"
 
-"immer@^9.0.5":
-  "integrity" "sha512-2WuIehr2y4lmYz9gaQzetPR2ECniCifk4ORaQbU3g5EalLt+0IVTosEPJ5BoYl/75ky2mivzdRzV8wWgQGOSYQ=="
-  "resolved" "https://registry.npmjs.org/immer/-/immer-9.0.5.tgz"
-  "version" "9.0.5"
+"immer@^9.0.6":
+  "integrity" "sha512-G95ivKpy+EvVAnAab4fVa4YGYn24J1SpEktnJX7JJ45Bd7xqME/SCplFzYFmTbrkwZbQ4xJK1xMTUYBkN6pWsQ=="
+  "resolved" "https://registry.npmjs.org/immer/-/immer-9.0.6.tgz"
+  "version" "9.0.6"
 
 "immer@8.0.1":
   "integrity" "sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA=="
