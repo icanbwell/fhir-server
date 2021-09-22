@@ -4,6 +4,7 @@ const practitionerEverythingGraph = require('../../graphs/practitioner/everythin
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
+const {graph} = require('../graph/graph');
 /**
  * does a FHIR $everything
  * @param {string[]} args
@@ -27,21 +28,21 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
         if (collection_name === 'Practitioner') {
             // noinspection JSUndefinedPropertyAssignment
             req.body = practitionerEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
+            return await graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Organization') {
             // noinspection JSUndefinedPropertyAssignment
             req.body = organizationEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
+            return await graph(args, {req}, resource_name, collection_name);
         } else if (collection_name === 'Slot') {
             // noinspection JSUndefinedPropertyAssignment
             req.body = slotEverythingGraph;
-            return await module.exports.graph(args, {req}, resource_name, collection_name);
+            return await graph(args, {req}, resource_name, collection_name);
         } else {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('$everything is not supported for resource: ' + collection_name);
         }
     } catch (err) {
-        logError(`Error with ${resource_name}.everything: `, err);
+        logError(req.user, `Error with ${resource_name}.everything: ${err} `);
         throw new BadRequestError(err);
     }
 };
