@@ -1,26 +1,26 @@
-const {logRequest, logDebug} = require('../../operations/common/logging');
+const {logRequest, logDebug} = require('../common/logging');
 const {
     parseScopes,
     verifyHasValidScopes,
     doesResourceHaveAccessTags,
     isAccessToResourceAllowedBySecurityTags
-} = require('../../operations/security/scopes');
+} = require('../security/scopes');
 const moment = require('moment-timezone');
-const {get_all_args} = require('../../operations/common/get_all_args');
-const {isTrue} = require('../../operations/common/isTrue');
+const {get_all_args} = require('../common/get_all_args');
+const {isTrue} = require('../common/isTrue');
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
-const {getResource} = require('../../operations/common/getResource');
+const {getResource} = require('../common/getResource');
 const deepcopy = require('deepcopy');
 const deepEqual = require('fast-deep-equal');
 const deepmerge = require('deepmerge');
 const {compare, applyPatch} = require('fast-json-patch');
 const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {getMeta} = require('../../operations/common/getMeta');
+const {getMeta} = require('../common/getMeta');
 const async = require('async');
 const {check_fhir_mismatch} = require('../common/check_fhir_mismatch');
 const {logError} = require('../common/logging');

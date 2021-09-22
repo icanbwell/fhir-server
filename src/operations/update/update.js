@@ -1,21 +1,21 @@
-const {logRequest, logDebug} = require('../../operations/common/logging');
+const {logRequest, logDebug} = require('../common/logging');
 const {
     verifyHasValidScopes,
     isAccessToResourceAllowedBySecurityTags,
     doesResourceHaveAccessTags
-} = require('../../operations/security/scopes');
+} = require('../security/scopes');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {get_all_args} = require('../../operations/common/get_all_args');
+const {get_all_args} = require('../common/get_all_args');
 const {validateResource} = require('../../utils/validator.util');
 const {getUuid} = require('../../utils/uid.util');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
-const {getResource} = require('../../operations/common/getResource');
+const {getResource} = require('../common/getResource');
 const {compare, applyPatch} = require('fast-json-patch');
-const {getMeta} = require('../../operations/common/getMeta');
+const {getMeta} = require('../common/getMeta');
 const {check_fhir_mismatch} = require('../common/check_fhir_mismatch');
 const {logError} = require('../common/logging');
 /**

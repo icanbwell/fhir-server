@@ -1,10 +1,11 @@
+const {logDebug} = require('./logging');
+
 /**
  * combines args with args from request
  * @param {IncomingMessage} req
  * @param {string[]} args
  * @returns {string[]} array of combined arguments
  */
-const {logDebug} = require('./logDebug');
 module.exports.get_all_args = (req, args) => {
     // asymmetric hides certain query parameters from us so we need to get them from the context
     const query_param_args = {};

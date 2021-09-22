@@ -1,8 +1,8 @@
-const {logRequest, logDebug, logError} = require('../../operations/common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
+const {logRequest, logDebug, logError} = require('../common/logging');
+const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
-const {getResource} = require('../../operations/common/getResource');
+const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 /**
  * does a FHIR Search By Id

@@ -1,6 +1,6 @@
-const {logRequest} = require('../../operations/common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
-const {getResource} = require('../../operations/common/getResource');
+const {logRequest} = require('../common/logging');
+const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
+const {getResource} = require('../common/getResource');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');

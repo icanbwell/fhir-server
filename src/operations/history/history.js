@@ -1,10 +1,10 @@
-const {logRequest} = require('../../operations/common/logging');
+const {logRequest} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
 const {buildStu3SearchQuery} = require('../../operations/search/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/search/query/dstu2');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
-const {getResource} = require('../../operations/common/getResource');
+const {getResource} = require('../common/getResource');
 const {NotFoundError} = require('../../utils/httpErrors');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
