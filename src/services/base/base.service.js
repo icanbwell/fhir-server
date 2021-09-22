@@ -33,8 +33,6 @@ const async = require('async');
 const env = require('var');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {logRequest, logDebug} = require('../../operations/common/logging');
-const {search} = require('../../operations/search/search');
-const {searchById} = require('../../operations/searchById/searchById');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags, doesResourceHaveAccessTags, parseScopes,
     getAccessCodesFromScopes, doesResourceHaveAnyAccessCodeFromThisList
 } = require('../../operations/security/scopes');
@@ -43,6 +41,9 @@ const {getMeta} = require('../../operations/common/getMeta');
 const {buildStu3SearchQuery} = require('../../operations/search/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/search/query/dstu2');
 const {isTrue} = require('../../operations/common/isTrue');
+const {search} = require('../../operations/search/search');
+const {searchById} = require('../../operations/searchById/searchById');
+const {create} = require('../../operations/create/create');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -92,136 +93,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
  * @param {string} collection_name
  */
 module.exports.create = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> create`);
-
-    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
-
-    let resource_incoming = req.body;
-
-    let {base_version} = args;
-
-    logDebug(req.user, '--- request ----');
-    logDebug(req.user, req);
-    logDebug(req.user, '-----------------');
-
-    logDebug(req.user, '--- body ----');
-    logDebug(req.user, JSON.stringify(resource_incoming));
-    logDebug(req.user, '-----------------');
-    const uuid = getUuid(resource_incoming);
-
-    if (env.LOG_ALL_SAVES) {
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        await sendToS3('logs',
-            resource_name,
-            resource_incoming,
-            currentDate,
-            uuid,
-            'create'
-        );
-    }
-
-    const combined_args = get_all_args(req, args);
-    if (env.VALIDATE_SCHEMA || combined_args['_validate']) {
-        logDebug(req.user, '--- validate schema ----');
-        const operationOutcome = validateResource(resource_incoming, resource_name, req.path);
-        if (operationOutcome && operationOutcome.statusCode === 400) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-            operationOutcome.expression = [
-                resource_name + '/' + uuid
-            ];
-            await sendToS3('validation_failures',
-                resource_name,
-                resource_incoming,
-                currentDate,
-                uuid,
-                'create');
-            await sendToS3('validation_failures',
-                'OperationOutcome',
-                operationOutcome,
-                currentDate,
-                uuid,
-                'create_failure');
-            throw new NotValidatedError(operationOutcome);
-        }
-        logDebug(req.user, '-----------------');
-    }
-
-    try {
-        // Grab an instance of our DB and collection (by version)
-        let db = globals.get(CLIENT_DB);
-        let collection = db.collection(`${collection_name}_${base_version}`);
-
-        // Get current record
-        let Resource = getResource(base_version, resource_name);
-        logDebug(req.user, `Resource: ${Resource}`);
-        let resource = new Resource(resource_incoming);
-        // noinspection JSUnresolvedFunction
-        logDebug(req.user, `resource: ${resource.toJSON()}`);
-
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!doesResourceHaveAccessTags(resource)) {
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
-            }
-        }
-
-        // If no resource ID was provided, generate one.
-        let id = getUuid(resource);
-        logDebug(req.user, `id: ${id}`);
-
-        // Create the resource's metadata
-        /**
-         * @type {function({Object}): Meta}
-         */
-        let Meta = getMeta(base_version);
-        if (!resource_incoming.meta) {
-            resource_incoming.meta = new Meta({
-                versionId: '1',
-                lastUpdated: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
-            });
-        } else {
-            resource_incoming.meta['versionId'] = '1';
-            resource_incoming.meta['lastUpdated'] = moment.utc().format('YYYY-MM-DDTHH:mm:ssZ');
-        }
-
-        // Create the document to be inserted into Mongo
-        // noinspection JSUnresolvedFunction
-        let doc = JSON.parse(JSON.stringify(resource.toJSON()));
-        Object.assign(doc, {id: id});
-
-        // Create a clone of the object without the _id parameter before assigning a value to
-        // the _id parameter in the original document
-        let history_doc = Object.assign({}, doc);
-        Object.assign(doc, {_id: id});
-
-        logDebug(req.user, '---- inserting doc ---');
-        logDebug(req.user, doc);
-        logDebug(req.user, '----------------------');
-
-        // Insert our resource record
-        try {
-            await collection.insertOne(doc);
-        } catch (e) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new BadRequestError(e);
-        }
-        // Save the resource to history
-        let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-
-        // Insert our resource record to history but don't assign _id
-        await history_collection.insertOne(history_doc);
-        return {id: doc.id, resource_version: doc.meta.versionId};
-    } catch (e) {
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        logger.error(`Error with creating resource ${resource_name} with id: ${uuid} `, e);
-
-        await sendToS3('errors',
-            resource_name,
-            resource_incoming,
-            currentDate,
-            uuid,
-            'create');
-        throw e;
-    }
+    return create(args, {req}, resource_name, collection_name);
 };
 
 /**
