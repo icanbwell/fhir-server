@@ -1,5 +1,4 @@
-const {logRequest} = require('../../operations/common/logRequest');
-const {logDebug} = require('../../operations/common/logDebug');
+const {logRequest, logDebug, logError} = require('../../operations/common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
@@ -42,7 +41,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
     try {
         resource = await collection.findOne({id: id.toString()});
     } catch (e) {
-        logger.error(`Error with ${resource_name}.searchById: `, e);
+        logError(`Error with ${resource_name}.searchById: `, e);
         throw new BadRequestError(e);
     }
     if (resource) {

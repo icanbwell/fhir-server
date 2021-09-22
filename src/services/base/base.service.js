@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {CLIENT_DB} = require('../../constants');
@@ -30,10 +32,9 @@ const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const async = require('async');
 const env = require('var');
 const {get_all_args} = require('../../operations/common/get_all_args');
-const {logRequest} = require('../../operations/common/logRequest');
+const {logRequest, logDebug} = require('../../operations/common/logging');
 const {search} = require('../../operations/search/search');
 const {searchById} = require('../../operations/searchById/searchById');
-const {logDebug} = require('../../operations/common/logDebug');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags, doesResourceHaveAccessTags, parseScopes,
     getAccessCodesFromScopes, doesResourceHaveAnyAccessCodeFromThisList
 } = require('../../operations/security/scopes');
