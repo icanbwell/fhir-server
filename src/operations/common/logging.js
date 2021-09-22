@@ -31,3 +31,12 @@ module.exports.logDebug = (user, msg) => {
 module.exports.logError = (user, msg) => {
     logger.error(user + ': ' + msg);
 };
+
+/**
+ * Logs as warning if env.IS_PRODUCTION is not set
+ * @param {string} user
+ * @param {*} msg
+ */
+module.exports.logWarn = (user, msg) => {
+    logger.warn(user + ': ' + msg);
+};
