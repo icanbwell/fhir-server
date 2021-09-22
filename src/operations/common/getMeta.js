@@ -1,4 +1,5 @@
 const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
+
 /**
  * Gets class for Meta
  * @param {string} base_version

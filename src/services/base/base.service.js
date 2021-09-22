@@ -1,5 +1,3 @@
-// noinspection ExceptionCaughtLocallyJS
-
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {CLIENT_DB} = require('../../constants');
@@ -34,6 +32,7 @@ const env = require('var');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {logRequest} = require('../../operations/common/logRequest');
 const {search} = require('../../operations/search/search');
+const {searchById} = require('../../operations/searchById/searchById');
 const {logDebug} = require('../../operations/common/logDebug');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags, doesResourceHaveAccessTags, parseScopes,
     getAccessCodesFromScopes, doesResourceHaveAnyAccessCodeFromThisList
@@ -43,29 +42,6 @@ const {getMeta} = require('../../operations/common/getMeta');
 const {buildStu3SearchQuery} = require('../../operations/search/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/search/query/dstu2');
 const {isTrue} = require('../../operations/common/isTrue');
-
-/**
- * @typedef Resource
- * @type {object}
- * @property {string} id - an ID.
- * @property {string} resourceType
- */
-
-/**
- * @typedef Meta
- * @type {object}
- * @property {string} versionId - an ID.
- * @property {string} lastUpdated
- * @property {string} source
- */
-
-// from https://www.hl7.org/fhir/operationoutcome.html
-/**
- * @typedef OperationOutcome
- * @type {object}
- * @property {string} resourceType
- * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
- */
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -104,47 +80,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> searchById`);
-    logDebug(req.user, JSON.stringify(args));
-
-    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-
-    // Common search params
-    let {id} = args;
-    let {base_version} = args;
-
-    logDebug(req.user, `id: ${id}`);
-    logDebug(req.user, `base_version: ${base_version}`);
-
-    // Search Result param
-
-    let query = {};
-    query.id = id;
-    // TODO: Build query from Parameters
-
-    // TODO: Query database
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    let Resource = getResource(base_version, resource_name);
-
-    let resource;
-    try {
-        resource = await collection.findOne({id: id.toString()});
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.searchById: `, e);
-        throw new BadRequestError(e);
-    }
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, req))) {
-            throw new ForbiddenError(
-                'user ' + req.user + ' with scopes [' + req.authInfo.scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-        }
-        return new Resource(resource);
-    } else {
-        throw new NotFoundError();
-    }
+    return searchById(args, {req}, resource_name, collection_name);
 };
 
 /**
