@@ -51,23 +51,17 @@ const graphql = async () => {
 
     await server.start();
 
-    // server.applyMiddleware({
-    //     // cors: corsConfiguration,
-    //     app,
-    //     // path: "/api/graphql",
-    // });
-
-    const foo = await server.getMiddleware();
-    return foo;
-};
-
-const getGraphQLMiddleware = () => {
-    const router = (async () => {
-        await graphql();
-    })();
-
+    const router = await server.getMiddleware();
     return router;
 };
 
+// const getGraphQLMiddleware = () => {
+//     const router = (async () => {
+//         await graphql();
+//     })();
+//
+//     return router;
+// };
+
 module.exports.graphql = graphql;
-module.exports.getGraphQLMiddleware = getGraphQLMiddleware;
+// module.exports.getGraphQLMiddleware = getGraphQLMiddleware;
