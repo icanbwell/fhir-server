@@ -18,7 +18,7 @@ const path = require('path');
 const useragent = require('express-useragent');
 const {htmlRenderer} = require('./middleware/htmlRenderer');
 const {slackErrorHandler} = require('./middleware/slackErrorHandler');
-const {graphql, getGraphQLMiddleware} = require('./middleware/graphqlServer');
+const {graphql} = require('./middleware/graphqlServer');
 
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
