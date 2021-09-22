@@ -6,6 +6,14 @@ const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
 const {get_all_args} = require('../common/get_all_args');
 const {logRequest} = require('../common/logRequest');
+const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
+const {buildR4SearchQuery} = require('./query/r4');
+const {buildDstu2SearchQuery} = require('./query/dstu2');
+const {buildStu3SearchQuery} = require('./query/stu3');
+const {logDebug} = require('../common/logDebug');
+const {getResource} = require('../common/getResource');
+const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+
 /**
  * does a FHIR Search
  * @param {string[]} args

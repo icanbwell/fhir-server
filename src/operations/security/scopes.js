@@ -20,7 +20,7 @@ const parseScopes = (scope) => {
  * @param {string} user
  * @param {?string} scope
  */
-module.exports.verifyHasValidScopes = (name, action, user, scope) => {
+const verifyHasValidScopes = (name, action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -45,7 +45,7 @@ module.exports.verifyHasValidScopes = (name, action, user, scope) => {
  * @param {?string} scope
  * @return {string[]}
  */
-module.exports.getAccessCodesFromScopes = (action, user, scope) => {
+const getAccessCodesFromScopes = (action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
@@ -84,3 +84,102 @@ module.exports.getAccessCodesFromScopes = (action, user, scope) => {
         return [];
     }
 };
+
+/**
+ * Checks whether the resource has any access codes that are in the passed in accessCodes list
+ * @param {string[]} accessCodes
+ * @param {string} user
+ * @param {string} scope
+ * @param {Resource} resource
+ * @return {boolean}
+ */
+const doesResourceHaveAnyAccessCodeFromThisList = (accessCodes, user, scope, resource) => {
+    if (env.AUTH_ENABLED !== '1') {
+        return true;
+    }
+
+    // fail if there are no access codes
+    if (!accessCodes || accessCodes.length === 0) {
+        return false;
+    }
+
+    // see if we have the * access code
+    if (accessCodes.includes('*')) {
+        // no security check since user has full access to everything
+        return true;
+    }
+
+    if (!resource.meta || !resource.meta.security) {
+        // resource has not meta or security tags so don't return it
+        return false;
+    }
+    /**
+     * @type {string[]}
+     */
+    const accessCodesForResource = resource.meta.security
+        .filter(s => s.system === 'https://www.icanbwell.com/access')
+        .map(s => s.code);
+    /**
+     * @type {string}
+     */
+    for (const accessCode of accessCodes) {
+        if (accessCodesForResource.includes(accessCode)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+/**
+ * Returns true if resource can be accessed with scope
+ * @param {Resource} resource
+ * @param {IncomingMessage} req
+ * @return {boolean}
+ */
+const isAccessToResourceAllowedBySecurityTags = (resource, req) => {
+    if (env.AUTH_ENABLED !== '1') {
+        return true;
+    }
+    // add any access codes from scopes
+    /**
+     * @type {string}
+     */
+    const user = req.user;
+    /**
+     * @type {?string}
+     */
+    const scope = req.authInfo ? req.authInfo.scope : null;
+    /**
+     * @type {string[]}
+     */
+    const accessCodes = getAccessCodesFromScopes('read', user, req.authInfo && scope);
+    if (!accessCodes || accessCodes.length === 0) {
+        let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+        throw new ForbiddenError(errorMessage);
+    }
+    return doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);
+};
+
+/**
+ * Returns whether the resource has an access tag
+ * @param {Resource} resource
+ * @return {boolean}
+ */
+const doesResourceHaveAccessTags = (resource) => {
+    return (
+        resource &&
+        resource.meta &&
+        resource.meta.security &&
+        resource.meta.security.some(s => s.system === 'https://www.icanbwell.com/access')
+    );
+};
+
+module.exports = {
+    isAccessToResourceAllowedBySecurityTags,
+    doesResourceHaveAccessTags,
+    verifyHasValidScopes,
+    getAccessCodesFromScopes,
+    doesResourceHaveAnyAccessCodeFromThisList,
+    parseScopes
+};
+
