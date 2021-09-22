@@ -95,54 +95,10 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
-    configureGraphQL() {
-        // const {ApolloServerPluginDrainHttpServer} = require('apollo-server-core');
-        // const {ApolloServerPluginLandingPageGraphQLPlayground} = require('apollo-server-core');
-        //
-        // async function startApolloServer(myApp, typeDefs, resolvers) {
-        //     // console.log(myApp);
-        //     // const httpServer = http.createServer(myApp);
-        //     const server = new ApolloServer({
-        //         typeDefs,
-        //         resolvers,
-        //         // eslint-disable-next-line new-cap
-        //         // plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
-        //         // eslint-disable-next-line new-cap
-        //         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
-        //         // graphqlPath: '/api/graphql'
-        //     });
-        //     await server.start();
-        //     myApp.use(server.getMiddleware());
-        //     // server.applyMiddleware({myApp});
-        //     // await new Promise(resolve => httpServer.listen({port: 3000}, resolve));
-        //     console.log(`🚀 Server ready at http://localhost:3000${server.graphqlPath}`);
-        // }
-        //
-        // // startServer();
-        // //types query/mutation/subscription
-        // const typeDefs = `
-        //     type Query {
-        //         totalPosts: Int!
-        //     }
-        // `;
-        //
-        // //resolvers
-        // const resolvers = {
-        //     Query: {
-        //         totalPosts: () => 42,
-        //     },
-        // };
-        // // noinspection JSIgnoredPromiseFromCall
-        // startApolloServer(this.app, typeDefs, resolvers);
-
-        // (async () => {await graphql(this.app);}());
-        return this;
-    }
-
 }
 
 // const fhirApp = MyFHIRServer.initialize(fhirServerConfig);
-const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configureSession().configureHelmet().configurePassport().configureGraphQL().configureHtmlRenderer().setPublicDirectory().setProfileRoutes().configureSlackErrorHandler().setErrorRoutes();
+const fhirApp = new MyFHIRServer(fhirServerConfig).configureMiddleware().configureSession().configureHelmet().configurePassport().configureHtmlRenderer().setPublicDirectory().setProfileRoutes().configureSlackErrorHandler().setErrorRoutes();
 
 app.use(function (req, res, next) {
     res.setHeader(

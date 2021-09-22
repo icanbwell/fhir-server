@@ -33,5 +33,5 @@ COPY . /srv/src
 RUN curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
 
 # Start the app
-#ENV NODE_ENV=production
+ENV NODE_ENV=production
 CMD ["tail", "-f", "/dev/null"]
