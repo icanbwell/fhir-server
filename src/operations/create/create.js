@@ -4,7 +4,6 @@ const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {get_all_args} = require('../common/get_all_args');
 const {validateResource} = require('../../utils/validator.util');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const globals = require('../../globals');
@@ -47,8 +46,7 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
         );
     }
 
-    const combined_args = get_all_args(req, args);
-    if (env.VALIDATE_SCHEMA || combined_args['_validate']) {
+    if (env.VALIDATE_SCHEMA || args['_validate']) {
         logDebug(req.user, '--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming, resource_name, req.path);
         if (operationOutcome && operationOutcome.statusCode === 400) {

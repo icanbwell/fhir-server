@@ -8,7 +8,6 @@ const {getResource} = require('../common/getResource');
 const env = require('var');
 const async = require('async');
 const moment = require('moment-timezone');
-const {get_all_args} = require('../common/get_all_args');
 const {isTrue} = require('../common/isTrue');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
@@ -524,8 +523,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
          * @type {string}
          */
         const host = req.headers.host;
-        const combined_args = get_all_args(req, args);
-        let {base_version, id} = combined_args;
+        let {base_version, id} = args;
 
         logRequest(req.user, `id=${id}`);
         logDebug(req.user, `req=${req}`);
@@ -534,11 +532,11 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
         /**
          * @type {boolean}
          */
-        const contained = isTrue(combined_args['contained']);
+        const contained = isTrue(args['contained']);
         /**
          * @type {boolean}
          */
-        const hash_references = isTrue(combined_args['_hash_references']);
+        const hash_references = isTrue(args['_hash_references']);
         // Grab an instance of our DB and collection
         /**
          * @type {import('mongodb').Db}

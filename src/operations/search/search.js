@@ -4,7 +4,6 @@ const {CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
-const {get_all_args} = require('../common/get_all_args');
 const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
 const {buildR4SearchQuery} = require('./query/r4');
 const {buildDstu2SearchQuery} = require('./query/dstu2');
@@ -22,17 +21,12 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @return {Resource[] | Resource} array of resources
  */
 module.exports.search = async (args, {req}, resource_name, collection_name) => {
-    /**
-     * combined args
-     * @type {string[]}
-     */
-    const combined_args = get_all_args(req, args);
     logRequest(req.user, resource_name + ' >>> search' + ' scope:' + req.authInfo && req.authInfo.scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-    logRequest(req.user, '---- combined_args ----');
-    logRequest(req.user, JSON.stringify(combined_args));
+    logRequest(req.user, '---- args ----');
+    logRequest(req.user, JSON.stringify(args));
     logRequest(req.user, '--------');
 
     // add any access codes from scopes
@@ -50,10 +44,10 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
          * @type {string}
          */
         for (const accessCode of accessCodes) {
-            if (combined_args['_security']) {
-                combined_args['_security'] = combined_args['_security'] + ',' + accessCode;
+            if (args['_security']) {
+                args['_security'] = args['_security'] + ',' + accessCode;
             } else {
-                combined_args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+                args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
             }
         }
     }
@@ -67,11 +61,11 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     let query;
 
     if (base_version === VERSIONS['3_0_1']) {
-        query = buildStu3SearchQuery(combined_args);
+        query = buildStu3SearchQuery(args);
     } else if (base_version === VERSIONS['1_0_2']) {
-        query = buildDstu2SearchQuery(combined_args);
+        query = buildDstu2SearchQuery(args);
     } else {
-        query = buildR4SearchQuery(resource_name, combined_args);
+        query = buildR4SearchQuery(resource_name, args);
     }
 
     // Grab an instance of our DB and collection
@@ -107,12 +101,12 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
 
     try {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
-        if (combined_args['_elements']) {
+        if (args['_elements']) {
             // GET [base]/Observation?_elements=status,date,category
             /**
              * @type {string}
              */
-            const properties_to_return_as_csv = combined_args['_elements'];
+            const properties_to_return_as_csv = args['_elements'];
             /**
              * @type {string[]}
              */
@@ -129,14 +123,14 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             }
         }
         // if _sort is specified then add sort criteria to mongo query
-        if (combined_args['_sort']) {
+        if (args['_sort']) {
             // GET [base]/Observation?_sort=status,-date,category
             // Each item in the comma separated list is a search parameter, optionally with a '-' prefix.
             // The prefix indicates decreasing order; in its absence, the parameter is applied in increasing order.
             /**
              * @type {string}
              */
-            const sort_properties_as_csv = combined_args['_sort'];
+            const sort_properties_as_csv = args['_sort'];
             /**
              * @type {string[]}
              */
@@ -165,7 +159,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
         }
 
         // if _count is specified then limit mongo query to that
-        if (combined_args['_count']) {
+        if (args['_count']) {
             if (!('sort' in options)) {
                 // for consistency in results while paging, always sort by _id
                 // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
@@ -174,19 +168,19 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
             /**
              * @type {number}
              */
-            const nPerPage = Number(combined_args['_count']);
+            const nPerPage = Number(args['_count']);
 
             // if _getpagesoffset is specified then skip to the page starting with that offset
-            if (combined_args['_getpagesoffset']) {
+            if (args['_getpagesoffset']) {
                 /**
                  * @type {number}
                  */
-                const pageNumber = Number(combined_args['_getpagesoffset']);
+                const pageNumber = Number(args['_getpagesoffset']);
                 options['skip'] = pageNumber > 0 ? (pageNumber * nPerPage) : 0;
             }
             options['limit'] = nPerPage;
         } else {
-            if (!combined_args['id'] && !combined_args['_elements']) {
+            if (!args['id'] && !args['_elements']) {
                 // set a limit so the server does not come down due to volume of data
                 options['limit'] = 10;
             }
@@ -201,7 +195,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
 
         // if _total is specified then ask mongo for the total else set total to 0
         let total_count = 0;
-        if (combined_args['_total'] && (['accurate', 'estimate'].includes(combined_args['_total']))) {
+        if (args['_total'] && (['accurate', 'estimate'].includes(args['_total']))) {
             // https://www.hl7.org/fhir/search.html#total
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
@@ -219,11 +213,11 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
              * @type {Object}
              */
             const element = await cursor.next();
-            if (combined_args['_elements']) {
+            if (args['_elements']) {
                 /**
                  * @type {string}
                  */
-                const properties_to_return_as_csv = combined_args['_elements'];
+                const properties_to_return_as_csv = args['_elements'];
                 /**
                  * @type {string[]}
                  */
@@ -247,7 +241,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
         }
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
-        if (env.RETURN_BUNDLE || combined_args['_bundle']) {
+        if (env.RETURN_BUNDLE || args['_bundle']) {
             /**
              * @type {function({Object}):Resource}
              */

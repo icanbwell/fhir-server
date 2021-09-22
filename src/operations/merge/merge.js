@@ -6,7 +6,6 @@ const {
     isAccessToResourceAllowedBySecurityTags
 } = require('../security/scopes');
 const moment = require('moment-timezone');
-const {get_all_args} = require('../common/get_all_args');
 const {isTrue} = require('../common/isTrue');
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
@@ -107,7 +106,6 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             };
         }
 
-        const combined_args = get_all_args(req, args);
         if (isTrue(env.AUTH_ENABLED)) {
             let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
             if (!success) {
@@ -137,7 +135,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
             }
         }
 
-        if (env.VALIDATE_SCHEMA || combined_args['_validate']) {
+        if (env.VALIDATE_SCHEMA || args['_validate']) {
             logDebug(req.user, '--- validate schema ----');
             /**
              * @type {?OperationOutcome}

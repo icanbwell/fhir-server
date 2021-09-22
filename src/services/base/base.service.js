@@ -11,6 +11,7 @@ const {historyById} = require('../../operations/historyById/historyById');
 const {patch} = require('../../operations/patch/patch');
 const {validate} = require('../../operations/validate/validate');
 const {graph} = require('../../operations/graph/graph');
+const {get_all_args} = require('../../operations/common/get_all_args');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -29,7 +30,12 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
  * @return {Resource[] | Resource} array of resources
  */
 module.exports.search = async (args, {req}, resource_name, collection_name) => {
-    return search(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return search(combined_args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -52,7 +58,12 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
  * @param {string} collection_name
  */
 module.exports.create = async (args, {req}, resource_name, collection_name) => {
-    return create(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return create(combined_args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -63,7 +74,12 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
  * @param {string} collection_name
  */
 module.exports.update = async (args, {req}, resource_name, collection_name) => {
-    return update(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return update(combined_args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -75,7 +91,12 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
  * @return {Resource | Resource[]}
  */
 module.exports.merge = async (args, {req}, resource_name, collection_name) => {
-    return merge(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return merge(combined_args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -86,7 +107,12 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
  * @param {string} collection_name
  */
 module.exports.everything = async (args, {req}, resource_name, collection_name) => {
-    return everything(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return everything(combined_args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -169,5 +195,10 @@ module.exports.validate = async (args, {req}, resource_name, collection_name) =>
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (args, {req}, resource_name, collection_name) => {
-    return graph(args, {req}, resource_name, collection_name);
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    const combined_args = get_all_args(req, args);
+    return graph(combined_args, {req}, resource_name, collection_name);
 };
