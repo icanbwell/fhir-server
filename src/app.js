@@ -395,9 +395,8 @@ graphql().then(x => {
     // app.use(fhirApp.app);
 
     // fhirApp.app.use('/', x);
-    app.use('/', x);
+    app.use(x);
     app.use(fhirApp.app);
-    // app.use(x);
 });
 // app.use(getGraphQLMiddleware());
 
