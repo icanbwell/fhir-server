@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {CLIENT_DB} = require('../../constants');
 const moment = require('moment-timezone');
 const globals = require('../../globals');
@@ -11,21 +10,17 @@ const globals = require('../../globals');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const {validateResource} = require('../../utils/validator.util');
 const {
-    NotFoundError,
     BadRequestError,
 } = require('../../utils/httpErrors');
-const {validate, applyPatch} = require('fast-json-patch');
 
 const async = require('async');
 const env = require('var');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {logRequest, logDebug} = require('../../operations/common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags, doesResourceHaveAccessTags,
+const {verifyHasValidScopes, doesResourceHaveAccessTags,
     getAccessCodesFromScopes, doesResourceHaveAnyAccessCodeFromThisList
 } = require('../../operations/security/scopes');
 const {getResource} = require('../../operations/common/getResource');
-const {buildStu3SearchQuery} = require('../../operations/search/query/stu3');
-const {buildDstu2SearchQuery} = require('../../operations/search/query/dstu2');
 const {isTrue} = require('../../operations/common/isTrue');
 const {search} = require('../../operations/search/search');
 const {searchById} = require('../../operations/searchById/searchById');
@@ -36,6 +31,8 @@ const {everything} = require('../../operations/everything/everything');
 const {remove} = require('../../operations/remove/remove');
 const {searchByVersionId} = require('../../operations/searchByVersionId/searchByVersionId');
 const {history} = require('../../operations/history/history');
+const {historyById} = require('../../operations/historyById/historyById');
+const {patch} = require('../../operations/patch/patch');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -159,45 +156,7 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, `${resource_name} >>> historyById`);
-    verifyHasValidScopes(resource_name, 'read', req.user, req.authInfo && req.authInfo.scope);
-
-    let {base_version, id} = args;
-    let query = {};
-
-    if (base_version === VERSIONS['3_0_1']) {
-        query = buildStu3SearchQuery(args);
-    } else if (base_version === VERSIONS['1_0_2']) {
-        query = buildDstu2SearchQuery(args);
-    }
-
-    query.id = `${id}`;
-
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    let Resource = getResource(base_version, resource_name);
-
-    // Query our collection for this observation
-    let cursor;
-    try {
-        cursor = await history_collection.find(query);
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.historyById: `, e);
-        throw new BadRequestError(e);
-    }
-    const resources = [];
-    while (await cursor.hasNext()) {
-        const element = await cursor.next();
-        const resource = new Resource(element);
-        if (isAccessToResourceAllowedBySecurityTags(resource, req)) {
-            resources.push(resource);
-        }
-    }
-    if (resources.length === 0) {
-        throw new NotFoundError();
-    }
-    return (resources);
+    return historyById(args, {req}, resource_name, collection_name);
 };
 
 /**
@@ -209,77 +168,7 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (args, {req}, resource_name, collection_name) => {
-    logRequest(req.user, 'Patient >>> patch');
-    verifyHasValidScopes(resource_name, 'write', req.user, req.authInfo && req.authInfo.scope);
-
-    let {base_version, id, patchContent} = args;
-
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
-    let collection = db.collection(`${collection_name}_${base_version}`);
-
-    // Get current record
-    // Query our collection for this observation
-    let data;
-    try {
-        data = await collection.findOne({id: id.toString()});
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.patch: `, e);
-        throw new BadRequestError(e);
-    }
-    if (!data) {
-        throw new NotFoundError();
-    }
-    // Validate the patch
-    let errors = validate(patchContent, data);
-    if (errors && Object.keys(errors).length > 0) {
-        logger.error('Error with patch contents');
-        throw new BadRequestError(errors[0]);
-    }
-    // Make the changes indicated in the patch
-    let resource_incoming = applyPatch(data, patchContent).newDocument;
-
-    let Resource = getResource(base_version, resource_name);
-    let resource = new Resource(resource_incoming);
-
-    if (data && data.meta) {
-        let foundResource = new Resource(data);
-        let meta = foundResource.meta;
-        // noinspection JSUnresolvedVariable
-        meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-        resource.meta = meta;
-    } else {
-        throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
-    }
-
-    // Same as update from this point on
-    let cleaned = JSON.parse(JSON.stringify(resource));
-    let doc = Object.assign(cleaned, {_id: id});
-
-    // Insert/update our resource record
-    let res;
-    try {
-        res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
-    } catch (e) {
-        logger.error(`Error with ${resource_name}.update: `, e);
-        throw new BadRequestError(e);
-    }
-    // Save to history
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-
-    // Insert our resource record to history but don't assign _id
-    try {
-        await history_collection.insertOne(history_resource);
-    } catch (e) {
-        logger.error(`Error with ${resource_name}History.create: `, e);
-        throw new BadRequestError(e);
-    }
-    return {
-        id: doc.id,
-        created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
-        resource_version: doc.meta.versionId,
-    };
+    return patch(args, {req}, resource_name, collection_name);
 };
 
 /**
