@@ -14,7 +14,7 @@ const {
 } = require('apollo-server-core');
 
 const graphql = async () => {
-    // Load schema from the file
+    // Load schema from the files
     const schema = await loadSchema(join(__dirname, '../graphql/schemas/schema.graphql'), {
       loaders: [
         new GraphQLFileLoader(),
