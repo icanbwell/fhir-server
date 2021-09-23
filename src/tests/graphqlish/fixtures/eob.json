@@ -1,0 +1,30 @@
+  {
+      "resourceType": "ExplanationOfBenefit",
+      "id": "EB3500",
+      "meta": {
+          "versionId": "2",
+          "lastUpdated": "2021-08-21T21:41:35+00:00"
+      },
+      "status": "Pending",
+      "type": {
+          "coding": [
+              {
+                  "system": "crazy url",
+                  "code": "Thing"
+              }
+          ],
+          "text": "Claim Type"
+      },
+      "use": "Claim",
+      "patient": {
+          "reference": "Patient/3333"
+      },
+      "created": "2015-08-08",
+      "insurer": {
+          "reference": "Organization/3322"
+      },
+      "provider": {
+          "reference": "Organization/32211"
+      },
+      "outcome": "In Progress"
+  }

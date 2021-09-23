@@ -2,6 +2,16 @@ const { parse } = require('graphql');
 const { search } = require('../../services/base/base.service');
 const { getCurrentDate, mapEOB } = require('./graphqlish.mappers');
 
+/**
+ * Provides addtional optional filtering based on request parameters
+ * @param {Object} eobData the returned data from the query
+ * @param {Object[]} billablePeriod filter for reducing result by data
+ * @param {Object[]} allowedAmount filter for reducing result by allowed bounds
+ * @param {Object[]} youPaid filter for reducing result by patient payment bounds
+ * @param {Object[]} insurancePaid filter for reducing result by insurance payment bounds
+ * @param {Object[]} claimTypes filter for reducing result by claim categories
+ *@returns {Object} The list of EOBs still qualfied under the filter conditions
+ */
 function filter(eobData, billablePeriod, allowedAmount, youPaid, insurancePaid, claimTypes) {
   let filteredData = eobData.entry;
   filteredData =
@@ -114,6 +124,12 @@ function filter(eobData, billablePeriod, allowedAmount, youPaid, insurancePaid, 
   eobData.total = filteredData === null || filteredData === void 0 ? void 0 : filteredData.length;
   return eobData;
 }
+
+/**
+ * Sudo graphql query for ExplanationOfBenefitList query, meant as a temporary step not a full graphql implementation
+ * @param {Object} req the incoming request from the client
+ * @returns {Object} The result of the search request in Bundle format
+ */
 module.exports.graphqlish = (req) => {
   if (req.query.query === undefined) {
     return { status: 'unsupported' };

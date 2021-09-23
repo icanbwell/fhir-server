@@ -1,4 +1,8 @@
 const { searchById } = require('../../services/base/base.service');
+/**
+ * Returns the current date in a format for Bundle display
+ * @returns {String} The result of the search request in Bundle format
+ */
 module.exports.getCurrentDate = () => {
   const today = new Date(),
     dd = today.getDate(),
@@ -7,6 +11,11 @@ module.exports.getCurrentDate = () => {
   return `${mm}:${dd}:${yyyy}`;
 };
 
+/**
+ * Transforms JSON coding to graphql Coding
+ * @param {Object} c json coding
+ * @returns {Object} graphql fromat of the Coding type
+ */
 function mapCoding(c) {
   if (c) {
     return {
@@ -20,6 +29,12 @@ function mapCoding(c) {
   }
   return null;
 }
+
+/**
+ * Transforms JSON coding to graphql CodingList
+ * @param {Object} codes json CodingList
+ * @returns {Object} graphql fromat of the CodingList type
+ */
 function mapCodingList(codes) {
   const result = [];
   if (codes) {
@@ -30,6 +45,11 @@ function mapCodingList(codes) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql CodeableConcept
+ * @param {Object} code json CodeableConcept
+ * @returns {Object} graphql fromat of the CodeableConcept type
+ */
 function mapCodeableConcept(code) {
   if (code) {
     return {
@@ -41,6 +61,11 @@ function mapCodeableConcept(code) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql CodeableConceptList
+ * @param {Object} codes json CodeableConceptList
+ * @returns {Object} graphql fromat of the CodeableConceptList type
+ */
 function mapCodeableConceptList(codes) {
   const result = [];
   if (codes) {
@@ -51,6 +76,11 @@ function mapCodeableConceptList(codes) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Period
+ * @param {Object} period json Period
+ * @returns {Object} graphql fromat of the Period type
+ */
 function mapPeriod(period) {
   if (period) {
     return {
@@ -62,6 +92,11 @@ function mapPeriod(period) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql address
+ * @param {Object} address json address
+ * @returns {Object} graphql fromat of the address type
+ */
 function mapAddress(address) {
   if (address) {
     return {
@@ -81,6 +116,11 @@ function mapAddress(address) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql meta
+ * @param {Object} meta json meta
+ * @returns {Object} graphql fromat of the meta type
+ */
 function mapMeta(meta) {
   if (meta) {
     return {
@@ -94,6 +134,11 @@ function mapMeta(meta) {
   }
 }
 
+/**
+ * Transforms JSON coding to graphql Narrative
+ * @param {Object} text json Narrative
+ * @returns {Object} graphql fromat of the Narrative type
+ */
 function mapNarrative(text) {
   if (text) {
     return {
@@ -104,6 +149,12 @@ function mapNarrative(text) {
   }
   return null;
 }
+
+/**
+ * Transforms JSON coding to graphql Reference
+ * @param {Object} ref json Reference
+ * @returns {Object} graphql fromat of the Reference type
+ */
 function mapReference(ref) {
   if (ref && ref.reference) {
     return { id: ref.reference };
@@ -111,6 +162,12 @@ function mapReference(ref) {
     return null;
   }
 }
+
+/**
+ * Transforms JSON coding to graphql Identifier
+ * @param {Object} id json Identifier
+ * @returns {Object} graphql fromat of the Identifier type
+ */
 function mapIdentifier(id) {
   if (id) {
     return {
@@ -126,6 +183,11 @@ function mapIdentifier(id) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql IdentifierList
+ * @param {Object} ids json IdentifierList
+ * @returns {Object} graphql fromat of the IdentifierList type
+ */
 function mapIdentifierList(ids) {
   const result = [];
   if (ids) {
@@ -135,6 +197,12 @@ function mapIdentifierList(ids) {
   }
   return result;
 }
+
+/**
+ * Transforms JSON coding to graphql HumanName
+ * @param {Object} human json HumanName
+ * @returns {Object} graphql fromat of the HumanName type
+ */
 function mapHumanName(human) {
   if (human) {
     return {
@@ -150,6 +218,12 @@ function mapHumanName(human) {
   }
   return null;
 }
+
+/**
+ * Transforms JSON coding to graphql HumanNameList
+ * @param {Object} humans json HumanNameList
+ * @returns {Object} graphql fromat of the HumanNameList type
+ */
 function mapHumanNameList(humans) {
   const result = [];
   if (humans) {
@@ -160,6 +234,11 @@ function mapHumanNameList(humans) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ContactPoint
+ * @param {Object} cp json ContactPoint
+ * @returns {Object} graphql fromat of the ContactPoint type
+ */
 function mapContactPoint(cp) {
   if (cp) {
     return {
@@ -174,6 +253,11 @@ function mapContactPoint(cp) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ContactPointList
+ * @param {Object} cps json ContactPointList
+ * @returns {Object} graphql fromat of the ContactPointList type
+ */
 function mapContactPointList(cps) {
   const result = [];
   if (cps) {
@@ -184,6 +268,11 @@ function mapContactPointList(cps) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql AddressList
+ * @param {Object} addresses json AddressList
+ * @returns {Object} graphql fromat of the AddressList type
+ */
 function mapAddressList(addresses) {
   const result = [];
   if (addresses) {
@@ -194,6 +283,11 @@ function mapAddressList(addresses) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Attachment
+ * @param {Object} attach json Attachment
+ * @returns {Object} graphql fromat of the Attachment type
+ */
 function mapAttachment(attach) {
   if (attach) {
     return {
@@ -211,6 +305,11 @@ function mapAttachment(attach) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql AttachmentList
+ * @param {Object} attachs json AttachmentList
+ * @returns {Object} graphql fromat of the AttachmentList type
+ */
 function mapAttachmentList(attachs) {
   const result = [];
   if (attachs) {
@@ -221,6 +320,11 @@ function mapAttachmentList(attachs) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ReferenceList
+ * @param {Object} refs json ReferenceList
+ * @returns {Object} graphql fromat of the ReferenceList type
+ */
 function mapReferenceList(refs) {
   if (!refs) {
     return null;
@@ -231,6 +335,12 @@ function mapReferenceList(refs) {
   }
   return result;
 }
+
+/**
+ * Transforms JSON coding to graphql Practitionerqualification
+ * @param {Object} qual json Practitionerqualification
+ * @returns {Object} graphql fromat of the Practitionerqualification type
+ */
 function mapPractitionerqualification(qual) {
   return {
     id: qual.id,
@@ -241,6 +351,11 @@ function mapPractitionerqualification(qual) {
   };
 }
 
+/**
+ * Transforms JSON coding to graphql PractitionerqualificationList
+ * @param {Object} quals json PractitionerqualificationList
+ * @returns {Object} graphql fromat of the PractitionerqualificationList type
+ */
 function mapPractitionerqualificationList(qauls) {
   const result = [];
   if (qauls) {
@@ -251,6 +366,12 @@ function mapPractitionerqualificationList(qauls) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Practitioner while making a request for more data about the practitioner with a seperate call
+ * @param {Object} ref json Practitioner
+ * @param {Object} req json Initial request from client
+ * @returns {Object} graphql fromat of the Practitioner type
+ */
 function mapPractitioner(ref, { req }) {
   const splitId = ref.split('/');
   const pid = splitId[splitId.length - 1];
@@ -279,7 +400,7 @@ function mapPractitioner(ref, { req }) {
           birthDate: data.birthDate,
           photo: mapAttachmentList(data.photo),
           qualification: mapPractitionerqualificationList(data.qualification),
-          communication: mapCodeableConceptList(data.communication)
+          communication: mapCodeableConceptList(data.communication),
         };
       } else {
         return { id: pid };
@@ -291,12 +412,23 @@ function mapPractitioner(ref, { req }) {
   })();
 }
 
+/**
+ * Transforms JSON coding to graphql Organization
+ * @param {Object} ref json Organization
+ * @returns {Object} graphql fromat of the Organization type
+ */
 function mapOrganization(ref) {
   const splitId = ref.split('/');
   const pid = splitId[splitId.length - 1];
   return { id: pid };
 }
 
+/**
+ * Detects if a practitionor reference was passed and calls the correct mapper by id type passed in
+ * @param {Object} ref json Reference
+ * @param {Object} req json Initial request from client
+ * @returns {Object} graphql fromat of the Reference type
+ */
 function resolveProvider(ref, { req }) {
   if (ref && ref.reference) {
     if (ref.reference.startsWith('Practitioner')) {
@@ -310,6 +442,11 @@ function resolveProvider(ref, { req }) {
   return null;
 }
 
+/**
+ * Converts an array of json strings to graphql strings
+ * @param {Object} strs array of json strings
+ * @returns {Object} graphql fromat of the String list type
+ */
 function convertStringArray(strs) {
   const result = [];
   if (strs) {
@@ -320,6 +457,11 @@ function convertStringArray(strs) {
   return result;
 }
 
+/**
+ * Converts an array of json numbers to graphql numbers
+ * @param {Object} nums array of json strings
+ * @returns {Object} graphql fromat of the Number list type
+ */
 function convertNumberArray(nums) {
   const result = [];
   if (nums) {
@@ -330,6 +472,11 @@ function convertNumberArray(nums) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Quantity
+ * @param {Object} quantity json Quantity
+ * @returns {Object} graphql fromat of the Quantity type
+ */
 function mapQuantity(quantity) {
   if (quantity) {
     return {
@@ -344,6 +491,11 @@ function mapQuantity(quantity) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql Money
+ * @param {Object} price json Money
+ * @returns {Object} graphql fromat of the Money type
+ */
 function mapMoney(price) {
   if (price) {
     return {
@@ -355,6 +507,11 @@ function mapMoney(price) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql PeriodList
+ * @param {Object} periods json PeriodList
+ * @returns {Object} graphql fromat of the PeriodList type
+ */
 function mapPeriodList(periods) {
   const result = [];
   if (periods) {
@@ -365,6 +522,11 @@ function mapPeriodList(periods) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Payee
+ * @param {Object} data json Payee
+ * @returns {Object} graphql fromat of the Payee type
+ */
 function mapPayee(data) {
   if (data && data.payee) {
     return {
@@ -374,6 +536,11 @@ function mapPayee(data) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql AjudicationList
+ * @param {Object} ads json AjudicationList
+ * @returns {Object} graphql fromat of the AjudicationList type
+ */
 function mapAjudicationList(ads) {
   const result = [];
   if (ads) {
@@ -390,6 +557,11 @@ function mapAjudicationList(ads) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql EOBSubDetailList
+ * @param {Object} subDet json EOBSubDetailList
+ * @returns {Object} graphql fromat of the EOBSubDetailList type
+ */
 function mapEOBSubDetailList(subDet) {
   const result = [];
   if (subDet) {
@@ -414,6 +586,11 @@ function mapEOBSubDetailList(subDet) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ItemDetailList
+ * @param {Object} details json ItemDetailList
+ * @returns {Object} graphql fromat of the ItemDetailList type
+ */
 function mapItemDetailList(details) {
   const result = [];
   if (details) {
@@ -439,6 +616,12 @@ function mapItemDetailList(details) {
   return result;
 }
 
+/**
+ * Calculates the amount for each adjudication based on code data from the EOB
+ * @param {Object} adjudications all adjudications for the current EOB
+ * @param {Object} codes all codes of the current EOB
+ * @returns {Object} graphql fromat of the simplifed amounts
+ */
 function getAmount(adjudications, codes) {
   var _a, _b;
   for (const code of codes) {
@@ -476,7 +659,12 @@ function getAmount(adjudications, codes) {
   }
   return null;
 }
-
+/**
+ * Transforms amounts of eaching coding type into a reduced structure for easier display
+ * @param {Object} ads all adjudications for the current EOB
+ * @param {Object} claimLines all codes of the current EOB
+ * @returns {Object} graphql fromat of the simplifed amounts
+ */
 function mapAmounts(ads, claimLines) {
   let result = {};
   if (ads) {
@@ -522,6 +710,11 @@ function mapAmounts(ads, claimLines) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Item
+ * @param {Object} data json Item
+ * @returns {Object} graphql fromat of the Item type
+ */
 function mapItem(data) {
   const result = [];
   if (data && data.item) {
@@ -562,6 +755,11 @@ function mapItem(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql EOBRelated
+ * @param {Object} relate json EOBRelated
+ * @returns {Object} graphql fromat of the EOBRelated type
+ */
 function mapEOBRelated(relate) {
   if (relate) {
     return {
@@ -574,6 +772,11 @@ function mapEOBRelated(relate) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql EOBRelatedList
+ * @param {Object} data json EOBRelatedList
+ * @returns {Object} graphql fromat of the EOBRelatedList type
+ */
 function mapEOPRelatedList(data) {
   const result = [];
   if (data && data.related) {
@@ -584,6 +787,11 @@ function mapEOPRelatedList(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql CareTeam
+ * @param {Object} data json CareTeam
+ * @returns {Object} graphql fromat of the CareTeam type
+ */
 function mapCareTeam(data) {
   const result = [];
   if (data.careTeam) {
@@ -601,6 +809,11 @@ function mapCareTeam(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql EOBSupportingInfo
+ * @param {Object} data json EOBSupportingInfo
+ * @returns {Object} graphql fromat of the EOBSupportingInfo type
+ */
 function mapEOBSupportingInfo(data) {
   const result = [];
   if (data.supportingInfo) {
@@ -624,6 +837,11 @@ function mapEOBSupportingInfo(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Diagnosis
+ * @param {Object} data json Diagnosis
+ * @returns {Object} graphql fromat of the Diagnosis type
+ */
 function mapDiagnosis(data) {
   const result = [];
   if (data.diagnosis) {
@@ -642,6 +860,11 @@ function mapDiagnosis(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Procedure
+ * @param {Object} data json Procedure
+ * @returns {Object} graphql fromat of the Procedure type
+ */
 function mapProcedure(data) {
   const result = [];
   if (data && data.procedure) {
@@ -660,6 +883,11 @@ function mapProcedure(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql Insurance
+ * @param {Object} data json Insurance
+ * @returns {Object} graphql fromat of the Insurance type
+ */
 function mapInsurance(data) {
   const result = [];
   if (data && data.insurance) {
@@ -675,6 +903,11 @@ function mapInsurance(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefititem
+ * @param {Object} data json ExplanationOfBenefititem
+ * @returns {Object} graphql fromat of the ExplanationOfBenefititem type
+ */
 function mapExplanationOfBenefititem(data) {
   if (data && data.accident) {
     return {
@@ -688,6 +921,11 @@ function mapExplanationOfBenefititem(data) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItemdetailsubDetail
+ * @param {Object} sub json ExplanationOfBenefitaddItemdetailsubDetail
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItemdetailsubDetail type
+ */
 function mapExplanationOfBenefitaddItemdetailsubDetail(sub) {
   if (sub) {
     return {
@@ -704,6 +942,11 @@ function mapExplanationOfBenefitaddItemdetailsubDetail(sub) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItemdetailsubDetailList
+ * @param {Object} subDets json ExplanationOfBenefitaddItemdetailsubDetailList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItemdetailsubDetailList type
+ */
 function mapExplanationOfBenefitaddItemdetailsubDetailList(subDets) {
   const result = [];
   if (subDets) {
@@ -714,6 +957,11 @@ function mapExplanationOfBenefitaddItemdetailsubDetailList(subDets) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItemdetail
+ * @param {Object} detail json ExplanationOfBenefitaddItemdetail
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItemdetail type
+ */
 function mapExplanationOfBenefitaddItemdetail(detail) {
   if (detail) {
     return {
@@ -731,6 +979,11 @@ function mapExplanationOfBenefitaddItemdetail(detail) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItemdetailList
+ * @param {Object} details json ExplanationOfBenefitaddItemdetailList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItemdetailList type
+ */
 function mapExplanationOfBenefitaddItemdetailList(details) {
   const result = [];
   if (details) {
@@ -741,6 +994,11 @@ function mapExplanationOfBenefitaddItemdetailList(details) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItem
+ * @param {Object} item json ExplanationOfBenefitaddItem
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItem type
+ */
 function mapExplanationOfBenefitaddItem(item) {
   if (item) {
     return {
@@ -769,6 +1027,11 @@ function mapExplanationOfBenefitaddItem(item) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitaddItemList
+ * @param {Object} data json ExplanationOfBenefitaddItemList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitaddItemList type
+ */
 function mapExplanationOfBenefitaddItemList(data) {
   const result = [];
   if (data && data.addItem) {
@@ -778,6 +1041,12 @@ function mapExplanationOfBenefitaddItemList(data) {
   }
   return result;
 }
+
+/**
+ * Transforms JSON coding to graphql Total
+ * @param {Object} total json Total
+ * @returns {Object} graphql fromat of the Total type
+ */
 function mapTotal(total) {
   if (total) {
     return {
@@ -789,6 +1058,11 @@ function mapTotal(total) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql TotalList
+ * @param {Object} data json TotalList
+ * @returns {Object} graphql fromat of the TotalList type
+ */
 function mapTotalList(data) {
   if (data && data.total) {
     const result = [];
@@ -800,6 +1074,11 @@ function mapTotalList(data) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitpayment
+ * @param {Object} data json ExplanationOfBenefitpayment
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitpayment type
+ */
 function mapExplanationOfBenefitpayment(data) {
   if (data && data.payment) {
     return {
@@ -815,6 +1094,11 @@ function mapExplanationOfBenefitpayment(data) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitprocessNote
+ * @param {Object} proc json ExplanationOfBenefitprocessNote
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitprocessNote type
+ */
 function mapExplanationOfBenefitprocessNote(proc) {
   if (proc) {
     return {
@@ -828,6 +1112,11 @@ function mapExplanationOfBenefitprocessNote(proc) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitprocessNoteList
+ * @param {Object} data json ExplanationOfBenefitprocessNoteList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitprocessNoteList type
+ */
 function mapExplanationOfBenefitprocessNoteList(data) {
   if (data && data.processNote) {
     const proc = [];
@@ -839,6 +1128,11 @@ function mapExplanationOfBenefitprocessNoteList(data) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitbenefitBalancefinancial
+ * @param {Object} fin json ExplanationOfBenefitbenefitBalancefinancial
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitbenefitBalancefinancial type
+ */
 function mapExplanationOfBenefitbenefitBalancefinancial(fin) {
   if (fin) {
     return {
@@ -854,6 +1148,11 @@ function mapExplanationOfBenefitbenefitBalancefinancial(fin) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitbenefitBalancefinancialList
+ * @param {Object} fins json ExplanationOfBenefitbenefitBalancefinancialList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitbenefitBalancefinancialList type
+ */
 function mapExplanationOfBenefitbenefitBalancefinancialList(fins) {
   const result = [];
   if (fins) {
@@ -864,6 +1163,11 @@ function mapExplanationOfBenefitbenefitBalancefinancialList(fins) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitbenefitBalance
+ * @param {Object} benBal json ExplanationOfBenefitbenefitBalance
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitbenefitBalance type
+ */
 function mapExplanationOfBenefitbenefitBalance(benBal) {
   if (benBal) {
     return {
@@ -881,6 +1185,11 @@ function mapExplanationOfBenefitbenefitBalance(benBal) {
   return null;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefitbenefitBalanceList
+ * @param {Object} data json ExplanationOfBenefitbenefitBalanceList
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitbenefitBalanceList type
+ */
 function mapExplanationOfBenefitbenefitBalanceList(data) {
   const result = [];
   if (data && data.benefitBalance) {
@@ -891,6 +1200,12 @@ function mapExplanationOfBenefitbenefitBalanceList(data) {
   return result;
 }
 
+/**
+ * Transforms JSON coding to graphql ExplanationOfBenefit
+ * @param {Object} data json ExplanationOfBenefitbenefit
+ * @param {Object} req json Initial request from client
+ * @returns {Object} graphql fromat of the ExplanationOfBenefitbenefit type
+ */
 module.exports.mapEOB = (data, { req }) => {
   const item = mapItem(data);
   return {
