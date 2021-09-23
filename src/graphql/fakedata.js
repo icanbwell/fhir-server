@@ -30,7 +30,22 @@ module.exports.explanationOfBenefits = [
         id: '101',
         status: 'active',
         use: 'usual',
-        patient_reference: '1'
+        patient_reference: '1',
+        item: [
+            {
+                sequence: 1,
+                productOrService: {
+                    coding: [
+                        {
+                            system: 'http://www.foo.com',
+                            code: '12344'
+                        }
+                    ],
+                    text: 'my coding'
+                },
+                quantity: 2.0
+            }
+        ]
     },
     {
         id: '102',
