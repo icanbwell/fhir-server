@@ -1,4 +1,9 @@
 const {ApolloServer} = require('apollo-server-express');
+const { join } = require('path');
+const { loadSchemaSync } = require( '@graphql-tools/load');
+const { GraphQLFileLoader } = require( '@graphql-tools/graphql-file-loader');
+const { addResolversToSchema } = require( '@graphql-tools/schema');
+
 // import loginWithToken from "../users/token";
 // import {configuration as corsConfiguration} from "../../middleware/cors";
 
@@ -15,15 +20,30 @@ const graphql = async () => {
         `;
 
     //resolvers
-    const resolvers = {
-        Query: {
-            totalPosts: () => 42,
-        },
-    };
+    // const resolvers = {
+    //     Query: {
+    //         totalPosts: () => 42,
+    //     },
+    // };
+
+    // Load schema from the file
+    const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/schema.graphql'), {
+      loaders: [
+        new GraphQLFileLoader(),
+      ]
+    });
+
+    // // Write some resolvers
+    const resolvers = {};
+
+    // Add resolvers to the schema
+    const schemaWithResolvers = addResolversToSchema({
+        schema,
+        resolvers,
+    });
     const server = new ApolloServer(
         {
-            typeDefs,
-            resolvers,
+            schema: schemaWithResolvers,
             plugins: [
                 // eslint-disable-next-line new-cap
                 ApolloServerPluginLandingPageGraphQLPlayground(),
