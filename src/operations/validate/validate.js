@@ -6,7 +6,7 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * @param {string[]} args
  * @param {string} user
  * @param {string} scope
- * @param {string} body
+ * @param {Object} body
  * @param {string} path
  * @param {string} resource_name
  */

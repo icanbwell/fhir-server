@@ -22,7 +22,7 @@ const {logError} = require('../common/logging');
  * @param {string[]} args
  * @param {string} user
  * @param {string} scope
- * @param {string} body
+ * @param {Object} body
  * @param {string} path
  * @param {string} resource_name
  * @param {string} collection_name

@@ -18,7 +18,7 @@ const {BadRequestError} = require('../../utils/httpErrors');
  * @param {string[]} args
  * @param {string} user
  * @param {string} scope
- * @param {string} body
+ * @param {Object} body
  * @param {string} path
  * @param {string} host_
  * @param {string} resource_name

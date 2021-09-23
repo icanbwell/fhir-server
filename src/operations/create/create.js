@@ -10,12 +10,13 @@ const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
+
 /**
  * does a FHIR Create (POST)
  * @param {string[]} args
  * @param {string} user
  * @param {string} scope
- * @param {string} body
+ * @param {Object} body
  * @param {string} path
  * @param {string} resource_name
  * @param {string} collection_name
