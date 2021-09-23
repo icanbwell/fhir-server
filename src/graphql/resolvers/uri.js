@@ -1,7 +1,7 @@
 const {GraphQLScalarType, Kind} = require('graphql');
 
 const uriScalar = new GraphQLScalarType({
-    name: 'code',
+    name: 'uri',
     description: 'code custom scalar type',
     serialize(value) {
         return value;

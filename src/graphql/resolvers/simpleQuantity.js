@@ -1,7 +1,7 @@
 const {GraphQLScalarType, Kind} = require('graphql');
 
 const simpleQuantityScalar = new GraphQLScalarType({
-    name: 'code',
+    name: 'SimpleQuantity',
     description: 'code custom scalar type',
     serialize(value) {
         return value;
