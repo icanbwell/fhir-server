@@ -1,4 +1,7 @@
+# import Post from 'post.graphql'
+
 type Comment {
   id: ID!
   text: String!
+  post: Post
 }

@@ -1,6 +1,9 @@
 # import Post from "post.graphql"
+# import Comment from "comment.graphql"
 
 type Query {
   posts: [Post]
   post(id:String): Post!
+  comments: [Comment]
+  comment(id:String): Comment!
 }
