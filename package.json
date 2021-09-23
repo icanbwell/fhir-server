@@ -54,7 +54,7 @@
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/node-fhir-server-core": "^2.2.3",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@popperjs/core": "^2.9.3",
+    "@popperjs/core": "^2.10.0",
     "@sentry/node": "^6.13.2",
     "@slack/web-api": "^6.4.0",
     "apollo-server-core": "^3.3.0",
