@@ -1,8 +1,0 @@
-# import CodeableConcept from "codeableConcept.graphql"
-# import SimpleQuantity from "simpleQuantity.graphql"
-
-type ExplanationOfBenefitItem {
-    sequence: Int
-    productOrService: CodeableConcept
-    quantity: SimpleQuantity!
-}
