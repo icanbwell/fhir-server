@@ -7326,11 +7326,6 @@
   dependencies:
     "@panva/asn1.js" "^1.0.0"
 
-"jose@^3.18.0":
-  "integrity" "sha512-3IL+URD6RO687HAnYrIxcqQNPz0CO4Kpu+tKoljcQeI2tbTUHcEdlBXqFfhrg6rqkr+iZkpFm2xtjQqrPQW2hw=="
-  "resolved" "https://registry.npmjs.org/jose/-/jose-3.18.0.tgz"
-  "version" "3.18.0"
-
 "jpegtran-bin@^4.0.0":
   "integrity" "sha512-2cRl1ism+wJUoYAYFt6O/rLBfpXNWG2dUWbgcEkTt5WGMnqI46eEro8T4C5zGROxKRqyKpCBSdHPvt5UYCtxaQ=="
   "resolved" "https://registry.npmjs.org/jpegtran-bin/-/jpegtran-bin-4.0.0.tgz"
