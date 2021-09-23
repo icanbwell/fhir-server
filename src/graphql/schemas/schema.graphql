@@ -2,4 +2,5 @@
 
 type Query {
   posts: [Post]
+  post(id:String): Post!
 }

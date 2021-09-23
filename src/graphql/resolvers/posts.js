@@ -8,7 +8,8 @@ module.exports = {
   Query: {
     // eslint-disable-next-line no-unused-vars
     posts: async (parent, args, context, info) => { return posts;},
-    // post: () => {},
+    // eslint-disable-next-line no-unused-vars
+    post: async (parent, args, context, info) => { return posts[0];},
   },
   Post: {
     // eslint-disable-next-line no-unused-vars
