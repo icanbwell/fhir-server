@@ -1,4 +1,4 @@
-# import Comment from 'comments.graphql'
+# import Comment from 'comment.graphql'
 
 type Post {
   comments: [Comment]
