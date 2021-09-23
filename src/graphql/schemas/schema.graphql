@@ -1,13 +1,7 @@
-# import Post from "post.graphql"
-# import Comment from "comment.graphql"
 # import Patient from "patient.graphql"
 # import ExplanationOfBenefit from "explanationOfBenefit.graphql"
 
 type Query {
-  posts: [Post]
-  post(id:String): Post
-  comments: [Comment]
-  comment(id:String): Comment
   patients: [Patient]
   patient(id:String): Patient
   explanationOfBenefits: [ExplanationOfBenefit]

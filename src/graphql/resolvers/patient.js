@@ -1,16 +1,16 @@
-const {posts, comments} = require('../fakedata');
+const {patients, explanationOfBenefits} = require('../fakedata');
 
 module.exports = {
   Query: {
     // eslint-disable-next-line no-unused-vars
-    patients: async (parent, args, context, info) => { return posts;},
+    patients: async (parent, args, context, info) => { return patients;},
     // eslint-disable-next-line no-unused-vars
-    patient: async (parent, args, context, info) => { return posts[0];},
+    patient: async (parent, args, context, info) => { return patients.filter(x => x.id === args.id)[0];},
   },
   Patient: {
     // eslint-disable-next-line no-unused-vars
     explanationOfBenefit: async (parent, args, context, info) => {
-      return comments.filter(x => x.postId === parent.id);
+      return explanationOfBenefits.filter(x => x.patient_reference === parent.id);
     },
   },
 };
