@@ -1,8 +1,8 @@
 const {ApolloServer} = require('apollo-server-express');
-const { join } = require('path');
-const { loadSchema } = require( '@graphql-tools/load');
-const { GraphQLFileLoader } = require( '@graphql-tools/graphql-file-loader');
-const { addResolversToSchema } = require( '@graphql-tools/schema');
+const {join} = require('path');
+const { loadSchemaSync} = require('@graphql-tools/load');
+const {GraphQLFileLoader} = require('@graphql-tools/graphql-file-loader');
+const {addResolversToSchema} = require('@graphql-tools/schema');
 const resolvers = require('../graphql/resolvers');
 
 // import loginWithToken from "../users/token";
@@ -14,11 +14,10 @@ const {
 } = require('apollo-server-core');
 
 const graphql = async () => {
-    // Load schema from the files
-    const schema = await loadSchema(join(__dirname, '../graphql/schemas/schema.graphql'), {
-      loaders: [
-        new GraphQLFileLoader(),
-      ]
+    const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/schema.graphql'), {
+        loaders: [
+            new GraphQLFileLoader(),
+        ]
     });
 
     // Add resolvers to the schema
