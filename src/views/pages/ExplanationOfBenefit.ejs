@@ -69,7 +69,7 @@
                 <td>
                     <% if (item.productOrService) { %>
                         <% item.productOrService.coding.forEach(function(coding){ %>
-                            <%= coding.code %> (<%= coding.system %>)
+                            <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
                  </td>
