@@ -59,7 +59,11 @@
                     <% if (item.servicedDate) { %>
                         <%= item.servicedDate %>
                     <%} else if (item.servicedPeriod) {%>
-                        <%= item.servicedPeriod.start %> - <%= item.servicedPeriod.end %>
+                        <% if (item.servicedPeriod.start != item.servicedPeriod.end) {%>
+                            <%= item.servicedPeriod.start %> - <%= item.servicedPeriod.end %>
+                        <% } else { %>
+                            <%= item.servicedPeriod.start %>
+                        <%}%>
                     <%}%>
                 </td>
                 <td>
