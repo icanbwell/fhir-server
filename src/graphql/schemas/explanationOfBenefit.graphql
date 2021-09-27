@@ -10,6 +10,7 @@
 # import dateTime from "dateTime.graphql"
 # import Reference from "reference.graphql"
 # import Meta from "meta.graphql"
+# import Practitioner from "practitioner.graphql"
 
 type ExplanationOfBenefitItemAdjudication {
     category: CodeableConcept!
@@ -89,7 +90,7 @@ type ExplanationOfBenefit {
     patient: Patient!
     diagnosis: [ExplanationOfBenefitDiagnosis]
     procedure: [ExplanationOfBenefitProcedure]
-    provider: Reference
+    provider: Practitioner
     insurance: [ExplanationOfBenefitInsurance]!
     insurer: Reference!
     outcome: code!

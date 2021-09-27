@@ -1,4 +1,3 @@
-// const {patients, explanationOfBenefits} = require('../fakedata');
 const {search} = require('../../operations/search/search');
 const {searchById} = require('../../operations/searchById/searchById');
 const {NotFoundError} = require('../../utils/httpErrors');
@@ -31,6 +30,26 @@ module.exports = {
                     context.scope,
                     'Patient',
                     'Patient'
+                );
+            } catch (e) {
+                if (e instanceof NotFoundError) {
+                    return null;
+                }
+            }
+        },
+        // eslint-disable-next-line no-unused-vars
+        provider: async (parent, args, context, info) => {
+            try {
+                /**
+                 * @type {string}
+                 */
+                const idOfReference = parent.provider.reference.split('/')[1];
+                return searchById(
+                    {base_version: '4_0_0', id: idOfReference},
+                    context.user,
+                    context.scope,
+                    'Practitioner',
+                    'Practitioner'
                 );
             } catch (e) {
                 if (e instanceof NotFoundError) {
