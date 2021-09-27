@@ -40,6 +40,7 @@
                   <th scope="col">Code</th>
                   <th scope="col">Quantity</th>
                   <th scope="col">Revenue</th>
+                  <th scope="col">Adjudication</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,6 +70,15 @@
                     <% if (item.revenue) { %>
                        <% item.revenue.coding.forEach(function(coding){ %>
                             <%= coding.code %>
+                        <%})%>
+                    <%}%>
+                 </td>
+                 <td>
+                    <% if (item.adjudication) {%>
+                        <% item.adjudication.forEach(function(adjudication){%>
+                           <% adjudication.category.coding.forEach(function(coding){ %>
+                                <%= coding.code %>=<%= adjudication.amount.value %>
+                            <%})%>
                         <%})%>
                     <%}%>
                  </td>
