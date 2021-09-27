@@ -67,6 +67,34 @@
         </div>
         <%}%>
 
+        <% if (res.procedure) { %>
+        <div>
+            <h4>Procedure</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Sequence</th>
+                  <th scope="col">Code</th>
+                </tr>
+              </thead>
+              <tbody>
+            <% res.procedure.forEach(function(procedure){ %>
+                <tr>
+                    <td><%= procedure.sequence %></td>
+                    <td>
+                        <% if (procedure.procedureCodeableConcept){%>
+                        <% procedure.procedureCodeableConcept.coding.forEach(function(coding) {%>
+                            <%= coding.code %> (<%= coding.system.split('/').pop() %>)
+                        <%})%>
+                        <%}%>
+                    </td>
+                 </tr>
+            <%})%>
+              </tbody>
+            </table>
+        </div>
+        <%}%>
+
 
         <% if (res.item) { %>
         <div>
