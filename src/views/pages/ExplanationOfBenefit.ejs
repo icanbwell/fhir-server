@@ -29,6 +29,45 @@
 
         <%- include('../partials/reference', {references: [res.claim], name: "Claim"}); %>
 
+        <% if (res.diagnosis) { %>
+        <div>
+            <h4>Diagnosis</h4>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Sequence</th>
+                  <th scope="col">Code</th>
+                  <th scope="col">Type</th>
+                </tr>
+              </thead>
+              <tbody>
+            <% res.diagnosis.forEach(function(diagnosisItem){ %>
+                <tr>
+                    <td><%= diagnosisItem.sequence %></td>
+                    <td>
+                        <% if (diagnosisItem.diagnosisCodeableConcept){%>
+                        <% diagnosisItem.diagnosisCodeableConcept.coding.forEach(function(coding) {%>
+                            <%= coding.code %> (<%= coding.system.split('/').pop() %>)
+                        <%})%>
+                        <%}%>
+                    </td>
+                    <td>
+                        <% if (diagnosisItem.type){%>
+                        <% diagnosisItem.type.forEach(function(type) {%>
+                            <% type.coding.forEach(function(coding) {%>
+                                <%= coding.code %> (<%= coding.system.split('/').pop() %>)
+                            <%})%>
+                        <%})%>
+                        <%}%>
+                    </td>
+                 </tr>
+            <%})%>
+              </tbody>
+            </table>
+        </div>
+        <%}%>
+
+
         <% if (res.item) { %>
         <div>
             <h4>Items</h4>
@@ -269,7 +308,7 @@
                 <td>
                     <% if (item.category && item.category.coding) { %>
                         <% item.category.coding.forEach(function(coding){ %>
-                            <%= coding.code %> (<%= coding.system %>)
+                            <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
                  </td>
