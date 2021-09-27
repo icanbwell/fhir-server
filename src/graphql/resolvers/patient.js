@@ -1,6 +1,5 @@
 const {search} = require('../../operations/search/search');
 const {searchById} = require('../../operations/searchById/searchById');
-// const {search} = require('../../operations/search/search');
 
 module.exports = {
     Query: {
