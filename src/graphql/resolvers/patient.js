@@ -21,7 +21,10 @@ module.exports = {
     Patient: {
         // eslint-disable-next-line no-unused-vars
         explanationOfBenefit: async (parent, args, context, info) => {
-            return explanationOfBenefits.filter(x => x.patient_reference === parent.id);
+            return search({
+                base_version: '4_0_0',
+                'patient': parent.id
+            }, context.user, context.scope, 'ExplanationOfBenefit', 'ExplanationOfBenefit');
         },
     },
 };
