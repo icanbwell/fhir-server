@@ -37,19 +37,68 @@ module.exports = {
                 }
             }
         },
+        // ExplanationOfBenefitProvider: {
+        //     resolveType(obj, context, info){
+        //         return obj.resourceType;
+        //     }
+        // },
+        // ExplanationOfBenefitProvider: {
+        //     // noinspection JSUnusedGlobalSymbols
+        //     // eslint-disable-next-line no-unused-vars
+        //     __resolveType(obj, context, info) {
+        //         if (obj) {
+        //             return obj.resourceType;
+        //         }
+        //         return null; // GraphQLError is thrown
+        //     },
+        // },
         // eslint-disable-next-line no-unused-vars
-        provider: async (parent, args, context, info) => {
+        practitioner: async (parent, args, context, info) => {
             try {
                 /**
                  * @type {string}
                  */
+                const typeOfReference = parent.provider.reference.split('/')[0];
+                /**
+                 * @type {string}
+                 */
                 const idOfReference = parent.provider.reference.split('/')[1];
-                return searchById(
+                if (typeOfReference !== 'Practitioner') {
+                    return null;
+                }
+                return await searchById(
                     {base_version: '4_0_0', id: idOfReference},
                     context.user,
                     context.scope,
-                    'Practitioner',
-                    'Practitioner'
+                    typeOfReference,
+                    typeOfReference
+                );
+            } catch (e) {
+                if (e instanceof NotFoundError) {
+                    return null;
+                }
+            }
+        },
+        // eslint-disable-next-line no-unused-vars
+        organization: async (parent, args, context, info) => {
+            try {
+                /**
+                 * @type {string}
+                 */
+                const typeOfReference = parent.provider.reference.split('/')[0];
+                /**
+                 * @type {string}
+                 */
+                const idOfReference = parent.provider.reference.split('/')[1];
+                if (typeOfReference !== 'Organization') {
+                    return null;
+                }
+                return await searchById(
+                    {base_version: '4_0_0', id: idOfReference},
+                    context.user,
+                    context.scope,
+                    typeOfReference,
+                    typeOfReference
                 );
             } catch (e) {
                 if (e instanceof NotFoundError) {

@@ -11,6 +11,7 @@
 # import Reference from "reference.graphql"
 # import Meta from "meta.graphql"
 # import Practitioner from "practitioner.graphql"
+# import Organization from "organization.graphql"
 
 type ExplanationOfBenefitItemAdjudication {
     category: CodeableConcept!
@@ -79,6 +80,9 @@ type ExplanationOfBenefitCareTeam {
     role: CodeableConcept
     qualification: CodeableConcept
 }
+
+#union ExplanationOfBenefitProvider = Practitioner | Organization
+
 type ExplanationOfBenefit {
     id: String!
     resourceType: String!
@@ -90,7 +94,8 @@ type ExplanationOfBenefit {
     patient: Patient!
     diagnosis: [ExplanationOfBenefitDiagnosis]
     procedure: [ExplanationOfBenefitProcedure]
-    provider: Practitioner
+    practitioner: Practitioner
+    organization: Organization
     insurance: [ExplanationOfBenefitInsurance]!
     insurer: Reference!
     outcome: code!
