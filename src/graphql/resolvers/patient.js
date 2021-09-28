@@ -4,6 +4,7 @@ const {unBundle} = require('../common');
 
 module.exports = {
     Query: {
+        // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         patients: async (parent, args, context, info) => {
             return unBundle(
@@ -22,6 +23,7 @@ module.exports = {
                 )
             );
         },
+        // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         patient: async (parent, args, context, info) => {
             return searchById({
@@ -39,7 +41,8 @@ module.exports = {
                     search({
                         base_version: '4_0_0',
                         _bundle: '1',
-                        'patient': parent.id
+                        'patient': parent.id,
+                        ...args
                     }, context.user, context.scope, 'ExplanationOfBenefit', 'ExplanationOfBenefit')
                 )
             );
