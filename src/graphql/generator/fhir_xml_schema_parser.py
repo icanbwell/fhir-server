@@ -77,6 +77,9 @@ class FhirProperty:
     is_code: bool = False
     is_complex: bool = False
 
+    def __hash__(self) -> int:
+        return hash(self.type_)
+
 
 @dataclasses.dataclass
 class FhirEntity:

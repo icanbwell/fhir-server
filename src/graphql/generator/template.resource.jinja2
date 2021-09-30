@@ -5,7 +5,7 @@
 {% macro upper_case_first_letter(text) %}
     {{- text[0]|upper}}{{text[1:] -}}
 {% endmacro %}
-{% for property in fhir_entity.properties %}
+{% for property in fhir_entity.properties | unique %}
     {% if property.type_ | replace(".","") != fhir_entity.cleaned_name %}
 {#    # {{ property.name }} ({{ property.type_ }})#}
         {% if property.is_code %}
