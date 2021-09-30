@@ -1653,7 +1653,7 @@
   dependencies:
     "debug" "^4.3.1"
 
-"@popperjs/core@^2.10.1", "@popperjs/core@^2.9.3":
+"@popperjs/core@^2.10.1":
   "integrity" "sha512-HnUhk1Sy9IuKrxEMdIRCxpIqPw6BFsbYSEUO9p/hNw5sMld/+3OLMWQP80F8/db9qsv3qUjs7ZR5bS/R+iinXw=="
   "resolved" "https://registry.npmjs.org/@popperjs/core/-/core-2.10.1.tgz"
   "version" "2.10.1"
@@ -2637,10 +2637,10 @@
     "postcss" "^7.0.32"
     "postcss-value-parser" "^4.1.0"
 
-"aws-sdk@^2.994.0":
-  "integrity" "sha512-NBGY9IgE3EsIkIhylR6pwVx9ETrVZ6fCzd7/Ptzjx7Ccw4L2sMhl4EiBAW2sp5M7PZz5DnEQHdAQstqmdxggaQ=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.994.0.tgz"
-  "version" "2.994.0"
+"aws-sdk@^2.998.0":
+  "integrity" "sha512-jenbMcGxOg9AeH6p1m0vbsJYNaeJXBnOM58GXsaKecPgRnCm/IykTPlB6aQKfNDk0WQnw5BHDcy7iQPnEjEkUQ=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.998.0.tgz"
+  "version" "2.998.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -2945,10 +2945,10 @@
   "resolved" "https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.5.0.tgz"
   "version" "1.5.0"
 
-"bootstrap@^5.1.0":
-  "integrity" "sha512-bs74WNI9BgBo3cEovmdMHikSKoXnDgA6VQjJ7TyTotU6L7d41ZyCEEelPwkYEzsG/Zjv3ie9IE3EMAje0W9Xew=="
-  "resolved" "https://registry.npmjs.org/bootstrap/-/bootstrap-5.1.0.tgz"
-  "version" "5.1.0"
+"bootstrap@^5.1.1":
+  "integrity" "sha512-/jUa4sSuDZWlDLQ1gwQQR8uoYSvLJzDd8m5o6bPKh3asLAMYVZKdRCjb1joUd5WXf0WwCNzd2EjwQQhupou0dA=="
+  "resolved" "https://registry.npmjs.org/bootstrap/-/bootstrap-5.1.1.tgz"
+  "version" "5.1.1"
 
 "bowser@2.9.0":
   "integrity" "sha512-2ld76tuLBNFekRgmJfT2+3j5MIrP6bFict8WAIT3beq+srz1gcKNAdNKMqHqauQt63NmAa88HfP1/Ypa9Er3HA=="
@@ -4450,7 +4450,7 @@
   dependencies:
     "esutils" "^2.0.2"
 
-"docusaurus@^1.11.1":
+"docusaurus@^1.14.7":
   "integrity" "sha512-UWqar4ZX0lEcpLc5Tg+MwZ2jhF/1n1toCQRSeoxDON/D+E9ToLr+vTRFVMP/Tk84NXSVjZFRlrjWwM2pXzvLsQ=="
   "resolved" "https://registry.npmjs.org/docusaurus/-/docusaurus-1.14.7.tgz"
   "version" "1.14.7"
@@ -9455,6 +9455,14 @@
     "passport-strategy" "1.x.x"
     "pause" "0.0.1"
 
+"passport@^0.5.0":
+  "integrity" "sha512-ln+ue5YaNDS+fes6O5PCzXKSseY5u8MYhX9H5Co4s+HfYI5oqvnHKoOORLYDUPh+8tHvrxugF2GFcUA1Q1Gqfg=="
+  "resolved" "https://registry.npmjs.org/passport/-/passport-0.5.0.tgz"
+  "version" "0.5.0"
+  dependencies:
+    "passport-strategy" "1.x.x"
+    "pause" "0.0.1"
+
 "path-dirname@^1.0.0":
   "integrity" "sha1-zDPSTVJeCZpTiMAzbG4yuRYGCeA="
   "resolved" "https://registry.npmjs.org/path-dirname/-/path-dirname-1.0.2.tgz"
@@ -9658,10 +9666,10 @@
     "systeminformation" "^5.7"
     "tx2" "~1.0.4"
 
-"pm2@^5.1.1":
-  "integrity" "sha512-2Agpn2IVXOKu8kP+qaxKOvMLNtbZ6lY4bzKcEW2d2tw7O0lpNO7QvDayY4af+8U1+WCn90UjPK4q2wPFVHt/sA=="
-  "resolved" "https://registry.npmjs.org/pm2/-/pm2-5.1.1.tgz"
-  "version" "5.1.1"
+"pm2@^5.1.2":
+  "integrity" "sha512-2nJQeCWjkN0WnTkWctaoZpqrJTiUN/Icw76IMVHHzPhr/p7yQYlEQgHzlL5IFWxO2N1HdBNXNdZft2p4HUmUcA=="
+  "resolved" "https://registry.npmjs.org/pm2/-/pm2-5.1.2.tgz"
+  "version" "5.1.2"
   dependencies:
     "@pm2/agent" "~2.0.0"
     "@pm2/io" "~5.0.0"
@@ -11147,10 +11155,10 @@
     "source-map-resolve" "^0.5.0"
     "use" "^3.1.0"
 
-"snyk@^1.334.0", "snyk@^1.720.0":
-  "integrity" "sha512-NCy+57lvoggyM4WIzsNQyf2+fX6eZAqu2nznGq+RVfYBcwLgiDpg76oafrmp/rUtSIM1E+68cm1bJWSiNZqf7w=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.720.0.tgz"
-  "version" "1.720.0"
+"snyk@^1.334.0", "snyk@^1.728.0":
+  "integrity" "sha512-qzICYKNLk8gywBmbwUK72+ySbqE3JyjzLJc/yCwhNu3JMbomTtCFEtJBYnoE12A2Pp0f0DY3GBJsl8gH1NdR6Q=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.728.0.tgz"
+  "version" "1.728.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
