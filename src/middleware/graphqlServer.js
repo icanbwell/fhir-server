@@ -13,7 +13,7 @@ const {
 } = require('apollo-server-core');
 
 const graphql = async () => {
-    const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'),{ recursive: true });
+    const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
     const typeDefs = mergeTypeDefs(typesArray);
     // load all the schema files
     // const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/query.graphql'), {

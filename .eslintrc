@@ -56,10 +56,17 @@
     "no-trailing-spaces": 2,
     "no-undef-init": 2,
     "no-unused-expressions": 2,
-    "no-unused-vars": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ],
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
-      "warn",
+      "off",
       {
         "vars": "all",
         "varsIgnorePattern": "^_",
@@ -116,14 +123,5 @@
       2,
       "never"
     ]
-  },
-  "overrides": [
-    {
-      "files": ["*.graphql"],
-      "parser": "@graphql-eslint/eslint-plugin",
-      "plugins": ["@graphql-eslint"],
-      "rules": {
-      }
-    }
-  ]
+  }
 }
