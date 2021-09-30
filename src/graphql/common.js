@@ -1,6 +1,5 @@
 const {searchById} = require('../operations/searchById/searchById');
 const {search} = require('../operations/search/search');
-const {NotFoundError} = require('../utils/httpErrors');
 const async = require('async');
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
