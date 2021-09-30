@@ -73,5 +73,22 @@ type MessageDefinition {
 }
 
 extend type Query {
-    messageDefinition(id: String): [MessageDefinition]
+    messageDefinition(
+        id: [String]
+        type: String
+        name: String
+        family: String
+        identifier: String
+        source: String
+        _security: String
+        _tag: String
+        versionId: String
+        _lastUpdated: [String]
+        patient: String
+        practitioner: String
+        organization: String
+        location: String
+        healthcareService: String
+        _total: String
+    ): [MessageDefinition]
 }
