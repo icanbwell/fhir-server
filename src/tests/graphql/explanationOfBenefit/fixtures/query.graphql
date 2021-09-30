@@ -1,5 +1,9 @@
 query {
-    explanationOfBenefit (id: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"]) {
+    explanationOfBenefit (
+        id: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"],
+        _sort: ["id"],
+        _count: 2
+    ) {
         id
         identifier {
             system
