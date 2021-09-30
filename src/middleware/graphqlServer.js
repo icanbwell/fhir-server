@@ -12,29 +12,29 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 
-// const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
-// const typeDefs = mergeTypeDefs(typesArray);
+const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
+const typeDefs = mergeTypeDefs(typesArray);
 
 const graphql = async () => {
     // load all the schema files
-    const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/query.graphql'), {
-        loaders: [
-            new GraphQLFileLoader(),
-        ],
-        includeSources: true
-    });
-
-    // Add all the resolvers to the schema
-    const schemaWithResolvers = addResolversToSchema({
-        schema,
-        resolvers,
-    });
+    // const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/query.graphql'), {
+    //     loaders: [
+    //         new GraphQLFileLoader(),
+    //     ],
+    //     includeSources: true
+    // });
+    //
+    // // Add all the resolvers to the schema
+    // const schemaWithResolvers = addResolversToSchema({
+    //     schema,
+    //     resolvers,
+    // });
     // create the Apollo graphql middleware
     const server = new ApolloServer(
         {
-            schema: schemaWithResolvers,
-            // typeDefs: typeDefs,
-            // resolvers: resolvers,
+            // schema: schemaWithResolvers,
+            typeDefs: typeDefs,
+            resolvers: resolvers,
             introspection: true,
             plugins: [
                 // request.credentials is set so we receive cookies
