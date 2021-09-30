@@ -30,7 +30,3 @@ type ExampleScenarioOperation {
     request: ExampleScenarioContainedInstance        
     response: ExampleScenarioContainedInstance        
 }
-
-extend type Query {
-    exampleScenarioOperation(id: String): [ExampleScenarioOperation]
-}

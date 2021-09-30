@@ -18,7 +18,3 @@ type MedicinalProductIngredientSpecifiedSubstance {
     confidentiality: CodeableConcept        
     strength: [MedicinalProductIngredientStrength]        
 }
-
-extend type Query {
-    medicinalProductIngredientSpecifiedSubstance(id: String): [MedicinalProductIngredientSpecifiedSubstance]
-}

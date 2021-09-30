@@ -14,7 +14,3 @@ type MedicationKnowledgeMedicineClassification {
     type: CodeableConcept!        
     classification: [CodeableConcept]        
 }
-
-extend type Query {
-    medicationKnowledgeMedicineClassification(id: String): [MedicationKnowledgeMedicineClassification]
-}

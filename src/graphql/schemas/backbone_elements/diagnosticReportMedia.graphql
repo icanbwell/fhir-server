@@ -14,7 +14,3 @@ type DiagnosticReportMedia {
     comment: code        
     link: Media!        
 }
-
-extend type Query {
-    diagnosticReportMedia(id: String): [DiagnosticReportMedia]
-}

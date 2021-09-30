@@ -18,7 +18,3 @@ type StructureDefinitionMapping {
     name: code        
     comment: code        
 }
-
-extend type Query {
-    structureDefinitionMapping(id: String): [StructureDefinitionMapping]
-}

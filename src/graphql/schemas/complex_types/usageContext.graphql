@@ -25,7 +25,3 @@ type UsageContext {
     valueRange: Range        
     valueReference: UsageContextValueReference        
 }
-
-extend type Query {
-    usageContext(id: String): [UsageContext]
-}

@@ -32,7 +32,3 @@ type ProdCharacteristic {
     image: [Attachment]        
     scoring: CodeableConcept        
 }
-
-extend type Query {
-    prodCharacteristic(id: String): [ProdCharacteristic]
-}

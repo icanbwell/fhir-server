@@ -16,7 +16,3 @@ type SubstanceSpecificationOfficial {
     status: CodeableConcept        
     date: code        
 }
-
-extend type Query {
-    substanceSpecificationOfficial(id: String): [SubstanceSpecificationOfficial]
-}

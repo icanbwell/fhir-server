@@ -12,7 +12,3 @@ type CodeableConcept {
     coding: [Coding]        
     text: code        
 }
-
-extend type Query {
-    codeableConcept(id: String): [CodeableConcept]
-}

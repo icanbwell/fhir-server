@@ -21,7 +21,3 @@ type CompositionAttester {
     time: code        
     party: CompositionAttesterParty        
 }
-
-extend type Query {
-    compositionAttester(id: String): [CompositionAttester]
-}

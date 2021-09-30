@@ -18,7 +18,3 @@ type MeasureReportGroup {
     measureScore: Quantity        
     stratifier: [MeasureReportStratifier]        
 }
-
-extend type Query {
-    measureReportGroup(id: String): [MeasureReportGroup]
-}

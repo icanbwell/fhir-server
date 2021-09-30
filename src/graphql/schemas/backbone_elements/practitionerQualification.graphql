@@ -18,7 +18,3 @@ type PractitionerQualification {
     period: Period        
     issuer: Organization        
 }
-
-extend type Query {
-    practitionerQualification(id: String): [PractitionerQualification]
-}

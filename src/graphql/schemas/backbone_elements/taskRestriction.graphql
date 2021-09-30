@@ -22,7 +22,3 @@ type TaskRestriction {
     period: Period        
     recipient: [TaskRestrictionRecipient]        
 }
-
-extend type Query {
-    taskRestriction(id: String): [TaskRestriction]
-}

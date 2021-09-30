@@ -16,7 +16,3 @@ type SubstanceSpecificationMolecularWeight {
     type: CodeableConcept        
     amount: Quantity        
 }
-
-extend type Query {
-    substanceSpecificationMolecularWeight(id: String): [SubstanceSpecificationMolecularWeight]
-}

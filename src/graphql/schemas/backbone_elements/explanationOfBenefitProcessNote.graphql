@@ -18,7 +18,3 @@ type ExplanationOfBenefitProcessNote {
     text: code        
     language: CodeableConcept        
 }
-
-extend type Query {
-    explanationOfBenefitProcessNote(id: String): [ExplanationOfBenefitProcessNote]
-}

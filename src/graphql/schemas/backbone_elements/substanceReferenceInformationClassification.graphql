@@ -18,7 +18,3 @@ type SubstanceReferenceInformationClassification {
     subtype: [CodeableConcept]        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceReferenceInformationClassification(id: String): [SubstanceReferenceInformationClassification]
-}

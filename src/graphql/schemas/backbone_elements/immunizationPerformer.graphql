@@ -17,7 +17,3 @@ type ImmunizationPerformer {
     function: CodeableConcept        
     actor: ImmunizationPerformerActor!        
 }
-
-extend type Query {
-    immunizationPerformer(id: String): [ImmunizationPerformer]
-}

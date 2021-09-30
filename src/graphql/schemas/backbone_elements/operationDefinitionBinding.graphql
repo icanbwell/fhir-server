@@ -14,7 +14,3 @@ type OperationDefinitionBinding {
     strength: code!        
     valueSet: code!        
 }
-
-extend type Query {
-    operationDefinitionBinding(id: String): [OperationDefinitionBinding]
-}

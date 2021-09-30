@@ -18,7 +18,3 @@ type ContactPoint {
     rank: code        
     period: Period        
 }
-
-extend type Query {
-    contactPoint(id: String): [ContactPoint]
-}

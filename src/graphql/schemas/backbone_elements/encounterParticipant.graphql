@@ -19,7 +19,3 @@ type EncounterParticipant {
     period: Period        
     individual: EncounterParticipantIndividual        
 }
-
-extend type Query {
-    encounterParticipant(id: String): [EncounterParticipant]
-}

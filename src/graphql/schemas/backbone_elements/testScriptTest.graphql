@@ -16,7 +16,3 @@ type TestScriptTest {
     description: code        
     action: [TestScriptAction1]!        
 }
-
-extend type Query {
-    testScriptTest(id: String): [TestScriptTest]
-}

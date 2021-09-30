@@ -18,7 +18,3 @@ type MeasureStratifier {
     criteria: Expression        
     component: [MeasureComponent]        
 }
-
-extend type Query {
-    measureStratifier(id: String): [MeasureStratifier]
-}

@@ -18,7 +18,3 @@ type ElementDefinitionSlicing {
     ordered: code        
     rules: code!        
 }
-
-extend type Query {
-    elementDefinitionSlicing(id: String): [ElementDefinitionSlicing]
-}

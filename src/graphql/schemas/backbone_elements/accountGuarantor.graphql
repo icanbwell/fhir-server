@@ -19,7 +19,3 @@ type AccountGuarantor {
     onHold: code        
     period: Period        
 }
-
-extend type Query {
-    accountGuarantor(id: String): [AccountGuarantor]
-}

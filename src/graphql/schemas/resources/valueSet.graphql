@@ -74,7 +74,9 @@ extend type Query {
         practitioner: String
         organization: String
         location: String
+        agent: String
         healthcareService: String
+        active: String
         _total: String
     ): [ValueSet]
 }

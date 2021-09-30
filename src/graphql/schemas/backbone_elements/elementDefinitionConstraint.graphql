@@ -24,7 +24,3 @@ type ElementDefinitionConstraint {
     xpath: code        
     source: code        
 }
-
-extend type Query {
-    elementDefinitionConstraint(id: String): [ElementDefinitionConstraint]
-}

@@ -20,7 +20,3 @@ type AdverseEventCausality {
     author: AdverseEventCausalityAuthor        
     method: CodeableConcept        
 }
-
-extend type Query {
-    adverseEventCausality(id: String): [AdverseEventCausality]
-}

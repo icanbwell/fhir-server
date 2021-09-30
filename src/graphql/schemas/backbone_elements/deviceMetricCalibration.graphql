@@ -16,7 +16,3 @@ type DeviceMetricCalibration {
     state: code        
     time: code        
 }
-
-extend type Query {
-    deviceMetricCalibration(id: String): [DeviceMetricCalibration]
-}

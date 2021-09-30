@@ -12,7 +12,3 @@ type Ratio {
     numerator: Quantity        
     denominator: Quantity        
 }
-
-extend type Query {
-    ratio(id: String): [Ratio]
-}

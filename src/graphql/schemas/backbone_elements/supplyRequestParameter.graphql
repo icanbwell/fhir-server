@@ -20,7 +20,3 @@ type SupplyRequestParameter {
     valueRange: Range        
     valueBoolean: code        
 }
-
-extend type Query {
-    supplyRequestParameter(id: String): [SupplyRequestParameter]
-}

@@ -22,7 +22,3 @@ type OperationOutcomeIssue {
     location: [code]        
     expression: [code]        
 }
-
-extend type Query {
-    operationOutcomeIssue(id: String): [OperationOutcomeIssue]
-}

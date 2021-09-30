@@ -14,7 +14,3 @@ type SubstancePolymerMonomerSet {
     ratioType: CodeableConcept        
     startingMaterial: [SubstancePolymerStartingMaterial]        
 }
-
-extend type Query {
-    substancePolymerMonomerSet(id: String): [SubstancePolymerMonomerSet]
-}

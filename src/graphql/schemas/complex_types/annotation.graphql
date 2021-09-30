@@ -20,7 +20,3 @@ type Annotation {
     time: code        
     text: code!        
 }
-
-extend type Query {
-    annotation(id: String): [Annotation]
-}

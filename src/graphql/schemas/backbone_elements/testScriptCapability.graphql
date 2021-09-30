@@ -24,7 +24,3 @@ type TestScriptCapability {
     link: [code]        
     capabilities: code!        
 }
-
-extend type Query {
-    testScriptCapability(id: String): [TestScriptCapability]
-}

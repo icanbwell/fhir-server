@@ -19,7 +19,3 @@ type SupplyDeliverySuppliedItem {
     itemCodeableConcept: CodeableConcept        
     itemReference: SupplyDeliverySuppliedItemItemReference        
 }
-
-extend type Query {
-    supplyDeliverySuppliedItem(id: String): [SupplyDeliverySuppliedItem]
-}

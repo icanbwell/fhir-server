@@ -14,7 +14,3 @@ type DocumentReferenceRelatesTo {
     code: code!        
     target: DocumentReference!        
 }
-
-extend type Query {
-    documentReferenceRelatesTo(id: String): [DocumentReferenceRelatesTo]
-}

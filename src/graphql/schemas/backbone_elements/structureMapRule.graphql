@@ -21,7 +21,3 @@ type StructureMapRule {
     dependent: [StructureMapDependent]        
     documentation: code        
 }
-
-extend type Query {
-    structureMapRule(id: String): [StructureMapRule]
-}

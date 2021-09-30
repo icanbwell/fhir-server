@@ -16,7 +16,3 @@ type Timing {
     repeat: TimingRepeat        
     code: CodeableConcept        
 }
-
-extend type Query {
-    timing(id: String): [Timing]
-}

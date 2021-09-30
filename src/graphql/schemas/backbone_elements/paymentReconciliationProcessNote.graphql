@@ -14,7 +14,3 @@ type PaymentReconciliationProcessNote {
     type: code        
     text: code        
 }
-
-extend type Query {
-    paymentReconciliationProcessNote(id: String): [PaymentReconciliationProcessNote]
-}

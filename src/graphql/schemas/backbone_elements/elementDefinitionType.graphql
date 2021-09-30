@@ -20,7 +20,3 @@ type ElementDefinitionType {
     aggregation: [code]        
     versioning: code        
 }
-
-extend type Query {
-    elementDefinitionType(id: String): [ElementDefinitionType]
-}

@@ -14,7 +14,3 @@ type TestScriptRequestHeader {
     field: code!        
     value: code!        
 }
-
-extend type Query {
-    testScriptRequestHeader(id: String): [TestScriptRequestHeader]
-}

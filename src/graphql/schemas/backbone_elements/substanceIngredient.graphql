@@ -16,7 +16,3 @@ type SubstanceIngredient {
     substanceCodeableConcept: CodeableConcept        
     substanceReference: Substance        
 }
-
-extend type Query {
-    substanceIngredient(id: String): [SubstanceIngredient]
-}

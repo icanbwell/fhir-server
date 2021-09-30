@@ -14,7 +14,3 @@ type TerminologyCapabilitiesParameter {
     name: code!        
     documentation: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesParameter(id: String): [TerminologyCapabilitiesParameter]
-}

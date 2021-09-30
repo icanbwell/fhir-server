@@ -20,7 +20,3 @@ type SpecimenProcessing {
     timeDateTime: code        
     timePeriod: Period        
 }
-
-extend type Query {
-    specimenProcessing(id: String): [SpecimenProcessing]
-}

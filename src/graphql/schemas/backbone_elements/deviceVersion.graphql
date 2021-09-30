@@ -16,7 +16,3 @@ type DeviceVersion {
     component: Identifier        
     value: code!        
 }
-
-extend type Query {
-    deviceVersion(id: String): [DeviceVersion]
-}

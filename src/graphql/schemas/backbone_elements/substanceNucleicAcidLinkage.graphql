@@ -18,7 +18,3 @@ type SubstanceNucleicAcidLinkage {
     name: code        
     residueSite: code        
 }
-
-extend type Query {
-    substanceNucleicAcidLinkage(id: String): [SubstanceNucleicAcidLinkage]
-}

@@ -22,7 +22,3 @@ type ProcedurePerformer {
     actor: ProcedurePerformerActor!        
     onBehalfOf: Organization        
 }
-
-extend type Query {
-    procedurePerformer(id: String): [ProcedurePerformer]
-}

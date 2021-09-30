@@ -18,7 +18,3 @@ type ChargeItemDefinitionPriceComponent {
     factor: code        
     amount: Money        
 }
-
-extend type Query {
-    chargeItemDefinitionPriceComponent(id: String): [ChargeItemDefinitionPriceComponent]
-}

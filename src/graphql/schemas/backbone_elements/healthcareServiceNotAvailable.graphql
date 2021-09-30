@@ -14,7 +14,3 @@ type HealthcareServiceNotAvailable {
     description: code!        
     during: Period        
 }
-
-extend type Query {
-    healthcareServiceNotAvailable(id: String): [HealthcareServiceNotAvailable]
-}

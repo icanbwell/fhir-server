@@ -16,7 +16,3 @@ type AuditEventDetail {
     valueString: code        
     valueBase64Binary: code        
 }
-
-extend type Query {
-    auditEventDetail(id: String): [AuditEventDetail]
-}

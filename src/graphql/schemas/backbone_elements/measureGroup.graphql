@@ -18,7 +18,3 @@ type MeasureGroup {
     population: [MeasurePopulation]        
     stratifier: [MeasureStratifier]        
 }
-
-extend type Query {
-    measureGroup(id: String): [MeasureGroup]
-}

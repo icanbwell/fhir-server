@@ -14,7 +14,3 @@ type AuditEventNetwork {
     address: code        
     type: code        
 }
-
-extend type Query {
-    auditEventNetwork(id: String): [AuditEventNetwork]
-}

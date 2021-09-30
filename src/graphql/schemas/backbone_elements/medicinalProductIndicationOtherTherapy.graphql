@@ -20,7 +20,3 @@ type MedicinalProductIndicationOtherTherapy {
     medicationCodeableConcept: CodeableConcept        
     medicationReference: MedicinalProductIndicationOtherTherapyMedicationReference        
 }
-
-extend type Query {
-    medicinalProductIndicationOtherTherapy(id: String): [MedicinalProductIndicationOtherTherapy]
-}

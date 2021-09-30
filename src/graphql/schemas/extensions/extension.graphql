@@ -109,7 +109,3 @@ type Extension {
     valueDosage: Dosage        
     valueMeta: Meta        
 }
-
-extend type Query {
-    extension(id: String): [Extension]
-}

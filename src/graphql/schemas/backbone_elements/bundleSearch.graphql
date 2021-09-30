@@ -14,7 +14,3 @@ type BundleSearch {
     mode: code        
     score: code        
 }
-
-extend type Query {
-    bundleSearch(id: String): [BundleSearch]
-}

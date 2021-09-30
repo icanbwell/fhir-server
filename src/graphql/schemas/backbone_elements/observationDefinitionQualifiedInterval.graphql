@@ -26,7 +26,3 @@ type ObservationDefinitionQualifiedInterval {
     gestationalAge: Range        
     condition: code        
 }
-
-extend type Query {
-    observationDefinitionQualifiedInterval(id: String): [ObservationDefinitionQualifiedInterval]
-}

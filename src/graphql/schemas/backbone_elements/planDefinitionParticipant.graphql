@@ -14,7 +14,3 @@ type PlanDefinitionParticipant {
     type: code!        
     role: CodeableConcept        
 }
-
-extend type Query {
-    planDefinitionParticipant(id: String): [PlanDefinitionParticipant]
-}

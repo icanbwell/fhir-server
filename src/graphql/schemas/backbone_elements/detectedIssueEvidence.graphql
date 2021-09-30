@@ -14,7 +14,3 @@ type DetectedIssueEvidence {
     code: [CodeableConcept]        
     detail: [Resource]        
 }
-
-extend type Query {
-    detectedIssueEvidence(id: String): [DetectedIssueEvidence]
-}

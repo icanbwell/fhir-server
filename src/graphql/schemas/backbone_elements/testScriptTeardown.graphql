@@ -12,7 +12,3 @@ type TestScriptTeardown {
     modifierExtension: [Extension]        
     action: [TestScriptAction2]!        
 }
-
-extend type Query {
-    testScriptTeardown(id: String): [TestScriptTeardown]
-}

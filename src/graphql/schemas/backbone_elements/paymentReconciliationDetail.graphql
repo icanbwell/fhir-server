@@ -36,7 +36,3 @@ type PaymentReconciliationDetail {
     payee: PaymentReconciliationDetailPayee        
     amount: Money        
 }
-
-extend type Query {
-    paymentReconciliationDetail(id: String): [PaymentReconciliationDetail]
-}

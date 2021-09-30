@@ -14,7 +14,3 @@ type MeasureReportComponent {
     code: CodeableConcept!        
     value: CodeableConcept!        
 }
-
-extend type Query {
-    measureReportComponent(id: String): [MeasureReportComponent]
-}

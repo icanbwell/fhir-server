@@ -14,7 +14,3 @@ type EncounterStatusHistory {
     status: code!        
     period: Period!        
 }
-
-extend type Query {
-    encounterStatusHistory(id: String): [EncounterStatusHistory]
-}

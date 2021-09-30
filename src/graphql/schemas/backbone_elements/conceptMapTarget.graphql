@@ -22,7 +22,3 @@ type ConceptMapTarget {
     dependsOn: [ConceptMapDependsOn]        
     product: [ConceptMapDependsOn]        
 }
-
-extend type Query {
-    conceptMapTarget(id: String): [ConceptMapTarget]
-}

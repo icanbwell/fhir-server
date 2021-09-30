@@ -18,7 +18,3 @@ type ExplanationOfBenefitAccident {
     locationAddress: Address        
     locationReference: Location        
 }
-
-extend type Query {
-    explanationOfBenefitAccident(id: String): [ExplanationOfBenefitAccident]
-}

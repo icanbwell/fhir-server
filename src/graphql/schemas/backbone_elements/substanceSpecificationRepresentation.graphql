@@ -16,7 +16,3 @@ type SubstanceSpecificationRepresentation {
     representation: code        
     attachment: Attachment        
 }
-
-extend type Query {
-    substanceSpecificationRepresentation(id: String): [SubstanceSpecificationRepresentation]
-}

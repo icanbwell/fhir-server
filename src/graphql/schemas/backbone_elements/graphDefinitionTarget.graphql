@@ -20,7 +20,3 @@ type GraphDefinitionTarget {
     compartment: [GraphDefinitionCompartment]        
     link: [GraphDefinitionLink]        
 }
-
-extend type Query {
-    graphDefinitionTarget(id: String): [GraphDefinitionTarget]
-}

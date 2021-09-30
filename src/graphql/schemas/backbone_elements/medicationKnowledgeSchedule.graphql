@@ -12,7 +12,3 @@ type MedicationKnowledgeSchedule {
     modifierExtension: [Extension]        
     schedule: CodeableConcept!        
 }
-
-extend type Query {
-    medicationKnowledgeSchedule(id: String): [MedicationKnowledgeSchedule]
-}

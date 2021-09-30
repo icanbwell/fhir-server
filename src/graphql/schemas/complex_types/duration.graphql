@@ -18,7 +18,3 @@ type Duration {
     system: code        
     code: code        
 }
-
-extend type Query {
-    duration(id: String): [Duration]
-}

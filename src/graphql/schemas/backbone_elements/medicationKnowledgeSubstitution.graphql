@@ -14,7 +14,3 @@ type MedicationKnowledgeSubstitution {
     type: CodeableConcept!        
     allowed: code!        
 }
-
-extend type Query {
-    medicationKnowledgeSubstitution(id: String): [MedicationKnowledgeSubstitution]
-}

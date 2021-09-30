@@ -19,7 +19,3 @@ type ClaimPayee {
     type: CodeableConcept!        
     party: ClaimPayeeParty        
 }
-
-extend type Query {
-    claimPayee(id: String): [ClaimPayee]
-}

@@ -14,7 +14,3 @@ type MedicinalProductIngredientSubstance {
     code: CodeableConcept!        
     strength: [MedicinalProductIngredientStrength]        
 }
-
-extend type Query {
-    medicinalProductIngredientSubstance(id: String): [MedicinalProductIngredientSubstance]
-}

@@ -14,7 +14,3 @@ type SpecimenDefinitionAdditive {
     additiveCodeableConcept: CodeableConcept        
     additiveReference: Substance        
 }
-
-extend type Query {
-    specimenDefinitionAdditive(id: String): [SpecimenDefinitionAdditive]
-}

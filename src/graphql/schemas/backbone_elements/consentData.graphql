@@ -14,7 +14,3 @@ type ConsentData {
     meaning: code!        
     reference: Resource!        
 }
-
-extend type Query {
-    consentData(id: String): [ConsentData]
-}

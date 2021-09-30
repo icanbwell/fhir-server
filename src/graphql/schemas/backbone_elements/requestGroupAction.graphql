@@ -62,7 +62,3 @@ type RequestGroupAction {
     resource: Resource        
     action: [RequestGroupAction]        
 }
-
-extend type Query {
-    requestGroupAction(id: String): [RequestGroupAction]
-}

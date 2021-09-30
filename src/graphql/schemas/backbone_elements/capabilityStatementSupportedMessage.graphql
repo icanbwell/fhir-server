@@ -14,7 +14,3 @@ type CapabilityStatementSupportedMessage {
     mode: code!        
     definition: code!        
 }
-
-extend type Query {
-    capabilityStatementSupportedMessage(id: String): [CapabilityStatementSupportedMessage]
-}

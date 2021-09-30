@@ -16,7 +16,3 @@ type MedicationKnowledgeCost {
     source: code        
     cost: Money!        
 }
-
-extend type Query {
-    medicationKnowledgeCost(id: String): [MedicationKnowledgeCost]
-}

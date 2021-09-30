@@ -12,7 +12,3 @@ type TerminologyCapabilitiesTranslation {
     modifierExtension: [Extension]        
     needsMap: code!        
 }
-
-extend type Query {
-    terminologyCapabilitiesTranslation(id: String): [TerminologyCapabilitiesTranslation]
-}

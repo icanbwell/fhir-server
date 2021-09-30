@@ -14,7 +14,3 @@ type SubstanceSourceMaterialAuthor {
     authorType: CodeableConcept        
     authorDescription: code        
 }
-
-extend type Query {
-    substanceSourceMaterialAuthor(id: String): [SubstanceSourceMaterialAuthor]
-}

@@ -22,7 +22,3 @@ type DosageDoseAndRate {
     rateRange: Range        
     rateQuantity: Quantity        
 }
-
-extend type Query {
-    dosageDoseAndRate(id: String): [DosageDoseAndRate]
-}

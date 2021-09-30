@@ -14,7 +14,3 @@ type DeviceDefinitionCapability {
     type: CodeableConcept!        
     description: [CodeableConcept]        
 }
-
-extend type Query {
-    deviceDefinitionCapability(id: String): [DeviceDefinitionCapability]
-}

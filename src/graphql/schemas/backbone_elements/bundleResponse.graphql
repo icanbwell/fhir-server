@@ -20,7 +20,3 @@ type BundleResponse {
     lastModified: code        
     outcome: code        
 }
-
-extend type Query {
-    bundleResponse(id: String): [BundleResponse]
-}

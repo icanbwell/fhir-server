@@ -20,7 +20,3 @@ type SubstancePolymerRepeatUnit {
     degreeOfPolymerisation: [SubstancePolymerDegreeOfPolymerisation]        
     structuralRepresentation: [SubstancePolymerStructuralRepresentation]        
 }
-
-extend type Query {
-    substancePolymerRepeatUnit(id: String): [SubstancePolymerRepeatUnit]
-}

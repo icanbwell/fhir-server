@@ -14,7 +14,3 @@ type LinkageItem {
     type: code!        
     resource: Resource!        
 }
-
-extend type Query {
-    linkageItem(id: String): [LinkageItem]
-}

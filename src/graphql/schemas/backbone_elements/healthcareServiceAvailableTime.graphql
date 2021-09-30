@@ -18,7 +18,3 @@ type HealthcareServiceAvailableTime {
     availableStartTime: code        
     availableEndTime: code        
 }
-
-extend type Query {
-    healthcareServiceAvailableTime(id: String): [HealthcareServiceAvailableTime]
-}

@@ -25,7 +25,3 @@ type ValueSetContains {
     designation: [ValueSetDesignation]        
     contains: [ValueSetContains]        
 }
-
-extend type Query {
-    valueSetContains(id: String): [ValueSetContains]
-}

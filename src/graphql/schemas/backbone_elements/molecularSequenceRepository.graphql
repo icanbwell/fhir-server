@@ -22,7 +22,3 @@ type MolecularSequenceRepository {
     variantsetId: code        
     readsetId: code        
 }
-
-extend type Query {
-    molecularSequenceRepository(id: String): [MolecularSequenceRepository]
-}

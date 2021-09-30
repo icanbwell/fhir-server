@@ -24,7 +24,3 @@ type QuestionnaireAnswerOption {
     valueReference: Resource        
     initialSelected: code        
 }
-
-extend type Query {
-    questionnaireAnswerOption(id: String): [QuestionnaireAnswerOption]
-}

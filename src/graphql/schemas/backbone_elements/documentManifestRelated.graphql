@@ -14,7 +14,3 @@ type DocumentManifestRelated {
     identifier: Identifier        
     ref: Resource        
 }
-
-extend type Query {
-    documentManifestRelated(id: String): [DocumentManifestRelated]
-}

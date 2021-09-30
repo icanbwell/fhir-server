@@ -31,7 +31,3 @@ type OperationDefinitionParameter {
     referencedFrom: [OperationDefinitionReferencedFrom]        
     part: [OperationDefinitionParameter]        
 }
-
-extend type Query {
-    operationDefinitionParameter(id: String): [OperationDefinitionParameter]
-}

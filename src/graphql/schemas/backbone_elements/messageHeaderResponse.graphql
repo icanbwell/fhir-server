@@ -16,7 +16,3 @@ type MessageHeaderResponse {
     code: code!        
     details: OperationOutcome        
 }
-
-extend type Query {
-    messageHeaderResponse(id: String): [MessageHeaderResponse]
-}

@@ -12,7 +12,3 @@ type CoverageEligibilityResponseError {
     modifierExtension: [Extension]        
     code: CodeableConcept!        
 }
-
-extend type Query {
-    coverageEligibilityResponseError(id: String): [CoverageEligibilityResponseError]
-}

@@ -14,7 +14,3 @@ type ElementDefinitionDiscriminator {
     type: code!        
     path: code!        
 }
-
-extend type Query {
-    elementDefinitionDiscriminator(id: String): [ElementDefinitionDiscriminator]
-}

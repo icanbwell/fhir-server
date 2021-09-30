@@ -16,7 +16,3 @@ type DeviceDefinitionMaterial {
     alternate: code        
     allergenicIndicator: code        
 }
-
-extend type Query {
-    deviceDefinitionMaterial(id: String): [DeviceDefinitionMaterial]
-}

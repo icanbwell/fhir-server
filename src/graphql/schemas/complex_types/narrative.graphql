@@ -10,7 +10,3 @@ type Narrative {
     extension: [Extension]        
     status: code!        
 }
-
-extend type Query {
-    narrative(id: String): [Narrative]
-}

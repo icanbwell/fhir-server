@@ -19,7 +19,3 @@ type ConditionStage {
     assessment: [ConditionStageAssessment]        
     type: CodeableConcept        
 }
-
-extend type Query {
-    conditionStage(id: String): [ConditionStage]
-}

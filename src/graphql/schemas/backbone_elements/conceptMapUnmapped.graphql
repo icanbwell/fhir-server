@@ -18,7 +18,3 @@ type ConceptMapUnmapped {
     display: code        
     url: code        
 }
-
-extend type Query {
-    conceptMapUnmapped(id: String): [ConceptMapUnmapped]
-}

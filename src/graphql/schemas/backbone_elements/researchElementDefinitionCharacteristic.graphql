@@ -52,7 +52,3 @@ type ResearchElementDefinitionCharacteristic {
     participantEffectiveTimeFromStart: Quantity        
     participantEffectiveGroupMeasure: code        
 }
-
-extend type Query {
-    researchElementDefinitionCharacteristic(id: String): [ResearchElementDefinitionCharacteristic]
-}

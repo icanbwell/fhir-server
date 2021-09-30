@@ -24,7 +24,3 @@ type MedicinalProductPharmaceuticalRouteOfAdministration {
     maxTreatmentPeriod: Quantity        
     targetSpecies: [MedicinalProductPharmaceuticalTargetSpecies]        
 }
-
-extend type Query {
-    medicinalProductPharmaceuticalRouteOfAdministration(id: String): [MedicinalProductPharmaceuticalRouteOfAdministration]
-}

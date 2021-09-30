@@ -22,7 +22,3 @@ type BundleRequest {
     ifMatch: code        
     ifNoneExist: code        
 }
-
-extend type Query {
-    bundleRequest(id: String): [BundleRequest]
-}

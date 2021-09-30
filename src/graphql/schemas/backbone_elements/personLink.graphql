@@ -18,7 +18,3 @@ type PersonLink {
     target: PersonLinkTarget!        
     assurance: code        
 }
-
-extend type Query {
-    personLink(id: String): [PersonLink]
-}

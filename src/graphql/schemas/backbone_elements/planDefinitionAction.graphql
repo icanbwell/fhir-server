@@ -77,7 +77,3 @@ type PlanDefinitionAction {
     dynamicValue: [PlanDefinitionDynamicValue]        
     action: [PlanDefinitionAction]        
 }
-
-extend type Query {
-    planDefinitionAction(id: String): [PlanDefinitionAction]
-}

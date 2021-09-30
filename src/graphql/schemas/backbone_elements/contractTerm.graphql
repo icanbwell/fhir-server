@@ -35,7 +35,3 @@ type ContractTerm {
     action: [ContractAction]        
     group: [ContractTerm]        
 }
-
-extend type Query {
-    contractTerm(id: String): [ContractTerm]
-}

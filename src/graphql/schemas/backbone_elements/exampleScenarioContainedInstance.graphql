@@ -14,7 +14,3 @@ type ExampleScenarioContainedInstance {
     resourceId: code!        
     versionId: code        
 }
-
-extend type Query {
-    exampleScenarioContainedInstance(id: String): [ExampleScenarioContainedInstance]
-}

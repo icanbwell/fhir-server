@@ -34,7 +34,3 @@ type ImagingStudySeries {
     performer: [ImagingStudyPerformer]        
     instance: [ImagingStudyInstance]        
 }
-
-extend type Query {
-    imagingStudySeries(id: String): [ImagingStudySeries]
-}

@@ -44,7 +44,3 @@ type CapabilityStatementResource {
     searchParam: [CapabilityStatementSearchParam]        
     operation: [CapabilityStatementOperation]        
 }
-
-extend type Query {
-    capabilityStatementResource(id: String): [CapabilityStatementResource]
-}

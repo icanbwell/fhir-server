@@ -23,7 +23,3 @@ type ClaimCareTeam {
     role: CodeableConcept        
     qualification: CodeableConcept        
 }
-
-extend type Query {
-    claimCareTeam(id: String): [ClaimCareTeam]
-}

@@ -404,7 +404,3 @@ type ElementDefinition {
     binding: ElementDefinitionBinding        
     mapping: [ElementDefinitionMapping]        
 }
-
-extend type Query {
-    elementDefinition(id: String): [ElementDefinition]
-}

@@ -14,7 +14,3 @@ type RelatedPersonCommunication {
     language: CodeableConcept!        
     preferred: code        
 }
-
-extend type Query {
-    relatedPersonCommunication(id: String): [RelatedPersonCommunication]
-}

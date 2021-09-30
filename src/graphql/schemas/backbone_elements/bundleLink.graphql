@@ -14,7 +14,3 @@ type BundleLink {
     relation: code!        
     url: code!        
 }
-
-extend type Query {
-    bundleLink(id: String): [BundleLink]
-}

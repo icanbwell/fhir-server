@@ -30,7 +30,3 @@ type GoalTarget {
     dueDate: code        
     dueDuration: Quantity        
 }
-
-extend type Query {
-    goalTarget(id: String): [GoalTarget]
-}

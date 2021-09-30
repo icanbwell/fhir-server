@@ -16,7 +16,3 @@ type MedicationKnowledgeKinetics {
     lethalDose50: [Quantity]        
     halfLifePeriod: Quantity        
 }
-
-extend type Query {
-    medicationKnowledgeKinetics(id: String): [MedicationKnowledgeKinetics]
-}

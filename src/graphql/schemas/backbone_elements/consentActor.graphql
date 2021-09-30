@@ -22,7 +22,3 @@ type ConsentActor {
     role: CodeableConcept!        
     reference: ConsentActorReference!        
 }
-
-extend type Query {
-    consentActor(id: String): [ConsentActor]
-}

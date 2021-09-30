@@ -18,7 +18,3 @@ type RequestGroupRelatedAction {
     offsetDuration: Quantity        
     offsetRange: Range        
 }
-
-extend type Query {
-    requestGroupRelatedAction(id: String): [RequestGroupRelatedAction]
-}

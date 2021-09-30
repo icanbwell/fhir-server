@@ -18,7 +18,3 @@ type ImplementationGuideResource1 {
     exampleCanonical: code        
     relativePath: code        
 }
-
-extend type Query {
-    implementationGuideResource1(id: String): [ImplementationGuideResource1]
-}

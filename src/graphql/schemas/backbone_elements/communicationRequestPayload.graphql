@@ -16,7 +16,3 @@ type CommunicationRequestPayload {
     contentAttachment: Attachment        
     contentReference: Resource        
 }
-
-extend type Query {
-    communicationRequestPayload(id: String): [CommunicationRequestPayload]
-}

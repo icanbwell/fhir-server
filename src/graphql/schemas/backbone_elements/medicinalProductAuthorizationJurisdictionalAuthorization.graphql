@@ -20,7 +20,3 @@ type MedicinalProductAuthorizationJurisdictionalAuthorization {
     legalStatusOfSupply: CodeableConcept        
     validityPeriod: Period        
 }
-
-extend type Query {
-    medicinalProductAuthorizationJurisdictionalAuthorization(id: String): [MedicinalProductAuthorizationJurisdictionalAuthorization]
-}

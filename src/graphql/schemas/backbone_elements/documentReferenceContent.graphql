@@ -14,7 +14,3 @@ type DocumentReferenceContent {
     attachment: Attachment!        
     format: Coding        
 }
-
-extend type Query {
-    documentReferenceContent(id: String): [DocumentReferenceContent]
-}

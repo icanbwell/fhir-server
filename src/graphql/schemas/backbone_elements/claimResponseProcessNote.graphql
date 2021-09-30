@@ -18,7 +18,3 @@ type ClaimResponseProcessNote {
     text: code!        
     language: CodeableConcept        
 }
-
-extend type Query {
-    claimResponseProcessNote(id: String): [ClaimResponseProcessNote]
-}

@@ -16,7 +16,3 @@ type MeasureReportPopulation {
     count: code        
     subjectResults: List        
 }
-
-extend type Query {
-    measureReportPopulation(id: String): [MeasureReportPopulation]
-}

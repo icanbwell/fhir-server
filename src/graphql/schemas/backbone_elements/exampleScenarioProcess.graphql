@@ -20,7 +20,3 @@ type ExampleScenarioProcess {
     postConditions: code        
     step: [ExampleScenarioStep]        
 }
-
-extend type Query {
-    exampleScenarioProcess(id: String): [ExampleScenarioProcess]
-}

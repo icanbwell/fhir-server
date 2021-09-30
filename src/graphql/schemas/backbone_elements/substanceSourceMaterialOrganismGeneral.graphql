@@ -18,7 +18,3 @@ type SubstanceSourceMaterialOrganismGeneral {
     class: CodeableConcept        
     order: CodeableConcept        
 }
-
-extend type Query {
-    substanceSourceMaterialOrganismGeneral(id: String): [SubstanceSourceMaterialOrganismGeneral]
-}

@@ -16,7 +16,3 @@ type MedicinalProductPharmaceuticalWithdrawalPeriod {
     value: Quantity!        
     supportingInformation: code        
 }
-
-extend type Query {
-    medicinalProductPharmaceuticalWithdrawalPeriod(id: String): [MedicinalProductPharmaceuticalWithdrawalPeriod]
-}

@@ -34,7 +34,3 @@ type QuestionnaireInitial {
     valueQuantity: Quantity        
     valueReference: Resource        
 }
-
-extend type Query {
-    questionnaireInitial(id: String): [QuestionnaireInitial]
-}

@@ -20,7 +20,3 @@ type NamingSystemUniqueId {
     comment: code        
     period: Period        
 }
-
-extend type Query {
-    namingSystemUniqueId(id: String): [NamingSystemUniqueId]
-}

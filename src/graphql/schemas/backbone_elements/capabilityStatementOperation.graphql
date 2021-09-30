@@ -16,7 +16,3 @@ type CapabilityStatementOperation {
     definition: code!        
     documentation: code        
 }
-
-extend type Query {
-    capabilityStatementOperation(id: String): [CapabilityStatementOperation]
-}

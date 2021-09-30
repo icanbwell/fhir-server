@@ -18,7 +18,3 @@ type DetectedIssueMitigation {
     date: code        
     author: DetectedIssueMitigationAuthor        
 }
-
-extend type Query {
-    detectedIssueMitigation(id: String): [DetectedIssueMitigation]
-}

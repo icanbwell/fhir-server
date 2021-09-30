@@ -30,7 +30,3 @@ type SpecimenCollection {
     fastingStatusCodeableConcept: CodeableConcept        
     fastingStatusDuration: Quantity        
 }
-
-extend type Query {
-    specimenCollection(id: String): [SpecimenCollection]
-}

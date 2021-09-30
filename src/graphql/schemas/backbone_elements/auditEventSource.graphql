@@ -22,7 +22,3 @@ type AuditEventSource {
     observer: AuditEventSourceObserver!        
     type: [Coding]        
 }
-
-extend type Query {
-    auditEventSource(id: String): [AuditEventSource]
-}

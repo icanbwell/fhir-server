@@ -27,7 +27,3 @@ type VerificationResultPrimarySource {
     canPushUpdates: CodeableConcept        
     pushTypeAvailable: [CodeableConcept]        
 }
-
-extend type Query {
-    verificationResultPrimarySource(id: String): [VerificationResultPrimarySource]
-}

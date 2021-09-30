@@ -18,7 +18,3 @@ type InsurancePlanGeneralCost {
     cost: Money        
     comment: code        
 }
-
-extend type Query {
-    insurancePlanGeneralCost(id: String): [InsurancePlanGeneralCost]
-}

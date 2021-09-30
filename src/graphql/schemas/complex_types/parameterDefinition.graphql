@@ -22,7 +22,3 @@ type ParameterDefinition {
     type: code!        
     profile: code        
 }
-
-extend type Query {
-    parameterDefinition(id: String): [ParameterDefinition]
-}

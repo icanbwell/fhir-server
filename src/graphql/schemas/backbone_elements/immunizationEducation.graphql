@@ -18,7 +18,3 @@ type ImmunizationEducation {
     publicationDate: code        
     presentationDate: code        
 }
-
-extend type Query {
-    immunizationEducation(id: String): [ImmunizationEducation]
-}

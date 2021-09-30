@@ -14,7 +14,3 @@ type InsurancePlanLimit {
     value: Quantity        
     code: CodeableConcept        
 }
-
-extend type Query {
-    insurancePlanLimit(id: String): [InsurancePlanLimit]
-}

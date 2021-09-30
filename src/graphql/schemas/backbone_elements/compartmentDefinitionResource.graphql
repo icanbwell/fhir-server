@@ -16,7 +16,3 @@ type CompartmentDefinitionResource {
     param: [code]        
     documentation: code        
 }
-
-extend type Query {
-    compartmentDefinitionResource(id: String): [CompartmentDefinitionResource]
-}

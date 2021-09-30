@@ -26,7 +26,3 @@ type DataRequirement {
     limit: code        
     sort: [DataRequirementSort]        
 }
-
-extend type Query {
-    dataRequirement(id: String): [DataRequirement]
-}

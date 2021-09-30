@@ -14,7 +14,3 @@ type CoverageException {
     type: CodeableConcept!        
     period: Period        
 }
-
-extend type Query {
-    coverageException(id: String): [CoverageException]
-}

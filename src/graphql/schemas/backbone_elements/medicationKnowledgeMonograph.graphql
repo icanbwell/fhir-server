@@ -16,7 +16,3 @@ type MedicationKnowledgeMonograph {
     type: CodeableConcept        
     source: MedicationKnowledgeMonographSource        
 }
-
-extend type Query {
-    medicationKnowledgeMonograph(id: String): [MedicationKnowledgeMonograph]
-}

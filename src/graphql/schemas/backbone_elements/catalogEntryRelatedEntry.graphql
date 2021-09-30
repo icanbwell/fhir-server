@@ -14,7 +14,3 @@ type CatalogEntryRelatedEntry {
     relationtype: code!        
     item: CatalogEntry!        
 }
-
-extend type Query {
-    catalogEntryRelatedEntry(id: String): [CatalogEntryRelatedEntry]
-}

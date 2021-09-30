@@ -12,7 +12,3 @@ type StructureDefinitionSnapshot {
     modifierExtension: [Extension]        
     element: [ElementDefinition]!        
 }
-
-extend type Query {
-    structureDefinitionSnapshot(id: String): [StructureDefinitionSnapshot]
-}

@@ -14,7 +14,3 @@ type SearchParameterComponent {
     definition: code!        
     expression: code!        
 }
-
-extend type Query {
-    searchParameterComponent(id: String): [SearchParameterComponent]
-}

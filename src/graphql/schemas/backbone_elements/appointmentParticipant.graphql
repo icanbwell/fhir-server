@@ -27,7 +27,3 @@ type AppointmentParticipant {
     status: code!        
     period: Period        
 }
-
-extend type Query {
-    appointmentParticipant(id: String): [AppointmentParticipant]
-}

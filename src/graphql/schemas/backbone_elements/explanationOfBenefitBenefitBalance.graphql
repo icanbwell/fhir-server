@@ -26,7 +26,3 @@ type ExplanationOfBenefitBenefitBalance {
     term: CodeableConcept        
     financial: [ExplanationOfBenefitFinancial]        
 }
-
-extend type Query {
-    explanationOfBenefitBenefitBalance(id: String): [ExplanationOfBenefitBenefitBalance]
-}

@@ -14,7 +14,3 @@ type PatientCommunication {
     language: CodeableConcept!        
     preferred: code        
 }
-
-extend type Query {
-    patientCommunication(id: String): [PatientCommunication]
-}

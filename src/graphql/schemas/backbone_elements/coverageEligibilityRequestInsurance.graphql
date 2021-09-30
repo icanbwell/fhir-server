@@ -16,7 +16,3 @@ type CoverageEligibilityRequestInsurance {
     coverage: Coverage!        
     businessArrangement: code        
 }
-
-extend type Query {
-    coverageEligibilityRequestInsurance(id: String): [CoverageEligibilityRequestInsurance]
-}

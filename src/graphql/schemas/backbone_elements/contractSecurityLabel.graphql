@@ -18,7 +18,3 @@ type ContractSecurityLabel {
     category: [Coding]        
     control: [Coding]        
 }
-
-extend type Query {
-    contractSecurityLabel(id: String): [ContractSecurityLabel]
-}

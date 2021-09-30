@@ -64,7 +64,3 @@ type CarePlanDetail {
     quantity: Quantity        
     description: code        
 }
-
-extend type Query {
-    carePlanDetail(id: String): [CarePlanDetail]
-}

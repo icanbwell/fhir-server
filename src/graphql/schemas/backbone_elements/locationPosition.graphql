@@ -16,7 +16,3 @@ type LocationPosition {
     latitude: code!        
     altitude: code        
 }
-
-extend type Query {
-    locationPosition(id: String): [LocationPosition]
-}

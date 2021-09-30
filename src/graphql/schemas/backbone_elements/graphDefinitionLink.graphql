@@ -22,7 +22,3 @@ type GraphDefinitionLink {
     description: code        
     target: [GraphDefinitionTarget]        
 }
-
-extend type Query {
-    graphDefinitionLink(id: String): [GraphDefinitionLink]
-}

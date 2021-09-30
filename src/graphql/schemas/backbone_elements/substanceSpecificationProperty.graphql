@@ -26,7 +26,3 @@ type SubstanceSpecificationProperty {
     amountQuantity: Quantity        
     amountString: code        
 }
-
-extend type Query {
-    substanceSpecificationProperty(id: String): [SubstanceSpecificationProperty]
-}

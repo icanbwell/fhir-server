@@ -16,7 +16,3 @@ type ImplementationGuideTemplate {
     source: code!        
     scope: code        
 }
-
-extend type Query {
-    implementationGuideTemplate(id: String): [ImplementationGuideTemplate]
-}

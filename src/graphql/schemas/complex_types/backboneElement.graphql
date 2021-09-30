@@ -10,7 +10,3 @@ type BackboneElement {
     extension: [Extension]        
     modifierExtension: [Extension]        
 }
-
-extend type Query {
-    backboneElement(id: String): [BackboneElement]
-}

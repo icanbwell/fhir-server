@@ -21,7 +21,3 @@ type ContractSigner {
     party: ContractSignerParty!        
     signature: [Signature]!        
 }
-
-extend type Query {
-    contractSigner(id: String): [ContractSigner]
-}

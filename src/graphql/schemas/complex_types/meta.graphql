@@ -20,7 +20,3 @@ type Meta {
     security: [Coding]        
     tag: [Coding]        
 }
-
-extend type Query {
-    meta(id: String): [Meta]
-}

@@ -18,7 +18,3 @@ type StructureMapStructure {
     alias: code        
     documentation: code        
 }
-
-extend type Query {
-    structureMapStructure(id: String): [StructureMapStructure]
-}

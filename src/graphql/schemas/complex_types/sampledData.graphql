@@ -22,7 +22,3 @@ type SampledData {
     dimensions: code!        
     data: code        
 }
-
-extend type Query {
-    sampledData(id: String): [SampledData]
-}

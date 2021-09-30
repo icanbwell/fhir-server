@@ -28,7 +28,3 @@ type Address {
     country: code        
     period: Period        
 }
-
-extend type Query {
-    address(id: String): [Address]
-}

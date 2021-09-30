@@ -30,7 +30,3 @@ type ContractOffer {
     linkId: [code]        
     securityLabelNumber: [code]        
 }
-
-extend type Query {
-    contractOffer(id: String): [ContractOffer]
-}

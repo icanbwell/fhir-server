@@ -16,7 +16,3 @@ type DeviceDefinitionUdiDeviceIdentifier {
     issuer: code!        
     jurisdiction: code!        
 }
-
-extend type Query {
-    deviceDefinitionUdiDeviceIdentifier(id: String): [DeviceDefinitionUdiDeviceIdentifier]
-}

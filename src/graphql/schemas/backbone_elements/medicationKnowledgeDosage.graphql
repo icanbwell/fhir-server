@@ -14,7 +14,3 @@ type MedicationKnowledgeDosage {
     type: CodeableConcept!        
     dosage: [Dosage]!        
 }
-
-extend type Query {
-    medicationKnowledgeDosage(id: String): [MedicationKnowledgeDosage]
-}

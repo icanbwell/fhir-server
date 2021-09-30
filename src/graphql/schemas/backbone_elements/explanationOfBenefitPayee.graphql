@@ -19,7 +19,3 @@ type ExplanationOfBenefitPayee {
     type: CodeableConcept        
     party: ExplanationOfBenefitPayeeParty        
 }
-
-extend type Query {
-    explanationOfBenefitPayee(id: String): [ExplanationOfBenefitPayee]
-}

@@ -17,7 +17,3 @@ type ContractFriendly {
     contentAttachment: Attachment        
     contentReference: ContractFriendlyContentReference        
 }
-
-extend type Query {
-    contractFriendly(id: String): [ContractFriendly]
-}

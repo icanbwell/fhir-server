@@ -22,7 +22,3 @@ type MedicinalProductManufacturingBusinessOperation {
     manufacturer: [Organization]        
     regulator: Organization        
 }
-
-extend type Query {
-    medicinalProductManufacturingBusinessOperation(id: String): [MedicinalProductManufacturingBusinessOperation]
-}

@@ -33,7 +33,3 @@ type MedicinalProductPackagedPackageItem {
     shelfLifeStorage: [ProductShelfLife]        
     manufacturer: [Organization]        
 }
-
-extend type Query {
-    medicinalProductPackagedPackageItem(id: String): [MedicinalProductPackagedPackageItem]
-}

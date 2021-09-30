@@ -18,7 +18,3 @@ type MeasureReportStratum {
     population: [MeasureReportPopulation1]        
     measureScore: Quantity        
 }
-
-extend type Query {
-    measureReportStratum(id: String): [MeasureReportStratum]
-}

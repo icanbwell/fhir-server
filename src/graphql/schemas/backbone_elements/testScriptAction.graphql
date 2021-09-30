@@ -14,7 +14,3 @@ type TestScriptAction {
     operation: TestScriptOperation        
     assert: TestScriptAssert        
 }
-
-extend type Query {
-    testScriptAction(id: String): [TestScriptAction]
-}

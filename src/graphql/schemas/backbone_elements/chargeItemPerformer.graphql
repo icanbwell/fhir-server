@@ -21,7 +21,3 @@ type ChargeItemPerformer {
     function: CodeableConcept        
     actor: ChargeItemPerformerActor!        
 }
-
-extend type Query {
-    chargeItemPerformer(id: String): [ChargeItemPerformer]
-}

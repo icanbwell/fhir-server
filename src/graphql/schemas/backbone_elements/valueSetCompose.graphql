@@ -18,7 +18,3 @@ type ValueSetCompose {
     include: [ValueSetInclude]!        
     exclude: [ValueSetInclude]        
 }
-
-extend type Query {
-    valueSetCompose(id: String): [ValueSetCompose]
-}

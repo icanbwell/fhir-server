@@ -40,7 +40,3 @@ type EvidenceVariableCharacteristic {
     timeFromStart: Quantity        
     groupMeasure: code        
 }
-
-extend type Query {
-    evidenceVariableCharacteristic(id: String): [EvidenceVariableCharacteristic]
-}

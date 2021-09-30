@@ -18,7 +18,3 @@ type ElementDefinitionMapping {
     map: code!        
     comment: code        
 }
-
-extend type Query {
-    elementDefinitionMapping(id: String): [ElementDefinitionMapping]
-}

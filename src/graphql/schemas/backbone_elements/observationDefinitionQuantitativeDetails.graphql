@@ -18,7 +18,3 @@ type ObservationDefinitionQuantitativeDetails {
     conversionFactor: code        
     decimalPrecision: code        
 }
-
-extend type Query {
-    observationDefinitionQuantitativeDetails(id: String): [ObservationDefinitionQuantitativeDetails]
-}

@@ -12,7 +12,3 @@ type DataRequirementSort {
     path: code!        
     direction: code!        
 }
-
-extend type Query {
-    dataRequirementSort(id: String): [DataRequirementSort]
-}

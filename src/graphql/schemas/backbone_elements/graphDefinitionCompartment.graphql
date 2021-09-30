@@ -20,7 +20,3 @@ type GraphDefinitionCompartment {
     expression: code        
     description: code        
 }
-
-extend type Query {
-    graphDefinitionCompartment(id: String): [GraphDefinitionCompartment]
-}

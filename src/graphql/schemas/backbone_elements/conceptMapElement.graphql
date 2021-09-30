@@ -16,7 +16,3 @@ type ConceptMapElement {
     display: code        
     target: [ConceptMapTarget]        
 }
-
-extend type Query {
-    conceptMapElement(id: String): [ConceptMapElement]
-}

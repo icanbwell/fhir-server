@@ -22,7 +22,3 @@ type ExampleScenarioInstance {
     version: [ExampleScenarioVersion]        
     containedInstance: [ExampleScenarioContainedInstance]        
 }
-
-extend type Query {
-    exampleScenarioInstance(id: String): [ExampleScenarioInstance]
-}

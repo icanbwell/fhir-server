@@ -16,7 +16,3 @@ type TestReportOperation {
     message: code        
     detail: code        
 }
-
-extend type Query {
-    testReportOperation(id: String): [TestReportOperation]
-}

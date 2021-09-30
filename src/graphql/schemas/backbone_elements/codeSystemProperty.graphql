@@ -18,7 +18,3 @@ type CodeSystemProperty {
     description: code        
     type: code!        
 }
-
-extend type Query {
-    codeSystemProperty(id: String): [CodeSystemProperty]
-}

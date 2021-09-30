@@ -12,7 +12,3 @@ type Period {
     start: code        
     end: code        
 }
-
-extend type Query {
-    period(id: String): [Period]
-}

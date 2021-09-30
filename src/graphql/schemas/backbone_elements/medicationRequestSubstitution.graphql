@@ -16,7 +16,3 @@ type MedicationRequestSubstitution {
     allowedCodeableConcept: CodeableConcept        
     reason: CodeableConcept        
 }
-
-extend type Query {
-    medicationRequestSubstitution(id: String): [MedicationRequestSubstitution]
-}

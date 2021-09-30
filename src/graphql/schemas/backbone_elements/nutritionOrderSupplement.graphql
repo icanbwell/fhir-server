@@ -20,7 +20,3 @@ type NutritionOrderSupplement {
     quantity: Quantity        
     instruction: code        
 }
-
-extend type Query {
-    nutritionOrderSupplement(id: String): [NutritionOrderSupplement]
-}

@@ -18,7 +18,3 @@ type StructureMapInput {
     mode: code!        
     documentation: code        
 }
-
-extend type Query {
-    structureMapInput(id: String): [StructureMapInput]
-}

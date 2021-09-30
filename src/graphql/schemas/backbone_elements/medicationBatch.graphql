@@ -14,7 +14,3 @@ type MedicationBatch {
     lotNumber: code        
     expirationDate: code        
 }
-
-extend type Query {
-    medicationBatch(id: String): [MedicationBatch]
-}

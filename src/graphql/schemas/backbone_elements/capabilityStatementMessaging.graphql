@@ -18,7 +18,3 @@ type CapabilityStatementMessaging {
     documentation: code        
     supportedMessage: [CapabilityStatementSupportedMessage]        
 }
-
-extend type Query {
-    capabilityStatementMessaging(id: String): [CapabilityStatementMessaging]
-}

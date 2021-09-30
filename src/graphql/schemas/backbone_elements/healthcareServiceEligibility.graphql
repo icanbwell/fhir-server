@@ -14,7 +14,3 @@ type HealthcareServiceEligibility {
     code: CodeableConcept        
     comment: code        
 }
-
-extend type Query {
-    healthcareServiceEligibility(id: String): [HealthcareServiceEligibility]
-}

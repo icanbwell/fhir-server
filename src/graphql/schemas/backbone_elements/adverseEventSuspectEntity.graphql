@@ -21,7 +21,3 @@ type AdverseEventSuspectEntity {
     instance: AdverseEventSuspectEntityInstance!        
     causality: [AdverseEventCausality]        
 }
-
-extend type Query {
-    adverseEventSuspectEntity(id: String): [AdverseEventSuspectEntity]
-}

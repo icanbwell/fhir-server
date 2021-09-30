@@ -20,7 +20,3 @@ type MarketingStatus {
     dateRange: Period!        
     restoreDate: code        
 }
-
-extend type Query {
-    marketingStatus(id: String): [MarketingStatus]
-}

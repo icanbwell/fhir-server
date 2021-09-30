@@ -18,7 +18,3 @@ type Coding {
     display: code        
     userSelected: code        
 }
-
-extend type Query {
-    coding(id: String): [Coding]
-}

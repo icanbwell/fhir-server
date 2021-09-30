@@ -14,7 +14,3 @@ type DeviceDefinitionSpecialization {
     systemType: code!        
     version: code        
 }
-
-extend type Query {
-    deviceDefinitionSpecialization(id: String): [DeviceDefinitionSpecialization]
-}

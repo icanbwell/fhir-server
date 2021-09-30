@@ -12,7 +12,3 @@ type TerminologyCapabilitiesValidateCode {
     modifierExtension: [Extension]        
     translations: code!        
 }
-
-extend type Query {
-    terminologyCapabilitiesValidateCode(id: String): [TerminologyCapabilitiesValidateCode]
-}

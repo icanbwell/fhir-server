@@ -38,7 +38,3 @@ type AuditEventAgent {
     network: AuditEventNetwork        
     purposeOfUse: [CodeableConcept]        
 }
-
-extend type Query {
-    auditEventAgent(id: String): [AuditEventAgent]
-}

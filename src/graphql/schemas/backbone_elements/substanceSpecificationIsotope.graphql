@@ -20,7 +20,3 @@ type SubstanceSpecificationIsotope {
     halfLife: Quantity        
     molecularWeight: SubstanceSpecificationMolecularWeight        
 }
-
-extend type Query {
-    substanceSpecificationIsotope(id: String): [SubstanceSpecificationIsotope]
-}

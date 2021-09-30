@@ -21,7 +21,3 @@ type ImagingStudyPerformer {
     function: CodeableConcept        
     actor: ImagingStudyPerformerActor!        
 }
-
-extend type Query {
-    imagingStudyPerformer(id: String): [ImagingStudyPerformer]
-}

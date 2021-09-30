@@ -32,7 +32,3 @@ type ExplanationOfBenefitSupportingInfo {
     valueReference: Resource        
     reason: Coding        
 }
-
-extend type Query {
-    explanationOfBenefitSupportingInfo(id: String): [ExplanationOfBenefitSupportingInfo]
-}

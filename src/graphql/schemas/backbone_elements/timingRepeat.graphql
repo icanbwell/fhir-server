@@ -44,7 +44,3 @@ type TimingRepeat {
     when: [code]        
     offset: code        
 }
-
-extend type Query {
-    timingRepeat(id: String): [TimingRepeat]
-}

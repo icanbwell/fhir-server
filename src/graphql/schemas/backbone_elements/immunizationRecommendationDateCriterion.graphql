@@ -14,7 +14,3 @@ type ImmunizationRecommendationDateCriterion {
     code: CodeableConcept!        
     value: code!        
 }
-
-extend type Query {
-    immunizationRecommendationDateCriterion(id: String): [ImmunizationRecommendationDateCriterion]
-}

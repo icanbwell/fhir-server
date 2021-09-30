@@ -18,7 +18,3 @@ type Expression {
     expression: code        
     reference: code        
 }
-
-extend type Query {
-    expression(id: String): [Expression]
-}

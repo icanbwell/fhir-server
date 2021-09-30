@@ -16,7 +16,3 @@ type TestReportTest {
     description: code        
     action: [TestReportAction1]!        
 }
-
-extend type Query {
-    testReportTest(id: String): [TestReportTest]
-}

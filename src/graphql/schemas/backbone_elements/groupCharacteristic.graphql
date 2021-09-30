@@ -26,7 +26,3 @@ type GroupCharacteristic {
     exclude: code!        
     period: Period        
 }
-
-extend type Query {
-    groupCharacteristic(id: String): [GroupCharacteristic]
-}

@@ -24,7 +24,3 @@ type MedicationRequestDispenseRequest {
     expectedSupplyDuration: Quantity        
     performer: Organization        
 }
-
-extend type Query {
-    medicationRequestDispenseRequest(id: String): [MedicationRequestDispenseRequest]
-}

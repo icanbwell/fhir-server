@@ -16,7 +16,3 @@ type ImplementationGuideDependsOn {
     packageId: code        
     version: code        
 }
-
-extend type Query {
-    implementationGuideDependsOn(id: String): [ImplementationGuideDependsOn]
-}

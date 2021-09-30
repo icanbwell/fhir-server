@@ -40,7 +40,3 @@ type ObservationComponent {
     interpretation: [CodeableConcept]        
     referenceRange: [ObservationReferenceRange]        
 }
-
-extend type Query {
-    observationComponent(id: String): [ObservationComponent]
-}

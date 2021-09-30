@@ -16,7 +16,3 @@ type TestReportParticipant {
     uri: code!        
     display: code        
 }
-
-extend type Query {
-    testReportParticipant(id: String): [TestReportParticipant]
-}

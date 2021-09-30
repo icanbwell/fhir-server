@@ -22,7 +22,3 @@ type BundleEntry {
     request: BundleRequest        
     response: BundleResponse        
 }
-
-extend type Query {
-    bundleEntry(id: String): [BundleEntry]
-}

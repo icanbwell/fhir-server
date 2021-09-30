@@ -34,7 +34,3 @@ type CoverageEligibilityRequestItem {
     diagnosis: [CoverageEligibilityRequestDiagnosis]        
     detail: [Resource]        
 }
-
-extend type Query {
-    coverageEligibilityRequestItem(id: String): [CoverageEligibilityRequestItem]
-}

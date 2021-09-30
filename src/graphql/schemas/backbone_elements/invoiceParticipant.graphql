@@ -20,7 +20,3 @@ type InvoiceParticipant {
     role: CodeableConcept        
     actor: InvoiceParticipantActor!        
 }
-
-extend type Query {
-    invoiceParticipant(id: String): [InvoiceParticipant]
-}

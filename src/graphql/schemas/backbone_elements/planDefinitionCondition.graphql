@@ -14,7 +14,3 @@ type PlanDefinitionCondition {
     kind: code!        
     expression: Expression        
 }
-
-extend type Query {
-    planDefinitionCondition(id: String): [PlanDefinitionCondition]
-}

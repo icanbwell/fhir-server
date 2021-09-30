@@ -22,7 +22,3 @@ type BiologicallyDerivedProductCollection {
     collectedDateTime: code        
     collectedPeriod: Period        
 }
-
-extend type Query {
-    biologicallyDerivedProductCollection(id: String): [BiologicallyDerivedProductCollection]
-}

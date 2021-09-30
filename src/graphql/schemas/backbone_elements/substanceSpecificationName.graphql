@@ -30,7 +30,3 @@ type SubstanceSpecificationName {
     official: [SubstanceSpecificationOfficial]        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceSpecificationName(id: String): [SubstanceSpecificationName]
-}

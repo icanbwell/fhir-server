@@ -14,7 +14,3 @@ type TerminologyCapabilitiesSoftware {
     name: code!        
     version: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesSoftware(id: String): [TerminologyCapabilitiesSoftware]
-}

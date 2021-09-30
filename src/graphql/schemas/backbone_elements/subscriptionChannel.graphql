@@ -18,7 +18,3 @@ type SubscriptionChannel {
     payload: code        
     header: [code]        
 }
-
-extend type Query {
-    subscriptionChannel(id: String): [SubscriptionChannel]
-}

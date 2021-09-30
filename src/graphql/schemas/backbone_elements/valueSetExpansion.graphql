@@ -22,7 +22,3 @@ type ValueSetExpansion {
     parameter: [ValueSetParameter]        
     contains: [ValueSetContains]        
 }
-
-extend type Query {
-    valueSetExpansion(id: String): [ValueSetExpansion]
-}

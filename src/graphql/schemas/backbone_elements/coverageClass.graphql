@@ -16,7 +16,3 @@ type CoverageClass {
     value: code!        
     name: code        
 }
-
-extend type Query {
-    coverageClass(id: String): [CoverageClass]
-}

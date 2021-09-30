@@ -14,7 +14,3 @@ type ProcedureFocalDevice {
     action: CodeableConcept        
     manipulated: Device!        
 }
-
-extend type Query {
-    procedureFocalDevice(id: String): [ProcedureFocalDevice]
-}

@@ -14,7 +14,3 @@ type SubstanceSourceMaterialPartDescription {
     part: CodeableConcept        
     partLocation: CodeableConcept        
 }
-
-extend type Query {
-    substanceSourceMaterialPartDescription(id: String): [SubstanceSourceMaterialPartDescription]
-}

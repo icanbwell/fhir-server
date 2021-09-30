@@ -12,7 +12,3 @@ type TerminologyCapabilitiesClosure {
     modifierExtension: [Extension]        
     translation: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesClosure(id: String): [TerminologyCapabilitiesClosure]
-}

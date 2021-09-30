@@ -54,7 +54,3 @@ type TestScriptAssert {
     value: code        
     warningOnly: code!        
 }
-
-extend type Query {
-    testScriptAssert(id: String): [TestScriptAssert]
-}

@@ -14,7 +14,3 @@ type MessageDefinitionAllowedResponse {
     message: code!        
     situation: code        
 }
-
-extend type Query {
-    messageDefinitionAllowedResponse(id: String): [MessageDefinitionAllowedResponse]
-}

@@ -38,7 +38,3 @@ type VisionPrescriptionLensSpecification {
     brand: code        
     note: [Annotation]        
 }
-
-extend type Query {
-    visionPrescriptionLensSpecification(id: String): [VisionPrescriptionLensSpecification]
-}

@@ -18,7 +18,3 @@ type MedicinalProductInteractionInteractant {
     itemReference: MedicinalProductInteractionInteractantItemReference        
     itemCodeableConcept: CodeableConcept        
 }
-
-extend type Query {
-    medicinalProductInteractionInteractant(id: String): [MedicinalProductInteractionInteractant]
-}

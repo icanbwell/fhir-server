@@ -14,7 +14,3 @@ type ImplementationGuideGlobal {
     type: code!        
     profile: code!        
 }
-
-extend type Query {
-    implementationGuideGlobal(id: String): [ImplementationGuideGlobal]
-}

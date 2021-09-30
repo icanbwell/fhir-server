@@ -34,7 +34,3 @@ type QuestionnaireEnableWhen {
     answerQuantity: Quantity        
     answerReference: Resource        
 }
-
-extend type Query {
-    questionnaireEnableWhen(id: String): [QuestionnaireEnableWhen]
-}

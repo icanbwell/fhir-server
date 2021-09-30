@@ -19,7 +19,3 @@ type MedicinalProductAuthorizationProcedure {
     dateDateTime: code        
     application: [MedicinalProductAuthorizationProcedure]        
 }
-
-extend type Query {
-    medicinalProductAuthorizationProcedure(id: String): [MedicinalProductAuthorizationProcedure]
-}

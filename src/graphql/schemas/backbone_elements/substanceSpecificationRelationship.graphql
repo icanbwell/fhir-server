@@ -32,7 +32,3 @@ type SubstanceSpecificationRelationship {
     amountType: CodeableConcept        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceSpecificationRelationship(id: String): [SubstanceSpecificationRelationship]
-}

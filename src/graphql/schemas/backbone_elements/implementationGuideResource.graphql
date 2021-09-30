@@ -24,7 +24,3 @@ type ImplementationGuideResource {
     exampleCanonical: code        
     groupingId: code        
 }
-
-extend type Query {
-    implementationGuideResource(id: String): [ImplementationGuideResource]
-}

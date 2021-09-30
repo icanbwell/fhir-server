@@ -40,7 +40,3 @@ type CoverageEligibilityResponseItem {
     authorizationSupporting: [CodeableConcept]        
     authorizationUrl: code        
 }
-
-extend type Query {
-    coverageEligibilityResponseItem(id: String): [CoverageEligibilityResponseItem]
-}

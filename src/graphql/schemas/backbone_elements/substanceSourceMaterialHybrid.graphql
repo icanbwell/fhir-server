@@ -20,7 +20,3 @@ type SubstanceSourceMaterialHybrid {
     paternalOrganismName: code        
     hybridType: CodeableConcept        
 }
-
-extend type Query {
-    substanceSourceMaterialHybrid(id: String): [SubstanceSourceMaterialHybrid]
-}

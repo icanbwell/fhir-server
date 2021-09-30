@@ -24,7 +24,3 @@ type ClaimInsurance {
     preAuthRef: [code]        
     claimResponse: ClaimResponse        
 }
-
-extend type Query {
-    claimInsurance(id: String): [ClaimInsurance]
-}

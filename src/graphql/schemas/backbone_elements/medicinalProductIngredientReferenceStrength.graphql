@@ -20,7 +20,3 @@ type MedicinalProductIngredientReferenceStrength {
     measurementPoint: code        
     country: [CodeableConcept]        
 }
-
-extend type Query {
-    medicinalProductIngredientReferenceStrength(id: String): [MedicinalProductIngredientReferenceStrength]
-}

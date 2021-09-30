@@ -18,7 +18,3 @@ type RiskEvidenceSynthesisPrecisionEstimate {
     from: code        
     to: code        
 }
-
-extend type Query {
-    riskEvidenceSynthesisPrecisionEstimate(id: String): [RiskEvidenceSynthesisPrecisionEstimate]
-}

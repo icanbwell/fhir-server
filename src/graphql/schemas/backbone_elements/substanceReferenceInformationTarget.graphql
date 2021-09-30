@@ -30,7 +30,3 @@ type SubstanceReferenceInformationTarget {
     amountType: CodeableConcept        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceReferenceInformationTarget(id: String): [SubstanceReferenceInformationTarget]
-}

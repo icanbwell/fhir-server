@@ -29,7 +29,3 @@ type CarePlanActivity {
     reference: CarePlanActivityReference        
     detail: CarePlanDetail        
 }
-
-extend type Query {
-    carePlanActivity(id: String): [CarePlanActivity]
-}

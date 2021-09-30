@@ -80,7 +80,3 @@ type ContractAction {
     note: [Annotation]        
     securityLabelNumber: [code]        
 }
-
-extend type Query {
-    contractAction(id: String): [ContractAction]
-}

@@ -20,7 +20,3 @@ type BiologicallyDerivedProductProcessing {
     timeDateTime: code        
     timePeriod: Period        
 }
-
-extend type Query {
-    biologicallyDerivedProductProcessing(id: String): [BiologicallyDerivedProductProcessing]
-}

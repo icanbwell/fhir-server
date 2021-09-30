@@ -12,7 +12,3 @@ type ContactDetail {
     name: code        
     telecom: [ContactPoint]        
 }
-
-extend type Query {
-    contactDetail(id: String): [ContactDetail]
-}

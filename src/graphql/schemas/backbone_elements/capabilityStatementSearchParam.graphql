@@ -18,7 +18,3 @@ type CapabilityStatementSearchParam {
     type: code!        
     documentation: code        
 }
-
-extend type Query {
-    capabilityStatementSearchParam(id: String): [CapabilityStatementSearchParam]
-}

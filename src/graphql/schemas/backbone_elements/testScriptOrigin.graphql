@@ -14,7 +14,3 @@ type TestScriptOrigin {
     index: code!        
     profile: Coding!        
 }
-
-extend type Query {
-    testScriptOrigin(id: String): [TestScriptOrigin]
-}

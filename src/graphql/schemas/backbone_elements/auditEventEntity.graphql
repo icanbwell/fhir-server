@@ -28,7 +28,3 @@ type AuditEventEntity {
     query: code        
     detail: [AuditEventDetail]        
 }
-
-extend type Query {
-    auditEventEntity(id: String): [AuditEventEntity]
-}

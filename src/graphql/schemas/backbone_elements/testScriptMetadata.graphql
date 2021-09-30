@@ -14,7 +14,3 @@ type TestScriptMetadata {
     link: [TestScriptLink]        
     capability: [TestScriptCapability]!        
 }
-
-extend type Query {
-    testScriptMetadata(id: String): [TestScriptMetadata]
-}

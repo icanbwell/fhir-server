@@ -26,7 +26,3 @@ type FamilyMemberHistoryCondition {
     onsetString: code        
     note: [Annotation]        
 }
-
-extend type Query {
-    familyMemberHistoryCondition(id: String): [FamilyMemberHistoryCondition]
-}

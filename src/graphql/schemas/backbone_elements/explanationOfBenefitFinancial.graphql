@@ -22,7 +22,3 @@ type ExplanationOfBenefitFinancial {
     usedUnsignedInt: code        
     usedMoney: Money        
 }
-
-extend type Query {
-    explanationOfBenefitFinancial(id: String): [ExplanationOfBenefitFinancial]
-}

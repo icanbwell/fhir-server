@@ -16,7 +16,3 @@ type CoverageEligibilityRequestSupportingInfo {
     information: Resource!        
     appliesToAll: code        
 }
-
-extend type Query {
-    coverageEligibilityRequestSupportingInfo(id: String): [CoverageEligibilityRequestSupportingInfo]
-}

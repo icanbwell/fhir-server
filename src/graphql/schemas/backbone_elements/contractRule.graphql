@@ -14,7 +14,3 @@ type ContractRule {
     contentAttachment: Attachment        
     contentReference: DocumentReference        
 }
-
-extend type Query {
-    contractRule(id: String): [ContractRule]
-}

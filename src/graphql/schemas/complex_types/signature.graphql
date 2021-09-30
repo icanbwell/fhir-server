@@ -34,7 +34,3 @@ type Signature {
     sigFormat: code        
     data: code        
 }
-
-extend type Query {
-    signature(id: String): [Signature]
-}

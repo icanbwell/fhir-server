@@ -14,7 +14,3 @@ type AccountCoverage {
     coverage: Coverage!        
     priority: code        
 }
-
-extend type Query {
-    accountCoverage(id: String): [AccountCoverage]
-}

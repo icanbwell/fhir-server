@@ -24,7 +24,3 @@ type SpecimenContainer {
     additiveCodeableConcept: CodeableConcept        
     additiveReference: Substance        
 }
-
-extend type Query {
-    specimenContainer(id: String): [SpecimenContainer]
-}

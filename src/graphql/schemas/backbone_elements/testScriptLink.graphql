@@ -14,7 +14,3 @@ type TestScriptLink {
     url: code!        
     description: code        
 }
-
-extend type Query {
-    testScriptLink(id: String): [TestScriptLink]
-}

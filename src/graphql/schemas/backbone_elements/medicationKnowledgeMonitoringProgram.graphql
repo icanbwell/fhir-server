@@ -14,7 +14,3 @@ type MedicationKnowledgeMonitoringProgram {
     type: CodeableConcept        
     name: code        
 }
-
-extend type Query {
-    medicationKnowledgeMonitoringProgram(id: String): [MedicationKnowledgeMonitoringProgram]
-}

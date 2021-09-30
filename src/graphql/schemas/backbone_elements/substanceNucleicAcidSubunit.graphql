@@ -26,7 +26,3 @@ type SubstanceNucleicAcidSubunit {
     linkage: [SubstanceNucleicAcidLinkage]        
     sugar: [SubstanceNucleicAcidSugar]        
 }
-
-extend type Query {
-    substanceNucleicAcidSubunit(id: String): [SubstanceNucleicAcidSubunit]
-}

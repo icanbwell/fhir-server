@@ -18,7 +18,3 @@ type SubstancePolymerRepeat {
     repeatUnitAmountType: CodeableConcept        
     repeatUnit: [SubstancePolymerRepeatUnit]        
 }
-
-extend type Query {
-    substancePolymerRepeat(id: String): [SubstancePolymerRepeat]
-}

@@ -32,7 +32,3 @@ type ClaimSubDetail {
     net: Money        
     udi: [Device]        
 }
-
-extend type Query {
-    claimSubDetail(id: String): [ClaimSubDetail]
-}

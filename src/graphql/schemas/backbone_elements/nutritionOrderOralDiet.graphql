@@ -22,7 +22,3 @@ type NutritionOrderOralDiet {
     fluidConsistencyType: [CodeableConcept]        
     instruction: code        
 }
-
-extend type Query {
-    nutritionOrderOralDiet(id: String): [NutritionOrderOralDiet]
-}

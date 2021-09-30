@@ -21,7 +21,3 @@ type ClinicalImpressionInvestigation {
     code: CodeableConcept!        
     item: [ClinicalImpressionInvestigationItem]        
 }
-
-extend type Query {
-    clinicalImpressionInvestigation(id: String): [ClinicalImpressionInvestigation]
-}

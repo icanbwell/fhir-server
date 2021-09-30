@@ -24,7 +24,3 @@ type MedicationAdministrationDosage {
     rateRatio: Ratio        
     rateQuantity: Quantity        
 }
-
-extend type Query {
-    medicationAdministrationDosage(id: String): [MedicationAdministrationDosage]
-}

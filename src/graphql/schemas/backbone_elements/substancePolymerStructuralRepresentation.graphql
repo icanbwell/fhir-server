@@ -16,7 +16,3 @@ type SubstancePolymerStructuralRepresentation {
     representation: code        
     attachment: Attachment        
 }
-
-extend type Query {
-    substancePolymerStructuralRepresentation(id: String): [SubstancePolymerStructuralRepresentation]
-}

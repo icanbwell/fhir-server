@@ -20,7 +20,3 @@ type MessageHeaderSource {
     contact: ContactPoint        
     endpoint: code!        
 }
-
-extend type Query {
-    messageHeaderSource(id: String): [MessageHeaderSource]
-}

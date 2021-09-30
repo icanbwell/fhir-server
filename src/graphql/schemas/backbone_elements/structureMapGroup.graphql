@@ -22,7 +22,3 @@ type StructureMapGroup {
     input: [StructureMapInput]!        
     rule: [StructureMapRule]!        
 }
-
-extend type Query {
-    structureMapGroup(id: String): [StructureMapGroup]
-}

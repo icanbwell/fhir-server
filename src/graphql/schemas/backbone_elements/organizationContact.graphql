@@ -18,7 +18,3 @@ type OrganizationContact {
     telecom: [ContactPoint]        
     address: Address        
 }
-
-extend type Query {
-    organizationContact(id: String): [OrganizationContact]
-}

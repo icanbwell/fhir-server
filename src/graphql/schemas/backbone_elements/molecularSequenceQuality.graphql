@@ -40,7 +40,3 @@ type MolecularSequenceQuality {
     fScore: code        
     roc: MolecularSequenceRoc        
 }
-
-extend type Query {
-    molecularSequenceQuality(id: String): [MolecularSequenceQuality]
-}

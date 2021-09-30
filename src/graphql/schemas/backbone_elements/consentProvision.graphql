@@ -31,7 +31,3 @@ type ConsentProvision {
     data: [ConsentData]        
     provision: [ConsentProvision]        
 }
-
-extend type Query {
-    consentProvision(id: String): [ConsentProvision]
-}

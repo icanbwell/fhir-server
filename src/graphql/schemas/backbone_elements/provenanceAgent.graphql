@@ -30,7 +30,3 @@ type ProvenanceAgent {
     who: ProvenanceAgentWho!        
     onBehalfOf: ProvenanceAgentOnBehalfOf        
 }
-
-extend type Query {
-    provenanceAgent(id: String): [ProvenanceAgent]
-}

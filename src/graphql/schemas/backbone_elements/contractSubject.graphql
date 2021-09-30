@@ -21,7 +21,3 @@ type ContractSubject {
     reference: [ContractSubjectReference]!        
     role: CodeableConcept        
 }
-
-extend type Query {
-    contractSubject(id: String): [ContractSubject]
-}

@@ -18,7 +18,3 @@ type ClaimResponseAdjudication {
     amount: Money        
     value: code        
 }
-
-extend type Query {
-    claimResponseAdjudication(id: String): [ClaimResponseAdjudication]
-}

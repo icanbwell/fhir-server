@@ -16,7 +16,3 @@ type SubstanceReferenceInformationGeneElement {
     element: Identifier        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceReferenceInformationGeneElement(id: String): [SubstanceReferenceInformationGeneElement]
-}

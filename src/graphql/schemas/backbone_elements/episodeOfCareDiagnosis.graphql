@@ -16,7 +16,3 @@ type EpisodeOfCareDiagnosis {
     role: CodeableConcept        
     rank: code        
 }
-
-extend type Query {
-    episodeOfCareDiagnosis(id: String): [EpisodeOfCareDiagnosis]
-}

@@ -19,7 +19,3 @@ type ImplementationGuidePage {
     generation: code!        
     page: [ImplementationGuidePage]        
 }
-
-extend type Query {
-    implementationGuidePage(id: String): [ImplementationGuidePage]
-}

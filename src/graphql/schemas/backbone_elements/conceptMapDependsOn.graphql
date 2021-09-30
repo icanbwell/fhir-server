@@ -18,7 +18,3 @@ type ConceptMapDependsOn {
     value: code!        
     display: code        
 }
-
-extend type Query {
-    conceptMapDependsOn(id: String): [ConceptMapDependsOn]
-}

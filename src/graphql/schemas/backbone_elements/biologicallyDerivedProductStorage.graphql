@@ -18,7 +18,3 @@ type BiologicallyDerivedProductStorage {
     scale: code        
     duration: Period        
 }
-
-extend type Query {
-    biologicallyDerivedProductStorage(id: String): [BiologicallyDerivedProductStorage]
-}

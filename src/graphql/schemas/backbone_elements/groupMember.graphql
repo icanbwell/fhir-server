@@ -23,7 +23,3 @@ type GroupMember {
     period: Period        
     inactive: code        
 }
-
-extend type Query {
-    groupMember(id: String): [GroupMember]
-}

@@ -24,7 +24,3 @@ type RiskEvidenceSynthesisRiskEstimate {
     numeratorCount: code        
     precisionEstimate: [RiskEvidenceSynthesisPrecisionEstimate]        
 }
-
-extend type Query {
-    riskEvidenceSynthesisRiskEstimate(id: String): [RiskEvidenceSynthesisRiskEstimate]
-}

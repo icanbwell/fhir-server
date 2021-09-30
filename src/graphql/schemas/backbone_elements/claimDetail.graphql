@@ -34,7 +34,3 @@ type ClaimDetail {
     udi: [Device]        
     subDetail: [ClaimSubDetail]        
 }
-
-extend type Query {
-    claimDetail(id: String): [ClaimDetail]
-}

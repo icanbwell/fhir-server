@@ -14,7 +14,3 @@ type TerminologyCapabilitiesFilter {
     code: code!        
     op: [code]!        
 }
-
-extend type Query {
-    terminologyCapabilitiesFilter(id: String): [TerminologyCapabilitiesFilter]
-}

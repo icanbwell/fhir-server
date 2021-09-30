@@ -16,7 +16,3 @@ type TerminologyCapabilitiesCodeSystem {
     version: [TerminologyCapabilitiesVersion]        
     subsumption: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesCodeSystem(id: String): [TerminologyCapabilitiesCodeSystem]
-}

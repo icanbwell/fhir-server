@@ -36,7 +36,3 @@ type QuestionnaireResponseAnswer {
     valueReference: Resource        
     item: [QuestionnaireResponseItem]        
 }
-
-extend type Query {
-    questionnaireResponseAnswer(id: String): [QuestionnaireResponseAnswer]
-}

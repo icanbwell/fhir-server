@@ -14,7 +14,3 @@ type StructureMapDependent {
     name: code!        
     variable: [code]!        
 }
-
-extend type Query {
-    structureMapDependent(id: String): [StructureMapDependent]
-}

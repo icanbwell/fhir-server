@@ -16,7 +16,3 @@ type ValueSetConcept {
     display: code        
     designation: [ValueSetDesignation]        
 }
-
-extend type Query {
-    valueSetConcept(id: String): [ValueSetConcept]
-}

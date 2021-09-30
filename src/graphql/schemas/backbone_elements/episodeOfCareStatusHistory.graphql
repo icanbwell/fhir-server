@@ -14,7 +14,3 @@ type EpisodeOfCareStatusHistory {
     status: code!        
     period: Period!        
 }
-
-extend type Query {
-    episodeOfCareStatusHistory(id: String): [EpisodeOfCareStatusHistory]
-}

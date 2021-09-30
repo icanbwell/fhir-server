@@ -20,7 +20,3 @@ type MedicationKnowledgeDrugCharacteristic {
     valueQuantity: Quantity        
     valueBase64Binary: code        
 }
-
-extend type Query {
-    medicationKnowledgeDrugCharacteristic(id: String): [MedicationKnowledgeDrugCharacteristic]
-}

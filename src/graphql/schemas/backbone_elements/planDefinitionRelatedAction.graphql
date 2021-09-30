@@ -18,7 +18,3 @@ type PlanDefinitionRelatedAction {
     offsetDuration: Quantity        
     offsetRange: Range        
 }
-
-extend type Query {
-    planDefinitionRelatedAction(id: String): [PlanDefinitionRelatedAction]
-}

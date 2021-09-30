@@ -55,7 +55,3 @@ type ClaimResponseAddItem {
     adjudication: [ClaimResponseAdjudication]!        
     detail: [ClaimResponseDetail1]        
 }
-
-extend type Query {
-    claimResponseAddItem(id: String): [ClaimResponseAddItem]
-}

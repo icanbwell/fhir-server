@@ -16,7 +16,3 @@ type BiologicallyDerivedProductManipulation {
     timeDateTime: code        
     timePeriod: Period        
 }
-
-extend type Query {
-    biologicallyDerivedProductManipulation(id: String): [BiologicallyDerivedProductManipulation]
-}

@@ -14,7 +14,3 @@ type NutritionOrderTexture {
     modifier: CodeableConcept        
     foodType: CodeableConcept        
 }
-
-extend type Query {
-    nutritionOrderTexture(id: String): [NutritionOrderTexture]
-}

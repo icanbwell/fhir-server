@@ -16,7 +16,3 @@ type ValueSetFilter {
     op: code!        
     value: code!        
 }
-
-extend type Query {
-    valueSetFilter(id: String): [ValueSetFilter]
-}

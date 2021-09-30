@@ -22,7 +22,3 @@ type ClaimResponsePayment {
     amount: Money!        
     identifier: Identifier        
 }
-
-extend type Query {
-    claimResponsePayment(id: String): [ClaimResponsePayment]
-}

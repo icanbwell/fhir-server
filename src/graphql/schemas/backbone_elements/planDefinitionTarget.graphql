@@ -20,7 +20,3 @@ type PlanDefinitionTarget {
     detailCodeableConcept: CodeableConcept        
     due: Quantity        
 }
-
-extend type Query {
-    planDefinitionTarget(id: String): [PlanDefinitionTarget]
-}

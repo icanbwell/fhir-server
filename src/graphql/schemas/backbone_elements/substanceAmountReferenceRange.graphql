@@ -14,7 +14,3 @@ type SubstanceAmountReferenceRange {
     lowLimit: Quantity        
     highLimit: Quantity        
 }
-
-extend type Query {
-    substanceAmountReferenceRange(id: String): [SubstanceAmountReferenceRange]
-}

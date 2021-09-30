@@ -41,7 +41,3 @@ type QuestionnaireItem {
     initial: [QuestionnaireInitial]        
     item: [QuestionnaireItem]        
 }
-
-extend type Query {
-    questionnaireItem(id: String): [QuestionnaireItem]
-}

@@ -24,7 +24,3 @@ type CoverageEligibilityResponseBenefit {
     usedString: code        
     usedMoney: Money        
 }
-
-extend type Query {
-    coverageEligibilityResponseBenefit(id: String): [CoverageEligibilityResponseBenefit]
-}

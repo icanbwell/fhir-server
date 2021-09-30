@@ -16,7 +16,3 @@ type InsurancePlanBenefit {
     requirement: code        
     limit: [InsurancePlanLimit]        
 }
-
-extend type Query {
-    insurancePlanBenefit(id: String): [InsurancePlanBenefit]
-}

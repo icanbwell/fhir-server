@@ -20,7 +20,3 @@ type Identifier {
     period: Period        
     assigner: Organization        
 }
-
-extend type Query {
-    identifier(id: String): [Identifier]
-}

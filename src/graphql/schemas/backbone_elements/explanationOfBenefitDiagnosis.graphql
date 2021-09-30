@@ -22,7 +22,3 @@ type ExplanationOfBenefitDiagnosis {
     onAdmission: CodeableConcept        
     packageCode: CodeableConcept        
 }
-
-extend type Query {
-    explanationOfBenefitDiagnosis(id: String): [ExplanationOfBenefitDiagnosis]
-}

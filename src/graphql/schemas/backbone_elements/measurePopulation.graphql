@@ -16,7 +16,3 @@ type MeasurePopulation {
     description: code        
     criteria: Expression!        
 }
-
-extend type Query {
-    measurePopulation(id: String): [MeasurePopulation]
-}

@@ -32,7 +32,3 @@ type ClaimSupportingInfo {
     valueReference: Resource        
     reason: CodeableConcept        
 }
-
-extend type Query {
-    claimSupportingInfo(id: String): [ClaimSupportingInfo]
-}

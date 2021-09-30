@@ -18,7 +18,3 @@ type InsurancePlanCost {
     qualifiers: [CodeableConcept]        
     value: Quantity        
 }
-
-extend type Query {
-    insurancePlanCost(id: String): [InsurancePlanCost]
-}

@@ -20,7 +20,3 @@ type MedicationDispensePerformer {
     function: CodeableConcept        
     actor: MedicationDispensePerformerActor!        
 }
-
-extend type Query {
-    medicationDispensePerformer(id: String): [MedicationDispensePerformer]
-}

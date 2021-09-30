@@ -22,7 +22,3 @@ type ExplanationOfBenefitProcedure {
     procedureReference: Procedure        
     udi: [Device]        
 }
-
-extend type Query {
-    explanationOfBenefitProcedure(id: String): [ExplanationOfBenefitProcedure]
-}

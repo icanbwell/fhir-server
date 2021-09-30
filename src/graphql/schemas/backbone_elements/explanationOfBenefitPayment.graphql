@@ -22,7 +22,3 @@ type ExplanationOfBenefitPayment {
     amount: Money        
     identifier: Identifier        
 }
-
-extend type Query {
-    explanationOfBenefitPayment(id: String): [ExplanationOfBenefitPayment]
-}

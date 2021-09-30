@@ -14,7 +14,3 @@ type DeviceSpecialization {
     systemType: CodeableConcept!        
     version: code        
 }
-
-extend type Query {
-    deviceSpecialization(id: String): [DeviceSpecialization]
-}

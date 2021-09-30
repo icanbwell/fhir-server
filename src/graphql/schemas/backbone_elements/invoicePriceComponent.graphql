@@ -18,7 +18,3 @@ type InvoicePriceComponent {
     factor: code        
     amount: Money        
 }
-
-extend type Query {
-    invoicePriceComponent(id: String): [InvoicePriceComponent]
-}

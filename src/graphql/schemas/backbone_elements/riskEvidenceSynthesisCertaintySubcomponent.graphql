@@ -16,7 +16,3 @@ type RiskEvidenceSynthesisCertaintySubcomponent {
     rating: [CodeableConcept]        
     note: [Annotation]        
 }
-
-extend type Query {
-    riskEvidenceSynthesisCertaintySubcomponent(id: String): [RiskEvidenceSynthesisCertaintySubcomponent]
-}

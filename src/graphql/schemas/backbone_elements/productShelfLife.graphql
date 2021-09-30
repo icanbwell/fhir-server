@@ -18,7 +18,3 @@ type ProductShelfLife {
     period: Quantity!        
     specialPrecautionsForStorage: [CodeableConcept]        
 }
-
-extend type Query {
-    productShelfLife(id: String): [ProductShelfLife]
-}

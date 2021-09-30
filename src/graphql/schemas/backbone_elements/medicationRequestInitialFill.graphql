@@ -14,7 +14,3 @@ type MedicationRequestInitialFill {
     quantity: Quantity        
     duration: Quantity        
 }
-
-extend type Query {
-    medicationRequestInitialFill(id: String): [MedicationRequestInitialFill]
-}

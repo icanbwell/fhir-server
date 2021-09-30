@@ -16,7 +16,3 @@ type ElementDefinitionBase {
     min: code!        
     max: code!        
 }
-
-extend type Query {
-    elementDefinitionBase(id: String): [ElementDefinitionBase]
-}

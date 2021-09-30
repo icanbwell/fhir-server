@@ -28,7 +28,3 @@ type MolecularSequenceReferenceSeq {
     windowStart: code        
     windowEnd: code        
 }
-
-extend type Query {
-    molecularSequenceReferenceSeq(id: String): [MolecularSequenceReferenceSeq]
-}

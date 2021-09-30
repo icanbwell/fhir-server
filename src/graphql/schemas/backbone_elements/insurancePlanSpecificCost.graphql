@@ -14,7 +14,3 @@ type InsurancePlanSpecificCost {
     category: CodeableConcept!        
     benefit: [InsurancePlanBenefit1]        
 }
-
-extend type Query {
-    insurancePlanSpecificCost(id: String): [InsurancePlanSpecificCost]
-}

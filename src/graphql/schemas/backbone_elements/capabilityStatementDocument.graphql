@@ -16,7 +16,3 @@ type CapabilityStatementDocument {
     documentation: code        
     profile: code!        
 }
-
-extend type Query {
-    capabilityStatementDocument(id: String): [CapabilityStatementDocument]
-}

@@ -14,7 +14,3 @@ type ImplementationGuideGrouping {
     name: code!        
     description: code        
 }
-
-extend type Query {
-    implementationGuideGrouping(id: String): [ImplementationGuideGrouping]
-}

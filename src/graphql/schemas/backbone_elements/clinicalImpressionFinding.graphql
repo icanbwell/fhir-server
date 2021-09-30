@@ -19,7 +19,3 @@ type ClinicalImpressionFinding {
     itemReference: ClinicalImpressionFindingItemReference        
     basis: code        
 }
-
-extend type Query {
-    clinicalImpressionFinding(id: String): [ClinicalImpressionFinding]
-}

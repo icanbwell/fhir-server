@@ -26,7 +26,3 @@ type MedicinalProductSpecialDesignation {
     date: code        
     species: CodeableConcept        
 }
-
-extend type Query {
-    medicinalProductSpecialDesignation(id: String): [MedicinalProductSpecialDesignation]
-}

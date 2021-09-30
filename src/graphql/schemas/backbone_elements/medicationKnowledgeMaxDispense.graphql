@@ -14,7 +14,3 @@ type MedicationKnowledgeMaxDispense {
     quantity: Quantity!        
     period: Quantity        
 }
-
-extend type Query {
-    medicationKnowledgeMaxDispense(id: String): [MedicationKnowledgeMaxDispense]
-}

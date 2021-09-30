@@ -22,7 +22,3 @@ type ConceptMapGroup {
     element: [ConceptMapElement]!        
     unmapped: ConceptMapUnmapped        
 }
-
-extend type Query {
-    conceptMapGroup(id: String): [ConceptMapGroup]
-}

@@ -18,7 +18,3 @@ type EffectEvidenceSynthesisPrecisionEstimate {
     from: code        
     to: code        
 }
-
-extend type Query {
-    effectEvidenceSynthesisPrecisionEstimate(id: String): [EffectEvidenceSynthesisPrecisionEstimate]
-}

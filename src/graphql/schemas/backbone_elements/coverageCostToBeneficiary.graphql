@@ -18,7 +18,3 @@ type CoverageCostToBeneficiary {
     valueMoney: Money        
     exception: [CoverageException]        
 }
-
-extend type Query {
-    coverageCostToBeneficiary(id: String): [CoverageCostToBeneficiary]
-}

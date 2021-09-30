@@ -35,7 +35,3 @@ type CompositionSection {
     emptyReason: CodeableConcept        
     section: [CompositionSection]        
 }
-
-extend type Query {
-    compositionSection(id: String): [CompositionSection]
-}

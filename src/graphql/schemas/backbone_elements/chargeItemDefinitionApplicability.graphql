@@ -16,7 +16,3 @@ type ChargeItemDefinitionApplicability {
     language: code        
     expression: code        
 }
-
-extend type Query {
-    chargeItemDefinitionApplicability(id: String): [ChargeItemDefinitionApplicability]
-}

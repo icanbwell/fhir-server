@@ -22,7 +22,3 @@ type EffectEvidenceSynthesisEffectEstimate {
     unitOfMeasure: CodeableConcept        
     precisionEstimate: [EffectEvidenceSynthesisPrecisionEstimate]        
 }
-
-extend type Query {
-    effectEvidenceSynthesisEffectEstimate(id: String): [EffectEvidenceSynthesisEffectEstimate]
-}

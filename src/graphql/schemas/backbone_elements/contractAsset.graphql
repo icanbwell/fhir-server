@@ -40,7 +40,3 @@ type ContractAsset {
     securityLabelNumber: [code]        
     valuedItem: [ContractValuedItem]        
 }
-
-extend type Query {
-    contractAsset(id: String): [ContractAsset]
-}

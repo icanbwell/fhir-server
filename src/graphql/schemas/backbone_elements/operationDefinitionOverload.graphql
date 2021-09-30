@@ -14,7 +14,3 @@ type OperationDefinitionOverload {
     parameterName: [code]        
     comment: code        
 }
-
-extend type Query {
-    operationDefinitionOverload(id: String): [OperationDefinitionOverload]
-}

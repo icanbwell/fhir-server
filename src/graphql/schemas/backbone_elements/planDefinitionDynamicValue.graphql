@@ -14,7 +14,3 @@ type PlanDefinitionDynamicValue {
     path: code        
     expression: Expression        
 }
-
-extend type Query {
-    planDefinitionDynamicValue(id: String): [PlanDefinitionDynamicValue]
-}

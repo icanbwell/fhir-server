@@ -16,7 +16,3 @@ type MedicinalProductCountryLanguage {
     jurisdiction: CodeableConcept        
     language: CodeableConcept!        
 }
-
-extend type Query {
-    medicinalProductCountryLanguage(id: String): [MedicinalProductCountryLanguage]
-}

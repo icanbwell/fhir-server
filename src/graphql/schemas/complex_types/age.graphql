@@ -14,7 +14,3 @@ type Age {
     system: code        
     code: code        
 }
-
-extend type Query {
-    age(id: String): [Age]
-}

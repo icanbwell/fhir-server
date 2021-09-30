@@ -22,7 +22,3 @@ type TerminologyCapabilitiesVersion {
     filter: [TerminologyCapabilitiesFilter]        
     property: [code]        
 }
-
-extend type Query {
-    terminologyCapabilitiesVersion(id: String): [TerminologyCapabilitiesVersion]
-}

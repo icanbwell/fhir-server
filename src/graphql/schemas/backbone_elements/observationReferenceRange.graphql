@@ -22,7 +22,3 @@ type ObservationReferenceRange {
     age: Range        
     text: code        
 }
-
-extend type Query {
-    observationReferenceRange(id: String): [ObservationReferenceRange]
-}

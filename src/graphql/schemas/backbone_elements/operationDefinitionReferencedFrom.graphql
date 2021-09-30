@@ -14,7 +14,3 @@ type OperationDefinitionReferencedFrom {
     source: code!        
     sourceId: code        
 }
-
-extend type Query {
-    operationDefinitionReferencedFrom(id: String): [OperationDefinitionReferencedFrom]
-}

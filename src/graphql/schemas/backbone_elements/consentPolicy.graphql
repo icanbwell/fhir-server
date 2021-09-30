@@ -14,7 +14,3 @@ type ConsentPolicy {
     authority: code        
     uri: code        
 }
-
-extend type Query {
-    consentPolicy(id: String): [ConsentPolicy]
-}

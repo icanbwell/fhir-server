@@ -14,7 +14,3 @@ type MedicinalProductPharmaceuticalCharacteristics {
     code: CodeableConcept!        
     status: CodeableConcept        
 }
-
-extend type Query {
-    medicinalProductPharmaceuticalCharacteristics(id: String): [MedicinalProductPharmaceuticalCharacteristics]
-}

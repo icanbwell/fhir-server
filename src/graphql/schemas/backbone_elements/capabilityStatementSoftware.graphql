@@ -16,7 +16,3 @@ type CapabilityStatementSoftware {
     version: code        
     releaseDate: code        
 }
-
-extend type Query {
-    capabilityStatementSoftware(id: String): [CapabilityStatementSoftware]
-}

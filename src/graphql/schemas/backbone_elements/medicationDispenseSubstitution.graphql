@@ -20,7 +20,3 @@ type MedicationDispenseSubstitution {
     reason: [CodeableConcept]        
     responsibleParty: [MedicationDispenseSubstitutionResponsibleParty]        
 }
-
-extend type Query {
-    medicationDispenseSubstitution(id: String): [MedicationDispenseSubstitution]
-}

@@ -18,7 +18,3 @@ type ClaimAccident {
     locationAddress: Address        
     locationReference: Location        
 }
-
-extend type Query {
-    claimAccident(id: String): [ClaimAccident]
-}

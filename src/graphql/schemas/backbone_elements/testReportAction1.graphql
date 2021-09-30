@@ -14,7 +14,3 @@ type TestReportAction1 {
     operation: TestReportOperation        
     assert: TestReportAssert        
 }
-
-extend type Query {
-    testReportAction1(id: String): [TestReportAction1]
-}

@@ -28,7 +28,3 @@ type ExplanationOfBenefitDetail1 {
     adjudication: [ExplanationOfBenefitAdjudication]        
     subDetail: [ExplanationOfBenefitSubDetail1]        
 }
-
-extend type Query {
-    explanationOfBenefitDetail1(id: String): [ExplanationOfBenefitDetail1]
-}

@@ -16,7 +16,3 @@ type ImmunizationReaction {
     detail: Observation        
     reported: code        
 }
-
-extend type Query {
-    immunizationReaction(id: String): [ImmunizationReaction]
-}

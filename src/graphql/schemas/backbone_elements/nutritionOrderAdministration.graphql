@@ -18,7 +18,3 @@ type NutritionOrderAdministration {
     rateQuantity: Quantity        
     rateRatio: Ratio        
 }
-
-extend type Query {
-    nutritionOrderAdministration(id: String): [NutritionOrderAdministration]
-}

@@ -14,7 +14,3 @@ type ChargeItemDefinitionPropertyGroup {
     applicability: [ChargeItemDefinitionApplicability]        
     priceComponent: [ChargeItemDefinitionPriceComponent]        
 }
-
-extend type Query {
-    chargeItemDefinitionPropertyGroup(id: String): [ChargeItemDefinitionPropertyGroup]
-}

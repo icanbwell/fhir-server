@@ -14,7 +14,3 @@ type SubstanceSourceMaterialFractionDescription {
     fraction: code        
     materialType: CodeableConcept        
 }
-
-extend type Query {
-    substanceSourceMaterialFractionDescription(id: String): [SubstanceSourceMaterialFractionDescription]
-}

@@ -22,7 +22,3 @@ type ClaimDiagnosis {
     onAdmission: CodeableConcept        
     packageCode: CodeableConcept        
 }
-
-extend type Query {
-    claimDiagnosis(id: String): [ClaimDiagnosis]
-}

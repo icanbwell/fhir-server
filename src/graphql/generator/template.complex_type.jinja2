@@ -75,7 +75,3 @@ type {{fhir_entity.cleaned_name}} {
         {{ '' }}
 {% endfor %}
 }
-
-extend type Query {
-    {{  lower_case_first_letter(fhir_entity.cleaned_name) }}(id: String): [{{ fhir_entity.cleaned_name }}]
-}

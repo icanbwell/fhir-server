@@ -18,7 +18,3 @@ type ExampleScenarioActor {
     name: code        
     description: code        
 }
-
-extend type Query {
-    exampleScenarioActor(id: String): [ExampleScenarioActor]
-}

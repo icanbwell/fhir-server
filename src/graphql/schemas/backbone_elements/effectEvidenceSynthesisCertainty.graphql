@@ -16,7 +16,3 @@ type EffectEvidenceSynthesisCertainty {
     note: [Annotation]        
     certaintySubcomponent: [EffectEvidenceSynthesisCertaintySubcomponent]        
 }
-
-extend type Query {
-    effectEvidenceSynthesisCertainty(id: String): [EffectEvidenceSynthesisCertainty]
-}

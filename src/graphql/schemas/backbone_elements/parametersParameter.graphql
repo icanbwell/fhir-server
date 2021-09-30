@@ -115,7 +115,3 @@ type ParametersParameter {
     resource: code        
     part: [ParametersParameter]        
 }
-
-extend type Query {
-    parametersParameter(id: String): [ParametersParameter]
-}

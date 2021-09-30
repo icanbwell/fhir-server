@@ -14,7 +14,3 @@ type MolecularSequenceOuter {
     start: code        
     end: code        
 }
-
-extend type Query {
-    molecularSequenceOuter(id: String): [MolecularSequenceOuter]
-}

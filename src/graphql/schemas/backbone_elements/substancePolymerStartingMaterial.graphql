@@ -18,7 +18,3 @@ type SubstancePolymerStartingMaterial {
     isDefining: code        
     amount: SubstanceAmount        
 }
-
-extend type Query {
-    substancePolymerStartingMaterial(id: String): [SubstancePolymerStartingMaterial]
-}

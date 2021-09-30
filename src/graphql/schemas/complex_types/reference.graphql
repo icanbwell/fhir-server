@@ -16,7 +16,3 @@ type Reference {
     identifier: Identifier        
     display: code        
 }
-
-extend type Query {
-    reference(id: String): [Reference]
-}

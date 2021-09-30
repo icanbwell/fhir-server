@@ -50,7 +50,3 @@ type ContractValuedItem {
     linkId: [code]        
     securityLabelNumber: [code]        
 }
-
-extend type Query {
-    contractValuedItem(id: String): [ContractValuedItem]
-}

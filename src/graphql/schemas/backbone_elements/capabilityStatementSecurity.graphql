@@ -16,7 +16,3 @@ type CapabilityStatementSecurity {
     service: [CodeableConcept]        
     description: code        
 }
-
-extend type Query {
-    capabilityStatementSecurity(id: String): [CapabilityStatementSecurity]
-}

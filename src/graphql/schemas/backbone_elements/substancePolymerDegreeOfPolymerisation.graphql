@@ -14,7 +14,3 @@ type SubstancePolymerDegreeOfPolymerisation {
     degree: CodeableConcept        
     amount: SubstanceAmount        
 }
-
-extend type Query {
-    substancePolymerDegreeOfPolymerisation(id: String): [SubstancePolymerDegreeOfPolymerisation]
-}

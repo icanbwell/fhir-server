@@ -16,7 +16,3 @@ type ValueSetDesignation {
     use: Coding        
     value: code!        
 }
-
-extend type Query {
-    valueSetDesignation(id: String): [ValueSetDesignation]
-}

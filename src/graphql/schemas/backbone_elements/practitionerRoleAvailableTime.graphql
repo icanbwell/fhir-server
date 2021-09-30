@@ -18,7 +18,3 @@ type PractitionerRoleAvailableTime {
     availableStartTime: code        
     availableEndTime: code        
 }
-
-extend type Query {
-    practitionerRoleAvailableTime(id: String): [PractitionerRoleAvailableTime]
-}

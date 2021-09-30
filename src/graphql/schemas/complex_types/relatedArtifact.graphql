@@ -22,7 +22,3 @@ type RelatedArtifact {
     document: Attachment        
     resource: code        
 }
-
-extend type Query {
-    relatedArtifact(id: String): [RelatedArtifact]
-}

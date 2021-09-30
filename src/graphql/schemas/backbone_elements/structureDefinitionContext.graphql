@@ -14,7 +14,3 @@ type StructureDefinitionContext {
     type: code!        
     expression: code!        
 }
-
-extend type Query {
-    structureDefinitionContext(id: String): [StructureDefinitionContext]
-}

@@ -112,7 +112,3 @@ type ElementDefinitionExample {
     valueDosage: Dosage        
     valueMeta: Meta        
 }
-
-extend type Query {
-    elementDefinitionExample(id: String): [ElementDefinitionExample]
-}

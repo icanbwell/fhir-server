@@ -14,7 +14,3 @@ type ClaimResponseTotal {
     category: CodeableConcept!        
     amount: Money!        
 }
-
-extend type Query {
-    claimResponseTotal(id: String): [ClaimResponseTotal]
-}

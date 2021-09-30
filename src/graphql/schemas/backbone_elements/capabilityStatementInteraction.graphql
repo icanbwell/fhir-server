@@ -14,7 +14,3 @@ type CapabilityStatementInteraction {
     code: code!        
     documentation: code        
 }
-
-extend type Query {
-    capabilityStatementInteraction(id: String): [CapabilityStatementInteraction]
-}

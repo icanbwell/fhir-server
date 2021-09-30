@@ -26,7 +26,3 @@ type RiskAssessmentPrediction {
     whenRange: Range        
     rationale: code        
 }
-
-extend type Query {
-    riskAssessmentPrediction(id: String): [RiskAssessmentPrediction]
-}

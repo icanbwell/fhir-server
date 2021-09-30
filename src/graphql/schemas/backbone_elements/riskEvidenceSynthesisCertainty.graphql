@@ -16,7 +16,3 @@ type RiskEvidenceSynthesisCertainty {
     note: [Annotation]        
     certaintySubcomponent: [RiskEvidenceSynthesisCertaintySubcomponent]        
 }
-
-extend type Query {
-    riskEvidenceSynthesisCertainty(id: String): [RiskEvidenceSynthesisCertainty]
-}

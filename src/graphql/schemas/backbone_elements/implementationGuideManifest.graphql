@@ -20,7 +20,3 @@ type ImplementationGuideManifest {
     image: [code]        
     other: [code]        
 }
-
-extend type Query {
-    implementationGuideManifest(id: String): [ImplementationGuideManifest]
-}

@@ -18,7 +18,3 @@ type CoverageEligibilityResponseInsurance {
     benefitPeriod: Period        
     item: [CoverageEligibilityResponseItem]        
 }
-
-extend type Query {
-    coverageEligibilityResponseInsurance(id: String): [CoverageEligibilityResponseInsurance]
-}

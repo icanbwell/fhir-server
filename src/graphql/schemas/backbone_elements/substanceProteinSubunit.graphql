@@ -26,7 +26,3 @@ type SubstanceProteinSubunit {
     cTerminalModificationId: Identifier        
     cTerminalModification: code        
 }
-
-extend type Query {
-    substanceProteinSubunit(id: String): [SubstanceProteinSubunit]
-}

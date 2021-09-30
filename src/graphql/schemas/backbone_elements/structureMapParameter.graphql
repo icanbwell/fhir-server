@@ -20,7 +20,3 @@ type StructureMapParameter {
     valueInteger: code        
     valueDecimal: code        
 }
-
-extend type Query {
-    structureMapParameter(id: String): [StructureMapParameter]
-}

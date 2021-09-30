@@ -16,7 +16,3 @@ type VerificationResultValidator {
     identityCertificate: code        
     attestationSignature: Signature        
 }
-
-extend type Query {
-    verificationResultValidator(id: String): [VerificationResultValidator]
-}

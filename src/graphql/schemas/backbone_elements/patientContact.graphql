@@ -24,7 +24,3 @@ type PatientContact {
     organization: Organization        
     period: Period        
 }
-
-extend type Query {
-    patientContact(id: String): [PatientContact]
-}

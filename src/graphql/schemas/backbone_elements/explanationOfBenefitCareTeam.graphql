@@ -23,7 +23,3 @@ type ExplanationOfBenefitCareTeam {
     role: CodeableConcept        
     qualification: CodeableConcept        
 }
-
-extend type Query {
-    explanationOfBenefitCareTeam(id: String): [ExplanationOfBenefitCareTeam]
-}

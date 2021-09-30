@@ -26,7 +26,3 @@ type ValueSetParameter {
     valueCode: code        
     valueDateTime: code        
 }
-
-extend type Query {
-    valueSetParameter(id: String): [ValueSetParameter]
-}

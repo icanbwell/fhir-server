@@ -19,7 +19,3 @@ type QuestionnaireResponseItem {
     answer: [QuestionnaireResponseAnswer]        
     item: [QuestionnaireResponseItem]        
 }
-
-extend type Query {
-    questionnaireResponseItem(id: String): [QuestionnaireResponseItem]
-}

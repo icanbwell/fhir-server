@@ -130,7 +130,3 @@ type StructureMapSource {
     check: code        
     logMessage: code        
 }
-
-extend type Query {
-    structureMapSource(id: String): [StructureMapSource]
-}

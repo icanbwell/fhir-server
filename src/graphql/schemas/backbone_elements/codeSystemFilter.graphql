@@ -18,7 +18,3 @@ type CodeSystemFilter {
     operator: [code]!        
     value: code!        
 }
-
-extend type Query {
-    codeSystemFilter(id: String): [CodeSystemFilter]
-}

@@ -12,7 +12,3 @@ type Money {
     value: code        
     currency: code        
 }
-
-extend type Query {
-    money(id: String): [Money]
-}

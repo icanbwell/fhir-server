@@ -26,7 +26,3 @@ type StructureMapTarget {
     transform: code        
     parameter: [StructureMapParameter]        
 }
-
-extend type Query {
-    structureMapTarget(id: String): [StructureMapTarget]
-}

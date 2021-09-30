@@ -22,7 +22,3 @@ type InsurancePlanPlan {
     generalCost: [InsurancePlanGeneralCost]        
     specificCost: [InsurancePlanSpecificCost]        
 }
-
-extend type Query {
-    insurancePlanPlan(id: String): [InsurancePlanPlan]
-}

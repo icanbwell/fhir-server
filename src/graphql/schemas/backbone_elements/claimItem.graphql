@@ -58,7 +58,3 @@ type ClaimItem {
     encounter: [Encounter]        
     detail: [ClaimDetail]        
 }
-
-extend type Query {
-    claimItem(id: String): [ClaimItem]
-}

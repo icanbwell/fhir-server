@@ -18,7 +18,3 @@ type ExampleScenarioStep {
     operation: ExampleScenarioOperation        
     alternative: [ExampleScenarioAlternative]        
 }
-
-extend type Query {
-    exampleScenarioStep(id: String): [ExampleScenarioStep]
-}

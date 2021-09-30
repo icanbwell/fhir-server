@@ -14,7 +14,3 @@ type ConditionEvidence {
     code: [CodeableConcept]        
     detail: [Resource]        
 }
-
-extend type Query {
-    conditionEvidence(id: String): [ConditionEvidence]
-}

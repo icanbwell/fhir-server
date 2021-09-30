@@ -14,7 +14,3 @@ type Count {
     system: code        
     code: code        
 }
-
-extend type Query {
-    count(id: String): [Count]
-}

@@ -14,7 +14,3 @@ type VisionPrescriptionPrism {
     amount: code!        
     base: code!        
 }
-
-extend type Query {
-    visionPrescriptionPrism(id: String): [VisionPrescriptionPrism]
-}

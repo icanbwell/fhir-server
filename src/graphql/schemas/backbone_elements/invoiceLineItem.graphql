@@ -18,7 +18,3 @@ type InvoiceLineItem {
     chargeItemCodeableConcept: CodeableConcept        
     priceComponent: [InvoicePriceComponent]        
 }
-
-extend type Query {
-    invoiceLineItem(id: String): [InvoiceLineItem]
-}

@@ -26,7 +26,3 @@ type SpecimenDefinitionTypeTested {
     rejectionCriterion: [CodeableConcept]        
     handling: [SpecimenDefinitionHandling]        
 }
-
-extend type Query {
-    specimenDefinitionTypeTested(id: String): [SpecimenDefinitionTypeTested]
-}

@@ -18,7 +18,3 @@ type EffectEvidenceSynthesisResultsByExposure {
     variantState: CodeableConcept        
     riskEvidenceSynthesis: RiskEvidenceSynthesis!        
 }
-
-extend type Query {
-    effectEvidenceSynthesisResultsByExposure(id: String): [EffectEvidenceSynthesisResultsByExposure]
-}

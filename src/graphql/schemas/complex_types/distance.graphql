@@ -14,7 +14,3 @@ type Distance {
     system: code        
     code: code        
 }
-
-extend type Query {
-    distance(id: String): [Distance]
-}

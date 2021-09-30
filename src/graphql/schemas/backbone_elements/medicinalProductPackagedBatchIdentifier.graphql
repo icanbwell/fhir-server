@@ -14,7 +14,3 @@ type MedicinalProductPackagedBatchIdentifier {
     outerPackaging: Identifier!        
     immediatePackaging: Identifier        
 }
-
-extend type Query {
-    medicinalProductPackagedBatchIdentifier(id: String): [MedicinalProductPackagedBatchIdentifier]
-}

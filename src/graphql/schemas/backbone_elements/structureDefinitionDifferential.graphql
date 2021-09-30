@@ -12,7 +12,3 @@ type StructureDefinitionDifferential {
     modifierExtension: [Extension]        
     element: [ElementDefinition]!        
 }
-
-extend type Query {
-    structureDefinitionDifferential(id: String): [StructureDefinitionDifferential]
-}

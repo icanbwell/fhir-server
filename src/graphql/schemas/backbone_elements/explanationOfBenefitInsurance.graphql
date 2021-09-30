@@ -16,7 +16,3 @@ type ExplanationOfBenefitInsurance {
     coverage: Coverage!        
     preAuthRef: [code]        
 }
-
-extend type Query {
-    explanationOfBenefitInsurance(id: String): [ExplanationOfBenefitInsurance]
-}

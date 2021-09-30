@@ -40,7 +40,3 @@ type ImmunizationRecommendationRecommendation {
     supportingImmunization: [ImmunizationRecommendationRecommendationSupportingImmunization]        
     supportingPatientInformation: [Resource]        
 }
-
-extend type Query {
-    immunizationRecommendationRecommendation(id: String): [ImmunizationRecommendationRecommendation]
-}

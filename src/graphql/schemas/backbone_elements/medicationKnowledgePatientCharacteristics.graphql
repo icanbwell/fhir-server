@@ -16,7 +16,3 @@ type MedicationKnowledgePatientCharacteristics {
     characteristicQuantity: Quantity        
     value: [code]        
 }
-
-extend type Query {
-    medicationKnowledgePatientCharacteristics(id: String): [MedicationKnowledgePatientCharacteristics]
-}

@@ -28,7 +28,3 @@ type SpecimenDefinitionContainer {
     additive: [SpecimenDefinitionAdditive]        
     preparation: code        
 }
-
-extend type Query {
-    specimenDefinitionContainer(id: String): [SpecimenDefinitionContainer]
-}

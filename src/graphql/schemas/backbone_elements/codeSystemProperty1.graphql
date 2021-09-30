@@ -26,7 +26,3 @@ type CodeSystemProperty1 {
     valueDateTime: code        
     valueDecimal: code        
 }
-
-extend type Query {
-    codeSystemProperty1(id: String): [CodeSystemProperty1]
-}

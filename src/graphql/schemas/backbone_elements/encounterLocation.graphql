@@ -18,7 +18,3 @@ type EncounterLocation {
     physicalType: CodeableConcept        
     period: Period        
 }
-
-extend type Query {
-    encounterLocation(id: String): [EncounterLocation]
-}

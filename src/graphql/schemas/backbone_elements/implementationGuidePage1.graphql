@@ -16,7 +16,3 @@ type ImplementationGuidePage1 {
     title: code        
     anchor: [code]        
 }
-
-extend type Query {
-    implementationGuidePage1(id: String): [ImplementationGuidePage1]
-}

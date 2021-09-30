@@ -14,7 +14,3 @@ type ImplementationGuideParameter {
     code: code!        
     value: code!        
 }
-
-extend type Query {
-    implementationGuideParameter(id: String): [ImplementationGuideParameter]
-}

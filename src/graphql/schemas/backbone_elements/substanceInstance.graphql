@@ -16,7 +16,3 @@ type SubstanceInstance {
     expiry: code        
     quantity: Quantity        
 }
-
-extend type Query {
-    substanceInstance(id: String): [SubstanceInstance]
-}

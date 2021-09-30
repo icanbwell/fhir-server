@@ -12,7 +12,3 @@ type TestReportSetup {
     modifierExtension: [Extension]        
     action: [TestReportAction]!        
 }
-
-extend type Query {
-    testReportSetup(id: String): [TestReportSetup]
-}

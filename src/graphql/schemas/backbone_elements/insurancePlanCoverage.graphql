@@ -16,7 +16,3 @@ type InsurancePlanCoverage {
     network: [Organization]        
     benefit: [InsurancePlanBenefit]!        
 }
-
-extend type Query {
-    insurancePlanCoverage(id: String): [InsurancePlanCoverage]
-}

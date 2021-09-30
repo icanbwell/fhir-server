@@ -18,7 +18,3 @@ type ConsentVerification {
     verifiedWith: ConsentVerificationVerifiedWith        
     verificationDate: code        
 }
-
-extend type Query {
-    consentVerification(id: String): [ConsentVerification]
-}

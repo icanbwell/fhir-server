@@ -38,7 +38,3 @@ type Dosage {
     maxDosePerAdministration: Quantity        
     maxDosePerLifetime: Quantity        
 }
-
-extend type Query {
-    dosage(id: String): [Dosage]
-}

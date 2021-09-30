@@ -16,7 +16,3 @@ type EffectEvidenceSynthesisSampleSize {
     numberOfStudies: code        
     numberOfParticipants: code        
 }
-
-extend type Query {
-    effectEvidenceSynthesisSampleSize(id: String): [EffectEvidenceSynthesisSampleSize]
-}

@@ -24,7 +24,3 @@ type TriggerDefinition {
     data: [DataRequirement]        
     condition: Expression        
 }
-
-extend type Query {
-    triggerDefinition(id: String): [TriggerDefinition]
-}

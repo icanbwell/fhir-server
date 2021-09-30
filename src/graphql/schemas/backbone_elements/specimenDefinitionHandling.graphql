@@ -18,7 +18,3 @@ type SpecimenDefinitionHandling {
     maxDuration: Quantity        
     instruction: code        
 }
-
-extend type Query {
-    specimenDefinitionHandling(id: String): [SpecimenDefinitionHandling]
-}

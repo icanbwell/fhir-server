@@ -22,7 +22,3 @@ type SubstanceAmount {
     amountText: code        
     referenceRange: SubstanceAmountReferenceRange        
 }
-
-extend type Query {
-    substanceAmount(id: String): [SubstanceAmount]
-}

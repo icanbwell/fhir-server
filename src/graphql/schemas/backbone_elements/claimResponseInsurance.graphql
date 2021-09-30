@@ -20,7 +20,3 @@ type ClaimResponseInsurance {
     businessArrangement: code        
     claimResponse: ClaimResponse        
 }
-
-extend type Query {
-    claimResponseInsurance(id: String): [ClaimResponseInsurance]
-}

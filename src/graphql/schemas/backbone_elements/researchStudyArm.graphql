@@ -16,7 +16,3 @@ type ResearchStudyArm {
     type: CodeableConcept        
     description: code        
 }
-
-extend type Query {
-    researchStudyArm(id: String): [ResearchStudyArm]
-}

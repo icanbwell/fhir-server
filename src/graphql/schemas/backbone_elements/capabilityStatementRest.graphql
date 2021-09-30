@@ -26,7 +26,3 @@ type CapabilityStatementRest {
     operation: [CapabilityStatementOperation]        
     compartment: [code]        
 }
-
-extend type Query {
-    capabilityStatementRest(id: String): [CapabilityStatementRest]
-}

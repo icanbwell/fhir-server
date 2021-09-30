@@ -16,7 +16,3 @@ type ExampleScenarioAlternative {
     description: code        
     step: [ExampleScenarioStep]        
 }
-
-extend type Query {
-    exampleScenarioAlternative(id: String): [ExampleScenarioAlternative]
-}

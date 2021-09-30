@@ -18,7 +18,3 @@ type MessageDefinitionFocus {
     min: code!        
     max: code        
 }
-
-extend type Query {
-    messageDefinitionFocus(id: String): [MessageDefinitionFocus]
-}

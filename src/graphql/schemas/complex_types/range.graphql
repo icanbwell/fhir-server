@@ -12,7 +12,3 @@ type Range {
     low: Quantity        
     high: Quantity        
 }
-
-extend type Query {
-    range(id: String): [Range]
-}

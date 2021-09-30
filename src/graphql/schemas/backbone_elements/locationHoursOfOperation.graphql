@@ -18,7 +18,3 @@ type LocationHoursOfOperation {
     openingTime: code        
     closingTime: code        
 }
-
-extend type Query {
-    locationHoursOfOperation(id: String): [LocationHoursOfOperation]
-}

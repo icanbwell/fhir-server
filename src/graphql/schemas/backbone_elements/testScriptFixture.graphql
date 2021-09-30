@@ -16,7 +16,3 @@ type TestScriptFixture {
     autodelete: code!        
     resource: Resource        
 }
-
-extend type Query {
-    testScriptFixture(id: String): [TestScriptFixture]
-}

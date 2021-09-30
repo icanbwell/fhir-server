@@ -14,7 +14,3 @@ type DeviceDefinitionDeviceName {
     name: code!        
     type: code!        
 }
-
-extend type Query {
-    deviceDefinitionDeviceName(id: String): [DeviceDefinitionDeviceName]
-}

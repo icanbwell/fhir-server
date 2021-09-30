@@ -25,7 +25,3 @@ type ContractContentDefinition {
     publicationStatus: code!        
     copyright: code        
 }
-
-extend type Query {
-    contractContentDefinition(id: String): [ContractContentDefinition]
-}

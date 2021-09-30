@@ -14,7 +14,3 @@ type ExplanationOfBenefitTotal {
     category: CodeableConcept!        
     amount: Money!        
 }
-
-extend type Query {
-    explanationOfBenefitTotal(id: String): [ExplanationOfBenefitTotal]
-}

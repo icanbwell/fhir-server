@@ -14,7 +14,3 @@ type MedicationKnowledgePackaging {
     type: CodeableConcept        
     quantity: Quantity        
 }
-
-extend type Query {
-    medicationKnowledgePackaging(id: String): [MedicationKnowledgePackaging]
-}

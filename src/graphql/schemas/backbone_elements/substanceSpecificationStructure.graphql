@@ -26,7 +26,3 @@ type SubstanceSpecificationStructure {
     source: [DocumentReference]        
     representation: [SubstanceSpecificationRepresentation]        
 }
-
-extend type Query {
-    substanceSpecificationStructure(id: String): [SubstanceSpecificationStructure]
-}

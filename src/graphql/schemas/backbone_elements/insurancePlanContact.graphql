@@ -18,7 +18,3 @@ type InsurancePlanContact {
     telecom: [ContactPoint]        
     address: Address        
 }
-
-extend type Query {
-    insurancePlanContact(id: String): [InsurancePlanContact]
-}

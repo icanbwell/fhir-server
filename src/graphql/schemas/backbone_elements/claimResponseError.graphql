@@ -18,7 +18,3 @@ type ClaimResponseError {
     subDetailSequence: code        
     code: CodeableConcept!        
 }
-
-extend type Query {
-    claimResponseError(id: String): [ClaimResponseError]
-}

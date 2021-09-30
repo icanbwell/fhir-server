@@ -14,7 +14,3 @@ type CoverageEligibilityRequestDiagnosis {
     diagnosisCodeableConcept: CodeableConcept        
     diagnosisReference: Condition        
 }
-
-extend type Query {
-    coverageEligibilityRequestDiagnosis(id: String): [CoverageEligibilityRequestDiagnosis]
-}

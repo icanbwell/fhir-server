@@ -20,7 +20,3 @@ type SubstanceSpecificationCode {
     comment: code        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceSpecificationCode(id: String): [SubstanceSpecificationCode]
-}

@@ -20,7 +20,3 @@ type ImplementationGuideDefinition {
     parameter: [ImplementationGuideParameter]        
     template: [ImplementationGuideTemplate]        
 }
-
-extend type Query {
-    implementationGuideDefinition(id: String): [ImplementationGuideDefinition]
-}

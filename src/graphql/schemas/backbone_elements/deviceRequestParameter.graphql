@@ -20,7 +20,3 @@ type DeviceRequestParameter {
     valueRange: Range        
     valueBoolean: code        
 }
-
-extend type Query {
-    deviceRequestParameter(id: String): [DeviceRequestParameter]
-}

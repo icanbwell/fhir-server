@@ -20,7 +20,3 @@ type Population {
     race: CodeableConcept        
     physiologicalCondition: CodeableConcept        
 }
-
-extend type Query {
-    population(id: String): [Population]
-}

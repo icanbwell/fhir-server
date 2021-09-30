@@ -28,7 +28,3 @@ type NutritionOrderEnteralFormula {
     maxVolumeToDeliver: Quantity        
     administrationInstruction: code        
 }
-
-extend type Query {
-    nutritionOrderEnteralFormula(id: String): [NutritionOrderEnteralFormula]
-}

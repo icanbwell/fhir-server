@@ -26,7 +26,3 @@ type ClaimResponseSubDetail1 {
     noteNumber: [code]        
     adjudication: [ClaimResponseAdjudication]!        
 }
-
-extend type Query {
-    claimResponseSubDetail1(id: String): [ClaimResponseSubDetail1]
-}

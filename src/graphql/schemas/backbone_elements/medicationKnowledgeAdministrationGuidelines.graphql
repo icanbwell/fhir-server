@@ -18,7 +18,3 @@ type MedicationKnowledgeAdministrationGuidelines {
     indicationReference: ObservationDefinition        
     patientCharacteristics: [MedicationKnowledgePatientCharacteristics]        
 }
-
-extend type Query {
-    medicationKnowledgeAdministrationGuidelines(id: String): [MedicationKnowledgeAdministrationGuidelines]
-}

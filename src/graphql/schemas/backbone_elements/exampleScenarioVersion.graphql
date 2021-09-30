@@ -14,7 +14,3 @@ type ExampleScenarioVersion {
     versionId: code!        
     description: code!        
 }
-
-extend type Query {
-    exampleScenarioVersion(id: String): [ExampleScenarioVersion]
-}

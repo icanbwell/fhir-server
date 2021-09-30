@@ -14,7 +14,3 @@ type CapabilityStatementEndpoint {
     protocol: Coding!        
     address: code!        
 }
-
-extend type Query {
-    capabilityStatementEndpoint(id: String): [CapabilityStatementEndpoint]
-}

@@ -16,7 +16,3 @@ type DeviceProperty {
     valueQuantity: [Quantity]        
     valueCode: [CodeableConcept]        
 }
-
-extend type Query {
-    deviceProperty(id: String): [DeviceProperty]
-}

@@ -14,7 +14,3 @@ type MedicationKnowledgeRelatedMedicationKnowledge {
     type: CodeableConcept!        
     reference: [MedicationKnowledge]!        
 }
-
-extend type Query {
-    medicationKnowledgeRelatedMedicationKnowledge(id: String): [MedicationKnowledgeRelatedMedicationKnowledge]
-}

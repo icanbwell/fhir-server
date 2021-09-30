@@ -14,7 +14,3 @@ type PractitionerRoleNotAvailable {
     description: code!        
     during: Period        
 }
-
-extend type Query {
-    practitionerRoleNotAvailable(id: String): [PractitionerRoleNotAvailable]
-}

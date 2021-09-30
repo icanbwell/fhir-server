@@ -32,7 +32,3 @@ type VerificationResultAttestation {
     proxySignature: Signature        
     sourceSignature: Signature        
 }
-
-extend type Query {
-    verificationResultAttestation(id: String): [VerificationResultAttestation]
-}

@@ -16,7 +16,3 @@ type CodeSystemDesignation {
     use: Coding        
     value: code!        
 }
-
-extend type Query {
-    codeSystemDesignation(id: String): [CodeSystemDesignation]
-}

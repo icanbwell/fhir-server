@@ -12,7 +12,3 @@ type TestScriptAction2 {
     modifierExtension: [Extension]        
     operation: TestScriptOperation!        
 }
-
-extend type Query {
-    testScriptAction2(id: String): [TestScriptAction2]
-}

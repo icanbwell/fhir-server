@@ -14,7 +14,3 @@ type MedicinalProductPharmaceuticalTargetSpecies {
     code: CodeableConcept!        
     withdrawalPeriod: [MedicinalProductPharmaceuticalWithdrawalPeriod]        
 }
-
-extend type Query {
-    medicinalProductPharmaceuticalTargetSpecies(id: String): [MedicinalProductPharmaceuticalTargetSpecies]
-}

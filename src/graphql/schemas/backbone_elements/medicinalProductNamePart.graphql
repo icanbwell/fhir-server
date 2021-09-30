@@ -14,7 +14,3 @@ type MedicinalProductNamePart {
     part: code!        
     type: Coding!        
 }
-
-extend type Query {
-    medicinalProductNamePart(id: String): [MedicinalProductNamePart]
-}

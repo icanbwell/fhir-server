@@ -14,7 +14,3 @@ type RequestGroupCondition {
     kind: code!        
     expression: Expression        
 }
-
-extend type Query {
-    requestGroupCondition(id: String): [RequestGroupCondition]
-}

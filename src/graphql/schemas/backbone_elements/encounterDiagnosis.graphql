@@ -18,7 +18,3 @@ type EncounterDiagnosis {
     use: CodeableConcept        
     rank: code        
 }
-
-extend type Query {
-    encounterDiagnosis(id: String): [EncounterDiagnosis]
-}

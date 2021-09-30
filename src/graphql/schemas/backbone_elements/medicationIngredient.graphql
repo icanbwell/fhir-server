@@ -20,7 +20,3 @@ type MedicationIngredient {
     isActive: code        
     strength: Ratio        
 }
-
-extend type Query {
-    medicationIngredient(id: String): [MedicationIngredient]
-}

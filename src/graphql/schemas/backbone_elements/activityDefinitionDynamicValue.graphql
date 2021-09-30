@@ -14,7 +14,3 @@ type ActivityDefinitionDynamicValue {
     path: code!        
     expression: Expression!        
 }
-
-extend type Query {
-    activityDefinitionDynamicValue(id: String): [ActivityDefinitionDynamicValue]
-}

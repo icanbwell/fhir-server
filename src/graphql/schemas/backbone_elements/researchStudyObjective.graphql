@@ -14,7 +14,3 @@ type ResearchStudyObjective {
     name: code        
     type: CodeableConcept        
 }
-
-extend type Query {
-    researchStudyObjective(id: String): [ResearchStudyObjective]
-}

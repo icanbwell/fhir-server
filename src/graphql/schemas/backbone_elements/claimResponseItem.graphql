@@ -18,7 +18,3 @@ type ClaimResponseItem {
     adjudication: [ClaimResponseAdjudication]!        
     detail: [ClaimResponseDetail]        
 }
-
-extend type Query {
-    claimResponseItem(id: String): [ClaimResponseItem]
-}

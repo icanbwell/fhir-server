@@ -20,7 +20,3 @@ type TerminologyCapabilitiesExpansion {
     parameter: [TerminologyCapabilitiesParameter]        
     textFilter: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesExpansion(id: String): [TerminologyCapabilitiesExpansion]
-}

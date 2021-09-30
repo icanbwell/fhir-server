@@ -14,7 +14,3 @@ type Contributor {
     name: code!        
     contact: [ContactDetail]        
 }
-
-extend type Query {
-    contributor(id: String): [Contributor]
-}

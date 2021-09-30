@@ -112,7 +112,3 @@ type TaskOutput {
     valueDosage: Dosage        
     valueMeta: Meta        
 }
-
-extend type Query {
-    taskOutput(id: String): [TaskOutput]
-}

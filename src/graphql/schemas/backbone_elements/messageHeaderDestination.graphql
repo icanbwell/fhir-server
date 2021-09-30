@@ -21,7 +21,3 @@ type MessageHeaderDestination {
     endpoint: code!        
     receiver: MessageHeaderDestinationReceiver        
 }
-
-extend type Query {
-    messageHeaderDestination(id: String): [MessageHeaderDestination]
-}

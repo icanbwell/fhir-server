@@ -14,7 +14,3 @@ type EncounterClassHistory {
     class: Coding!        
     period: Period!        
 }
-
-extend type Query {
-    encounterClassHistory(id: String): [EncounterClassHistory]
-}

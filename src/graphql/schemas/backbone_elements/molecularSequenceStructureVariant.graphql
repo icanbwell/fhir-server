@@ -20,7 +20,3 @@ type MolecularSequenceStructureVariant {
     outer: MolecularSequenceOuter        
     inner: MolecularSequenceInner        
 }
-
-extend type Query {
-    molecularSequenceStructureVariant(id: String): [MolecularSequenceStructureVariant]
-}

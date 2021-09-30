@@ -16,7 +16,3 @@ type SubstanceNucleicAcidSugar {
     name: code        
     residueSite: code        
 }
-
-extend type Query {
-    substanceNucleicAcidSugar(id: String): [SubstanceNucleicAcidSugar]
-}

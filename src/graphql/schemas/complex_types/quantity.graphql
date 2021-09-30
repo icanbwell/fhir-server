@@ -18,7 +18,3 @@ type Quantity {
     system: code        
     code: code        
 }
-
-extend type Query {
-    quantity(id: String): [Quantity]
-}

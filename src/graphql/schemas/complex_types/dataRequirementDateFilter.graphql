@@ -18,7 +18,3 @@ type DataRequirementDateFilter {
     valuePeriod: Period        
     valueDuration: Quantity        
 }
-
-extend type Query {
-    dataRequirementDateFilter(id: String): [DataRequirementDateFilter]
-}

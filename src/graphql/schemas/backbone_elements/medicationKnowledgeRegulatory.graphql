@@ -18,7 +18,3 @@ type MedicationKnowledgeRegulatory {
     schedule: [MedicationKnowledgeSchedule]        
     maxDispense: MedicationKnowledgeMaxDispense        
 }
-
-extend type Query {
-    medicationKnowledgeRegulatory(id: String): [MedicationKnowledgeRegulatory]
-}

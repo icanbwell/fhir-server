@@ -16,7 +16,3 @@ type PatientLink {
     other: PatientLinkOther!        
     type: code!        
 }
-
-extend type Query {
-    patientLink(id: String): [PatientLink]
-}

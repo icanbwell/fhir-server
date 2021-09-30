@@ -21,7 +21,3 @@ type CodeSystemConcept {
     property: [CodeSystemProperty1]        
     concept: [CodeSystemConcept]        
 }
-
-extend type Query {
-    codeSystemConcept(id: String): [CodeSystemConcept]
-}

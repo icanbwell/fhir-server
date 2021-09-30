@@ -18,7 +18,3 @@ type ImagingStudyInstance {
     number: code        
     title: code        
 }
-
-extend type Query {
-    imagingStudyInstance(id: String): [ImagingStudyInstance]
-}

@@ -14,7 +14,3 @@ type TerminologyCapabilitiesImplementation {
     description: code!        
     url: code        
 }
-
-extend type Query {
-    terminologyCapabilitiesImplementation(id: String): [TerminologyCapabilitiesImplementation]
-}

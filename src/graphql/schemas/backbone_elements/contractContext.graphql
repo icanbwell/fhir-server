@@ -16,7 +16,3 @@ type ContractContext {
     code: [CodeableConcept]        
     text: code        
 }
-
-extend type Query {
-    contractContext(id: String): [ContractContext]
-}

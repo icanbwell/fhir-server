@@ -16,7 +16,3 @@ type SubstanceReferenceInformationGene {
     gene: CodeableConcept        
     source: [DocumentReference]        
 }
-
-extend type Query {
-    substanceReferenceInformationGene(id: String): [SubstanceReferenceInformationGene]
-}

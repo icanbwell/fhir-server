@@ -16,7 +16,3 @@ type ProvenanceEntity {
     what: Resource!        
     agent: [ProvenanceAgent]        
 }
-
-extend type Query {
-    provenanceEntity(id: String): [ProvenanceEntity]
-}

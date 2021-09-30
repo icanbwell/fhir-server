@@ -32,7 +32,3 @@ type EncounterHospitalization {
     destination: EncounterHospitalizationDestination        
     dischargeDisposition: CodeableConcept        
 }
-
-extend type Query {
-    encounterHospitalization(id: String): [EncounterHospitalization]
-}

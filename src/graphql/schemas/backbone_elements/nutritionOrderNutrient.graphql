@@ -14,7 +14,3 @@ type NutritionOrderNutrient {
     modifier: CodeableConcept        
     amount: Quantity        
 }
-
-extend type Query {
-    nutritionOrderNutrient(id: String): [NutritionOrderNutrient]
-}

@@ -16,7 +16,3 @@ type ClaimRelated {
     relationship: CodeableConcept        
     reference: Identifier        
 }
-
-extend type Query {
-    claimRelated(id: String): [ClaimRelated]
-}

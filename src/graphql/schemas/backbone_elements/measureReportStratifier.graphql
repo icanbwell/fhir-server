@@ -14,7 +14,3 @@ type MeasureReportStratifier {
     code: [CodeableConcept]        
     stratum: [MeasureReportStratum]        
 }
-
-extend type Query {
-    measureReportStratifier(id: String): [MeasureReportStratifier]
-}

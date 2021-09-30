@@ -16,7 +16,3 @@ type CompositionRelatesTo {
     targetIdentifier: Identifier        
     targetReference: Composition        
 }
-
-extend type Query {
-    compositionRelatesTo(id: String): [CompositionRelatesTo]
-}
