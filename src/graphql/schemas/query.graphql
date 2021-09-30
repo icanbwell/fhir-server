@@ -2,3 +2,8 @@
 type Query {
     id: String
 }
+
+enum TotalType {
+    accurate
+    estimate
+}
