@@ -77,9 +77,6 @@ class FhirProperty:
     is_code: bool = False
     is_complex: bool = False
 
-    def __hash__(self) -> int:
-        return hash(self.type_)
-
 
 @dataclasses.dataclass
 class FhirEntity:
@@ -100,6 +97,7 @@ class FhirEntity:
     value_set_url_list: Optional[Set[str]] = None
     is_resource: bool = False
     is_extension: bool = False
+    properties_unique: Optional[List[FhirProperty]] = None
 
 
 logging.basicConfig(
@@ -330,6 +328,18 @@ class FhirXmlSchemaParser:
                         for c in value_sets
                         if c.name == fhir_property.type_
                     ][0]
+
+        # create list of unique properties
+        for fhir_entity in fhir_entities:
+            fhir_entity.properties_unique = []
+            has_code: bool = False
+            for fhir_property in fhir_entity.properties:
+                if not (has_code and fhir_property.is_code):
+                    if fhir_property.is_code:
+                        has_code = True
+
+                    if not any([p for p in fhir_entity.properties_unique if p.type_ == fhir_property.type_]):
+                        fhir_entity.properties_unique.append(fhir_property)
 
         return fhir_entities
 
