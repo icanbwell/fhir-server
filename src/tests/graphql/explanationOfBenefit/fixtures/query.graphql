@@ -1,5 +1,5 @@
 query {
-    explanationOfBenefit {
+    explanationOfBenefit (id: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"]) {
         id
         identifier {
             system
