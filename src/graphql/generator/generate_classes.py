@@ -82,6 +82,21 @@ def main() -> int:
 
     fhir_entities = FhirXmlSchemaParser.generate_classes()
 
+    # generate query.graphql
+    with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
+        template_contents = file.read()
+        from jinja2 import Template
+
+        file_path = graphql_schema_dir.joinpath(f"query.graphql")
+        template = Template(
+            template_contents, trim_blocks=True, lstrip_blocks=True
+        )
+        result = template.render(
+            fhir_entities=[f for f in fhir_entities if f.is_resource],
+        )
+        with open(file_path, "w") as file2:
+            file2.write(result)
+
     # now print the result
     for fhir_entity in fhir_entities:
         # use template to generate new code files
