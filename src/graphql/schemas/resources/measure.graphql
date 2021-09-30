@@ -376,5 +376,8 @@ extend type Query {
         healthcareService: String
         active: String
         _total: String
+        _sort: [String]
+        _count: Int
+        _getpagesoffset: Int
     ): [Measure]
 }
