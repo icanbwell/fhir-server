@@ -158,7 +158,7 @@ extend type Query {
         """
         filter to active records
         """
-        active: String
+        active: Boolean
         """
         return total number of records that meet this query
         """
