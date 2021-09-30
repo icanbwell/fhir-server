@@ -12,6 +12,10 @@
 
 
 type BundleRequest {
+    """
+    Bundle.Request
+        A container for a collection of resources.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

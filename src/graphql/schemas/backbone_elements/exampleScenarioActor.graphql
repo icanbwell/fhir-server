@@ -10,6 +10,10 @@
 
 
 type ExampleScenarioActor {
+    """
+    ExampleScenario.Actor
+        Example of workflow instance.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

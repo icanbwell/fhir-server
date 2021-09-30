@@ -27,6 +27,13 @@ union DetectedIssueAuthor = Practitioner | PractitionerRole | Device
 
 
 type DetectedIssue {
+    """
+    DetectedIssue
+        Indicates an actual or potential clinical issue with or between one or more
+    active or proposed clinical actions for a patient; e.g. Drug-drug interaction,
+    Ineffective treatment frequency, Procedure-condition conflict, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -52,6 +59,13 @@ type DetectedIssue {
 }
 
 extend type Query {
+    """
+    DetectedIssue
+        Indicates an actual or potential clinical issue with or between one or more
+    active or proposed clinical actions for a patient; e.g. Drug-drug interaction,
+    Ineffective treatment frequency, Procedure-condition conflict, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     detectedIssue(
         id: [String]
         type: String

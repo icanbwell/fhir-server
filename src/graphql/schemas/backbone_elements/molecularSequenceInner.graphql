@@ -8,6 +8,10 @@
 
 
 type MolecularSequenceInner {
+    """
+    MolecularSequence.Inner
+        Raw data describing a biological sequence.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

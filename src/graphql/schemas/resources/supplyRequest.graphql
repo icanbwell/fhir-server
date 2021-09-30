@@ -49,6 +49,12 @@ union SupplyRequestDeliverTo = Organization | Location | Patient
 
 
 type SupplyRequest {
+    """
+    SupplyRequest
+        A record of a request for a medication, substance or device used in the
+    healthcare setting.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -79,6 +85,12 @@ type SupplyRequest {
 }
 
 extend type Query {
+    """
+    SupplyRequest
+        A record of a request for a medication, substance or device used in the
+    healthcare setting.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     supplyRequest(
         id: [String]
         type: String

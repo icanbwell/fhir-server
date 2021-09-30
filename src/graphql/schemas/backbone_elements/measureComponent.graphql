@@ -9,6 +9,10 @@
 
 
 type MeasureComponent {
+    """
+    Measure.Component
+        The Measure resource provides the definition of a quality measure.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

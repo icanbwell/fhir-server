@@ -25,6 +25,12 @@
 
 
 type PractitionerRole {
+    """
+    PractitionerRole
+        A specific set of Roles/Locations/specialties/services that a practitioner may
+    perform at an organization for a period of time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -51,6 +57,12 @@ type PractitionerRole {
 }
 
 extend type Query {
+    """
+    PractitionerRole
+        A specific set of Roles/Locations/specialties/services that a practitioner may
+    perform at an organization for a period of time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     practitionerRole(
         id: [String]
         type: String

@@ -15,6 +15,10 @@
 
 
 type SpecimenDefinitionContainer {
+    """
+    SpecimenDefinition.Container
+        A kind of specimen with associated set of requirements.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

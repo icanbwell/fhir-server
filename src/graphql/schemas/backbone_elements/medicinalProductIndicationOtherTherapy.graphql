@@ -13,6 +13,10 @@ union MedicinalProductIndicationOtherTherapyMedicationReference = MedicinalProdu
 
 
 type MedicinalProductIndicationOtherTherapy {
+    """
+    MedicinalProductIndication.OtherTherapy
+        Indication for the Medicinal Product.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

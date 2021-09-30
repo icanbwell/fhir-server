@@ -8,6 +8,11 @@
 
 
 type DeviceDefinitionSpecialization {
+    """
+    DeviceDefinition.Specialization
+        The characteristics, operational status and capabilities of a medical-related
+    component of a medical device.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

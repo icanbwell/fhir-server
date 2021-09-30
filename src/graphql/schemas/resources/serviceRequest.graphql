@@ -76,6 +76,12 @@ union ServiceRequestInsurance = Coverage | ClaimResponse
 
 
 type ServiceRequest {
+    """
+    ServiceRequest
+        A record of a request for service such as diagnostic investigations,
+    treatments, or operations to be performed.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -126,6 +132,12 @@ type ServiceRequest {
 }
 
 extend type Query {
+    """
+    ServiceRequest
+        A record of a request for service such as diagnostic investigations,
+    treatments, or operations to be performed.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     serviceRequest(
         id: [String]
         type: String

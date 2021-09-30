@@ -21,6 +21,12 @@ union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Subst
 
 
 type MedicinalProductInteraction {
+    """
+    MedicinalProductInteraction
+        The interactions of the medicinal product with other medicinal products, or
+    other forms of interactions.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -40,6 +46,12 @@ type MedicinalProductInteraction {
 }
 
 extend type Query {
+    """
+    MedicinalProductInteraction
+        The interactions of the medicinal product with other medicinal products, or
+    other forms of interactions.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProductInteraction(
         id: [String]
         type: String

@@ -9,6 +9,11 @@
 
 
 type MedicinalProductCountryLanguage {
+    """
+    MedicinalProduct.CountryLanguage
+        Detailed definition of a medicinal product, typically for uses other than
+    direct patient care (e.g. regulatory use).
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

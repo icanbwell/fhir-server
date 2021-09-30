@@ -26,6 +26,13 @@
 
 
 type GraphDefinition {
+    """
+    GraphDefinition
+        A formal computable definition of a graph of resources - that is, a coherent
+    set of resources that form a graph by following references. The Graph
+    Definition resource defines a set and makes rules about the set.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -53,6 +60,13 @@ type GraphDefinition {
 }
 
 extend type Query {
+    """
+    GraphDefinition
+        A formal computable definition of a graph of resources - that is, a coherent
+    set of resources that form a graph by following references. The Graph
+    Definition resource defines a set and makes rules about the set.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     graphDefinition(
         id: [String]
         type: String

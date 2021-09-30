@@ -53,6 +53,12 @@ union MediaDevice = Device | DeviceMetric
 
 
 type Media {
+    """
+    Media
+        A photo, video, or audio recording acquired or used in healthcare. The actual
+    content may be inline or provided by direct reference.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -88,6 +94,12 @@ type Media {
 }
 
 extend type Query {
+    """
+    Media
+        A photo, video, or audio recording acquired or used in healthcare. The actual
+    content may be inline or provided by direct reference.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     media(
         id: [String]
         type: String

@@ -35,6 +35,11 @@ union CatalogEntryReferencedItem = Medication | Device | Organization | Practiti
 
 
 type CatalogEntry {
+    """
+    CatalogEntry
+        Catalog entries are wrappers that contextualize items included in a catalog.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -60,6 +65,11 @@ type CatalogEntry {
 }
 
 extend type Query {
+    """
+    CatalogEntry
+        Catalog entries are wrappers that contextualize items included in a catalog.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     catalogEntry(
         id: [String]
         type: String

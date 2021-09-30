@@ -25,6 +25,12 @@
 
 
 type VerificationResult {
+    """
+    VerificationResult
+        Describes validation requirements, source(s), status and dates for one or more
+    elements.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -51,6 +57,12 @@ type VerificationResult {
 }
 
 extend type Query {
+    """
+    VerificationResult
+        Describes validation requirements, source(s), status and dates for one or more
+    elements.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     verificationResult(
         id: [String]
         type: String

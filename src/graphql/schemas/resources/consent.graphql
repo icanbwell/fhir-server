@@ -34,6 +34,13 @@ union ConsentSourceReference = Consent | DocumentReference | Contract | Question
 
 
 type Consent {
+    """
+    Consent
+        A record of a healthcare consumer’s  choices, which permits or denies
+    identified recipient(s) or recipient role(s) to perform one or more actions
+    within a given policy context, for specific purposes and periods of time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -60,6 +67,13 @@ type Consent {
 }
 
 extend type Query {
+    """
+    Consent
+        A record of a healthcare consumer’s  choices, which permits or denies
+    identified recipient(s) or recipient role(s) to perform one or more actions
+    within a given policy context, for specific purposes and periods of time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     consent(
         id: [String]
         type: String

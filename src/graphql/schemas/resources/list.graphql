@@ -32,6 +32,11 @@ union ListSource = Practitioner | PractitionerRole | Patient | Device
 
 
 type List {
+    """
+    List
+        A list is a curated collection of resources.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -57,6 +62,11 @@ type List {
 }
 
 extend type Query {
+    """
+    List
+        A list is a curated collection of resources.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     list(
         id: [String]
         type: String

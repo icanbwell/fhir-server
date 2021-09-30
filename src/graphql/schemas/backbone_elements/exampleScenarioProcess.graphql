@@ -11,6 +11,10 @@
 
 
 type ExampleScenarioProcess {
+    """
+    ExampleScenario.Process
+        Example of workflow instance.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -30,6 +30,12 @@ union CoverageEligibilityResponseRequestor = Practitioner | PractitionerRole | O
 
 
 type CoverageEligibilityResponse {
+    """
+    CoverageEligibilityResponse
+        This resource provides eligibility and plan details from the processing of an
+    CoverageEligibilityRequest resource.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -58,6 +64,12 @@ type CoverageEligibilityResponse {
 }
 
 extend type Query {
+    """
+    CoverageEligibilityResponse
+        This resource provides eligibility and plan details from the processing of an
+    CoverageEligibilityRequest resource.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     coverageEligibilityResponse(
         id: [String]
         type: String

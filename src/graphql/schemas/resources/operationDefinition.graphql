@@ -37,6 +37,12 @@
 
 
 type OperationDefinition {
+    """
+    OperationDefinition
+        A formal computable definition of an operation (on the RESTful interface) or a
+    named query (using the search interaction).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -75,6 +81,12 @@ type OperationDefinition {
 }
 
 extend type Query {
+    """
+    OperationDefinition
+        A formal computable definition of an operation (on the RESTful interface) or a
+    named query (using the search interaction).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     operationDefinition(
         id: [String]
         type: String

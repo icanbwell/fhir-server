@@ -38,6 +38,12 @@ union RequestGroupReasonReference = Condition | Observation | DiagnosticReport |
 
 
 type RequestGroup {
+    """
+    RequestGroup
+        A group of related requests that can be used to capture intended activities
+    that have inter-dependencies such as "give this medication after that one".
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -68,6 +74,12 @@ type RequestGroup {
 }
 
 extend type Query {
+    """
+    RequestGroup
+        A group of related requests that can be used to capture intended activities
+    that have inter-dependencies such as "give this medication after that one".
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     requestGroup(
         id: [String]
         type: String

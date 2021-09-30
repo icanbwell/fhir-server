@@ -75,6 +75,15 @@ union MedicationRequestInsurance = Coverage | ClaimResponse
 
 
 type MedicationRequest {
+    """
+    MedicationRequest
+        An order or request for both supply of the medication and the instructions for
+    administration of the medication to a patient. The resource is called
+    "MedicationRequest" rather than "MedicationPrescription" or "MedicationOrder"
+    to generalize the use across inpatient and outpatient settings, including care
+    plans, etc., and to harmonize with workflow patterns.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -121,6 +130,15 @@ type MedicationRequest {
 }
 
 extend type Query {
+    """
+    MedicationRequest
+        An order or request for both supply of the medication and the instructions for
+    administration of the medication to a patient. The resource is called
+    "MedicationRequest" rather than "MedicationPrescription" or "MedicationOrder"
+    to generalize the use across inpatient and outpatient settings, including care
+    plans, etc., and to harmonize with workflow patterns.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicationRequest(
         id: [String]
         type: String

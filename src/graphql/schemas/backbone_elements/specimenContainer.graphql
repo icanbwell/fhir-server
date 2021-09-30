@@ -13,6 +13,10 @@
 
 
 type SpecimenContainer {
+    """
+    Specimen.Container
+        A sample to be used for analysis.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

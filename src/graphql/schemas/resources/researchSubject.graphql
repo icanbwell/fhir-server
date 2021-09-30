@@ -19,6 +19,12 @@
 
 
 type ResearchSubject {
+    """
+    ResearchSubject
+        A physical entity which is the primary unit of operational and/or
+    administrative interest in a study.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -39,6 +45,12 @@ type ResearchSubject {
 }
 
 extend type Query {
+    """
+    ResearchSubject
+        A physical entity which is the primary unit of operational and/or
+    administrative interest in a study.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     researchSubject(
         id: [String]
         type: String

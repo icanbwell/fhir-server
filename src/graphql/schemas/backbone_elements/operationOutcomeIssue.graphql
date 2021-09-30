@@ -12,6 +12,11 @@
 
 
 type OperationOutcomeIssue {
+    """
+    OperationOutcome.Issue
+        A collection of error, warning, or information messages that result from a
+    system action.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

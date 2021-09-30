@@ -39,6 +39,12 @@ union AllergyIntoleranceAsserter = Patient | RelatedPerson | Practitioner | Prac
 
 
 type AllergyIntolerance {
+    """
+    AllergyIntolerance
+        Risk of harmful or undesirable, physiological response which is unique to an
+    individual and associated with exposure to a substance.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -71,6 +77,12 @@ type AllergyIntolerance {
 }
 
 extend type Query {
+    """
+    AllergyIntolerance
+        Risk of harmful or undesirable, physiological response which is unique to an
+    individual and associated with exposure to a substance.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     allergyIntolerance(
         id: [String]
         type: String

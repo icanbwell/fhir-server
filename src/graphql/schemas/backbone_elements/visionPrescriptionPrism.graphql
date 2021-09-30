@@ -8,6 +8,11 @@
 
 
 type VisionPrescriptionPrism {
+    """
+    VisionPrescription.Prism
+        An authorization for the provision of glasses and/or contact lenses to a
+    patient.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

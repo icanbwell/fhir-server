@@ -13,6 +13,11 @@
 
 
 type AllergyIntoleranceReaction {
+    """
+    AllergyIntolerance.Reaction
+        Risk of harmful or undesirable, physiological response which is unique to an
+    individual and associated with exposure to a substance.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

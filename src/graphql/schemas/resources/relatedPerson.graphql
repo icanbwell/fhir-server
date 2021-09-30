@@ -23,6 +23,13 @@
 
 
 type RelatedPerson {
+    """
+    RelatedPerson
+        Information about a person that is involved in the care for a patient, but who
+    is not the target of healthcare, nor has a formal responsibility in the care
+    process.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -47,6 +54,13 @@ type RelatedPerson {
 }
 
 extend type Query {
+    """
+    RelatedPerson
+        Information about a person that is involved in the care for a patient, but who
+    is not the target of healthcare, nor has a formal responsibility in the care
+    process.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     relatedPerson(
         id: [String]
         type: String

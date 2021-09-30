@@ -60,6 +60,12 @@ union DeviceRequestInsurance = Coverage | ClaimResponse
 
 
 type DeviceRequest {
+    """
+    DeviceRequest
+        Represents a request for a patient to employ a medical device. The device may
+    be an implantable device, or an external assistive device, such as a walker.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -99,6 +105,12 @@ type DeviceRequest {
 }
 
 extend type Query {
+    """
+    DeviceRequest
+        Represents a request for a patient to employ a medical device. The device may
+    be an implantable device, or an external assistive device, such as a walker.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     deviceRequest(
         id: [String]
         type: String

@@ -57,6 +57,10 @@
 
 
 type TaskOutput {
+    """
+    Task.Output
+        A task to be performed.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

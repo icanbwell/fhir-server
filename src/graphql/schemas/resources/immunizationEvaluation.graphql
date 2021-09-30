@@ -26,6 +26,13 @@
 
 
 type ImmunizationEvaluation {
+    """
+    ImmunizationEvaluation
+        Describes a comparison of an immunization event against published
+    recommendations to determine if the administration is "valid" in relation to
+    those  recommendations.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -53,6 +60,13 @@ type ImmunizationEvaluation {
 }
 
 extend type Query {
+    """
+    ImmunizationEvaluation
+        Describes a comparison of an immunization event against published
+    recommendations to determine if the administration is "valid" in relation to
+    those  recommendations.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     immunizationEvaluation(
         id: [String]
         type: String

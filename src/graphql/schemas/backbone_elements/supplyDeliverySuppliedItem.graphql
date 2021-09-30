@@ -12,6 +12,10 @@ union SupplyDeliverySuppliedItemItemReference = Medication | Substance | Device
 
 
 type SupplyDeliverySuppliedItem {
+    """
+    SupplyDelivery.SuppliedItem
+        Record of delivery of what is supplied.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -17,6 +17,11 @@
 
 
 type SpecimenDefinition {
+    """
+    SpecimenDefinition
+        A kind of specimen with associated set of requirements.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -35,6 +40,11 @@ type SpecimenDefinition {
 }
 
 extend type Query {
+    """
+    SpecimenDefinition
+        A kind of specimen with associated set of requirements.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     specimenDefinition(
         id: [String]
         type: String

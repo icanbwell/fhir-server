@@ -19,6 +19,12 @@
 
 
 type BodyStructure {
+    """
+    BodyStructure
+        Record details about an anatomical structure.  This resource may be used when
+    a coded concept does not provide the necessary detail needed for the use case.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -39,6 +45,12 @@ type BodyStructure {
 }
 
 extend type Query {
+    """
+    BodyStructure
+        Record details about an anatomical structure.  This resource may be used when
+    a coded concept does not provide the necessary detail needed for the use case.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     bodyStructure(
         id: [String]
         type: String

@@ -12,6 +12,11 @@
 
 
 type ObservationReferenceRange {
+    """
+    Observation.ReferenceRange
+        Measurements and simple assertions made about a patient, device or other
+    subject.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -41,6 +41,13 @@ union GoalAddresses = Condition | Observation | MedicationStatement | NutritionO
 
 
 type Goal {
+    """
+    Goal
+        Describes the intended objective(s) for a patient, group or organization care,
+    for example, weight loss, restoring an activity of daily living, obtaining
+    herd immunity via immunization, meeting a process improvement objective, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -70,6 +77,13 @@ type Goal {
 }
 
 extend type Query {
+    """
+    Goal
+        Describes the intended objective(s) for a patient, group or organization care,
+    for example, weight loss, restoring an activity of daily living, obtaining
+    herd immunity via immunization, meeting a process improvement objective, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     goal(
         id: [String]
         type: String

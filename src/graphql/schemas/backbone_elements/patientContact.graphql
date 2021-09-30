@@ -13,6 +13,11 @@
 
 
 type PatientContact {
+    """
+    Patient.Contact
+        Demographics and other administrative information about an individual or
+    animal receiving care or other health-related services.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

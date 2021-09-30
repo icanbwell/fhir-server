@@ -7,6 +7,10 @@
 
 
 type Resource {
+    """
+    Resource
+        This is the base resource type for everything.
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -15,6 +19,10 @@ type Resource {
 }
 
 extend type Query {
+    """
+    Resource
+        This is the base resource type for everything.
+    """
     resource(
         id: [String]
         type: String

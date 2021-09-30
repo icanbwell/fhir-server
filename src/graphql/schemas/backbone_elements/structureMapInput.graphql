@@ -10,6 +10,11 @@
 
 
 type StructureMapInput {
+    """
+    StructureMap.Input
+        A Map of relationships between 2 structures that can be used to transform
+    data.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

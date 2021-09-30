@@ -18,6 +18,11 @@ union MedicinalProductUndesirableEffectSubject = MedicinalProduct | Medication
 
 
 type MedicinalProductUndesirableEffect {
+    """
+    MedicinalProductUndesirableEffect
+        Describe the undesirable effects of the medicinal product.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -35,6 +40,11 @@ type MedicinalProductUndesirableEffect {
 }
 
 extend type Query {
+    """
+    MedicinalProductUndesirableEffect
+        Describe the undesirable effects of the medicinal product.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProductUndesirableEffect(
         id: [String]
         type: String

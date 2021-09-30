@@ -11,6 +11,11 @@
 
 
 type SupplyRequestParameter {
+    """
+    SupplyRequest.Parameter
+        A record of a request for a medication, substance or device used in the
+    healthcare setting.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

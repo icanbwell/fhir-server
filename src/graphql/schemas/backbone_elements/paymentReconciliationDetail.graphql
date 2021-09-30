@@ -22,6 +22,11 @@ union PaymentReconciliationDetailPayee = Practitioner | PractitionerRole | Organ
 
 
 type PaymentReconciliationDetail {
+    """
+    PaymentReconciliation.Detail
+        This resource provides the details including amount of a payment and allocates
+    the payment items being paid.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

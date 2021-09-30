@@ -26,6 +26,12 @@ union AppointmentResponseActor = Patient | Practitioner | PractitionerRole | Rel
 
 
 type AppointmentResponse {
+    """
+    AppointmentResponse
+        A reply to an appointment request for a patient and/or practitioner(s), such
+    as a confirmation or rejection.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -46,6 +52,12 @@ type AppointmentResponse {
 }
 
 extend type Query {
+    """
+    AppointmentResponse
+        A reply to an appointment request for a patient and/or practitioner(s), such
+    as a confirmation or rejection.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     appointmentResponse(
         id: [String]
         type: String

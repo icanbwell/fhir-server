@@ -8,6 +8,10 @@
 
 
 type SubstancePolymerMonomerSet {
+    """
+    SubstancePolymer.MonomerSet
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

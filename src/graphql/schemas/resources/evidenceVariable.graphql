@@ -38,6 +38,12 @@
 
 
 type EvidenceVariable {
+    """
+    EvidenceVariable
+        The EvidenceVariable resource describes a "PICO" element that knowledge
+    (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -77,6 +83,12 @@ type EvidenceVariable {
 }
 
 extend type Query {
+    """
+    EvidenceVariable
+        The EvidenceVariable resource describes a "PICO" element that knowledge
+    (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     evidenceVariable(
         id: [String]
         type: String

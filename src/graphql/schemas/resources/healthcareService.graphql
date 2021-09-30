@@ -35,6 +35,11 @@
 
 
 type HealthcareService {
+    """
+    HealthcareService
+        The details of a healthcare service available at a location.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -71,6 +76,11 @@ type HealthcareService {
 }
 
 extend type Query {
+    """
+    HealthcareService
+        The details of a healthcare service available at a location.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     healthcareService(
         id: [String]
         type: String

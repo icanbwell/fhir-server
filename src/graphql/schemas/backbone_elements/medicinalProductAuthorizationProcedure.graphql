@@ -10,6 +10,10 @@
 
 
 type MedicinalProductAuthorizationProcedure {
+    """
+    MedicinalProductAuthorization.Procedure
+        The regulatory authorization of a medicinal product.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

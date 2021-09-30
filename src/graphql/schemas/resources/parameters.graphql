@@ -8,6 +8,13 @@
 
 
 type Parameters {
+    """
+    Parameters
+        This resource is a non-persisted resource used to pass information into and
+    back from an [operation](operations.html). It has no other use, and there is
+    no RESTful endpoint associated with it.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -17,6 +24,13 @@ type Parameters {
 }
 
 extend type Query {
+    """
+    Parameters
+        This resource is a non-persisted resource used to pass information into and
+    back from an [operation](operations.html). It has no other use, and there is
+    no RESTful endpoint associated with it.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     parameters(
         id: [String]
         type: String

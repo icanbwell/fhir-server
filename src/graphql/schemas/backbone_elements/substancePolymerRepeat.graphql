@@ -10,6 +10,10 @@
 
 
 type SubstancePolymerRepeat {
+    """
+    SubstancePolymer.Repeat
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

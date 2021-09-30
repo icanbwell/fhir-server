@@ -8,6 +8,12 @@
 
 
 type MeasureReportComponent {
+    """
+    MeasureReport.Component
+        The MeasureReport resource contains the results of the calculation of a
+    measure; and optionally a reference to the resources involved in that
+    calculation.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

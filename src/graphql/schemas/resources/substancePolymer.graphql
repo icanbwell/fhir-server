@@ -17,6 +17,11 @@
 
 
 type SubstancePolymer {
+    """
+    SubstancePolymer
+        Todo.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -35,6 +40,11 @@ type SubstancePolymer {
 }
 
 extend type Query {
+    """
+    SubstancePolymer
+        Todo.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     substancePolymer(
         id: [String]
         type: String

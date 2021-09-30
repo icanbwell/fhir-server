@@ -27,6 +27,11 @@
 
 
 type MolecularSequence {
+    """
+    MolecularSequence
+        Raw data describing a biological sequence.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -55,6 +60,11 @@ type MolecularSequence {
 }
 
 extend type Query {
+    """
+    MolecularSequence
+        Raw data describing a biological sequence.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     molecularSequence(
         id: [String]
         type: String

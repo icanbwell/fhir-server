@@ -45,6 +45,12 @@
 
 
 type ResearchElementDefinition {
+    """
+    ResearchElementDefinition
+        The ResearchElementDefinition resource describes a "PICO" element that
+    knowledge (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -91,6 +97,12 @@ type ResearchElementDefinition {
 }
 
 extend type Query {
+    """
+    ResearchElementDefinition
+        The ResearchElementDefinition resource describes a "PICO" element that
+    knowledge (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     researchElementDefinition(
         id: [String]
         type: String

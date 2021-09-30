@@ -20,6 +20,12 @@ union MedicinalProductContraindicationSubject = MedicinalProduct | Medication
 
 
 type MedicinalProductContraindication {
+    """
+    MedicinalProductContraindication
+        The clinical particulars - indications, contraindications etc. of a medicinal
+    product, including for regulatory purposes.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -39,6 +45,12 @@ type MedicinalProductContraindication {
 }
 
 extend type Query {
+    """
+    MedicinalProductContraindication
+        The clinical particulars - indications, contraindications etc. of a medicinal
+    product, including for regulatory purposes.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProductContraindication(
         id: [String]
         type: String

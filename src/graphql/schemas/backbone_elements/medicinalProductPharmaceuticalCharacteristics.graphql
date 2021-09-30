@@ -8,6 +8,10 @@
 
 
 type MedicinalProductPharmaceuticalCharacteristics {
+    """
+    MedicinalProductPharmaceutical.Characteristics
+        A pharmaceutical product described in terms of its composition and dose form.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -7,6 +7,10 @@
 
 
 type TestReportSetup {
+    """
+    TestReport.Setup
+        A summary of information based on the results of executing a TestScript.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

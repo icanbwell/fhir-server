@@ -8,6 +8,11 @@
 
 
 type PaymentReconciliationProcessNote {
+    """
+    PaymentReconciliation.ProcessNote
+        This resource provides the details including amount of a payment and allocates
+    the payment items being paid.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

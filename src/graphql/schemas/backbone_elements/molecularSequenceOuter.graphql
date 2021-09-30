@@ -8,6 +8,10 @@
 
 
 type MolecularSequenceOuter {
+    """
+    MolecularSequence.Outer
+        Raw data describing a biological sequence.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

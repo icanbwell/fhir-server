@@ -66,6 +66,13 @@ union ActivityDefinitionProductReference = Medication | Substance
 
 
 type ActivityDefinition {
+    """
+    ActivityDefinition
+        This resource allows for the definition of some activity to be performed,
+    independent of a particular patient, practitioner, or other performance
+    context.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -131,6 +138,13 @@ type ActivityDefinition {
 }
 
 extend type Query {
+    """
+    ActivityDefinition
+        This resource allows for the definition of some activity to be performed,
+    independent of a particular patient, practitioner, or other performance
+    context.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     activityDefinition(
         id: [String]
         type: String

@@ -12,6 +12,11 @@ union MedicinalProductInteractionInteractantItemReference = MedicinalProduct | M
 
 
 type MedicinalProductInteractionInteractant {
+    """
+    MedicinalProductInteraction.Interactant
+        The interactions of the medicinal product with other medicinal products, or
+    other forms of interactions.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

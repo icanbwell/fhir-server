@@ -12,6 +12,11 @@ union PersonLinkTarget = Patient | Practitioner | RelatedPerson | Person
 
 
 type PersonLink {
+    """
+    Person.Link
+        Demographics and administrative information about a person independent of a
+    specific health-related context.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

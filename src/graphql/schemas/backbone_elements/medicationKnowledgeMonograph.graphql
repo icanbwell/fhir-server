@@ -10,6 +10,10 @@ union MedicationKnowledgeMonographSource = DocumentReference | Media
 
 
 type MedicationKnowledgeMonograph {
+    """
+    MedicationKnowledge.Monograph
+        Information about a medication that is used to support knowledge.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

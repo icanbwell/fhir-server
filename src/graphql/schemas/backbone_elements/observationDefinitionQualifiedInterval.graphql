@@ -14,6 +14,11 @@
 
 
 type ObservationDefinitionQualifiedInterval {
+    """
+    ObservationDefinition.QualifiedInterval
+        Set of definitional characteristics for a kind of observation or measurement
+    produced or consumed by an orderable health care service.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

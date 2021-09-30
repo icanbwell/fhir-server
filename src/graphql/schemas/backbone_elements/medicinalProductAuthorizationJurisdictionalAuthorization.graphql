@@ -11,6 +11,10 @@
 
 
 type MedicinalProductAuthorizationJurisdictionalAuthorization {
+    """
+    MedicinalProductAuthorization.JurisdictionalAuthorization
+        The regulatory authorization of a medicinal product.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

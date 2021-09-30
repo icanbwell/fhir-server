@@ -38,6 +38,12 @@ union RiskAssessmentReasonReference = Condition | Observation | DiagnosticReport
 
 
 type RiskAssessment {
+    """
+    RiskAssessment
+        An assessment of the likely outcome(s) for a patient or other subject as well
+    as the likelihood of each outcome.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -68,6 +74,12 @@ type RiskAssessment {
 }
 
 extend type Query {
+    """
+    RiskAssessment
+        An assessment of the likely outcome(s) for a patient or other subject as well
+    as the likelihood of each outcome.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     riskAssessment(
         id: [String]
         type: String

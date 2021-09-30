@@ -9,6 +9,12 @@
 
 
 type AuditEventDetail {
+    """
+    AuditEvent.Detail
+        A record of an event made for purposes of maintaining a security log. Typical
+    uses include detection of intrusion attempts and monitoring for inappropriate
+    usage.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

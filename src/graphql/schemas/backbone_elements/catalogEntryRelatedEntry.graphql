@@ -8,6 +8,10 @@
 
 
 type CatalogEntryRelatedEntry {
+    """
+    CatalogEntry.RelatedEntry
+        Catalog entries are wrappers that contextualize items included in a catalog.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

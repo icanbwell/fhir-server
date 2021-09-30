@@ -35,6 +35,12 @@
 
 
 type TestScript {
+    """
+    TestScript
+        A structured set of tests against a FHIR server or client implementation to
+    determine compliance against the FHIR specification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -71,6 +77,12 @@ type TestScript {
 }
 
 extend type Query {
+    """
+    TestScript
+        A structured set of tests against a FHIR server or client implementation to
+    determine compliance against the FHIR specification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     testScript(
         id: [String]
         type: String

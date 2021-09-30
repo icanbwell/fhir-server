@@ -9,6 +9,10 @@
 
 
 type CompartmentDefinitionResource {
+    """
+    CompartmentDefinition.Resource
+        A compartment definition that defines how resources are accessed on a server.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

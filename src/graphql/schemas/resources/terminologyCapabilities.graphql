@@ -35,6 +35,13 @@
 
 
 type TerminologyCapabilities {
+    """
+    TerminologyCapabilities
+        A TerminologyCapabilities resource documents a set of capabilities (behaviors)
+    of a FHIR Terminology Server that may be used as a statement of actual server
+    functionality or a statement of required or desired server implementation.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -71,6 +78,13 @@ type TerminologyCapabilities {
 }
 
 extend type Query {
+    """
+    TerminologyCapabilities
+        A TerminologyCapabilities resource documents a set of capabilities (behaviors)
+    of a FHIR Terminology Server that may be used as a statement of actual server
+    functionality or a statement of required or desired server implementation.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     terminologyCapabilities(
         id: [String]
         type: String

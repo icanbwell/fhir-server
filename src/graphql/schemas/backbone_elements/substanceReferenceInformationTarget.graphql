@@ -16,6 +16,10 @@
 
 
 type SubstanceReferenceInformationTarget {
+    """
+    SubstanceReferenceInformation.Target
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

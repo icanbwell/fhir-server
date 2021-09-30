@@ -32,6 +32,12 @@ union PatientGeneralPractitioner = Organization | Practitioner | PractitionerRol
 
 
 type Patient {
+    """
+    Patient
+        Demographics and other administrative information about an individual or
+    animal receiving care or other health-related services.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -62,6 +68,12 @@ type Patient {
 }
 
 extend type Query {
+    """
+    Patient
+        Demographics and other administrative information about an individual or
+    animal receiving care or other health-related services.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     patient(
         id: [String]
         type: String

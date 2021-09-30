@@ -26,6 +26,12 @@ union CareTeamSubject = Patient | Group
 
 
 type CareTeam {
+    """
+    CareTeam
+        The Care Team includes all the people and organizations who plan to
+    participate in the coordination and delivery of care for a patient.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -51,6 +57,12 @@ type CareTeam {
 }
 
 extend type Query {
+    """
+    CareTeam
+        The Care Team includes all the people and organizations who plan to
+    participate in the coordination and delivery of care for a patient.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     careTeam(
         id: [String]
         type: String

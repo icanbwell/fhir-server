@@ -13,6 +13,13 @@ union AnnotationAuthorReference = Practitioner | Patient | RelatedPerson | Organ
 
 
 type Annotation {
+    """
+    Annotation
+        A  text note which also  contains information about who made the statement and
+    when.
+        If the element is present, it must have a value for at least one of the
+    defined elements, an @id referenced from the Narrative, or extensions
+    """
     id: code        
     extension: [Extension]        
     authorReference: AnnotationAuthorReference        

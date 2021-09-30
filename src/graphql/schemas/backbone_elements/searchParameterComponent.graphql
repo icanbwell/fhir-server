@@ -8,6 +8,11 @@
 
 
 type SearchParameterComponent {
+    """
+    SearchParameter.Component
+        A search parameter that defines a named search item that can be used to
+    search/filter on a resource.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

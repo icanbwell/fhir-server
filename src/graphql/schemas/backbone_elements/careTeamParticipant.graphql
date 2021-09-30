@@ -16,6 +16,11 @@ union CareTeamParticipantMember = Practitioner | PractitionerRole | RelatedPerso
 
 
 type CareTeamParticipant {
+    """
+    CareTeam.Participant
+        The Care Team includes all the people and organizations who plan to
+    participate in the coordination and delivery of care for a patient.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

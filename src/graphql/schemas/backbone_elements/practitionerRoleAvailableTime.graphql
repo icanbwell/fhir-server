@@ -10,6 +10,11 @@
 
 
 type PractitionerRoleAvailableTime {
+    """
+    PractitionerRole.AvailableTime
+        A specific set of Roles/Locations/specialties/services that a practitioner may
+    perform at an organization for a period of time.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

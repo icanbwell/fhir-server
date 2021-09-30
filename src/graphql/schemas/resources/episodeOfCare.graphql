@@ -25,6 +25,13 @@ union EpisodeOfCareCareManager = Practitioner | PractitionerRole
 
 
 type EpisodeOfCare {
+    """
+    EpisodeOfCare
+        An association between a patient and an organization / healthcare provider(s)
+    during which time encounters may occur. The managing organization assumes a
+    level of responsibility for the patient during this time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -49,6 +56,13 @@ type EpisodeOfCare {
 }
 
 extend type Query {
+    """
+    EpisodeOfCare
+        An association between a patient and an organization / healthcare provider(s)
+    during which time encounters may occur. The managing organization assumes a
+    level of responsibility for the patient during this time.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     episodeOfCare(
         id: [String]
         type: String

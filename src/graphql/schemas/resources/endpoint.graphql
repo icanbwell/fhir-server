@@ -22,6 +22,13 @@
 
 
 type Endpoint {
+    """
+    Endpoint
+        The technical details of an endpoint that can be used for electronic services,
+    such as for web services providing XDS.b or a REST endpoint for another FHIR
+    server. This may include any security context information.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -45,6 +52,13 @@ type Endpoint {
 }
 
 extend type Query {
+    """
+    Endpoint
+        The technical details of an endpoint that can be used for electronic services,
+    such as for web services providing XDS.b or a REST endpoint for another FHIR
+    server. This may include any security context information.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     endpoint(
         id: [String]
         type: String

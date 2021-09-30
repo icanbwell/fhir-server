@@ -43,6 +43,14 @@
 
 
 type PlanDefinition {
+    """
+    PlanDefinition
+        This resource allows for the definition of various types of plans as a
+    sharable, consumable, and executable artifact. The resource is general enough
+    to support the description of a broad range of clinical artifacts such as
+    clinical decision support rules, order sets and protocols.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -87,6 +95,14 @@ type PlanDefinition {
 }
 
 extend type Query {
+    """
+    PlanDefinition
+        This resource allows for the definition of various types of plans as a
+    sharable, consumable, and executable artifact. The resource is general enough
+    to support the description of a broad range of clinical artifacts such as
+    clinical decision support rules, order sets and protocols.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     planDefinition(
         id: [String]
         type: String

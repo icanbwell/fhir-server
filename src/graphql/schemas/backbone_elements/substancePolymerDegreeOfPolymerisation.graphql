@@ -8,6 +8,10 @@
 
 
 type SubstancePolymerDegreeOfPolymerisation {
+    """
+    SubstancePolymer.DegreeOfPolymerisation
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

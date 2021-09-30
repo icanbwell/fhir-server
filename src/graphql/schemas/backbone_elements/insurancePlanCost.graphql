@@ -10,6 +10,10 @@
 
 
 type InsurancePlanCost {
+    """
+    InsurancePlan.Cost
+        Details of a Health Insurance product/plan provided by an organization.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

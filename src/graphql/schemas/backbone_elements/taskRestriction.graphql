@@ -15,6 +15,10 @@ union TaskRestrictionRecipient = Patient | Practitioner | PractitionerRole | Rel
 
 
 type TaskRestriction {
+    """
+    Task.Restriction
+        A task to be performed.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

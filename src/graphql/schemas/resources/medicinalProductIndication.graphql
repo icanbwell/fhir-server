@@ -22,6 +22,11 @@ union MedicinalProductIndicationSubject = MedicinalProduct | Medication
 
 
 type MedicinalProductIndication {
+    """
+    MedicinalProductIndication
+        Indication for the Medicinal Product.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -43,6 +48,11 @@ type MedicinalProductIndication {
 }
 
 extend type Query {
+    """
+    MedicinalProductIndication
+        Indication for the Medicinal Product.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProductIndication(
         id: [String]
         type: String

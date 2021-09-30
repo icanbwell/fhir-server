@@ -31,6 +31,13 @@
 
 
 type ConceptMap {
+    """
+    ConceptMap
+        A statement of relationships from one set of concepts to one or more other
+    concepts - either concepts in code systems, or data element/data element
+    concepts, or classes in class models.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -63,6 +70,13 @@ type ConceptMap {
 }
 
 extend type Query {
+    """
+    ConceptMap
+        A statement of relationships from one set of concepts to one or more other
+    concepts - either concepts in code systems, or data element/data element
+    concepts, or classes in class models.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     conceptMap(
         id: [String]
         type: String

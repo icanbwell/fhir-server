@@ -37,6 +37,13 @@ union AppointmentReasonReference = Condition | Procedure | Observation | Immuniz
 
 
 type Appointment {
+    """
+    Appointment
+        A booking of a healthcare event among patient(s), practitioner(s), related
+    person(s) and/or device(s) for a specific date/time. This may result in one or
+    more Encounter(s).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -71,6 +78,13 @@ type Appointment {
 }
 
 extend type Query {
+    """
+    Appointment
+        A booking of a healthcare event among patient(s), practitioner(s), related
+    person(s) and/or device(s) for a specific date/time. This may result in one or
+    more Encounter(s).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     appointment(
         id: [String]
         type: String

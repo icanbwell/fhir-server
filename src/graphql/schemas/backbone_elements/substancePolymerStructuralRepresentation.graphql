@@ -9,6 +9,10 @@
 
 
 type SubstancePolymerStructuralRepresentation {
+    """
+    SubstancePolymer.StructuralRepresentation
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

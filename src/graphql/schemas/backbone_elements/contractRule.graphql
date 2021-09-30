@@ -8,6 +8,11 @@
 
 
 type ContractRule {
+    """
+    Contract.Rule
+        Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
+    a policy or agreement.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

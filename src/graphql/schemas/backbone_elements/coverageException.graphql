@@ -8,6 +8,11 @@
 
 
 type CoverageException {
+    """
+    Coverage.Exception
+        Financial instrument which may be used to reimburse or pay for health care
+    products and services. Includes both insurance and self-payment.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

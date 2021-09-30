@@ -31,6 +31,11 @@ union SupplyDeliveryReceiver = Practitioner | PractitionerRole
 
 
 type SupplyDelivery {
+    """
+    SupplyDelivery
+        Record of delivery of what is supplied.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -56,6 +61,11 @@ type SupplyDelivery {
 }
 
 extend type Query {
+    """
+    SupplyDelivery
+        Record of delivery of what is supplied.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     supplyDelivery(
         id: [String]
         type: String

@@ -22,6 +22,11 @@
 
 
 type Slot {
+    """
+    Slot
+        A slot of time on a schedule that may be available for booking appointments.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -45,6 +50,11 @@ type Slot {
 }
 
 extend type Query {
+    """
+    Slot
+        A slot of time on a schedule that may be available for booking appointments.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     slot(
         id: [String]
         type: String

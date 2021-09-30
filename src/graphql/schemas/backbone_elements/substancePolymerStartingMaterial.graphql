@@ -10,6 +10,10 @@
 
 
 type SubstancePolymerStartingMaterial {
+    """
+    SubstancePolymer.StartingMaterial
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

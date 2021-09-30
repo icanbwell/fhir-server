@@ -10,6 +10,10 @@
 
 
 type ListEntry {
+    """
+    List.Entry
+        A list is a curated collection of resources.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

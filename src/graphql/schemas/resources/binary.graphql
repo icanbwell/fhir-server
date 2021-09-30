@@ -10,6 +10,13 @@
 
 
 type Binary {
+    """
+    Binary
+        A resource that represents the data of a single raw artifact as digital
+    content accessible in its native format.  A Binary resource can contain any
+    content, whether text, image, pdf, zip archive, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -21,6 +28,13 @@ type Binary {
 }
 
 extend type Query {
+    """
+    Binary
+        A resource that represents the data of a single raw artifact as digital
+    content accessible in its native format.  A Binary resource can contain any
+    content, whether text, image, pdf, zip archive, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     binary(
         id: [String]
         type: String

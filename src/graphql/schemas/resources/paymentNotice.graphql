@@ -29,6 +29,12 @@ union PaymentNoticePayee = Practitioner | PractitionerRole | Organization
 
 
 type PaymentNotice {
+    """
+    PaymentNotice
+        This resource provides the status of the payment for goods and services
+    rendered, and the request and response resource references.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -53,6 +59,12 @@ type PaymentNotice {
 }
 
 extend type Query {
+    """
+    PaymentNotice
+        This resource provides the status of the payment for goods and services
+    rendered, and the request and response resource references.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     paymentNotice(
         id: [String]
         type: String

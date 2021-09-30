@@ -11,6 +11,10 @@
 
 
 type DomainResource {
+    """
+    DomainResource
+        A resource that includes narrative, extensions, and contained resources.
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -23,6 +27,10 @@ type DomainResource {
 }
 
 extend type Query {
+    """
+    DomainResource
+        A resource that includes narrative, extensions, and contained resources.
+    """
     domainResource(
         id: [String]
         type: String

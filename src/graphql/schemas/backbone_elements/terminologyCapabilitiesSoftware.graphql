@@ -8,6 +8,12 @@
 
 
 type TerminologyCapabilitiesSoftware {
+    """
+    TerminologyCapabilities.Software
+        A TerminologyCapabilities resource documents a set of capabilities (behaviors)
+    of a FHIR Terminology Server that may be used as a statement of actual server
+    functionality or a statement of required or desired server implementation.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

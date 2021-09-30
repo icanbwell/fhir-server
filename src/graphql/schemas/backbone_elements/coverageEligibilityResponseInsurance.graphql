@@ -10,6 +10,11 @@
 
 
 type CoverageEligibilityResponseInsurance {
+    """
+    CoverageEligibilityResponse.Insurance
+        This resource provides eligibility and plan details from the processing of an
+    CoverageEligibilityRequest resource.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

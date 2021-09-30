@@ -43,6 +43,12 @@ union DeviceUseStatementReasonReference = Condition | Observation | DiagnosticRe
 
 
 type DeviceUseStatement {
+    """
+    DeviceUseStatement
+        A record of a device being used by a patient where the record is the result of
+    a report from the patient or another clinician.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -70,6 +76,12 @@ type DeviceUseStatement {
 }
 
 extend type Query {
+    """
+    DeviceUseStatement
+        A record of a device being used by a patient where the record is the result of
+    a report from the patient or another clinician.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     deviceUseStatement(
         id: [String]
         type: String

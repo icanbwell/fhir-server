@@ -29,6 +29,14 @@
 
 
 type ValueSet {
+    """
+    ValueSet
+        A ValueSet resource instance specifies a set of codes drawn from one or more
+    code systems, intended for use in a particular context. Value sets link
+    between [[[CodeSystem]]] definitions and their use in [coded
+    elements](terminologies.html).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -59,6 +67,14 @@ type ValueSet {
 }
 
 extend type Query {
+    """
+    ValueSet
+        A ValueSet resource instance specifies a set of codes drawn from one or more
+    code systems, intended for use in a particular context. Value sets link
+    between [[[CodeSystem]]] definitions and their use in [coded
+    elements](terminologies.html).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     valueSet(
         id: [String]
         type: String

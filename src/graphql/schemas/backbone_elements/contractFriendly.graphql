@@ -11,6 +11,11 @@ union ContractFriendlyContentReference = Composition | DocumentReference | Quest
 
 
 type ContractFriendly {
+    """
+    Contract.Friendly
+        Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
+    a policy or agreement.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

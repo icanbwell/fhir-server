@@ -12,6 +12,10 @@
 
 
 type BundleEntry {
+    """
+    Bundle.Entry
+        A container for a collection of resources.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

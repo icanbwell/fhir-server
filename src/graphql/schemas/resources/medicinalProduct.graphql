@@ -33,6 +33,12 @@ union MedicinalProductContact = Organization | PractitionerRole
 
 
 type MedicinalProduct {
+    """
+    MedicinalProduct
+        Detailed definition of a medicinal product, typically for uses other than
+    direct patient care (e.g. regulatory use).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -65,6 +71,12 @@ type MedicinalProduct {
 }
 
 extend type Query {
+    """
+    MedicinalProduct
+        Detailed definition of a medicinal product, typically for uses other than
+    direct patient care (e.g. regulatory use).
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProduct(
         id: [String]
         type: String

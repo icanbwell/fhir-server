@@ -15,6 +15,11 @@ union ContractContentDefinitionPublisher = Practitioner | PractitionerRole | Org
 
 
 type ContractContentDefinition {
+    """
+    Contract.ContentDefinition
+        Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
+    a policy or agreement.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

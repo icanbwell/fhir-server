@@ -24,6 +24,12 @@
 
 
 type ObservationDefinition {
+    """
+    ObservationDefinition
+        Set of definitional characteristics for a kind of observation or measurement
+    produced or consumed by an orderable health care service.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -49,6 +55,12 @@ type ObservationDefinition {
 }
 
 extend type Query {
+    """
+    ObservationDefinition
+        Set of definitional characteristics for a kind of observation or measurement
+    produced or consumed by an orderable health care service.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     observationDefinition(
         id: [String]
         type: String

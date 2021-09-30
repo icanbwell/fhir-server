@@ -31,6 +31,15 @@ union CoverageEligibilityRequestProvider = Practitioner | PractitionerRole | Org
 
 
 type CoverageEligibilityRequest {
+    """
+    CoverageEligibilityRequest
+        The CoverageEligibilityRequest provides patient and insurance coverage
+    information to an insurer for them to respond, in the form of an
+    CoverageEligibilityResponse, with information regarding whether the stated
+    coverage is valid and in-force and optionally to provide the insurance details
+    of the policy.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -58,6 +67,15 @@ type CoverageEligibilityRequest {
 }
 
 extend type Query {
+    """
+    CoverageEligibilityRequest
+        The CoverageEligibilityRequest provides patient and insurance coverage
+    information to an insurer for them to respond, in the form of an
+    CoverageEligibilityResponse, with information regarding whether the stated
+    coverage is valid and in-force and optionally to provide the insurance details
+    of the policy.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     coverageEligibilityRequest(
         id: [String]
         type: String

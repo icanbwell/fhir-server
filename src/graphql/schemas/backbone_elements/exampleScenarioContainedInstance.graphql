@@ -8,6 +8,10 @@
 
 
 type ExampleScenarioContainedInstance {
+    """
+    ExampleScenario.ContainedInstance
+        Example of workflow instance.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

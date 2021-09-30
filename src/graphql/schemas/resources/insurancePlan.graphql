@@ -25,6 +25,11 @@
 
 
 type InsurancePlan {
+    """
+    InsurancePlan
+        Details of a Health Insurance product/plan provided by an organization.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -51,6 +56,11 @@ type InsurancePlan {
 }
 
 extend type Query {
+    """
+    InsurancePlan
+        Details of a Health Insurance product/plan provided by an organization.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     insurancePlan(
         id: [String]
         type: String

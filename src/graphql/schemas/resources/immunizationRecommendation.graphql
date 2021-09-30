@@ -16,6 +16,12 @@
 
 
 type ImmunizationRecommendation {
+    """
+    ImmunizationRecommendation
+        A patient's point-in-time set of recommendations (i.e. forecasting) according
+    to a published schedule with optional supporting justification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -33,6 +39,12 @@ type ImmunizationRecommendation {
 }
 
 extend type Query {
+    """
+    ImmunizationRecommendation
+        A patient's point-in-time set of recommendations (i.e. forecasting) according
+    to a published schedule with optional supporting justification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     immunizationRecommendation(
         id: [String]
         type: String

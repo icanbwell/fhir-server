@@ -9,6 +9,10 @@
 
 
 type SubstanceInstance {
+    """
+    Substance.Instance
+        A homogeneous material with a definite composition.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

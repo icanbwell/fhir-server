@@ -9,6 +9,11 @@
 
 
 type VerificationResultValidator {
+    """
+    VerificationResult.Validator
+        Describes validation requirements, source(s), status and dates for one or more
+    elements.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

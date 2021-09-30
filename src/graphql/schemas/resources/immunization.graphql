@@ -43,6 +43,12 @@ union ImmunizationReasonReference = Condition | Observation | DiagnosticReport
 
 
 type Immunization {
+    """
+    Immunization
+        Describes the event of a patient being administered a vaccine or a record of
+    an immunization as reported by a patient, a clinician or another party.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -84,6 +90,12 @@ type Immunization {
 }
 
 extend type Query {
+    """
+    Immunization
+        Describes the event of a patient being administered a vaccine or a record of
+    an immunization as reported by a patient, a clinician or another party.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     immunization(
         id: [String]
         type: String

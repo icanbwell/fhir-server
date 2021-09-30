@@ -41,6 +41,12 @@ union ClaimResponseRequestor = Practitioner | PractitionerRole | Organization
 
 
 type ClaimResponse {
+    """
+    ClaimResponse
+        This resource provides the adjudication details from the processing of a Claim
+    resource.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -80,6 +86,12 @@ type ClaimResponse {
 }
 
 extend type Query {
+    """
+    ClaimResponse
+        This resource provides the adjudication details from the processing of a Claim
+    resource.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     claimResponse(
         id: [String]
         type: String

@@ -21,6 +21,13 @@ union BasicAuthor = Practitioner | PractitionerRole | Patient | RelatedPerson | 
 
 
 type Basic {
+    """
+    Basic
+        Basic is used for handling concepts not yet defined in FHIR, narrative-only
+    resources that don't map to an existing resource, and custom resources not
+    appropriate for inclusion in the FHIR specification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -38,6 +45,13 @@ type Basic {
 }
 
 extend type Query {
+    """
+    Basic
+        Basic is used for handling concepts not yet defined in FHIR, narrative-only
+    resources that don't map to an existing resource, and custom resources not
+    appropriate for inclusion in the FHIR specification.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     basic(
         id: [String]
         type: String

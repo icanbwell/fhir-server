@@ -38,6 +38,13 @@
 
 
 type StructureDefinition {
+    """
+    StructureDefinition
+        A definition of a FHIR structure. This resource is used to describe the
+    underlying resources, data types defined in FHIR, and also for describing
+    extensions and constraints on resources and data types.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -77,6 +84,13 @@ type StructureDefinition {
 }
 
 extend type Query {
+    """
+    StructureDefinition
+        A definition of a FHIR structure. This resource is used to describe the
+    underlying resources, data types defined in FHIR, and also for describing
+    extensions and constraints on resources and data types.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     structureDefinition(
         id: [String]
         type: String

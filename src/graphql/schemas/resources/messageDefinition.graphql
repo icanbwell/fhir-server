@@ -36,6 +36,13 @@
 
 
 type MessageDefinition {
+    """
+    MessageDefinition
+        Defines the characteristics of a message that can be shared between systems,
+    including the type of event that initiates the message, the content to be
+    transmitted and what response(s), if any, are permitted.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -73,6 +80,13 @@ type MessageDefinition {
 }
 
 extend type Query {
+    """
+    MessageDefinition
+        Defines the characteristics of a message that can be shared between systems,
+    including the type of event that initiates the message, the content to be
+    transmitted and what response(s), if any, are permitted.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     messageDefinition(
         id: [String]
         type: String

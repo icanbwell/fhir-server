@@ -42,6 +42,13 @@
 
 
 type RiskEvidenceSynthesis {
+    """
+    RiskEvidenceSynthesis
+        The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
+    population plus exposure state where the risk estimate is derived from a
+    combination of research studies.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -85,6 +92,13 @@ type RiskEvidenceSynthesis {
 }
 
 extend type Query {
+    """
+    RiskEvidenceSynthesis
+        The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
+    population plus exposure state where the risk estimate is derived from a
+    combination of research studies.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     riskEvidenceSynthesis(
         id: [String]
         type: String

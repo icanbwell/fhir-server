@@ -21,6 +21,12 @@ union VisionPrescriptionPrescriber = Practitioner | PractitionerRole
 
 
 type VisionPrescription {
+    """
+    VisionPrescription
+        An authorization for the provision of glasses and/or contact lenses to a
+    patient.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -41,6 +47,12 @@ type VisionPrescription {
 }
 
 extend type Query {
+    """
+    VisionPrescription
+        An authorization for the provision of glasses and/or contact lenses to a
+    patient.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     visionPrescription(
         id: [String]
         type: String

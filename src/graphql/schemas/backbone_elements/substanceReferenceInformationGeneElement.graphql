@@ -9,6 +9,10 @@
 
 
 type SubstanceReferenceInformationGeneElement {
+    """
+    SubstanceReferenceInformation.GeneElement
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

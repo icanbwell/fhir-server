@@ -9,6 +9,10 @@
 
 
 type SubstanceReferenceInformationGene {
+    """
+    SubstanceReferenceInformation.Gene
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

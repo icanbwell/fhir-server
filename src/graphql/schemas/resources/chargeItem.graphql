@@ -61,6 +61,15 @@ union ChargeItemProductReference = Device | Medication | Substance
 
 
 type ChargeItem {
+    """
+    ChargeItem
+        The resource ChargeItem describes the provision of healthcare provider
+    products for a certain patient, therefore referring not only to the product,
+    but containing in addition details of the provision, like date, time, amounts
+    and participating organizations and persons. Main Usage of the ChargeItem is
+    to enable the billing process and internal cost allocation.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -102,6 +111,15 @@ type ChargeItem {
 }
 
 extend type Query {
+    """
+    ChargeItem
+        The resource ChargeItem describes the provision of healthcare provider
+    products for a certain patient, therefore referring not only to the product,
+    but containing in addition details of the provision, like date, time, amounts
+    and participating organizations and persons. Main Usage of the ChargeItem is
+    to enable the billing process and internal cost allocation.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     chargeItem(
         id: [String]
         type: String

@@ -30,6 +30,12 @@
 
 
 type SubstanceSpecification {
+    """
+    SubstanceSpecification
+        The detailed description of a substance, typically at a level beyond what is
+    used for prescribing.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -61,6 +67,12 @@ type SubstanceSpecification {
 }
 
 extend type Query {
+    """
+    SubstanceSpecification
+        The detailed description of a substance, typically at a level beyond what is
+    used for prescribing.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     substanceSpecification(
         id: [String]
         type: String

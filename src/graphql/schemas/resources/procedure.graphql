@@ -69,6 +69,13 @@ union ProcedureUsedReference = Device | Medication | Substance
 
 
 type Procedure {
+    """
+    Procedure
+        An action that is or was performed on or for a patient. This can be a physical
+    intervention like an operation, or less invasive like long term services,
+    counseling, or hypnotherapy.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -113,6 +120,13 @@ type Procedure {
 }
 
 extend type Query {
+    """
+    Procedure
+        An action that is or was performed on or for a patient. This can be a physical
+    intervention like an operation, or less invasive like long term services,
+    counseling, or hypnotherapy.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     procedure(
         id: [String]
         type: String

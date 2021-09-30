@@ -8,6 +8,11 @@
 
 
 type ImmunizationRecommendationDateCriterion {
+    """
+    ImmunizationRecommendation.DateCriterion
+        A patient's point-in-time set of recommendations (i.e. forecasting) according
+    to a published schedule with optional supporting justification.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

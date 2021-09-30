@@ -32,6 +32,12 @@ union InvoiceRecipient = Organization | Patient | RelatedPerson
 
 
 type Invoice {
+    """
+    Invoice
+        Invoice containing collected ChargeItems from an Account with calculated
+    individual and total price for Billing purpose.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -60,6 +66,12 @@ type Invoice {
 }
 
 extend type Query {
+    """
+    Invoice
+        Invoice containing collected ChargeItems from an Account with calculated
+    individual and total price for Billing purpose.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     invoice(
         id: [String]
         type: String

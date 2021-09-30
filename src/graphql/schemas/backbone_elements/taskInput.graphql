@@ -57,6 +57,10 @@
 
 
 type TaskInput {
+    """
+    Task.Input
+        A task to be performed.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

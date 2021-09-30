@@ -13,6 +13,11 @@ union MedicinalProductContraindicationOtherTherapyMedicationReference = Medicina
 
 
 type MedicinalProductContraindicationOtherTherapy {
+    """
+    MedicinalProductContraindication.OtherTherapy
+        The clinical particulars - indications, contraindications etc. of a medicinal
+    product, including for regulatory purposes.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

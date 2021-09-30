@@ -12,6 +12,12 @@
 
 
 type OperationOutcome {
+    """
+    OperationOutcome
+        A collection of error, warning, or information messages that result from a
+    system action.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -25,6 +31,12 @@ type OperationOutcome {
 }
 
 extend type Query {
+    """
+    OperationOutcome
+        A collection of error, warning, or information messages that result from a
+    system action.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     operationOutcome(
         id: [String]
         type: String

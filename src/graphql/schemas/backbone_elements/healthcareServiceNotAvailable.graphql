@@ -8,6 +8,10 @@
 
 
 type HealthcareServiceNotAvailable {
+    """
+    HealthcareService.NotAvailable
+        The details of a healthcare service available at a location.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

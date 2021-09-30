@@ -17,6 +17,11 @@
 
 
 type SubstanceSpecificationRelationship {
+    """
+    SubstanceSpecification.Relationship
+        The detailed description of a substance, typically at a level beyond what is
+    used for prescribing.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

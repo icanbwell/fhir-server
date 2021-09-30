@@ -20,6 +20,11 @@ union VerificationResultAttestationOnBehalfOf = Organization | Practitioner | Pr
 
 
 type VerificationResultAttestation {
+    """
+    VerificationResult.Attestation
+        Describes validation requirements, source(s), status and dates for one or more
+    elements.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

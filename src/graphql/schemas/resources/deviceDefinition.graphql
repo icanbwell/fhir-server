@@ -34,6 +34,12 @@
 
 
 type DeviceDefinition {
+    """
+    DeviceDefinition
+        The characteristics, operational status and capabilities of a medical-related
+    component of a medical device.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -69,6 +75,12 @@ type DeviceDefinition {
 }
 
 extend type Query {
+    """
+    DeviceDefinition
+        The characteristics, operational status and capabilities of a medical-related
+    component of a medical device.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     deviceDefinition(
         id: [String]
         type: String

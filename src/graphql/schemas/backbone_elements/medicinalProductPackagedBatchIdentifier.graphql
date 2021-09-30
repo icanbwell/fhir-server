@@ -8,6 +8,10 @@
 
 
 type MedicinalProductPackagedBatchIdentifier {
+    """
+    MedicinalProductPackaged.BatchIdentifier
+        A medicinal product in a container or package.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

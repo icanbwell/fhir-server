@@ -16,6 +16,11 @@
 
 
 type SubstanceReferenceInformation {
+    """
+    SubstanceReferenceInformation
+        Todo.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -33,6 +38,11 @@ type SubstanceReferenceInformation {
 }
 
 extend type Query {
+    """
+    SubstanceReferenceInformation
+        Todo.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     substanceReferenceInformation(
         id: [String]
         type: String

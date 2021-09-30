@@ -29,6 +29,12 @@ union PaymentReconciliationRequestor = Practitioner | PractitionerRole | Organiz
 
 
 type PaymentReconciliation {
+    """
+    PaymentReconciliation
+        This resource provides the details including amount of a payment and allocates
+    the payment items being paid.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -56,6 +62,12 @@ type PaymentReconciliation {
 }
 
 extend type Query {
+    """
+    PaymentReconciliation
+        This resource provides the details including amount of a payment and allocates
+    the payment items being paid.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     paymentReconciliation(
         id: [String]
         type: String

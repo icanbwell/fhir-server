@@ -11,6 +11,10 @@
 
 
 type SubstancePolymerRepeatUnit {
+    """
+    SubstancePolymer.RepeatUnit
+        Todo.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

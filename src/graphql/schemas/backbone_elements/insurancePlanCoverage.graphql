@@ -9,6 +9,10 @@
 
 
 type InsurancePlanCoverage {
+    """
+    InsurancePlan.Coverage
+        Details of a Health Insurance product/plan provided by an organization.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -10,6 +10,11 @@
 
 
 type ClaimResponseProcessNote {
+    """
+    ClaimResponse.ProcessNote
+        This resource provides the adjudication details from the processing of a Claim
+    resource.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

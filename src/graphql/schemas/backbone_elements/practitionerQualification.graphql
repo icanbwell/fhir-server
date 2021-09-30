@@ -10,6 +10,11 @@
 
 
 type PractitionerQualification {
+    """
+    Practitioner.Qualification
+        A person who is directly or indirectly involved in the provisioning of
+    healthcare.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -38,6 +38,12 @@ union DocumentManifestRecipient = Patient | Practitioner | PractitionerRole | Re
 
 
 type DocumentManifest {
+    """
+    DocumentManifest
+        A collection of documents compiled for a purpose together with metadata that
+    applies to the collection.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -62,6 +68,12 @@ type DocumentManifest {
 }
 
 extend type Query {
+    """
+    DocumentManifest
+        A collection of documents compiled for a purpose together with metadata that
+    applies to the collection.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     documentManifest(
         id: [String]
         type: String

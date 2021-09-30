@@ -23,6 +23,12 @@
 
 
 type OrganizationAffiliation {
+    """
+    OrganizationAffiliation
+        Defines an affiliation/assotiation/relationship between 2 distinct
+    oganizations, that is not a part-of relationship/sub-division relationship.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -47,6 +53,12 @@ type OrganizationAffiliation {
 }
 
 extend type Query {
+    """
+    OrganizationAffiliation
+        Defines an affiliation/assotiation/relationship between 2 distinct
+    oganizations, that is not a part-of relationship/sub-division relationship.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     organizationAffiliation(
         id: [String]
         type: String

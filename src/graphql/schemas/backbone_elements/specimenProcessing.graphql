@@ -11,6 +11,10 @@
 
 
 type SpecimenProcessing {
+    """
+    Specimen.Processing
+        A sample to be used for analysis.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -20,6 +20,11 @@
 
 
 type MedicinalProductPackaged {
+    """
+    MedicinalProductPackaged
+        A medicinal product in a container or package.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -41,6 +46,11 @@ type MedicinalProductPackaged {
 }
 
 extend type Query {
+    """
+    MedicinalProductPackaged
+        A medicinal product in a container or package.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     medicinalProductPackaged(
         id: [String]
         type: String

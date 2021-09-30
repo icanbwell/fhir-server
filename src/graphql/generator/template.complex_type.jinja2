@@ -46,6 +46,12 @@ union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }} =
 
 
 type {{fhir_entity.cleaned_name}} {
+    """
+    {{fhir_entity.fhir_name}}
+    {% for documentation_item in fhir_entity.documentation %}
+        {{ documentation_item | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
+    {%  endfor %}
+    """
 {% for property in fhir_entity.properties %}
     {{ property.name -}} {{ ': ' -}}
         {% if property.is_list -%}

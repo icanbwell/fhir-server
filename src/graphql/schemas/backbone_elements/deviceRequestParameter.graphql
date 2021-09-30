@@ -11,6 +11,11 @@
 
 
 type DeviceRequestParameter {
+    """
+    DeviceRequest.Parameter
+        Represents a request for a patient to employ a medical device. The device may
+    be an implantable device, or an external assistive device, such as a walker.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

@@ -9,6 +9,10 @@
 
 
 type MedicationKnowledgeKinetics {
+    """
+    MedicationKnowledge.Kinetics
+        Information about a medication that is used to support knowledge.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

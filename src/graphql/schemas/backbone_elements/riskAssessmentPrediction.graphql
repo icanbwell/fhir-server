@@ -14,6 +14,11 @@
 
 
 type RiskAssessmentPrediction {
+    """
+    RiskAssessment.Prediction
+        An assessment of the likely outcome(s) for a patient or other subject as well
+    as the likelihood of each outcome.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

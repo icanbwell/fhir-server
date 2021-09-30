@@ -23,6 +23,11 @@
 
 
 type TestScriptOperation {
+    """
+    TestScript.Operation
+        A structured set of tests against a FHIR server or client implementation to
+    determine compliance against the FHIR specification.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

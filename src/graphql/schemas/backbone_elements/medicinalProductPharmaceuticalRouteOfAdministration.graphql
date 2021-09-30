@@ -13,6 +13,10 @@
 
 
 type MedicinalProductPharmaceuticalRouteOfAdministration {
+    """
+    MedicinalProductPharmaceutical.RouteOfAdministration
+        A pharmaceutical product described in terms of its composition and dose form.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

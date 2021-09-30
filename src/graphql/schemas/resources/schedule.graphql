@@ -26,6 +26,11 @@ union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson 
 
 
 type Schedule {
+    """
+    Schedule
+        A container for slots of time that may be available for booking appointments.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -46,6 +51,11 @@ type Schedule {
 }
 
 extend type Query {
+    """
+    Schedule
+        A container for slots of time that may be available for booking appointments.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     schedule(
         id: [String]
         type: String

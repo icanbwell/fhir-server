@@ -22,6 +22,11 @@ union ImmunizationRecommendationRecommendationSupportingImmunization = Immunizat
 
 
 type ImmunizationRecommendationRecommendation {
+    """
+    ImmunizationRecommendation.Recommendation
+        A patient's point-in-time set of recommendations (i.e. forecasting) according
+    to a published schedule with optional supporting justification.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

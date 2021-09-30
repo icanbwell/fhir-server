@@ -40,6 +40,12 @@
 
 
 type EventDefinition {
+    """
+    EventDefinition
+        The EventDefinition resource provides a reusable description of when a
+    particular event can occur.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -81,6 +87,12 @@ type EventDefinition {
 }
 
 extend type Query {
+    """
+    EventDefinition
+        The EventDefinition resource provides a reusable description of when a
+    particular event can occur.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     eventDefinition(
         id: [String]
         type: String

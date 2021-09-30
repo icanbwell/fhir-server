@@ -29,6 +29,12 @@ union AccountSubject = Patient | Device | Practitioner | PractitionerRole | Loca
 
 
 type Account {
+    """
+    Account
+        A financial tool for tracking value accrued for a particular purpose.  In the
+    healthcare field, used to track charges for a patient, cost centers, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -52,6 +58,12 @@ type Account {
 }
 
 extend type Query {
+    """
+    Account
+        A financial tool for tracking value accrued for a particular purpose.  In the
+    healthcare field, used to track charges for a patient, cost centers, etc.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     account(
         id: [String]
         type: String

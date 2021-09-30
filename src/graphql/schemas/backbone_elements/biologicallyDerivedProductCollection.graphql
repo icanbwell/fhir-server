@@ -14,6 +14,12 @@ union BiologicallyDerivedProductCollectionSource = Patient | Organization
 
 
 type BiologicallyDerivedProductCollection {
+    """
+    BiologicallyDerivedProduct.Collection
+        A material substance originating from a biological entity intended to be
+    transplanted or infused
+    into another (possibly the same) biological entity.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

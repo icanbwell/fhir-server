@@ -24,6 +24,13 @@
 
 
 type NamingSystem {
+    """
+    NamingSystem
+        A curated namespace that issues unique symbols within that namespace for the
+    identification of concepts, people, devices, etc.  Represents a "System" used
+    within the Identifier and Coding data types.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -49,6 +56,13 @@ type NamingSystem {
 }
 
 extend type Query {
+    """
+    NamingSystem
+        A curated namespace that issues unique symbols within that namespace for the
+    identification of concepts, people, devices, etc.  Represents a "System" used
+    within the Identifier and Coding data types.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     namingSystem(
         id: [String]
         type: String

@@ -11,6 +11,10 @@
 
 
 type BundleResponse {
+    """
+    Bundle.Response
+        A container for a collection of resources.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

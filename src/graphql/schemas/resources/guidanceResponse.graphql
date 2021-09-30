@@ -36,6 +36,13 @@ union GuidanceResponseResult = CarePlan | RequestGroup
 
 
 type GuidanceResponse {
+    """
+    GuidanceResponse
+        A guidance response is the formal response to a guidance request, including
+    any output parameters returned by the evaluation, as well as the description
+    of any proposed actions to be taken.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -65,6 +72,13 @@ type GuidanceResponse {
 }
 
 extend type Query {
+    """
+    GuidanceResponse
+        A guidance response is the formal response to a guidance request, including
+    any output parameters returned by the evaluation, as well as the description
+    of any proposed actions to be taken.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     guidanceResponse(
         id: [String]
         type: String

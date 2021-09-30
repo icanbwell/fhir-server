@@ -39,6 +39,13 @@
 
 
 type Evidence {
+    """
+    Evidence
+        The Evidence resource describes the conditional state (population and any
+    exposures being compared within the population) and outcome (if specified)
+    that the knowledge (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -79,6 +86,13 @@ type Evidence {
 }
 
 extend type Query {
+    """
+    Evidence
+        The Evidence resource describes the conditional state (population and any
+    exposures being compared within the population) and outcome (if specified)
+    that the knowledge (evidence, assertion, recommendation) is about.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     evidence(
         id: [String]
         type: String

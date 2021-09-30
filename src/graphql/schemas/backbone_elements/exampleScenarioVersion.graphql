@@ -8,6 +8,10 @@
 
 
 type ExampleScenarioVersion {
+    """
+    ExampleScenario.Version
+        Example of workflow instance.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

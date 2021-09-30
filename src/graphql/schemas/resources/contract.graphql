@@ -54,6 +54,12 @@ union ContractLegallyBindingReference = Composition | DocumentReference | Questi
 
 
 type Contract {
+    """
+    Contract
+        Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
+    a policy or agreement.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -101,6 +107,12 @@ type Contract {
 }
 
 extend type Query {
+    """
+    Contract
+        Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
+    a policy or agreement.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     contract(
         id: [String]
         type: String

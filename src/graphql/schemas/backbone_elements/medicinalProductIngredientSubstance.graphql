@@ -8,6 +8,10 @@
 
 
 type MedicinalProductIngredientSubstance {
+    """
+    MedicinalProductIngredient.Substance
+        An ingredient of a manufactured item or pharmaceutical product.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

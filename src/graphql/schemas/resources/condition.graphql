@@ -46,6 +46,12 @@ union ConditionAsserter = Practitioner | PractitionerRole | Patient | RelatedPer
 
 
 type Condition {
+    """
+    Condition
+        A clinical condition, problem, diagnosis, or other event, situation, issue, or
+    clinical concept that has risen to a level of concern.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -83,6 +89,12 @@ type Condition {
 }
 
 extend type Query {
+    """
+    Condition
+        A clinical condition, problem, diagnosis, or other event, situation, issue, or
+    clinical concept that has risen to a level of concern.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     condition(
         id: [String]
         type: String

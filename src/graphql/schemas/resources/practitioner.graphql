@@ -21,6 +21,12 @@
 
 
 type Practitioner {
+    """
+    Practitioner
+        A person who is directly or indirectly involved in the provisioning of
+    healthcare.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -43,6 +49,12 @@ type Practitioner {
 }
 
 extend type Query {
+    """
+    Practitioner
+        A person who is directly or indirectly involved in the provisioning of
+    healthcare.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     practitioner(
         id: [String]
         type: String

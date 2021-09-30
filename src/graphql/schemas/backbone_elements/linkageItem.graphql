@@ -8,6 +8,11 @@
 
 
 type LinkageItem {
+    """
+    Linkage.Item
+        Identifies two or more records (resource instances) that refer to the same
+    real-world "occurrence".
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

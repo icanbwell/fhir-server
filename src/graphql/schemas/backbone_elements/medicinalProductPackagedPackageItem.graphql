@@ -17,6 +17,10 @@
 
 
 type MedicinalProductPackagedPackageItem {
+    """
+    MedicinalProductPackaged.PackageItem
+        A medicinal product in a container or package.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

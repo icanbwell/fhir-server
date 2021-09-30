@@ -9,6 +9,11 @@
 
 
 type DeviceMetricCalibration {
+    """
+    DeviceMetric.Calibration
+        Describes a measurement, calculation or setting capability of a medical
+    device.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

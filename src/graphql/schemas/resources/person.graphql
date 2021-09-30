@@ -21,6 +21,12 @@
 
 
 type Person {
+    """
+    Person
+        Demographics and administrative information about a person independent of a
+    specific health-related context.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -43,6 +49,12 @@ type Person {
 }
 
 extend type Query {
+    """
+    Person
+        Demographics and administrative information about a person independent of a
+    specific health-related context.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     person(
         id: [String]
         type: String

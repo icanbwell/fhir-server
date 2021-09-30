@@ -22,6 +22,13 @@
 
 
 type BiologicallyDerivedProduct {
+    """
+    BiologicallyDerivedProduct
+        A material substance originating from a biological entity intended to be
+    transplanted or infused
+    into another (possibly the same) biological entity.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     resourceType: String
     id: code        
     meta: Meta        
@@ -45,6 +52,13 @@ type BiologicallyDerivedProduct {
 }
 
 extend type Query {
+    """
+    BiologicallyDerivedProduct
+        A material substance originating from a biological entity intended to be
+    transplanted or infused
+    into another (possibly the same) biological entity.
+        If the element is present, it must have either a @value, an @id, or extensions
+    """
     biologicallyDerivedProduct(
         id: [String]
         type: String

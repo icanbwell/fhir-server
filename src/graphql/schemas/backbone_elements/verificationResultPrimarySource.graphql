@@ -16,6 +16,11 @@ union VerificationResultPrimarySourceWho = Organization | Practitioner | Practit
 
 
 type VerificationResultPrimarySource {
+    """
+    VerificationResult.PrimarySource
+        Describes validation requirements, source(s), status and dates for one or more
+    elements.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

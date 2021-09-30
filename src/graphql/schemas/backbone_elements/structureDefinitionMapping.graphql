@@ -10,6 +10,12 @@
 
 
 type StructureDefinitionMapping {
+    """
+    StructureDefinition.Mapping
+        A definition of a FHIR structure. This resource is used to describe the
+    underlying resources, data types defined in FHIR, and also for describing
+    extensions and constraints on resources and data types.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        

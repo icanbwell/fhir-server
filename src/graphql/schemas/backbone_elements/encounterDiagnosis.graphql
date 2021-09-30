@@ -11,6 +11,11 @@ union EncounterDiagnosisCondition = Condition | Procedure
 
 
 type EncounterDiagnosis {
+    """
+    Encounter.Diagnosis
+        An interaction between a patient and healthcare provider(s) for the purpose of
+    providing healthcare service(s) or assessing the health status of a patient.
+    """
     id: code        
     extension: [Extension]        
     modifierExtension: [Extension]        
