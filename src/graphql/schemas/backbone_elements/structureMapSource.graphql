@@ -64,74 +64,284 @@
 # import code from "../simple_types/code.graphql"
 
 
-
+"""
+StructureMap.Source
+    A Map of relationships between 2 structures that can be used to transform
+    data.
+"""
 type StructureMapSource {
     """
-    StructureMap.Source
-        A Map of relationships between 2 structures that can be used to transform
-    data.
+    None
     """
     id: code        
+    """
+    May be used to represent additional information that is not part of the basic
+    definition of the element. To make the use of extensions safe and manageable,
+    there is a strict set of governance  applied to the definition and use of
+    extensions. Though any implementer can define an extension, there is a set of
+    requirements that SHALL be met as part of the definition of the extension.
+    """
     extension: [Extension]        
+    """
+    May be used to represent additional information that is not part of the basic
+    definition of the element and that modifies the understanding of the element
+    in which it is contained and/or the understanding of the containing element's
+    descendants. Usually modifier elements provide negation or qualification. To
+    make the use of extensions safe and manageable, there is a strict set of
+    governance applied to the definition and use of extensions. Though any
+    implementer can define an extension, there is a set of requirements that SHALL
+    be met as part of the definition of the extension. Applications processing a
+    resource are required to check for modifier extensions.
+    
+    Modifier extensions SHALL NOT change the meaning of any elements on Resource
+    or DomainResource (including cannot change the meaning of modifierExtension
+    itself).
+    """
     modifierExtension: [Extension]        
+    """
+    Type or variable this rule applies to.
+    """
     context: code!        
+    """
+    Specified minimum cardinality for the element. This is optional; if present,
+    it acts an implicit check on the input content.
+    """
     min: code        
+    """
+    Specified maximum cardinality for the element - a number or a "*". This is
+    optional; if present, it acts an implicit check on the input content (* just
+    serves as documentation; it's the default value).
+    """
     max: code        
+    """
+    Specified type for the element. This works as a condition on the mapping - use
+    for polymorphic elements.
+    """
     type: code        
+    """
+    None
+    """
     defaultValueBase64Binary: code        
+    """
+    None
+    """
     defaultValueBoolean: code        
+    """
+    None
+    """
     defaultValueCanonical: code        
+    """
+    None
+    """
     defaultValueCode: code        
+    """
+    None
+    """
     defaultValueDate: code        
+    """
+    None
+    """
     defaultValueDateTime: code        
+    """
+    None
+    """
     defaultValueDecimal: code        
+    """
+    None
+    """
     defaultValueId: code        
+    """
+    None
+    """
     defaultValueInstant: code        
+    """
+    None
+    """
     defaultValueInteger: code        
+    """
+    None
+    """
     defaultValueMarkdown: code        
+    """
+    None
+    """
     defaultValueOid: code        
+    """
+    None
+    """
     defaultValuePositiveInt: code        
+    """
+    None
+    """
     defaultValueString: code        
+    """
+    None
+    """
     defaultValueTime: code        
+    """
+    None
+    """
     defaultValueUnsignedInt: code        
+    """
+    None
+    """
     defaultValueUri: code        
+    """
+    None
+    """
     defaultValueUrl: code        
+    """
+    None
+    """
     defaultValueUuid: code        
+    """
+    None
+    """
     defaultValueAddress: Address        
+    """
+    None
+    """
     defaultValueAge: Quantity        
+    """
+    None
+    """
     defaultValueAnnotation: Annotation        
+    """
+    None
+    """
     defaultValueAttachment: Attachment        
+    """
+    None
+    """
     defaultValueCodeableConcept: CodeableConcept        
+    """
+    None
+    """
     defaultValueCoding: Coding        
+    """
+    None
+    """
     defaultValueContactPoint: ContactPoint        
+    """
+    None
+    """
     defaultValueCount: Quantity        
+    """
+    None
+    """
     defaultValueDistance: Quantity        
+    """
+    None
+    """
     defaultValueDuration: Quantity        
+    """
+    None
+    """
     defaultValueHumanName: HumanName        
+    """
+    None
+    """
     defaultValueIdentifier: Identifier        
+    """
+    None
+    """
     defaultValueMoney: Money        
+    """
+    None
+    """
     defaultValuePeriod: Period        
+    """
+    None
+    """
     defaultValueQuantity: Quantity        
+    """
+    None
+    """
     defaultValueRange: Range        
+    """
+    None
+    """
     defaultValueRatio: Ratio        
+    """
+    None
+    """
     defaultValueReference: Resource        
+    """
+    None
+    """
     defaultValueSampledData: SampledData        
+    """
+    None
+    """
     defaultValueSignature: Signature        
+    """
+    None
+    """
     defaultValueTiming: Timing        
+    """
+    None
+    """
     defaultValueContactDetail: ContactDetail        
+    """
+    None
+    """
     defaultValueContributor: Contributor        
+    """
+    None
+    """
     defaultValueDataRequirement: DataRequirement        
+    """
+    None
+    """
     defaultValueExpression: Expression        
+    """
+    None
+    """
     defaultValueParameterDefinition: ParameterDefinition        
+    """
+    None
+    """
     defaultValueRelatedArtifact: RelatedArtifact        
+    """
+    None
+    """
     defaultValueTriggerDefinition: TriggerDefinition        
+    """
+    None
+    """
     defaultValueUsageContext: UsageContext        
+    """
+    None
+    """
     defaultValueDosage: Dosage        
+    """
+    None
+    """
     defaultValueMeta: Meta        
+    """
+    Optional field for this source.
+    """
     element: code        
+    """
+    How to handle the list mode for this element.
+    """
     listMode: code        
+    """
+    Named context for field, if a field is specified.
+    """
     variable: code        
+    """
+    FHIRPath expression  - must be true or the rule does not apply.
+    """
     condition: code        
+    """
+    FHIRPath expression  - must be true or the mapping engine throws an error
+    instead of completing.
+    """
     check: code        
+    """
+    A FHIRPath expression which specifies a message to put in the transform log
+    when content matching the source rule is found.
+    """
     logMessage: code        
 }

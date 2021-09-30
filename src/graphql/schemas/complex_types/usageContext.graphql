@@ -15,22 +15,47 @@
 
 union UsageContextValueReference = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 
-
-type UsageContext {
-    """
-    UsageContext
-        Specifies clinical/business/etc. metadata that can be used to retrieve, index
+"""
+UsageContext
+    Specifies clinical/business/etc. metadata that can be used to retrieve, index
     and/or categorize an artifact. This metadata can either be specific to the
     applicable population (e.g., age category, DRG) or the specific context of
     care (e.g., venue, care setting, provider of care).
-        If the element is present, it must have a value for at least one of the
+    If the element is present, it must have a value for at least one of the
     defined elements, an @id referenced from the Narrative, or extensions
+"""
+type UsageContext {
+    """
+    None
     """
     id: code        
+    """
+    May be used to represent additional information that is not part of the basic
+    definition of the element. To make the use of extensions safe and manageable,
+    there is a strict set of governance  applied to the definition and use of
+    extensions. Though any implementer can define an extension, there is a set of
+    requirements that SHALL be met as part of the definition of the extension.
+    """
     extension: [Extension]        
+    """
+    A code that identifies the type of context being specified by this usage
+    context.
+    """
     code: Coding!        
+    """
+    None
+    """
     valueCodeableConcept: CodeableConcept        
+    """
+    None
+    """
     valueQuantity: Quantity        
+    """
+    None
+    """
     valueRange: Range        
+    """
+    None
+    """
     valueReference: UsageContextValueReference        
 }
