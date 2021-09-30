@@ -102,40 +102,40 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                             console.log('------- end response 2  ------------');
                             return cb(err, resp);
                         }),
-                // (results, cb) => request
-                //     // .get('/graphql/?query=' + graphqlQueryText)
-                //     // .set(getHeaders())
-                //     .post('/graphql')
-                //     .send({
-                //         'operationName': null,
-                //         'variables': {},
-                //         'query': graphqlQueryText
-                //     })
-                //     .set(getGraphQLHeaders())
-                //     .expect(200, cb)
-                //     .expect((resp) => {
-                //         // clear out the lastUpdated column since that changes
-                //         let body = resp.body;
-                //         console.log('------- response graphql ------------');
-                //         console.log(JSON.stringify(resp.body, null, 2));
-                //         console.log('------- end response graphql  ------------');
-                //         if (body.errors) {
-                //             console.log(body.errors);
-                //             expect(body.errors).toBeUndefined();
-                //         }
-                //         expect(body.data.explanationOfBenefit.length).toBe(2);
-                //         let expected = expectedExplanationOfBenefitBundleResource;
-                //         expected.forEach(element => {
-                //             if ('meta' in element) {
-                //                 delete element['meta']['lastUpdated'];
-                //             }
-                //             // element['meta'] = {'versionId': '1'};
-                //             if ('$schema' in element) {
-                //                 delete element['$schema'];
-                //             }
-                //         });
-                //         expect(body.data.explanationOfBenefit).toStrictEqual(expected);
-                //     }, cb),
+                (results, cb) => request
+                    // .get('/graphql/?query=' + graphqlQueryText)
+                    // .set(getHeaders())
+                    .post('/graphql')
+                    .send({
+                        'operationName': null,
+                        'variables': {},
+                        'query': graphqlQueryText
+                    })
+                    .set(getGraphQLHeaders())
+                    .expect(200, cb)
+                    .expect((resp) => {
+                        // clear out the lastUpdated column since that changes
+                        let body = resp.body;
+                        console.log('------- response graphql ------------');
+                        console.log(JSON.stringify(resp.body, null, 2));
+                        console.log('------- end response graphql  ------------');
+                        if (body.errors) {
+                            console.log(body.errors);
+                            expect(body.errors).toBeUndefined();
+                        }
+                        expect(body.data.explanationOfBenefit.length).toBe(2);
+                        let expected = expectedExplanationOfBenefitBundleResource;
+                        expected.forEach(element => {
+                            if ('meta' in element) {
+                                delete element['meta']['lastUpdated'];
+                            }
+                            // element['meta'] = {'versionId': '1'};
+                            if ('$schema' in element) {
+                                delete element['$schema'];
+                            }
+                        });
+                        expect(body.data.explanationOfBenefit).toStrictEqual(expected);
+                    }, cb),
             ]);
         });
     });
