@@ -1,6 +1,6 @@
 const {ApolloServer} = require('apollo-server-express');
 const {join} = require('path');
-const {loadSchemaSync} = require('@graphql-tools/load');
+const {loadSchemaSync, loadTypedefsSync} = require('@graphql-tools/load');
 const {GraphQLFileLoader} = require('@graphql-tools/graphql-file-loader');
 const {addResolversToSchema} = require('@graphql-tools/schema');
 const resolvers = require('../graphql/resolvers');
@@ -12,23 +12,28 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 
-const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
-const typeDefs = mergeTypeDefs(typesArray);
+
 
 const graphql = async () => {
+    const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
+    const typeDefs = mergeTypeDefs(typesArray);
+    const sources = loadTypedefsSync(join(__dirname, '../graphql/schemas/schema.graphql'), {
+      loaders: [new GraphQLFileLoader()],
+    });
+    const typeDefs2 = sources.map(source => source.document);
     // load all the schema files
-    // const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/query.graphql'), {
-    //     loaders: [
-    //         new GraphQLFileLoader(),
-    //     ],
-    //     includeSources: true
-    // });
+    const schema = loadSchemaSync(join(__dirname, '../graphql/schemas/schema.graphql'), {
+        loaders: [
+            new GraphQLFileLoader(),
+        ],
+        includeSources: true
+    });
     //
     // // Add all the resolvers to the schema
-    // const schemaWithResolvers = addResolversToSchema({
-    //     schema,
-    //     resolvers,
-    // });
+    const schemaWithResolvers = addResolversToSchema({
+        schema,
+        resolvers,
+    });
     // create the Apollo graphql middleware
     const server = new ApolloServer(
         {

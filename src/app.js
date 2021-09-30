@@ -114,7 +114,7 @@ passport.use('graphqlStrategy', strategy);
 
 // app.use(passport.initialize());
 
-if (isTrue(env.ENABLE_GRAPHQL)) {
+if (isTrue(false)) {
     graphql().then(x => {
         // eslint-disable-next-line new-cap
         const router = express.Router();
