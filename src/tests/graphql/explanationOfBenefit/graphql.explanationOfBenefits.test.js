@@ -7,6 +7,7 @@ const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_
 
 const patientBundleResource = require('./fixtures/patients.json');
 const organizationBundleResource = require('./fixtures/organizations.json');
+const coverageBundleResource = require('./fixtures/coverages.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -64,6 +65,17 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                     request
                         .post('/4_0_0/Organization/1/$merge')
                         .send(organizationBundleResource)
+                        .set(getHeaders())
+                        .expect(200, (err, resp) => {
+                            console.log('------- response 2 ------------');
+                            console.log(JSON.stringify(resp.body, null, 2));
+                            console.log('------- end response 2  ------------');
+                            return cb(err, resp);
+                        }),
+                (results, cb) =>
+                    request
+                        .post('/4_0_0/Coverage/1/$merge')
+                        .send(coverageBundleResource)
                         .set(getHeaders())
                         .expect(200, (err, resp) => {
                             console.log('------- response 2 ------------');

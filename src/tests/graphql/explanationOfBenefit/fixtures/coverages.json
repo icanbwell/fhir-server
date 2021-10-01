@@ -1,0 +1,26 @@
+[
+  {
+    "resourceType": "Coverage",
+    "id": "WPS-5458231534",
+    "beneficiary": {
+      "reference": "Patient/WPS-5458231534"
+    },
+    "payor": [
+      {
+        "reference": "Organization/WPS-Health"
+      }
+    ]
+  },
+  {
+    "resourceType": "Coverage",
+    "id": "WPS-0559166162",
+    "beneficiary": {
+      "reference": "Patient/WPS-0559166162"
+    },
+    "payor": [
+      {
+        "reference": "Organization/WPS-Health"
+      }
+    ]
+  }
+]
