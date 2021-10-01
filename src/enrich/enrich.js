@@ -1,16 +1,27 @@
 class EnrichmentProvider {
+    /**
+     * Whether this Enrichment can enrich the specified resourceType
+     * @param {string} resourceType
+     * @return {boolean}
+     */
     // eslint-disable-next-line no-unused-vars
     canEnrich(resourceType) {
         throw Error('Not Implemented');
     }
 
+    /**
+     * enrich the specified resources
+     * @param {Resource[]} resources
+     * @param {string} resourceType
+     * @return {Promise<Resource[]>}
+     */
     // eslint-disable-next-line no-unused-vars
     async enrich(resources, resourceType) {
         throw Error('Not Implemented');
     }
 }
 
-class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider{
+class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
     /**
      * Whether this Enrichment can enrich the specified resourceType
      * @param {string} resourceType
@@ -38,7 +49,7 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider{
  * @type {EnrichmentProvider[]}
  */
 const enrichmentProviders = [
-    ExplanationOfBenefitsEnrichmentProvider
+    new ExplanationOfBenefitsEnrichmentProvider()
 ];
 
 /**
@@ -48,8 +59,8 @@ const enrichmentProviders = [
  * @return {Promise<Resource[]>}
  */
 module.exports.enrich = async (resources, resourceType) => {
-    for (const enrichmentProvider of enrichmentProviders){
-        if (enrichmentProvider.canEnrich(resourceType)){
+    for (const enrichmentProvider of enrichmentProviders) {
+        if (enrichmentProvider.canEnrich(resourceType)) {
             resources = await enrichmentProvider.enrich(resources, resourceType);
         }
     }
