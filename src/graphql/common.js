@@ -37,6 +37,9 @@ module.exports.resolveType = (obj, context, info) => {
  * @return {Promise<null|Resource>}
  */
 module.exports.findResourceByReference = async (parent, args, context, info, reference) => {
+    if (!(reference)) {
+        return null;
+    }
     /**
      * @type {string}
      */
@@ -71,6 +74,9 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
  * @return {Promise<null|Resource[]>}
  */
 module.exports.findResourcesByReference = async (parent, args, context, info, references) => {
+    if (!(references)) {
+        return null;
+    }
     return async.map(references, async reference => {
         /**
          * @type {string}
