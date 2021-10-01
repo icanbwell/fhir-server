@@ -3,7 +3,7 @@ const supertest = require('supertest');
 
 const {app} = require('../../../app');
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits.json');
-const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
+const expectedGraphQLResponse = require('./fixtures/expected_graphql_response.json');
 
 const patientBundleResource = require('./fixtures/patients.json');
 const organizationBundleResource = require('./fixtures/organizations.json');
@@ -136,7 +136,7 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                             expect(body.errors).toBeUndefined();
                         }
                         expect(body.data.explanationOfBenefit.length).toBe(2);
-                        let expected = expectedExplanationOfBenefitBundleResource;
+                        let expected = expectedGraphQLResponse;
                         expected.forEach(element => {
                             if ('meta' in element) {
                                 delete element['meta']['lastUpdated'];
