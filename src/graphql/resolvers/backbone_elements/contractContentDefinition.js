@@ -14,6 +14,7 @@ module.exports = {
         // eslint-disable-next-line no-unused-vars
         publisher: async (parent, args, context, info) => {
             return await findResourceByReference(
+                parent,
                 args,
                 context,
                 info,

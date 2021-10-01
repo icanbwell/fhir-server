@@ -9,6 +9,7 @@ module.exports = {
         // eslint-disable-next-line no-unused-vars
         endpoint: async (parent, args, context, info) => {
             return await findResourcesByReference(
+                parent,
                 args,
                 context,
                 info,
@@ -18,6 +19,7 @@ module.exports = {
         // eslint-disable-next-line no-unused-vars
         specimen: async (parent, args, context, info) => {
             return await findResourcesByReference(
+                parent,
                 args,
                 context,
                 info,
