@@ -159,9 +159,14 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
         // if _count is specified then limit mongo query to that
         if (args['_count']) {
             if (!('sort' in options)) {
-                // for consistency in results while paging, always sort by _id
+                // for consistency in results while paging, always sort by id
                 // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
-                options['sort'] = {'_id': 1};
+                options['sort'] = {'id': 1};
+            } else {
+                // add id to end if not present in sort
+                if (!('id' in options['sort'])) {
+                    options['sort']['id'] = 1;
+                }
             }
             /**
              * @type {number}
