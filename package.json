@@ -87,7 +87,7 @@
     "@slack/web-api": "^6.4.0",
     "apollo-server-core": "^3.3.0",
     "apollo-server-express": "^3.3.0",
-    "aws-sdk": "^2.998.0",
+    "aws-sdk": "^2.1000.0",
     "body-parser": "^1.19.0",
     "bootstrap": "^5.1.1",
     "bootstrap-icons": "^1.5.0",
