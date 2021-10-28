@@ -252,6 +252,12 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+            // find id of last resource
+            /**
+             * id of last resource in the list
+             * @type {?number}
+             */
+            const last_id = resources.length > 0 ? resources[resources.length - 1].id : 0;
             /**
              * @type {function({Object}):Resource}
              */
@@ -266,7 +272,13 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 type: 'searchset',
                 timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
                 entry: entries,
-                total: total_count
+                total: total_count,
+                link: [
+                    {
+                        'relation': 'next',
+                        'url': `${last_id}`
+                    }
+                ]
             });
         } else {
             return resources;
