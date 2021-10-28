@@ -158,14 +158,16 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
 
         // if _count is specified then limit mongo query to that
         if (args['_count']) {
+            // for consistency in results while paging, always sort by id
+            // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
+            const defaultSortId = env.DEFAULT_SORT_ID || 'id';
             if (!('sort' in options)) {
-                // for consistency in results while paging, always sort by id
-                // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
-                options['sort'] = {'id': 1};
-            } else {
+                options['sort'] = {};
+                options['sort'][`${defaultSortId}`] = 1;
+            } else if (env.DEFAULT_SORT_ID) {
                 // add id to end if not present in sort
-                if (!('id' in options['sort'])) {
-                    options['sort']['id'] = 1;
+                if (!(`${defaultSortId}` in options['sort'])) {
+                    options['sort'][`${defaultSortId}`] = 1;
                 }
             }
             /**
