@@ -2,6 +2,9 @@
 
 This FHIR server implements support for querying FHIR data using GraphQL(https://graphql.org/).
 
+### High Level Sequence
+[![](https://mermaid.ink/img/eyJjb2RlIjoic2VxdWVuY2VEaWFncmFtXG4gICAgQnJvd3Nlci0-PitBV1NDb2duaXRvOiBBdXRoZW50aWNhdGVcbiAgICBBV1NDb2duaXRvLT4-K0Jyb3dzZXI6IFNlbmQgYmVhcmVyIHRva2VuXG4gICAgQnJvd3Nlci0-PitGSElSU2VydmVyOiBHcmFwaFFMIFJlcXVlc3RcbiAgICBGSElSU2VydmVyLT4-K0NvbW1vbkNvZGU6IEF1dGhvcml6ZSAmIFJlcXVlc3QgZGF0YVxuICAgIENvbW1vbkNvZGUtPj4rTW9uZ29EYjogU2VuZCBxdWVyeVxuICAgIE1vbmdvREItPj4rQ29tbW9uQ29kZTogUmV0dXJuIGRhdGFcbiAgICBDb21tb25Db2RlLT4-K0ZISVJTZXJ2ZXI6IFJldHVybiBkYXRhXG4gICAgRkhJUlNlcnZlci0-PitCcm93c2VyOiBSZXR1cm4gZGF0YVxuXG4gICAgICAgICAgICAiLCJtZXJtYWlkIjp7InRoZW1lIjoiZGFyayJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)](https://mermaid.live/edit#eyJjb2RlIjoic2VxdWVuY2VEaWFncmFtXG4gICAgQnJvd3Nlci0-PitBV1NDb2duaXRvOiBBdXRoZW50aWNhdGVcbiAgICBBV1NDb2duaXRvLT4-K0Jyb3dzZXI6IFNlbmQgYmVhcmVyIHRva2VuXG4gICAgQnJvd3Nlci0-PitGSElSU2VydmVyOiBHcmFwaFFMIFJlcXVlc3RcbiAgICBGSElSU2VydmVyLT4-K0NvbW1vbkNvZGU6IEF1dGhvcml6ZSAmIFJlcXVlc3QgZGF0YVxuICAgIENvbW1vbkNvZGUtPj4rTW9uZ29EYjogU2VuZCBxdWVyeVxuICAgIE1vbmdvREItPj4rQ29tbW9uQ29kZTogUmV0dXJuIGRhdGFcbiAgICBDb21tb25Db2RlLT4-K0ZISVJTZXJ2ZXI6IFJldHVybiBkYXRhXG4gICAgRkhJUlNlcnZlci0-PitCcm93c2VyOiBSZXR1cm4gZGF0YVxuXG4gICAgICAgICAgICAiLCJtZXJtYWlkIjoie1xuICBcInRoZW1lXCI6IFwiZGFya1wiXG59IiwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
+
 ### Playground
 You can access the GraphQL playground by going to the /graphql url in your browser e.g., http://fhir.dev.bwell.zone/graphql.  This will redirect you to the OAuth provider to login and then will store your JWT token in a cookie so you can use the Playground.
 
@@ -10,6 +13,117 @@ You can use the standard GraphQL client libraries or Postman and access the /gra
 
 ### Documentation
 All the GraphQL entities and properties have inline documentation from FHIR specifications
+
+### Sample GraphQL query
+```graphql
+query {
+  practitionerRole {
+    id
+    practitioner {
+      name {
+        family
+        given
+      }
+    }
+    organization {
+      name
+    }
+    healthcareService {
+      name
+    }
+    location {
+      name
+    }
+  }
+}
+```
+### Sample Python Code
+```python
+import requests
+import json
+
+url = "https://fhir.dev.bwell.zone/graphql"
+
+payload="{\"query\":\"query {\\n  practitionerRole {\\n    id\\n    practitioner {\\n      name {\\n        family\\n        given\\n      }\\n    }\\n    organization {\\n      name\\n    }\\n    healthcareService {\\n      name\\n    }\\n    location {\\n      name\\n    }\\n  }\\n}\",\"variables\":{}}"
+headers = {
+  'Authorization': 'Bearer {put token here}',
+  'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+```
+
+### Sample Node.js code
+```javascript
+var https = require('follow-redirects').https;
+var fs = require('fs');
+
+var options = {
+  'method': 'POST',
+  'hostname': 'fhir.dev.bwell.zone',
+  'path': '/graphql',
+  'headers': {
+    'Authorization': 'Bearer {put token here}',
+    'Content-Type': 'application/json'
+  },
+  'maxRedirects': 20
+};
+
+var req = https.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function (chunk) {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+
+  res.on("error", function (error) {
+    console.error(error);
+  });
+});
+
+var postData = JSON.stringify({
+  query: `query {
+  practitionerRole {
+    id
+    practitioner {
+      name {
+        family
+        given
+      }
+    }
+    organization {
+      name
+    }
+    healthcareService {
+      name
+    }
+    location {
+      name
+    }
+  }
+}`,
+  variables: {}
+});
+
+req.write(postData);
+
+req.end();
+```
+
+### Sample cUrl Code
+```shell
+curl --location --request POST 'https://fhir.dev.bwell.zone/graphql' \
+--header 'Authorization: Bearer {put token here}' \
+--header 'Content-Type: application/json' \
+--data-raw '{"query":"query {\n  practitionerRole {\n    id\n    practitioner {\n      name {\n        family\n        given\n      }\n    }\n    organization {\n      name\n    }\n    healthcareService {\n      name\n    }\n    location {\n      name\n    }\n  }\n}","variables":{}}'
+```
 
 ### GraphQL Server Implementation
 We use the apollo-server-express framework to implement the GraphQL middleware.  This is implemented in 
