@@ -163,12 +163,10 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
             const defaultSortId = env.DEFAULT_SORT_ID || 'id';
             if (!('sort' in options)) {
                 options['sort'] = {};
+            }
+            // add id to end if not present in sort
+            if (!(`${defaultSortId}` in options['sort'])) {
                 options['sort'][`${defaultSortId}`] = 1;
-            } else if (env.DEFAULT_SORT_ID) {
-                // add id to end if not present in sort
-                if (!(`${defaultSortId}` in options['sort'])) {
-                    options['sort'][`${defaultSortId}`] = 1;
-                }
             }
             /**
              * @type {number}
