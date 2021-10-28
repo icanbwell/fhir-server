@@ -91,7 +91,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
     logDebug(user, '--------');
 
     /**
-     * @type {import('mongodb').FindOptions}
+     * @type {import('mongodb').FindOneOptions}
      */
     let options = {};
 
@@ -192,7 +192,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
         // Now run the query to get a cursor we will enumerate next
         /**
          * mongo db cursor
-         * @type {import('mongodb').FindCursor}
+         * @type {import('mongodb').Cursor}
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
 
