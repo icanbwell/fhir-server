@@ -202,7 +202,11 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
             // https://www.hl7.org/fhir/search.html#total
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
-            total_count = await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
+            if (args['_total'] === 'estimate') {
+                total_count = await collection.estimatedDocumentCount(query, {maxTimeMS: maxMongoTimeMS});
+            } else {
+                total_count = await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
+            }
         }
         // Resource is a resource cursor, pull documents out before resolving
         /**
