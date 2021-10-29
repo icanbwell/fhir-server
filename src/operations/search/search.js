@@ -20,9 +20,10 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @param {string} scope
  * @param {string} resource_name
  * @param {string} collection_name
+ * @param {?string} url
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources
  */
-module.exports.search = async (args, user, scope, resource_name, collection_name) => {
+module.exports.search = async (args, user, scope, resource_name, collection_name, url) => {
     logRequest(user, resource_name + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
@@ -252,12 +253,34 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+            let link = [];
             // find id of last resource
-            /**
-             * id of last resource in the list
-             * @type {?number}
-             */
-            const last_id = resources.length > 0 ? resources[resources.length - 1].id : 0;
+            if (url) {
+
+                /**
+                 * id of last resource in the list
+                 * @type {?number}
+                 */
+                const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
+                if (last_id) {
+                    const baseUrl = 'https://example.org';
+                    /**
+                     * url to get next page
+                     * @type {URL}
+                     */
+                    const nextUrl = new URL(url, baseUrl);
+                    // add or update the id:above param
+                    nextUrl.searchParams.set('id:above', `${last_id}`);
+                    // remove the _getpagesoffset param since that is confusing
+                    nextUrl.searchParams.delete('_getpagesoffset');
+                    link = [
+                        {
+                            'relation': 'next',
+                            'url': `${nextUrl.toString().replace(baseUrl, '')}`
+                        }
+                    ];
+                }
+            }
             /**
              * @type {function({Object}):Resource}
              */
@@ -273,12 +296,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
                 entry: entries,
                 total: total_count,
-                link: [
-                    {
-                        'relation': 'next',
-                        'url': `${last_id}`
-                    }
-                ]
+                link: link
             });
         } else {
             return resources;
