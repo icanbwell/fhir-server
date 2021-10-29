@@ -280,8 +280,19 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                     nextUrl.searchParams.delete('_getpagesoffset');
                     link = [
                         {
+                            'relation': 'self',
+                            'url': `${url}`
+                        },
+                        {
                             'relation': 'next',
                             'url': `${nextUrl.toString().replace(baseUrl, '')}`
+                        }
+                    ];
+                } else {
+                    link = [
+                        {
+                            'relation': 'self',
+                            'url': `${url}`
                         }
                     ];
                 }
