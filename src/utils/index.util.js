@@ -16,7 +16,7 @@ const {customIndexes} = require('./customIndexes');
  * @param {string?} index_name
  * @return {Promise<boolean>}
  */
-async function create_multikey_index_if_not_exists(db, properties_to_index, collection_name, index_name) {
+async function create_index_if_not_exists(db, properties_to_index, collection_name, index_name) {
     // from https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html#limits.naming
     // Index name: <col>$<index> :	 Length is [3–63] characters.
     // total length combines both collection name and index name
@@ -43,20 +43,6 @@ async function create_multikey_index_if_not_exists(db, properties_to_index, coll
 }
 
 /**
- * creates an index if it does not exist
- * @param {import('mongodb').Db} db
- * @param {string} property_to_index
- * @param {string} collection_name
- * @param {string?} index_name
- * @return {Promise<boolean>}
- */
-async function create_index_if_not_exists(db, property_to_index, collection_name, index_name) {
-    return await create_multikey_index_if_not_exists(
-        db, [property_to_index], collection_name, index_name
-    );
-}
-
-/**
  * creates indexes on a collection
  * @param {string} collection_name
  * @param {import('mongodb').Db} db
@@ -65,18 +51,26 @@ async function create_index_if_not_exists(db, property_to_index, collection_name
 async function indexCollection(collection_name, db) {
     console.log('Processing collection', collection_name);
     // check if index exists
-    let createdIndex = await create_index_if_not_exists(db, 'id', collection_name);
-    createdIndex = await create_index_if_not_exists(db, 'meta.lastUpdated', collection_name) || createdIndex;
-    createdIndex = await create_index_if_not_exists(db, 'meta.source', collection_name) || createdIndex;
-    createdIndex = await create_multikey_index_if_not_exists(db, ['meta.security.system', 'meta.security.code'], collection_name) || createdIndex;
+    let createdIndex = false;
 
     // now add custom indices
     for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-        if (collection === collection_name) {
-            console.log('Creating Custom Indexes: ', collection);
+        if (collection === '*') {
+            console.log('Creating Standard Indexes: ', collection_name);
             for (const indexDefinition of indexesArray) {
                 for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
-                    await create_multikey_index_if_not_exists(db, indexColumns, collection, indexName);
+                    createdIndex = await create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
+                }
+            }
+        }
+    }
+
+    for (const [collection, indexesArray] of Object.entries(customIndexes)) {
+        if (collection === collection_name) {
+            console.log('Creating Custom Indexes: ', collection_name);
+            for (const indexDefinition of indexesArray) {
+                for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
+                    createdIndex = await create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
                 }
             }
         }
