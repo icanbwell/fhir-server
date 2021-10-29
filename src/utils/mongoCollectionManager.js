@@ -10,7 +10,7 @@
 async function getOrCreateCollection(db, collection_name) {
     const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
     if (!collectionExists) {
-        await db.createCollection(collection_name);
+        // await db.createCollection(collection_name);
         // await indexCollection(collection_name, db);
     }
     return Promise.resolve(db.collection(collection_name));
