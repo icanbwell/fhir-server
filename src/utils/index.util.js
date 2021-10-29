@@ -88,6 +88,19 @@ async function indexCollection(collection_name, db) {
     createdIndex = await create_index_if_not_exists(db, 'meta.lastUpdated', collection_name) || createdIndex;
     createdIndex = await create_index_if_not_exists(db, 'meta.source', collection_name) || createdIndex;
     createdIndex = await create_multikey_index_if_not_exists(db, ['meta.security.system', 'meta.security.code'], collection_name) || createdIndex;
+
+    // now add custom indices
+    for (const [collection, indexesArray] of Object.entries(customIndexes)) {
+        if (collection === collection_name) {
+            console.log('Creating Custom Indexes: ', collection);
+            for (const indexDefinition of indexesArray) {
+                for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
+                    await create_multikey_index_if_not_exists(db, indexColumns, collection, indexName);
+                }
+            }
+        }
+    }
+
     const indexes = await db.collection(collection_name).indexes();
     return {
         name: collection_name,
@@ -123,18 +136,6 @@ async function indexAllCollections() {
             collection_names.push(collection.name);
         }
     });
-
-    // now add custom indices
-    for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-        if (collection_names.includes(collection)) {
-            for (const indexDefinition of indexesArray) {
-                for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
-                    console.log('Creating Custom Indexes: ', collection);
-                    await create_multikey_index_if_not_exists(db, indexColumns, collection, indexName);
-                }
-            }
-        }
-    }
 
     // now add indices on id column for every collection
     const collection_stats = await async.map(
