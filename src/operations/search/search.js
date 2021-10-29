@@ -267,6 +267,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                  */
                 const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
                 if (last_id) {
+                    // have to use a base url or URL() errors
                     const baseUrl = 'https://example.org';
                     /**
                      * url to get next page
@@ -275,7 +276,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                     const nextUrl = new URL(url, baseUrl);
                     // add or update the id:above param
                     nextUrl.searchParams.set('id:above', `${last_id}`);
-                    // remove the _getpagesoffset param since that is confusing
+                    // remove the _getpagesoffset param since that will skip again from this id
                     nextUrl.searchParams.delete('_getpagesoffset');
                     link = [
                         {
