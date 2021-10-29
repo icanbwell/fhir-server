@@ -122,6 +122,8 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 for (const property of properties_to_return_list) {
                     projection[`${property}`] = 1;
                 }
+                // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+                projection['_id'] = 0;
                 options['projection'] = projection;
             }
         }
