@@ -6,26 +6,7 @@ const async = require('async');
 const env = require('var');
 
 const {logMessageToSlack} = require('./slack.logger');
-
-const customIndexes = {
-    'PractitionerRole_4_0_0': [
-        {
-            'practitioner.reference_1': [
-                'practitioner.reference'
-            ],
-        },
-        {
-            'organization.reference_1': [
-                'organization.reference'
-            ],
-        },
-        {
-            'location.reference_1': [
-                'location.reference'
-            ],
-        }
-    ]
-};
+const {customIndexes} = require('./customIndexes');
 
 /**
  * creates an multi key index if it does not exist
