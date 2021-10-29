@@ -379,5 +379,7 @@ module.exports.buildR4SearchQuery = (resource_name, args) => {
     if (and_segments.length !== 0) {
         query.$and = and_segments;
     }
-    return query;
+    return {
+        query: query
+    };
 };

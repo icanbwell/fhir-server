@@ -68,7 +68,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
     } else if (base_version === VERSIONS['1_0_2']) {
         query = buildDstu2SearchQuery(args);
     } else {
-        query = buildR4SearchQuery(resource_name, args);
+        ({query} = buildR4SearchQuery(resource_name, args));
     }
 
     // Grab an instance of our DB and collection
@@ -198,6 +198,8 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
          * @type {import('mongodb').Cursor}
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+        // find columns being queried and match them to an index
+        // cursor = cursor.hint(indexHint)
 
         // if _total is specified then ask mongo for the total else set total to 0
         let total_count = 0;
