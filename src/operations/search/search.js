@@ -253,6 +253,10 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+            /**
+             * array of links
+             * @type {[{relation:string, url: string}]}
+             */
             let link = [];
             // find id of last resource
             if (url) {
