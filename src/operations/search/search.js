@@ -63,12 +63,17 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
      */
     let query;
 
+    /**
+     * @type {Set}
+     */
+    let columns;
+
     if (base_version === VERSIONS['3_0_1']) {
         query = buildStu3SearchQuery(args);
     } else if (base_version === VERSIONS['1_0_2']) {
         query = buildDstu2SearchQuery(args);
     } else {
-        ({query} = buildR4SearchQuery(resource_name, args));
+        ({query, columns} = buildR4SearchQuery(resource_name, args));
     }
 
     // Grab an instance of our DB and collection
@@ -121,6 +126,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 const projection = {};
                 for (const property of properties_to_return_list) {
                     projection[`${property}`] = 1;
+                    columns.add(property);
                 }
                 // also exclude _id so if there is a covering index the query can be satisfied from the covering index
                 projection['_id'] = 0;
@@ -151,8 +157,10 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                          */
                         const sortPropertyWithoutMinus = sortProperty.substring(1);
                         sort[`${sortPropertyWithoutMinus}`] = -1;
+                        columns.add(sortPropertyWithoutMinus);
                     } else {
                         sort[`${sortProperty}`] = 1;
+                        columns.add(sortProperty);
                     }
                 }
                 options['sort'] = sort;
@@ -164,6 +172,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
             // for consistency in results while paging, always sort by id
             // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
             const defaultSortId = env.DEFAULT_SORT_ID || 'id';
+            columns.add(defaultSortId);
             if (!('sort' in options)) {
                 options['sort'] = {};
             }
