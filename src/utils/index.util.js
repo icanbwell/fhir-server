@@ -77,11 +77,11 @@ async function indexCollection(collection_name, db) {
     }
 
     const indexes = await db.collection(collection_name).indexes();
-    return {
+    return Promise.resolve({
         name: collection_name,
         createdIndex: createdIndex,
         indexes: indexes
-    };
+    });
 }
 
 /**
@@ -179,5 +179,6 @@ async function getIndexesInAllCollections() {
 
 module.exports = {
     indexAllCollections,
+    indexCollection,
     getIndexesInAllCollections
 };
