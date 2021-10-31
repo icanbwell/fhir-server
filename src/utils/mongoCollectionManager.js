@@ -20,7 +20,7 @@ async function getOrCreateCollection(db, collection_name) {
             // await db.collection(collection_name).findOne({});
             await indexCollection(collection_name, db);
         }
-        return Promise.resolve(db.collection(collection_name));
+        return db.collection(collection_name);
     });
 }
 
