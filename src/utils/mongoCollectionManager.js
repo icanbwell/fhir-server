@@ -1,4 +1,7 @@
-// const {indexCollection} = require('./index.util');
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
+const {indexCollection} = require('./index.util');
 
 /**
  * Gets or creates a collection
@@ -8,12 +11,17 @@
  */
 
 async function getOrCreateCollection(db, collection_name) {
-    const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
-    if (!collectionExists) {
-        // await db.createCollection(collection_name);
-        // await indexCollection(collection_name, db);
-    }
-    return Promise.resolve(db.collection(collection_name));
+    // use mutex to prevent parallel async calls from trying to create the collection at the same time
+    return await mutex.runExclusive(async () => {
+        const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
+        if (!collectionExists) {
+            await db.createCollection(collection_name);
+            // force creation of collection if not exists (in case some other machine created it in the middle)
+            // await db.collection(collection_name).findOne({});
+            await indexCollection(collection_name, db);
+        }
+        return Promise.resolve(db.collection(collection_name));
+    });
 }
 
 module.exports = {
