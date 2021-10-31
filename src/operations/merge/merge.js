@@ -6,7 +6,7 @@ const {
     isAccessToResourceAllowedBySecurityTags
 } = require('../security/scopes');
 const moment = require('moment-timezone');
-const {isTrue} = require('../common/isTrue');
+const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {validateResource} = require('../../utils/validator.util');

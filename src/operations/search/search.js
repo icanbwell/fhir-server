@@ -12,6 +12,7 @@ const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {enrich} = require('../../enrich/enrich');
 const {findIndexForFields} = require('../../utils/indexHinter');
+const {isTrue} = require('../../utils/isTrue');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
@@ -209,10 +210,12 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
         // find columns being queried and match them to an index
-        const indexHint = findIndexForFields(collection_name, Array.from(columns));
-        if (indexHint) {
-            // cursor = cursor.hint(indexHint);
-            logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
+        if (isTrue(env.SET_INDEX_HINTS)) {
+            const indexHint = findIndexForFields(collection_name, Array.from(columns));
+            if (indexHint) {
+                cursor = cursor.hint(indexHint);
+                logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
+            }
         }
 
         // if _total is specified then ask mongo for the total else set total to 0

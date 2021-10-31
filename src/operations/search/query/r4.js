@@ -6,7 +6,7 @@ const {
     addressQueryBuilder,
     tokenQueryBuilder
 } = require('../../../utils/querybuilder.util');
-const {isTrue} = require('../../common/isTrue');
+const {isTrue} = require('../../../utils/isTrue');
 /**
  * @type {import('winston').logger}
  */
