@@ -352,7 +352,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 },
                 {
                     system: 'https://www.icanbwell.com/queryFields',
-                    display: JSON.stringify(columns)
+                    display: JSON.stringify(Array.from(columns))
                 }
             ] : [];
             return new Bundle({
