@@ -366,6 +366,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 bundle['meta'] = {
                     tag: tag
                 };
+                logDebug(user, JSON.stringify(tag));
             }
             return bundle;
         } else {
