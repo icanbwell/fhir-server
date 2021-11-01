@@ -15,7 +15,7 @@ class MongoError extends Error {
             this[`${key}`] = value;
         }
         if (!error) {
-            throw new Error('MongoError requires a message and error');organization.merge.test.js
+            throw new Error('MongoError requires a message and error');
         }
         // noinspection JSUnusedGlobalSymbols
         this.original_error = error;

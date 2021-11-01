@@ -4,7 +4,6 @@ const {app} = require('../../../app');
 const organizationBundleResourceInit = require('./fixtures/organization_init.json');
 const organizationBundleResourceUpdate = require('./fixtures/organization_update.json');
 const expectedOrganizationBundleResource = require('./fixtures/expected_organization.json');
-const async = require('async');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
