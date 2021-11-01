@@ -210,8 +210,13 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
         // find columns being queried and match them to an index
+        /**
+         * which index hint to use (if any)
+         * @type {string|null}
+         */
+        let indexHint = null;
         if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
-            const indexHint = findIndexForFields(collection_name, Array.from(columns));
+            indexHint = findIndexForFields(collection_name, Array.from(columns));
             if (indexHint) {
                 cursor = cursor.hint(indexHint);
                 logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
@@ -328,7 +333,32 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
             const entries = resources.map(resource => {
                 return {resource: resource};
             });
+            const tag = (args['_debug'] || (env.LOGLEVEL === 'DEBUG')) ? [
+                {
+                    system: 'https://www.icanbwell.com/queryIndexHint',
+                    code: indexHint
+                },
+                {
+                    system: 'https://www.icanbwell.com/query',
+                    display: JSON.stringify(query)
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryCollection',
+                    code: collection_name
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryOptions',
+                    display: JSON.stringify(options)
+                },
+                {
+                    system: 'https://www.icanbwell.com/queryFields',
+                    display: JSON.stringify(columns)
+                }
+            ] : [];
             return new Bundle({
+                meta: {
+                    tag: tag
+                },
                 type: 'searchset',
                 timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
                 entry: entries,
