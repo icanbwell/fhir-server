@@ -8,14 +8,14 @@ class MongoError extends Error {
      * @param {*} options
      */
     constructor(message, error, collection, query, options = {}) {
-        super(message + ': ' + collection + ': ' + JSON.stringify(query) + ' | ' + JSON.stringify(options));
+        super(message + ': ' + collection + ': ' + JSON.stringify(query) + ' , ' + JSON.stringify(options));
         this.collection = collection;
         this.query = query;
         for (const [key, value] of Object.entries(options)) {
             this[`${key}`] = value;
         }
         if (!error) {
-            throw new Error('MongoError requires a message and error');
+            throw new Error('MongoError requires a message and error');organization.merge.test.js
         }
         // noinspection JSUnusedGlobalSymbols
         this.original_error = error;
