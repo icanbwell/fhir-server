@@ -15,8 +15,6 @@ const path = require('path');
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const explanationOfBenefitQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
-const async = require('async');
-
 const request = supertest(app);
 const {
     commonBeforeEach,
@@ -125,7 +123,6 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
-                // element['meta'] = {'versionId': '1'};
                 if ('$schema' in element) {
                     delete element['$schema'];
                 }
