@@ -348,11 +348,11 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',
-                    display: JSON.stringify(options)
+                    display: options ? JSON.stringify(options) : null
                 },
                 {
                     system: 'https://www.icanbwell.com/queryFields',
-                    display: JSON.stringify(Array.from(columns))
+                    display: columns ? JSON.stringify(Array.from(columns)) : null
                 }
             ] : [];
             return new Bundle({
