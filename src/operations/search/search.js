@@ -333,38 +333,41 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
             const entries = resources.map(resource => {
                 return {resource: resource};
             });
-            const tag = (args['_debug'] || (env.LOGLEVEL === 'DEBUG')) ? [
-                {
-                    system: 'https://www.icanbwell.com/queryIndexHint',
-                    code: indexHint
-                },
-                {
-                    system: 'https://www.icanbwell.com/query',
-                    display: JSON.stringify(query)
-                },
-                {
-                    system: 'https://www.icanbwell.com/queryCollection',
-                    code: collection_name
-                },
-                {
-                    system: 'https://www.icanbwell.com/queryOptions',
-                    display: options ? JSON.stringify(options) : null
-                },
-                {
-                    system: 'https://www.icanbwell.com/queryFields',
-                    display: columns ? JSON.stringify(Array.from(columns)) : null
-                }
-            ] : [];
-            return new Bundle({
-                meta: {
-                    tag: tag
-                },
+            const bundle = new Bundle({
                 type: 'searchset',
                 timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
                 entry: entries,
                 total: total_count,
                 link: link
             });
+            if (args['_debug'] || (env.LOGLEVEL === 'DEBUG')) {
+                const tag = [
+                    {
+                        system: 'https://www.icanbwell.com/queryIndexHint',
+                        code: indexHint
+                    },
+                    {
+                        system: 'https://www.icanbwell.com/query',
+                        display: JSON.stringify(query)
+                    },
+                    {
+                        system: 'https://www.icanbwell.com/queryCollection',
+                        code: collection_name
+                    },
+                    {
+                        system: 'https://www.icanbwell.com/queryOptions',
+                        display: options ? JSON.stringify(options) : null
+                    },
+                    {
+                        system: 'https://www.icanbwell.com/queryFields',
+                        display: columns ? JSON.stringify(Array.from(columns)) : null
+                    }
+                ];
+                bundle['meta'] = {
+                    tag: tag
+                };
+            }
+            return bundle;
         } else {
             return resources;
         }
