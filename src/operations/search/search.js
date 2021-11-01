@@ -210,7 +210,7 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
          */
         let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
         // find columns being queried and match them to an index
-        if (isTrue(env.SET_INDEX_HINTS)) {
+        if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
             const indexHint = findIndexForFields(collection_name, Array.from(columns));
             if (indexHint) {
                 cursor = cursor.hint(indexHint);
