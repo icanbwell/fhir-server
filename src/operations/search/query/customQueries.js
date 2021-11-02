@@ -1,3 +1,8 @@
+/**
+ * This file defines the custom query filters
+ * The format is we specify the filter passed in the query.  then we define the resourceType for it and mappings that
+ *  map the resource we're searching for that filter and the reference property in that resource to use
+ */
 const customQueries = {
     'patient': {
         'resourceType': 'Patient',
