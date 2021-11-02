@@ -53,10 +53,22 @@ describe('AuditEventReturnIdTests', () => {
             let body = resp.body;
             expect(body['entry'].length).toBe(2);
             delete body['timestamp'];
+            body.meta.tag.forEach(tag => {
+                if (tag['system'] === 'https://www.icanbwell.com/query')
+                {
+                    delete tag['display'];
+                }
+            });
             body.entry.forEach(element => {
                 delete element['resource']['meta']['lastUpdated'];
             });
             let expected = expectedAuditEventResource;
+            expected.meta.tag.forEach(tag => {
+                if (tag['system'] === 'https://www.icanbwell.com/query')
+                {
+                    delete tag['display'];
+                }
+            });
             expected.entry.forEach(element => {
                 delete element['resource']['meta']['lastUpdated'];
                 delete element['resource']['$schema'];
