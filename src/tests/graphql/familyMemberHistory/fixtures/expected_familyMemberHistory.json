@@ -1,0 +1,100 @@
+[
+  {
+    "condition": [
+      {
+        "code": {
+          "text": "Heart Attack"
+        },
+        "onsetAge": {
+          "value": 74
+        }
+      }
+    ],
+    "id": "248484",
+    "relationship": {
+      "coding": [
+        {
+          "display": "father"
+        }
+      ]
+    }
+  },
+  {
+    "condition": [
+      {
+        "code": {
+          "text": "Heart Attack"
+        },
+        "onsetAge": {
+          "value": 74
+        }
+      }
+    ],
+    "id": "248485",
+    "relationship": {
+      "coding": [
+        {
+          "display": "father"
+        }
+      ]
+    }
+  },
+  {
+    "condition": [
+      {
+        "code": {
+          "text": "Heart Attack"
+        },
+        "onsetAge": {
+          "value": 74
+        }
+      }
+    ],
+    "id": "248486",
+    "relationship": {
+      "coding": [
+        {
+          "display": "father"
+        }
+      ]
+    }
+  },
+  {
+    "condition": [
+      {
+        "code": {
+          "text": "Heart Attack"
+        },
+        "onsetAge": {
+          "value": 74
+        }
+      }
+    ],
+    "id": "248487",
+    "relationship": {
+      "coding": [
+        {
+          "display": "father"
+        }
+      ]
+    }
+  },
+  {
+    "condition": [
+      {
+        "code": {
+          "text": "Heart Attack"
+        },
+        "onsetAge": null
+      }
+    ],
+    "id": "248488",
+    "relationship": {
+      "coding": [
+        {
+          "display": "Mother"
+        }
+      ]
+    }
+  }
+]

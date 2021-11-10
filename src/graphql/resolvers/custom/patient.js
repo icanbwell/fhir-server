@@ -54,5 +54,18 @@ module.exports = {
                 'CarePlan'
             );
         },
+        // eslint-disable-next-line no-unused-vars
+        familyMemberHistory: async (parent, args, context, info) => {
+            return await getResources(
+                parent,
+                {
+                    ...args,
+                    'patient': parent.id,
+                },
+                context,
+                info,
+                'FamilyMemberHistory'
+            );
+        },
     },
 };
