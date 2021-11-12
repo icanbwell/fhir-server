@@ -1,0 +1,36 @@
+query {
+  immunization(patient: "2e59a52a-6780-d2ac-4fda-8ec388aa4334") {
+    id
+    vaccineCode {
+      coding {
+        code
+      }
+      text
+    }
+    occurrenceDateTime
+    encounter {
+      id
+      participant {
+        # Provider name
+        individual {
+          __typename
+          ... on Practitioner {
+            name {
+              family
+              prefix
+              given
+            }
+          }
+        }
+      }
+      # Organization name
+      serviceProvider {
+        name
+      }
+    }
+    # Location of the Immunization
+    location {
+      name
+    }
+  }
+}

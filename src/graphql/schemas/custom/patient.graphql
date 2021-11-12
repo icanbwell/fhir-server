@@ -3,8 +3,9 @@
 # import CarePlan from 'carePlan.graphql'
 
 extend type Patient {
-    explanationOfBenefit: [ExplanationOfBenefit]
-    allergyIntolerance: [AllergyIntolerance]
-    carePlan: [CarePlan]
-    condition: [Condition]
+  explanationOfBenefit: [ExplanationOfBenefit]
+  allergyIntolerance: [AllergyIntolerance]
+  carePlan: [CarePlan]
+  condition: [Condition]
+  immunization: [Immunization]
 }

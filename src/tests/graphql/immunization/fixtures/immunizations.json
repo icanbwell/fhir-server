@@ -1,0 +1,60 @@
+[
+  {
+    "resourceType": "Immunization",
+    "id": "30c297bb-0b01-dbfd-5ad1-da8d0cbbf49c",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2021-11-10T13:37:30+00:00",
+      "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization"],
+      "security": [{ "system": "https://www.icanbwell.com/access", "code": "mps-api" }]
+    },
+    "status": "completed",
+    "vaccineCode": {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/sid/cvx",
+          "code": "08",
+          "display": "Hep B, adolescent or pediatric"
+        }
+      ],
+      "text": "Hep B, adolescent or pediatric"
+    },
+    "patient": { "reference": "Patient/2e59a52a-6780-d2ac-4fda-8ec388aa4334" },
+    "encounter": { "reference": "Encounter/48833abe-36b3-1419-9f57-91bf5842b1a5" },
+    "occurrenceDateTime": "2021-06-11T22:08:24-04:00",
+    "primarySource": true,
+    "location": {
+      "reference": "Location?identifier=https://github.com/synthetichealth/synthea|cc6d81b3-40d0-35af-9a36-5d665360eb8c",
+      "display": "PCP90185"
+    }
+  },
+  {
+    "resourceType": "Immunization",
+    "id": "6c32ca83-ea14-997f-bae8-aa08044b5e25",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2021-11-10T13:37:32+00:00",
+      "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization"],
+      "security": [{ "system": "https://www.icanbwell.com/access", "code": "mps-api" }]
+    },
+    "status": "completed",
+    "vaccineCode": {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/sid/cvx",
+          "code": "08",
+          "display": "Hep B, adolescent or pediatric"
+        }
+      ],
+      "text": "Hep B, adolescent or pediatric"
+    },
+    "patient": { "reference": "Patient/2e59a52a-6780-d2ac-4fda-8ec388aa4334" },
+    "encounter": { "reference": "Encounter/1c617303-5772-1415-15c5-12fcba1c3d89" },
+    "occurrenceDateTime": "2021-07-16T22:08:24-04:00",
+    "primarySource": true,
+    "location": {
+      "reference": "Location?identifier=https://github.com/synthetichealth/synthea|cc6d81b3-40d0-35af-9a36-5d665360eb8c",
+      "display": "PCP90185"
+    }
+  }
+]
