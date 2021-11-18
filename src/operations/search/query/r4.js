@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customQueries} = require('./customQueries');
+const {customReferenceQueries, customScalarQueries} = require('./customQueries');
 
 // /**
 //  * @type {import('winston').logger}
@@ -122,7 +122,23 @@ module.exports.buildR4SearchQuery = (resource_name, args) => {
         columns.add('meta.lastUpdated');
     }
 
-    for (const [field, filterObj] of Object.entries(customQueries)) {
+    for (const [resourceType, filterObj] of Object.entries(customScalarQueries)) {
+        if (resourceType === resource_name) {
+            for (const [property, propertyObj] of Object.entries(filterObj)) {
+                if (args[`${property}`]) {
+                    // console.log(property + ' = ' + propertyObj.type + ' , ' + propertyObj.field);
+                    switch (propertyObj.type) {
+                        case 'instant':
+                            query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], 'instant', '');
+                            break;
+                    }
+                    columns.add(`${propertyObj.field}`);
+                }
+            }
+        }
+    }
+
+    for (const [field, filterObj] of Object.entries(customReferenceQueries)) {
         const resourceType = filterObj.resourceType;
         if (args[`${field}`] || args[`${field}:missing`]) {
             const reference = `${resourceType}/` + args[`${field}`];

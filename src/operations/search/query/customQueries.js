@@ -3,7 +3,7 @@
  * The format is we specify the filter passed in the query.  then we define the resourceType for it and mappings that
  *  map the resource we're searching for that filter and the reference property in that resource to use
  */
-const customQueries = {
+const customReferenceQueries = {
     'patient': {
         'resourceType': 'Patient',
         'mappings': {
@@ -82,6 +82,16 @@ const customQueries = {
     }
 };
 
+const customScalarQueries = {
+    'AuditEvent': {
+        'date': {
+            'type': 'instant',
+            'field': 'recorded'
+        }
+    }
+};
+
 module.exports = {
-    customQueries: customQueries
+    customReferenceQueries: customReferenceQueries,
+    customScalarQueries: customScalarQueries
 };
