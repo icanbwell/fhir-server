@@ -130,6 +130,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         case 'instant':
                             query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], 'instant', '');
                             break;
+                        case 'uri':
+                            query[`${propertyObj.field}`] = args[`${property}`];
+                            break;
                     }
                     columns.add(`${propertyObj.field}`);
                 }

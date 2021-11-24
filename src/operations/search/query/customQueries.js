@@ -82,11 +82,20 @@ const customReferenceQueries = {
     }
 };
 
+/*
+    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
+ */
 const customScalarQueries = {
     'AuditEvent': {
         'date': {
             'type': 'instant',
             'field': 'recorded'
+        }
+    },
+    'ValueSet': {
+        'url': {
+            'type': 'uri',
+            'field': 'url'
         }
     }
 };
