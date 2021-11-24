@@ -36,23 +36,25 @@ module.exports.search = async (args, user, scope, resource_name, collection_name
 
     // add any access codes from scopes
     const accessCodes = getAccessCodesFromScopes('read', user, scope);
-    // fail if there are no access codes
-    if (accessCodes.length === 0) {
-        let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-        throw new ForbiddenError(errorMessage);
-    }
-    // see if we have the * access code
-    else if (accessCodes.includes('*')) {
-        // no security check since user has full access to everything
-    } else {
-        /**
-         * @type {string}
-         */
-        for (const accessCode of accessCodes) {
-            if (args['_security']) {
-                args['_security'] = args['_security'] + ',' + accessCode;
-            } else {
-                args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+    if (env.AUTH_ENABLED === '1') {
+        // fail if there are no access codes
+        if (accessCodes.length === 0) {
+            let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            throw new ForbiddenError(errorMessage);
+        }
+        // see if we have the * access code
+        else if (accessCodes.includes('*')) {
+            // no security check since user has full access to everything
+        } else {
+            /**
+             * @type {string}
+             */
+            for (const accessCode of accessCodes) {
+                if (args['_security']) {
+                    args['_security'] = args['_security'] + ',' + accessCode;
+                } else {
+                    args['_security'] = 'https://www.icanbwell.com/access|' + accessCode;
+                }
             }
         }
     }
