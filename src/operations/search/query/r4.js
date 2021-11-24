@@ -17,11 +17,11 @@ const {customReferenceQueries, customScalarQueries} = require('./customQueries')
 
 /**
  * Builds a mongo query for search parameters
- * @param {string} resource_name
+ * @param {string} resourceName
  * @param {Object} args
  * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
  */
-module.exports.buildR4SearchQuery = (resource_name, args) => {
+module.exports.buildR4SearchQuery = (resourceName, args) => {
     // Common search params
     let id = args['id'] || args['_id'];
     // let patient = args['patient'];
@@ -123,10 +123,9 @@ module.exports.buildR4SearchQuery = (resource_name, args) => {
     }
 
     for (const [resourceType, filterObj] of Object.entries(customScalarQueries)) {
-        if (resourceType === resource_name) {
+        if (resourceType === resourceName) {
             for (const [property, propertyObj] of Object.entries(filterObj)) {
                 if (args[`${property}`]) {
-                    // console.log(property + ' = ' + propertyObj.type + ' , ' + propertyObj.field);
                     switch (propertyObj.type) {
                         case 'instant':
                             query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], 'instant', '');
@@ -150,7 +149,7 @@ module.exports.buildR4SearchQuery = (resource_name, args) => {
                 reference_exists_flag = !isTrue(args[`${field}:missing`]);
             }
             for (const [resource, property] of Object.entries(filterObj.mappings)) {
-                if ([`${resource}`].includes(resource_name)) {
+                if ([`${resource}`].includes(resourceName)) {
                     if (property === 'id') {
                         columns.add('id');
                         query.id = args[`${field}`];
@@ -164,7 +163,7 @@ module.exports.buildR4SearchQuery = (resource_name, args) => {
     }
 
     if (name) {
-        if (['Practitioner'].includes(resource_name)) {
+        if (['Practitioner'].includes(resourceName)) {
             if (name) {
                 let orsName = nameQueryBuilder(name);
                 for (let i = 0; i < orsName.length; i++) {
