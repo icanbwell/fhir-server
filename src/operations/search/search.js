@@ -136,8 +136,11 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
                     projection[`${property}`] = 1;
                     columns.add(property);
                 }
-                projection['id'] = 1;
-                projection['url'] = 1;
+                // this is a hack for the CQL Evaluator since it does not request these fields but expects them
+                if (resourceName === 'ValueSet') {
+                    projection['id'] = 1;
+                    projection['url'] = 1;
+                }
                 // also exclude _id so if there is a covering index the query can be satisfied from the covering index
                 projection['_id'] = 0;
                 options['projection'] = projection;
@@ -279,8 +282,12 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
                         element_to_return[`${property}`] = element[`${property}`];
                     }
                 }
-                element_to_return['id'] = element['id'];
-                element_to_return['url'] = element['url'];
+                // this is a hack for the CQL Evaluator since it does not request these fields but expects them
+                if (resourceName === 'ValueSet') {
+                    element_to_return['id'] = element['id'];
+                    element_to_return['url'] = element['url'];
+                }
+
                 resources.push(element_to_return);
             } else {
                 resources.push(new Resource(element));
