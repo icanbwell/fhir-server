@@ -137,7 +137,7 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
                     columns.add(property);
                 }
                 // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-                if (resourceName === 'ValueSet') {
+                if (resourceName === 'Library') {
                     projection['id'] = 1;
                     projection['url'] = 1;
                 }
@@ -283,7 +283,7 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
                     }
                 }
                 // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-                if (resourceName === 'ValueSet') {
+                if (resourceName === 'Library') {
                     element_to_return['id'] = element['id'];
                     element_to_return['url'] = element['url'];
                 }
