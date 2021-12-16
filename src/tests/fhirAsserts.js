@@ -12,6 +12,7 @@ function assertCompareBundles(body, expected) {
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];
+    delete body['link'];
     body.meta.tag.forEach(tag => {
         if (tag['system'] === 'https://www.icanbwell.com/query') {
             delete tag['display'];
@@ -20,6 +21,8 @@ function assertCompareBundles(body, expected) {
     body.entry.forEach(element => {
         delete element['resource']['meta']['lastUpdated'];
     });
+    delete expected['link'];
+
     expected.meta.tag.forEach(tag => {
         if (tag['system'] === 'https://www.icanbwell.com/query') {
             delete tag['display'];
