@@ -86,10 +86,353 @@ const customReferenceQueries = {
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
  */
 const customScalarQueries = {
+    'CapabilityStatement': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'CodeSystem': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'CompartmentDefinition': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'ConceptMap': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'GraphDefinition': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'ImplementationGuide': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'MessageDefinition': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'NamingSystem': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'OperationDefinition': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'SearchParameter': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'StructureDefinition': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'StructureMap': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
+    'TerminologyCapabilities': {
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            }
+        }
+    },
     'ValueSet': {
-        'url': {
-            'type': 'uri',
-            'field': 'url'
+        'mappings': {
+            'name': {
+                'type': 'string',
+                'field': 'name'
+            },
+            'url': {
+                'type': 'uri',
+                'field': 'url'
+            }
+        }
+    },
+    'AllergyIntolerance': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'datetime',
+                'field': 'recordedDate'
+            }
+        }
+    },
+    'Condition': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'DeviceRequest': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'DiagnosticReport': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'dateTime',
+                'field': 'effectiveDateTime'
+            }
+
+        }
+    },
+    'FamilyMemberHistory': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'dateTime',
+                'field': 'date'
+            }
+        }
+    },
+    'List': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'dateTime',
+                'field': 'date'
+            }
+        }
+    },
+    'Medication': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'MedicationAdministration': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'MedicationDispense': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'MedicationRequest': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'MedicationStatement': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'Observation': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'period',
+                'field': 'effectivePeriod'
+            }
+        }
+    },
+    'Procedure': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            },
+            'date': {
+                'type': 'dateTime',
+                'field': 'performedDateTime'
+            }
+        }
+    },
+    'ServiceRequest': {
+        'mappings': {
+            'code': {
+                'type': 'token',
+                'field': 'code'
+            }
+        }
+    },
+    'AuditEvent': {
+        'mappings': {
+            'date': {
+                'type': 'instant',
+                'field': 'recorded'
+            }
+        }
+    },
+    'CarePlan': {
+        'mappings': {
+            'date': {
+                'type': 'period',
+                'field': 'period'
+            }
+        }
+    },
+    'CareTeam': {
+        'mappings': {
+            'date': {
+                'type': 'period',
+                'field': 'period'
+            }
+        }
+    },
+    'ClinicalImpression': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'date'
+            }
+        }
+    },
+    'Composition': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'date'
+            }
+        }
+    },
+    'Consent': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'dateTime'
+            }
+        }
+    },
+    'Encounter': {
+        'mappings': {
+            'date': {
+                'type': 'period',
+                'field': 'period'
+            }
+        }
+    },
+    'EpisodeOfCare': {
+        'mappings': {
+            'date': {
+                'type': 'period',
+                'field': 'period'
+            }
+        }
+    },
+    'Flag': {
+        'mappings': {
+            'date': {
+                'type': 'period',
+                'field': 'period'
+            }
+        }
+    },
+    'Immunization': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'occurrenceDateTime'
+            }
+        }
+    },
+    'RiskAssessment': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'occurrenceDateTime'
+            }
+        }
+    },
+    'SupplyRequest': {
+        'mappings': {
+            'date': {
+                'type': 'dateTime',
+                'field': 'occurrenceDateTime'
+            }
         }
     }
 };
@@ -99,194 +442,14 @@ const customScalarQueries = {
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
     https://www.hl7.org/fhir/searchparameter-registry.html#clinical-code
  */
-const customTokenQueries = {
-    'AllergyIntolerance': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'Condition': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'DeviceRequest': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'DiagnosticReport': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'FamilyMemberHistory': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'List': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'Medication': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'MedicationAdministration': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'MedicationDispense': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'MedicationRequest': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'MedicationStatement': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'Observation': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'Procedure': {
-        'code': {
-            'field': 'code'
-        }
-    },
-    'ServiceRequest': {
-        'code': {
-            'field': 'code'
-        }
-    }
-};
+const customTokenQueries = {};
 
 /*
     These queries handle "date" searches in FHIR
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
     https://www.hl7.org/fhir/searchparameter-registry.html#clinical-date
  */
-const customDateQueries = {
-    'AllergyIntolerance': {
-        'date': {
-            'type': 'datetime',
-            'field': 'recordedDate'
-        }
-    },
-    'AuditEvent': {
-        'date': {
-            'type': 'instant',
-            'field': 'recorded'
-        }
-    },
-    'CarePlan': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'CareTeam': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'ClinicalImpression': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Composition': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Consent': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'dateTime'
-        }
-    },
-    'DiagnosticReport': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'effectiveDateTime'
-        }
-    },
-    'Encounter': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'EpisodeOfCare': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'FamilyMemberHistory': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Flag': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'Immunization': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'occurrenceDateTime'
-        }
-    },
-    'List': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Observation': {
-        'date': {
-            'type': 'period',
-            'field': 'effectivePeriod'
-        }
-    },
-    'Procedure': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'performedDateTime'
-        }
-    },
-    'RiskAssessment': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'occurrenceDateTime'
-        }
-    },
-    'SupplyRequest': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'occurrenceDateTime'
-        }
-    },
-};
+const customDateQueries = {};
 
 module.exports = {
     customReferenceQueries: customReferenceQueries,
