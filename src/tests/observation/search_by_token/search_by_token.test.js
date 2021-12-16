@@ -30,11 +30,7 @@ describe('ObservationReturnIdTests', () => {
                 .send(observation1Resource)
                 .set(getHeaders())
                 .expect(200);
-
-            console.log('------- response from adding observation1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            assertMergeIsSuccessful(resp.body);
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
