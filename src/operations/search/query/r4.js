@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customReferenceQueries, customScalarQueries, customTokenQueries} = require('./customQueries');
+const {customReferenceQueries, customScalarQueries, customTokenQueries, customDateQueries} = require('./customQueries');
 
 // /**
 //  * @type {import('winston').logger}
@@ -122,14 +122,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         columns.add('meta.lastUpdated');
     }
 
+    // add scalar queries
     for (const [resourceType, filterObj] of Object.entries(customScalarQueries)) {
         if (resourceType === resourceName) {
             for (const [property, propertyObj] of Object.entries(filterObj)) {
                 if (args[`${property}`]) {
                     switch (propertyObj.type) {
-                        case 'instant':
-                            query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], 'instant', '');
-                            break;
                         case 'uri':
                             query[`${propertyObj.field}`] = args[`${property}`];
                             break;
@@ -140,6 +138,19 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         }
     }
 
+    // add date queries
+    for (const [resourceType, filterObj] of Object.entries(customDateQueries)) {
+        if (resourceType === resourceName) {
+            for (const [property, propertyObj] of Object.entries(filterObj)) {
+                if (args[`${property}`]) {
+                    query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], propertyObj.type, '');
+                    columns.add(`${propertyObj.field}`);
+                }
+            }
+        }
+    }
+
+    // add token queries
     for (const [resourceType, filterObj] of Object.entries(customTokenQueries)) {
         if (resourceType === resourceName) {
             for (const [property, propertyObj] of Object.entries(filterObj)) {
@@ -158,6 +169,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         }
     }
 
+    // add reference queries
     for (const [field, filterObj] of Object.entries(customReferenceQueries)) {
         const resourceType = filterObj.resourceType;
         if (args[`${field}`] || args[`${field}:missing`]) {

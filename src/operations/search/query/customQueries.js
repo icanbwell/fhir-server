@@ -86,12 +86,6 @@ const customReferenceQueries = {
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
  */
 const customScalarQueries = {
-    'AuditEvent': {
-        'date': {
-            'type': 'instant',
-            'field': 'recorded'
-        }
-    },
     'ValueSet': {
         'url': {
             'type': 'uri',
@@ -101,6 +95,7 @@ const customScalarQueries = {
 };
 
 /*
+    These queries handle "token" searches in FHIR
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
     https://www.hl7.org/fhir/searchparameter-registry.html#clinical-code
  */
@@ -177,8 +172,125 @@ const customTokenQueries = {
     }
 };
 
+/*
+    These queries handle "date" searches in FHIR
+    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
+    https://www.hl7.org/fhir/searchparameter-registry.html#clinical-date
+ */
+const customDateQueries = {
+    'AllergyIntolerance': {
+        'date': {
+            'type': 'datetime',
+            'field': 'recordedDate'
+        }
+    },
+    'AuditEvent': {
+        'date': {
+            'type': 'instant',
+            'field': 'recorded'
+        }
+    },
+    'CarePlan': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'CareTeam': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'ClinicalImpression': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'Composition': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'Consent': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'dateTime'
+        }
+    },
+    'DiagnosticReport': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'effectiveDateTime'
+        }
+    },
+    'Encounter': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'EpisodeOfCare': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'FamilyMemberHistory': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'Flag': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'Immunization': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
+        }
+    },
+    'List': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'Observation': {
+        'date': {
+            'type': 'period',
+            'field': 'effectivePeriod'
+        }
+    },
+    'Procedure': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'performedDateTime'
+        }
+    },
+    'RiskAssessment': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
+        }
+    },
+    'SupplyRequest': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
+        }
+    },
+};
+
 module.exports = {
     customReferenceQueries: customReferenceQueries,
     customScalarQueries: customScalarQueries,
-    customTokenQueries: customTokenQueries
+    customTokenQueries: customTokenQueries,
+    customDateQueries: customDateQueries
 };
