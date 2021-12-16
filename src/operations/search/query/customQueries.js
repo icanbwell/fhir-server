@@ -102,9 +102,75 @@ const customScalarQueries = {
 
 /*
     The format is that we list the resourceType, then the filter name and then the type and name of field to filter
+    https://www.hl7.org/fhir/searchparameter-registry.html#clinical-code
  */
 const customTokenQueries = {
+    'AllergyIntolerance': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'Condition': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'DeviceRequest': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'DiagnosticReport': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'FamilyMemberHistory': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'List': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'Medication': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'MedicationAdministration': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'MedicationDispense': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'MedicationRequest': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'MedicationStatement': {
+        'token': {
+            'field': 'code'
+        }
+    },
     'Observation': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'Procedure': {
+        'token': {
+            'field': 'code'
+        }
+    },
+    'ServiceRequest': {
         'token': {
             'field': 'code'
         }
