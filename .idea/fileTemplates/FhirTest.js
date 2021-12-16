@@ -3,7 +3,7 @@
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
-// provider file
+// test file
 const ${ResourceNameLower}1Resource = require('./fixtures/${ResourceName}/${ResourceNameLower}1.json');
 
 // expected
