@@ -106,72 +106,72 @@ const customScalarQueries = {
  */
 const customTokenQueries = {
     'AllergyIntolerance': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'Condition': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'DeviceRequest': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'DiagnosticReport': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'FamilyMemberHistory': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'List': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'Medication': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'MedicationAdministration': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'MedicationDispense': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'MedicationRequest': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'MedicationStatement': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'Observation': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'Procedure': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     },
     'ServiceRequest': {
-        'token': {
+        'code': {
             'field': 'code'
         }
     }
