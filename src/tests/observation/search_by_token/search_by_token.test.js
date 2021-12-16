@@ -10,7 +10,7 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {compareBundles} = require('../../compareBundles');
+const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('ObservationReturnIdTests', () => {
     beforeEach(async () => {
@@ -41,11 +41,7 @@ describe('ObservationReturnIdTests', () => {
                 .send(observation2Resource)
                 .set(getHeaders())
                 .expect(200);
-
-            console.log('------- response from adding observation2Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            assertMergeIsSuccessful(resp.body);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right observation back
@@ -54,10 +50,7 @@ describe('ObservationReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Observation sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            compareBundles(resp.body, expectedObservationResources);
+            assertCompareBundles(resp.body, expectedObservationResources);
         });
     });
 });

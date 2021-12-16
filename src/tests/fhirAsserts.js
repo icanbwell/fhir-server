@@ -1,4 +1,14 @@
-function compareBundles(body, expected) {
+function assertMergeIsSuccessful(body) {
+    console.log('------- response from adding observation2Resource ------------');
+    console.log(JSON.stringify(body, null, 2));
+    console.log('------- end response  ------------');
+    expect(body['created']).toBe(true);
+}
+
+function assertCompareBundles(body, expected) {
+    console.log('------- response Observation sorted ------------');
+    console.log(JSON.stringify(body, null, 2));
+    console.log('------- end response sort ------------');
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];
@@ -23,5 +33,6 @@ function compareBundles(body, expected) {
 }
 
 module.exports = {
-    compareBundles: compareBundles
+    assertCompareBundles: assertCompareBundles,
+    assertMergeIsSuccessful: assertMergeIsSuccessful
 };
