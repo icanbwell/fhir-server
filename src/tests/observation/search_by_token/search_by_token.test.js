@@ -3,6 +3,7 @@ const supertest = require('supertest');
 const {app} = require('../../../app');
 // provider file
 const observation1Resource = require('./fixtures/observation/observation1.json');
+const observation2Resource = require('./fixtures/observation/observation2.json');
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
@@ -26,6 +27,17 @@ describe('ObservationReturnIdTests', () => {
             let resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response observation1Resource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
                 .set(getHeaders())
                 .expect(200);
 
