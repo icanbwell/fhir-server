@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customReferenceQueries, customScalarQueries} = require('./customQueries');
+const {customReferenceQueries, customScalarQueries, customTokenQueries} = require('./customQueries');
 
 // /**
 //  * @type {import('winston').logger}
@@ -135,6 +135,24 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             break;
                     }
                     columns.add(`${propertyObj.field}`);
+                }
+            }
+        }
+    }
+
+    for (const [resourceType, filterObj] of Object.entries(customTokenQueries)) {
+        if (resourceType === resourceName) {
+            for (const [property, propertyObj] of Object.entries(filterObj)) {
+                if (args[`${property}`]) {
+                    let queryBuilder = tokenQueryBuilder(args[`${property}`], 'code', `${propertyObj.field}.coding`, '');
+                    /**
+                     * @type {string}
+                     */
+                    for (let i in queryBuilder) {
+                        query[`${i}`] = queryBuilder[`${i}`];
+                    }
+                    columns.add(`${propertyObj.field}.coding.system`);
+                    columns.add(`${propertyObj.field}.coding.code`);
                 }
             }
         }

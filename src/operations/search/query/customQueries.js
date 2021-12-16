@@ -100,7 +100,19 @@ const customScalarQueries = {
     }
 };
 
+/*
+    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
+ */
+const customTokenQueries = {
+    'Observation': {
+        'token': {
+            'field': 'code'
+        }
+    }
+};
+
 module.exports = {
     customReferenceQueries: customReferenceQueries,
-    customScalarQueries: customScalarQueries
+    customScalarQueries: customScalarQueries,
+    customTokenQueries: customTokenQueries
 };
