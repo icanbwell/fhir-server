@@ -76,7 +76,7 @@ let nameQueryBuilder = function (target) {
 
 /**
  * @name tokenQueryBuilder
- * @param {string} target what we are searching for
+ * @param {?string} target what we are searching for
  * @param {string} type codeable concepts use a code field and identifiers use a value
  * @param {string} field path to system and value from field
  * @param {string} required the required system if specified

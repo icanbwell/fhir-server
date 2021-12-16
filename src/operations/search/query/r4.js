@@ -143,14 +143,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'token':
-                            // eslint-disable-next-line no-case-declarations
-                            const queryBuilder = tokenQueryBuilder(args[`${property}`], 'code', `${propertyObj.field}.coding`, '');
-                            /**
-                             * @type {string}
-                             */
-                            for (let i in queryBuilder) {
-                                query[`${i}`] = queryBuilder[`${i}`];
-                            }
+                            and_segments.push(tokenQueryBuilder(args[`${property}`], 'code', `${propertyObj.field}.coding`, ''));
                             columns.add(`${propertyObj.field}.coding.system`);
                             columns.add(`${propertyObj.field}.coding.code`);
                             break;
