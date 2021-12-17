@@ -15,9 +15,10 @@ const fhirFilterTypes = {
     string: 'string',
     uri: 'uri'
 };
-/*
-    The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
-    Try to keep this in list in alphabetical order to make it easier to search
+/**
+ The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
+ Try to keep this in list in alphabetical order to make it easier to search
+ From: https://www.hl7.org/fhir/searchparameter-registry.html
  */
 const customFilterQueries = {
     'Account': {
@@ -40,6 +41,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'Appointment': {
@@ -69,6 +74,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'CarePlan': {
@@ -115,12 +128,28 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'CompartmentDefinition': {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'Composition': {
@@ -132,12 +161,24 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'ConceptMap': {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'Condition': {
@@ -221,6 +262,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'DocumentReference': {
@@ -228,6 +273,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'Encounter': {
@@ -239,6 +288,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'EpisodeOfCare': {
@@ -250,6 +303,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
+        },
+        'type': {
+            'type': fhirFilterTypes.token,
+            'field': 'type'
         }
     },
     'ExplanationOfBenefit': {
@@ -296,6 +353,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'HealthcareService': {
@@ -320,6 +385,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'Immunization': {
@@ -383,7 +456,12 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
+
     },
     'MedicationDispense': {
         'code': {
@@ -394,7 +472,12 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
+
     },
     'MedicationRequest': {
         'code': {
@@ -405,6 +488,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
     },
     'MedicationStatement': {
@@ -416,19 +503,36 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
     },
     'MessageDefinition': {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'NamingSystem': {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
+
     },
     'NutritionOrder': {
         'patient': {
@@ -456,6 +560,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'Organization': {
@@ -579,6 +691,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'ServiceRequest': {
@@ -603,12 +723,28 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'StructureMap': {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'SupplyRequest': {
@@ -628,6 +764,14 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
+        },
+        'url': {
+            'type': fhirFilterTypes.uri,
+            'field': 'url'
         }
     },
     'ValueSet': {
@@ -638,6 +782,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'status': {
+            'type': fhirFilterTypes.string,
+            'field': 'status'
         }
     },
     'VisionPrescription': {
