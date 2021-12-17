@@ -3,6 +3,18 @@
  * The format is we specify the filter passed in the query.  then we define the resourceType for it and mappings that
  *  map the resource we're searching for that filter and the reference property in that resource to use
  */
+/**
+ * This is the enum for the types of filters we support
+ */
+const fhirFilterTypes = {
+    reference: 'reference',
+    token: 'token',
+    datetime: 'datetime',
+    instant: 'instant',
+    period: 'period',
+    string: 'string',
+    uri: 'uri'
+};
 /*
     The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
     Try to keep this in list in alphabetical order to make it easier to search
@@ -10,512 +22,513 @@
 const customFilterQueries = {
     'Account': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'AllergyIntolerance': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'datetime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'recordedDate'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'Appointment': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'participant.actor.reference',
             'referencedResource': 'Patient'
         }
     },
     'AuditEvent': {
         'date': {
-            'type': 'instant',
+            'type': fhirFilterTypes.instant,
             'field': 'recorded'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'agent.who.reference',
             'referencedResource': 'Patient'
         },
         'agent': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'agent.who.reference',
             'referencedResource': 'Person'
         }
     },
     'CapabilityStatement': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'CarePlan': {
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'period'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'CareTeam': {
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'period'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'Claim': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'ClinicalImpression': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'date'
         }
     },
     'CodeSystem': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'CompartmentDefinition': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'Composition': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'date'
         }
     },
     'ConceptMap': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'Condition': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'Consent': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'dateTime'
         }
     },
     'Coverage': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'beneficiary.reference',
             'referencedResource': 'Patient'
         }
     },
     'Device': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'DeviceRequest': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         }
     },
     'DiagnosticReport': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'effectiveDateTime'
         }
     },
     'DocumentReference': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'Encounter': {
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'period'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'EpisodeOfCare': {
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'period'
         }
     },
     'ExplanationOfBenefit': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'FamilyMemberHistory': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'date'
         }
     },
     'Flag': {
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'period'
         }
     },
     'GraphDefinition': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'HealthcareService': {
         'healthcareService': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         },
         'organization': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'providedBy.reference',
             'referencedResource': 'Organization'
         }
     },
     'ImplementationGuide': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'Immunization': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'occurrenceDateTime'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'InsurancePlan': {
         'organization': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'ownedBy.reference',
             'referencedResource': 'Organization'
         }
     },
     'Location': {
         'location': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         }
     },
     'List': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'date'
         }
     },
     'MeasureReport': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'Medication': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         }
     },
     'MedicationAdministration': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         }
     },
     'MedicationDispense': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         }
     },
     'MedicationRequest': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'MedicationStatement': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         }
     },
     'MessageDefinition': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'NamingSystem': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'Observation': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'period',
+            'type': fhirFilterTypes.period,
             'field': 'effectivePeriod'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'OperationDefinition': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'Organization': {
         'organization': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         }
     },
     'Patient': {
         'patient': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         }
     },
     'Person': {
         'agent': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'link.target.reference',
             'referencedResource': 'Patient'
         }
     },
     'Practitioner': {
         'practitioner': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         }
     },
     'PractitionerRole': {
         'practitioner': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'practitioner.reference',
             'referencedResource': 'Practitioner'
         },
         'organization': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'organization.reference',
             'referencedResource': 'Organization'
         },
         'location': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'location.reference',
             'referencedResource': 'Location'
         },
         'healthcareService': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'healthcareService.reference',
             'referencedResource': 'HealthcareService'
         }
     },
     'Procedure': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'performedDateTime'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'QuestionnaireResponse': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'RelatedPerson': {
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
     'RiskAssessment': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'occurrenceDateTime'
         }
     },
     'Schedule': {
         'schedule': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'id'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
             'referencedResource': 'Patient'
         },
         'practitioner': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
             'referencedResource': 'Practitioner'
         },
         'location': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
             'referencedResource': 'Location'
         },
         'healthcareService': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
             'referencedResource': 'HealthcareService'
         }
     },
     'SearchParameter': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'ServiceRequest': {
         'code': {
-            'type': 'token',
+            'type': fhirFilterTypes.token,
             'field': 'code'
         },
         'patient': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
             'referencedResource': 'Patient'
         }
     },
     'Slot': {
         'schedule': {
-            'type': 'reference',
+            'type': fhirFilterTypes.reference,
             'field': 'schedule.reference',
             'referencedResource': 'Schedule'
         }
     },
     'StructureDefinition': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'StructureMap': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'SupplyRequest': {
         'date': {
-            'type': 'dateTime',
+            'type': fhirFilterTypes.dateTime,
             'field': 'occurrenceDateTime'
         }
     },
     'TerminologyCapabilities': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         }
     },
     'ValueSet': {
         'name': {
-            'type': 'string',
+            'type': fhirFilterTypes.string,
             'field': 'name'
         },
         'url': {
-            'type': 'uri',
+            'type': fhirFilterTypes.uri,
             'field': 'url'
         }
     }
 };
 
 module.exports = {
+    fhirFilterTypes: fhirFilterTypes,
     customFilterQueries: customFilterQueries
 };

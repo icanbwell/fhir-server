@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customFilterQueries} = require('./customQueries');
+const {customFilterQueries, fhirFilterTypes} = require('./customQueries');
 
 // /**
 //  * @type {import('winston').logger}
@@ -128,7 +128,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (args[`${queryParameter}`]) {
                     switch (propertyObj.type) {
-                        case 'string':
+                        case fhirFilterTypes.string:
                             if (Array.isArray(args[`${queryParameter}`])) {
                                 query[`${propertyObj.field}`] = {
                                     $in: args[`${queryParameter}`]
@@ -143,13 +143,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             }
                             columns.add(`${propertyObj.field}`);
                             break;
-                        case 'uri':
+                        case fhirFilterTypes.uri:
                             query[`${propertyObj.field}`] = args[`${queryParameter}`];
                             columns.add(`${propertyObj.field}`);
                             break;
-                        case 'dateTime':
-                        case 'period':
-                        case 'instant':
+                        case fhirFilterTypes.dateTime:
+                        case fhirFilterTypes.period:
+                        case fhirFilterTypes.instant:
                             if (Array.isArray(args[`${queryParameter}`])) {
                                 for (const dateQueryItem of args[`${queryParameter}`]) {
                                     and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')});
@@ -159,12 +159,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             }
                             columns.add(`${propertyObj.field}`);
                             break;
-                        case 'token':
+                        case fhirFilterTypes.token:
                             and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''));
                             columns.add(`${propertyObj.field}.coding.system`);
                             columns.add(`${propertyObj.field}.coding.code`);
                             break;
-                        case 'reference':
+                        case fhirFilterTypes.reference:
                             // eslint-disable-next-line no-case-declarations
                             const referencedResource = propertyObj.referencedResource;
                             // eslint-disable-next-line no-case-declarations
