@@ -81,97 +81,10 @@ const customReferenceQueries = {
 };
 
 /*
-    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
+    The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
+    Try to keep this in list in alphabetical order to make it easier to search
  */
 const customScalarQueries = {
-    'CapabilityStatement': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'CodeSystem': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'CompartmentDefinition': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'ConceptMap': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'GraphDefinition': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'ImplementationGuide': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'MessageDefinition': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'NamingSystem': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'OperationDefinition': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'SearchParameter': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'StructureDefinition': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'StructureMap': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'TerminologyCapabilities': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        }
-    },
-    'ValueSet': {
-        'name': {
-            'type': 'string',
-            'field': 'name'
-        },
-        'url': {
-            'type': 'uri',
-            'field': 'url'
-        }
-    },
     'AllergyIntolerance': {
         'code': {
             'type': 'token',
@@ -187,10 +100,70 @@ const customScalarQueries = {
             'referencedResource': 'Patient'
         }
     },
+    'AuditEvent': {
+        'date': {
+            'type': 'instant',
+            'field': 'recorded'
+        }
+    },
+    'CapabilityStatement': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'CarePlan': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'CareTeam': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'ClinicalImpression': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'CodeSystem': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'CompartmentDefinition': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'Composition': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
+        }
+    },
+    'ConceptMap': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
     'Condition': {
         'code': {
             'type': 'token',
             'field': 'code'
+        }
+    },
+    'Consent': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'dateTime'
         }
     },
     'DeviceRequest': {
@@ -209,6 +182,18 @@ const customScalarQueries = {
             'field': 'effectiveDateTime'
         }
     },
+    'Encounter': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'EpisodeOfCare': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
     'FamilyMemberHistory': {
         'code': {
             'type': 'token',
@@ -217,6 +202,30 @@ const customScalarQueries = {
         'date': {
             'type': 'dateTime',
             'field': 'date'
+        }
+    },
+    'Flag': {
+        'date': {
+            'type': 'period',
+            'field': 'period'
+        }
+    },
+    'GraphDefinition': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'ImplementationGuide': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'Immunization': {
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
         }
     },
     'List': {
@@ -259,6 +268,18 @@ const customScalarQueries = {
             'field': 'code'
         }
     },
+    'MessageDefinition': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'NamingSystem': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
     'Observation': {
         'code': {
             'type': 'token',
@@ -272,6 +293,12 @@ const customScalarQueries = {
             'type': 'reference',
             'field': 'subject.reference',
             'referencedResource': 'Patient'
+        }
+    },
+    'OperationDefinition': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'Procedure': {
@@ -291,82 +318,56 @@ const customScalarQueries = {
             'referencedResource': 'Patient'
         }
     },
-    'ServiceRequest': {
-        'code': {
-            'type': 'token',
-            'field': 'code'
-        }
-    },
-    'AuditEvent': {
-        'date': {
-            'type': 'instant',
-            'field': 'recorded'
-        }
-    },
-    'CarePlan': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'CareTeam': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'ClinicalImpression': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Composition': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'date'
-        }
-    },
-    'Consent': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'dateTime'
-        }
-    },
-    'Encounter': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'EpisodeOfCare': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'Flag': {
-        'date': {
-            'type': 'period',
-            'field': 'period'
-        }
-    },
-    'Immunization': {
-        'date': {
-            'type': 'dateTime',
-            'field': 'occurrenceDateTime'
-        }
-    },
     'RiskAssessment': {
         'date': {
             'type': 'dateTime',
             'field': 'occurrenceDateTime'
         }
     },
+    'SearchParameter': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'ServiceRequest': {
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        }
+    },
+    'StructureDefinition': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'StructureMap': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
     'SupplyRequest': {
         'date': {
             'type': 'dateTime',
             'field': 'occurrenceDateTime'
+        }
+    },
+    'TerminologyCapabilities': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        }
+    },
+    'ValueSet': {
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        },
+        'url': {
+            'type': 'uri',
+            'field': 'url'
         }
     }
 };
