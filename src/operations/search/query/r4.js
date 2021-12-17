@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customReferenceQueries, customScalarQueries} = require('./customQueries');
+const {customFilterQueries} = require('./customQueries');
 
 // /**
 //  * @type {import('winston').logger}
@@ -123,7 +123,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     }
 
     // add reference queries
-    for (const [resourceType, resourceObj] of Object.entries(customScalarQueries)) {
+    for (const [resourceType, resourceObj] of Object.entries(customFilterQueries)) {
         if (resourceType === resourceName) {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (args[`${queryParameter}`] || args[`${queryParameter}:missing`]) {
@@ -168,32 +168,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 columns.add(`${propertyObj.field}`);
                             }
                             break;
-                    }
-                }
-            }
-        }
-    }
-
-    // add reference queries
-    for (const [field, filterObj] of Object.entries(customReferenceQueries)) {
-        const referenceResource = filterObj.resourceType;
-        if (args[`${field}`] || args[`${field}:missing`]) {
-            const reference = `${referenceResource}/` + args[`${field}`];
-            /**
-             * @type {?boolean}
-             */
-            let reference_exists_flag = null;
-            if (args[`${field}:missing`]) {
-                reference_exists_flag = !isTrue(args[`${field}:missing`]);
-            }
-            for (const [resource, property] of Object.entries(filterObj.mappings)) {
-                if ([`${resource}`].includes(resourceName)) {
-                    if (property === 'id') {
-                        columns.add('id');
-                        query.id = args[`${field}`];
-                    } else {
-                        and_segments.push(referenceQueryBuilder(reference, property, reference_exists_flag));
-                        columns.add(property);
                     }
                 }
             }

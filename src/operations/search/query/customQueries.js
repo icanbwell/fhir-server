@@ -3,88 +3,18 @@
  * The format is we specify the filter passed in the query.  then we define the resourceType for it and mappings that
  *  map the resource we're searching for that filter and the reference property in that resource to use
  */
-const customReferenceQueries = {
-    'patient': {
-        'resourceType': 'Patient',
-        'mappings': {
-            'Patient': 'id',
-            'AllergyIntolerance': 'patient.reference',
-            'Immunization': 'patient.reference',
-            'RelatedPerson': 'patient.reference',
-            'Device': 'patient.reference',
-            'ExplanationOfBenefit': 'patient.reference',
-            'Claim': 'patient.reference',
-            'Appointment': 'participant.actor.reference',
-            'Account': 'subject.reference',
-            'CarePlan': 'subject.reference',
-            'Condition': 'subject.reference',
-            'DocumentReference': 'subject.reference',
-            'Encounter': 'subject.reference',
-            'MedicationRequest': 'subject.reference',
-            'Procedure': 'subject.reference',
-            'ServiceRequest': 'subject.reference',
-            'CareTeam': 'subject.reference',
-            'MeasureReport': 'subject.reference',
-            'Coverage': 'beneficiary.reference',
-            'AuditEvent': 'agent.who.reference',
-            'Person': 'link.target.reference',
-            'Schedule': 'actor.reference'
-        }
-    },
-    'practitioner': {
-        'resourceType': 'Practitioner',
-        'mappings': {
-            'Practitioner': 'id',
-            'PractitionerRole': 'practitioner.reference',
-            'Schedule': 'actor.reference'
-        }
-    },
-    'organization': {
-        'resourceType': 'Organization',
-        'mappings': {
-            'Organization': 'id',
-            'HealthcareService': 'providedBy.reference',
-            'InsurancePlan': 'ownedBy.reference',
-            'PractitionerRole': 'organization.reference'
-        }
-    },
-    'location': {
-        'resourceType': 'Location',
-        'mappings': {
-            'Location': 'id',
-            'PractitionerRole': 'location.reference',
-            'Schedule': 'actor.reference'
-        }
-    },
-    'healthcareService': {
-        'resourceType': 'HealthcareService',
-        'mappings': {
-            'HealthcareService': 'id',
-            'PractitionerRole': 'healthcareService.reference',
-            'Schedule': 'actor.reference'
-        }
-    },
-    'schedule': {
-        'resourceType': 'Schedule',
-        'mappings': {
-            'Schedule': 'id',
-            'Slot': 'schedule.reference'
-        }
-    },
-    'agent': {
-        'resourceType': 'Person',
-        'mappings': {
-            'Person': 'id',
-            'AuditEvent': 'agent.who.reference'
-        }
-    }
-};
-
 /*
     The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
     Try to keep this in list in alphabetical order to make it easier to search
  */
-const customScalarQueries = {
+const customFilterQueries = {
+    'Account': {
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
     'AllergyIntolerance': {
         'code': {
             'type': 'token',
@@ -100,10 +30,27 @@ const customScalarQueries = {
             'referencedResource': 'Patient'
         }
     },
+    'Appointment': {
+        'patient': {
+            'type': 'reference',
+            'field': 'participant.actor.reference',
+            'referencedResource': 'Patient'
+        }
+    },
     'AuditEvent': {
         'date': {
             'type': 'instant',
             'field': 'recorded'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'agent.who.reference',
+            'referencedResource': 'Patient'
+        },
+        'agent': {
+            'type': 'reference',
+            'field': 'agent.who.reference',
+            'referencedResource': 'Person'
         }
     },
     'CapabilityStatement': {
@@ -116,12 +63,29 @@ const customScalarQueries = {
         'date': {
             'type': 'period',
             'field': 'period'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'CareTeam': {
         'date': {
             'type': 'period',
             'field': 'period'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'Claim': {
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'ClinicalImpression': {
@@ -158,12 +122,31 @@ const customScalarQueries = {
         'code': {
             'type': 'token',
             'field': 'code'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Consent': {
         'date': {
             'type': 'dateTime',
             'field': 'dateTime'
+        }
+    },
+    'Coverage': {
+        'patient': {
+            'type': 'reference',
+            'field': 'beneficiary.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'Device': {
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'DeviceRequest': {
@@ -182,16 +165,35 @@ const customScalarQueries = {
             'field': 'effectiveDateTime'
         }
     },
+    'DocumentReference': {
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
     'Encounter': {
         'date': {
             'type': 'period',
             'field': 'period'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'EpisodeOfCare': {
         'date': {
             'type': 'period',
             'field': 'period'
+        }
+    },
+    'ExplanationOfBenefit': {
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'FamilyMemberHistory': {
@@ -216,6 +218,17 @@ const customScalarQueries = {
             'field': 'name'
         }
     },
+    'HealthcareService': {
+        'healthcareService': {
+            'type': 'string',
+            'field': 'id'
+        },
+        'organization': {
+            'type': 'reference',
+            'field': 'providedBy.reference',
+            'referencedResource': 'Organization'
+        }
+    },
     'ImplementationGuide': {
         'name': {
             'type': 'string',
@@ -226,6 +239,24 @@ const customScalarQueries = {
         'date': {
             'type': 'dateTime',
             'field': 'occurrenceDateTime'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'InsurancePlan': {
+        'organization': {
+            'type': 'reference',
+            'field': 'ownedBy.reference',
+            'referencedResource': 'Organization'
+        }
+    },
+    'Location': {
+        'location': {
+            'type': 'string',
+            'field': 'id'
         }
     },
     'List': {
@@ -236,6 +267,13 @@ const customScalarQueries = {
         'date': {
             'type': 'dateTime',
             'field': 'date'
+        }
+    },
+    'MeasureReport': {
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Medication': {
@@ -260,6 +298,11 @@ const customScalarQueries = {
         'code': {
             'type': 'token',
             'field': 'code'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'MedicationStatement': {
@@ -301,6 +344,57 @@ const customScalarQueries = {
             'field': 'name'
         }
     },
+    'Organization': {
+        'organization': {
+            'type': 'string',
+            'field': 'id'
+        }
+    },
+    'Patient': {
+        'patient': {
+            'type': 'string',
+            'field': 'id'
+        }
+    },
+    'Person': {
+        'agent': {
+            'type': 'string',
+            'field': 'id'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'link.target.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'Practitioner': {
+        'practitioner': {
+            'type': 'string',
+            'field': 'id'
+        }
+    },
+    'PractitionerRole': {
+        'practitioner': {
+            'type': 'reference',
+            'field': 'practitioner.reference',
+            'referencedResource': 'Practitioner'
+        },
+        'organization': {
+            'type': 'reference',
+            'field': 'organization.reference',
+            'referencedResource': 'Organization'
+        },
+        'location': {
+            'type': 'reference',
+            'field': 'location.reference',
+            'referencedResource': 'Location'
+        },
+        'healthcareService': {
+            'type': 'reference',
+            'field': 'healthcareService.reference',
+            'referencedResource': 'HealthcareService'
+        }
+    },
     'Procedure': {
         'code': {
             'type': 'token',
@@ -309,6 +403,11 @@ const customScalarQueries = {
         'date': {
             'type': 'dateTime',
             'field': 'performedDateTime'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'QuestionnaireResponse': {
@@ -318,10 +417,43 @@ const customScalarQueries = {
             'referencedResource': 'Patient'
         }
     },
+    'RelatedPerson': {
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
+        }
+    },
     'RiskAssessment': {
         'date': {
             'type': 'dateTime',
             'field': 'occurrenceDateTime'
+        }
+    },
+    'Schedule': {
+        'schedule': {
+            'type': 'string',
+            'field': 'id'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'actor.reference',
+            'referencedResource': 'Patient'
+        },
+        'practitioner': {
+            'type': 'reference',
+            'field': 'actor.reference',
+            'referencedResource': 'Practitioner'
+        },
+        'location': {
+            'type': 'reference',
+            'field': 'actor.reference',
+            'referencedResource': 'Location'
+        },
+        'healthcareService': {
+            'type': 'reference',
+            'field': 'actor.reference',
+            'referencedResource': 'HealthcareService'
         }
     },
     'SearchParameter': {
@@ -334,6 +466,18 @@ const customScalarQueries = {
         'code': {
             'type': 'token',
             'field': 'code'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'Slot': {
+        'schedule': {
+            'type': 'reference',
+            'field': 'schedule.reference',
+            'referencedResource': 'Schedule'
         }
     },
     'StructureDefinition': {
@@ -373,6 +517,5 @@ const customScalarQueries = {
 };
 
 module.exports = {
-    customReferenceQueries: customReferenceQueries,
-    customScalarQueries: customScalarQueries
+    customFilterQueries: customFilterQueries
 };
