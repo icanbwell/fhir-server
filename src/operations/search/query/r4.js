@@ -139,7 +139,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         case 'dateTime':
                         case 'period':
                         case 'instant':
-                            query[`${propertyObj.field}`] = dateQueryBuilder(args[`${queryParameter}`], propertyObj.type, '');
+                            if (Array.isArray(args[`${queryParameter}`])) {
+                                for (const dateQueryItem of args[`${queryParameter}`]) {
+                                    and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')});
+                                }
+                            } else {
+                                and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(args[`${queryParameter}`], propertyObj.type, '')});
+                            }
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'token':
