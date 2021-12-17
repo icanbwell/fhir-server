@@ -18,10 +18,11 @@ jobs:
       test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     steps:
       - uses: actions/checkout@v2
-      - run: npm install
+      - run: yarn install
+      - run: npm run build --if-present
       - id: set-test-chunks
         name: Set Chunks
-        run: echo "::set-output name=test-chunks::$(npx jest --listTests --json | jq -cM '[_nwise(length / 2 | floor)]')"
+        run: echo "::set-output name=test-chunks::$(npx jest --listTests --json | jq -cM '[_nwise(length / 4 | floor)]')"
       - id: set-test-chunk-ids
         name: Set Chunk IDs
         run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
@@ -37,15 +38,15 @@ jobs:
       matrix:
         chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 16.13.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.13.x
-    - run: yarn install
-    - run: npm run build --if-present
-    - run: npm test
-    - name: jest
-      run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest
-      env:
-        CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.13.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.13.x
+      - run: yarn install
+      - run: npm run build --if-present
+      - run: npm test
+      - name: jest
+        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest
+        env:
+          CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
