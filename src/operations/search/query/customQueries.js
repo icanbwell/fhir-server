@@ -71,6 +71,10 @@ const customFilterQueries = {
         }
     },
     'CapabilityStatement': {
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
@@ -82,6 +86,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'CarePlan': {
@@ -129,6 +137,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -136,6 +148,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'CompartmentDefinition': {
@@ -143,6 +159,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -150,6 +170,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'Composition': {
@@ -172,6 +196,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -179,6 +207,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'Condition': {
@@ -354,6 +386,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -361,6 +397,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'HealthcareService': {
@@ -386,6 +426,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -393,6 +437,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'Immunization': {
@@ -514,6 +562,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -521,6 +573,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'NamingSystem': {
@@ -528,11 +584,14 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
         }
-
     },
     'NutritionOrder': {
         'patient': {
@@ -561,6 +620,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -568,6 +631,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'Organization': {
@@ -580,6 +647,10 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.string,
             'field': 'id'
+        },
+        'birthdate': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'birthDate'
         }
     },
     'Person': {
@@ -591,6 +662,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'link.target.reference',
             'referencedResource': 'Patient'
+        },
+        'birthdate': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'birthDate'
         }
     },
     'Practitioner': {
@@ -648,6 +723,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
             'referencedResource': 'Patient'
+        },
+        'birthdate': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'birthDate'
         }
     },
     'RiskAssessment': {
@@ -692,6 +771,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -699,6 +782,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'ServiceRequest': {
@@ -724,6 +811,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -731,6 +822,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'StructureMap': {
@@ -738,6 +833,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -745,6 +844,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'SupplyRequest': {
@@ -765,6 +868,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
@@ -772,6 +879,10 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'ValueSet': {
@@ -779,6 +890,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.string,
             'field': 'name'
         },
+        'date': {
+            'type': fhirFilterTypes.dateTime,
+            'field': 'date'
+        },
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
@@ -786,6 +901,10 @@ const customFilterQueries = {
         'status': {
             'type': fhirFilterTypes.string,
             'field': 'status'
+        },
+        'version': {
+            'type': fhirFilterTypes.token,
+            'field': 'version'
         }
     },
     'VisionPrescription': {
