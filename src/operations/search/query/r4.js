@@ -44,8 +44,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     let type_ = args['type'];
 
     let gender = args['gender'];
-    let email = args['email'];
-    let phone = args['phone'];
     let source = args['source'];
     let versionId = args['versionId'];
     let lastUpdated = args['_lastUpdated']; // _lastUpdated=gt2010-10-01
@@ -165,9 +163,14 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}.coding.code`);
                             break;
                         case fhirFilterTypes.email:
-                            and_segments.push(tokenQueryBuilder('email|' + args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''));
-                            columns.add(`${propertyObj.field}.coding.system`);
-                            columns.add(`${propertyObj.field}.coding.code`);
+                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'email'));
+                            columns.add(`${propertyObj.field}.system`);
+                            columns.add(`${propertyObj.field}.value`);
+                            break;
+                        case fhirFilterTypes.phone:
+                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'phone'));
+                            columns.add(`${propertyObj.field}.system`);
+                            columns.add(`${propertyObj.field}.value`);
                             break;
                         case fhirFilterTypes.reference:
                             // eslint-disable-next-line no-case-declarations
@@ -289,26 +292,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (gender) {
         query.gender = gender;
         columns.add('gender');
-    }
-
-    // Forces system = 'email'
-    if (email) {
-        let queryBuilder = tokenQueryBuilder(email, 'value', 'telecom', 'email');
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('telecom.system');
-        columns.add('telecom.value');
-    }
-
-    // Forces system = 'phone'
-    if (phone) {
-        let queryBuilder = tokenQueryBuilder(phone, 'value', 'telecom', 'phone');
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('telecom.system');
-        columns.add('telecom.value');
     }
 
     if (and_segments.length !== 0) {

@@ -41,7 +41,15 @@ const fhirFilterTypes = {
      *     example usage: ?param=bar
      *     can also pass in multiple values separated by comma which are combined in an OR e.g., ?param=bar1,bar2
      */
-    uri: 'uri'
+    uri: 'uri',
+    /**
+     * usage: ?param=imran@hotmail.com
+     */
+    email: 'email',
+    /**
+     * usage: ?param=4086669999
+     */
+    phone: 'phone'
 };
 /**
  The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
@@ -683,6 +691,10 @@ const customFilterQueries = {
         'email': {
             'type': fhirFilterTypes.email,
             'field': 'telecom'
+        },
+        'phone': {
+            'type': fhirFilterTypes.phone,
+            'field': 'telecom'
         }
     },
     'Person': {
@@ -702,6 +714,10 @@ const customFilterQueries = {
         'email': {
             'type': fhirFilterTypes.email,
             'field': 'telecom'
+        },
+        'phone': {
+            'type': fhirFilterTypes.phone,
+            'field': 'telecom'
         }
     },
     'Practitioner': {
@@ -711,6 +727,10 @@ const customFilterQueries = {
         },
         'email': {
             'type': fhirFilterTypes.email,
+            'field': 'telecom'
+        },
+        'phone': {
+            'type': fhirFilterTypes.phone,
             'field': 'telecom'
         }
     },
@@ -737,6 +757,10 @@ const customFilterQueries = {
         },
         'email': {
             'type': fhirFilterTypes.email,
+            'field': 'telecom'
+        },
+        'phone': {
+            'type': fhirFilterTypes.phone,
             'field': 'telecom'
         }
     },
@@ -774,6 +798,10 @@ const customFilterQueries = {
         },
         'email': {
             'type': fhirFilterTypes.email,
+            'field': 'telecom'
+        },
+        'phone': {
+            'type': fhirFilterTypes.phone,
             'field': 'telecom'
         }
     },
