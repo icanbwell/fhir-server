@@ -125,7 +125,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // add reference queries
     for (const [resourceType, resourceObj] of Object.entries(customScalarQueries)) {
         if (resourceType === resourceName) {
-            for (const [queryParameter, propertyObj] of Object.entries(resourceObj.mappings)) {
+            for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (args[`${queryParameter}`] || args[`${queryParameter}:missing`]) {
                     switch (propertyObj.type) {
                         case 'string':

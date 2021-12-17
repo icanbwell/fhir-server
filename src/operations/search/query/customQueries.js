@@ -85,371 +85,288 @@ const customReferenceQueries = {
  */
 const customScalarQueries = {
     'CapabilityStatement': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'CodeSystem': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'CompartmentDefinition': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'ConceptMap': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'GraphDefinition': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'ImplementationGuide': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'MessageDefinition': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'NamingSystem': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'OperationDefinition': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'SearchParameter': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'StructureDefinition': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'StructureMap': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'TerminologyCapabilities': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
         }
     },
     'ValueSet': {
-        'mappings': {
-            'name': {
-                'type': 'string',
-                'field': 'name'
-            },
-            'url': {
-                'type': 'uri',
-                'field': 'url'
-            }
+        'name': {
+            'type': 'string',
+            'field': 'name'
+        },
+        'url': {
+            'type': 'uri',
+            'field': 'url'
         }
     },
     'AllergyIntolerance': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'datetime',
-                'field': 'recordedDate'
-            },
-            'patient': {
-                'type': 'reference',
-                'field': 'patient.reference',
-                'referencedResource': 'Patient'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'datetime',
+            'field': 'recordedDate'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Condition': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'DeviceRequest': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'DiagnosticReport': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'dateTime',
-                'field': 'effectiveDateTime'
-            }
-
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'dateTime',
+            'field': 'effectiveDateTime'
         }
     },
     'FamilyMemberHistory': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'dateTime',
-                'field': 'date'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
         }
     },
     'List': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'dateTime',
-                'field': 'date'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
         }
     },
     'Medication': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'MedicationAdministration': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'MedicationDispense': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'MedicationRequest': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'MedicationStatement': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'Observation': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'period',
-                'field': 'effectivePeriod'
-            },
-            'patient': {
-                'type': 'reference',
-                'field': 'subject.reference',
-                'referencedResource': 'Patient'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'period',
+            'field': 'effectivePeriod'
+        },
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Procedure': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            },
-            'date': {
-                'type': 'dateTime',
-                'field': 'performedDateTime'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
+        },
+        'date': {
+            'type': 'dateTime',
+            'field': 'performedDateTime'
         }
     },
     'QuestionnaireResponse': {
-        'mappings': {
-            'patient': {
-                'type': 'reference',
-                'field': 'subject.reference',
-                'referencedResource': 'Patient'
-            }
+        'patient': {
+            'type': 'reference',
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'ServiceRequest': {
-        'mappings': {
-            'code': {
-                'type': 'token',
-                'field': 'code'
-            }
+        'code': {
+            'type': 'token',
+            'field': 'code'
         }
     },
     'AuditEvent': {
-        'mappings': {
-            'date': {
-                'type': 'instant',
-                'field': 'recorded'
-            }
+        'date': {
+            'type': 'instant',
+            'field': 'recorded'
         }
     },
     'CarePlan': {
-        'mappings': {
-            'date': {
-                'type': 'period',
-                'field': 'period'
-            }
+        'date': {
+            'type': 'period',
+            'field': 'period'
         }
     },
     'CareTeam': {
-        'mappings': {
-            'date': {
-                'type': 'period',
-                'field': 'period'
-            }
+        'date': {
+            'type': 'period',
+            'field': 'period'
         }
     },
     'ClinicalImpression': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'date'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
         }
     },
     'Composition': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'date'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'date'
         }
     },
     'Consent': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'dateTime'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'dateTime'
         }
     },
     'Encounter': {
-        'mappings': {
-            'date': {
-                'type': 'period',
-                'field': 'period'
-            }
+        'date': {
+            'type': 'period',
+            'field': 'period'
         }
     },
     'EpisodeOfCare': {
-        'mappings': {
-            'date': {
-                'type': 'period',
-                'field': 'period'
-            }
+        'date': {
+            'type': 'period',
+            'field': 'period'
         }
     },
     'Flag': {
-        'mappings': {
-            'date': {
-                'type': 'period',
-                'field': 'period'
-            }
+        'date': {
+            'type': 'period',
+            'field': 'period'
         }
     },
     'Immunization': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'occurrenceDateTime'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
         }
     },
     'RiskAssessment': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'occurrenceDateTime'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
         }
     },
     'SupplyRequest': {
-        'mappings': {
-            'date': {
-                'type': 'dateTime',
-                'field': 'occurrenceDateTime'
-            }
+        'date': {
+            'type': 'dateTime',
+            'field': 'occurrenceDateTime'
         }
     }
 };
