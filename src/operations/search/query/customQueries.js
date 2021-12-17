@@ -104,6 +104,11 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'date'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'CodeSystem': {
@@ -122,6 +127,11 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'date'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'ConceptMap': {
@@ -145,12 +155,24 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'dateTime'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Coverage': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'beneficiary.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'DetectedIssue': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
             'referencedResource': 'Patient'
         }
     },
@@ -165,6 +187,18 @@ const customFilterQueries = {
         'code': {
             'type': fhirFilterTypes.token,
             'field': 'code'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'DeviceUseStatement': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'DiagnosticReport': {
@@ -175,6 +209,18 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'effectiveDateTime'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'DocumentManifest': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'DocumentReference': {
@@ -199,6 +245,11 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.period,
             'field': 'period'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'ExplanationOfBenefit': {
@@ -216,12 +267,29 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'date'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Flag': {
         'date': {
             'type': fhirFilterTypes.period,
             'field': 'period'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
+        }
+    },
+    'Goal': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'GraphDefinition': {
@@ -239,6 +307,13 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'providedBy.reference',
             'referencedResource': 'Organization'
+        }
+    },
+    'ImagingStudy': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'ImplementationGuide': {
@@ -279,6 +354,11 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'date'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'MeasureReport': {
@@ -298,12 +378,22 @@ const customFilterQueries = {
         'code': {
             'type': fhirFilterTypes.token,
             'field': 'code'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'MedicationDispense': {
         'code': {
             'type': fhirFilterTypes.token,
             'field': 'code'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'MedicationRequest': {
@@ -321,6 +411,11 @@ const customFilterQueries = {
         'code': {
             'type': fhirFilterTypes.token,
             'field': 'code'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'MessageDefinition': {
@@ -333,6 +428,13 @@ const customFilterQueries = {
         'name': {
             'type': fhirFilterTypes.string,
             'field': 'name'
+        }
+    },
+    'NutritionOrder': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Observation': {
@@ -440,6 +542,11 @@ const customFilterQueries = {
         'date': {
             'type': fhirFilterTypes.dateTime,
             'field': 'occurrenceDateTime'
+        },
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'subject.reference',
+            'referencedResource': 'Patient'
         }
     },
     'Schedule': {
@@ -510,6 +617,13 @@ const customFilterQueries = {
             'field': 'occurrenceDateTime'
         }
     },
+    'SupplyDelivery': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
+        }
+    },
     'TerminologyCapabilities': {
         'name': {
             'type': fhirFilterTypes.string,
@@ -524,6 +638,13 @@ const customFilterQueries = {
         'url': {
             'type': fhirFilterTypes.uri,
             'field': 'url'
+        }
+    },
+    'VisionPrescription': {
+        'patient': {
+            'type': fhirFilterTypes.reference,
+            'field': 'patient.reference',
+            'referencedResource': 'Patient'
         }
     }
 };
