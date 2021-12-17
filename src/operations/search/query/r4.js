@@ -164,6 +164,11 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}.coding.system`);
                             columns.add(`${propertyObj.field}.coding.code`);
                             break;
+                        case fhirFilterTypes.email:
+                            and_segments.push(tokenQueryBuilder('email|' + args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''));
+                            columns.add(`${propertyObj.field}.coding.system`);
+                            columns.add(`${propertyObj.field}.coding.code`);
+                            break;
                         case fhirFilterTypes.reference:
                             // eslint-disable-next-line no-case-declarations
                             const referencedResource = propertyObj.referencedResource;

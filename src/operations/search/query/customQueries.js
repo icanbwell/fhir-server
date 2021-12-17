@@ -7,12 +7,40 @@
  * This is the enum for the types of filters we support
  */
 const fhirFilterTypes = {
+    /**
+     * example usage: ?param=id1 where id1 is the id of the resource we're finding references to
+     */
     reference: 'reference',
+    /**
+     * example usage: ?param={system}|{code} will require both to match
+     * example usage: ?param={system}| will match only on system
+     * example usage: ?param=code will match only on code
+     */
     token: 'token',
+    /**
+     * example usage: ?param=lt{date}&date=gt{date}
+     * can also pass in exact date e.g., ?param={date}
+     */
     datetime: 'datetime',
+    /**
+     * example usage: ?param=lt{date}&date=gt{date}
+     * can also pass in exact date e.g., ?param={date}
+     */
     instant: 'instant',
+    /**
+     * example usage: ?param=lt{date}&date=gt{date}
+     * can also pass in exact date e.g., ?param={date}
+     */
     period: 'period',
+    /**
+     *     example usage: ?param=bar
+     *     can also pass in multiple values separated by comma which are combined in an OR e.g., ?param=bar1,bar2
+     */
     string: 'string',
+    /**
+     *     example usage: ?param=bar
+     *     can also pass in multiple values separated by comma which are combined in an OR e.g., ?param=bar1,bar2
+     */
     uri: 'uri'
 };
 /**
@@ -651,6 +679,10 @@ const customFilterQueries = {
         'birthdate': {
             'type': fhirFilterTypes.dateTime,
             'field': 'birthDate'
+        },
+        'email': {
+            'type': fhirFilterTypes.email,
+            'field': 'telecom'
         }
     },
     'Person': {
@@ -666,12 +698,20 @@ const customFilterQueries = {
         'birthdate': {
             'type': fhirFilterTypes.dateTime,
             'field': 'birthDate'
+        },
+        'email': {
+            'type': fhirFilterTypes.email,
+            'field': 'telecom'
         }
     },
     'Practitioner': {
         'practitioner': {
             'type': fhirFilterTypes.string,
             'field': 'id'
+        },
+        'email': {
+            'type': fhirFilterTypes.email,
+            'field': 'telecom'
         }
     },
     'PractitionerRole': {
@@ -694,6 +734,10 @@ const customFilterQueries = {
             'type': fhirFilterTypes.reference,
             'field': 'healthcareService.reference',
             'referencedResource': 'HealthcareService'
+        },
+        'email': {
+            'type': fhirFilterTypes.email,
+            'field': 'telecom'
         }
     },
     'Procedure': {
@@ -727,6 +771,10 @@ const customFilterQueries = {
         'birthdate': {
             'type': fhirFilterTypes.dateTime,
             'field': 'birthDate'
+        },
+        'email': {
+            'type': fhirFilterTypes.email,
+            'field': 'telecom'
         }
     },
     'RiskAssessment': {
