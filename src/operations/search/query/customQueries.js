@@ -1,7 +1,5 @@
 /**
  * This file defines the custom query filters
- * The format is we specify the filter passed in the query.  then we define the resourceType for it and mappings that
- *  map the resource we're searching for that filter and the reference property in that resource to use
  */
 /**
  * This is the enum for the types of filters we support
@@ -52,9 +50,20 @@ const fhirFilterTypes = {
     phone: 'phone'
 };
 /**
- The format is that we list the resourceType, then the query parameter and then the type and name of field to filter
  Try to keep this in list in alphabetical order to make it easier to search
+ Follow the FHIR standard for any additions
+
  From: https://www.hl7.org/fhir/searchparameter-registry.html
+
+ Format of items in this list:
+ '{resourceType or * if this applies to all resources}': {
+        '{queryParameter}': {
+            'type': {type of filter},
+            'field': '{field name in resourceType to filter}',
+            'referencedResource': '{if type is reference then the resourceType of the referenced resource}'
+        }
+    },
+
  */
 const customFilterQueries = {
     'Account': {
