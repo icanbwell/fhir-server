@@ -21,11 +21,9 @@ const customReferenceQueries = {
             'DocumentReference': 'subject.reference',
             'Encounter': 'subject.reference',
             'MedicationRequest': 'subject.reference',
-            'Observation': 'subject.reference',
             'Procedure': 'subject.reference',
             'ServiceRequest': 'subject.reference',
             'CareTeam': 'subject.reference',
-            'QuestionnaireResponse': 'subject.reference',
             'MeasureReport': 'subject.reference',
             'Coverage': 'beneficiary.reference',
             'AuditEvent': 'agent.who.reference',
@@ -211,6 +209,11 @@ const customScalarQueries = {
             'date': {
                 'type': 'datetime',
                 'field': 'recordedDate'
+            },
+            'patient': {
+                'type': 'reference',
+                'field': 'patient.reference',
+                'referencedResource': 'Patient'
             }
         }
     },
@@ -316,6 +319,11 @@ const customScalarQueries = {
             'date': {
                 'type': 'period',
                 'field': 'effectivePeriod'
+            },
+            'patient': {
+                'type': 'reference',
+                'field': 'subject.reference',
+                'referencedResource': 'Patient'
             }
         }
     },
@@ -328,6 +336,15 @@ const customScalarQueries = {
             'date': {
                 'type': 'dateTime',
                 'field': 'performedDateTime'
+            }
+        }
+    },
+    'QuestionnaireResponse': {
+        'mappings': {
+            'patient': {
+                'type': 'reference',
+                'field': 'subject.reference',
+                'referencedResource': 'Patient'
             }
         }
     },
@@ -437,23 +454,7 @@ const customScalarQueries = {
     }
 };
 
-/*
-    These queries handle "token" searches in FHIR
-    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
-    https://www.hl7.org/fhir/searchparameter-registry.html#clinical-code
- */
-const customTokenQueries = {};
-
-/*
-    These queries handle "date" searches in FHIR
-    The format is that we list the resourceType, then the filter name and then the type and name of field to filter
-    https://www.hl7.org/fhir/searchparameter-registry.html#clinical-date
- */
-const customDateQueries = {};
-
 module.exports = {
     customReferenceQueries: customReferenceQueries,
-    customScalarQueries: customScalarQueries,
-    customTokenQueries: customTokenQueries,
-    customDateQueries: customDateQueries
+    customScalarQueries: customScalarQueries
 };

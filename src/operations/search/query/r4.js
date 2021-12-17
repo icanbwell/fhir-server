@@ -125,27 +125,48 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // add reference queries
     for (const [resourceType, resourceObj] of Object.entries(customScalarQueries)) {
         if (resourceType === resourceName) {
-            for (const [property, propertyObj] of Object.entries(resourceObj.mappings)) {
-                if (args[`${property}`] || args[`${property}:missing`]) {
+            for (const [queryParameter, propertyObj] of Object.entries(resourceObj.mappings)) {
+                if (args[`${queryParameter}`] || args[`${queryParameter}:missing`]) {
                     switch (propertyObj.type) {
                         case 'string':
-                            query[`${propertyObj.field}`] = args[`${property}`];
+                            query[`${propertyObj.field}`] = args[`${queryParameter}`];
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'uri':
-                            query[`${propertyObj.field}`] = args[`${property}`];
+                            query[`${propertyObj.field}`] = args[`${queryParameter}`];
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'dateTime':
                         case 'period':
                         case 'instant':
-                            query[`${propertyObj.field}`] = dateQueryBuilder(args[`${property}`], propertyObj.type, '');
+                            query[`${propertyObj.field}`] = dateQueryBuilder(args[`${queryParameter}`], propertyObj.type, '');
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'token':
-                            and_segments.push(tokenQueryBuilder(args[`${property}`], 'code', `${propertyObj.field}.coding`, ''));
+                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''));
                             columns.add(`${propertyObj.field}.coding.system`);
                             columns.add(`${propertyObj.field}.coding.code`);
+                            break;
+                        case 'reference':
+                            // eslint-disable-next-line no-case-declarations
+                            const referencedResource = propertyObj.referencedResource;
+                            // eslint-disable-next-line no-case-declarations
+                            const reference = `${referencedResource}/` + args[`${queryParameter}`];
+                            /**
+                             * @type {?boolean}
+                             */
+                                // eslint-disable-next-line no-case-declarations
+                            let reference_exists_flag = null;
+                            if (args[`${queryParameter}:missing`]) {
+                                reference_exists_flag = !isTrue(args[`${queryParameter}:missing`]);
+                            }
+                            if (queryParameter === 'id') {
+                                columns.add('id');
+                                query.id = args[`${queryParameter}`];
+                            } else {
+                                and_segments.push(referenceQueryBuilder(reference, propertyObj.field, reference_exists_flag));
+                                columns.add(`${propertyObj.field}`);
+                            }
                             break;
                     }
                 }
@@ -155,9 +176,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     // add reference queries
     for (const [field, filterObj] of Object.entries(customReferenceQueries)) {
-        const resourceType = filterObj.resourceType;
+        const referenceResource = filterObj.resourceType;
         if (args[`${field}`] || args[`${field}:missing`]) {
-            const reference = `${resourceType}/` + args[`${field}`];
+            const reference = `${referenceResource}/` + args[`${field}`];
             /**
              * @type {?boolean}
              */
