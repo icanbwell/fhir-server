@@ -124,12 +124,23 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     // add reference queries
     for (const [resourceType, resourceObj] of Object.entries(customFilterQueries)) {
-        if (resourceType === resourceName) {
+        if (resourceType === resourceName || resourceType === '*') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
-                if (args[`${queryParameter}`] || args[`${queryParameter}:missing`]) {
+                if (args[`${queryParameter}`]) {
                     switch (propertyObj.type) {
                         case 'string':
-                            query[`${propertyObj.field}`] = args[`${queryParameter}`];
+                            if (Array.isArray(args[`${queryParameter}`])) {
+                                query[`${propertyObj.field}`] = {
+                                    $in: args[`${queryParameter}`]
+                                };
+                            } else if (args[`${queryParameter}`].includes(',')) { // see if this is a comma separated list
+                                const value_list = args[`${queryParameter}`].split(',');
+                                query[`${propertyObj.field}`] = {
+                                    $in: value_list
+                                };
+                            } else {
+                                query[`${propertyObj.field}`] = args[`${queryParameter}`];
+                            }
                             columns.add(`${propertyObj.field}`);
                             break;
                         case 'uri':
@@ -158,23 +169,14 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             const referencedResource = propertyObj.referencedResource;
                             // eslint-disable-next-line no-case-declarations
                             const reference = `${referencedResource}/` + args[`${queryParameter}`];
-                            /**
-                             * @type {?boolean}
-                             */
-                                // eslint-disable-next-line no-case-declarations
-                            let reference_exists_flag = null;
-                            if (args[`${queryParameter}:missing`]) {
-                                reference_exists_flag = !isTrue(args[`${queryParameter}:missing`]);
-                            }
-                            if (queryParameter === 'id') {
-                                columns.add('id');
-                                query.id = args[`${queryParameter}`];
-                            } else {
-                                and_segments.push(referenceQueryBuilder(reference, propertyObj.field, reference_exists_flag));
-                                columns.add(`${propertyObj.field}`);
-                            }
+                            and_segments.push(referenceQueryBuilder(reference, propertyObj.field, null));
+                            columns.add(`${propertyObj.field}`);
                             break;
                     }
+                } else if (args[`${queryParameter}:missing`]) {
+                    const exists_flag = !isTrue(args[`${queryParameter}:missing`]);
+                    query[`${propertyObj.field}`] = {$exists: exists_flag};
+                    columns.add(`${propertyObj.field}`);
                 }
             }
         }
