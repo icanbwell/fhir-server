@@ -8,7 +8,7 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const { fhirFilterTypes} = require('./customQueries');
+const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../../searchParameters/searchParameters');
 
 // /**
@@ -42,22 +42,25 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     let address_state = args['address-state'];
 
     let identifier = args['identifier'];
-    let type_ = args['type'];
-
-    let gender = args['gender'];
-    let source = args['source'];
-    let versionId = args['versionId'];
-    let lastUpdated = args['_lastUpdated']; // _lastUpdated=gt2010-10-01
-    let security = args['_security'];
-    let tag = args['_tag'];
+    // let type_ = args['type'];
+    //
+    // let gender = args['gender'];
+    // let source = args['source'];
+    // let versionId = args['versionId'];
+    // let lastUpdated = args['_lastUpdated']; // _lastUpdated=gt2010-10-01
+    // let security = args['_security'];
+    // let tag = args['_tag'];
     // Search Result params
 
     // let extension_missing = args['extension:missing'];
     // extension:missing=true
 
     // Patient search params
-    let active = args['active'];
+    // let active = args['active'];
 
+    if (args['source'] && !args['_source']) {
+        args['_source'] = args['source'];
+    }
     let query = {};
 
     /**
@@ -100,26 +103,26 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         columns.add('id');
     }
 
-    if (source) {
-        query['meta.source'] = source;
-        columns.add('meta.source');
-    }
-
-    if (versionId) {
-        query['meta.versionId'] = versionId;
-        columns.add('meta.versionId');
-    }
-
-    if (lastUpdated) {
-        if (Array.isArray(lastUpdated)) {
-            for (const lastUpdatedItem of lastUpdated) {
-                and_segments.push({'meta.lastUpdated': dateQueryBuilder(lastUpdatedItem, 'instant', '')});
-            }
-        } else {
-            query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
-        }
-        columns.add('meta.lastUpdated');
-    }
+    // if (source) {
+    //     query['meta.source'] = source;
+    //     columns.add('meta.source');
+    // }
+    //
+    // if (versionId) {
+    //     query['meta.versionId'] = versionId;
+    //     columns.add('meta.versionId');
+    // }
+    //
+    // if (lastUpdated) {
+    //     if (Array.isArray(lastUpdated)) {
+    //         for (const lastUpdatedItem of lastUpdated) {
+    //             and_segments.push({'meta.lastUpdated': dateQueryBuilder(lastUpdatedItem, 'instant', '')});
+    //         }
+    //     } else {
+    //         query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
+    //     }
+    //     columns.add('meta.lastUpdated');
+    // }
 
     // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
@@ -143,7 +146,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.uri:
-                            query[`${propertyObj.field}`] = args[`${queryParameter}`];
+                            and_segments.push({[`${propertyObj.field}`]: args[`${queryParameter}`]});
+                            // query[`${propertyObj.field}`] = args[`${queryParameter}`];
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
@@ -159,9 +163,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.token:
-                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''));
-                            columns.add(`${propertyObj.field}.coding.system`);
-                            columns.add(`${propertyObj.field}.coding.code`);
+                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}`, ''));
+                            columns.add(`${propertyObj.field}.system`);
+                            columns.add(`${propertyObj.field}.code`);
                             break;
                         case fhirFilterTypes.email:
                             and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'email'));
@@ -174,12 +178,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}.value`);
                             break;
                         case fhirFilterTypes.reference:
-                            // eslint-disable-next-line no-case-declarations
-                            const target = propertyObj.target;
-                            // eslint-disable-next-line no-case-declarations
-                            const reference = `${target}/` + args[`${queryParameter}`];
-                            and_segments.push(referenceQueryBuilder(reference, propertyObj.field, null));
-                            columns.add(`${propertyObj.field}`);
+                            for (const target of propertyObj.target) {
+                                // eslint-disable-next-line no-case-declarations
+                                const reference = `${target}/` + args[`${queryParameter}`];
+                                and_segments.push(referenceQueryBuilder(reference, `${propertyObj.field}.reference`, null));
+                            }
+                            columns.add(`${propertyObj.field}.reference`);
                             break;
                     }
                 } else if (args[`${queryParameter}:missing`]) {
@@ -252,48 +256,48 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         columns.add('identifier.system');
         columns.add('identifier.value');
     }
-    if (type_) {
-        let queryBuilder = tokenQueryBuilder(type_, 'code', 'type.coding', '');
-        /**
-         * @type {string}
-         */
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('type.coding.system');
-        columns.add('type.coding.code');
-    }
-    if (security) {
-        let queryBuilder = tokenQueryBuilder(security, 'code', 'meta.security', '');
-        /**
-         * @type {string}
-         */
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('meta.security.system');
-        columns.add('meta.security.code');
-    }
-    if (tag) {
-        let queryBuilder = tokenQueryBuilder(tag, 'code', 'meta.tag', '');
-        /**
-         * @type {string}
-         */
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('meta.tag.system');
-        columns.add('meta.tag.code');
-    }
-    if (active) {
-        query.active = active === 'true';
-        columns.add('active');
-    }
-
-    if (gender) {
-        query.gender = gender;
-        columns.add('gender');
-    }
+    // if (type_) {
+    //     let queryBuilder = tokenQueryBuilder(type_, 'code', 'type.coding', '');
+    //     /**
+    //      * @type {string}
+    //      */
+    //     for (let i in queryBuilder) {
+    //         query[`${i}`] = queryBuilder[`${i}`];
+    //     }
+    //     columns.add('type.coding.system');
+    //     columns.add('type.coding.code');
+    // }
+    // if (security) {
+    //     let queryBuilder = tokenQueryBuilder(security, 'code', 'meta.security', '');
+    //     /**
+    //      * @type {string}
+    //      */
+    //     for (let i in queryBuilder) {
+    //         query[`${i}`] = queryBuilder[`${i}`];
+    //     }
+    //     columns.add('meta.security.system');
+    //     columns.add('meta.security.code');
+    // }
+    // if (tag) {
+    //     let queryBuilder = tokenQueryBuilder(tag, 'code', 'meta.tag', '');
+    //     /**
+    //      * @type {string}
+    //      */
+    //     for (let i in queryBuilder) {
+    //         query[`${i}`] = queryBuilder[`${i}`];
+    //     }
+    //     columns.add('meta.tag.system');
+    //     columns.add('meta.tag.code');
+    // }
+    // if (active) {
+    //     query.active = active === 'true';
+    //     columns.add('active');
+    // }
+    //
+    // if (gender) {
+    //     query.gender = gender;
+    //     columns.add('gender');
+    // }
 
     if (and_segments.length !== 0) {
         query.$and = and_segments;
