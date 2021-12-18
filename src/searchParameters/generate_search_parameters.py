@@ -117,7 +117,8 @@ def main() -> int:
                     fields = [f"'{f}'" for f in fields]
                     field_filters = [f"'{f}'" for f in field_filters]
                     file2.write(f"\t\t\t'fields': [{', '.join(fields)}],\n")
-                    file2.write(f"\t\t\t'fieldFilters': [{', '.join(field_filters)}],\n")
+                    if len(field_filters) > 0:
+                        file2.write(f"\t\t\t'fieldFilters': [{', '.join(field_filters)}],\n")
 
                 # now write the target.  assume target is same for all search parameters with same name
                 if search_parameter_entries[0].target:

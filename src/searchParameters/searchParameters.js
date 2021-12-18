@@ -78,7 +78,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -230,7 +229,6 @@ const customFilterQueries = {
 		'code': {
 			'type': 'token',
 			'fields': ['code', 'reaction.substance'],
-			'fieldFilters': [],
 		},
 		'criticality': {
 			'type': 'token',
@@ -300,12 +298,10 @@ const customFilterQueries = {
 		'abatement-age': {
 			'type': 'quantity',
 			'fields': ['abatementAge', 'abatementRange'],
-			'fieldFilters': [],
 		},
 		'abatement-date': {
 			'type': 'date',
 			'fields': ['abatementDateTime', 'abatementPeriod'],
-			'fieldFilters': [],
 		},
 		'abatement-string': {
 			'type': 'string',
@@ -345,12 +341,10 @@ const customFilterQueries = {
 		'onset-age': {
 			'type': 'quantity',
 			'fields': ['onsetAge', 'onsetRange'],
-			'fieldFilters': [],
 		},
 		'onset-date': {
 			'type': 'date',
 			'fields': ['onsetDateTime', 'onsetPeriod'],
-			'fieldFilters': [],
 		},
 		'onset-info': {
 			'type': 'string',
@@ -414,7 +408,6 @@ const customFilterQueries = {
 		'event-date': {
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod'],
-			'fieldFilters': [],
 		},
 		'group-identifier': {
 			'type': 'token',
@@ -471,7 +464,6 @@ const customFilterQueries = {
 		'date': {
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
-			'fieldFilters': [],
 		},
 		'identifier': {
 			'type': 'token',
@@ -701,7 +693,6 @@ const customFilterQueries = {
 		'effective-time': {
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
-			'fieldFilters': [],
 		},
 		'medication': {
 			'type': 'reference',
@@ -915,7 +906,6 @@ const customFilterQueries = {
 		'effective': {
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod'],
-			'fieldFilters': [],
 		},
 		'part-of': {
 			'type': 'reference',
@@ -941,7 +931,6 @@ const customFilterQueries = {
 		'date': {
 			'type': 'date',
 			'fields': ['effectiveDateTime', 'effectivePeriod', 'effectiveTiming', 'effectiveInstant'],
-			'fieldFilters': [],
 		},
 		'identifier': {
 			'type': 'token',
@@ -969,22 +958,18 @@ const customFilterQueries = {
 		'combo-code': {
 			'type': 'token',
 			'fields': ['code', 'component.code'],
-			'fieldFilters': [],
 		},
 		'combo-data-absent-reason': {
 			'type': 'token',
 			'fields': ['dataAbsentReason', 'component.dataAbsentReason'],
-			'fieldFilters': [],
 		},
 		'combo-value-concept': {
 			'type': 'token',
 			'fields': ['valueCodeableConcept', 'component.valueCodeableConcept'],
-			'fieldFilters': [],
 		},
 		'combo-value-quantity': {
 			'type': 'quantity',
 			'fields': ['valueQuantity', 'valueCodeableConcept', 'valueString', 'valueBoolean', 'valueInteger', 'valueRange', 'valueRatio', 'valueSampledData', 'valueTime', 'valueDateTime', 'valuePeriod'],
-			'fieldFilters': [],
 		},
 		'component-code': {
 			'type': 'token',
@@ -1001,7 +986,6 @@ const customFilterQueries = {
 		'component-value-quantity': {
 			'type': 'quantity',
 			'fields': ['component.valueQuantity', 'component.valueCodeableConcept', 'component.valueString', 'component.valueBoolean', 'component.valueInteger', 'component.valueRange', 'component.valueRatio', 'component.valueSampledData', 'component.valueTime', 'component.valueDateTime', 'component.valuePeriod'],
-			'fieldFilters': [],
 		},
 		'data-absent-reason': {
 			'type': 'token',
@@ -1062,17 +1046,14 @@ const customFilterQueries = {
 		'value-date': {
 			'type': 'date',
 			'fields': ['valueDateTime', 'valuePeriod'],
-			'fieldFilters': [],
 		},
 		'value-quantity': {
 			'type': 'quantity',
 			'fields': ['valueQuantity', 'valueCodeableConcept', 'valueString', 'valueBoolean', 'valueInteger', 'valueRange', 'valueRatio', 'valueSampledData', 'valueTime', 'valueDateTime', 'valuePeriod'],
-			'fieldFilters': [],
 		},
 		'value-string': {
 			'type': 'string',
 			'fields': ['valueQuantity', 'valueCodeableConcept', 'valueString', 'valueBoolean', 'valueInteger', 'valueRange', 'valueRatio', 'valueSampledData', 'valueTime', 'valueDateTime', 'valuePeriod'],
-			'fieldFilters': [],
 		},
 	},
 	'Procedure': {
@@ -1083,7 +1064,6 @@ const customFilterQueries = {
 		'date': {
 			'type': 'date',
 			'fields': ['performedDateTime', 'performedPeriod', 'performedString', 'performedAge', 'performedRange'],
-			'fieldFilters': [],
 		},
 		'identifier': {
 			'type': 'token',
@@ -1203,7 +1183,6 @@ const customFilterQueries = {
 		'occurrence': {
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod', 'occurrenceTiming'],
-			'fieldFilters': [],
 		},
 		'performer': {
 			'type': 'reference',
@@ -1268,7 +1247,6 @@ const customFilterQueries = {
 		'activity-date': {
 			'type': 'date',
 			'fields': ['activity.detail.scheduledTiming', 'activity.detail.scheduledPeriod', 'activity.detail.scheduledString'],
-			'fieldFilters': [],
 		},
 		'activity-reference': {
 			'type': 'reference',
@@ -1585,7 +1563,6 @@ const customFilterQueries = {
 		'source-reference': {
 			'type': 'reference',
 			'fields': ['sourceAttachment', 'sourceReference'],
-			'fieldFilters': [],
 			'target': ['Consent', 'Contract', 'QuestionnaireResponse', 'DocumentReference'],
 		},
 		'status': {
@@ -1777,7 +1754,6 @@ const customFilterQueries = {
 		'date': {
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrenceString'],
-			'fieldFilters': [],
 		},
 		'identifier': {
 			'type': 'token',
@@ -1882,7 +1858,6 @@ const customFilterQueries = {
 		'probability': {
 			'type': 'number',
 			'fields': ['prediction.probabilityDecimal', 'prediction.probabilityRange'],
-			'fieldFilters': [],
 		},
 		'risk': {
 			'type': 'token',
@@ -1949,7 +1924,6 @@ const customFilterQueries = {
 		'identified': {
 			'type': 'date',
 			'fields': ['identifiedDateTime', 'identifiedPeriod'],
-			'fieldFilters': [],
 		},
 		'implicated': {
 			'type': 'reference',
@@ -1961,7 +1935,6 @@ const customFilterQueries = {
 		'identifier': {
 			'type': 'token',
 			'fields': ['masterIdentifier', 'identifier'],
-			'fieldFilters': [],
 		},
 		'patient': {
 			'type': 'reference',
@@ -2022,7 +1995,6 @@ const customFilterQueries = {
 		'identifier': {
 			'type': 'token',
 			'fields': ['masterIdentifier', 'identifier'],
-			'fieldFilters': [],
 		},
 		'patient': {
 			'type': 'reference',
@@ -2192,7 +2164,6 @@ const customFilterQueries = {
 		'endpoint': {
 			'type': 'reference',
 			'fields': ['endpoint', 'series.endpoint'],
-			'fieldFilters': [],
 			'target': ['Endpoint'],
 		},
 		'instance': {
@@ -2536,7 +2507,6 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'fields': ['agent.who', 'entity.what'],
-			'fieldFilters': [],
 			'target': ['Patient'],
 		},
 		'policy': {
@@ -2643,7 +2613,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -2733,7 +2702,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -2809,7 +2777,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -2860,7 +2827,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -2964,7 +2930,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3015,7 +2980,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3085,7 +3049,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3138,7 +3101,6 @@ const customFilterQueries = {
 		'event': {
 			'type': 'token',
 			'fields': ['eventCoding', 'eventUri'],
-			'fieldFilters': [],
 		},
 		'focus': {
 			'type': 'token',
@@ -3158,7 +3120,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3229,7 +3190,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3315,7 +3275,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3388,7 +3347,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3446,7 +3404,6 @@ const customFilterQueries = {
 		'base-path': {
 			'type': 'token',
 			'fields': ['snapshot.element.base.path', 'differential.element.base.path'],
-			'fieldFilters': [],
 		},
 		'derivation': {
 			'type': 'token',
@@ -3471,7 +3428,6 @@ const customFilterQueries = {
 		'path': {
 			'type': 'token',
 			'fields': ['snapshot.element.path', 'differential.element.path'],
-			'fieldFilters': [],
 		},
 		'type': {
 			'type': 'uri',
@@ -3491,7 +3447,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3546,7 +3501,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3597,7 +3551,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -3646,7 +3599,6 @@ const customFilterQueries = {
 		'code': {
 			'type': 'token',
 			'fields': ['expansion.contains.code', 'compose.include.concept.code'],
-			'fieldFilters': [],
 		},
 		'expansion': {
 			'type': 'uri',
@@ -3692,7 +3644,6 @@ const customFilterQueries = {
 		'occurrence': {
 			'type': 'date',
 			'fields': ['occurrenceDateTime', 'occurrencePeriod', 'occurrenceTiming'],
-			'fieldFilters': [],
 		},
 		'patient': {
 			'type': 'reference',
@@ -3745,7 +3696,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4342,7 +4292,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4469,7 +4418,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4562,7 +4510,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4655,7 +4602,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4742,7 +4688,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -4902,7 +4847,6 @@ const customFilterQueries = {
 		'value': {
 			'type': 'token',
 			'fields': ['characteristic.valueCodeableConcept', 'characteristic.valueBoolean', 'characteristic.valueQuantity', 'characteristic.valueRange', 'characteristic.valueReference'],
-			'fieldFilters': [],
 		},
 	},
 	'GuidanceResponse': {
@@ -5090,7 +5034,6 @@ const customFilterQueries = {
 		'name': {
 			'type': 'string',
 			'fields': ['name', 'alias'],
-			'fieldFilters': [],
 		},
 		'owned-by': {
 			'type': 'reference',
@@ -5188,7 +5131,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -5325,7 +5267,6 @@ const customFilterQueries = {
 		'name': {
 			'type': 'string',
 			'fields': ['name', 'alias'],
-			'fieldFilters': [],
 		},
 		'near': {
 			'type': 'special',
@@ -5368,7 +5309,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -5499,7 +5439,6 @@ const customFilterQueries = {
 		'created': {
 			'type': 'date',
 			'fields': ['createdDateTime', 'createdPeriod'],
-			'fieldFilters': [],
 		},
 		'device': {
 			'type': 'reference',
@@ -5725,7 +5664,6 @@ const customFilterQueries = {
 		'event': {
 			'type': 'token',
 			'fields': ['eventCoding', 'eventUri'],
-			'fieldFilters': [],
 		},
 		'focus': {
 			'type': 'reference',
@@ -5845,7 +5783,6 @@ const customFilterQueries = {
 		'name': {
 			'type': 'string',
 			'fields': ['name', 'alias'],
-			'fieldFilters': [],
 		},
 		'partof': {
 			'type': 'reference',
@@ -5967,7 +5904,6 @@ const customFilterQueries = {
 		'deceased': {
 			'type': 'token',
 			'fields': ['deceasedBoolean', 'deceasedDateTime'],
-			'fieldFilters': [],
 		},
 		'email': {
 			'type': 'token',
@@ -6402,7 +6338,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -6415,7 +6350,6 @@ const customFilterQueries = {
 		'definition': {
 			'type': 'reference',
 			'fields': ['action.definitionCanonical', 'action.definitionUri'],
-			'fieldFilters': [],
 			'target': ['Questionnaire', 'PlanDefinition', 'ActivityDefinition'],
 		},
 		'depends-on': {
@@ -6550,7 +6484,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -6740,7 +6673,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -6833,7 +6765,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -7008,7 +6939,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
@@ -7137,7 +7067,6 @@ const customFilterQueries = {
 		'collected': {
 			'type': 'date',
 			'fields': ['collection.collectedDateTime', 'collection.collectedPeriod'],
-			'fieldFilters': [],
 		},
 		'collector': {
 			'type': 'reference',
@@ -7228,7 +7157,6 @@ const customFilterQueries = {
 		'code': {
 			'type': 'token',
 			'fields': ['code', 'ingredient.substanceCodeableConcept'],
-			'fieldFilters': [],
 		},
 		'container-identifier': {
 			'type': 'token',
@@ -7383,7 +7311,6 @@ const customFilterQueries = {
 		'context-quantity': {
 			'type': 'quantity',
 			'fields': ['useContext.valueQuantity', 'useContext.valueRange'],
-			'fieldFilters': [],
 		},
 		'context-type': {
 			'type': 'token',
