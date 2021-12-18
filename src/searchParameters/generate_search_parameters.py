@@ -72,6 +72,39 @@ def main() -> int:
     sample_dict: Dict[str, List[QueryEntry]] = {}
     for query_entry in query_entries:
         add_values_in_dict(sample_dict=sample_dict, query_entry=query_entry)
+
+    # generate the file
+    data_dir: Path = Path(__file__).parent.joinpath("./")
+    file_path: Path = data_dir.joinpath("searchParameters.js")
+    with open(file_path, "w") as file2:
+        file2.write("const customFilterQueries = {\n")
+        resource: str
+        resource_entries: List[QueryEntry]
+        for resource, resource_entries in sample_dict.items():
+            file2.write(f"\t'{resource}': {{\n")
+            resource_entry: QueryEntry
+            for resource_entry in resource_entries:
+                file2.write(f"\t\t'{resource_entry.search_parameter}': {{\n")
+                file2.write(f"\t\t\t'type': '{resource_entry.type_}',\n")
+                file2.write(f"\t\t\t'field': '{resource_entry.field}',\n")
+                if resource_entry.target:
+                    file2.write(f"\t\t\t'target': [")
+                    target: str
+                    for target in resource_entry.target:
+                        file2.write(f"'{target}',")
+                    file2.write("],\n")
+                file2.write("\t\t},\n")
+            file2.write("\t},\n")
+        file2.write("};\n")
+
+    # const customFilterQueries = {
+    #     'Account': {
+    #         'patient': {
+    #             'type': fhirFilterTypes.reference,
+    #             'field': 'subject.reference',
+    #             'referencedResource': 'Patient'
+    #         }
+    #     },
     return 0
 
 
