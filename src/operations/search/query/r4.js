@@ -1,9 +1,9 @@
 const {
     dateQueryBuilder,
     referenceQueryBuilder,
-    nameQueryBuilder,
-    stringQueryBuilder,
-    addressQueryBuilder,
+    // nameQueryBuilder,
+    // stringQueryBuilder,
+    // addressQueryBuilder,
     tokenQueryBuilder
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
@@ -32,16 +32,16 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // let healthcareService = args['healthcareService'];
     // let schedule = args['schedule'];
     // let agent = args['agent'];
-    let name = args['name'];
-    let family = args['family'];
-
-    let address = args['address'];
-    let address_city = args['address-city'];
-    let address_country = args['address-country'];
-    let addressPostalCode = args['address-postalcode'];
-    let address_state = args['address-state'];
-
-    let identifier = args['identifier'];
+    // let name = args['name'];
+    // let family = args['family'];
+    //
+    // let address = args['address'];
+    // let address_city = args['address-city'];
+    // let address_country = args['address-country'];
+    // let addressPostalCode = args['address-postalcode'];
+    // let address_state = args['address-state'];
+    //
+    // let identifier = args['identifier'];
     // let type_ = args['type'];
     //
     // let gender = args['gender'];
@@ -151,6 +151,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
+                        case fhirFilterTypes.date:
                         case fhirFilterTypes.period:
                         case fhirFilterTypes.instant:
                             if (Array.isArray(args[`${queryParameter}`])) {
@@ -185,6 +186,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             }
                             columns.add(`${propertyObj.field}.reference`);
                             break;
+                        default:
+                            throw new Error('Unknown type=' + propertyObj.type);
                     }
                 } else if (args[`${queryParameter}:missing`]) {
                     const exists_flag = !isTrue(args[`${queryParameter}:missing`]);
@@ -195,67 +198,67 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         }
     }
 
-    if (name) {
-        if (['Practitioner'].includes(resourceName)) {
-            if (name) {
-                let orsName = nameQueryBuilder(name);
-                for (let i = 0; i < orsName.length; i++) {
-                    and_segments.push(orsName[`${i}`]);
-                }
-            }
-        } else {
-            query['name'] = stringQueryBuilder(name);
-        }
-        columns.add('name');
-    }
-    if (family) {
-        query['name.family'] = stringQueryBuilder(family);
-        columns.add('name.family');
-    }
+    // if (name) {
+    //     if (['Practitioner'].includes(resourceName)) {
+    //         if (name) {
+    //             let orsName = nameQueryBuilder(name);
+    //             for (let i = 0; i < orsName.length; i++) {
+    //                 and_segments.push(orsName[`${i}`]);
+    //             }
+    //         }
+    //     } else {
+    //         query['name'] = stringQueryBuilder(name);
+    //     }
+    //     columns.add('name');
+    // }
+    // if (family) {
+    //     query['name.family'] = stringQueryBuilder(family);
+    //     columns.add('name.family');
+    // }
+    //
+    // if (address) {
+    //     let orsAddress = addressQueryBuilder(address);
+    //     for (let i = 0; i < orsAddress.length; i++) {
+    //         and_segments.push(orsAddress[`${i}`]);
+    //     }
+    //     columns.add('address');
+    // }
+    //
+    // if (address_city) {
+    //     query['address.city'] = stringQueryBuilder(address_city);
+    //     columns.add('address.city');
+    // }
+    //
+    // if (address_country) {
+    //     query['address.country'] = stringQueryBuilder(address_country);
+    //     columns.add('address.country');
+    // }
+    //
+    // if (addressPostalCode) {
+    //     query['address.postalCode'] = stringQueryBuilder(addressPostalCode);
+    //     columns.add('address.postalCode');
+    // }
+    //
+    // if (address_state) {
+    //     query['address.state'] = stringQueryBuilder(address_state);
+    //     columns.add('address.state');
+    // }
 
-    if (address) {
-        let orsAddress = addressQueryBuilder(address);
-        for (let i = 0; i < orsAddress.length; i++) {
-            and_segments.push(orsAddress[`${i}`]);
-        }
-        columns.add('address');
-    }
-
-    if (address_city) {
-        query['address.city'] = stringQueryBuilder(address_city);
-        columns.add('address.city');
-    }
-
-    if (address_country) {
-        query['address.country'] = stringQueryBuilder(address_country);
-        columns.add('address.country');
-    }
-
-    if (addressPostalCode) {
-        query['address.postalCode'] = stringQueryBuilder(addressPostalCode);
-        columns.add('address.postalCode');
-    }
-
-    if (address_state) {
-        query['address.state'] = stringQueryBuilder(address_state);
-        columns.add('address.state');
-    }
-
-    if (identifier || args['identifier:missing']) {
-        let identifier_exists_flag = null;
-        if (args['identifier:missing']) {
-            identifier_exists_flag = !isTrue(args['identifier:missing']);
-        }
-        let queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier', '', identifier_exists_flag);
-        /**
-         * @type {string}
-         */
-        for (let i in queryBuilder) {
-            query[`${i}`] = queryBuilder[`${i}`];
-        }
-        columns.add('identifier.system');
-        columns.add('identifier.value');
-    }
+    // if (identifier || args['identifier:missing']) {
+    //     let identifier_exists_flag = null;
+    //     if (args['identifier:missing']) {
+    //         identifier_exists_flag = !isTrue(args['identifier:missing']);
+    //     }
+    //     let queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier', '', identifier_exists_flag);
+    //     /**
+    //      * @type {string}
+    //      */
+    //     for (let i in queryBuilder) {
+    //         query[`${i}`] = queryBuilder[`${i}`];
+    //     }
+    //     columns.add('identifier.system');
+    //     columns.add('identifier.value');
+    // }
     // if (type_) {
     //     let queryBuilder = tokenQueryBuilder(type_, 'code', 'type.coding', '');
     //     /**

@@ -19,6 +19,11 @@ const fhirFilterTypes = {
      * example usage: ?param=lt{date}&date=gt{date}
      * can also pass in exact date e.g., ?param={date}
      */
+    date: 'date',
+    /**
+     * example usage: ?param=lt{date}&date=gt{date}
+     * can also pass in exact date e.g., ?param={date}
+     */
     datetime: 'datetime',
     /**
      * example usage: ?param=lt{date}&date=gt{date}

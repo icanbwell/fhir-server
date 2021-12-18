@@ -86,11 +86,11 @@ def main() -> int:
         file2.write("const searchParameterQueries = {\n")
         resource: str
         resource_entries_dict: Dict[str, List[QueryEntry]]
-        for resource, resource_entries_dict in sample_dict.items():
+        for resource, resource_entries_dict in sorted(sample_dict.items()):
             file2.write(f"\t'{resource}': {{\n")
             search_parameter: str
             search_parameter_entries: List[QueryEntry]
-            for search_parameter, search_parameter_entries in resource_entries_dict.items():
+            for search_parameter, search_parameter_entries in sorted(resource_entries_dict.items()):
                 file2.write(f"\t\t'{search_parameter}': {{\n")
 
                 file2.write(f"\t\t\t'type': '{search_parameter_entries[0].type_}',\n") # we assume all are of same type
