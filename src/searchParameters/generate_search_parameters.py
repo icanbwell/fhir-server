@@ -97,7 +97,7 @@ def main() -> int:
                 if resource_entry.target:
                     file2.write(f"\t\t\t'target': [")
                     target_list = [f"'{t}'" for t in resource_entry.target]
-                    file2.write(f"{','.join(target_list)}")
+                    file2.write(f"{', '.join(target_list)}")
                     file2.write("],\n")
                 file2.write("\t\t},\n")
             file2.write("\t},\n")
