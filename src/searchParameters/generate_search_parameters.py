@@ -1,8 +1,8 @@
 import json
-import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
-import shutil
+from re import Match
 from typing import Any
 from typing import Dict
 from typing import List
@@ -86,12 +86,18 @@ def main() -> int:
             for resource_entry in resource_entries:
                 file2.write(f"\t\t'{resource_entry.search_parameter}': {{\n")
                 file2.write(f"\t\t\t'type': '{resource_entry.type_}',\n")
-                file2.write(f"\t\t\t'field': '{resource_entry.field}',\n")
+                field_filter_regex = r"\[([^\]])+\]"
+                field_filter_match: Match = re.search(field_filter_regex, resource_entry.field)
+                field_filter: Optional[str] = field_filter_match.group() if field_filter_match else None
+                cleaned_field: str = re.sub(field_filter_regex, "", resource_entry.field)
+                file2.write(f"\t\t\t'field': '{cleaned_field}',\n")
+                if field_filter:
+                    cleaned_field_filter: str = field_filter.replace("'", "\\'")
+                    file2.write(f"\t\t\t'fieldFilter': '{cleaned_field_filter}',\n")
                 if resource_entry.target:
                     file2.write(f"\t\t\t'target': [")
-                    target: str
-                    for target in resource_entry.target:
-                        file2.write(f"'{target}',")
+                    target_list = [f"'{t}'" for t in resource_entry.target]
+                    file2.write(f"{','.join(target_list)}")
                     file2.write("],\n")
                 file2.write("\t\t},\n")
             file2.write("\t},\n")

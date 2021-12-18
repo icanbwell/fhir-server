@@ -37,12 +37,12 @@ const customFilterQueries = {
 		'owner': {
 			'type': 'reference',
 			'field': 'owner',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'period': {
 			'type': 'date',
@@ -55,7 +55,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','Location',],
+			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','Location'],
 		},
 		'type': {
 			'type': 'token',
@@ -65,8 +65,9 @@ const customFilterQueries = {
 	'ActivityDefinition': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -90,18 +91,20 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'depends-on': {
 			'type': 'reference',
 			'field': 'library',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -125,8 +128,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -138,8 +142,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -178,17 +183,17 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'recorder': {
 			'type': 'reference',
 			'field': 'recorder',
-			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'resultingcondition': {
 			'type': 'reference',
 			'field': 'resultingCondition',
-			'target': ['Condition',],
+			'target': ['Condition'],
 		},
 		'seriousness': {
 			'type': 'token',
@@ -201,24 +206,24 @@ const customFilterQueries = {
 		'study': {
 			'type': 'reference',
 			'field': 'study',
-			'target': ['ResearchStudy',],
+			'target': ['ResearchStudy'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Patient','RelatedPerson',],
+			'target': ['Practitioner','Group','Patient','RelatedPerson'],
 		},
 		'substance': {
 			'type': 'reference',
 			'field': 'suspectEntity.instance',
-			'target': ['Immunization','Device','Medication','Procedure','Substance','MedicationAdministration','MedicationStatement',],
+			'target': ['Immunization','Device','Medication','Procedure','Substance','MedicationAdministration','MedicationStatement'],
 		},
 	},
 	'AllergyIntolerance': {
 		'asserter': {
 			'type': 'reference',
 			'field': 'asserter',
-			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'category': {
 			'type': 'token',
@@ -263,12 +268,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'recorder': {
 			'type': 'reference',
 			'field': 'recorder',
-			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'route': {
 			'type': 'token',
@@ -299,7 +304,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'abatement-age': {
 			'type': 'quantity',
@@ -324,7 +329,7 @@ const customFilterQueries = {
 		'asserter': {
 			'type': 'reference',
 			'field': 'asserter',
-			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'body-site': {
 			'type': 'token',
@@ -341,7 +346,7 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'evidence': {
 			'type': 'token',
@@ -350,7 +355,7 @@ const customFilterQueries = {
 		'evidence-detail': {
 			'type': 'reference',
 			'field': 'evidence.detail',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'onset-age': {
 			'type': 'quantity',
@@ -387,7 +392,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 		'verification-status': {
 			'type': 'token',
@@ -406,12 +411,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'authored-on': {
 			'type': 'date',
@@ -420,12 +425,12 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'device': {
 			'type': 'reference',
 			'field': 'codeReference',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'event-date': {
 			'type': 'date',
@@ -442,7 +447,7 @@ const customFilterQueries = {
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['PlanDefinition','ActivityDefinition',],
+			'target': ['PlanDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -451,7 +456,7 @@ const customFilterQueries = {
 		'insurance': {
 			'type': 'reference',
 			'field': 'insurance',
-			'target': ['ClaimResponse','Coverage',],
+			'target': ['ClaimResponse','Coverage'],
 		},
 		'intent': {
 			'type': 'token',
@@ -460,17 +465,17 @@ const customFilterQueries = {
 		'performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'prior-request': {
 			'type': 'reference',
 			'field': 'priorRequest',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','PractitionerRole',],
+			'target': ['Practitioner','Organization','Device','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -479,7 +484,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Location',],
+			'target': ['Group','Device','Patient','Location'],
 		},
 	},
 	'DiagnosticReport': {
@@ -502,17 +507,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','MedicationRequest','NutritionOrder','ServiceRequest','ImmunizationRecommendation',],
+			'target': ['CarePlan','MedicationRequest','NutritionOrder','ServiceRequest','ImmunizationRecommendation'],
 		},
 		'category': {
 			'type': 'token',
@@ -529,27 +534,27 @@ const customFilterQueries = {
 		'media': {
 			'type': 'reference',
 			'field': 'media.link',
-			'target': ['Media',],
+			'target': ['Media'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','CareTeam','PractitionerRole',],
+			'target': ['Practitioner','Organization','CareTeam','PractitionerRole'],
 		},
 		'result': {
 			'type': 'reference',
 			'field': 'result',
-			'target': ['Observation',],
+			'target': ['Observation'],
 		},
 		'results-interpreter': {
 			'type': 'reference',
 			'field': 'resultsInterpreter',
-			'target': ['Practitioner','Organization','CareTeam','PractitionerRole',],
+			'target': ['Practitioner','Organization','CareTeam','PractitionerRole'],
 		},
 		'specimen': {
 			'type': 'reference',
 			'field': 'specimen',
-			'target': ['Specimen',],
+			'target': ['Specimen'],
 		},
 		'status': {
 			'type': 'token',
@@ -558,7 +563,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Location',],
+			'target': ['Group','Device','Patient','Location'],
 		},
 	},
 	'FamilyMemberHistory': {
@@ -577,12 +582,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -617,12 +622,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'empty-reason': {
 			'type': 'token',
@@ -631,7 +636,7 @@ const customFilterQueries = {
 		'item': {
 			'type': 'reference',
 			'field': 'entry.item',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'notes': {
 			'type': 'string',
@@ -640,7 +645,7 @@ const customFilterQueries = {
 		'source': {
 			'type': 'reference',
 			'field': 'source',
-			'target': ['Practitioner','Device','Patient','PractitionerRole',],
+			'target': ['Practitioner','Device','Patient','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -649,7 +654,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Location',],
+			'target': ['Group','Device','Patient','Location'],
 		},
 		'title': {
 			'type': 'string',
@@ -676,7 +681,7 @@ const customFilterQueries = {
 		'ingredient': {
 			'type': 'reference',
 			'field': 'ingredient.itemReference',
-			'target': ['Medication','Substance',],
+			'target': ['Medication','Substance'],
 		},
 		'ingredient-code': {
 			'type': 'token',
@@ -689,7 +694,7 @@ const customFilterQueries = {
 		'manufacturer': {
 			'type': 'reference',
 			'field': 'manufacturer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'status': {
 			'type': 'token',
@@ -708,17 +713,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'context': {
 			'type': 'reference',
 			'field': 'context',
-			'target': ['EpisodeOfCare','Encounter',],
+			'target': ['EpisodeOfCare','Encounter'],
 		},
 		'device': {
 			'type': 'reference',
 			'field': 'device',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'effective-time': {
 			'type': 'date',
@@ -731,12 +736,12 @@ const customFilterQueries = {
 		'medication': {
 			'type': 'reference',
 			'field': 'medicationReference',
-			'target': ['Medication',],
+			'target': ['Medication'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer.actor',
-			'target': ['Practitioner','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'reason-given': {
 			'type': 'token',
@@ -749,7 +754,7 @@ const customFilterQueries = {
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['MedicationRequest',],
+			'target': ['MedicationRequest'],
 		},
 		'status': {
 			'type': 'token',
@@ -758,7 +763,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'MedicationDispense': {
@@ -773,12 +778,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'medication': {
 			'type': 'reference',
 			'field': 'medicationReference',
-			'target': ['Medication',],
+			'target': ['Medication'],
 		},
 		'status': {
 			'type': 'token',
@@ -787,37 +792,37 @@ const customFilterQueries = {
 		'context': {
 			'type': 'reference',
 			'field': 'context',
-			'target': ['EpisodeOfCare','Encounter',],
+			'target': ['EpisodeOfCare','Encounter'],
 		},
 		'destination': {
 			'type': 'reference',
 			'field': 'destination',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer.actor',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'prescription': {
 			'type': 'reference',
 			'field': 'authorizingPrescription',
-			'target': ['MedicationRequest',],
+			'target': ['MedicationRequest'],
 		},
 		'receiver': {
 			'type': 'reference',
 			'field': 'receiver',
-			'target': ['Practitioner','Patient',],
+			'target': ['Practitioner','Patient'],
 		},
 		'responsibleparty': {
 			'type': 'reference',
 			'field': 'substitution.responsibleParty',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 		'type': {
 			'type': 'token',
@@ -844,12 +849,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'medication': {
 			'type': 'reference',
 			'field': 'medicationReference',
-			'target': ['Medication',],
+			'target': ['Medication'],
 		},
 		'status': {
 			'type': 'token',
@@ -870,17 +875,17 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'intended-dispenser': {
 			'type': 'reference',
 			'field': 'dispenseRequest.performer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'intended-performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'intended-performertype': {
 			'type': 'token',
@@ -897,12 +902,12 @@ const customFilterQueries = {
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'MedicationStatement': {
@@ -917,12 +922,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'medication': {
 			'type': 'reference',
 			'field': 'medicationReference',
-			'target': ['Medication',],
+			'target': ['Medication'],
 		},
 		'status': {
 			'type': 'token',
@@ -935,7 +940,7 @@ const customFilterQueries = {
 		'context': {
 			'type': 'reference',
 			'field': 'context',
-			'target': ['EpisodeOfCare','Encounter',],
+			'target': ['EpisodeOfCare','Encounter'],
 		},
 		'effective': {
 			'type': 'date',
@@ -948,17 +953,17 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['MedicationDispense','Observation','MedicationAdministration','Procedure','MedicationStatement',],
+			'target': ['MedicationDispense','Observation','MedicationAdministration','Procedure','MedicationStatement'],
 		},
 		'source': {
 			'type': 'reference',
 			'field': 'informationSource',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'Observation': {
@@ -989,17 +994,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','MedicationRequest','NutritionOrder','DeviceRequest','ServiceRequest','ImmunizationRecommendation',],
+			'target': ['CarePlan','MedicationRequest','NutritionOrder','DeviceRequest','ServiceRequest','ImmunizationRecommendation'],
 		},
 		'category': {
 			'type': 'token',
@@ -1136,22 +1141,22 @@ const customFilterQueries = {
 		'derived-from': {
 			'type': 'reference',
 			'field': 'derivedFrom',
-			'target': ['Media','Observation','ImagingStudy','MolecularSequence','QuestionnaireResponse','DocumentReference',],
+			'target': ['Media','Observation','ImagingStudy','MolecularSequence','QuestionnaireResponse','DocumentReference'],
 		},
 		'device': {
 			'type': 'reference',
 			'field': 'device',
-			'target': ['Device','DeviceMetric',],
+			'target': ['Device','DeviceMetric'],
 		},
 		'focus': {
 			'type': 'reference',
 			'field': 'focus',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'has-member': {
 			'type': 'reference',
 			'field': 'hasMember',
-			'target': ['Observation','MolecularSequence','QuestionnaireResponse',],
+			'target': ['Observation','MolecularSequence','QuestionnaireResponse'],
 		},
 		'method': {
 			'type': 'token',
@@ -1160,17 +1165,17 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Immunization','MedicationDispense','MedicationAdministration','Procedure','ImagingStudy','MedicationStatement',],
+			'target': ['Immunization','MedicationDispense','MedicationAdministration','Procedure','ImagingStudy','MedicationStatement'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','CareTeam','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'specimen': {
 			'type': 'reference',
 			'field': 'specimen',
-			'target': ['Specimen',],
+			'target': ['Specimen'],
 		},
 		'status': {
 			'type': 'token',
@@ -1179,7 +1184,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Location',],
+			'target': ['Group','Device','Patient','Location'],
 		},
 		'value-concept': {
 			'type': 'token',
@@ -1314,17 +1319,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','ServiceRequest',],
+			'target': ['CarePlan','ServiceRequest'],
 		},
 		'category': {
 			'type': 'token',
@@ -1333,7 +1338,7 @@ const customFilterQueries = {
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -1342,17 +1347,17 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Observation','Procedure','MedicationAdministration',],
+			'target': ['Observation','Procedure','MedicationAdministration'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer.actor',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'reason-code': {
 			'type': 'token',
@@ -1361,7 +1366,7 @@ const customFilterQueries = {
 		'reason-reference': {
 			'type': 'reference',
 			'field': 'reasonReference',
-			'target': ['Condition','Observation','Procedure','DiagnosticReport','DocumentReference',],
+			'target': ['Condition','Observation','Procedure','DiagnosticReport','DocumentReference'],
 		},
 		'status': {
 			'type': 'token',
@@ -1370,7 +1375,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'ServiceRequest': {
@@ -1385,12 +1390,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'authored': {
 			'type': 'date',
@@ -1399,7 +1404,7 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','MedicationRequest','ServiceRequest',],
+			'target': ['CarePlan','MedicationRequest','ServiceRequest'],
 		},
 		'body-site': {
 			'type': 'token',
@@ -1412,7 +1417,7 @@ const customFilterQueries = {
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['PlanDefinition','ActivityDefinition',],
+			'target': ['PlanDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -1437,7 +1442,7 @@ const customFilterQueries = {
 		'performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'performer-type': {
 			'type': 'token',
@@ -1450,12 +1455,12 @@ const customFilterQueries = {
 		'replaces': {
 			'type': 'reference',
 			'field': 'replaces',
-			'target': ['ServiceRequest',],
+			'target': ['ServiceRequest'],
 		},
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'requisition': {
 			'type': 'token',
@@ -1464,7 +1469,7 @@ const customFilterQueries = {
 		'specimen': {
 			'type': 'reference',
 			'field': 'specimen',
-			'target': ['Specimen',],
+			'target': ['Specimen'],
 		},
 		'status': {
 			'type': 'token',
@@ -1473,7 +1478,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Location',],
+			'target': ['Group','Device','Patient','Location'],
 		},
 	},
 	'CarePlan': {
@@ -1488,7 +1493,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'activity-code': {
 			'type': 'token',
@@ -1509,17 +1514,17 @@ const customFilterQueries = {
 		'activity-reference': {
 			'type': 'reference',
 			'field': 'activity.reference',
-			'target': ['Appointment','MedicationRequest','Task','NutritionOrder','RequestGroup','VisionPrescription','DeviceRequest','ServiceRequest','CommunicationRequest',],
+			'target': ['Appointment','MedicationRequest','Task','NutritionOrder','RequestGroup','VisionPrescription','DeviceRequest','ServiceRequest','CommunicationRequest'],
 		},
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan',],
+			'target': ['CarePlan'],
 		},
 		'care-team': {
 			'type': 'reference',
 			'field': 'careTeam',
-			'target': ['CareTeam',],
+			'target': ['CareTeam'],
 		},
 		'category': {
 			'type': 'token',
@@ -1528,22 +1533,22 @@ const customFilterQueries = {
 		'condition': {
 			'type': 'reference',
 			'field': 'addresses',
-			'target': ['Condition',],
+			'target': ['Condition'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'goal': {
 			'type': 'reference',
 			'field': 'goal',
-			'target': ['Goal',],
+			'target': ['Goal'],
 		},
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -1556,17 +1561,17 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['CarePlan',],
+			'target': ['CarePlan'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'activity.detail.performer',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'replaces': {
 			'type': 'reference',
 			'field': 'replaces',
-			'target': ['CarePlan',],
+			'target': ['CarePlan'],
 		},
 		'status': {
 			'type': 'token',
@@ -1575,7 +1580,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'CareTeam': {
@@ -1590,7 +1595,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'category': {
 			'type': 'token',
@@ -1599,12 +1604,12 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'participant': {
 			'type': 'reference',
 			'field': 'participant.member',
-			'target': ['Practitioner','Organization','CareTeam','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -1613,7 +1618,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'ClinicalImpression': {
@@ -1624,17 +1629,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'assessor': {
 			'type': 'reference',
 			'field': 'assessor',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'finding-code': {
 			'type': 'token',
@@ -1643,7 +1648,7 @@ const customFilterQueries = {
 		'finding-ref': {
 			'type': 'reference',
 			'field': 'finding.itemReference',
-			'target': ['Condition','Observation','Media',],
+			'target': ['Condition','Observation','Media'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -1652,17 +1657,17 @@ const customFilterQueries = {
 		'investigation': {
 			'type': 'reference',
 			'field': 'investigation.item',
-			'target': ['RiskAssessment','FamilyMemberHistory','Observation','Media','DiagnosticReport','ImagingStudy','QuestionnaireResponse',],
+			'target': ['RiskAssessment','FamilyMemberHistory','Observation','Media','DiagnosticReport','ImagingStudy','QuestionnaireResponse'],
 		},
 		'previous': {
 			'type': 'reference',
 			'field': 'previous',
-			'target': ['ClinicalImpression',],
+			'target': ['ClinicalImpression'],
 		},
 		'problem': {
 			'type': 'reference',
 			'field': 'problem',
-			'target': ['Condition','AllergyIntolerance',],
+			'target': ['Condition','AllergyIntolerance'],
 		},
 		'status': {
 			'type': 'token',
@@ -1671,12 +1676,12 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 		'supporting-info': {
 			'type': 'reference',
 			'field': 'supportingInfo',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'Composition': {
@@ -1691,7 +1696,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'type': {
 			'type': 'token',
@@ -1700,12 +1705,12 @@ const customFilterQueries = {
 		'attester': {
 			'type': 'reference',
 			'field': 'attester.party',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'category': {
 			'type': 'token',
@@ -1722,12 +1727,12 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'entry': {
 			'type': 'reference',
 			'field': 'section.entry',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'period': {
 			'type': 'date',
@@ -1740,7 +1745,7 @@ const customFilterQueries = {
 		'related-ref': {
 			'type': 'reference',
 			'field': 'relatesTo.targetReference',
-			'target': ['Composition',],
+			'target': ['Composition'],
 		},
 		'section': {
 			'type': 'token',
@@ -1753,7 +1758,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -1772,7 +1777,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'action': {
 			'type': 'token',
@@ -1781,7 +1786,7 @@ const customFilterQueries = {
 		'actor': {
 			'type': 'reference',
 			'field': 'provision.actor.reference',
-			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'category': {
 			'type': 'token',
@@ -1790,17 +1795,17 @@ const customFilterQueries = {
 		'consentor': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'data': {
 			'type': 'reference',
 			'field': 'provision.data.reference',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'organization': {
 			'type': 'reference',
 			'field': 'organization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'period': {
 			'type': 'date',
@@ -1821,12 +1826,12 @@ const customFilterQueries = {
 		'source-reference': {
 			'type': 'reference',
 			'field': 'sourceAttachment',
-			'target': ['Consent','Contract','QuestionnaireResponse','DocumentReference',],
+			'target': ['Consent','Contract','QuestionnaireResponse','DocumentReference'],
 		},
 		'source-reference': {
 			'type': 'reference',
 			'field': 'sourceReference',
-			'target': ['Consent','Contract','QuestionnaireResponse','DocumentReference',],
+			'target': ['Consent','Contract','QuestionnaireResponse','DocumentReference'],
 		},
 		'status': {
 			'type': 'token',
@@ -1845,7 +1850,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'type': {
 			'type': 'token',
@@ -1854,17 +1859,17 @@ const customFilterQueries = {
 		'account': {
 			'type': 'reference',
 			'field': 'account',
-			'target': ['Account',],
+			'target': ['Account'],
 		},
 		'appointment': {
 			'type': 'reference',
 			'field': 'appointment',
-			'target': ['Appointment',],
+			'target': ['Appointment'],
 		},
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['ServiceRequest',],
+			'target': ['ServiceRequest'],
 		},
 		'class': {
 			'type': 'token',
@@ -1873,12 +1878,12 @@ const customFilterQueries = {
 		'diagnosis': {
 			'type': 'reference',
 			'field': 'diagnosis.condition',
-			'target': ['Condition','Procedure',],
+			'target': ['Condition','Procedure'],
 		},
 		'episode-of-care': {
 			'type': 'reference',
 			'field': 'episodeOfCare',
-			'target': ['EpisodeOfCare',],
+			'target': ['EpisodeOfCare'],
 		},
 		'length': {
 			'type': 'quantity',
@@ -1887,7 +1892,7 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location.location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'location-period': {
 			'type': 'date',
@@ -1896,12 +1901,12 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'participant': {
 			'type': 'reference',
 			'field': 'participant.individual',
-			'target': ['Practitioner','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','PractitionerRole','RelatedPerson'],
 		},
 		'participant-type': {
 			'type': 'token',
@@ -1910,7 +1915,7 @@ const customFilterQueries = {
 		'practitioner': {
 			'type': 'reference',
 			'field': 'participant.individual',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 		'reason-code': {
 			'type': 'token',
@@ -1919,12 +1924,12 @@ const customFilterQueries = {
 		'reason-reference': {
 			'type': 'reference',
 			'field': 'reasonReference',
-			'target': ['Condition','Observation','Procedure','ImmunizationRecommendation',],
+			'target': ['Condition','Observation','Procedure','ImmunizationRecommendation'],
 		},
 		'service-provider': {
 			'type': 'reference',
 			'field': 'serviceProvider',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'special-arrangement': {
 			'type': 'token',
@@ -1937,7 +1942,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'EpisodeOfCare': {
@@ -1952,7 +1957,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'type': {
 			'type': 'token',
@@ -1961,22 +1966,22 @@ const customFilterQueries = {
 		'care-manager': {
 			'type': 'reference',
 			'field': 'careManager',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 		'condition': {
 			'type': 'reference',
 			'field': 'diagnosis.condition',
-			'target': ['Condition',],
+			'target': ['Condition'],
 		},
 		'incoming-referral': {
 			'type': 'reference',
 			'field': 'referralRequest',
-			'target': ['ServiceRequest',],
+			'target': ['ServiceRequest'],
 		},
 		'organization': {
 			'type': 'reference',
 			'field': 'managingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'status': {
 			'type': 'token',
@@ -1991,17 +1996,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -2010,7 +2015,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Organization','Medication','Patient','PlanDefinition','Procedure','Location',],
+			'target': ['Practitioner','Group','Organization','Medication','Patient','PlanDefinition','Procedure','Location'],
 		},
 	},
 	'Immunization': {
@@ -2029,12 +2034,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'lot-number': {
 			'type': 'string',
@@ -2043,17 +2048,17 @@ const customFilterQueries = {
 		'manufacturer': {
 			'type': 'reference',
 			'field': 'manufacturer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'performer': {
 			'type': 'reference',
 			'field': 'performer.actor',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'reaction': {
 			'type': 'reference',
 			'field': 'reaction.detail',
-			'target': ['Observation',],
+			'target': ['Observation'],
 		},
 		'reaction-date': {
 			'type': 'date',
@@ -2066,7 +2071,7 @@ const customFilterQueries = {
 		'reason-reference': {
 			'type': 'reference',
 			'field': 'reasonReference',
-			'target': ['Condition','Observation','DiagnosticReport',],
+			'target': ['Condition','Observation','DiagnosticReport'],
 		},
 		'series': {
 			'type': 'string',
@@ -2101,17 +2106,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'condition': {
 			'type': 'reference',
 			'field': 'condition',
-			'target': ['Condition',],
+			'target': ['Condition'],
 		},
 		'method': {
 			'type': 'token',
@@ -2120,7 +2125,7 @@ const customFilterQueries = {
 		'performer': {
 			'type': 'reference',
 			'field': 'performer',
-			'target': ['Practitioner','Device','PractitionerRole',],
+			'target': ['Practitioner','Device','PractitionerRole'],
 		},
 		'probability': {
 			'type': 'number',
@@ -2137,7 +2142,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'SupplyRequest': {
@@ -2156,7 +2161,7 @@ const customFilterQueries = {
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -2165,12 +2170,12 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'deliverTo',
-			'target': ['Organization','Patient','Location',],
+			'target': ['Organization','Patient','Location'],
 		},
 		'supplier': {
 			'type': 'reference',
 			'field': 'supplier',
-			'target': ['Organization','HealthcareService',],
+			'target': ['Organization','HealthcareService'],
 		},
 	},
 	'DetectedIssue': {
@@ -2181,12 +2186,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Device','PractitionerRole',],
+			'target': ['Practitioner','Device','PractitionerRole'],
 		},
 		'code': {
 			'type': 'token',
@@ -2203,7 +2208,7 @@ const customFilterQueries = {
 		'implicated': {
 			'type': 'reference',
 			'field': 'implicated',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'DocumentManifest': {
@@ -2218,7 +2223,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'type': {
 			'type': 'token',
@@ -2227,7 +2232,7 @@ const customFilterQueries = {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'created': {
 			'type': 'date',
@@ -2240,12 +2245,12 @@ const customFilterQueries = {
 		'item': {
 			'type': 'reference',
 			'field': 'content',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'recipient': {
 			'type': 'reference',
 			'field': 'recipient',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'related-id': {
 			'type': 'token',
@@ -2254,7 +2259,7 @@ const customFilterQueries = {
 		'related-ref': {
 			'type': 'reference',
 			'field': 'related.ref',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'source': {
 			'type': 'uri',
@@ -2267,7 +2272,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Device','Patient',],
+			'target': ['Practitioner','Group','Device','Patient'],
 		},
 	},
 	'DocumentReference': {
@@ -2282,7 +2287,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'type': {
 			'type': 'token',
@@ -2291,17 +2296,17 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'context.encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'authenticator': {
 			'type': 'reference',
 			'field': 'authenticator',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'category': {
 			'type': 'token',
@@ -2314,7 +2319,7 @@ const customFilterQueries = {
 		'custodian': {
 			'type': 'reference',
 			'field': 'custodian',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'date': {
 			'type': 'date',
@@ -2351,12 +2356,12 @@ const customFilterQueries = {
 		'related': {
 			'type': 'reference',
 			'field': 'context.related',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'relatesto': {
 			'type': 'reference',
 			'field': 'relatesTo.target',
-			'target': ['DocumentReference',],
+			'target': ['DocumentReference'],
 		},
 		'relation': {
 			'type': 'token',
@@ -2377,7 +2382,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Device','Patient',],
+			'target': ['Practitioner','Group','Device','Patient'],
 		},
 	},
 	'Goal': {
@@ -2388,7 +2393,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'achievement-status': {
 			'type': 'token',
@@ -2409,7 +2414,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Organization','Patient',],
+			'target': ['Group','Organization','Patient'],
 		},
 		'target-date': {
 			'type': 'date',
@@ -2424,12 +2429,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'basedon': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['Appointment','AppointmentResponse','CarePlan','Task','ServiceRequest',],
+			'target': ['Appointment','AppointmentResponse','CarePlan','Task','ServiceRequest'],
 		},
 		'bodysite': {
 			'type': 'token',
@@ -2442,17 +2447,17 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'endpoint': {
 			'type': 'reference',
 			'field': 'series.endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'instance': {
 			'type': 'token',
@@ -2461,7 +2466,7 @@ const customFilterQueries = {
 		'interpreter': {
 			'type': 'reference',
 			'field': 'interpreter',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'modality': {
 			'type': 'token',
@@ -2470,7 +2475,7 @@ const customFilterQueries = {
 		'performer': {
 			'type': 'reference',
 			'field': 'series.performer.actor',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'reason': {
 			'type': 'token',
@@ -2479,7 +2484,7 @@ const customFilterQueries = {
 		'referrer': {
 			'type': 'reference',
 			'field': 'referrer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'series': {
 			'type': 'token',
@@ -2496,7 +2501,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient',],
+			'target': ['Group','Device','Patient'],
 		},
 	},
 	'NutritionOrder': {
@@ -2507,12 +2512,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'additive': {
 			'type': 'token',
@@ -2529,7 +2534,7 @@ const customFilterQueries = {
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['PlanDefinition','ActivityDefinition',],
+			'target': ['PlanDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -2542,7 +2547,7 @@ const customFilterQueries = {
 		'provider': {
 			'type': 'reference',
 			'field': 'orderer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -2561,12 +2566,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'receiver': {
 			'type': 'reference',
 			'field': 'receiver',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -2575,7 +2580,7 @@ const customFilterQueries = {
 		'supplier': {
 			'type': 'reference',
 			'field': 'supplier',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 	},
 	'VisionPrescription': {
@@ -2586,12 +2591,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter','EpisodeOfCare',],
+			'target': ['Encounter','EpisodeOfCare'],
 		},
 		'datewritten': {
 			'type': 'date',
@@ -2600,7 +2605,7 @@ const customFilterQueries = {
 		'prescriber': {
 			'type': 'reference',
 			'field': 'prescriber',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -2611,12 +2616,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient','Group',],
+			'target': ['Patient','Group'],
 		},
 		'device': {
 			'type': 'reference',
 			'field': 'device',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -2625,14 +2630,14 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'Appointment': {
 		'actor': {
 			'type': 'reference',
 			'field': 'participant.actor',
-			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location',],
+			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location'],
 		},
 		'appointment-type': {
 			'type': 'token',
@@ -2641,7 +2646,7 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['ServiceRequest',],
+			'target': ['ServiceRequest'],
 		},
 		'date': {
 			'type': 'date',
@@ -2654,7 +2659,7 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'participant.actor',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'part-status': {
 			'type': 'token',
@@ -2663,12 +2668,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'participant.actor',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'practitioner': {
 			'type': 'reference',
 			'field': 'participant.actor',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 		'reason-code': {
 			'type': 'token',
@@ -2677,7 +2682,7 @@ const customFilterQueries = {
 		'reason-reference': {
 			'type': 'reference',
 			'field': 'reasonReference',
-			'target': ['Condition','Observation','Procedure','ImmunizationRecommendation',],
+			'target': ['Condition','Observation','Procedure','ImmunizationRecommendation'],
 		},
 		'service-category': {
 			'type': 'token',
@@ -2690,7 +2695,7 @@ const customFilterQueries = {
 		'slot': {
 			'type': 'reference',
 			'field': 'slot',
-			'target': ['Slot',],
+			'target': ['Slot'],
 		},
 		'specialty': {
 			'type': 'token',
@@ -2703,19 +2708,19 @@ const customFilterQueries = {
 		'supporting-info': {
 			'type': 'reference',
 			'field': 'supportingInformation',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'AppointmentResponse': {
 		'actor': {
 			'type': 'reference',
 			'field': 'actor',
-			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location',],
+			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location'],
 		},
 		'appointment': {
 			'type': 'reference',
 			'field': 'appointment',
-			'target': ['Appointment',],
+			'target': ['Appointment'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -2724,7 +2729,7 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'actor',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'part-status': {
 			'type': 'token',
@@ -2733,12 +2738,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'actor',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'practitioner': {
 			'type': 'reference',
 			'field': 'actor',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 	},
 	'AuditEvent': {
@@ -2753,7 +2758,7 @@ const customFilterQueries = {
 		'agent': {
 			'type': 'reference',
 			'field': 'agent.who',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'agent-name': {
 			'type': 'string',
@@ -2774,7 +2779,7 @@ const customFilterQueries = {
 		'entity': {
 			'type': 'reference',
 			'field': 'entity.what',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'entity-name': {
 			'type': 'string',
@@ -2795,12 +2800,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'agent.who',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'entity.what',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'policy': {
 			'type': 'uri',
@@ -2813,7 +2818,7 @@ const customFilterQueries = {
 		'source': {
 			'type': 'reference',
 			'field': 'source.observer',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'subtype': {
 			'type': 'token',
@@ -2828,7 +2833,7 @@ const customFilterQueries = {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'code': {
 			'type': 'token',
@@ -2845,12 +2850,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'BodyStructure': {
@@ -2869,14 +2874,15 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 	},
 	'Bundle': {
 		'composition': {
 			'type': 'reference',
-			'field': 'entry[0].resource',
-			'target': ['Composition',],
+			'field': 'entry.resource',
+			'fieldFilter': '[0]',
+			'target': ['Composition'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -2884,8 +2890,9 @@ const customFilterQueries = {
 		},
 		'message': {
 			'type': 'reference',
-			'field': 'entry[0].resource',
-			'target': ['MessageHeader',],
+			'field': 'entry.resource',
+			'fieldFilter': '[0]',
+			'target': ['MessageHeader'],
 		},
 		'timestamp': {
 			'type': 'date',
@@ -2932,7 +2939,7 @@ const customFilterQueries = {
 		'guide': {
 			'type': 'reference',
 			'field': 'implementationGuide',
-			'target': ['ImplementationGuide',],
+			'target': ['ImplementationGuide'],
 		},
 		'jurisdiction': {
 			'type': 'token',
@@ -2957,7 +2964,7 @@ const customFilterQueries = {
 		'resource-profile': {
 			'type': 'reference',
 			'field': 'rest.resource.profile',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'security-service': {
 			'type': 'token',
@@ -2974,7 +2981,7 @@ const customFilterQueries = {
 		'supported-profile': {
 			'type': 'reference',
 			'field': 'rest.resource.supportedProfile',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'title': {
 			'type': 'string',
@@ -3061,7 +3068,7 @@ const customFilterQueries = {
 		'supplements': {
 			'type': 'reference',
 			'field': 'supplements',
-			'target': ['CodeSystem',],
+			'target': ['CodeSystem'],
 		},
 		'system': {
 			'type': 'uri',
@@ -3186,7 +3193,7 @@ const customFilterQueries = {
 		'other': {
 			'type': 'reference',
 			'field': 'group.unmapped.url',
-			'target': ['ConceptMap',],
+			'target': ['ConceptMap'],
 		},
 		'product': {
 			'type': 'uri',
@@ -3195,7 +3202,7 @@ const customFilterQueries = {
 		'source': {
 			'type': 'reference',
 			'field': 'sourceCanonical',
-			'target': ['ValueSet',],
+			'target': ['ValueSet'],
 		},
 		'source-code': {
 			'type': 'token',
@@ -3208,12 +3215,12 @@ const customFilterQueries = {
 		'source-uri': {
 			'type': 'reference',
 			'field': 'sourceUri',
-			'target': ['ValueSet',],
+			'target': ['ValueSet'],
 		},
 		'target': {
 			'type': 'reference',
 			'field': 'targetCanonical',
-			'target': ['ValueSet',],
+			'target': ['ValueSet'],
 		},
 		'target-code': {
 			'type': 'token',
@@ -3226,7 +3233,7 @@ const customFilterQueries = {
 		'target-uri': {
 			'type': 'reference',
 			'field': 'targetUri',
-			'target': ['ValueSet',],
+			'target': ['ValueSet'],
 		},
 	},
 	'GraphDefinition': {
@@ -3339,7 +3346,7 @@ const customFilterQueries = {
 		'depends-on': {
 			'type': 'reference',
 			'field': 'dependsOn.uri',
-			'target': ['ImplementationGuide',],
+			'target': ['ImplementationGuide'],
 		},
 		'experimental': {
 			'type': 'token',
@@ -3348,12 +3355,12 @@ const customFilterQueries = {
 		'global': {
 			'type': 'reference',
 			'field': 'global.profile',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'resource': {
 			'type': 'reference',
 			'field': 'definition.resource.reference',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'MessageDefinition': {
@@ -3432,7 +3439,7 @@ const customFilterQueries = {
 		'parent': {
 			'type': 'reference',
 			'field': 'parent',
-			'target': ['PlanDefinition','ActivityDefinition',],
+			'target': ['PlanDefinition','ActivityDefinition'],
 		},
 	},
 	'NamingSystem': {
@@ -3565,7 +3572,7 @@ const customFilterQueries = {
 		'base': {
 			'type': 'reference',
 			'field': 'base',
-			'target': ['OperationDefinition',],
+			'target': ['OperationDefinition'],
 		},
 		'code': {
 			'type': 'token',
@@ -3574,7 +3581,7 @@ const customFilterQueries = {
 		'input-profile': {
 			'type': 'reference',
 			'field': 'inputProfile',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'instance': {
 			'type': 'token',
@@ -3587,7 +3594,7 @@ const customFilterQueries = {
 		'output-profile': {
 			'type': 'reference',
 			'field': 'outputProfile',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'system': {
 			'type': 'token',
@@ -3658,12 +3665,12 @@ const customFilterQueries = {
 		'component': {
 			'type': 'reference',
 			'field': 'component.definition',
-			'target': ['SearchParameter',],
+			'target': ['SearchParameter'],
 		},
 		'derived-from': {
 			'type': 'reference',
 			'field': 'derivedFrom',
-			'target': ['SearchParameter',],
+			'target': ['SearchParameter'],
 		},
 		'target': {
 			'type': 'token',
@@ -3738,7 +3745,7 @@ const customFilterQueries = {
 		'base': {
 			'type': 'reference',
 			'field': 'baseDefinition',
-			'target': ['StructureDefinition',],
+			'target': ['StructureDefinition'],
 		},
 		'base-path': {
 			'type': 'token',
@@ -3783,7 +3790,7 @@ const customFilterQueries = {
 		'valueset': {
 			'type': 'reference',
 			'field': 'snapshot.element.binding.valueSet',
-			'target': ['ValueSet',],
+			'target': ['ValueSet'],
 		},
 	},
 	'StructureMap': {
@@ -3976,7 +3983,7 @@ const customFilterQueries = {
 		'account': {
 			'type': 'reference',
 			'field': 'account',
-			'target': ['Account',],
+			'target': ['Account'],
 		},
 		'code': {
 			'type': 'token',
@@ -3985,7 +3992,7 @@ const customFilterQueries = {
 		'context': {
 			'type': 'reference',
 			'field': 'context',
-			'target': ['EpisodeOfCare','Encounter',],
+			'target': ['EpisodeOfCare','Encounter'],
 		},
 		'entered-date': {
 			'type': 'date',
@@ -3994,7 +4001,7 @@ const customFilterQueries = {
 		'enterer': {
 			'type': 'reference',
 			'field': 'enterer',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'factor-override': {
 			'type': 'number',
@@ -4019,12 +4026,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'performer-actor': {
 			'type': 'reference',
 			'field': 'performer.actor',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'performer-function': {
 			'type': 'token',
@@ -4033,7 +4040,7 @@ const customFilterQueries = {
 		'performing-organization': {
 			'type': 'reference',
 			'field': 'performingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'price-override': {
 			'type': 'quantity',
@@ -4046,17 +4053,17 @@ const customFilterQueries = {
 		'requesting-organization': {
 			'type': 'reference',
 			'field': 'requestingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'service': {
 			'type': 'reference',
 			'field': 'service',
-			'target': ['Immunization','MedicationDispense','SupplyDelivery','Observation','DiagnosticReport','ImagingStudy','MedicationAdministration','Procedure',],
+			'target': ['Immunization','MedicationDispense','SupplyDelivery','Observation','DiagnosticReport','ImagingStudy','MedicationAdministration','Procedure'],
 		},
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'ChargeItemDefinition': {
@@ -4121,7 +4128,7 @@ const customFilterQueries = {
 		'care-team': {
 			'type': 'reference',
 			'field': 'careTeam.provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'created': {
 			'type': 'date',
@@ -4130,22 +4137,22 @@ const customFilterQueries = {
 		'detail-udi': {
 			'type': 'reference',
 			'field': 'item.detail.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'item.encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'enterer': {
 			'type': 'reference',
 			'field': 'enterer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'facility': {
 			'type': 'reference',
 			'field': 'facility',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -4154,22 +4161,22 @@ const customFilterQueries = {
 		'insurer': {
 			'type': 'reference',
 			'field': 'insurer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'item-udi': {
 			'type': 'reference',
 			'field': 'item.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'payee': {
 			'type': 'reference',
 			'field': 'payee.party',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'priority': {
 			'type': 'token',
@@ -4178,12 +4185,12 @@ const customFilterQueries = {
 		'procedure-udi': {
 			'type': 'reference',
 			'field': 'procedure.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'provider': {
 			'type': 'reference',
 			'field': 'provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -4192,7 +4199,7 @@ const customFilterQueries = {
 		'subdetail-udi': {
 			'type': 'reference',
 			'field': 'item.detail.subDetail.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'use': {
 			'type': 'token',
@@ -4215,7 +4222,7 @@ const customFilterQueries = {
 		'insurer': {
 			'type': 'reference',
 			'field': 'insurer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'outcome': {
 			'type': 'token',
@@ -4224,7 +4231,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'payment-date': {
 			'type': 'date',
@@ -4233,12 +4240,12 @@ const customFilterQueries = {
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['Claim',],
+			'target': ['Claim'],
 		},
 		'requestor': {
 			'type': 'reference',
 			'field': 'requestor',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -4253,7 +4260,7 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'category': {
 			'type': 'token',
@@ -4262,7 +4269,7 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -4271,7 +4278,7 @@ const customFilterQueries = {
 		'instantiates-canonical': {
 			'type': 'reference',
 			'field': 'instantiatesCanonical',
-			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','Measure','PlanDefinition','OperationDefinition','ActivityDefinition'],
 		},
 		'instantiates-uri': {
 			'type': 'uri',
@@ -4284,12 +4291,12 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'received': {
 			'type': 'date',
@@ -4298,12 +4305,12 @@ const customFilterQueries = {
 		'recipient': {
 			'type': 'reference',
 			'field': 'recipient',
-			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'sender': {
 			'type': 'reference',
 			'field': 'sender',
-			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'sent': {
 			'type': 'date',
@@ -4316,7 +4323,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'CommunicationRequest': {
@@ -4327,7 +4334,7 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'category': {
 			'type': 'token',
@@ -4336,7 +4343,7 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'group-identifier': {
 			'type': 'token',
@@ -4357,7 +4364,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'priority': {
 			'type': 'token',
@@ -4366,22 +4373,22 @@ const customFilterQueries = {
 		'recipient': {
 			'type': 'reference',
 			'field': 'recipient',
-			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Group','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'replaces': {
 			'type': 'reference',
 			'field': 'replaces',
-			'target': ['CommunicationRequest',],
+			'target': ['CommunicationRequest'],
 		},
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'sender': {
 			'type': 'reference',
 			'field': 'sender',
-			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -4390,19 +4397,19 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'Contract': {
 		'authority': {
 			'type': 'reference',
 			'field': 'authority',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'domain': {
 			'type': 'reference',
 			'field': 'domain',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -4419,12 +4426,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'signer': {
 			'type': 'reference',
 			'field': 'signer.party',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -4433,7 +4440,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'url': {
 			'type': 'uri',
@@ -4444,7 +4451,7 @@ const customFilterQueries = {
 		'beneficiary': {
 			'type': 'reference',
 			'field': 'beneficiary',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'class-type': {
 			'type': 'token',
@@ -4465,17 +4472,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'beneficiary',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'payor': {
 			'type': 'reference',
 			'field': 'payor',
-			'target': ['Organization','Patient','RelatedPerson',],
+			'target': ['Organization','Patient','RelatedPerson'],
 		},
 		'policy-holder': {
 			'type': 'reference',
 			'field': 'policyHolder',
-			'target': ['Organization','Patient','RelatedPerson',],
+			'target': ['Organization','Patient','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -4484,7 +4491,7 @@ const customFilterQueries = {
 		'subscriber': {
 			'type': 'reference',
 			'field': 'subscriber',
-			'target': ['Patient','RelatedPerson',],
+			'target': ['Patient','RelatedPerson'],
 		},
 		'type': {
 			'type': 'token',
@@ -4499,12 +4506,12 @@ const customFilterQueries = {
 		'enterer': {
 			'type': 'reference',
 			'field': 'enterer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'facility': {
 			'type': 'reference',
 			'field': 'facility',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -4513,12 +4520,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'provider': {
 			'type': 'reference',
 			'field': 'provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -4541,7 +4548,7 @@ const customFilterQueries = {
 		'insurer': {
 			'type': 'reference',
 			'field': 'insurer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'outcome': {
 			'type': 'token',
@@ -4550,17 +4557,17 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['CoverageEligibilityRequest',],
+			'target': ['CoverageEligibilityRequest'],
 		},
 		'requestor': {
 			'type': 'reference',
 			'field': 'requestor',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -4579,7 +4586,7 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'manufacturer': {
 			'type': 'string',
@@ -4592,12 +4599,12 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'owner',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -4628,7 +4635,7 @@ const customFilterQueries = {
 		'parent': {
 			'type': 'reference',
 			'field': 'parentDevice',
-			'target': ['DeviceDefinition',],
+			'target': ['DeviceDefinition'],
 		},
 		'type': {
 			'type': 'token',
@@ -4647,12 +4654,12 @@ const customFilterQueries = {
 		'parent': {
 			'type': 'reference',
 			'field': 'parent',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'source': {
 			'type': 'reference',
 			'field': 'source',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'type': {
 			'type': 'token',
@@ -4737,7 +4744,7 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'managingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'payload-type': {
 			'type': 'token',
@@ -4756,7 +4763,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'candidate',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -4765,7 +4772,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'candidate',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 	},
 	'EnrollmentResponse': {
@@ -4776,7 +4783,7 @@ const customFilterQueries = {
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['EnrollmentRequest',],
+			'target': ['EnrollmentRequest'],
 		},
 		'status': {
 			'type': 'token',
@@ -4786,8 +4793,9 @@ const customFilterQueries = {
 	'EventDefinition': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -4811,13 +4819,15 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -4841,8 +4851,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -4854,8 +4865,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -4877,8 +4889,9 @@ const customFilterQueries = {
 	'Evidence': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -4902,13 +4915,15 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -4932,8 +4947,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -4945,8 +4961,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -4968,8 +4985,9 @@ const customFilterQueries = {
 	'EvidenceVariable': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -4993,13 +5011,15 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -5023,8 +5043,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -5036,8 +5057,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -5110,17 +5132,17 @@ const customFilterQueries = {
 		'care-team': {
 			'type': 'reference',
 			'field': 'careTeam.provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'claim': {
 			'type': 'reference',
 			'field': 'claim',
-			'target': ['Claim',],
+			'target': ['Claim'],
 		},
 		'coverage': {
 			'type': 'reference',
 			'field': 'insurance.coverage',
-			'target': ['Coverage',],
+			'target': ['Coverage'],
 		},
 		'created': {
 			'type': 'date',
@@ -5129,7 +5151,7 @@ const customFilterQueries = {
 		'detail-udi': {
 			'type': 'reference',
 			'field': 'item.detail.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'disposition': {
 			'type': 'string',
@@ -5138,17 +5160,17 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'item.encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'enterer': {
 			'type': 'reference',
 			'field': 'enterer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'facility': {
 			'type': 'reference',
 			'field': 'facility',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5157,27 +5179,27 @@ const customFilterQueries = {
 		'item-udi': {
 			'type': 'reference',
 			'field': 'item.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'payee': {
 			'type': 'reference',
 			'field': 'payee.party',
-			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'procedure-udi': {
 			'type': 'reference',
 			'field': 'procedure.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 		'provider': {
 			'type': 'reference',
 			'field': 'provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -5186,7 +5208,7 @@ const customFilterQueries = {
 		'subdetail-udi': {
 			'type': 'reference',
 			'field': 'item.detail.subDetail.udi',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 	},
 	'Group': {
@@ -5213,12 +5235,12 @@ const customFilterQueries = {
 		'managing-entity': {
 			'type': 'reference',
 			'field': 'managingEntity',
-			'target': ['Practitioner','Organization','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','PractitionerRole','RelatedPerson'],
 		},
 		'member': {
 			'type': 'reference',
 			'field': 'member.entity',
-			'target': ['Practitioner','Group','Device','Medication','Patient','Substance','PractitionerRole',],
+			'target': ['Practitioner','Group','Device','Medication','Patient','Substance','PractitionerRole'],
 		},
 		'type': {
 			'type': 'token',
@@ -5253,7 +5275,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'request': {
 			'type': 'token',
@@ -5262,7 +5284,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'HealthcareService': {
@@ -5277,12 +5299,12 @@ const customFilterQueries = {
 		'coverage-area': {
 			'type': 'reference',
 			'field': 'coverageArea',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5291,7 +5313,7 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'name': {
 			'type': 'string',
@@ -5300,7 +5322,7 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'providedBy',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'program': {
 			'type': 'token',
@@ -5335,12 +5357,12 @@ const customFilterQueries = {
 		'immunization-event': {
 			'type': 'reference',
 			'field': 'immunizationEvent',
-			'target': ['Immunization',],
+			'target': ['Immunization'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -5363,12 +5385,12 @@ const customFilterQueries = {
 		'information': {
 			'type': 'reference',
 			'field': 'recommendation.supportingPatientInformation',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -5377,7 +5399,7 @@ const customFilterQueries = {
 		'support': {
 			'type': 'reference',
 			'field': 'recommendation.supportingImmunization',
-			'target': ['Immunization','ImmunizationEvaluation',],
+			'target': ['Immunization','ImmunizationEvaluation'],
 		},
 		'target-disease': {
 			'type': 'token',
@@ -5416,12 +5438,12 @@ const customFilterQueries = {
 		'administered-by': {
 			'type': 'reference',
 			'field': 'administeredBy',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5438,7 +5460,7 @@ const customFilterQueries = {
 		'owned-by': {
 			'type': 'reference',
 			'field': 'ownedBy',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'phonetic': {
 			'type': 'string',
@@ -5457,7 +5479,7 @@ const customFilterQueries = {
 		'account': {
 			'type': 'reference',
 			'field': 'account',
-			'target': ['Account',],
+			'target': ['Account'],
 		},
 		'date': {
 			'type': 'date',
@@ -5470,12 +5492,12 @@ const customFilterQueries = {
 		'issuer': {
 			'type': 'reference',
 			'field': 'issuer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'participant': {
 			'type': 'reference',
 			'field': 'participant.actor',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'participant-role': {
 			'type': 'token',
@@ -5484,12 +5506,12 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'recipient': {
 			'type': 'reference',
 			'field': 'recipient',
-			'target': ['Organization','Patient','RelatedPerson',],
+			'target': ['Organization','Patient','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -5498,7 +5520,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 		'totalgross': {
 			'type': 'quantity',
@@ -5516,8 +5538,9 @@ const customFilterQueries = {
 	'Library': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'content-type': {
 			'type': 'token',
@@ -5545,13 +5568,15 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -5575,8 +5600,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -5588,8 +5614,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -5616,17 +5643,17 @@ const customFilterQueries = {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'item': {
 			'type': 'reference',
 			'field': 'item.resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'source': {
 			'type': 'reference',
 			'field': 'item.resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'Location': {
@@ -5657,7 +5684,7 @@ const customFilterQueries = {
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5682,12 +5709,12 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'managingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'partof': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'status': {
 			'type': 'token',
@@ -5701,8 +5728,9 @@ const customFilterQueries = {
 	'Measure': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -5726,18 +5754,20 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'depends-on': {
 			'type': 'reference',
 			'field': 'library',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -5761,8 +5791,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -5774,8 +5805,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -5802,7 +5834,7 @@ const customFilterQueries = {
 		'evaluated-resource': {
 			'type': 'reference',
 			'field': 'evaluatedResource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5811,12 +5843,12 @@ const customFilterQueries = {
 		'measure': {
 			'type': 'reference',
 			'field': 'measure',
-			'target': ['Measure',],
+			'target': ['Measure'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'period': {
 			'type': 'date',
@@ -5825,7 +5857,7 @@ const customFilterQueries = {
 		'reporter': {
 			'type': 'reference',
 			'field': 'reporter',
-			'target': ['Practitioner','Organization','PractitionerRole','Location',],
+			'target': ['Practitioner','Organization','PractitionerRole','Location'],
 		},
 		'status': {
 			'type': 'token',
@@ -5834,14 +5866,14 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Device','Patient','PractitionerRole','RelatedPerson','Location',],
+			'target': ['Practitioner','Group','Device','Patient','PractitionerRole','RelatedPerson','Location'],
 		},
 	},
 	'Media': {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','ServiceRequest',],
+			'target': ['CarePlan','ServiceRequest'],
 		},
 		'created': {
 			'type': 'date',
@@ -5854,12 +5886,12 @@ const customFilterQueries = {
 		'device': {
 			'type': 'reference',
 			'field': 'device',
-			'target': ['Device','DeviceMetric',],
+			'target': ['Device','DeviceMetric'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5872,12 +5904,12 @@ const customFilterQueries = {
 		'operator': {
 			'type': 'reference',
 			'field': 'operator',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'site': {
 			'type': 'token',
@@ -5890,7 +5922,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Practitioner','Group','Specimen','Device','Patient','PractitionerRole','Location',],
+			'target': ['Practitioner','Group','Specimen','Device','Patient','PractitionerRole','Location'],
 		},
 		'type': {
 			'type': 'token',
@@ -5921,7 +5953,7 @@ const customFilterQueries = {
 		'ingredient': {
 			'type': 'reference',
 			'field': 'ingredient.itemReference',
-			'target': ['Substance',],
+			'target': ['Substance'],
 		},
 		'ingredient-code': {
 			'type': 'token',
@@ -5930,7 +5962,7 @@ const customFilterQueries = {
 		'manufacturer': {
 			'type': 'reference',
 			'field': 'manufacturer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'monitoring-program-name': {
 			'type': 'token',
@@ -5943,7 +5975,7 @@ const customFilterQueries = {
 		'monograph': {
 			'type': 'reference',
 			'field': 'monograph.source',
-			'target': ['Media','DocumentReference',],
+			'target': ['Media','DocumentReference'],
 		},
 		'monograph-type': {
 			'type': 'token',
@@ -5980,7 +6012,7 @@ const customFilterQueries = {
 		'holder': {
 			'type': 'reference',
 			'field': 'holder',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -5993,28 +6025,28 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['MedicinalProductPackaged','MedicinalProduct',],
+			'target': ['MedicinalProductPackaged','MedicinalProduct'],
 		},
 	},
 	'MedicinalProductContraindication': {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Medication','MedicinalProduct',],
+			'target': ['Medication','MedicinalProduct'],
 		},
 	},
 	'MedicinalProductIndication': {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Medication','MedicinalProduct',],
+			'target': ['Medication','MedicinalProduct'],
 		},
 	},
 	'MedicinalProductInteraction': {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Medication','Substance','MedicinalProduct',],
+			'target': ['Medication','Substance','MedicinalProduct'],
 		},
 	},
 	'MedicinalProductPackaged': {
@@ -6025,7 +6057,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['MedicinalProduct',],
+			'target': ['MedicinalProduct'],
 		},
 	},
 	'MedicinalProductPharmaceutical': {
@@ -6046,14 +6078,14 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Medication','MedicinalProduct',],
+			'target': ['Medication','MedicinalProduct'],
 		},
 	},
 	'MessageHeader': {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'code': {
 			'type': 'token',
@@ -6070,7 +6102,7 @@ const customFilterQueries = {
 		'enterer': {
 			'type': 'reference',
 			'field': 'enterer',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'event': {
 			'type': 'token',
@@ -6083,12 +6115,12 @@ const customFilterQueries = {
 		'focus': {
 			'type': 'reference',
 			'field': 'focus',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'receiver': {
 			'type': 'reference',
 			'field': 'destination.receiver',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'response-id': {
 			'type': 'token',
@@ -6097,12 +6129,12 @@ const customFilterQueries = {
 		'responsible': {
 			'type': 'reference',
 			'field': 'responsible',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'sender': {
 			'type': 'reference',
 			'field': 'sender',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'source': {
 			'type': 'string',
@@ -6115,7 +6147,7 @@ const customFilterQueries = {
 		'target': {
 			'type': 'reference',
 			'field': 'destination.target',
-			'target': ['Device',],
+			'target': ['Device'],
 		},
 	},
 	'MolecularSequence': {
@@ -6130,7 +6162,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'referenceseqid': {
 			'type': 'token',
@@ -6189,7 +6221,7 @@ const customFilterQueries = {
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -6206,7 +6238,7 @@ const customFilterQueries = {
 		'partof': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'phonetic': {
 			'type': 'string',
@@ -6228,12 +6260,13 @@ const customFilterQueries = {
 		},
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -6242,26 +6275,27 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'network': {
 			'type': 'reference',
 			'field': 'network',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'participating-organization': {
 			'type': 'reference',
 			'field': 'participatingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'primary-organization': {
 			'type': 'reference',
 			'field': 'organization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'role': {
 			'type': 'token',
@@ -6270,7 +6304,7 @@ const customFilterQueries = {
 		'service': {
 			'type': 'reference',
 			'field': 'healthcareService',
-			'target': ['HealthcareService',],
+			'target': ['HealthcareService'],
 		},
 		'specialty': {
 			'type': 'token',
@@ -6328,7 +6362,8 @@ const customFilterQueries = {
 		},
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'family': {
 			'type': 'string',
@@ -6341,7 +6376,7 @@ const customFilterQueries = {
 		'general-practitioner': {
 			'type': 'reference',
 			'field': 'generalPractitioner',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'given': {
 			'type': 'string',
@@ -6358,7 +6393,7 @@ const customFilterQueries = {
 		'link': {
 			'type': 'reference',
 			'field': 'link.other',
-			'target': ['Patient','RelatedPerson',],
+			'target': ['Patient','RelatedPerson'],
 		},
 		'name': {
 			'type': 'string',
@@ -6367,11 +6402,12 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'managingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'phonetic': {
 			'type': 'string',
@@ -6413,7 +6449,8 @@ const customFilterQueries = {
 		},
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'gender': {
 			'type': 'token',
@@ -6421,7 +6458,8 @@ const customFilterQueries = {
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'phonetic': {
 			'type': 'string',
@@ -6438,7 +6476,7 @@ const customFilterQueries = {
 		'link': {
 			'type': 'reference',
 			'field': 'link.target',
-			'target': ['Practitioner','Patient','Person','RelatedPerson',],
+			'target': ['Practitioner','Patient','Person','RelatedPerson'],
 		},
 		'name': {
 			'type': 'string',
@@ -6447,22 +6485,22 @@ const customFilterQueries = {
 		'organization': {
 			'type': 'reference',
 			'field': 'managingOrganization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'link.target',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'practitioner': {
 			'type': 'reference',
 			'field': 'link.target',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 		'relatedperson': {
 			'type': 'reference',
 			'field': 'link.target',
-			'target': ['RelatedPerson',],
+			'target': ['RelatedPerson'],
 		},
 	},
 	'Practitioner': {
@@ -6492,7 +6530,8 @@ const customFilterQueries = {
 		},
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'family': {
 			'type': 'string',
@@ -6508,7 +6547,8 @@ const customFilterQueries = {
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'phonetic': {
 			'type': 'string',
@@ -6566,7 +6606,8 @@ const customFilterQueries = {
 		},
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'gender': {
 			'type': 'token',
@@ -6574,7 +6615,8 @@ const customFilterQueries = {
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'phonetic': {
 			'type': 'string',
@@ -6599,7 +6641,7 @@ const customFilterQueries = {
 		'patient': {
 			'type': 'reference',
 			'field': 'patient',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'relationship': {
 			'type': 'token',
@@ -6609,11 +6651,13 @@ const customFilterQueries = {
 	'PractitionerRole': {
 		'email': {
 			'type': 'token',
-			'field': 'telecom[system/@value='email']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'phone': {
 			'type': 'token',
-			'field': 'telecom[system/@value='phone']',
+			'field': 'telecom',
+			'fieldFilter': '[system/@value=\'phone\']',
 		},
 		'telecom': {
 			'type': 'token',
@@ -6630,7 +6674,7 @@ const customFilterQueries = {
 		'endpoint': {
 			'type': 'reference',
 			'field': 'endpoint',
-			'target': ['Endpoint',],
+			'target': ['Endpoint'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -6639,17 +6683,17 @@ const customFilterQueries = {
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'organization': {
 			'type': 'reference',
 			'field': 'organization',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'practitioner': {
 			'type': 'reference',
 			'field': 'practitioner',
-			'target': ['Practitioner',],
+			'target': ['Practitioner'],
 		},
 		'role': {
 			'type': 'token',
@@ -6658,7 +6702,7 @@ const customFilterQueries = {
 		'service': {
 			'type': 'reference',
 			'field': 'healthcareService',
-			'target': ['HealthcareService',],
+			'target': ['HealthcareService'],
 		},
 		'specialty': {
 			'type': 'token',
@@ -6681,17 +6725,17 @@ const customFilterQueries = {
 		'provider': {
 			'type': 'reference',
 			'field': 'provider',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'response': {
 			'type': 'reference',
 			'field': 'response',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'status': {
 			'type': 'token',
@@ -6718,17 +6762,17 @@ const customFilterQueries = {
 		'payment-issuer': {
 			'type': 'reference',
 			'field': 'paymentIssuer',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'request': {
 			'type': 'reference',
 			'field': 'request',
-			'target': ['Task',],
+			'target': ['Task'],
 		},
 		'requestor': {
 			'type': 'reference',
 			'field': 'requestor',
-			'target': ['Practitioner','Organization','PractitionerRole',],
+			'target': ['Practitioner','Organization','PractitionerRole'],
 		},
 		'status': {
 			'type': 'token',
@@ -6738,8 +6782,9 @@ const customFilterQueries = {
 	'PlanDefinition': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -6764,27 +6809,29 @@ const customFilterQueries = {
 		'definition': {
 			'type': 'reference',
 			'field': 'action.definitionCanonical',
-			'target': ['Questionnaire','PlanDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','PlanDefinition','ActivityDefinition'],
 		},
 		'definition': {
 			'type': 'reference',
 			'field': 'action.definitionUri',
-			'target': ['Questionnaire','PlanDefinition','ActivityDefinition',],
+			'target': ['Questionnaire','PlanDefinition','ActivityDefinition'],
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'depends-on': {
 			'type': 'reference',
 			'field': 'library',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -6808,8 +6855,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -6821,8 +6869,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -6849,7 +6898,7 @@ const customFilterQueries = {
 		'agent': {
 			'type': 'reference',
 			'field': 'agent.who',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'agent-role': {
 			'type': 'token',
@@ -6862,17 +6911,17 @@ const customFilterQueries = {
 		'entity': {
 			'type': 'reference',
 			'field': 'entity.what',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'location': {
 			'type': 'reference',
 			'field': 'location',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'target',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'recorded': {
 			'type': 'date',
@@ -6885,7 +6934,7 @@ const customFilterQueries = {
 		'target': {
 			'type': 'reference',
 			'field': 'target',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'when': {
 			'type': 'date',
@@ -6970,7 +7019,7 @@ const customFilterQueries = {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'authored': {
 			'type': 'date',
@@ -6979,12 +7028,12 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['CarePlan','ServiceRequest',],
+			'target': ['CarePlan','ServiceRequest'],
 		},
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'identifier': {
 			'type': 'token',
@@ -6993,22 +7042,22 @@ const customFilterQueries = {
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Observation','Procedure',],
+			'target': ['Observation','Procedure'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'questionnaire': {
 			'type': 'reference',
 			'field': 'questionnaire',
-			'target': ['Questionnaire',],
+			'target': ['Questionnaire'],
 		},
 		'source': {
 			'type': 'reference',
 			'field': 'source',
-			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -7017,14 +7066,14 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'RequestGroup': {
 		'author': {
 			'type': 'reference',
 			'field': 'author',
-			'target': ['Practitioner','Device','PractitionerRole',],
+			'target': ['Practitioner','Device','PractitionerRole'],
 		},
 		'authored': {
 			'type': 'date',
@@ -7037,7 +7086,7 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'group-identifier': {
 			'type': 'token',
@@ -7062,12 +7111,12 @@ const customFilterQueries = {
 		'participant': {
 			'type': 'reference',
 			'field': 'action.participant',
-			'target': ['Practitioner','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'priority': {
 			'type': 'token',
@@ -7080,14 +7129,15 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Patient',],
+			'target': ['Group','Patient'],
 		},
 	},
 	'ResearchDefinition': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -7111,18 +7161,20 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'depends-on': {
 			'type': 'reference',
 			'field': 'library',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -7146,8 +7198,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -7159,8 +7212,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -7182,8 +7236,9 @@ const customFilterQueries = {
 	'ResearchElementDefinition': {
 		'composed-of': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='composed-of'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'composed-of\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'context': {
 			'type': 'token',
@@ -7207,18 +7262,20 @@ const customFilterQueries = {
 		},
 		'depends-on': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='depends-on'].resource',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'depends-on\']',
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'depends-on': {
 			'type': 'reference',
 			'field': 'library',
-			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Library','Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'derived-from': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='derived-from'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'derived-from\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'description': {
 			'type': 'string',
@@ -7242,8 +7299,9 @@ const customFilterQueries = {
 		},
 		'predecessor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='predecessor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'predecessor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'publisher': {
 			'type': 'string',
@@ -7255,8 +7313,9 @@ const customFilterQueries = {
 		},
 		'successor': {
 			'type': 'reference',
-			'field': 'relatedArtifact[type/@value='successor'].resource',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'field': 'relatedArtifact.resource',
+			'fieldFilter': '[type/@value=\'successor\']',
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'title': {
 			'type': 'string',
@@ -7303,27 +7362,27 @@ const customFilterQueries = {
 		'partof': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['ResearchStudy',],
+			'target': ['ResearchStudy'],
 		},
 		'principalinvestigator': {
 			'type': 'reference',
 			'field': 'principalInvestigator',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'protocol': {
 			'type': 'reference',
 			'field': 'protocol',
-			'target': ['PlanDefinition',],
+			'target': ['PlanDefinition'],
 		},
 		'site': {
 			'type': 'reference',
 			'field': 'site',
-			'target': ['Location',],
+			'target': ['Location'],
 		},
 		'sponsor': {
 			'type': 'reference',
 			'field': 'sponsor',
-			'target': ['Organization',],
+			'target': ['Organization'],
 		},
 		'status': {
 			'type': 'token',
@@ -7346,12 +7405,12 @@ const customFilterQueries = {
 		'individual': {
 			'type': 'reference',
 			'field': 'individual',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'individual',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -7360,7 +7419,7 @@ const customFilterQueries = {
 		'study': {
 			'type': 'reference',
 			'field': 'study',
-			'target': ['ResearchStudy',],
+			'target': ['ResearchStudy'],
 		},
 	},
 	'RiskEvidenceSynthesis': {
@@ -7433,7 +7492,7 @@ const customFilterQueries = {
 		'actor': {
 			'type': 'reference',
 			'field': 'actor',
-			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location',],
+			'target': ['Practitioner','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson','Location'],
 		},
 		'date': {
 			'type': 'date',
@@ -7468,7 +7527,7 @@ const customFilterQueries = {
 		'schedule': {
 			'type': 'reference',
 			'field': 'schedule',
-			'target': ['Schedule',],
+			'target': ['Schedule'],
 		},
 		'service-category': {
 			'type': 'token',
@@ -7511,7 +7570,7 @@ const customFilterQueries = {
 		'collector': {
 			'type': 'reference',
 			'field': 'collection.collector',
-			'target': ['Practitioner','PractitionerRole',],
+			'target': ['Practitioner','PractitionerRole'],
 		},
 		'container': {
 			'type': 'token',
@@ -7528,12 +7587,12 @@ const customFilterQueries = {
 		'parent': {
 			'type': 'reference',
 			'field': 'parent',
-			'target': ['Specimen',],
+			'target': ['Specimen'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'status': {
 			'type': 'token',
@@ -7542,7 +7601,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'subject',
-			'target': ['Group','Device','Patient','Substance','Location',],
+			'target': ['Group','Device','Patient','Substance','Location'],
 		},
 		'type': {
 			'type': 'token',
@@ -7625,7 +7684,7 @@ const customFilterQueries = {
 		'substance-reference': {
 			'type': 'reference',
 			'field': 'ingredient.substanceReference',
-			'target': ['Substance',],
+			'target': ['Substance'],
 		},
 	},
 	'SubstanceSpecification': {
@@ -7642,7 +7701,7 @@ const customFilterQueries = {
 		'based-on': {
 			'type': 'reference',
 			'field': 'basedOn',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'business-status': {
 			'type': 'token',
@@ -7655,12 +7714,12 @@ const customFilterQueries = {
 		'encounter': {
 			'type': 'reference',
 			'field': 'encounter',
-			'target': ['Encounter',],
+			'target': ['Encounter'],
 		},
 		'focus': {
 			'type': 'reference',
 			'field': 'focus',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 		'group-identifier': {
 			'type': 'token',
@@ -7681,17 +7740,17 @@ const customFilterQueries = {
 		'owner': {
 			'type': 'reference',
 			'field': 'owner',
-			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','CareTeam','Device','Patient','HealthcareService','PractitionerRole','RelatedPerson'],
 		},
 		'part-of': {
 			'type': 'reference',
 			'field': 'partOf',
-			'target': ['Task',],
+			'target': ['Task'],
 		},
 		'patient': {
 			'type': 'reference',
 			'field': 'for',
-			'target': ['Patient',],
+			'target': ['Patient'],
 		},
 		'performer': {
 			'type': 'token',
@@ -7708,7 +7767,7 @@ const customFilterQueries = {
 		'requester': {
 			'type': 'reference',
 			'field': 'requester',
-			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson',],
+			'target': ['Practitioner','Organization','Device','Patient','PractitionerRole','RelatedPerson'],
 		},
 		'status': {
 			'type': 'token',
@@ -7717,7 +7776,7 @@ const customFilterQueries = {
 		'subject': {
 			'type': 'reference',
 			'field': 'for',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 	'TestReport': {
@@ -7744,7 +7803,7 @@ const customFilterQueries = {
 		'testscript': {
 			'type': 'reference',
 			'field': 'testScript',
-			'target': ['TestScript',],
+			'target': ['TestScript'],
 		},
 	},
 	'TestScript': {
@@ -7813,7 +7872,7 @@ const customFilterQueries = {
 		'target': {
 			'type': 'reference',
 			'field': 'target',
-			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription',],
+			'target': ['Account','ActivityDefinition','AdverseEvent','AllergyIntolerance','Appointment','AppointmentResponse','AuditEvent','Basic','Binary','BiologicallyDerivedProduct','BodyStructure','Bundle','CapabilityStatement','CarePlan','CareTeam','CatalogEntry','ChargeItem','ChargeItemDefinition','Claim','ClaimResponse','ClinicalImpression','CodeSystem','Communication','CommunicationRequest','CompartmentDefinition','Composition','ConceptMap','Condition','Consent','Contract','Coverage','CoverageEligibilityRequest','CoverageEligibilityResponse','DetectedIssue','Device','DeviceDefinition','DeviceMetric','DeviceRequest','DeviceUseStatement','DiagnosticReport','DocumentManifest','DocumentReference','EffectEvidenceSynthesis','Encounter','Endpoint','EnrollmentRequest','EnrollmentResponse','EpisodeOfCare','EventDefinition','Evidence','EvidenceVariable','ExampleScenario','ExplanationOfBenefit','FamilyMemberHistory','Flag','Goal','GraphDefinition','Group','GuidanceResponse','HealthcareService','ImagingStudy','Immunization','ImmunizationEvaluation','ImmunizationRecommendation','ImplementationGuide','InsurancePlan','Invoice','Library','Linkage','List','Location','Measure','MeasureReport','Media','Medication','MedicationAdministration','MedicationDispense','MedicationKnowledge','MedicationRequest','MedicationStatement','MedicinalProduct','MedicinalProductAuthorization','MedicinalProductContraindication','MedicinalProductIndication','MedicinalProductIngredient','MedicinalProductInteraction','MedicinalProductManufactured','MedicinalProductPackaged','MedicinalProductPharmaceutical','MedicinalProductUndesirableEffect','MessageDefinition','MessageHeader','MolecularSequence','NamingSystem','NutritionOrder','Observation','ObservationDefinition','OperationDefinition','OperationOutcome','Organization','OrganizationAffiliation','Patient','PaymentNotice','PaymentReconciliation','Person','PlanDefinition','Practitioner','PractitionerRole','Procedure','Provenance','Questionnaire','QuestionnaireResponse','RelatedPerson','RequestGroup','ResearchDefinition','ResearchElementDefinition','ResearchStudy','ResearchSubject','RiskAssessment','RiskEvidenceSynthesis','Schedule','SearchParameter','ServiceRequest','Slot','Specimen','SpecimenDefinition','StructureDefinition','StructureMap','Subscription','Substance','SubstanceNucleicAcid','SubstancePolymer','SubstanceProtein','SubstanceReferenceInformation','SubstanceSourceMaterial','SubstanceSpecification','SupplyDelivery','SupplyRequest','Task','TerminologyCapabilities','TestReport','TestScript','ValueSet','VerificationResult','VisionPrescription'],
 		},
 	},
 };
