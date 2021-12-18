@@ -120,9 +120,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         columns.add('meta.lastUpdated');
     }
 
-    // add reference queries
+    // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(customFilterQueries)) {
-        if (resourceType === resourceName || resourceType === '*') {
+        if (resourceType === resourceName || resourceType === 'Resource') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (args[`${queryParameter}`]) {
                     switch (propertyObj.type) {
@@ -174,9 +174,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             break;
                         case fhirFilterTypes.reference:
                             // eslint-disable-next-line no-case-declarations
-                            const referencedResource = propertyObj.referencedResource;
+                            const target = propertyObj.target;
                             // eslint-disable-next-line no-case-declarations
-                            const reference = `${referencedResource}/` + args[`${queryParameter}`];
+                            const reference = `${target}/` + args[`${queryParameter}`];
                             and_segments.push(referenceQueryBuilder(reference, propertyObj.field, null));
                             columns.add(`${propertyObj.field}`);
                             break;

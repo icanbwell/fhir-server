@@ -60,7 +60,7 @@ const fhirFilterTypes = {
         '{queryParameter}': {
             'type': {type of filter},
             'field': '{field name in resourceType to filter}',
-            'referencedResource': '{if type is reference then the resourceType of the referenced resource}'
+            'target': '{if type is reference then the resourceType of the referenced resource}'
         }
     },
 
@@ -70,7 +70,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'AllergyIntolerance': {
@@ -85,7 +85,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -96,7 +96,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'participant.actor.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'AuditEvent': {
@@ -107,12 +107,12 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'agent.who.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'agent': {
             'type': fhirFilterTypes.reference,
             'field': 'agent.who.reference',
-            'referencedResource': 'Person'
+            'target': 'Person'
         }
     },
     'CapabilityStatement': {
@@ -145,7 +145,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'CareTeam': {
@@ -156,14 +156,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Claim': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'ClinicalImpression': {
@@ -174,7 +174,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'CodeSystem': {
@@ -229,7 +229,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -266,7 +266,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Consent': {
@@ -277,28 +277,28 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Coverage': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'beneficiary.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'DetectedIssue': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Device': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'DeviceRequest': {
@@ -309,14 +309,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'DeviceUseStatement': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'DiagnosticReport': {
@@ -331,14 +331,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'DocumentManifest': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -349,7 +349,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -364,7 +364,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -379,7 +379,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'type': {
             'type': fhirFilterTypes.token,
@@ -390,7 +390,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'FamilyMemberHistory': {
@@ -405,7 +405,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Flag': {
@@ -416,14 +416,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Goal': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'GraphDefinition': {
@@ -456,14 +456,14 @@ const customFilterQueries = {
         'organization': {
             'type': fhirFilterTypes.reference,
             'field': 'providedBy.reference',
-            'referencedResource': 'Organization'
+            'target': 'Organization'
         }
     },
     'ImagingStudy': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'ImplementationGuide': {
@@ -496,14 +496,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'InsurancePlan': {
         'organization': {
             'type': fhirFilterTypes.reference,
             'field': 'ownedBy.reference',
-            'referencedResource': 'Organization'
+            'target': 'Organization'
         }
     },
     'Location': {
@@ -524,14 +524,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'MeasureReport': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Medication': {
@@ -548,7 +548,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'status': {
             'type': fhirFilterTypes.string,
@@ -564,7 +564,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'status': {
             'type': fhirFilterTypes.string,
@@ -580,7 +580,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'status': {
             'type': fhirFilterTypes.string,
@@ -595,7 +595,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'status': {
             'type': fhirFilterTypes.string,
@@ -642,7 +642,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Observation': {
@@ -657,7 +657,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'OperationDefinition': {
@@ -714,7 +714,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'link.target.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'birthdate': {
             'type': fhirFilterTypes.dateTime,
@@ -747,22 +747,22 @@ const customFilterQueries = {
         'practitioner': {
             'type': fhirFilterTypes.reference,
             'field': 'practitioner.reference',
-            'referencedResource': 'Practitioner'
+            'target': 'Practitioner'
         },
         'organization': {
             'type': fhirFilterTypes.reference,
             'field': 'organization.reference',
-            'referencedResource': 'Organization'
+            'target': 'Organization'
         },
         'location': {
             'type': fhirFilterTypes.reference,
             'field': 'location.reference',
-            'referencedResource': 'Location'
+            'target': 'Location'
         },
         'healthcareService': {
             'type': fhirFilterTypes.reference,
             'field': 'healthcareService.reference',
-            'referencedResource': 'HealthcareService'
+            'target': 'HealthcareService'
         },
         'email': {
             'type': fhirFilterTypes.email,
@@ -785,21 +785,21 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'QuestionnaireResponse': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'RelatedPerson': {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'birthdate': {
             'type': fhirFilterTypes.dateTime,
@@ -822,7 +822,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Schedule': {
@@ -833,22 +833,22 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         },
         'practitioner': {
             'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
-            'referencedResource': 'Practitioner'
+            'target': 'Practitioner'
         },
         'location': {
             'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
-            'referencedResource': 'Location'
+            'target': 'Location'
         },
         'healthcareService': {
             'type': fhirFilterTypes.reference,
             'field': 'actor.reference',
-            'referencedResource': 'HealthcareService'
+            'target': 'HealthcareService'
         }
     },
     'SearchParameter': {
@@ -881,14 +881,14 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'subject.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'Slot': {
         'schedule': {
             'type': fhirFilterTypes.reference,
             'field': 'schedule.reference',
-            'referencedResource': 'Schedule'
+            'target': 'Schedule'
         }
     },
     'StructureDefinition': {
@@ -945,7 +945,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     },
     'TerminologyCapabilities': {
@@ -996,7 +996,7 @@ const customFilterQueries = {
         'patient': {
             'type': fhirFilterTypes.reference,
             'field': 'patient.reference',
-            'referencedResource': 'Patient'
+            'target': 'Patient'
         }
     }
 };
