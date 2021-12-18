@@ -18,6 +18,15 @@ class QueryEntry:
     target: Optional[List[str]]
 
 
+def add_values_in_dict(sample_dict: Dict[str, List[QueryEntry]], query_entry: QueryEntry):
+    """ Append multiple values to a key in
+        the given dictionary """
+    if query_entry.resource not in sample_dict:
+        sample_dict[query_entry.resource] = list()
+    sample_dict[query_entry.resource].append(query_entry)
+    return sample_dict
+
+
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
 
@@ -58,6 +67,11 @@ def main() -> int:
                     target=target.split("|") if target else None
                 )
                 query_entries.append(query_entry)
+
+    # group by Resource
+    sample_dict: Dict[str, List[QueryEntry]] = {}
+    for query_entry in query_entries:
+        add_values_in_dict(sample_dict=sample_dict, query_entry=query_entry)
     return 0
 
 
