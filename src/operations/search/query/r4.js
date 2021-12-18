@@ -8,7 +8,8 @@ const {
 } = require('../../../utils/querybuilder.util');
 const {isTrue} = require('../../../utils/isTrue');
 
-const {customFilterQueries, fhirFilterTypes} = require('./customQueries');
+const { fhirFilterTypes} = require('./customQueries');
+const {searchParameterQueries} = require('../../../searchParameters/searchParameters');
 
 // /**
 //  * @type {import('winston').logger}
@@ -121,7 +122,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     }
 
     // add FHIR queries
-    for (const [resourceType, resourceObj] of Object.entries(customFilterQueries)) {
+    for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
         if (resourceType === resourceName || resourceType === 'Resource') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (args[`${queryParameter}`]) {
