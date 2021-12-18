@@ -45,7 +45,6 @@ jobs:
           node-version: 16.13.x
       - run: yarn install
       - run: npm run build --if-present
-      - run: npm test
       - name: jest
         run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs npx jest
         env:
