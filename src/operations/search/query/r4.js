@@ -189,10 +189,27 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}.value`);
                             break;
                         case fhirFilterTypes.reference:
-                            for (const target of propertyObj.target) {
-                                // eslint-disable-next-line no-case-declarations
-                                const reference = `${target}/` + args[`${queryParameter}`];
-                                and_segments.push(referenceQueryBuilder(reference, `${propertyObj.field}.reference`, null));
+                            if (propertyObj.target.length === 1) { // handle simple case without an OR to keep it simple
+                                const target = propertyObj.target[0];
+                                and_segments.push(
+                                    referenceQueryBuilder(
+                                        `${target}/` + args[`${queryParameter}`],
+                                        `${propertyObj.field}.reference`,
+                                        null
+                                    )
+                                );
+                            } else {
+                                and_segments.push(
+                                    {
+                                        $or: propertyObj.target.map(
+                                            target => referenceQueryBuilder(
+                                                `${target}/` + args[`${queryParameter}`],
+                                                `${propertyObj.field}.reference`,
+                                                null
+                                            )
+                                        )
+                                    }
+                                );
                             }
                             columns.add(`${propertyObj.field}.reference`);
                             break;
