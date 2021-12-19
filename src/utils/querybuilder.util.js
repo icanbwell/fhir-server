@@ -107,11 +107,12 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
     if (target.includes('|')) {
         [system, value] = target.split('|');
 
-        if (required) {
-            system = required;
-        }
     } else {
         value = target;
+    }
+
+    if (required) {
+        system = required;
     }
 
     if (system) {

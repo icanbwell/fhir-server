@@ -25,38 +25,6 @@ const {searchParameterQueries} = require('../../../searchParameters/searchParame
 module.exports.buildR4SearchQuery = (resourceName, args) => {
     // Common search params
     let id = args['id'] || args['_id'];
-    // let patient = args['patient'];
-    // let practitioner = args['practitioner'];
-    // let organization = args['organization'];
-    // let location = args['location'];
-    // let healthcareService = args['healthcareService'];
-    // let schedule = args['schedule'];
-    // let agent = args['agent'];
-    // let name = args['name'];
-    // let family = args['family'];
-    //
-    // let address = args['address'];
-    // let address_city = args['address-city'];
-    // let address_country = args['address-country'];
-    // let addressPostalCode = args['address-postalcode'];
-    // let address_state = args['address-state'];
-    //
-    // let identifier = args['identifier'];
-    // let type_ = args['type'];
-    //
-    // let gender = args['gender'];
-    // let source = args['source'];
-    // let versionId = args['versionId'];
-    // let lastUpdated = args['_lastUpdated']; // _lastUpdated=gt2010-10-01
-    // let security = args['_security'];
-    // let tag = args['_tag'];
-    // Search Result params
-
-    // let extension_missing = args['extension:missing'];
-    // extension:missing=true
-
-    // Patient search params
-    // let active = args['active'];
 
     if (args['source'] && !args['_source']) {
         args['_source'] = args['source'];
@@ -102,27 +70,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         };
         columns.add('id');
     }
-
-    // if (source) {
-    //     query['meta.source'] = source;
-    //     columns.add('meta.source');
-    // }
-    //
-    // if (versionId) {
-    //     query['meta.versionId'] = versionId;
-    //     columns.add('meta.versionId');
-    // }
-    //
-    // if (lastUpdated) {
-    //     if (Array.isArray(lastUpdated)) {
-    //         for (const lastUpdatedItem of lastUpdated) {
-    //             and_segments.push({'meta.lastUpdated': dateQueryBuilder(lastUpdatedItem, 'instant', '')});
-    //         }
-    //     } else {
-    //         query['meta.lastUpdated'] = dateQueryBuilder(lastUpdated, 'instant', '');
-    //     }
-    //     columns.add('meta.lastUpdated');
-    // }
 
     // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
@@ -238,109 +185,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         }
     }
 
-    // if (name) {
-    //     if (['Practitioner'].includes(resourceName)) {
-    //         if (name) {
-    //             let orsName = nameQueryBuilder(name);
-    //             for (let i = 0; i < orsName.length; i++) {
-    //                 and_segments.push(orsName[`${i}`]);
-    //             }
-    //         }
-    //     } else {
-    //         query['name'] = stringQueryBuilder(name);
-    //     }
-    //     columns.add('name');
-    // }
-    // if (family) {
-    //     query['name.family'] = stringQueryBuilder(family);
-    //     columns.add('name.family');
-    // }
-    //
-    // if (address) {
-    //     let orsAddress = addressQueryBuilder(address);
-    //     for (let i = 0; i < orsAddress.length; i++) {
-    //         and_segments.push(orsAddress[`${i}`]);
-    //     }
-    //     columns.add('address');
-    // }
-    //
-    // if (address_city) {
-    //     query['address.city'] = stringQueryBuilder(address_city);
-    //     columns.add('address.city');
-    // }
-    //
-    // if (address_country) {
-    //     query['address.country'] = stringQueryBuilder(address_country);
-    //     columns.add('address.country');
-    // }
-    //
-    // if (addressPostalCode) {
-    //     query['address.postalCode'] = stringQueryBuilder(addressPostalCode);
-    //     columns.add('address.postalCode');
-    // }
-    //
-    // if (address_state) {
-    //     query['address.state'] = stringQueryBuilder(address_state);
-    //     columns.add('address.state');
-    // }
-
-    // if (identifier || args['identifier:missing']) {
-    //     let identifier_exists_flag = null;
-    //     if (args['identifier:missing']) {
-    //         identifier_exists_flag = !isTrue(args['identifier:missing']);
-    //     }
-    //     let queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier', '', identifier_exists_flag);
-    //     /**
-    //      * @type {string}
-    //      */
-    //     for (let i in queryBuilder) {
-    //         query[`${i}`] = queryBuilder[`${i}`];
-    //     }
-    //     columns.add('identifier.system');
-    //     columns.add('identifier.value');
-    // }
-    // if (type_) {
-    //     let queryBuilder = tokenQueryBuilder(type_, 'code', 'type.coding', '');
-    //     /**
-    //      * @type {string}
-    //      */
-    //     for (let i in queryBuilder) {
-    //         query[`${i}`] = queryBuilder[`${i}`];
-    //     }
-    //     columns.add('type.coding.system');
-    //     columns.add('type.coding.code');
-    // }
-    // if (security) {
-    //     let queryBuilder = tokenQueryBuilder(security, 'code', 'meta.security', '');
-    //     /**
-    //      * @type {string}
-    //      */
-    //     for (let i in queryBuilder) {
-    //         query[`${i}`] = queryBuilder[`${i}`];
-    //     }
-    //     columns.add('meta.security.system');
-    //     columns.add('meta.security.code');
-    // }
-    // if (tag) {
-    //     let queryBuilder = tokenQueryBuilder(tag, 'code', 'meta.tag', '');
-    //     /**
-    //      * @type {string}
-    //      */
-    //     for (let i in queryBuilder) {
-    //         query[`${i}`] = queryBuilder[`${i}`];
-    //     }
-    //     columns.add('meta.tag.system');
-    //     columns.add('meta.tag.code');
-    // }
-    // if (active) {
-    //     query.active = active === 'true';
-    //     columns.add('active');
-    // }
-    //
-    // if (gender) {
-    //     query.gender = gender;
-    //     columns.add('gender');
-    // }
 
     if (and_segments.length !== 0) {
         query.$and = and_segments;

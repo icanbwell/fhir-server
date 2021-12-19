@@ -1,20 +1,17 @@
-#set($ResourceNameLower = $ResourceName.toLowerCase())
-#set($dollar = "$")
-
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
 // test file
-const ${ResourceNameLower}1Resource = require('./fixtures/${ResourceName}/${ResourceNameLower}1.json');
+const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 
 // expected
-const expected${ResourceName}Resources = require('./fixtures/expected/expected_${ResourceName}.json');
+const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
-describe('${ResourceName} Tests', () => {
+describe('Practitioner Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -23,24 +20,24 @@ describe('${ResourceName} Tests', () => {
         await commonAfterEach();
     });
 
-    describe('${ResourceName} ${NAME} Tests', () => {
-        test('${NAME} works', async () => {
+    describe('Practitioner search_by_phone.test.js Tests', () => {
+        test('search_by_phone.test.js works', async () => {
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
-                .post('/4_0_0/${ResourceName}/1/${dollar}merge?validate=true')
-                .send(${ResourceNameLower}1Resource)
+                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .send(practitioner1Resource)
                 .set(getHeaders())
                 .expect(200);
             assertMergeIsSuccessful(resp.body);
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right ${ResourceName} back
+            // search by token system and code and make sure we get the right Practitioner back
             resp = await request
-                .get('/4_0_0/${ResourceName}/?_bundle=1&[write_query_here]')
+                .get('/4_0_0/Practitioner/?_bundle=1&phone=1234567890')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expected${ResourceName}Resources);
+            assertCompareBundles(resp.body, expectedPractitionerResources);
         });
     });
 });
