@@ -132,22 +132,27 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     switch (propertyObj.type) {
                         case fhirFilterTypes.string:
                             if (Array.isArray(args[`${queryParameter}`])) {
-                                query[`${propertyObj.field}`] = {
-                                    $in: args[`${queryParameter}`]
-                                };
+                                and_segments.push({
+                                    [`${propertyObj.field}`]: {
+                                        $in: args[`${queryParameter}`]
+                                    }
+                                });
                             } else if (args[`${queryParameter}`].includes(',')) { // see if this is a comma separated list
                                 const value_list = args[`${queryParameter}`].split(',');
-                                query[`${propertyObj.field}`] = {
-                                    $in: value_list
-                                };
+                                and_segments.push({
+                                    [`${propertyObj.field}`]: {
+                                        $in: value_list
+                                    }
+                                });
                             } else {
-                                query[`${propertyObj.field}`] = args[`${queryParameter}`];
+                                and_segments.push({
+                                    [`${propertyObj.field}`]: args[`${queryParameter}`]
+                                });
                             }
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.uri:
                             and_segments.push({[`${propertyObj.field}`]: args[`${queryParameter}`]});
-                            // query[`${propertyObj.field}`] = args[`${queryParameter}`];
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
@@ -164,34 +169,35 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.token:
-                            and_segments.push(
-                                {
-                                    $or: [
-                                        tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}`, ''),
-                                        tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''),
-                                    ]
-                                }
-                            );
-                            // HACK ALERT: token can be for either CodeableConcept or Coding.  Currently, we can't figure out in advance
-                            //  Ideally we would set the former when we have a Coding and the latter when we have a CodeableConcept
-                            //  but this would require us parsing the FHIR resource schemas to know that
-                            if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') {
+                            if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
+                                and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'email'));
                                 columns.add(`${propertyObj.field}.system`);
-                                columns.add(`${propertyObj.field}.code`);
+                                columns.add(`${propertyObj.field}.value`);
+                            } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
+                                and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'phone'));
+                                columns.add(`${propertyObj.field}.system`);
+                                columns.add(`${propertyObj.field}.value`);
                             } else {
-                                columns.add(`${propertyObj.field}.coding.system`);
-                                columns.add(`${propertyObj.field}.coding.code`);
+                                and_segments.push(
+                                    {
+                                        $or: [
+                                            tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}`, ''),
+                                            tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}.coding`, ''),
+                                        ]
+                                    }
+                                );
+                                // HACK ALERT: token can be for either CodeableConcept or Coding.  Currently, we can't figure out in advance
+                                //  Ideally we would set the former when we have a Coding and the latter when we have a CodeableConcept
+                                //  but this would require us parsing the FHIR resource schemas to know that
+                                if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') {
+                                    columns.add(`${propertyObj.field}.system`);
+                                    columns.add(`${propertyObj.field}.code`);
+                                } else {
+                                    columns.add(`${propertyObj.field}.coding.system`);
+                                    columns.add(`${propertyObj.field}.coding.code`);
+                                }
                             }
-                            break;
-                        case fhirFilterTypes.email:
-                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'email'));
-                            columns.add(`${propertyObj.field}.system`);
-                            columns.add(`${propertyObj.field}.value`);
-                            break;
-                        case fhirFilterTypes.phone:
-                            and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'phone'));
-                            columns.add(`${propertyObj.field}.system`);
-                            columns.add(`${propertyObj.field}.value`);
+
                             break;
                         case fhirFilterTypes.reference:
                             if (propertyObj.target.length === 1) { // handle simple case without an OR to keep it simple
@@ -223,7 +229,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     }
                 } else if (args[`${queryParameter}:missing`]) {
                     const exists_flag = !isTrue(args[`${queryParameter}:missing`]);
-                    query[`${propertyObj.field}`] = {$exists: exists_flag};
+                    and_segments.push({
+                        [`${propertyObj.field}`]: {$exists: exists_flag}
+                    });
                     columns.add(`${propertyObj.field}`);
                 }
             }
