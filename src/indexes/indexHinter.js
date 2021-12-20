@@ -1,3 +1,6 @@
+/**
+ * This file implements index hinting
+ */
 const {customIndexes} = require('./customIndexes');
 
 /**
