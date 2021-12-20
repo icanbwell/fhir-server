@@ -14,6 +14,59 @@
     <% resources.forEach(function(res){ %>
         <%- include('../partials/resourceHeader', {res: res}); %>
 
+        <table class="table">
+            <thead>
+                <th scope="col">Field</th>
+                <th scope="col">Value</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Name</td>
+                <td><%= res.name %></td>
+            </tr>
+            <tr>
+                <td>url</td>
+                <td><%= res.url %></td>
+            </tr>
+            <tr>
+                <td>version</td>
+                <td><%= res.version %></td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td><%= res.status %></td>
+            </tr>
+            <tr>
+                <td>date</td>
+                <td><%= res.date %></td>
+            </tr>
+            <tr>
+                <td>publisher</td>
+                <td><%= res.publisher %></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4>Contains</h4>
+        <table class="table">
+            <thead>
+                <th scope="col">system</th>
+                <th scope="col">code</th>
+                <th scope="col">display</th>
+            </thead>
+            <tbody>
+            <% if (res.expansion.contains) { %>
+                <% res.expansion.contains.forEach(function(contains){ %>
+            <tr>
+                <td><%= contains.system %></td>
+                <td><%= contains.code %></td>
+                <td><%= contains.display %></td>
+            </tr>
+                <% }); %>
+            <% } %>
+            </tbody>
+        </table>
+
         <%- include('../partials/json', {res: res}); %>
     <%})%>
   </div>
