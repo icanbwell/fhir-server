@@ -112,7 +112,7 @@
         </div>
         <%}%>
 
-         <%- include('../partials/contactpoint', {contacts: res.telecom, name: "Telecom"}); %>
+         <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
 
          <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
 

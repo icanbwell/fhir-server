@@ -19,7 +19,7 @@
         <h4>Gender</h4><%= res.gender %>
         <h4>Active</h4><%= res.active %>
 
-         <%- include('../partials/contactpoint', {contacts: res.telecom, name: "Telecom"}); %>
+         <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
 
          <h4>BirthDate</h4><%= res.birthDate %>
 
