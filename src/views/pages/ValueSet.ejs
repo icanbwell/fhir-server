@@ -47,6 +47,7 @@
             </tbody>
         </table>
 
+        <% if (res.expansion.contains) { %>
         <h4>Contains</h4>
         <table class="table">
             <thead>
@@ -55,17 +56,32 @@
                 <th scope="col">display</th>
             </thead>
             <tbody>
-            <% if (res.expansion.contains) { %>
                 <% res.expansion.contains.forEach(function(contains){ %>
-            <tr>
-                <td><%= contains.system %></td>
-                <td><%= contains.code %></td>
-                <td><%= contains.display %></td>
-            </tr>
+                <tr>
+                    <td><%= contains.system %></td>
+                    <td><%= contains.code %></td>
+                    <td><%= contains.display %></td>
+                </tr>
                 <% }); %>
-            <% } %>
             </tbody>
         </table>
+        <% } %>
+
+        <% if (res.compose && res.compose.include) { %>
+        <h4>Include</h4>
+        <table class="table">
+            <thead>
+                <th scope="col">valueSet</th>
+            </thead>
+            <tbody>
+                <% res.compose.include.forEach(function(include){ %>
+                <tr>
+                    <td><%= include.valueSet %></td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        <% } %>
 
         <%- include('../partials/json', {res: res}); %>
     <%})%>
