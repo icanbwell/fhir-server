@@ -101,7 +101,12 @@
 
         <div><h4>Gender</h4><%= res.gender %></div>
 
-        <div><h4>BirthDate</h4><%= res.birthDate %></div>
+        <% if (res.birthDate) {%>
+        <div>
+            <h4>BirthDate</h4>
+            <a title="Search for <%= res.birthDate %>" href="/4_0_0/<%= res.resourceType %>?birthdate=<%= res.birthDate %>"><%= res.birthDate %></a>
+        </div>
+        <%}%>
 
         <% if (res.generalPractitioner) { %>
         <div>
