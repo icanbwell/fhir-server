@@ -19,7 +19,7 @@
 
         <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type"}); %>
 
-         <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
+         <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address"}); %>
 
          <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
 

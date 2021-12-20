@@ -119,7 +119,7 @@
 
          <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
 
-         <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
+         <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address"}); %>
 
         <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:res.id, name: "Account"}); %>
 

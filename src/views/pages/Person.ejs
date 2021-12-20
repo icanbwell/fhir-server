@@ -23,7 +23,7 @@
 
          <h4>BirthDate</h4><%= res.birthDate %>
 
-         <%- include('../partials/address', {addresses: res.address, name: "Address"}); %>
+         <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address"}); %>
 
         <%- include('../partials/reference', {references: [res.managingOrganization], name: "Managing Organization"}); %>
 
