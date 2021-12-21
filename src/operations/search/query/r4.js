@@ -124,6 +124,14 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, 'phone'));
                                 columns.add(`${propertyObj.field}.system`);
                                 columns.add(`${propertyObj.field}.value`);
+                            } else if (propertyObj.field === 'identifier') { // http://www.hl7.org/fhir/search.html#token
+                                and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'value', `${propertyObj.field}`, ''));
+                                columns.add(`${propertyObj.field}.system`);
+                                columns.add(`${propertyObj.field}.value`);
+                            } else if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') { // http://www.hl7.org/fhir/search.html#token
+                                and_segments.push(tokenQueryBuilder(args[`${queryParameter}`], 'code', `${propertyObj.field}`, ''));
+                                columns.add(`${propertyObj.field}.system`);
+                                columns.add(`${propertyObj.field}.code`);
                             } else {
                                 and_segments.push(
                                     {
@@ -133,16 +141,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                         ]
                                     }
                                 );
-                                // HACK ALERT: token can be for either CodeableConcept or Coding.  Currently, we can't figure out in advance
-                                //  Ideally we would set the former when we have a Coding and the latter when we have a CodeableConcept
-                                //  but this would require us parsing the FHIR resource schemas to know that
-                                if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') {
-                                    columns.add(`${propertyObj.field}.system`);
-                                    columns.add(`${propertyObj.field}.code`);
-                                } else {
-                                    columns.add(`${propertyObj.field}.coding.system`);
-                                    columns.add(`${propertyObj.field}.coding.code`);
-                                }
+                                columns.add(`${propertyObj.field}.coding.system`);
+                                columns.add(`${propertyObj.field}.coding.code`);
                             }
 
                             break;
