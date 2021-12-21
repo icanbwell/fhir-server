@@ -11,7 +11,7 @@ const async = require('async');
  */
 const getContentsOfValueSet = async (collection1, valueSetUrl) => {
     const valueSet = await collection1.findOne({url: valueSetUrl.toString()});
-    return await module.exports.getValueSet(collection1, valueSet);
+    return await module.exports.getValueSetConcepts(collection1, valueSet);
 };
 
 /**
@@ -65,7 +65,7 @@ const getInclude = async (collection1, include) => {
  * @param {*} resource1
  * @return {Promise<{system, code, display, version: string}[]>}
  */
-const getValueSet = async (collection1, resource1) => {
+const getValueSetConcepts = async (collection1, resource1) => {
     if (resource1.compose && resource1.compose.include) {
         // noinspection UnnecessaryLocalVariableJS
         const valueSets = await async.flatMap(resource1.compose.include,
@@ -76,6 +76,24 @@ const getValueSet = async (collection1, resource1) => {
     return [];
 };
 
+/**
+ *
+ * @param {import('mongodb').Collection} collection1
+ * @param {*} resource1
+ * @return {Resource}
+ */
+const getExpandedValueSet = async (collection1, resource1) => {
+    /**
+     * @type {{system, code, display, version: string}[]}
+     */
+    let concepts = await getValueSetConcepts(collection1, resource1);
+    resource1['expansion'] = {
+        contains: concepts
+    };
+    return resource1;
+};
+
 module.exports = {
-    getValueSet
+    getExpandedValueSet: getExpandedValueSet,
+    getValueSetConcepts: getValueSetConcepts
 };
