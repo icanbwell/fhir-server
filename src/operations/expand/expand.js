@@ -60,11 +60,7 @@ module.exports.expand = async (args, user, scope, resource_name, collection_name
         }
 
         // implement expand functionality
-        try {
-            resource = await getExpandedValueSet(collection, resource);
-        } catch (e) {
-            throw e;
-        }
+        resource = await getExpandedValueSet(collection, resource);
 
         // run any enrichment
         resource = (await enrich([resource], resource_name))[0];

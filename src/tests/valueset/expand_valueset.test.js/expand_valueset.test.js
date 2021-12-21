@@ -12,7 +12,7 @@ const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
