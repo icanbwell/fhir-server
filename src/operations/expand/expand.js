@@ -5,6 +5,7 @@ const {CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
+const {getValueSet} = require("../../utils/valueSet.util");
 /**
  * does a FHIR Search By Id
  * @param {Object} args
@@ -54,6 +55,14 @@ module.exports.expand = async (args, user, scope, resource_name, collection_name
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
         }
+
+        // implement expand functionality
+        try {
+            const result = await getValueSet(collection, resource);
+        } catch (e) {
+            print("foo");
+        }
+
         // run any enrichment
         resource = (await enrich([resource], resource_name))[0];
         return new Resource(resource);
