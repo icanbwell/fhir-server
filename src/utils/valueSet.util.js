@@ -32,9 +32,9 @@ const createConcept = (system, version, code, display) => {
 };
 
 /**
- *
+ *  Gets the included concepts which can either be concepts or a nested value set
  * @param {import('mongodb').Collection} collection1
- * @param {*} include
+ * @param {{valueSet:string[],system:string,version:string,concept:{code:string,display:string}[] }} include
  * @return {Promise<{system, code, display, version: string}[]>}
  */
 const getInclude = async (collection1, include) => {
@@ -60,26 +60,29 @@ const getInclude = async (collection1, include) => {
 };
 
 /**
- *
+ * Gets the concepts in this value set.  Recurses down into any nested value sets
  * @param {import('mongodb').Collection} collection1
- * @param {*} resource1
+ * @param {Resource} resource1
  * @return {Promise<{system, code, display, version: string}[]>}
  */
 const getValueSetConcepts = async (collection1, resource1) => {
+    /**
+     * @type {{system, code, display, version: string}[]}
+     */
+    let valueSets = [];
     if (resource1.compose && resource1.compose.include) {
         // noinspection UnnecessaryLocalVariableJS
-        const valueSets = await async.flatMap(resource1.compose.include,
+        valueSets = await async.flatMap(resource1.compose.include,
             async include => await getInclude(collection1, include)
         );
-        return valueSets;
     }
-    return [];
+    return valueSets;
 };
 
 /**
- *
+ * Expands the value set as a new expansion field and removes the compose field
  * @param {import('mongodb').Collection} collection1
- * @param {*} resource1
+ * @param {Resource} resource1
  * @return {Resource}
  */
 const getExpandedValueSet = async (collection1, resource1) => {
