@@ -5,7 +5,7 @@ const {CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {getValueSet} = require("../../utils/valueSet.util");
+const {getValueSet} = require('../../utils/valueSet.util');
 /**
  * does a FHIR Search By Id
  * @param {Object} args
@@ -59,6 +59,7 @@ module.exports.expand = async (args, user, scope, resource_name, collection_name
         // implement expand functionality
         try {
             const result = await getValueSet(collection, resource);
+            print("foo");
         } catch (e) {
             print("foo");
         }
