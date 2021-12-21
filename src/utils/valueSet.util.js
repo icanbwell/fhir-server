@@ -25,7 +25,7 @@ const getContentsOfValueSet = async (collection1, valueSetUrl) => {
 const createConcept = (system, version, code, display) => {
     return {
         system: system,
-        version: system + '/' + version,
+        version: version,
         code: code,
         display: display
     };
@@ -53,7 +53,7 @@ const getInclude = async (collection1, include) => {
         const version = include.version;
         // get all the concepts
         concepts = await async.map(include.concept,
-                async concept => createConcept(system, version, concept.code, concept.display)
+            async concept => createConcept(system, version, concept.code, concept.display)
         );
     }
     return concepts;
@@ -90,6 +90,8 @@ const getExpandedValueSet = async (collection1, resource1) => {
     resource1['expansion'] = {
         contains: concepts
     };
+    // remove compose
+    delete resource1['compose'];
     return resource1;
 };
 

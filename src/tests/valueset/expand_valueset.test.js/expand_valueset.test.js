@@ -61,6 +61,10 @@ describe('ValueSet Tests', () => {
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1106.45/$expand?_bundle=1')
                 .set(getHeaders())
                 .expect(200);
+
+            const body = resp.body;
+            delete body['meta']['lastUpdated'];
+            delete expectedValueSetResources['meta']['lastUpdated'];
             expect(resp.body).toStrictEqual(expectedValueSetResources);
         });
     });
