@@ -115,7 +115,7 @@
         </div>
         <%}%>
 
-        <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.communication, name: "Communication"}); %>
+        <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.communication, name: "Communication", searchParameter: 'communication'}); %>
 
          <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
 
