@@ -60,11 +60,23 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                 if (queryParameterValue) {
                     // un-bundle any objects coming from graphql
                     if (typeof queryParameterValue === 'object' && !Array.isArray(queryParameterValue)) {
+                        // handle SearchToken
+                        if (queryParameterValue['system'] && queryParameterValue['code']) {
+                            queryParameterValue = queryParameterValue['system'] + '|' + queryParameterValue['code'];
+                        } else if (queryParameterValue['system'] && queryParameterValue['value']) {
+                            queryParameterValue = queryParameterValue['system'] + '|' + queryParameterValue['value'];
+                        } else if (queryParameterValue['code']) {
+                            queryParameterValue = queryParameterValue['code'];
+                        } else if (queryParameterValue['system']) {
+                            queryParameterValue = queryParameterValue['system'] + '|';
+                        }
+                        // handle SearchString
                         if (queryParameterValue['value']) {
                             queryParameterValue = queryParameterValue['value'];
                         } else if (queryParameterValue['values']) {
                             queryParameterValue = queryParameterValue['values'];
-                        } else if (queryParameterValue['missing'] !== null) {
+                        }
+                        if (queryParameterValue['missing'] !== null) {
                             args[`${queryParameter}:missing`] = queryParameterValue['missing'];
                         }
                     }
@@ -220,7 +232,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     let query = {};
 
     if (and_segments.length !== 0) {
-    // noinspection JSUndefinedPropertyAssignment
+        // noinspection JSUndefinedPropertyAssignment
         query.$and = and_segments;
     }
 

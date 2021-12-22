@@ -1,7 +1,6 @@
 input SearchToken {
+    code: String
     value: String
-    values: [String]
+    system: String
     missing: Boolean
-    above: Boolean
-    below: Boolean
 }
