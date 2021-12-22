@@ -10,8 +10,10 @@ const {logMessageToSlack} = require('../utils/slack.logger');
 
 
 // eslint-disable-next-line no-unused-vars
-process.on('message', async (message) => {
+process.on('message', async (params) => {
     //send status update to the main app
+    console.log('message:' + params);
+    const message = params.message;
     process.send({status: 'We have started processing your data.'});
 
     try {

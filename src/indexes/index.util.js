@@ -221,7 +221,7 @@ async function deleteIndexesInAllCollections() {
         }
     });
 
-    for (const collection_name of collection_names) {
+    for await (const collection_name of collection_names) {
         console.log('Deleting all indexes in ' + collection_name);
         await deleteIndexesInCollection(collection_name, db);
     }

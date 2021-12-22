@@ -7,7 +7,7 @@ const mongoClient = require('../lib/mongo');
 const {mongoConfig} = require('../config');
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
-const {getIndexesInAllCollections} = require('../indexes/index.util');
+const {getIndexesInAllCollections, deleteIndexesInAllCollections} = require('../indexes/index.util');
 
 module.exports.handleIndex = async (req, res) => {
     // console.info('Running index');
@@ -40,6 +40,7 @@ module.exports.handleIndex = async (req, res) => {
             taskProcessor.send(params);
             message = 'Started indexing in separate process.  Check logs or Slack for output.';
         } else if (operation === 'delete') {
+            // await deleteIndexesInAllCollections();
             //create new instance of node for running separate task in another thread
             const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
             //send some params to our separate task
