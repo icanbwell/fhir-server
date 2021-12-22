@@ -71,20 +71,24 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 break;
                             case 'token':
                                 if (queryParameterValue['value']) {
-                                    queryParameterValue = [];
-                                    const token = queryParameterValue['value'];
-                                    let tokenString = '';
-                                    if (token['system']) {
-                                        tokenString = token['system'] + '|';
-                                    }
-                                    if (token['code']) {
-                                        tokenString += token['code'];
-                                    }
-                                    if (token['value']) {
-                                        tokenString += token['value'];
-                                    }
-                                    if (tokenString) {
-                                        queryParameterValue.push(tokenString);
+                                    queryParameterValue['values'] = [queryParameterValue['value']];
+                                }
+                                if (queryParameterValue['values']) {
+                                    for (const token of queryParameterValue['values']) {
+                                        queryParameterValue = [];
+                                        let tokenString = '';
+                                        if (token['system']) {
+                                            tokenString = token['system'] + '|';
+                                        }
+                                        if (token['code']) {
+                                            tokenString += token['code'];
+                                        }
+                                        if (token['value']) {
+                                            tokenString += token['value'];
+                                        }
+                                        if (tokenString) {
+                                            queryParameterValue.push(tokenString);
+                                        }
                                     }
                                 }
                                 break;
@@ -169,27 +173,27 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.token:
-                            if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
-                                and_segments.push(tokenQueryBuilder(queryParameterValue, 'value', `${propertyObj.field}`, 'email'));
-                                columns.add(`${propertyObj.field}.system`);
-                                columns.add(`${propertyObj.field}.value`);
-                            } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
-                                and_segments.push(tokenQueryBuilder(queryParameterValue, 'value', `${propertyObj.field}`, 'phone'));
-                                columns.add(`${propertyObj.field}.system`);
-                                columns.add(`${propertyObj.field}.value`);
-                            } else if (propertyObj.field === 'identifier') { // http://www.hl7.org/fhir/search.html#token
-                                and_segments.push(tokenQueryBuilder(queryParameterValue, 'value', `${propertyObj.field}`, ''));
-                                columns.add(`${propertyObj.field}.system`);
-                                columns.add(`${propertyObj.field}.value`);
-                            } else if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') { // http://www.hl7.org/fhir/search.html#token
-                                and_segments.push(tokenQueryBuilder(queryParameterValue, 'code', `${propertyObj.field}`, ''));
-                                columns.add(`${propertyObj.field}.system`);
-                                columns.add(`${propertyObj.field}.code`);
-                            } else {
-                                if (!Array.isArray(queryParameterValue)) {
-                                    queryParameterValue = [queryParameterValue];
-                                }
-                                for (const tokenQueryItem of queryParameterValue) {
+                            if (!Array.isArray(queryParameterValue)) {
+                                queryParameterValue = [queryParameterValue];
+                            }
+                            for (const tokenQueryItem of queryParameterValue) {
+                                if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
+                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, 'email'));
+                                    columns.add(`${propertyObj.field}.system`);
+                                    columns.add(`${propertyObj.field}.value`);
+                                } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
+                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, 'phone'));
+                                    columns.add(`${propertyObj.field}.system`);
+                                    columns.add(`${propertyObj.field}.value`);
+                                } else if (propertyObj.field === 'identifier') { // http://www.hl7.org/fhir/search.html#token
+                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, ''));
+                                    columns.add(`${propertyObj.field}.system`);
+                                    columns.add(`${propertyObj.field}.value`);
+                                } else if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') { // http://www.hl7.org/fhir/search.html#token
+                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'code', `${propertyObj.field}`, ''));
+                                    columns.add(`${propertyObj.field}.system`);
+                                    columns.add(`${propertyObj.field}.code`);
+                                } else {
                                     and_segments.push(
                                         {
                                             $or: [
@@ -208,11 +212,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             ]
                                         }
                                     );
+                                    columns.add(`${propertyObj.field}.coding.system`);
+                                    columns.add(`${propertyObj.field}.coding.code`);
                                 }
-                                columns.add(`${propertyObj.field}.coding.system`);
-                                columns.add(`${propertyObj.field}.coding.code`);
                             }
-
                             break;
                         case fhirFilterTypes.reference:
                             if (propertyObj.target.length === 1) { // handle simple case without an OR to keep it simple
