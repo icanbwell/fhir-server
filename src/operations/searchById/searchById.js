@@ -5,6 +5,9 @@ const {CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
+const pRetry = require('p-retry');
+const {logMessageToSlack} = require('../../utils/slack.logger');
+
 /**
  * does a FHIR Search By Id
  * @param {Object} args
@@ -42,7 +45,17 @@ module.exports.searchById = async (args, user, scope, resource_name, collection_
 
     let resource;
     try {
-        resource = await collection.findOne({id: id.toString()});
+        resource = await pRetry(
+            async () => await collection.findOne({id: id.toString()}),
+            {
+                retries: 5,
+                onFailedAttempt: async error => {
+                    await logMessageToSlack(
+                        'Search By Id Retry Number: ' + error.attemptNumber + ' : ' + error.toString()
+                    );
+                }
+            }
+        );
     } catch (e) {
         logError(`Error with ${resource_name}.searchById: `, e);
         throw new BadRequestError(e);
