@@ -30,7 +30,7 @@ input SearchDateValue {
     """
     the value for the parameter in the resource ends before the provided value
     """
-    endsAfter: date
+    endsBefore: date
     """
     the value for the parameter in the resource is approximately the same to the provided value.
     Note that the recommended value for the approximation is 10% of the stated value (or for a date, 10% of the gap between now and the date), but systems may choose other values where appropriate

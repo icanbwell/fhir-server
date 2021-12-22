@@ -102,6 +102,67 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                     referenceText += queryParameterValue['value'];
                                 }
                                 queryParameterValue = referenceText;
+                                break;
+                            case 'quantity':
+                                // eslint-disable-next-line no-case-declarations
+                                let quantityString = '';
+                                if (queryParameterValue['prefix']) {
+                                    quantityString += queryParameterValue['prefix'];
+                                }
+                                if (queryParameterValue['value']) {
+                                    quantityString += queryParameterValue['value'];
+                                }
+                                if (queryParameterValue['system']) {
+                                    quantityString = '|' + queryParameterValue['system'];
+                                }
+                                if (queryParameterValue['code']) {
+                                    quantityString = '|' + queryParameterValue['code'];
+                                }
+                                queryParameterValue = quantityString;
+                                break;
+                            case 'date':
+                            case 'dateTime':
+                            case 'number':
+                                if (queryParameterValue['value']) {
+                                    queryParameterValue['values'] = [queryParameterValue['value']];
+                                }
+                                if (queryParameterValue['values']) {
+                                    for (const dateValue of queryParameterValue['values']) {
+                                        queryParameterValue = [];
+                                        let dateString = '';
+                                        if (dateValue['equals']) {
+                                            dateString = 'eq' + dateValue['equals'];
+                                        }
+                                        if (dateValue['notEquals']) {
+                                            dateString = 'ne' + dateValue['notEquals'];
+                                        }
+                                        if (dateValue['greaterThan']) {
+                                            dateString = 'gt' + dateValue['greaterThan'];
+                                        }
+                                        if (dateValue['greaterThanOrEqualTo']) {
+                                            dateString = 'ge' + dateValue['greaterThanOrEqualTo'];
+                                        }
+                                        if (dateValue['lessThan']) {
+                                            dateString = 'lt' + dateValue['lessThan'];
+                                        }
+                                        if (dateValue['lessThanOrEqualTo']) {
+                                            dateString = 'le' + dateValue['lessThanOrEqualTo'];
+                                        }
+                                        if (dateValue['startsAfter']) {
+                                            dateString = 'sa' + dateValue['startsAfter'];
+                                        }
+                                        if (dateValue['endsBefore']) {
+                                            dateString = 'eb' + dateValue['endsBefore'];
+                                        }
+                                        if (dateValue['approximately']) {
+                                            dateString = 'ap' + dateValue['approximately'];
+                                        }
+                                        if (dateString) {
+                                            queryParameterValue.push(dateString);
+                                        }
+                                    }
+                                }
+                                break;
                         }
                         if (queryParameterValue['missing'] !== null) {
                             args[`${queryParameter}:missing`] = queryParameterValue['missing'];
@@ -163,12 +224,11 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         case fhirFilterTypes.date:
                         case fhirFilterTypes.period:
                         case fhirFilterTypes.instant:
-                            if (Array.isArray(queryParameterValue)) { // if array is passed
-                                for (const dateQueryItem of queryParameterValue) {
-                                    and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')});
-                                }
-                            } else { // single value is passed
-                                and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(queryParameterValue, propertyObj.type, '')});
+                            if (!Array.isArray(queryParameterValue)) {
+                                queryParameterValue = [queryParameterValue];
+                            }
+                            for (const dateQueryItem of queryParameterValue) {
+                                and_segments.push({[`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')});
                             }
                             columns.add(`${propertyObj.field}`);
                             break;
