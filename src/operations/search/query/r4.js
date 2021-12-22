@@ -59,22 +59,35 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                 let queryParameterValue = args[`${queryParameter}`];
                 if (queryParameterValue) {
                     // un-bundle any objects coming from graphql
-                    if (typeof queryParameterValue === 'object' && !Array.isArray(queryParameterValue)) {
-                        // handle SearchToken
-                        if (queryParameterValue['system'] && queryParameterValue['code']) {
-                            queryParameterValue = queryParameterValue['system'] + '|' + queryParameterValue['code'];
-                        } else if (queryParameterValue['system'] && queryParameterValue['value']) {
-                            queryParameterValue = queryParameterValue['system'] + '|' + queryParameterValue['value'];
-                        } else if (queryParameterValue['code']) {
-                            queryParameterValue = queryParameterValue['code'];
-                        } else if (queryParameterValue['system']) {
-                            queryParameterValue = queryParameterValue['system'] + '|';
-                        }
-                        // handle SearchString
-                        if (queryParameterValue['value']) {
-                            queryParameterValue = queryParameterValue['value'];
-                        } else if (queryParameterValue['values']) {
-                            queryParameterValue = queryParameterValue['values'];
+                    if (typeof queryParameterValue === 'object' && !Array.isArray(queryParameterValue) && queryParameterValue['searchType']) {
+                        switch (queryParameterValue['searchType']) {
+                            case 'string':
+                                // handle SearchString
+                                if (queryParameterValue['value']) {
+                                    queryParameterValue = queryParameterValue['value'];
+                                } else if (queryParameterValue['values']) {
+                                    queryParameterValue = queryParameterValue['values'];
+                                }
+                                break;
+                            case 'token':
+                                if (queryParameterValue['value']) {
+                                    queryParameterValue = [];
+                                    const token = queryParameterValue['value'];
+                                    let tokenString = '';
+                                    if (token['system']) {
+                                        tokenString = token['system'] + '|';
+                                    }
+                                    if (token['code']) {
+                                        tokenString += token['code'];
+                                    }
+                                    if (token['value']) {
+                                        tokenString += token['value'];
+                                    }
+                                    if (tokenString) {
+                                        queryParameterValue.push(tokenString);
+                                    }
+                                }
+                                break;
                         }
                         if (queryParameterValue['missing'] !== null) {
                             args[`${queryParameter}:missing`] = queryParameterValue['missing'];
@@ -163,14 +176,29 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 columns.add(`${propertyObj.field}.system`);
                                 columns.add(`${propertyObj.field}.code`);
                             } else {
-                                and_segments.push(
-                                    {
-                                        $or: [
-                                            tokenQueryBuilder(queryParameterValue, 'code', `${propertyObj.field}`, ''),
-                                            tokenQueryBuilder(queryParameterValue, 'code', `${propertyObj.field}.coding`, ''),
-                                        ]
-                                    }
-                                );
+                                if (!Array.isArray(queryParameterValue)) {
+                                    queryParameterValue = [queryParameterValue];
+                                }
+                                for (const tokenQueryItem of queryParameterValue) {
+                                    and_segments.push(
+                                        {
+                                            $or: [
+                                                tokenQueryBuilder(
+                                                    tokenQueryItem,
+                                                    'code',
+                                                    `${propertyObj.field}`,
+                                                    ''
+                                                ),
+                                                tokenQueryBuilder(
+                                                    tokenQueryItem,
+                                                    'code',
+                                                    `${propertyObj.field}.coding`,
+                                                    ''
+                                                ),
+                                            ]
+                                        }
+                                    );
+                                }
                                 columns.add(`${propertyObj.field}.coding.system`);
                                 columns.add(`${propertyObj.field}.coding.code`);
                             }
