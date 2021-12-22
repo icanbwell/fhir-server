@@ -47,7 +47,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     let columns = new Set();
     /**
      * and segments
-     * these are combined together to create the query
+     * these are combined to create the query
      * @type {Object[]}
      */
     let and_segments = [];

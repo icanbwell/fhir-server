@@ -265,6 +265,17 @@ extend type Query {
     """
     riskEvidenceSynthesis(
 
+        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
+        """
+        list of ids to retrieve.  DEPRECATED: Use `_id`
+        """
+        id: [String]
+
+        """
+        list of sources to retrieve. DEPRECATED: Use `_source`
+        """
+        source: [String]
+
         # search parameters for all resources
         """
         Logical id of this artifact
