@@ -17,98 +17,99 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for HealthcareService
         """
-        active [token]
+        active (FHIR type: token)
         The Healthcare Service is currently marked as active
         """
         active: SearchToken
         """
-        characteristic [token]
+        characteristic (FHIR type: token)
         One of the HealthcareServices characteristics
         """
         characteristic: SearchToken
         """
-        coverage-area [reference]
+        coverage-area (FHIR type: reference)
         Location(s) service is intended for/available to
         """
         coverage_area: SearchReference
         """
-        endpoint [reference]
+        endpoint (FHIR type: reference)
         Technical endpoints providing access to electronic services operated for the healthcare service
         """
         endpoint: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         External identifiers for this item
         """
         identifier: SearchToken
         """
-        location [reference]
+        location (FHIR type: reference)
         The location of the Healthcare Service
         """
         location: SearchReference
         """
-        name [string]
+        name (FHIR type: string)
         A portion of the Healthcare service name
         """
         name: SearchString
         """
-        organization [reference]
+        organization (FHIR type: reference)
         The organization that provides this Healthcare Service
         """
         organization: SearchReference
         """
-        program [token]
+        program (FHIR type: token)
         One of the Programs supported by this HealthcareService
         """
         program: SearchToken
         """
-        service-category [token]
+        service-category (FHIR type: token)
         Service Category of the Healthcare Service
         """
         service_category: SearchToken
         """
-        service-type [token]
+        service-type (FHIR type: token)
         The type of service provided by this healthcare service
         """
         service_type: SearchToken
         """
-        specialty [token]
+        specialty (FHIR type: token)
         The specialty of the service provided by this healthcare service
         """
         specialty: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

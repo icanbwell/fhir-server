@@ -19,68 +19,69 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Endpoint
         """
-        connection-type [token]
+        connection-type (FHIR type: token)
         Protocol/Profile/Standard to be used with this endpoint connection
         """
         connection_type: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Identifies this endpoint across multiple systems
         """
         identifier: SearchToken
         """
-        name [string]
+        name (FHIR type: string)
         A name that this endpoint can be identified by
         """
         name: SearchString
         """
-        organization [reference]
+        organization (FHIR type: reference)
         The organization that is managing the endpoint
         """
         organization: SearchReference
         """
-        payload-type [token]
+        payload-type (FHIR type: token)
         The type of content that may be used at this endpoint (e.g. XDS Discharge summaries)
         """
         payload_type: SearchToken
         """
-        status [token]
+        status (FHIR type: token)
         The current status of the Endpoint (usually expected to be active)
         """
         status: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

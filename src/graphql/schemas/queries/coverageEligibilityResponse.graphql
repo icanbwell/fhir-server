@@ -18,83 +18,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for CoverageEligibilityResponse
         """
-        created [date]
+        created (FHIR type: date)
         The creation date
         """
         created: SearchDate
         """
-        disposition [string]
+        disposition (FHIR type: string)
         The contents of the disposition message
         """
         disposition: SearchString
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The business identifier
         """
         identifier: SearchToken
         """
-        insurer [reference]
+        insurer (FHIR type: reference)
         The organization which generated this resource
         """
         insurer: SearchReference
         """
-        outcome [token]
+        outcome (FHIR type: token)
         The processing outcome
         """
         outcome: SearchToken
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The reference to the patient
         """
         patient: SearchReference
         """
-        request [reference]
+        request (FHIR type: reference)
         The EligibilityRequest reference
         """
         request: SearchReference
         """
-        requestor [reference]
+        requestor (FHIR type: reference)
         The EligibilityRequest provider
         """
         requestor: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The EligibilityRequest status
         """
         status: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

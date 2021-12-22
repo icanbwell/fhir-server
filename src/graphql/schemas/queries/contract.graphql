@@ -18,88 +18,89 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Contract
         """
-        authority [reference]
+        authority (FHIR type: reference)
         The authority of the contract
         """
         authority: SearchReference
         """
-        domain [reference]
+        domain (FHIR type: reference)
         The domain of the contract
         """
         domain: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The identity of the contract
         """
         identifier: SearchToken
         """
-        instantiates [uri]
+        instantiates (FHIR type: uri)
         A source definition of the contract
         """
         instantiates: SearchString
         """
-        issued [date]
+        issued (FHIR type: date)
         The date/time the contract was issued
         """
         issued: SearchDate
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The identity of the subject of the contract (if a patient)
         """
         patient: SearchReference
         """
-        signer [reference]
+        signer (FHIR type: reference)
         Contract Signatory Party
         """
         signer: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the contract
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         The identity of the subject of the contract
         """
         subject: SearchReference
         """
-        url [uri]
+        url (FHIR type: uri)
         The basal contract definition
         """
         url: SearchString
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

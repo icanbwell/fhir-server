@@ -21,123 +21,124 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for ChargeItem
         """
-        account [reference]
+        account (FHIR type: reference)
         Account to place this charge
         """
         account: SearchReference
         """
-        code [token]
+        code (FHIR type: token)
         A code that identifies the charge, like a billing code
         """
         code: SearchToken
         """
-        context [reference]
+        context (FHIR type: reference)
         Encounter / Episode associated with event
         """
         context: SearchReference
         """
-        entered-date [date]
+        entered-date (FHIR type: date)
         Date the charge item was entered
         """
         entered_date: SearchDate
         """
-        enterer [reference]
+        enterer (FHIR type: reference)
         Individual who was entering
         """
         enterer: SearchReference
         """
-        factor-override [number]
+        factor-override (FHIR type: number)
         Factor overriding the associated rules
         """
         factor_override: SearchNumber
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Business Identifier for item
         """
         identifier: SearchToken
         """
-        occurrence [date]
+        occurrence (FHIR type: date)
         When the charged service was applied
         """
         occurrence: SearchDate
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Individual service was done for/to
         """
         patient: SearchReference
         """
-        performer-actor [reference]
+        performer-actor (FHIR type: reference)
         Individual who was performing
         """
         performer_actor: SearchReference
         """
-        performer-function [token]
+        performer-function (FHIR type: token)
         What type of performance was done
         """
         performer_function: SearchToken
         """
-        performing-organization [reference]
+        performing-organization (FHIR type: reference)
         Organization providing the charged service
         """
         performing_organization: SearchReference
         """
-        price-override [quantity]
+        price-override (FHIR type: quantity)
         Price overriding the associated rules
         """
         price_override: SearchQuantity
         """
-        quantity [quantity]
+        quantity (FHIR type: quantity)
         Quantity of which the charge item has been serviced
         """
         quantity: SearchQuantity
         """
-        requesting-organization [reference]
+        requesting-organization (FHIR type: reference)
         Organization requesting the charged service
         """
         requesting_organization: SearchReference
         """
-        service [reference]
+        service (FHIR type: reference)
         Which rendered service is being charged?
         """
         service: SearchReference
         """
-        subject [reference]
+        subject (FHIR type: reference)
         Individual service was done for/to
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

@@ -18,93 +18,94 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Coverage
         """
-        beneficiary [reference]
+        beneficiary (FHIR type: reference)
         Covered party
         """
         beneficiary: SearchReference
         """
-        class-type [token]
+        class-type (FHIR type: token)
         Coverage class (eg. plan, group)
         """
         class_type: SearchToken
         """
-        class-value [string]
+        class-value (FHIR type: string)
         Value of the class (eg. Plan number, group number)
         """
         class_value: SearchString
         """
-        dependent [string]
+        dependent (FHIR type: string)
         Dependent number
         """
         dependent: SearchString
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The primary identifier of the insured and the coverage
         """
         identifier: SearchToken
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Retrieve coverages for a patient
         """
         patient: SearchReference
         """
-        payor [reference]
+        payor (FHIR type: reference)
         The identity of the insurer or party paying for services
         """
         payor: SearchReference
         """
-        policy-holder [reference]
+        policy-holder (FHIR type: reference)
         Reference to the policyholder
         """
         policy_holder: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the Coverage
         """
         status: SearchToken
         """
-        subscriber [reference]
+        subscriber (FHIR type: reference)
         Reference to the subscriber
         """
         subscriber: SearchReference
         """
-        type [token]
+        type (FHIR type: token)
         The kind of coverage (health plan, auto, Workers Compensation)
         """
         type: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

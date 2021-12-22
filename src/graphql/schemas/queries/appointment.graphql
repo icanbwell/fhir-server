@@ -19,123 +19,124 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Appointment
         """
-        actor [reference]
+        actor (FHIR type: reference)
         Any one of the individuals participating in the appointment
         """
         actor: SearchReference
         """
-        appointment-type [token]
+        appointment-type (FHIR type: token)
         The style of appointment or patient that has been booked in the slot (not service type)
         """
         appointment_type: SearchToken
         """
-        based-on [reference]
+        based-on (FHIR type: reference)
         The service request this appointment is allocated to assess
         """
         based_on: SearchReference
         """
-        date [date]
+        date (FHIR type: date)
         Appointment date/time.
         """
         date: SearchDate
         """
-        identifier [token]
+        identifier (FHIR type: token)
         An Identifier of the Appointment
         """
         identifier: SearchToken
         """
-        location [reference]
+        location (FHIR type: reference)
         This location is listed in the participants of the appointment
         """
         location: SearchReference
         """
-        part-status [token]
+        part-status (FHIR type: token)
         The Participation status of the subject, or other participant on the appointment. Can be used to locate participants that have not responded to meeting requests.
         """
         part_status: SearchToken
         """
-        patient [reference]
+        patient (FHIR type: reference)
         One of the individuals of the appointment is this patient
         """
         patient: SearchReference
         """
-        practitioner [reference]
+        practitioner (FHIR type: reference)
         One of the individuals of the appointment is this practitioner
         """
         practitioner: SearchReference
         """
-        reason-code [token]
+        reason-code (FHIR type: token)
         Coded reason this appointment is scheduled
         """
         reason_code: SearchToken
         """
-        reason-reference [reference]
+        reason-reference (FHIR type: reference)
         Reason the appointment is to take place (resource)
         """
         reason_reference: SearchReference
         """
-        service-category [token]
+        service-category (FHIR type: token)
         A broad categorization of the service that is to be performed during this appointment
         """
         service_category: SearchToken
         """
-        service-type [token]
+        service-type (FHIR type: token)
         The specific service that is to be performed during this appointment
         """
         service_type: SearchToken
         """
-        slot [reference]
+        slot (FHIR type: reference)
         The slots that this appointment is filling
         """
         slot: SearchReference
         """
-        specialty [token]
+        specialty (FHIR type: token)
         The specialty of a practitioner that would be required to perform the service requested in this appointment
         """
         specialty: SearchToken
         """
-        status [token]
+        status (FHIR type: token)
         The overall status of the appointment
         """
         status: SearchToken
         """
-        supporting-info [reference]
+        supporting-info (FHIR type: reference)
         Additional information to support the appointment
         """
         supporting_info: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

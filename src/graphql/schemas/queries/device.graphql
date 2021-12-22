@@ -19,98 +19,99 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Device
         """
-        device-name [string]
+        device-name (FHIR type: string)
         A server defined search that may match any of the string fields in Device.deviceName or Device.type.
         """
         device_name: SearchString
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Instance id from manufacturer, owner, and others
         """
         identifier: SearchToken
         """
-        location [reference]
+        location (FHIR type: reference)
         A location, where the resource is found
         """
         location: SearchReference
         """
-        manufacturer [string]
+        manufacturer (FHIR type: string)
         The manufacturer of the device
         """
         manufacturer: SearchString
         """
-        model [string]
+        model (FHIR type: string)
         The model of the device
         """
         model: SearchString
         """
-        organization [reference]
+        organization (FHIR type: reference)
         The organization responsible for the device
         """
         organization: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Patient information, if the resource is affixed to a person
         """
         patient: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         active | inactive | entered-in-error | unknown
         """
         status: SearchToken
         """
-        type [token]
+        type (FHIR type: token)
         The type of the device
         """
         type: SearchToken
         """
-        udi-carrier [string]
+        udi-carrier (FHIR type: string)
         UDI Barcode (RFID or other technology) string in *HRF* format.
         """
         udi_carrier: SearchString
         """
-        udi-di [string]
+        udi-di (FHIR type: string)
         The udi Device Identifier (DI)
         """
         udi_di: SearchString
         """
-        url [uri]
+        url (FHIR type: uri)
         Network address to contact device
         """
         url: SearchString
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

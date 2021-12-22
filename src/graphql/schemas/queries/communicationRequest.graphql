@@ -19,118 +19,119 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for CommunicationRequest
         """
-        authored [date]
+        authored (FHIR type: date)
         When request transitioned to being actionable
         """
         authored: SearchDate
         """
-        based-on [reference]
+        based-on (FHIR type: reference)
         Fulfills plan or proposal
         """
         based_on: SearchReference
         """
-        category [token]
+        category (FHIR type: token)
         Message category
         """
         category: SearchToken
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         Encounter created as part of
         """
         encounter: SearchReference
         """
-        group-identifier [token]
+        group-identifier (FHIR type: token)
         Composite request this is part of
         """
         group_identifier: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Unique identifier
         """
         identifier: SearchToken
         """
-        medium [token]
+        medium (FHIR type: token)
         A channel of communication
         """
         medium: SearchToken
         """
-        occurrence [date]
+        occurrence (FHIR type: date)
         When scheduled
         """
         occurrence: SearchDate
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Focus of message
         """
         patient: SearchReference
         """
-        priority [token]
+        priority (FHIR type: token)
         routine | urgent | asap | stat
         """
         priority: SearchToken
         """
-        recipient [reference]
+        recipient (FHIR type: reference)
         Message recipient
         """
         recipient: SearchReference
         """
-        replaces [reference]
+        replaces (FHIR type: reference)
         Request(s) replaced by this request
         """
         replaces: SearchReference
         """
-        requester [reference]
+        requester (FHIR type: reference)
         Who/what is requesting service
         """
         requester: SearchReference
         """
-        sender [reference]
+        sender (FHIR type: reference)
         Message sender
         """
         sender: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         draft | active | on-hold | revoked | completed | entered-in-error | unknown
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         Focus of message
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

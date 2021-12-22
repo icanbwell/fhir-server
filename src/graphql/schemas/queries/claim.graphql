@@ -19,123 +19,124 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Claim
         """
-        care-team [reference]
+        care-team (FHIR type: reference)
         Member of the CareTeam
         """
         care_team: SearchReference
         """
-        created [date]
+        created (FHIR type: date)
         The creation date for the Claim
         """
         created: SearchDate
         """
-        detail-udi [reference]
+        detail-udi (FHIR type: reference)
         UDI associated with a line item, detail product or service
         """
         detail_udi: SearchReference
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         Encounters associated with a billed line item
         """
         encounter: SearchReference
         """
-        enterer [reference]
+        enterer (FHIR type: reference)
         The party responsible for the entry of the Claim
         """
         enterer: SearchReference
         """
-        facility [reference]
+        facility (FHIR type: reference)
         Facility where the products or services have been or will be provided
         """
         facility: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The primary identifier of the financial resource
         """
         identifier: SearchToken
         """
-        insurer [reference]
+        insurer (FHIR type: reference)
         The target payor/insurer for the Claim
         """
         insurer: SearchReference
         """
-        item-udi [reference]
+        item-udi (FHIR type: reference)
         UDI associated with a line item product or service
         """
         item_udi: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Patient receiving the products or services
         """
         patient: SearchReference
         """
-        payee [reference]
+        payee (FHIR type: reference)
         The party receiving any payment for the Claim
         """
         payee: SearchReference
         """
-        priority [token]
+        priority (FHIR type: token)
         Processing priority requested
         """
         priority: SearchToken
         """
-        procedure-udi [reference]
+        procedure-udi (FHIR type: reference)
         UDI associated with a procedure
         """
         procedure_udi: SearchReference
         """
-        provider [reference]
+        provider (FHIR type: reference)
         Provider responsible for the Claim
         """
         provider: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the Claim instance.
         """
         status: SearchToken
         """
-        subdetail-udi [reference]
+        subdetail-udi (FHIR type: reference)
         UDI associated with a line item, detail, subdetail product or service
         """
         subdetail_udi: SearchReference
         """
-        use [token]
+        use (FHIR type: token)
         The kind of financial resource
         """
         use: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

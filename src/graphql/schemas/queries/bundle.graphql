@@ -17,63 +17,64 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Bundle
         """
-        composition [reference]
+        composition (FHIR type: reference)
         The first resource in the bundle, if the bundle type is "document" - this is a composition, and this parameter provides access to search its contents
         """
         composition: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Persistent identifier for the bundle
         """
         identifier: SearchToken
         """
-        message [reference]
+        message (FHIR type: reference)
         The first resource in the bundle, if the bundle type is "message" - this is a message header, and this parameter provides access to search its contents
         """
         message: SearchReference
         """
-        timestamp [date]
+        timestamp (FHIR type: date)
         When the bundle was assembled
         """
         timestamp: SearchDate
         """
-        type [token]
+        type (FHIR type: token)
         document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection
         """
         type: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

@@ -19,123 +19,124 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for ExplanationOfBenefit
         """
-        care-team [reference]
+        care-team (FHIR type: reference)
         Member of the CareTeam
         """
         care_team: SearchReference
         """
-        claim [reference]
+        claim (FHIR type: reference)
         The reference to the claim
         """
         claim: SearchReference
         """
-        coverage [reference]
+        coverage (FHIR type: reference)
         The plan under which the claim was adjudicated
         """
         coverage: SearchReference
         """
-        created [date]
+        created (FHIR type: date)
         The creation date for the EOB
         """
         created: SearchDate
         """
-        detail-udi [reference]
+        detail-udi (FHIR type: reference)
         UDI associated with a line item detail product or service
         """
         detail_udi: SearchReference
         """
-        disposition [string]
+        disposition (FHIR type: string)
         The contents of the disposition message
         """
         disposition: SearchString
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         Encounters associated with a billed line item
         """
         encounter: SearchReference
         """
-        enterer [reference]
+        enterer (FHIR type: reference)
         The party responsible for the entry of the Claim
         """
         enterer: SearchReference
         """
-        facility [reference]
+        facility (FHIR type: reference)
         Facility responsible for the goods and services
         """
         facility: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The business identifier of the Explanation of Benefit
         """
         identifier: SearchToken
         """
-        item-udi [reference]
+        item-udi (FHIR type: reference)
         UDI associated with a line item product or service
         """
         item_udi: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The reference to the patient
         """
         patient: SearchReference
         """
-        payee [reference]
+        payee (FHIR type: reference)
         The party receiving any payment for the Claim
         """
         payee: SearchReference
         """
-        procedure-udi [reference]
+        procedure-udi (FHIR type: reference)
         UDI associated with a procedure
         """
         procedure_udi: SearchReference
         """
-        provider [reference]
+        provider (FHIR type: reference)
         The reference to the provider
         """
         provider: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         Status of the instance
         """
         status: SearchToken
         """
-        subdetail-udi [reference]
+        subdetail-udi (FHIR type: reference)
         UDI associated with a line item detail subdetail product or service
         """
         subdetail_udi: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """
