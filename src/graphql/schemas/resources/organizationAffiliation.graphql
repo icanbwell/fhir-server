@@ -146,86 +146,88 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for OrganizationAffiliation
         """
-        active
+        Whether this organization affiliation record is in active use
         """
-active: [String]
+        active: [String]
         """
-        date
+        The period during which the participatingOrganization is affiliated with the primary organization
         """
-date: [String]
+        date: [String]
         """
-        email
+        A value in an email contact
         """
-email: [String]
+        email: [String]
         """
-        endpoint
+        Technical endpoints providing access to services operated for this role
         """
-endpoint: [String]
+        endpoint: [String]
         """
-        identifier
+        An organization affiliations Identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        location
+        The location(s) at which the role occurs
         """
-location: [String]
+        location: [String]
         """
-        network
+        Health insurance provider network in which the participatingOrganization provides the roles services (if defined) at the indicated locations (if defined)
         """
-network: [String]
+        network: [String]
         """
-        participating-organization
+        The organization that provides services to the primary organization
         """
-participating-organization: [String]
+        participating-organization: [String]
         """
-        phone
+        A value in a phone contact
         """
-phone: [String]
+        phone: [String]
         """
-        primary-organization
+        The organization that receives the services from the participating organization
         """
-primary-organization: [String]
+        primary-organization: [String]
         """
-        role
+        Definition of the role the participatingOrganization plays
         """
-role: [String]
+        role: [String]
         """
-        service
+        Healthcare services provided through the role
         """
-service: [String]
+        service: [String]
         """
-        specialty
+        Specific specialty of the participatingOrganization in the context of the role
         """
-specialty: [String]
+        specialty: [String]
         """
-        telecom
+        The value in any kind of contact
         """
-telecom: [String]
+        telecom: [String]
         """
         return total number of records that meet this query
         """

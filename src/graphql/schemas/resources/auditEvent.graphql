@@ -143,102 +143,104 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for AuditEvent
         """
-        action
+        Type of action performed during the event
         """
-action: [String]
+        action: [String]
         """
-        address
+        Identifier for the network access point of the user device
         """
-address: [String]
+        address: [String]
         """
-        agent
+        Identifier of who
         """
-agent: [String]
+        agent: [String]
         """
-        agent-name
+        Human friendly name for the agent
         """
-agent-name: [String]
+        agent-name: [String]
         """
-        agent-role
+        Agent role in the event
         """
-agent-role: [String]
+        agent-role: [String]
         """
-        altid
+        Alternative User identity
         """
-altid: [String]
+        altid: [String]
         """
-        date
+        Time when the event was recorded
         """
-date: [String]
+        date: [String]
         """
-        entity
+        Specific instance of resource
         """
-entity: [String]
+        entity: [String]
         """
-        entity-name
+        Descriptor for entity
         """
-entity-name: [String]
+        entity-name: [String]
         """
-        entity-role
+        What role the entity played
         """
-entity-role: [String]
+        entity-role: [String]
         """
-        entity-type
+        Type of entity involved
         """
-entity-type: [String]
+        entity-type: [String]
         """
-        outcome
+        Whether the event succeeded or failed
         """
-outcome: [String]
+        outcome: [String]
         """
-        patient
+        Identifier of who
         """
-patient: [String]
+        patient: [String]
         """
-        policy
+        Policy that authorized event
         """
-policy: [String]
+        policy: [String]
         """
-        site
+        Logical source location within the enterprise
         """
-site: [String]
+        site: [String]
         """
-        source
+        The identity of source detecting the event
         """
-source: [String]
+        source: [String]
         """
-        subtype
+        More specific type/id for the event
         """
-subtype: [String]
+        subtype: [String]
         """
-        type
+        Type/identifier of event
         """
-type: [String]
+        type: [String]
         """
         return total number of records that meet this query
         """

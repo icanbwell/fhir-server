@@ -158,66 +158,68 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for MeasureReport
         """
-        date
+        The date of the measure report
         """
-date: [String]
+        date: [String]
         """
-        evaluated-resource
+        An evaluated resource referenced by the measure report
         """
-evaluated-resource: [String]
+        evaluated-resource: [String]
         """
-        identifier
+        External identifier of the measure report to be returned
         """
-identifier: [String]
+        identifier: [String]
         """
-        measure
+        The measure to return measure report results for
         """
-measure: [String]
+        measure: [String]
         """
-        patient
+        The identity of a patient to search for individual measure report results for
         """
-patient: [String]
+        patient: [String]
         """
-        period
+        The period of the measure report
         """
-period: [String]
+        period: [String]
         """
-        reporter
+        The reporter to return measure report results for
         """
-reporter: [String]
+        reporter: [String]
         """
-        status
+        The status of the measure report
         """
-status: [String]
+        status: [String]
         """
-        subject
+        The identity of a subject to search for individual measure report results for
         """
-subject: [String]
+        subject: [String]
         """
         return total number of records that meet this query
         """

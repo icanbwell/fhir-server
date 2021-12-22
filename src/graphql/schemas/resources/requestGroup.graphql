@@ -177,86 +177,88 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for RequestGroup
         """
-        author
+        The author of the request group
         """
-author: [String]
+        author: [String]
         """
-        authored
+        The date the request group was authored
         """
-authored: [String]
+        authored: [String]
         """
-        code
+        The code of the request group
         """
-code: [String]
+        code: [String]
         """
-        encounter
+        The encounter the request group applies to
         """
-encounter: [String]
+        encounter: [String]
         """
-        group-identifier
+        The group identifier for the request group
         """
-group-identifier: [String]
+        group-identifier: [String]
         """
-        identifier
+        External identifiers for the request group
         """
-identifier: [String]
+        identifier: [String]
         """
-        instantiates-canonical
+        The FHIR-based definition from which the request group is realized
         """
-instantiates-canonical: [String]
+        instantiates-canonical: [String]
         """
-        instantiates-uri
+        The external definition from which the request group is realized
         """
-instantiates-uri: [String]
+        instantiates-uri: [String]
         """
-        intent
+        The intent of the request group
         """
-intent: [String]
+        intent: [String]
         """
-        participant
+        The participant in the requests in the group
         """
-participant: [String]
+        participant: [String]
         """
-        patient
+        The identity of a patient to search for request groups
         """
-patient: [String]
+        patient: [String]
         """
-        priority
+        The priority of the request group
         """
-priority: [String]
+        priority: [String]
         """
-        status
+        The status of the request group
         """
-status: [String]
+        status: [String]
         """
-        subject
+        The subject that the request group is about
         """
-subject: [String]
+        subject: [String]
         """
         return total number of records that meet this query
         """

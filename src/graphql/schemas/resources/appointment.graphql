@@ -226,98 +226,100 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Appointment
         """
-        actor
+        Any one of the individuals participating in the appointment
         """
-actor: [String]
+        actor: [String]
         """
-        appointment-type
+        The style of appointment or patient that has been booked in the slot (not service type)
         """
-appointment-type: [String]
+        appointment-type: [String]
         """
-        based-on
+        The service request this appointment is allocated to assess
         """
-based-on: [String]
+        based-on: [String]
         """
-        date
+        Appointment date/time.
         """
-date: [String]
+        date: [String]
         """
-        identifier
+        An Identifier of the Appointment
         """
-identifier: [String]
+        identifier: [String]
         """
-        location
+        This location is listed in the participants of the appointment
         """
-location: [String]
+        location: [String]
         """
-        part-status
+        The Participation status of the subject, or other participant on the appointment. Can be used to locate participants that have not responded to meeting requests.
         """
-part-status: [String]
+        part-status: [String]
         """
-        patient
+        One of the individuals of the appointment is this patient
         """
-patient: [String]
+        patient: [String]
         """
-        practitioner
+        One of the individuals of the appointment is this practitioner
         """
-practitioner: [String]
+        practitioner: [String]
         """
-        reason-code
+        Coded reason this appointment is scheduled
         """
-reason-code: [String]
+        reason-code: [String]
         """
-        reason-reference
+        Reason the appointment is to take place (resource)
         """
-reason-reference: [String]
+        reason-reference: [String]
         """
-        service-category
+        A broad categorization of the service that is to be performed during this appointment
         """
-service-category: [String]
+        service-category: [String]
         """
-        service-type
+        The specific service that is to be performed during this appointment
         """
-service-type: [String]
+        service-type: [String]
         """
-        slot
+        The slots that this appointment is filling
         """
-slot: [String]
+        slot: [String]
         """
-        specialty
+        The specialty of a practitioner that would be required to perform the service requested in this appointment
         """
-specialty: [String]
+        specialty: [String]
         """
-        status
+        The overall status of the appointment
         """
-status: [String]
+        status: [String]
         """
-        supporting-info
+        Additional information to support the appointment
         """
-supporting-info: [String]
+        supporting-info: [String]
         """
         return total number of records that meet this query
         """

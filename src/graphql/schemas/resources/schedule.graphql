@@ -138,58 +138,60 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Schedule
         """
-        active
+        Is the schedule in active use
         """
-active: [String]
+        active: [String]
         """
-        actor
+        The individual(HealthcareService, Practitioner, Location, ...) to find a Schedule for
         """
-actor: [String]
+        actor: [String]
         """
-        date
+        Search for Schedule resources that have a period that contains this date specified
         """
-date: [String]
+        date: [String]
         """
-        identifier
+        A Schedule Identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        service-category
+        High-level category
         """
-service-category: [String]
+        service-category: [String]
         """
-        service-type
+        The type of appointments that can be booked into associated slot(s)
         """
-service-type: [String]
+        service-type: [String]
         """
-        specialty
+        Type of specialty needed
         """
-specialty: [String]
+        specialty: [String]
         """
         return total number of records that meet this query
         """

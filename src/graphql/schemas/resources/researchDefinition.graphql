@@ -292,109 +292,111 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ResearchDefinition
         """
-        composed-of
+        What resource is being referenced
         """
-composed-of: [String]
+        composed-of: [String]
         """
-        context
+        A use context assigned to the research definition
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the research definition
         """
         """
-        context-type
+        A type of use context assigned to the research definition
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The research definition publication date
         """
-date: [String]
+        date: [String]
         """
-        depends-on
+        What resource is being referenced
         """
-depends-on: [String]
+        depends-on: [String]
         """
-        derived-from
+        What resource is being referenced
         """
-derived-from: [String]
+        derived-from: [String]
         """
-        description
+        The description of the research definition
         """
-description: [String]
+        description: [String]
         """
-        effective
+        The time during which the research definition is intended to be in use
         """
-effective: [String]
+        effective: [String]
         """
-        identifier
+        External identifier for the research definition
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the research definition
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the research definition
         """
-name: [String]
+        name: [String]
         """
-        predecessor
+        What resource is being referenced
         """
-predecessor: [String]
+        predecessor: [String]
         """
-        publisher
+        Name of the publisher of the research definition
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the research definition
         """
-status: [String]
+        status: [String]
         """
-        successor
+        What resource is being referenced
         """
-successor: [String]
+        successor: [String]
         """
-        title
+        The human-friendly name of the research definition
         """
-title: [String]
+        title: [String]
         """
-        topic
+        Topics associated with the ResearchDefinition
         """
-topic: [String]
+        topic: [String]
         """
-        url
+        The uri that identifies the research definition
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the research definition
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

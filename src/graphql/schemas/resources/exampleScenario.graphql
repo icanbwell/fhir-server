@@ -194,73 +194,75 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ExampleScenario
         """
-        context
+        A use context assigned to the example scenario
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the example scenario
         """
         """
-        context-type
+        A type of use context assigned to the example scenario
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The example scenario publication date
         """
-date: [String]
+        date: [String]
         """
-        identifier
+        External identifier for the example scenario
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the example scenario
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the example scenario
         """
-name: [String]
+        name: [String]
         """
-        publisher
+        Name of the publisher of the example scenario
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the example scenario
         """
-status: [String]
+        status: [String]
         """
-        url
+        The uri that identifies the example scenario
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the example scenario
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

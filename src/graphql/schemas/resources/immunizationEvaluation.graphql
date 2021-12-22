@@ -157,58 +157,60 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ImmunizationEvaluation
         """
-        date
+        Date the evaluation was generated
         """
-date: [String]
+        date: [String]
         """
-        dose-status
+        The status of the dose relative to published recommendations
         """
-dose-status: [String]
+        dose-status: [String]
         """
-        identifier
+        ID of the evaluation
         """
-identifier: [String]
+        identifier: [String]
         """
-        immunization-event
+        The vaccine administration event being evaluated
         """
-immunization-event: [String]
+        immunization-event: [String]
         """
-        patient
+        The patient being evaluated
         """
-patient: [String]
+        patient: [String]
         """
-        status
+        Immunization evaluation status
         """
-status: [String]
+        status: [String]
         """
-        target-disease
+        The vaccine preventable disease being evaluated against
         """
-target-disease: [String]
+        target-disease: [String]
         """
         return total number of records that meet this query
         """

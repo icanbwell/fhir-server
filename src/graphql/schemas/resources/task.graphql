@@ -241,106 +241,108 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Task
         """
-        authored-on
+        Search by creation date
         """
-authored-on: [String]
+        authored-on: [String]
         """
-        based-on
+        Search by requests this task is based on
         """
-based-on: [String]
+        based-on: [String]
         """
-        business-status
+        Search by business status
         """
-business-status: [String]
+        business-status: [String]
         """
-        code
+        Search by task code
         """
-code: [String]
+        code: [String]
         """
-        encounter
+        Search by encounter
         """
-encounter: [String]
+        encounter: [String]
         """
-        focus
+        Search by task focus
         """
-focus: [String]
+        focus: [String]
         """
-        group-identifier
+        Search by group identifier
         """
-group-identifier: [String]
+        group-identifier: [String]
         """
-        identifier
+        Search for a task instance by its business identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        intent
+        Search by task intent
         """
-intent: [String]
+        intent: [String]
         """
-        modified
+        Search by last modification date
         """
-modified: [String]
+        modified: [String]
         """
-        owner
+        Search by task owner
         """
-owner: [String]
+        owner: [String]
         """
-        part-of
+        Search by task this task is part of
         """
-part-of: [String]
+        part-of: [String]
         """
-        patient
+        Search by patient
         """
-patient: [String]
+        patient: [String]
         """
-        performer
+        Search by recommended type of performer (e.g., Requester, Performer, Scheduler).
         """
-performer: [String]
+        performer: [String]
         """
-        period
+        Search by period Task is/was underway
         """
-period: [String]
+        period: [String]
         """
-        priority
+        Search by task priority
         """
-priority: [String]
+        priority: [String]
         """
-        requester
+        Search by task requester
         """
-requester: [String]
+        requester: [String]
         """
-        status
+        Search by task status
         """
-status: [String]
+        status: [String]
         """
-        subject
+        Search by subject
         """
-subject: [String]
+        subject: [String]
         """
         return total number of records that meet this query
         """

@@ -142,62 +142,64 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Slot
         """
-        appointment-type
+        The style of appointment or patient that may be booked in the slot (not service type)
         """
-appointment-type: [String]
+        appointment-type: [String]
         """
-        identifier
+        A Slot Identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        schedule
+        The Schedule Resource that we are seeking a slot within
         """
-schedule: [String]
+        schedule: [String]
         """
-        service-category
+        A broad categorization of the service that is to be performed during this appointment
         """
-service-category: [String]
+        service-category: [String]
         """
-        service-type
+        The type of appointments that can be booked into the slot
         """
-service-type: [String]
+        service-type: [String]
         """
-        specialty
+        The specialty of a practitioner that would be required to perform the service requested in this appointment
         """
-specialty: [String]
+        specialty: [String]
         """
-        start
+        Appointment date/time.
         """
-start: [String]
+        start: [String]
         """
-        status
+        The free/busy status of the appointment
         """
-status: [String]
+        status: [String]
         """
         return total number of records that meet this query
         """

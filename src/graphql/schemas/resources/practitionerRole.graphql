@@ -159,82 +159,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for PractitionerRole
         """
-        active
+        Whether this practitioner role record is in active use
         """
-active: [String]
+        active: [String]
         """
-        date
+        The period during which the practitioner is authorized to perform in these role(s)
         """
-date: [String]
+        date: [String]
         """
-        email
+        Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact
         """
-email: [String]
+        email: [String]
         """
-        endpoint
+        Technical endpoints providing access to services operated for the practitioner with this role
         """
-endpoint: [String]
+        endpoint: [String]
         """
-        identifier
+        A practitioners Identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        location
+        One of the locations at which this practitioner provides care
         """
-location: [String]
+        location: [String]
         """
-        organization
+        The identity of the organization the practitioner represents / acts on behalf of
         """
-organization: [String]
+        organization: [String]
         """
-        phone
+        Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
         """
-phone: [String]
+        phone: [String]
         """
-        practitioner
+        Practitioner that is able to provide the defined services for the organization
         """
-practitioner: [String]
+        practitioner: [String]
         """
-        role
+        The practitioner can perform this role at for the organization
         """
-role: [String]
+        role: [String]
         """
-        service
+        The list of healthcare services that this worker provides for this roles Organization/Location(s)
         """
-service: [String]
+        service: [String]
         """
-        specialty
+        The practitioner has this specialty at an organization
         """
-specialty: [String]
+        specialty: [String]
         """
-        telecom
+        Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact
         """
-telecom: [String]
+        telecom: [String]
         """
         return total number of records that meet this query
         """

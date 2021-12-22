@@ -172,61 +172,63 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for MolecularSequence
         """
-        chromosome
+        Chromosome number of the reference sequence
         """
-chromosome: [String]
+        chromosome: [String]
         """
-        identifier
+        The unique identity for a particular sequence
         """
-identifier: [String]
+        identifier: [String]
         """
-        patient
+        The subject that the observation is about
         """
-patient: [String]
+        patient: [String]
         """
-        referenceseqid
+        Reference Sequence of the sequence
         """
-referenceseqid: [String]
+        referenceseqid: [String]
         """
-        type
+        Amino Acid Sequence/ DNA Sequence / RNA Sequence
         """
-type: [String]
+        type: [String]
         """
-        variant-end
-        """
-        """
-        variant-start
+        End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the variant.
         """
         """
-        window-end
+        Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the variant.
         """
         """
-        window-start
+        End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the reference sequence.
+        """
+        """
+        Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the reference sequence.
         """
         """
         return total number of records that meet this query

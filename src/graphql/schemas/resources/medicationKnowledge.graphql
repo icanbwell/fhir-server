@@ -206,82 +206,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for MedicationKnowledge
         """
-        classification
+        Specific category assigned to the medication
         """
-classification: [String]
+        classification: [String]
         """
-        classification-type
+        The type of category for the medication (for example, therapeutic classification, therapeutic sub-classification)
         """
-classification-type: [String]
+        classification-type: [String]
         """
-        code
+        Code that identifies this medication
         """
-code: [String]
+        code: [String]
         """
-        doseform
+        powder | tablets | capsule +
         """
-doseform: [String]
+        doseform: [String]
         """
-        ingredient
+        Medication(s) or substance(s) contained in the medication
         """
-ingredient: [String]
+        ingredient: [String]
         """
-        ingredient-code
+        Medication(s) or substance(s) contained in the medication
         """
-ingredient-code: [String]
+        ingredient-code: [String]
         """
-        manufacturer
+        Manufacturer of the item
         """
-manufacturer: [String]
+        manufacturer: [String]
         """
-        monitoring-program-name
+        Name of the reviewing program
         """
-monitoring-program-name: [String]
+        monitoring-program-name: [String]
         """
-        monitoring-program-type
+        Type of program under which the medication is monitored
         """
-monitoring-program-type: [String]
+        monitoring-program-type: [String]
         """
-        monograph
+        Associated documentation about the medication
         """
-monograph: [String]
+        monograph: [String]
         """
-        monograph-type
+        The category of medication document
         """
-monograph-type: [String]
+        monograph-type: [String]
         """
-        source-cost
+        The source or owner for the price information
         """
-source-cost: [String]
+        source-cost: [String]
         """
-        status
+        active | inactive | entered-in-error
         """
-status: [String]
+        status: [String]
         """
         return total number of records that meet this query
         """

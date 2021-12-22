@@ -178,89 +178,91 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Location
         """
-        address
+        A (part of the) address of the location
         """
-address: [String]
+        address: [String]
         """
-        address-city
+        A city specified in an address
         """
-address-city: [String]
+        address-city: [String]
         """
-        address-country
+        A country specified in an address
         """
-address-country: [String]
+        address-country: [String]
         """
-        address-postalcode
+        A postal code specified in an address
         """
-address-postalcode: [String]
+        address-postalcode: [String]
         """
-        address-state
+        A state specified in an address
         """
-address-state: [String]
+        address-state: [String]
         """
-        address-use
+        A use code specified in an address
         """
-address-use: [String]
+        address-use: [String]
         """
-        endpoint
+        Technical endpoints providing access to services operated for the location
         """
-endpoint: [String]
+        endpoint: [String]
         """
-        identifier
+        An identifier for the location
         """
-identifier: [String]
+        identifier: [String]
         """
-        name
+        A portion of the locations name or alias
         """
-name: [String]
+        name: [String]
         """
-        near
+        Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as [latitude]|[longitude]|[distance]|[units] (using the WGS84 datum, see notes).If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near (and units are irrelevant)Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also
         """
         """
-        operational-status
+        Searches for locations (typically bed/room) that have an operational status (e.g. contaminated, housekeeping)
         """
-operational-status: [String]
+        operational-status: [String]
         """
-        organization
+        Searches for locations that are managed by the provided organization
         """
-organization: [String]
+        organization: [String]
         """
-        partof
+        A location of which this location is a part
         """
-partof: [String]
+        partof: [String]
         """
-        status
+        Searches for locations with a specific kind of status
         """
-status: [String]
+        status: [String]
         """
-        type
+        A code for the type of location
         """
-type: [String]
+        type: [String]
         """
         return total number of records that meet this query
         """

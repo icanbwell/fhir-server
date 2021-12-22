@@ -146,66 +146,68 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Group
         """
-        actual
+        Descriptive or actual
         """
-actual: [String]
+        actual: [String]
         """
-        characteristic
+        Kind of characteristic
         """
-characteristic: [String]
+        characteristic: [String]
         """
-        code
+        The kind of resources contained
         """
-code: [String]
+        code: [String]
         """
-        exclude
+        Group includes or excludes
         """
-exclude: [String]
+        exclude: [String]
         """
-        identifier
+        Unique id
         """
-identifier: [String]
+        identifier: [String]
         """
-        managing-entity
+        Entity that is the custodian of the Groups definition
         """
-managing-entity: [String]
+        managing-entity: [String]
         """
-        member
+        Reference to the group member
         """
-member: [String]
+        member: [String]
         """
-        type
+        The type of resources the group contains
         """
-type: [String]
+        type: [String]
         """
-        value
+        Value held by characteristic
         """
-value: [String]
+        value: [String]
         """
         return total number of records that meet this query
         """

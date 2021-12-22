@@ -157,78 +157,80 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Specimen
         """
-        accession
+        The accession number associated with the specimen
         """
-accession: [String]
+        accession: [String]
         """
-        bodysite
+        The code for the body site from where the specimen originated
         """
-bodysite: [String]
+        bodysite: [String]
         """
-        collected
+        The date the specimen was collected
         """
-collected: [String]
+        collected: [String]
         """
-        collector
+        Who collected the specimen
         """
-collector: [String]
+        collector: [String]
         """
-        container
+        The kind of specimen container
         """
-container: [String]
+        container: [String]
         """
-        container-id
+        The unique identifier associated with the specimen container
         """
-container-id: [String]
+        container-id: [String]
         """
-        identifier
+        The unique identifier associated with the specimen
         """
-identifier: [String]
+        identifier: [String]
         """
-        parent
+        The parent of the specimen
         """
-parent: [String]
+        parent: [String]
         """
-        patient
+        The patient the specimen comes from
         """
-patient: [String]
+        patient: [String]
         """
-        status
+        available | unavailable | unsatisfactory | entered-in-error
         """
-status: [String]
+        status: [String]
         """
-        subject
+        The subject of the specimen
         """
-subject: [String]
+        subject: [String]
         """
-        type
+        The specimen type
         """
-type: [String]
+        type: [String]
         """
         return total number of records that meet this query
         """

@@ -146,54 +146,56 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for TestReport
         """
-        identifier
+        An external identifier for the test report
         """
-identifier: [String]
+        identifier: [String]
         """
-        issued
+        The test report generation date
         """
-issued: [String]
+        issued: [String]
         """
-        participant
+        The reference to a participant in the test execution
         """
-participant: [String]
+        participant: [String]
         """
-        result
+        The result disposition of the test execution
         """
-result: [String]
+        result: [String]
         """
-        tester
+        The name of the testing organization
         """
-tester: [String]
+        tester: [String]
         """
-        testscript
+        The test script executed to produce this report
         """
-testscript: [String]
+        testscript: [String]
         """
         return total number of records that meet this query
         """

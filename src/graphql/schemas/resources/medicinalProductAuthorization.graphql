@@ -165,50 +165,52 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for MedicinalProductAuthorization
         """
-        country
+        The country in which the marketing authorization has been granted
         """
-country: [String]
+        country: [String]
         """
-        holder
+        Marketing Authorization Holder
         """
-holder: [String]
+        holder: [String]
         """
-        identifier
+        Business identifier for the marketing authorization, as assigned by a regulator
         """
-identifier: [String]
+        identifier: [String]
         """
-        status
+        The status of the marketing authorization
         """
-status: [String]
+        status: [String]
         """
-        subject
+        The medicinal product that is being authorized
         """
-subject: [String]
+        subject: [String]
         """
         return total number of records that meet this query
         """

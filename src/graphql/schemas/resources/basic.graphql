@@ -117,54 +117,56 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Basic
         """
-        author
+        Who created
         """
-author: [String]
+        author: [String]
         """
-        code
+        Kind of Resource
         """
-code: [String]
+        code: [String]
         """
-        created
+        When created
         """
-created: [String]
+        created: [String]
         """
-        identifier
+        Business identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        patient
+        Identifies the focus of this resource
         """
-patient: [String]
+        patient: [String]
         """
-        subject
+        Identifies the focus of this resource
         """
-subject: [String]
+        subject: [String]
         """
         return total number of records that meet this query
         """

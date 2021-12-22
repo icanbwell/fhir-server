@@ -250,109 +250,111 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for EvidenceVariable
         """
-        composed-of
+        What resource is being referenced
         """
-composed-of: [String]
+        composed-of: [String]
         """
-        context
+        A use context assigned to the evidence variable
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the evidence variable
         """
         """
-        context-type
+        A type of use context assigned to the evidence variable
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The evidence variable publication date
         """
-date: [String]
+        date: [String]
         """
-        depends-on
+        What resource is being referenced
         """
-depends-on: [String]
+        depends-on: [String]
         """
-        derived-from
+        What resource is being referenced
         """
-derived-from: [String]
+        derived-from: [String]
         """
-        description
+        The description of the evidence variable
         """
-description: [String]
+        description: [String]
         """
-        effective
+        The time during which the evidence variable is intended to be in use
         """
-effective: [String]
+        effective: [String]
         """
-        identifier
+        External identifier for the evidence variable
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the evidence variable
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the evidence variable
         """
-name: [String]
+        name: [String]
         """
-        predecessor
+        What resource is being referenced
         """
-predecessor: [String]
+        predecessor: [String]
         """
-        publisher
+        Name of the publisher of the evidence variable
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the evidence variable
         """
-status: [String]
+        status: [String]
         """
-        successor
+        What resource is being referenced
         """
-successor: [String]
+        successor: [String]
         """
-        title
+        The human-friendly name of the evidence variable
         """
-title: [String]
+        title: [String]
         """
-        topic
+        Topics associated with the EvidenceVariable
         """
-topic: [String]
+        topic: [String]
         """
-        url
+        The uri that identifies the evidence variable
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the evidence variable
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

@@ -163,86 +163,88 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for MessageHeader
         """
-        author
+        The source of the decision
         """
-author: [String]
+        author: [String]
         """
-        code
+        ok | transient-error | fatal-error
         """
-code: [String]
+        code: [String]
         """
-        destination
+        Name of system
         """
-destination: [String]
+        destination: [String]
         """
-        destination-uri
+        Actual destination address or id
         """
-destination-uri: [String]
+        destination-uri: [String]
         """
-        enterer
+        The source of the data entry
         """
-enterer: [String]
+        enterer: [String]
         """
-        event
+        Code for the event this message represents or link to event definition
         """
-event: [String]
+        event: [String]
         """
-        focus
+        The actual content of the message
         """
-focus: [String]
+        focus: [String]
         """
-        receiver
+        Intended "real-world" recipient for the data
         """
-receiver: [String]
+        receiver: [String]
         """
-        response-id
+        Id of original message
         """
-response-id: [String]
+        response-id: [String]
         """
-        responsible
+        Final responsibility for event
         """
-responsible: [String]
+        responsible: [String]
         """
-        sender
+        Real world sender of the message
         """
-sender: [String]
+        sender: [String]
         """
-        source
+        Name of system
         """
-source: [String]
+        source: [String]
         """
-        source-uri
+        Actual message source address or id
         """
-source-uri: [String]
+        source-uri: [String]
         """
-        target
+        Particular delivery destination within the destination
         """
-target: [String]
+        target: [String]
         """
         return total number of records that meet this query
         """

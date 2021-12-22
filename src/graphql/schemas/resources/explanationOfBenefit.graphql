@@ -313,98 +313,100 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ExplanationOfBenefit
         """
-        care-team
+        Member of the CareTeam
         """
-care-team: [String]
+        care-team: [String]
         """
-        claim
+        The reference to the claim
         """
-claim: [String]
+        claim: [String]
         """
-        coverage
+        The plan under which the claim was adjudicated
         """
-coverage: [String]
+        coverage: [String]
         """
-        created
+        The creation date for the EOB
         """
-created: [String]
+        created: [String]
         """
-        detail-udi
+        UDI associated with a line item detail product or service
         """
-detail-udi: [String]
+        detail-udi: [String]
         """
-        disposition
+        The contents of the disposition message
         """
-disposition: [String]
+        disposition: [String]
         """
-        encounter
+        Encounters associated with a billed line item
         """
-encounter: [String]
+        encounter: [String]
         """
-        enterer
+        The party responsible for the entry of the Claim
         """
-enterer: [String]
+        enterer: [String]
         """
-        facility
+        Facility responsible for the goods and services
         """
-facility: [String]
+        facility: [String]
         """
-        identifier
+        The business identifier of the Explanation of Benefit
         """
-identifier: [String]
+        identifier: [String]
         """
-        item-udi
+        UDI associated with a line item product or service
         """
-item-udi: [String]
+        item-udi: [String]
         """
-        patient
+        The reference to the patient
         """
-patient: [String]
+        patient: [String]
         """
-        payee
+        The party receiving any payment for the Claim
         """
-payee: [String]
+        payee: [String]
         """
-        procedure-udi
+        UDI associated with a procedure
         """
-procedure-udi: [String]
+        procedure-udi: [String]
         """
-        provider
+        The reference to the provider
         """
-provider: [String]
+        provider: [String]
         """
-        status
+        Status of the instance
         """
-status: [String]
+        status: [String]
         """
-        subdetail-udi
+        UDI associated with a line item detail subdetail product or service
         """
-subdetail-udi: [String]
+        subdetail-udi: [String]
         """
         return total number of records that meet this query
         """

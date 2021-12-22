@@ -281,117 +281,119 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for PlanDefinition
         """
-        composed-of
+        What resource is being referenced
         """
-composed-of: [String]
+        composed-of: [String]
         """
-        context
+        A use context assigned to the plan definition
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the plan definition
         """
         """
-        context-type
+        A type of use context assigned to the plan definition
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The plan definition publication date
         """
-date: [String]
+        date: [String]
         """
-        definition
+        Activity or plan definitions used by plan definition
         """
-definition: [String]
+        definition: [String]
         """
-        depends-on
+        What resource is being referenced
         """
-depends-on: [String]
+        depends-on: [String]
         """
-        derived-from
+        What resource is being referenced
         """
-derived-from: [String]
+        derived-from: [String]
         """
-        description
+        The description of the plan definition
         """
-description: [String]
+        description: [String]
         """
-        effective
+        The time during which the plan definition is intended to be in use
         """
-effective: [String]
+        effective: [String]
         """
-        identifier
+        External identifier for the plan definition
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the plan definition
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the plan definition
         """
-name: [String]
+        name: [String]
         """
-        predecessor
+        What resource is being referenced
         """
-predecessor: [String]
+        predecessor: [String]
         """
-        publisher
+        Name of the publisher of the plan definition
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the plan definition
         """
-status: [String]
+        status: [String]
         """
-        successor
+        What resource is being referenced
         """
-successor: [String]
+        successor: [String]
         """
-        title
+        The human-friendly name of the plan definition
         """
-title: [String]
+        title: [String]
         """
-        topic
+        Topics associated with the module
         """
-topic: [String]
+        topic: [String]
         """
-        type
+        The type of artifact the plan (e.g. order-set, eca-rule, protocol)
         """
-type: [String]
+        type: [String]
         """
-        url
+        The uri that identifies the plan definition
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the plan definition
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

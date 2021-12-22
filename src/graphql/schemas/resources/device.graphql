@@ -220,78 +220,80 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Device
         """
-        device-name
+        A server defined search that may match any of the string fields in Device.deviceName or Device.type.
         """
-device-name: [String]
+        device-name: [String]
         """
-        identifier
+        Instance id from manufacturer, owner, and others
         """
-identifier: [String]
+        identifier: [String]
         """
-        location
+        A location, where the resource is found
         """
-location: [String]
+        location: [String]
         """
-        manufacturer
+        The manufacturer of the device
         """
-manufacturer: [String]
+        manufacturer: [String]
         """
-        model
+        The model of the device
         """
-model: [String]
+        model: [String]
         """
-        organization
+        The organization responsible for the device
         """
-organization: [String]
+        organization: [String]
         """
-        patient
+        Patient information, if the resource is affixed to a person
         """
-patient: [String]
+        patient: [String]
         """
-        status
+        active | inactive | entered-in-error | unknown
         """
-status: [String]
+        status: [String]
         """
-        type
+        The type of the device
         """
-type: [String]
+        type: [String]
         """
-        udi-carrier
+        UDI Barcode (RFID or other technology) string in *HRF* format.
         """
-udi-carrier: [String]
+        udi-carrier: [String]
         """
-        udi-di
+        The udi Device Identifier (DI)
         """
-udi-di: [String]
+        udi-di: [String]
         """
-        url
+        Network address to contact device
         """
-url: [String]
+        url: [String]
         """
         return total number of records that meet this query
         """

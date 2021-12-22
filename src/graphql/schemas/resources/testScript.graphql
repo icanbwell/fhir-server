@@ -232,85 +232,87 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for TestScript
         """
-        context
+        A use context assigned to the test script
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the test script
         """
         """
-        context-type
+        A type of use context assigned to the test script
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The test script publication date
         """
-date: [String]
+        date: [String]
         """
-        description
+        The description of the test script
         """
-description: [String]
+        description: [String]
         """
-        identifier
+        External identifier for the test script
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the test script
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the test script
         """
-name: [String]
+        name: [String]
         """
-        publisher
+        Name of the publisher of the test script
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the test script
         """
-status: [String]
+        status: [String]
         """
-        testscript-capability
+        TestScript required and validated capability
         """
-testscript-capability: [String]
+        testscript-capability: [String]
         """
-        title
+        The human-friendly name of the test script
         """
-title: [String]
+        title: [String]
         """
-        url
+        The uri that identifies the test script
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the test script
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

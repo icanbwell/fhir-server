@@ -291,70 +291,72 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Contract
         """
-        authority
+        The authority of the contract
         """
-authority: [String]
+        authority: [String]
         """
-        domain
+        The domain of the contract
         """
-domain: [String]
+        domain: [String]
         """
-        identifier
+        The identity of the contract
         """
-identifier: [String]
+        identifier: [String]
         """
-        instantiates
+        A source definition of the contract
         """
-instantiates: [String]
+        instantiates: [String]
         """
-        issued
+        The date/time the contract was issued
         """
-issued: [String]
+        issued: [String]
         """
-        patient
+        The identity of the subject of the contract (if a patient)
         """
-patient: [String]
+        patient: [String]
         """
-        signer
+        Contract Signatory Party
         """
-signer: [String]
+        signer: [String]
         """
-        status
+        The status of the contract
         """
-status: [String]
+        status: [String]
         """
-        subject
+        The identity of the subject of the contract
         """
-subject: [String]
+        subject: [String]
         """
-        url
+        The basal contract definition
         """
-url: [String]
+        url: [String]
         """
         return total number of records that meet this query
         """

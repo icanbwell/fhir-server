@@ -167,66 +167,68 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for CoverageEligibilityResponse
         """
-        created
+        The creation date
         """
-created: [String]
+        created: [String]
         """
-        disposition
+        The contents of the disposition message
         """
-disposition: [String]
+        disposition: [String]
         """
-        identifier
+        The business identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        insurer
+        The organization which generated this resource
         """
-insurer: [String]
+        insurer: [String]
         """
-        outcome
+        The processing outcome
         """
-outcome: [String]
+        outcome: [String]
         """
-        patient
+        The reference to the patient
         """
-patient: [String]
+        patient: [String]
         """
-        request
+        The EligibilityRequest reference
         """
-request: [String]
+        request: [String]
         """
-        requestor
+        The EligibilityRequest provider
         """
-requestor: [String]
+        requestor: [String]
         """
-        status
+        The EligibilityRequest status
         """
-status: [String]
+        status: [String]
         """
         return total number of records that meet this query
         """

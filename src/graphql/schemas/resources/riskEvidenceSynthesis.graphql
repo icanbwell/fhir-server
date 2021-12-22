@@ -267,85 +267,87 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for RiskEvidenceSynthesis
         """
-        context
+        A use context assigned to the risk evidence synthesis
         """
-context: [String]
+        context: [String]
         """
-        context-quantity
+        A quantity- or range-valued use context assigned to the risk evidence synthesis
         """
         """
-        context-type
+        A type of use context assigned to the risk evidence synthesis
         """
-context-type: [String]
+        context-type: [String]
         """
-        date
+        The risk evidence synthesis publication date
         """
-date: [String]
+        date: [String]
         """
-        description
+        The description of the risk evidence synthesis
         """
-description: [String]
+        description: [String]
         """
-        effective
+        The time during which the risk evidence synthesis is intended to be in use
         """
-effective: [String]
+        effective: [String]
         """
-        identifier
+        External identifier for the risk evidence synthesis
         """
-identifier: [String]
+        identifier: [String]
         """
-        jurisdiction
+        Intended jurisdiction for the risk evidence synthesis
         """
-jurisdiction: [String]
+        jurisdiction: [String]
         """
-        name
+        Computationally friendly name of the risk evidence synthesis
         """
-name: [String]
+        name: [String]
         """
-        publisher
+        Name of the publisher of the risk evidence synthesis
         """
-publisher: [String]
+        publisher: [String]
         """
-        status
+        The current status of the risk evidence synthesis
         """
-status: [String]
+        status: [String]
         """
-        title
+        The human-friendly name of the risk evidence synthesis
         """
-title: [String]
+        title: [String]
         """
-        url
+        The uri that identifies the risk evidence synthesis
         """
-url: [String]
+        url: [String]
         """
-        version
+        The business version of the risk evidence synthesis
         """
-version: [String]
+        version: [String]
         """
         return total number of records that meet this query
         """

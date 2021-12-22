@@ -172,80 +172,82 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Invoice
         """
-        account
+        Account that is being balanced
         """
-account: [String]
+        account: [String]
         """
-        date
+        Invoice date / posting date
         """
-date: [String]
+        date: [String]
         """
-        identifier
+        Business Identifier for item
         """
-identifier: [String]
+        identifier: [String]
         """
-        issuer
+        Issuing Organization of Invoice
         """
-issuer: [String]
+        issuer: [String]
         """
-        participant
+        Individual who was involved
         """
-participant: [String]
+        participant: [String]
         """
-        participant-role
+        Type of involvement in creation of this Invoice
         """
-participant-role: [String]
+        participant-role: [String]
         """
-        patient
+        Recipient(s) of goods and services
         """
-patient: [String]
+        patient: [String]
         """
-        recipient
+        Recipient of this invoice
         """
-recipient: [String]
+        recipient: [String]
         """
-        status
+        draft | issued | balanced | cancelled | entered-in-error
         """
-status: [String]
+        status: [String]
         """
-        subject
+        Recipient(s) of goods and services
         """
-subject: [String]
+        subject: [String]
         """
-        totalgross
-        """
-        """
-        totalnet
+        Gross total of this Invoice
         """
         """
-        type
+        Net total of this Invoice
         """
-type: [String]
+        """
+        Type of Invoice
+        """
+        type: [String]
         """
         return total number of records that meet this query
         """

@@ -149,98 +149,100 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for RelatedPerson
         """
-        active
+        Indicates if the related person record is active
         """
-active: [String]
+        active: [String]
         """
-        address
+        Multiple Resources: * [Patient](patient.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Person](person.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Practitioner](practitioner.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [RelatedPerson](relatedperson.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text
         """
-address: [String]
+        address: [String]
         """
-        address-city
+        Multiple Resources: * [Patient](patient.html): A city specified in an address* [Person](person.html): A city specified in an address* [Practitioner](practitioner.html): A city specified in an address* [RelatedPerson](relatedperson.html): A city specified in an address
         """
-address-city: [String]
+        address-city: [String]
         """
-        address-country
+        Multiple Resources: * [Patient](patient.html): A country specified in an address* [Person](person.html): A country specified in an address* [Practitioner](practitioner.html): A country specified in an address* [RelatedPerson](relatedperson.html): A country specified in an address
         """
-address-country: [String]
+        address-country: [String]
         """
-        address-postalcode
+        Multiple Resources: * [Patient](patient.html): A postalCode specified in an address* [Person](person.html): A postal code specified in an address* [Practitioner](practitioner.html): A postalCode specified in an address* [RelatedPerson](relatedperson.html): A postal code specified in an address
         """
-address-postalcode: [String]
+        address-postalcode: [String]
         """
-        address-state
+        Multiple Resources: * [Patient](patient.html): A state specified in an address* [Person](person.html): A state specified in an address* [Practitioner](practitioner.html): A state specified in an address* [RelatedPerson](relatedperson.html): A state specified in an address
         """
-address-state: [String]
+        address-state: [String]
         """
-        address-use
+        Multiple Resources: * [Patient](patient.html): A use code specified in an address* [Person](person.html): A use code specified in an address* [Practitioner](practitioner.html): A use code specified in an address* [RelatedPerson](relatedperson.html): A use code specified in an address
         """
-address-use: [String]
+        address-use: [String]
         """
-        birthdate
+        Multiple Resources: * [Patient](patient.html): The patients date of birth* [Person](person.html): The persons date of birth* [RelatedPerson](relatedperson.html): The Related Persons date of birth
         """
-birthdate: [String]
+        birthdate: [String]
         """
-        email
+        Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact
         """
-email: [String]
+        email: [String]
         """
-        gender
+        Multiple Resources: * [Patient](patient.html): Gender of the patient* [Person](person.html): The gender of the person* [Practitioner](practitioner.html): Gender of the practitioner* [RelatedPerson](relatedperson.html): Gender of the related person
         """
-gender: [String]
+        gender: [String]
         """
-        identifier
+        An Identifier of the RelatedPerson
         """
-identifier: [String]
+        identifier: [String]
         """
-        name
+        A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text
         """
-name: [String]
+        name: [String]
         """
-        patient
+        The patient this related person is related to
         """
-patient: [String]
+        patient: [String]
         """
-        phone
+        Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
         """
-phone: [String]
+        phone: [String]
         """
-        phonetic
+        Multiple Resources: * [Patient](patient.html): A portion of either family or given name using some kind of phonetic matching algorithm* [Person](person.html): A portion of name using some kind of phonetic matching algorithm* [Practitioner](practitioner.html): A portion of either family or given name using some kind of phonetic matching algorithm* [RelatedPerson](relatedperson.html): A portion of name using some kind of phonetic matching algorithm
         """
-phonetic: [String]
+        phonetic: [String]
         """
-        relationship
+        The relationship between the patient and the relatedperson
         """
-relationship: [String]
+        relationship: [String]
         """
-        telecom
+        Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact
         """
-telecom: [String]
+        telecom: [String]
         """
         return total number of records that meet this query
         """

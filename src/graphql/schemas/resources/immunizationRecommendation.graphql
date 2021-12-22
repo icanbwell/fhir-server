@@ -111,62 +111,64 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ImmunizationRecommendation
         """
-        date
+        Date recommendation(s) created
         """
-date: [String]
+        date: [String]
         """
-        identifier
+        Business identifier
         """
-identifier: [String]
+        identifier: [String]
         """
-        information
+        Patient observations supporting recommendation
         """
-information: [String]
+        information: [String]
         """
-        patient
+        Who this profile is for
         """
-patient: [String]
+        patient: [String]
         """
-        status
+        Vaccine recommendation status
         """
-status: [String]
+        status: [String]
         """
-        support
+        Past immunizations supporting recommendation
         """
-support: [String]
+        support: [String]
         """
-        target-disease
+        Disease to be immunized against
         """
-target-disease: [String]
+        target-disease: [String]
         """
-        vaccine-type
+        Vaccine  or vaccine group recommendation applies to
         """
-vaccine-type: [String]
+        vaccine-type: [String]
         """
         return total number of records that meet this query
         """

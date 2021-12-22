@@ -98,34 +98,36 @@ extend type Query {
         # search parameters for all resources
     {% for search_parameter_name, search_parameter in search_parameters_for_all_resources.items() %}
         """
-        {{ search_parameter_name }}
+        {{ search_parameter.description or search_parameter_name }}
         """
-        {% if search_parameter.type == "string" -%}
+        {% if search_parameter.type == "string" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] -%}
+        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "token" -%}
+        {% elif search_parameter.type == "token" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "uri" -%}
+        {% elif search_parameter.type == "uri" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "reference" -%}
+        {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name }}: [String]
         {% endif %}
     {%  endfor %}
+
+
         # search parameters for {{fhir_entity.fhir_name}}
     {% for search_parameter_name, search_parameter in search_parameters_for_current_resource.items() %}
         """
-        {{ search_parameter_name }}
+        {{ search_parameter.description or search_parameter_name }}
         """
-        {% if search_parameter.type == "string" -%}
+        {% if search_parameter.type == "string" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] -%}
+        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "token" -%}
+        {% elif search_parameter.type == "token" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "uri" -%}
+        {% elif search_parameter.type == "uri" %}
         {{ search_parameter_name }}: [String]
-        {% elif search_parameter.type == "reference" -%}
+        {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name }}: [String]
         {% endif %}
     {%  endfor %}

@@ -228,95 +228,97 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for ChargeItem
         """
-        account
+        Account to place this charge
         """
-account: [String]
+        account: [String]
         """
-        code
+        A code that identifies the charge, like a billing code
         """
-code: [String]
+        code: [String]
         """
-        context
+        Encounter / Episode associated with event
         """
-context: [String]
+        context: [String]
         """
-        entered-date
+        Date the charge item was entered
         """
-entered-date: [String]
+        entered-date: [String]
         """
-        enterer
+        Individual who was entering
         """
-enterer: [String]
+        enterer: [String]
         """
-        factor-override
-        """
-        """
-        identifier
-        """
-identifier: [String]
-        """
-        occurrence
-        """
-occurrence: [String]
-        """
-        patient
-        """
-patient: [String]
-        """
-        performer-actor
-        """
-performer-actor: [String]
-        """
-        performer-function
-        """
-performer-function: [String]
-        """
-        performing-organization
-        """
-performing-organization: [String]
-        """
-        price-override
+        Factor overriding the associated rules
         """
         """
-        quantity
+        Business Identifier for item
+        """
+        identifier: [String]
+        """
+        When the charged service was applied
+        """
+        occurrence: [String]
+        """
+        Individual service was done for/to
+        """
+        patient: [String]
+        """
+        Individual who was performing
+        """
+        performer-actor: [String]
+        """
+        What type of performance was done
+        """
+        performer-function: [String]
+        """
+        Organization providing the charged service
+        """
+        performing-organization: [String]
+        """
+        Price overriding the associated rules
         """
         """
-        requesting-organization
+        Quantity of which the charge item has been serviced
         """
-requesting-organization: [String]
         """
-        service
+        Organization requesting the charged service
         """
-service: [String]
+        requesting-organization: [String]
         """
-        subject
+        Which rendered service is being charged?
         """
-subject: [String]
+        service: [String]
+        """
+        Individual service was done for/to
+        """
+        subject: [String]
         """
         return total number of records that meet this query
         """

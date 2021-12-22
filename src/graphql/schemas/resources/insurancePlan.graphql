@@ -156,86 +156,88 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for InsurancePlan
         """
-        address
+        A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text
         """
-address: [String]
+        address: [String]
         """
-        address-city
+        A city specified in an address
         """
-address-city: [String]
+        address-city: [String]
         """
-        address-country
+        A country specified in an address
         """
-address-country: [String]
+        address-country: [String]
         """
-        address-postalcode
+        A postal code specified in an address
         """
-address-postalcode: [String]
+        address-postalcode: [String]
         """
-        address-state
+        A state specified in an address
         """
-address-state: [String]
+        address-state: [String]
         """
-        address-use
+        A use code specified in an address
         """
-address-use: [String]
+        address-use: [String]
         """
-        administered-by
+        Product administrator
         """
-administered-by: [String]
+        administered-by: [String]
         """
-        endpoint
+        Technical endpoint
         """
-endpoint: [String]
+        endpoint: [String]
         """
-        identifier
+        Any identifier for the organization (not the accreditation issuers identifier)
         """
-identifier: [String]
+        identifier: [String]
         """
-        name
+        A portion of the organizations name or alias
         """
-name: [String]
+        name: [String]
         """
-        owned-by
+        An organization of which this organization forms a part
         """
-owned-by: [String]
+        owned-by: [String]
         """
-        phonetic
+        A portion of the organizations name using some kind of phonetic matching algorithm
         """
-phonetic: [String]
+        phonetic: [String]
         """
-        status
+        Is the Organization record active
         """
-status: [String]
+        status: [String]
         """
-        type
+        A code for the type of organization
         """
-type: [String]
+        type: [String]
         """
         return total number of records that meet this query
         """

@@ -181,74 +181,76 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id
+        Logical id of this artifact
         """
-_id: [String]
+        _id: [String]
         """
-        _lastUpdated
+        When the resource version last changed
         """
-_lastUpdated: [String]
+        _lastUpdated: [String]
         """
-        _profile
+        Profiles this resource claims to conform to
         """
-_profile: [String]
+        _profile: [String]
         """
-        _security
+        Security Labels applied to this resource
         """
-_security: [String]
+        _security: [String]
         """
-        _source
+        Identifies where the resource comes from
         """
-_source: [String]
+        _source: [String]
         """
-        _tag
+        Tags applied to this resource
         """
-_tag: [String]
+        _tag: [String]
+
+
         # search parameters for Coverage
         """
-        beneficiary
+        Covered party
         """
-beneficiary: [String]
+        beneficiary: [String]
         """
-        class-type
+        Coverage class (eg. plan, group)
         """
-class-type: [String]
+        class-type: [String]
         """
-        class-value
+        Value of the class (eg. Plan number, group number)
         """
-class-value: [String]
+        class-value: [String]
         """
-        dependent
+        Dependent number
         """
-dependent: [String]
+        dependent: [String]
         """
-        identifier
+        The primary identifier of the insured and the coverage
         """
-identifier: [String]
+        identifier: [String]
         """
-        patient
+        Retrieve coverages for a patient
         """
-patient: [String]
+        patient: [String]
         """
-        payor
+        The identity of the insurer or party paying for services
         """
-payor: [String]
+        payor: [String]
         """
-        policy-holder
+        Reference to the policyholder
         """
-policy-holder: [String]
+        policy-holder: [String]
         """
-        status
+        The status of the Coverage
         """
-status: [String]
+        status: [String]
         """
-        subscriber
+        Reference to the subscriber
         """
-subscriber: [String]
+        subscriber: [String]
         """
-        type
+        The kind of coverage (health plan, auto, Workers Compensation)
         """
-type: [String]
+        type: [String]
         """
         return total number of records that meet this query
         """
