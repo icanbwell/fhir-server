@@ -16,7 +16,6 @@
 # import TestScriptSetup from "../backbone_elements/testScriptSetup.graphql"
 # import TestScriptTest from "../backbone_elements/testScriptTest.graphql"
 # import TestScriptTeardown from "../backbone_elements/testScriptTeardown.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

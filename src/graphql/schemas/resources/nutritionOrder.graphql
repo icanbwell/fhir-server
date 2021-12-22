@@ -10,7 +10,6 @@
 # import NutritionOrderSupplement from "../backbone_elements/nutritionOrderSupplement.graphql"
 # import NutritionOrderEnteralFormula from "../backbone_elements/nutritionOrderEnteralFormula.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union NutritionOrderOrderer = Practitioner | PractitionerRole
 

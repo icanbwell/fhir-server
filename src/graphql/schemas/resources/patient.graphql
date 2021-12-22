@@ -15,7 +15,6 @@
 # import Practitioner from "../resources/practitioner.graphql"
 # import PractitionerRole from "../resources/practitionerRole.graphql"
 # import PatientLink from "../backbone_elements/patientLink.graphql"
-# import TotalType from "../enums.graphql"
 
 union PatientGeneralPractitioner = Organization | Practitioner | PractitionerRole
 

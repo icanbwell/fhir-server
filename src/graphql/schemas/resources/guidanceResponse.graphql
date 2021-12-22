@@ -9,7 +9,6 @@
 # import Group from "../resources/group.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
-# import TotalType from "../enums.graphql"
 
 union GuidanceResponseSubject = Patient | Group
 union GuidanceResponseReasonReference = Condition | Observation | DiagnosticReport | DocumentReference

@@ -9,7 +9,6 @@
 # import EpisodeOfCareDiagnosis from "../backbone_elements/episodeOfCareDiagnosis.graphql"
 # import Patient from "../resources/patient.graphql"
 # import Period from "../complex_types/period.graphql"
-# import TotalType from "../enums.graphql"
 
 union EpisodeOfCareCareManager = Practitioner | PractitionerRole
 

@@ -11,7 +11,6 @@
 # import CareTeamParticipant from "../backbone_elements/careTeamParticipant.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union CareTeamSubject = Patient | Group
 

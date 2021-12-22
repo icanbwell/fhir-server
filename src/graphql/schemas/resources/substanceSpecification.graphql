@@ -13,7 +13,6 @@
 # import SubstanceSpecificationName from "../backbone_elements/substanceSpecificationName.graphql"
 # import SubstanceSpecificationMolecularWeight from "../backbone_elements/substanceSpecificationMolecularWeight.graphql"
 # import SubstanceSpecificationRelationship from "../backbone_elements/substanceSpecificationRelationship.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

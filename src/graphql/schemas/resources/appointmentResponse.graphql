@@ -6,7 +6,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Appointment from "../resources/appointment.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import TotalType from "../enums.graphql"
 
 union AppointmentResponseActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 

@@ -8,7 +8,6 @@
 # import Device from "../resources/device.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 # import DeviceMetricCalibration from "../backbone_elements/deviceMetricCalibration.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

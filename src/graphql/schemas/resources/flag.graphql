@@ -14,7 +14,6 @@
 # import Medication from "../resources/medication.graphql"
 # import Procedure from "../resources/procedure.graphql"
 # import Period from "../complex_types/period.graphql"
-# import TotalType from "../enums.graphql"
 
 union FlagSubject = Patient | Location | Group | Organization | Practitioner | PlanDefinition | Medication | Procedure
 union FlagAuthor = Device | Organization | Patient | Practitioner | PractitionerRole

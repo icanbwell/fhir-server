@@ -10,7 +10,6 @@
 # import ExampleScenarioActor from "../backbone_elements/exampleScenarioActor.graphql"
 # import ExampleScenarioInstance from "../backbone_elements/exampleScenarioInstance.graphql"
 # import ExampleScenarioProcess from "../backbone_elements/exampleScenarioProcess.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -7,7 +7,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Organization from "../resources/organization.graphql"
 # import ProdCharacteristic from "../backbone_elements/prodCharacteristic.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

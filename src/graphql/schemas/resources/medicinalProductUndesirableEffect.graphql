@@ -7,7 +7,6 @@
 # import Medication from "../resources/medication.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Population from "../backbone_elements/population.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicinalProductUndesirableEffectSubject = MedicinalProduct | Medication
 

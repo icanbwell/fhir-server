@@ -11,7 +11,6 @@
 # import MolecularSequenceQuality from "../backbone_elements/molecularSequenceQuality.graphql"
 # import MolecularSequenceRepository from "../backbone_elements/molecularSequenceRepository.graphql"
 # import MolecularSequenceStructureVariant from "../backbone_elements/molecularSequenceStructureVariant.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

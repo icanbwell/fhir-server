@@ -14,7 +14,6 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import MedicationRequestDispenseRequest from "../backbone_elements/medicationRequestDispenseRequest.graphql"
 # import MedicationRequestSubstitution from "../backbone_elements/medicationRequestSubstitution.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicationRequestReportedReference = Patient | Practitioner | PractitionerRole | RelatedPerson | Organization
 union MedicationRequestSubject = Patient | Group

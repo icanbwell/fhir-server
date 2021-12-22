@@ -10,7 +10,6 @@
 # import Organization from "../resources/organization.graphql"
 # import GoalTarget from "../backbone_elements/goalTarget.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union GoalSubject = Patient | Group | Organization
 union GoalExpressedBy = Patient | Practitioner | PractitionerRole | RelatedPerson

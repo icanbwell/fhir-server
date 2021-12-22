@@ -6,7 +6,6 @@
 # import ContactDetail from "../complex_types/contactDetail.graphql"
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import CompartmentDefinitionResource from "../backbone_elements/compartmentDefinitionResource.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

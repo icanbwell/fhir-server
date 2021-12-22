@@ -7,7 +7,6 @@
 # import CarePlan from "../resources/carePlan.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
 # import QuestionnaireResponseItem from "../backbone_elements/questionnaireResponseItem.graphql"
-# import TotalType from "../enums.graphql"
 
 union QuestionnaireResponseBasedOn = CarePlan | ServiceRequest
 union QuestionnaireResponsePartOf = Observation | Procedure

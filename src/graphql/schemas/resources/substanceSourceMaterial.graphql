@@ -8,7 +8,6 @@
 # import SubstanceSourceMaterialFractionDescription from "../backbone_elements/substanceSourceMaterialFractionDescription.graphql"
 # import SubstanceSourceMaterialOrganism from "../backbone_elements/substanceSourceMaterialOrganism.graphql"
 # import SubstanceSourceMaterialPartDescription from "../backbone_elements/substanceSourceMaterialPartDescription.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

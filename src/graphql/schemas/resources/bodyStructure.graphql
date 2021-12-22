@@ -7,7 +7,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import Patient from "../resources/patient.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

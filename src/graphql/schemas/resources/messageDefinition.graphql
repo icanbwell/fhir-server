@@ -10,7 +10,6 @@
 # import Coding from "../complex_types/coding.graphql"
 # import MessageDefinitionFocus from "../backbone_elements/messageDefinitionFocus.graphql"
 # import MessageDefinitionAllowedResponse from "../backbone_elements/messageDefinitionAllowedResponse.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

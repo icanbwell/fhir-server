@@ -17,7 +17,6 @@
 # import ClaimAccident from "../backbone_elements/claimAccident.graphql"
 # import ClaimItem from "../backbone_elements/claimItem.graphql"
 # import Money from "../complex_types/money.graphql"
-# import TotalType from "../enums.graphql"
 
 union ClaimEnterer = Practitioner | PractitionerRole
 union ClaimProvider = Practitioner | PractitionerRole | Organization

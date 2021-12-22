@@ -14,7 +14,6 @@
 # import Period from "../complex_types/period.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import MeasureReportGroup from "../backbone_elements/measureReportGroup.graphql"
-# import TotalType from "../enums.graphql"
 
 union MeasureReportSubject = Patient | Practitioner | PractitionerRole | Location | Device | RelatedPerson | Group
 union MeasureReportReporter = Practitioner | PractitionerRole | Location | Organization

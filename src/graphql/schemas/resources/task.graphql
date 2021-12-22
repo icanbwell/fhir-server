@@ -11,7 +11,6 @@
 # import TaskRestriction from "../backbone_elements/taskRestriction.graphql"
 # import TaskInput from "../backbone_elements/taskInput.graphql"
 # import TaskOutput from "../backbone_elements/taskOutput.graphql"
-# import TotalType from "../enums.graphql"
 
 union TaskRequester = Device | Organization | Patient | Practitioner | PractitionerRole | RelatedPerson
 union TaskOwner = Practitioner | PractitionerRole | Organization | CareTeam | HealthcareService | Patient | Device | RelatedPerson

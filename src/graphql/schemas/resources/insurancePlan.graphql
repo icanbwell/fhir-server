@@ -10,7 +10,6 @@
 # import InsurancePlanContact from "../backbone_elements/insurancePlanContact.graphql"
 # import InsurancePlanCoverage from "../backbone_elements/insurancePlanCoverage.graphql"
 # import InsurancePlanPlan from "../backbone_elements/insurancePlanPlan.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

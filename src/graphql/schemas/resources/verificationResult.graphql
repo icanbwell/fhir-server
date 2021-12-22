@@ -9,7 +9,6 @@
 # import VerificationResultPrimarySource from "../backbone_elements/verificationResultPrimarySource.graphql"
 # import VerificationResultAttestation from "../backbone_elements/verificationResultAttestation.graphql"
 # import VerificationResultValidator from "../backbone_elements/verificationResultValidator.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

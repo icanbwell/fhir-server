@@ -8,7 +8,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import OperationDefinitionParameter from "../backbone_elements/operationDefinitionParameter.graphql"
 # import OperationDefinitionOverload from "../backbone_elements/operationDefinitionOverload.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

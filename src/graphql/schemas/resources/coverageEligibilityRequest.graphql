@@ -10,7 +10,6 @@
 # import CoverageEligibilityRequestSupportingInfo from "../backbone_elements/coverageEligibilityRequestSupportingInfo.graphql"
 # import CoverageEligibilityRequestInsurance from "../backbone_elements/coverageEligibilityRequestInsurance.graphql"
 # import CoverageEligibilityRequestItem from "../backbone_elements/coverageEligibilityRequestItem.graphql"
-# import TotalType from "../enums.graphql"
 
 union CoverageEligibilityRequestEnterer = Practitioner | PractitionerRole
 union CoverageEligibilityRequestProvider = Practitioner | PractitionerRole | Organization

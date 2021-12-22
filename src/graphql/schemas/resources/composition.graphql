@@ -10,7 +10,6 @@
 # import CompositionRelatesTo from "../backbone_elements/compositionRelatesTo.graphql"
 # import CompositionEvent from "../backbone_elements/compositionEvent.graphql"
 # import CompositionSection from "../backbone_elements/compositionSection.graphql"
-# import TotalType from "../enums.graphql"
 
 union CompositionAuthor = Practitioner | PractitionerRole | Device | Patient | RelatedPerson | Organization
 

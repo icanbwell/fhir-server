@@ -6,7 +6,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Patient from "../resources/patient.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

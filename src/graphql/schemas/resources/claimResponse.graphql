@@ -16,7 +16,6 @@
 # import ClaimResponseProcessNote from "../backbone_elements/claimResponseProcessNote.graphql"
 # import ClaimResponseInsurance from "../backbone_elements/claimResponseInsurance.graphql"
 # import ClaimResponseError from "../backbone_elements/claimResponseError.graphql"
-# import TotalType from "../enums.graphql"
 
 union ClaimResponseRequestor = Practitioner | PractitionerRole | Organization
 

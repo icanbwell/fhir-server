@@ -9,7 +9,6 @@
 # import Period from "../complex_types/period.graphql"
 # import CarePlanActivity from "../backbone_elements/carePlanActivity.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union CarePlanSubject = Patient | Group
 union CarePlanAuthor = Patient | Practitioner | PractitionerRole | Device | RelatedPerson | Organization | CareTeam

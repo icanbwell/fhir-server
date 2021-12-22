@@ -6,7 +6,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Period from "../complex_types/period.graphql"
 # import ResearchStudy from "../resources/researchStudy.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

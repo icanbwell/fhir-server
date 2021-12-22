@@ -13,7 +13,6 @@
 # import ParameterDefinition from "../complex_types/parameterDefinition.graphql"
 # import DataRequirement from "../complex_types/dataRequirement.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

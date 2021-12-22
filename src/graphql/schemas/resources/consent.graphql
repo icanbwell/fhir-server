@@ -10,7 +10,6 @@
 # import ConsentPolicy from "../backbone_elements/consentPolicy.graphql"
 # import ConsentVerification from "../backbone_elements/consentVerification.graphql"
 # import ConsentProvision from "../backbone_elements/consentProvision.graphql"
-# import TotalType from "../enums.graphql"
 
 union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole
 union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse

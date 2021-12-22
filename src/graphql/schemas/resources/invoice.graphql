@@ -12,7 +12,6 @@
 # import InvoicePriceComponent from "../backbone_elements/invoicePriceComponent.graphql"
 # import Money from "../complex_types/money.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union InvoiceSubject = Patient | Group
 union InvoiceRecipient = Organization | Patient | RelatedPerson

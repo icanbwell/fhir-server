@@ -9,7 +9,6 @@
 # import TestReportSetup from "../backbone_elements/testReportSetup.graphql"
 # import TestReportTest from "../backbone_elements/testReportTest.graphql"
 # import TestReportTeardown from "../backbone_elements/testReportTeardown.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

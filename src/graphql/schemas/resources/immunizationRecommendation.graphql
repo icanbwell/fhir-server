@@ -6,7 +6,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Patient from "../resources/patient.graphql"
 # import ImmunizationRecommendationRecommendation from "../backbone_elements/immunizationRecommendationRecommendation.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -5,7 +5,6 @@
 # import BundleLink from "../backbone_elements/bundleLink.graphql"
 # import BundleEntry from "../backbone_elements/bundleEntry.graphql"
 # import Signature from "../complex_types/signature.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

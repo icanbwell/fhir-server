@@ -10,7 +10,6 @@
 # import Period from "../complex_types/period.graphql"
 # import MedicinalProductAuthorizationJurisdictionalAuthorization from "../backbone_elements/medicinalProductAuthorizationJurisdictionalAuthorization.graphql"
 # import MedicinalProductAuthorizationProcedure from "../backbone_elements/medicinalProductAuthorizationProcedure.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicinalProductAuthorizationSubject = MedicinalProduct | MedicinalProductPackaged
 

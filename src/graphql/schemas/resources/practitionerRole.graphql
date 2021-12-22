@@ -10,7 +10,6 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import PractitionerRoleAvailableTime from "../backbone_elements/practitionerRoleAvailableTime.graphql"
 # import PractitionerRoleNotAvailable from "../backbone_elements/practitionerRoleNotAvailable.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

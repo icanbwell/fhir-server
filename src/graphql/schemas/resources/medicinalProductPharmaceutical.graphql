@@ -8,7 +8,6 @@
 # import MedicinalProductIngredient from "../resources/medicinalProductIngredient.graphql"
 # import MedicinalProductPharmaceuticalCharacteristics from "../backbone_elements/medicinalProductPharmaceuticalCharacteristics.graphql"
 # import MedicinalProductPharmaceuticalRouteOfAdministration from "../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

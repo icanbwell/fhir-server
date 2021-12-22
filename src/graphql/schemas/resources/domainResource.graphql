@@ -3,7 +3,6 @@
 # import Meta from "../complex_types/meta.graphql"
 # import Narrative from "../complex_types/narrative.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

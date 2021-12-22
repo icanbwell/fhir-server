@@ -9,7 +9,6 @@
 # import CommunicationRequestPayload from "../backbone_elements/communicationRequestPayload.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union CommunicationRequestSubject = Patient | Group
 union CommunicationRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device

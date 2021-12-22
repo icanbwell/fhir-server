@@ -10,7 +10,6 @@
 # import CodeSystemFilter from "../backbone_elements/codeSystemFilter.graphql"
 # import CodeSystemProperty from "../backbone_elements/codeSystemProperty.graphql"
 # import CodeSystemConcept from "../backbone_elements/codeSystemConcept.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

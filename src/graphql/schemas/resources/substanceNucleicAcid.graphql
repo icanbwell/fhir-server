@@ -5,7 +5,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import SubstanceNucleicAcidSubunit from "../backbone_elements/substanceNucleicAcidSubunit.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -9,7 +9,6 @@
 # import ProvenanceAgent from "../backbone_elements/provenanceAgent.graphql"
 # import ProvenanceEntity from "../backbone_elements/provenanceEntity.graphql"
 # import Signature from "../complex_types/signature.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

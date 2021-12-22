@@ -9,7 +9,6 @@
 # import CoverageEligibilityResponseInsurance from "../backbone_elements/coverageEligibilityResponseInsurance.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import CoverageEligibilityResponseError from "../backbone_elements/coverageEligibilityResponseError.graphql"
-# import TotalType from "../enums.graphql"
 
 union CoverageEligibilityResponseRequestor = Practitioner | PractitionerRole | Organization
 

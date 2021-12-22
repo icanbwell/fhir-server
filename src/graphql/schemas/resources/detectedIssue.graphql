@@ -9,7 +9,6 @@
 # import Period from "../complex_types/period.graphql"
 # import DetectedIssueEvidence from "../backbone_elements/detectedIssueEvidence.graphql"
 # import DetectedIssueMitigation from "../backbone_elements/detectedIssueMitigation.graphql"
-# import TotalType from "../enums.graphql"
 
 union DetectedIssueAuthor = Practitioner | PractitionerRole | Device
 

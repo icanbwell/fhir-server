@@ -14,7 +14,6 @@
 # import ContractLegal from "../backbone_elements/contractLegal.graphql"
 # import ContractRule from "../backbone_elements/contractRule.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
-# import TotalType from "../enums.graphql"
 
 union ContractAuthor = Patient | Practitioner | PractitionerRole | Organization
 union ContractLegallyBindingReference = Composition | DocumentReference | QuestionnaireResponse | Contract

@@ -12,7 +12,6 @@
 # import StructureDefinitionContext from "../backbone_elements/structureDefinitionContext.graphql"
 # import StructureDefinitionSnapshot from "../backbone_elements/structureDefinitionSnapshot.graphql"
 # import StructureDefinitionDifferential from "../backbone_elements/structureDefinitionDifferential.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

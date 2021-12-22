@@ -11,7 +11,6 @@
 # import MedicinalProductName from "../backbone_elements/medicinalProductName.graphql"
 # import MedicinalProductManufacturingBusinessOperation from "../backbone_elements/medicinalProductManufacturingBusinessOperation.graphql"
 # import MedicinalProductSpecialDesignation from "../backbone_elements/medicinalProductSpecialDesignation.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicinalProductContact = Organization | PractitionerRole
 

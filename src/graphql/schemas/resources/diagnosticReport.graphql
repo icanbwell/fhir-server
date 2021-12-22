@@ -13,7 +13,6 @@
 # import Period from "../complex_types/period.graphql"
 # import DiagnosticReportMedia from "../backbone_elements/diagnosticReportMedia.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
-# import TotalType from "../enums.graphql"
 
 union DiagnosticReportBasedOn = CarePlan | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest
 union DiagnosticReportSubject = Patient | Group | Device | Location

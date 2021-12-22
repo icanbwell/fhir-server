@@ -10,7 +10,6 @@
 # import ImplementationGuideGlobal from "../backbone_elements/implementationGuideGlobal.graphql"
 # import ImplementationGuideDefinition from "../backbone_elements/implementationGuideDefinition.graphql"
 # import ImplementationGuideManifest from "../backbone_elements/implementationGuideManifest.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

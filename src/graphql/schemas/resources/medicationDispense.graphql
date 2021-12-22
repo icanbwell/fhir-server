@@ -11,7 +11,6 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import MedicationDispenseSubstitution from "../backbone_elements/medicationDispenseSubstitution.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicationDispenseSubject = Patient | Group
 union MedicationDispenseContext = Encounter | EpisodeOfCare

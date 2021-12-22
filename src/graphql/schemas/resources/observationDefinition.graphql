@@ -8,7 +8,6 @@
 # import ObservationDefinitionQuantitativeDetails from "../backbone_elements/observationDefinitionQuantitativeDetails.graphql"
 # import ObservationDefinitionQualifiedInterval from "../backbone_elements/observationDefinitionQualifiedInterval.graphql"
 # import ValueSet from "../resources/valueSet.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

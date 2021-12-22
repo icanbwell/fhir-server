@@ -10,7 +10,6 @@
 # import Practitioner from "../resources/practitioner.graphql"
 # import RelatedPerson from "../resources/relatedPerson.graphql"
 # import AdverseEventSuspectEntity from "../backbone_elements/adverseEventSuspectEntity.graphql"
-# import TotalType from "../enums.graphql"
 
 union AdverseEventSubject = Patient | Group | Practitioner | RelatedPerson
 union AdverseEventRecorder = Patient | Practitioner | PractitionerRole | RelatedPerson

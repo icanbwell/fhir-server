@@ -8,7 +8,6 @@
 # import Organization from "../resources/organization.graphql"
 # import MedicinalProductIngredientSpecifiedSubstance from "../backbone_elements/medicinalProductIngredientSpecifiedSubstance.graphql"
 # import MedicinalProductIngredientSubstance from "../backbone_elements/medicinalProductIngredientSubstance.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

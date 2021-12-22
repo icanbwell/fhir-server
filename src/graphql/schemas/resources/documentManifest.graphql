@@ -10,7 +10,6 @@
 # import Group from "../resources/group.graphql"
 # import Device from "../resources/device.graphql"
 # import DocumentManifestRelated from "../backbone_elements/documentManifestRelated.graphql"
-# import TotalType from "../enums.graphql"
 
 union DocumentManifestSubject = Patient | Practitioner | Group | Device
 union DocumentManifestAuthor = Practitioner | PractitionerRole | Organization | Device | Patient | RelatedPerson

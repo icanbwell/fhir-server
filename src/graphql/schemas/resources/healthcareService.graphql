@@ -11,7 +11,6 @@
 # import HealthcareServiceEligibility from "../backbone_elements/healthcareServiceEligibility.graphql"
 # import HealthcareServiceAvailableTime from "../backbone_elements/healthcareServiceAvailableTime.graphql"
 # import HealthcareServiceNotAvailable from "../backbone_elements/healthcareServiceNotAvailable.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

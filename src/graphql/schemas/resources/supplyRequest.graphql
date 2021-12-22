@@ -12,7 +12,6 @@
 # import SupplyRequestParameter from "../backbone_elements/supplyRequestParameter.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
-# import TotalType from "../enums.graphql"
 
 union SupplyRequestItemReference = Medication | Substance | Device
 union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device

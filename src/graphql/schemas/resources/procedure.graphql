@@ -13,7 +13,6 @@
 # import ProcedurePerformer from "../backbone_elements/procedurePerformer.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 # import ProcedureFocalDevice from "../backbone_elements/procedureFocalDevice.graphql"
-# import TotalType from "../enums.graphql"
 
 union ProcedureBasedOn = CarePlan | ServiceRequest
 union ProcedurePartOf = Procedure | Observation | MedicationAdministration

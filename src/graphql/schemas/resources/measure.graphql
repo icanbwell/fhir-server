@@ -12,7 +12,6 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import MeasureGroup from "../backbone_elements/measureGroup.graphql"
 # import MeasureSupplementalData from "../backbone_elements/measureSupplementalData.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -18,7 +18,6 @@
 # import Binary from "../resources/binary.graphql"
 # import Period from "../complex_types/period.graphql"
 # import CatalogEntryRelatedEntry from "../backbone_elements/catalogEntryRelatedEntry.graphql"
-# import TotalType from "../enums.graphql"
 
 union CatalogEntryReferencedItem = Medication | Device | Organization | Practitioner | PractitionerRole | HealthcareService | ActivityDefinition | PlanDefinition | SpecimenDefinition | ObservationDefinition | Binary
 

@@ -13,7 +13,6 @@
 # import Device from "../resources/device.graphql"
 # import ChargeItemDefinitionApplicability from "../backbone_elements/chargeItemDefinitionApplicability.graphql"
 # import ChargeItemDefinitionPropertyGroup from "../backbone_elements/chargeItemDefinitionPropertyGroup.graphql"
-# import TotalType from "../enums.graphql"
 
 union ChargeItemDefinitionInstance = Medication | Substance | Device
 

@@ -9,7 +9,6 @@
 # import SupplyDeliverySuppliedItem from "../backbone_elements/supplyDeliverySuppliedItem.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
-# import TotalType from "../enums.graphql"
 
 union SupplyDeliveryPartOf = SupplyDelivery | Contract
 union SupplyDeliverySupplier = Practitioner | PractitionerRole | Organization

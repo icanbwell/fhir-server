@@ -12,7 +12,6 @@
 # import ImmunizationEducation from "../backbone_elements/immunizationEducation.graphql"
 # import ImmunizationReaction from "../backbone_elements/immunizationReaction.graphql"
 # import ImmunizationProtocolApplied from "../backbone_elements/immunizationProtocolApplied.graphql"
-# import TotalType from "../enums.graphql"
 
 union ImmunizationReasonReference = Condition | Observation | DiagnosticReport
 

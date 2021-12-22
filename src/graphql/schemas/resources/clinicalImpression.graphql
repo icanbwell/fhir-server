@@ -11,7 +11,6 @@
 # import ClinicalImpressionInvestigation from "../backbone_elements/clinicalImpressionInvestigation.graphql"
 # import ClinicalImpressionFinding from "../backbone_elements/clinicalImpressionFinding.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union ClinicalImpressionSubject = Patient | Group
 union ClinicalImpressionAssessor = Practitioner | PractitionerRole

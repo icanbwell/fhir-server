@@ -10,7 +10,6 @@
 # import PaymentReconciliationDetail from "../backbone_elements/paymentReconciliationDetail.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import PaymentReconciliationProcessNote from "../backbone_elements/paymentReconciliationProcessNote.graphql"
-# import TotalType from "../enums.graphql"
 
 union PaymentReconciliationRequestor = Practitioner | PractitionerRole | Organization
 

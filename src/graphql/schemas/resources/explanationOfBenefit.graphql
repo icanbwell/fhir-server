@@ -23,7 +23,6 @@
 # import Attachment from "../complex_types/attachment.graphql"
 # import ExplanationOfBenefitProcessNote from "../backbone_elements/explanationOfBenefitProcessNote.graphql"
 # import ExplanationOfBenefitBenefitBalance from "../backbone_elements/explanationOfBenefitBenefitBalance.graphql"
-# import TotalType from "../enums.graphql"
 
 union ExplanationOfBenefitEnterer = Practitioner | PractitionerRole
 union ExplanationOfBenefitProvider = Practitioner | PractitionerRole | Organization

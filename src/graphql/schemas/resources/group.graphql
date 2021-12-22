@@ -11,7 +11,6 @@
 # import PractitionerRole from "../resources/practitionerRole.graphql"
 # import GroupCharacteristic from "../backbone_elements/groupCharacteristic.graphql"
 # import GroupMember from "../backbone_elements/groupMember.graphql"
-# import TotalType from "../enums.graphql"
 
 union GroupManagingEntity = Organization | RelatedPerson | Practitioner | PractitionerRole
 

@@ -12,7 +12,6 @@
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import PlanDefinitionGoal from "../backbone_elements/planDefinitionGoal.graphql"
 # import PlanDefinitionAction from "../backbone_elements/planDefinitionAction.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

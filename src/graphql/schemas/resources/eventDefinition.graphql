@@ -11,7 +11,6 @@
 # import Period from "../complex_types/period.graphql"
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
 # import TriggerDefinition from "../complex_types/triggerDefinition.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

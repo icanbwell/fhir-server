@@ -11,7 +11,6 @@
 # import LocationPosition from "../backbone_elements/locationPosition.graphql"
 # import Organization from "../resources/organization.graphql"
 # import LocationHoursOfOperation from "../backbone_elements/locationHoursOfOperation.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

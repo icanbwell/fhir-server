@@ -7,7 +7,6 @@
 # import SubstanceReferenceInformationGeneElement from "../backbone_elements/substanceReferenceInformationGeneElement.graphql"
 # import SubstanceReferenceInformationClassification from "../backbone_elements/substanceReferenceInformationClassification.graphql"
 # import SubstanceReferenceInformationTarget from "../backbone_elements/substanceReferenceInformationTarget.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

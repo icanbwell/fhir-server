@@ -7,7 +7,6 @@
 # import PractitionerRole from "../resources/practitionerRole.graphql"
 # import Organization from "../resources/organization.graphql"
 # import LinkageItem from "../backbone_elements/linkageItem.graphql"
-# import TotalType from "../enums.graphql"
 
 union LinkageAuthor = Practitioner | PractitionerRole | Organization
 

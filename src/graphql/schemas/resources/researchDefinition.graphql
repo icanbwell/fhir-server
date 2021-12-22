@@ -10,7 +10,6 @@
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import Period from "../complex_types/period.graphql"
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

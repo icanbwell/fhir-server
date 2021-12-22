@@ -9,7 +9,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import MedicinalProductIndicationOtherTherapy from "../backbone_elements/medicinalProductIndicationOtherTherapy.graphql"
 # import Population from "../backbone_elements/population.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicinalProductIndicationSubject = MedicinalProduct | Medication
 

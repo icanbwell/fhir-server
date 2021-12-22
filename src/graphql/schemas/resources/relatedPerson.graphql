@@ -12,7 +12,6 @@
 # import Attachment from "../complex_types/attachment.graphql"
 # import Period from "../complex_types/period.graphql"
 # import RelatedPersonCommunication from "../backbone_elements/relatedPersonCommunication.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -12,7 +12,6 @@
 # import DocumentReferenceRelatesTo from "../backbone_elements/documentReferenceRelatesTo.graphql"
 # import DocumentReferenceContent from "../backbone_elements/documentReferenceContent.graphql"
 # import DocumentReferenceContext from "../backbone_elements/documentReferenceContext.graphql"
-# import TotalType from "../enums.graphql"
 
 union DocumentReferenceSubject = Patient | Practitioner | Group | Device
 union DocumentReferenceAuthor = Practitioner | PractitionerRole | Organization | Device | Patient | RelatedPerson

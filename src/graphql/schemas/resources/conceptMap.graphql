@@ -8,7 +8,6 @@
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ConceptMapGroup from "../backbone_elements/conceptMapGroup.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

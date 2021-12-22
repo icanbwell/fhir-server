@@ -9,7 +9,6 @@
 # import MarketingStatus from "../backbone_elements/marketingStatus.graphql"
 # import MedicinalProductPackagedBatchIdentifier from "../backbone_elements/medicinalProductPackagedBatchIdentifier.graphql"
 # import MedicinalProductPackagedPackageItem from "../backbone_elements/medicinalProductPackagedPackageItem.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

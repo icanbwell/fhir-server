@@ -5,7 +5,7 @@
 {% macro upper_case_first_letter(text) %}
     {{- text[0]|upper}}{{text[1:] -}}
 {% endmacro %}
-# import TotalType from "../enums.graphql"
+# import {{ fhir_entity.fhir_name }} from "../resources/{{ lower_case_first_letter(fhir_entity.fhir_name) }}.graphql"
 
 extend type Query {
     """

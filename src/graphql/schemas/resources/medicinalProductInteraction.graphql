@@ -8,7 +8,6 @@
 # import Substance from "../resources/substance.graphql"
 # import MedicinalProductInteractionInteractant from "../backbone_elements/medicinalProductInteractionInteractant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Substance
 

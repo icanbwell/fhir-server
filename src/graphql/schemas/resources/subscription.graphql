@@ -5,7 +5,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import SubscriptionChannel from "../backbone_elements/subscriptionChannel.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

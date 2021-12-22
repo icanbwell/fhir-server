@@ -15,7 +15,6 @@
 # import EffectEvidenceSynthesisResultsByExposure from "../backbone_elements/effectEvidenceSynthesisResultsByExposure.graphql"
 # import EffectEvidenceSynthesisEffectEstimate from "../backbone_elements/effectEvidenceSynthesisEffectEstimate.graphql"
 # import EffectEvidenceSynthesisCertainty from "../backbone_elements/effectEvidenceSynthesisCertainty.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

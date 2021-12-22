@@ -7,7 +7,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import SubstanceInstance from "../backbone_elements/substanceInstance.graphql"
 # import SubstanceIngredient from "../backbone_elements/substanceIngredient.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

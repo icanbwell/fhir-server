@@ -10,7 +10,6 @@
 # import Period from "../complex_types/period.graphql"
 # import Coding from "../complex_types/coding.graphql"
 # import QuestionnaireItem from "../backbone_elements/questionnaireItem.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

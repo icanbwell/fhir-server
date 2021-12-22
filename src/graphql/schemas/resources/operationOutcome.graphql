@@ -4,7 +4,6 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import OperationOutcomeIssue from "../backbone_elements/operationOutcomeIssue.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

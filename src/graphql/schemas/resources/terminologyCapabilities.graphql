@@ -13,7 +13,6 @@
 # import TerminologyCapabilitiesValidateCode from "../backbone_elements/terminologyCapabilitiesValidateCode.graphql"
 # import TerminologyCapabilitiesTranslation from "../backbone_elements/terminologyCapabilitiesTranslation.graphql"
 # import TerminologyCapabilitiesClosure from "../backbone_elements/terminologyCapabilitiesClosure.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -11,7 +11,6 @@
 # import Location from "../resources/location.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 # import ListEntry from "../backbone_elements/listEntry.graphql"
-# import TotalType from "../enums.graphql"
 
 union ListSubject = Patient | Group | Device | Location
 union ListSource = Practitioner | PractitionerRole | Patient | Device

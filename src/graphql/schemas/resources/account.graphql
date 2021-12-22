@@ -15,7 +15,6 @@
 # import Period from "../complex_types/period.graphql"
 # import AccountCoverage from "../backbone_elements/accountCoverage.graphql"
 # import AccountGuarantor from "../backbone_elements/accountGuarantor.graphql"
-# import TotalType from "../enums.graphql"
 
 union AccountSubject = Patient | Device | Practitioner | PractitionerRole | Location | HealthcareService | Organization
 

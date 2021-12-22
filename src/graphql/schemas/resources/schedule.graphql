@@ -13,7 +13,6 @@
 # import HealthcareService from "../resources/healthcareService.graphql"
 # import Location from "../resources/location.graphql"
 # import Period from "../complex_types/period.graphql"
-# import TotalType from "../enums.graphql"
 
 union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 

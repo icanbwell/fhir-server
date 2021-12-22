@@ -10,7 +10,6 @@
 # import Attachment from "../complex_types/attachment.graphql"
 # import Organization from "../resources/organization.graphql"
 # import PersonLink from "../backbone_elements/personLink.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

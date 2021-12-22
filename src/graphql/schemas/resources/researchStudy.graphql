@@ -12,7 +12,6 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import ResearchStudyArm from "../backbone_elements/researchStudyArm.graphql"
 # import ResearchStudyObjective from "../backbone_elements/researchStudyObjective.graphql"
-# import TotalType from "../enums.graphql"
 
 union ResearchStudyPrincipalInvestigator = Practitioner | PractitionerRole
 

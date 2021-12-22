@@ -9,7 +9,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import StructureMapStructure from "../backbone_elements/structureMapStructure.graphql"
 # import StructureMapGroup from "../backbone_elements/structureMapGroup.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

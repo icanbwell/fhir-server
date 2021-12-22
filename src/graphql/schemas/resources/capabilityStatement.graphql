@@ -11,7 +11,6 @@
 # import CapabilityStatementRest from "../backbone_elements/capabilityStatementRest.graphql"
 # import CapabilityStatementMessaging from "../backbone_elements/capabilityStatementMessaging.graphql"
 # import CapabilityStatementDocument from "../backbone_elements/capabilityStatementDocument.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

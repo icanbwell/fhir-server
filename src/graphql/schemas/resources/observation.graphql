@@ -20,7 +20,6 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import ObservationReferenceRange from "../backbone_elements/observationReferenceRange.graphql"
 # import ObservationComponent from "../backbone_elements/observationComponent.graphql"
-# import TotalType from "../enums.graphql"
 
 union ObservationBasedOn = CarePlan | DeviceRequest | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest
 union ObservationPartOf = MedicationAdministration | MedicationDispense | MedicationStatement | Procedure | Immunization | ImagingStudy

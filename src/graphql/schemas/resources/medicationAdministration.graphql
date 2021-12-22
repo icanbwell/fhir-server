@@ -11,7 +11,6 @@
 # import MedicationAdministrationPerformer from "../backbone_elements/medicationAdministrationPerformer.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 # import MedicationAdministrationDosage from "../backbone_elements/medicationAdministrationDosage.graphql"
-# import TotalType from "../enums.graphql"
 
 union MedicationAdministrationPartOf = MedicationAdministration | Procedure
 union MedicationAdministrationSubject = Patient | Group

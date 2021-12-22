@@ -14,7 +14,6 @@
 # import SpecimenProcessing from "../backbone_elements/specimenProcessing.graphql"
 # import SpecimenContainer from "../backbone_elements/specimenContainer.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
-# import TotalType from "../enums.graphql"
 
 union SpecimenSubject = Patient | Group | Device | Substance | Location
 

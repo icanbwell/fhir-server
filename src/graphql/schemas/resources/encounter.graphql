@@ -16,7 +16,6 @@
 # import EncounterDiagnosis from "../backbone_elements/encounterDiagnosis.graphql"
 # import EncounterHospitalization from "../backbone_elements/encounterHospitalization.graphql"
 # import EncounterLocation from "../backbone_elements/encounterLocation.graphql"
-# import TotalType from "../enums.graphql"
 
 union EncounterSubject = Patient | Group
 union EncounterReasonReference = Condition | Procedure | Observation | ImmunizationRecommendation

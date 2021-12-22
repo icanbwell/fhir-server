@@ -9,7 +9,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ValueSetCompose from "../backbone_elements/valueSetCompose.graphql"
 # import ValueSetExpansion from "../backbone_elements/valueSetExpansion.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

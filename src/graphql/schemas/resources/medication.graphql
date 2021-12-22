@@ -9,7 +9,6 @@
 # import Ratio from "../complex_types/ratio.graphql"
 # import MedicationIngredient from "../backbone_elements/medicationIngredient.graphql"
 # import MedicationBatch from "../backbone_elements/medicationBatch.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

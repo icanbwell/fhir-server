@@ -7,7 +7,6 @@
 # import UsageContext from "../complex_types/usageContext.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import GraphDefinitionLink from "../backbone_elements/graphDefinitionLink.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

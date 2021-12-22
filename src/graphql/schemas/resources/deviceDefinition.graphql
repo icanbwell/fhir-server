@@ -17,7 +17,6 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import DeviceDefinitionMaterial from "../backbone_elements/deviceDefinitionMaterial.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -9,7 +9,6 @@
 # import AuditEventAgent from "../backbone_elements/auditEventAgent.graphql"
 # import AuditEventSource from "../backbone_elements/auditEventSource.graphql"
 # import AuditEventEntity from "../backbone_elements/auditEventEntity.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

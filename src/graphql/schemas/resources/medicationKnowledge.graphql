@@ -17,7 +17,6 @@
 # import MedicationKnowledgeDrugCharacteristic from "../backbone_elements/medicationKnowledgeDrugCharacteristic.graphql"
 # import MedicationKnowledgeRegulatory from "../backbone_elements/medicationKnowledgeRegulatory.graphql"
 # import MedicationKnowledgeKinetics from "../backbone_elements/medicationKnowledgeKinetics.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

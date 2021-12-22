@@ -14,7 +14,6 @@
 # import RiskEvidenceSynthesisSampleSize from "../backbone_elements/riskEvidenceSynthesisSampleSize.graphql"
 # import RiskEvidenceSynthesisRiskEstimate from "../backbone_elements/riskEvidenceSynthesisRiskEstimate.graphql"
 # import RiskEvidenceSynthesisCertainty from "../backbone_elements/riskEvidenceSynthesisCertainty.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

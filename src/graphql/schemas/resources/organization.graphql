@@ -9,7 +9,6 @@
 # import Address from "../complex_types/address.graphql"
 # import Organization from "../resources/organization.graphql"
 # import OrganizationContact from "../backbone_elements/organizationContact.graphql"
-# import TotalType from "../enums.graphql"
 
 
 

@@ -18,7 +18,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import ActivityDefinitionDynamicValue from "../backbone_elements/activityDefinitionDynamicValue.graphql"
-# import TotalType from "../enums.graphql"
 
 union ActivityDefinitionProductReference = Medication | Substance
 
