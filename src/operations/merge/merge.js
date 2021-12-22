@@ -654,15 +654,15 @@ module.exports.merge = async (args, user, scope, body, path, resource_name, coll
      * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
      */
     async function merge_resource_with_retry(resource_to_merge) {
-        return await pRetry(
+        return pRetry(
             async () =>
                 await merge_resource(resource_to_merge),
             {
                 retries: 5,
                 onFailedAttempt: async error => {
-                    await logMessageToSlack(
-                        'Merge Failure Retry Number: ' + error.attemptNumber + ' : ' + error.toString()
-                    );
+                    let msg = `Merge ${resource_name}/${resource_to_merge.id} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                    logError(user, msg);
+                    await logMessageToSlack(msg);
                 }
             }
         );

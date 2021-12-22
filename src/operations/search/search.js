@@ -9,7 +9,7 @@ const {buildR4SearchQuery} = require('./query/r4');
 const {buildDstu2SearchQuery} = require('./query/dstu2');
 const {buildStu3SearchQuery} = require('./query/stu3');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
+const {logRequest, logDebug, logError} = require('../common/logging');
 const {enrich} = require('../../enrich/enrich');
 const {findIndexForFields} = require('../../indexes/indexHinter');
 const {isTrue} = require('../../utils/isTrue');
@@ -224,15 +224,15 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
          * mongo db cursor
          * @type {import('mongodb').Cursor}
          */
-        let cursor = await pRetry(
+      let cursor = await pRetry(
             async () =>
                 await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
             {
                 retries: 5,
                 onFailedAttempt: async error => {
-                    await logMessageToSlack(
-                        'Search Failure Retry Number: ' + error.attemptNumber + ' : ' + error.toString()
-                    );
+                    let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                    logError(user, msg);
+                    await logMessageToSlack(msg);
                 }
             }
         );

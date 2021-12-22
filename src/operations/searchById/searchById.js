@@ -43,6 +43,9 @@ module.exports.searchById = async (args, user, scope, resource_name, collection_
     let collection = db.collection(`${collection_name}_${base_version}`);
     let Resource = getResource(base_version, resource_name);
 
+    /**
+     * @type {Resource}
+     */
     let resource;
     try {
         resource = await pRetry(
@@ -50,14 +53,14 @@ module.exports.searchById = async (args, user, scope, resource_name, collection_
             {
                 retries: 5,
                 onFailedAttempt: async error => {
-                    await logMessageToSlack(
-                        'Search By Id Retry Number: ' + error.attemptNumber + ' : ' + error.toString()
-                    );
+                    let msg = `Search By Id ${resource_name}/${id} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                    logError(user, msg);
+                    await logMessageToSlack(msg);
                 }
             }
         );
     } catch (e) {
-        logError(`Error with ${resource_name}.searchById: `, e);
+        logError(user, `Error with ${resource_name}.searchById: {e}`);
         throw new BadRequestError(e);
     }
 
