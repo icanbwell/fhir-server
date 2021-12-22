@@ -24,28 +24,41 @@ module.exports.handleIndex = async (req, res) => {
     } else {
         await client.close();
 
-        const runIndex = req.params['run'];
-        // console.log('runIndex: ' + runIndex);
+        const operation = req.params['op'];
+        console.log('runIndex: ' + JSON.stringify(req.params));
+        console.log('runIndex: ' + operation);
 
+        let message = '';
         let collection_stats = {};
-        if (runIndex) {
+        if (operation === 'run') {
             //create new instance of node for running separate task in another thread
             const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
             //send some params to our separate task
             const params = {
                 message: 'Start Index'
             };
-
             taskProcessor.send(params);
+            message = 'Started indexing in separate process.  Check logs or Slack for output.';
+        } else if (operation === 'delete') {
+            //create new instance of node for running separate task in another thread
+            const taskProcessor = childProcess.fork('./src/tasks/indexer.js');
+            //send some params to our separate task
+            const params = {
+                message: 'Delete Index'
+            };
+            taskProcessor.send(params);
+            message = 'Started deleting indexes in separate process.  Check logs or Slack for output.';
         } else {
             collection_stats = await getIndexesInAllCollections();
+            message = 'Listing current indexes.  Use /index/run if you want to run index creation';
         }
 
+        console.log(message);
 
         res.status(200).json({
             success: true,
             collections: collection_stats,
-            message: runIndex ? 'Started index creation in separate process.  Check logs or Slack for output.' : 'Listing current indexes.  Use /index/run if you want to run index creation'
+            message: message
         });
     }
 };
