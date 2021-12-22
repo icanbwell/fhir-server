@@ -1,12 +1,12 @@
-# This file implements classes that parse FHIR XML schema
 import dataclasses
-import logging
 import re
 from pathlib import Path
-from typing import OrderedDict, List, Union, Dict, Optional, Set, Any
+from typing import OrderedDict, Any, List, Union, Dict, Optional, Set
+import logging
 
 # noinspection PyPackageRequirements
 from lxml import objectify
+
 # noinspection PyPackageRequirements
 from lxml.objectify import ObjectifiedElement
 
@@ -203,8 +203,6 @@ class FhirXmlSchemaParser:
                     logger.warning(
                         f"WARNING: 2nd pass: {fhir_property.type_} not found in property_type_mapping"
                     )
-                    # assume this is a code
-                    fhir_property.is_code = True
                 else:
                     property_fhir_entity: FhirEntity = property_type_mapping[
                         fhir_property.type_
@@ -713,7 +711,7 @@ class FhirXmlSchemaParser:
         fhir_properties: List[FhirProperty] = []
         property_: ObjectifiedElement
         for property_ in properties:
-            if hasattr(property_, "ref"):
+            if "ref" in property_.attrib:
                 ref_: str = str(property_.get("ref"))
                 property_name: str = ref_.split(":")[-1]
                 property_type: str = ref_.split(":")[0]
