@@ -6,6 +6,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Resource from "../resources/resource.graphql"
+# import TotalType from "../enums.graphql"
 
 union BasicAuthor = Practitioner | PractitionerRole | Patient | RelatedPerson | Organization
 
@@ -103,97 +104,4 @@ type Basic {
     Indicates who was responsible for creating the resource instance.
     """
     author: BasicAuthor        
-}
-
-extend type Query {
-    """
-    Basic
-        Basic is used for handling concepts not yet defined in FHIR, narrative-only
-    resources that don't map to an existing resource, and custom resources not
-    appropriate for inclusion in the FHIR specification.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    basic(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Basic
-        """
-        Who created
-        """
-        author: [String]
-        """
-        Kind of Resource
-        """
-        code: [String]
-        """
-        When created
-        """
-        created: [String]
-        """
-        Business identifier
-        """
-        identifier: [String]
-        """
-        Identifies the focus of this resource
-        """
-        patient: [String]
-        """
-        Identifies the focus of this resource
-        """
-        subject: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Basic]
 }

@@ -5,6 +5,7 @@
 # import BundleLink from "../backbone_elements/bundleLink.graphql"
 # import BundleEntry from "../backbone_elements/bundleEntry.graphql"
 # import Signature from "../complex_types/signature.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -71,91 +72,4 @@ type Bundle {
     Digital Signature - base64 encoded. XML-DSig or a JWT.
     """
     signature: Signature        
-}
-
-extend type Query {
-    """
-    Bundle
-        A container for a collection of resources.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    bundle(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Bundle
-        """
-        The first resource in the bundle, if the bundle type is "document" - this is a composition, and this parameter provides access to search its contents
-        """
-        composition: [String]
-        """
-        Persistent identifier for the bundle
-        """
-        identifier: [String]
-        """
-        The first resource in the bundle, if the bundle type is "message" - this is a message header, and this parameter provides access to search its contents
-        """
-        message: [String]
-        """
-        When the bundle was assembled
-        """
-        timestamp: [String]
-        """
-        document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection
-        """
-        type: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Bundle]
 }

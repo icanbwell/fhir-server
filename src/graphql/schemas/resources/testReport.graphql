@@ -9,6 +9,7 @@
 # import TestReportSetup from "../backbone_elements/testReportSetup.graphql"
 # import TestReportTest from "../backbone_elements/testReportTest.graphql"
 # import TestReportTeardown from "../backbone_elements/testReportTeardown.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -134,95 +135,4 @@ type TestReport {
     tests were executed (successfully or otherwise).
     """
     teardown: TestReportTeardown        
-}
-
-extend type Query {
-    """
-    TestReport
-        A summary of information based on the results of executing a TestScript.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    testReport(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for TestReport
-        """
-        An external identifier for the test report
-        """
-        identifier: [String]
-        """
-        The test report generation date
-        """
-        issued: [String]
-        """
-        The reference to a participant in the test execution
-        """
-        participant: [String]
-        """
-        The result disposition of the test execution
-        """
-        result: [String]
-        """
-        The name of the testing organization
-        """
-        tester: [String]
-        """
-        The test script executed to produce this report
-        """
-        testscript: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [TestReport]
 }

@@ -11,6 +11,7 @@
 # import MolecularSequenceQuality from "../backbone_elements/molecularSequenceQuality.graphql"
 # import MolecularSequenceRepository from "../backbone_elements/molecularSequenceRepository.graphql"
 # import MolecularSequenceStructureVariant from "../backbone_elements/molecularSequenceStructureVariant.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -160,103 +161,4 @@ type MolecularSequence {
     Information about chromosome structure variation.
     """
     structureVariant: [MolecularSequenceStructureVariant]        
-}
-
-extend type Query {
-    """
-    MolecularSequence
-        Raw data describing a biological sequence.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    molecularSequence(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for MolecularSequence
-        """
-        Chromosome number of the reference sequence
-        """
-        chromosome: [String]
-        """
-        The unique identity for a particular sequence
-        """
-        identifier: [String]
-        """
-        The subject that the observation is about
-        """
-        patient: [String]
-        """
-        Reference Sequence of the sequence
-        """
-        referenceseqid: [String]
-        """
-        Amino Acid Sequence/ DNA Sequence / RNA Sequence
-        """
-        type: [String]
-        """
-        End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the variant.
-        """
-        """
-        Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the variant.
-        """
-        """
-        End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the reference sequence.
-        """
-        """
-        Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the reference sequence.
-        """
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [MolecularSequence]
 }

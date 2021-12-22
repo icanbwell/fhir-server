@@ -10,6 +10,7 @@
 # import Period from "../complex_types/period.graphql"
 # import MedicinalProductAuthorizationJurisdictionalAuthorization from "../backbone_elements/medicinalProductAuthorizationJurisdictionalAuthorization.graphql"
 # import MedicinalProductAuthorizationProcedure from "../backbone_elements/medicinalProductAuthorizationProcedure.graphql"
+# import TotalType from "../enums.graphql"
 
 union MedicinalProductAuthorizationSubject = MedicinalProduct | MedicinalProductPackaged
 
@@ -153,91 +154,4 @@ type MedicinalProductAuthorization {
     The regulatory procedure for granting or amending a marketing authorization.
     """
     procedure: MedicinalProductAuthorizationProcedure        
-}
-
-extend type Query {
-    """
-    MedicinalProductAuthorization
-        The regulatory authorization of a medicinal product.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    medicinalProductAuthorization(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for MedicinalProductAuthorization
-        """
-        The country in which the marketing authorization has been granted
-        """
-        country: [String]
-        """
-        Marketing Authorization Holder
-        """
-        holder: [String]
-        """
-        Business identifier for the marketing authorization, as assigned by a regulator
-        """
-        identifier: [String]
-        """
-        The status of the marketing authorization
-        """
-        status: [String]
-        """
-        The medicinal product that is being authorized
-        """
-        subject: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [MedicinalProductAuthorization]
 }

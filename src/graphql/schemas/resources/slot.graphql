@@ -6,6 +6,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Schedule from "../resources/schedule.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -130,103 +131,4 @@ type Slot {
     constraints on the slot.
     """
     comment: code        
-}
-
-extend type Query {
-    """
-    Slot
-        A slot of time on a schedule that may be available for booking appointments.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    slot(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Slot
-        """
-        The style of appointment or patient that may be booked in the slot (not service type)
-        """
-        appointment-type: [String]
-        """
-        A Slot Identifier
-        """
-        identifier: [String]
-        """
-        The Schedule Resource that we are seeking a slot within
-        """
-        schedule: [String]
-        """
-        A broad categorization of the service that is to be performed during this appointment
-        """
-        service-category: [String]
-        """
-        The type of appointments that can be booked into the slot
-        """
-        service-type: [String]
-        """
-        The specialty of a practitioner that would be required to perform the service requested in this appointment
-        """
-        specialty: [String]
-        """
-        Appointment date/time.
-        """
-        start: [String]
-        """
-        The free/busy status of the appointment
-        """
-        status: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Slot]
 }

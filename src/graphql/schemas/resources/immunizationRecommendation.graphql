@@ -6,6 +6,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Patient from "../resources/patient.graphql"
 # import ImmunizationRecommendationRecommendation from "../backbone_elements/immunizationRecommendationRecommendation.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -98,104 +99,4 @@ type ImmunizationRecommendation {
     Vaccine administration recommendations.
     """
     recommendation: [ImmunizationRecommendationRecommendation]!        
-}
-
-extend type Query {
-    """
-    ImmunizationRecommendation
-        A patient's point-in-time set of recommendations (i.e. forecasting) according
-    to a published schedule with optional supporting justification.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    immunizationRecommendation(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for ImmunizationRecommendation
-        """
-        Date recommendation(s) created
-        """
-        date: [String]
-        """
-        Business identifier
-        """
-        identifier: [String]
-        """
-        Patient observations supporting recommendation
-        """
-        information: [String]
-        """
-        Who this profile is for
-        """
-        patient: [String]
-        """
-        Vaccine recommendation status
-        """
-        status: [String]
-        """
-        Past immunizations supporting recommendation
-        """
-        support: [String]
-        """
-        Disease to be immunized against
-        """
-        target-disease: [String]
-        """
-        Vaccine  or vaccine group recommendation applies to
-        """
-        vaccine-type: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [ImmunizationRecommendation]
 }

@@ -8,6 +8,7 @@
 # import Substance from "../resources/substance.graphql"
 # import MedicinalProductInteractionInteractant from "../backbone_elements/medicinalProductInteractionInteractant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
+# import TotalType from "../enums.graphql"
 
 union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Substance
 
@@ -111,76 +112,4 @@ type MedicinalProductInteraction {
     Actions for managing the interaction.
     """
     management: CodeableConcept        
-}
-
-extend type Query {
-    """
-    MedicinalProductInteraction
-        The interactions of the medicinal product with other medicinal products, or
-    other forms of interactions.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    medicinalProductInteraction(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for MedicinalProductInteraction
-        """
-        The medication for which this is an interaction
-        """
-        subject: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [MedicinalProductInteraction]
 }

@@ -11,6 +11,7 @@
 # import HealthcareServiceEligibility from "../backbone_elements/healthcareServiceEligibility.graphql"
 # import HealthcareServiceAvailableTime from "../backbone_elements/healthcareServiceAvailableTime.graphql"
 # import HealthcareServiceNotAvailable from "../backbone_elements/healthcareServiceNotAvailable.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -198,119 +199,4 @@ type HealthcareService {
     healthcare services defined at this resource.
     """
     endpoint: [Endpoint]        
-}
-
-extend type Query {
-    """
-    HealthcareService
-        The details of a healthcare service available at a location.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    healthcareService(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for HealthcareService
-        """
-        The Healthcare Service is currently marked as active
-        """
-        active: [String]
-        """
-        One of the HealthcareServices characteristics
-        """
-        characteristic: [String]
-        """
-        Location(s) service is intended for/available to
-        """
-        coverage-area: [String]
-        """
-        Technical endpoints providing access to electronic services operated for the healthcare service
-        """
-        endpoint: [String]
-        """
-        External identifiers for this item
-        """
-        identifier: [String]
-        """
-        The location of the Healthcare Service
-        """
-        location: [String]
-        """
-        A portion of the Healthcare service name
-        """
-        name: [String]
-        """
-        The organization that provides this Healthcare Service
-        """
-        organization: [String]
-        """
-        One of the Programs supported by this HealthcareService
-        """
-        program: [String]
-        """
-        Service Category of the Healthcare Service
-        """
-        service-category: [String]
-        """
-        The type of service provided by this healthcare service
-        """
-        service-type: [String]
-        """
-        The specialty of the service provided by this healthcare service
-        """
-        specialty: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [HealthcareService]
 }

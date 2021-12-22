@@ -8,6 +8,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import MedicinalProductContraindicationOtherTherapy from "../backbone_elements/medicinalProductContraindicationOtherTherapy.graphql"
 # import Population from "../backbone_elements/population.graphql"
+# import TotalType from "../enums.graphql"
 
 union MedicinalProductContraindicationSubject = MedicinalProduct | Medication
 
@@ -111,76 +112,4 @@ type MedicinalProductContraindication {
     The population group to which this applies.
     """
     population: [Population]        
-}
-
-extend type Query {
-    """
-    MedicinalProductContraindication
-        The clinical particulars - indications, contraindications etc. of a medicinal
-    product, including for regulatory purposes.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    medicinalProductContraindication(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for MedicinalProductContraindication
-        """
-        The medication for which this is an contraindication
-        """
-        subject: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [MedicinalProductContraindication]
 }

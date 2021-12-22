@@ -7,6 +7,7 @@
 # import CarePlan from "../resources/carePlan.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
 # import QuestionnaireResponseItem from "../backbone_elements/questionnaireResponseItem.graphql"
+# import TotalType from "../enums.graphql"
 
 union QuestionnaireResponseBasedOn = CarePlan | ServiceRequest
 union QuestionnaireResponsePartOf = Observation | Procedure
@@ -140,117 +141,4 @@ type QuestionnaireResponse {
     provided.
     """
     item: [QuestionnaireResponseItem]        
-}
-
-extend type Query {
-    """
-    QuestionnaireResponse
-        A structured set of questions and their answers. The questions are ordered and
-    grouped into coherent subsets, corresponding to the structure of the grouping
-    of the questionnaire being responded to.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    questionnaireResponse(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for QuestionnaireResponse
-        """
-        The author of the questionnaire response
-        """
-        author: [String]
-        """
-        When the questionnaire response was last changed
-        """
-        authored: [String]
-        """
-        Plan/proposal/order fulfilled by this questionnaire response
-        """
-        based-on: [String]
-        """
-        Encounter associated with the questionnaire response
-        """
-        encounter: [String]
-        """
-        The unique identifier for the questionnaire response
-        """
-        identifier: [String]
-        """
-        Procedure or observation this questionnaire response was performed as a part of
-        """
-        part-of: [String]
-        """
-        The patient that is the subject of the questionnaire response
-        """
-        patient: [String]
-        """
-        The questionnaire the answers are provided for
-        """
-        questionnaire: [String]
-        """
-        The individual providing the information reflected in the questionnaire respose
-        """
-        source: [String]
-        """
-        The status of the questionnaire response
-        """
-        status: [String]
-        """
-        The subject of the questionnaire response
-        """
-        subject: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [QuestionnaireResponse]
 }

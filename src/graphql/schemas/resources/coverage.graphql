@@ -11,6 +11,7 @@
 # import Period from "../complex_types/period.graphql"
 # import CoverageClass from "../backbone_elements/coverageClass.graphql"
 # import CoverageCostToBeneficiary from "../backbone_elements/coverageCostToBeneficiary.graphql"
+# import TotalType from "../enums.graphql"
 
 union CoveragePolicyHolder = Patient | RelatedPerson | Organization
 union CoverageSubscriber = Patient | RelatedPerson
@@ -168,116 +169,4 @@ type Coverage {
     The policy(s) which constitute this insurance coverage.
     """
     contract: [Contract]        
-}
-
-extend type Query {
-    """
-    Coverage
-        Financial instrument which may be used to reimburse or pay for health care
-    products and services. Includes both insurance and self-payment.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    coverage(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Coverage
-        """
-        Covered party
-        """
-        beneficiary: [String]
-        """
-        Coverage class (eg. plan, group)
-        """
-        class-type: [String]
-        """
-        Value of the class (eg. Plan number, group number)
-        """
-        class-value: [String]
-        """
-        Dependent number
-        """
-        dependent: [String]
-        """
-        The primary identifier of the insured and the coverage
-        """
-        identifier: [String]
-        """
-        Retrieve coverages for a patient
-        """
-        patient: [String]
-        """
-        The identity of the insurer or party paying for services
-        """
-        payor: [String]
-        """
-        Reference to the policyholder
-        """
-        policy-holder: [String]
-        """
-        The status of the Coverage
-        """
-        status: [String]
-        """
-        Reference to the subscriber
-        """
-        subscriber: [String]
-        """
-        The kind of coverage (health plan, auto, Workers Compensation)
-        """
-        type: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Coverage]
 }

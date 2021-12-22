@@ -10,6 +10,7 @@
 # import PaymentReconciliationDetail from "../backbone_elements/paymentReconciliationDetail.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import PaymentReconciliationProcessNote from "../backbone_elements/paymentReconciliationProcessNote.graphql"
+# import TotalType from "../enums.graphql"
 
 union PaymentReconciliationRequestor = Practitioner | PractitionerRole | Organization
 
@@ -145,104 +146,4 @@ type PaymentReconciliation {
     A note that describes or explains the processing in a human readable form.
     """
     processNote: [PaymentReconciliationProcessNote]        
-}
-
-extend type Query {
-    """
-    PaymentReconciliation
-        This resource provides the details including amount of a payment and allocates
-    the payment items being paid.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    paymentReconciliation(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for PaymentReconciliation
-        """
-        The creation date
-        """
-        created: [String]
-        """
-        The contents of the disposition message
-        """
-        disposition: [String]
-        """
-        The business identifier of the ExplanationOfBenefit
-        """
-        identifier: [String]
-        """
-        The processing outcome
-        """
-        outcome: [String]
-        """
-        The organization which generated this resource
-        """
-        payment-issuer: [String]
-        """
-        The reference to the claim
-        """
-        request: [String]
-        """
-        The reference to the provider who submitted the claim
-        """
-        requestor: [String]
-        """
-        The status of the payment reconciliation
-        """
-        status: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [PaymentReconciliation]
 }

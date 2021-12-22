@@ -5,6 +5,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import EnrollmentRequest from "../resources/enrollmentRequest.graphql"
+# import TotalType from "../enums.graphql"
 
 union EnrollmentResponseRequestProvider = Practitioner | PractitionerRole | Organization
 
@@ -110,84 +111,4 @@ type EnrollmentResponse {
     The practitioner who is responsible for the services rendered to the patient.
     """
     requestProvider: EnrollmentResponseRequestProvider        
-}
-
-extend type Query {
-    """
-    EnrollmentResponse
-        This resource provides enrollment and plan details from the processing of an
-    EnrollmentRequest resource.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    enrollmentResponse(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for EnrollmentResponse
-        """
-        The business identifier of the EnrollmentResponse
-        """
-        identifier: [String]
-        """
-        The reference to the claim
-        """
-        request: [String]
-        """
-        The status of the enrollment response
-        """
-        status: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [EnrollmentResponse]
 }

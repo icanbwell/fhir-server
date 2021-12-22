@@ -9,6 +9,7 @@
 # import VerificationResultPrimarySource from "../backbone_elements/verificationResultPrimarySource.graphql"
 # import VerificationResultAttestation from "../backbone_elements/verificationResultAttestation.graphql"
 # import VerificationResultValidator from "../backbone_elements/verificationResultValidator.graphql"
+# import TotalType from "../enums.graphql"
 
 
 
@@ -141,76 +142,4 @@ type VerificationResult {
     Information about the entity validating information.
     """
     validator: [VerificationResultValidator]        
-}
-
-extend type Query {
-    """
-    VerificationResult
-        Describes validation requirements, source(s), status and dates for one or more
-    elements.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    verificationResult(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for VerificationResult
-        """
-        A resource that was validated
-        """
-        target: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [VerificationResult]
 }

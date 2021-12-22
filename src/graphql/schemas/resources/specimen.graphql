@@ -14,6 +14,7 @@
 # import SpecimenProcessing from "../backbone_elements/specimenProcessing.graphql"
 # import SpecimenContainer from "../backbone_elements/specimenContainer.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
+# import TotalType from "../enums.graphql"
 
 union SpecimenSubject = Patient | Group | Device | Substance | Location
 
@@ -145,119 +146,4 @@ type Specimen {
     collection. (for example: broken vial, sent with patient, frozen).
     """
     note: [Annotation]        
-}
-
-extend type Query {
-    """
-    Specimen
-        A sample to be used for analysis.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    specimen(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Specimen
-        """
-        The accession number associated with the specimen
-        """
-        accession: [String]
-        """
-        The code for the body site from where the specimen originated
-        """
-        bodysite: [String]
-        """
-        The date the specimen was collected
-        """
-        collected: [String]
-        """
-        Who collected the specimen
-        """
-        collector: [String]
-        """
-        The kind of specimen container
-        """
-        container: [String]
-        """
-        The unique identifier associated with the specimen container
-        """
-        container-id: [String]
-        """
-        The unique identifier associated with the specimen
-        """
-        identifier: [String]
-        """
-        The parent of the specimen
-        """
-        parent: [String]
-        """
-        The patient the specimen comes from
-        """
-        patient: [String]
-        """
-        available | unavailable | unsatisfactory | entered-in-error
-        """
-        status: [String]
-        """
-        The subject of the specimen
-        """
-        subject: [String]
-        """
-        The specimen type
-        """
-        type: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Specimen]
 }

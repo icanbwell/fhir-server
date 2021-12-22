@@ -13,6 +13,7 @@
 # import HealthcareService from "../resources/healthcareService.graphql"
 # import Location from "../resources/location.graphql"
 # import Period from "../complex_types/period.graphql"
+# import TotalType from "../enums.graphql"
 
 union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 
@@ -126,99 +127,4 @@ type Schedule {
     custom constraints on the slots that may be associated.
     """
     comment: code        
-}
-
-extend type Query {
-    """
-    Schedule
-        A container for slots of time that may be available for booking appointments.
-        If the element is present, it must have either a @value, an @id, or extensions
-    """
-    schedule(
-
-        # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
-        """
-        list of ids to retrieve.  DEPRECATED: Use `_id`
-        """
-        id: [String]
-
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
-        # search parameters for all resources
-        """
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        Tags applied to this resource
-        """
-        _tag: [String]
-
-
-        # search parameters for Schedule
-        """
-        Is the schedule in active use
-        """
-        active: [String]
-        """
-        The individual(HealthcareService, Practitioner, Location, ...) to find a Schedule for
-        """
-        actor: [String]
-        """
-        Search for Schedule resources that have a period that contains this date specified
-        """
-        date: [String]
-        """
-        A Schedule Identifier
-        """
-        identifier: [String]
-        """
-        High-level category
-        """
-        service-category: [String]
-        """
-        The type of appointments that can be booked into associated slot(s)
-        """
-        service-type: [String]
-        """
-        Type of specialty needed
-        """
-        specialty: [String]
-        """
-        return total number of records that meet this query
-        """
-        _total: TotalType
-        """
-        sort records by these fields.  The fields can be nested fields. Prepend with "-" to indicate descending sort
-            Examples: ["id", "-meta.lastUpdated"]
-        """
-        _sort: [String]
-        """
-        limit records to this count.  Default is 10
-        """
-        _count: Int
-        """
-        page number to retrieve
-        """
-        _getpagesoffset: Int
-    ): [Schedule]
 }
