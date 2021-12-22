@@ -20,7 +20,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -30,22 +30,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for ExampleScenario
@@ -53,7 +53,7 @@ extend type Query {
         context [token]
         A use context assigned to the example scenario
         """
-        context: [String]
+        context: SearchToken
         """
         context-quantity [quantity]
         A quantity- or range-valued use context assigned to the example scenario
@@ -63,7 +63,7 @@ extend type Query {
         context-type [token]
         A type of use context assigned to the example scenario
         """
-        context_type: [String]
+        context_type: SearchToken
         """
         date [date]
         The example scenario publication date
@@ -73,37 +73,37 @@ extend type Query {
         identifier [token]
         External identifier for the example scenario
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         jurisdiction [token]
         Intended jurisdiction for the example scenario
         """
-        jurisdiction: [String]
+        jurisdiction: SearchToken
         """
         name [string]
         Computationally friendly name of the example scenario
         """
-        name: [String]
+        name: SearchString
         """
         publisher [string]
         Name of the publisher of the example scenario
         """
-        publisher: [String]
+        publisher: SearchString
         """
         status [token]
         The current status of the example scenario
         """
-        status: [String]
+        status: SearchToken
         """
         url [uri]
         The uri that identifies the example scenario
         """
-        url: [String]
+        url: SearchString
         """
         version [token]
         The business version of the example scenario
         """
-        version: [String]
+        version: SearchToken
         """
         return total number of records that meet this query
         """

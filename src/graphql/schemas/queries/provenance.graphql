@@ -28,7 +28,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -38,22 +38,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Provenance
@@ -66,12 +66,12 @@ extend type Query {
         agent-role [token]
         What the agents role was
         """
-        agent_role: [String]
+        agent_role: SearchToken
         """
         agent-type [token]
         How the agent participated
         """
-        agent_type: [String]
+        agent_type: SearchToken
         """
         entity [reference]
         Identity of entity
@@ -96,7 +96,7 @@ extend type Query {
         signature-type [token]
         Indication of the reason the entity signed the object(s)
         """
-        signature_type: [String]
+        signature_type: SearchToken
         """
         target [reference]
         Target Reference(s) (usually version specific)

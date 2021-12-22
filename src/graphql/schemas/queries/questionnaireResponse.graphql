@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for QuestionnaireResponse
@@ -75,7 +75,7 @@ extend type Query {
         identifier [token]
         The unique identifier for the questionnaire response
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         part-of [reference]
         Procedure or observation this questionnaire response was performed as a part of
@@ -100,7 +100,7 @@ extend type Query {
         status [token]
         The status of the questionnaire response
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         The subject of the questionnaire response

@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for CommunicationRequest
@@ -65,7 +65,7 @@ extend type Query {
         category [token]
         Message category
         """
-        category: [String]
+        category: SearchToken
         """
         encounter [reference]
         Encounter created as part of
@@ -75,17 +75,17 @@ extend type Query {
         group-identifier [token]
         Composite request this is part of
         """
-        group_identifier: [String]
+        group_identifier: SearchToken
         """
         identifier [token]
         Unique identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         medium [token]
         A channel of communication
         """
-        medium: [String]
+        medium: SearchToken
         """
         occurrence [date]
         When scheduled
@@ -100,7 +100,7 @@ extend type Query {
         priority [token]
         routine | urgent | asap | stat
         """
-        priority: [String]
+        priority: SearchToken
         """
         recipient [reference]
         Message recipient
@@ -125,7 +125,7 @@ extend type Query {
         status [token]
         draft | active | on-hold | revoked | completed | entered-in-error | unknown
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         Focus of message

@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for TestScript
@@ -54,7 +54,7 @@ extend type Query {
         context [token]
         A use context assigned to the test script
         """
-        context: [String]
+        context: SearchToken
         """
         context-quantity [quantity]
         A quantity- or range-valued use context assigned to the test script
@@ -64,7 +64,7 @@ extend type Query {
         context-type [token]
         A type of use context assigned to the test script
         """
-        context_type: [String]
+        context_type: SearchToken
         """
         date [date]
         The test script publication date
@@ -74,52 +74,52 @@ extend type Query {
         description [string]
         The description of the test script
         """
-        description: [String]
+        description: SearchString
         """
         identifier [token]
         External identifier for the test script
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         jurisdiction [token]
         Intended jurisdiction for the test script
         """
-        jurisdiction: [String]
+        jurisdiction: SearchToken
         """
         name [string]
         Computationally friendly name of the test script
         """
-        name: [String]
+        name: SearchString
         """
         publisher [string]
         Name of the publisher of the test script
         """
-        publisher: [String]
+        publisher: SearchString
         """
         status [token]
         The current status of the test script
         """
-        status: [String]
+        status: SearchToken
         """
         testscript-capability [string]
         TestScript required and validated capability
         """
-        testscript_capability: [String]
+        testscript_capability: SearchString
         """
         title [string]
         The human-friendly name of the test script
         """
-        title: [String]
+        title: SearchString
         """
         url [uri]
         The uri that identifies the test script
         """
-        url: [String]
+        url: SearchString
         """
         version [token]
         The business version of the test script
         """
-        version: [String]
+        version: SearchToken
         """
         return total number of records that meet this query
         """

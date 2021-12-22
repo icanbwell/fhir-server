@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Appointment
@@ -60,7 +60,7 @@ extend type Query {
         appointment-type [token]
         The style of appointment or patient that has been booked in the slot (not service type)
         """
-        appointment_type: [String]
+        appointment_type: SearchToken
         """
         based-on [reference]
         The service request this appointment is allocated to assess
@@ -75,7 +75,7 @@ extend type Query {
         identifier [token]
         An Identifier of the Appointment
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         location [reference]
         This location is listed in the participants of the appointment
@@ -85,7 +85,7 @@ extend type Query {
         part-status [token]
         The Participation status of the subject, or other participant on the appointment. Can be used to locate participants that have not responded to meeting requests.
         """
-        part_status: [String]
+        part_status: SearchToken
         """
         patient [reference]
         One of the individuals of the appointment is this patient
@@ -100,7 +100,7 @@ extend type Query {
         reason-code [token]
         Coded reason this appointment is scheduled
         """
-        reason_code: [String]
+        reason_code: SearchToken
         """
         reason-reference [reference]
         Reason the appointment is to take place (resource)
@@ -110,12 +110,12 @@ extend type Query {
         service-category [token]
         A broad categorization of the service that is to be performed during this appointment
         """
-        service_category: [String]
+        service_category: SearchToken
         """
         service-type [token]
         The specific service that is to be performed during this appointment
         """
-        service_type: [String]
+        service_type: SearchToken
         """
         slot [reference]
         The slots that this appointment is filling
@@ -125,12 +125,12 @@ extend type Query {
         specialty [token]
         The specialty of a practitioner that would be required to perform the service requested in this appointment
         """
-        specialty: [String]
+        specialty: SearchToken
         """
         status [token]
         The overall status of the appointment
         """
-        status: [String]
+        status: SearchToken
         """
         supporting-info [reference]
         Additional information to support the appointment

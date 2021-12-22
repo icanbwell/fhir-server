@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Media
@@ -74,12 +74,12 @@ extend type Query {
         identifier [token]
         Identifier(s) for the image
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         modality [token]
         The type of acquisition equipment/process
         """
-        modality: [String]
+        modality: SearchToken
         """
         operator [reference]
         The person who generated the image
@@ -94,12 +94,12 @@ extend type Query {
         site [token]
         Observed body part
         """
-        site: [String]
+        site: SearchToken
         """
         status [token]
         preparation | in-progress | not-done | on-hold | stopped | completed | entered-in-error | unknown
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         Who/What this Media is a record of
@@ -109,12 +109,12 @@ extend type Query {
         type [token]
         Classification of media as image, video, or audio
         """
-        type: [String]
+        type: SearchToken
         """
         view [token]
         Imaging view, e.g. Lateral or Antero-posterior
         """
-        view: [String]
+        view: SearchToken
         """
         return total number of records that meet this query
         """

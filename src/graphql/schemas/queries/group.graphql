@@ -23,7 +23,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -33,22 +33,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Group
@@ -56,27 +56,27 @@ extend type Query {
         actual [token]
         Descriptive or actual
         """
-        actual: [String]
+        actual: SearchToken
         """
         characteristic [token]
         Kind of characteristic
         """
-        characteristic: [String]
+        characteristic: SearchToken
         """
         code [token]
         The kind of resources contained
         """
-        code: [String]
+        code: SearchToken
         """
         exclude [token]
         Group includes or excludes
         """
-        exclude: [String]
+        exclude: SearchToken
         """
         identifier [token]
         Unique id
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         managing-entity [reference]
         Entity that is the custodian of the Groups definition
@@ -91,12 +91,12 @@ extend type Query {
         type [token]
         The type of resources the group contains
         """
-        type: [String]
+        type: SearchToken
         """
         value [token]
         Value held by characteristic
         """
-        value: [String]
+        value: SearchToken
         """
         return total number of records that meet this query
         """

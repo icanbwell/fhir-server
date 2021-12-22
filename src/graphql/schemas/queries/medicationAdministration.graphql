@@ -24,7 +24,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -34,22 +34,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for MedicationAdministration
@@ -57,7 +57,7 @@ extend type Query {
         code [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Code that identifies the allergy or intolerance* [Condition](condition.html): Code for the condition* [DeviceRequest](devicerequest.html): Code for what is being requested/ordered* [DiagnosticReport](diagnosticreport.html): The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result* [FamilyMemberHistory](familymemberhistory.html): A search by a condition code* [List](list.html): What the purpose of this list is* [Medication](medication.html): Returns medications for a specific code* [MedicationAdministration](medicationadministration.html): Return administrations of this medication code* [MedicationDispense](medicationdispense.html): Returns dispenses of this medicine code* [MedicationRequest](medicationrequest.html): Return prescriptions of this medication code* [MedicationStatement](medicationstatement.html): Return statements of this medication code* [Observation](observation.html): The code of the observation type* [Procedure](procedure.html): A code to identify a  procedure* [ServiceRequest](servicerequest.html): What is being requested/ordered
         """
-        code: [String]
+        code: SearchToken
         """
         context [reference]
         Return administrations that share this encounter or episode of care
@@ -77,7 +77,7 @@ extend type Query {
         identifier [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         medication [reference]
         Multiple Resources: * [MedicationAdministration](medicationadministration.html): Return administrations of this medication resource* [MedicationDispense](medicationdispense.html): Returns dispenses of this medicine resource* [MedicationRequest](medicationrequest.html): Return prescriptions for this medication reference* [MedicationStatement](medicationstatement.html): Return statements of this medication reference
@@ -97,12 +97,12 @@ extend type Query {
         reason-given [token]
         Reasons for administering the medication
         """
-        reason_given: [String]
+        reason_given: SearchToken
         """
         reason-not-given [token]
         Reasons for not administering the medication
         """
-        reason_not_given: [String]
+        reason_not_given: SearchToken
         """
         request [reference]
         The identity of a request to list administrations from
@@ -112,7 +112,7 @@ extend type Query {
         status [token]
         Multiple Resources: * [MedicationAdministration](medicationadministration.html): MedicationAdministration event status (for example one of active/paused/completed/nullified)* [MedicationDispense](medicationdispense.html): Returns dispenses with a specified dispense status* [MedicationRequest](medicationrequest.html): Status of the prescription* [MedicationStatement](medicationstatement.html): Return statements that match the given status
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         The identity of the individual or group to list administrations for

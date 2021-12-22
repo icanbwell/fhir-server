@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Medication
@@ -55,7 +55,7 @@ extend type Query {
         code [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Code that identifies the allergy or intolerance* [Condition](condition.html): Code for the condition* [DeviceRequest](devicerequest.html): Code for what is being requested/ordered* [DiagnosticReport](diagnosticreport.html): The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result* [FamilyMemberHistory](familymemberhistory.html): A search by a condition code* [List](list.html): What the purpose of this list is* [Medication](medication.html): Returns medications for a specific code* [MedicationAdministration](medicationadministration.html): Return administrations of this medication code* [MedicationDispense](medicationdispense.html): Returns dispenses of this medicine code* [MedicationRequest](medicationrequest.html): Return prescriptions of this medication code* [MedicationStatement](medicationstatement.html): Return statements of this medication code* [Observation](observation.html): The code of the observation type* [Procedure](procedure.html): A code to identify a  procedure* [ServiceRequest](servicerequest.html): What is being requested/ordered
         """
-        code: [String]
+        code: SearchToken
         """
         expiration-date [date]
         Returns medications in a batch with this expiration date
@@ -65,12 +65,12 @@ extend type Query {
         form [token]
         Returns medications for a specific dose form
         """
-        form: [String]
+        form: SearchToken
         """
         identifier [token]
         Returns medications with this external identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         ingredient [reference]
         Returns medications for this ingredient reference
@@ -80,12 +80,12 @@ extend type Query {
         ingredient-code [token]
         Returns medications for this ingredient code
         """
-        ingredient_code: [String]
+        ingredient_code: SearchToken
         """
         lot-number [token]
         Returns medications in a batch with this lot number
         """
-        lot_number: [String]
+        lot_number: SearchToken
         """
         manufacturer [reference]
         Returns medications made or sold for this manufacturer
@@ -95,7 +95,7 @@ extend type Query {
         status [token]
         Returns medications for this status
         """
-        status: [String]
+        status: SearchToken
         """
         return total number of records that meet this query
         """

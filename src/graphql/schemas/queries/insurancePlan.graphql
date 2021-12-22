@@ -20,7 +20,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -30,22 +30,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for InsurancePlan
@@ -53,32 +53,32 @@ extend type Query {
         address [string]
         A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text
         """
-        address: [String]
+        address: SearchString
         """
         address-city [string]
         A city specified in an address
         """
-        address_city: [String]
+        address_city: SearchString
         """
         address-country [string]
         A country specified in an address
         """
-        address_country: [String]
+        address_country: SearchString
         """
         address-postalcode [string]
         A postal code specified in an address
         """
-        address_postalcode: [String]
+        address_postalcode: SearchString
         """
         address-state [string]
         A state specified in an address
         """
-        address_state: [String]
+        address_state: SearchString
         """
         address-use [token]
         A use code specified in an address
         """
-        address_use: [String]
+        address_use: SearchToken
         """
         administered-by [reference]
         Product administrator
@@ -93,12 +93,12 @@ extend type Query {
         identifier [token]
         Any identifier for the organization (not the accreditation issuers identifier)
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         name [string]
         A portion of the organizations name or alias
         """
-        name: [String]
+        name: SearchString
         """
         owned-by [reference]
         An organization of which this organization forms a part
@@ -108,17 +108,17 @@ extend type Query {
         phonetic [string]
         A portion of the organizations name using some kind of phonetic matching algorithm
         """
-        phonetic: [String]
+        phonetic: SearchString
         """
         status [token]
         Is the Organization record active
         """
-        status: [String]
+        status: SearchToken
         """
         type [token]
         A code for the type of organization
         """
-        type: [String]
+        type: SearchToken
         """
         return total number of records that meet this query
         """

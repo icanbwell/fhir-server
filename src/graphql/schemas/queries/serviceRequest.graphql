@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for ServiceRequest
@@ -64,17 +64,17 @@ extend type Query {
         body-site [token]
         Where procedure is going to be done
         """
-        body_site: [String]
+        body_site: SearchToken
         """
         category [token]
         Classification of service
         """
-        category: [String]
+        category: SearchToken
         """
         code [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Code that identifies the allergy or intolerance* [Condition](condition.html): Code for the condition* [DeviceRequest](devicerequest.html): Code for what is being requested/ordered* [DiagnosticReport](diagnosticreport.html): The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result* [FamilyMemberHistory](familymemberhistory.html): A search by a condition code* [List](list.html): What the purpose of this list is* [Medication](medication.html): Returns medications for a specific code* [MedicationAdministration](medicationadministration.html): Return administrations of this medication code* [MedicationDispense](medicationdispense.html): Returns dispenses of this medicine code* [MedicationRequest](medicationrequest.html): Return prescriptions of this medication code* [MedicationStatement](medicationstatement.html): Return statements of this medication code* [Observation](observation.html): The code of the observation type* [Procedure](procedure.html): A code to identify a  procedure* [ServiceRequest](servicerequest.html): What is being requested/ordered
         """
-        code: [String]
+        code: SearchToken
         """
         encounter [reference]
         Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier
@@ -84,7 +84,7 @@ extend type Query {
         identifier [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         instantiates-canonical [reference]
         Instantiates FHIR protocol or definition
@@ -94,12 +94,12 @@ extend type Query {
         instantiates-uri [uri]
         Instantiates external protocol or definition
         """
-        instantiates_uri: [String]
+        instantiates_uri: SearchString
         """
         intent [token]
         proposal | plan | directive | order | original-order | reflex-order | filler-order | instance-order | option
         """
-        intent: [String]
+        intent: SearchToken
         """
         occurrence [date]
         When service should occur
@@ -119,12 +119,12 @@ extend type Query {
         performer-type [token]
         Performer role
         """
-        performer_type: [String]
+        performer_type: SearchToken
         """
         priority [token]
         routine | urgent | asap | stat
         """
-        priority: [String]
+        priority: SearchToken
         """
         replaces [reference]
         What request replaces
@@ -139,7 +139,7 @@ extend type Query {
         requisition [token]
         Composite Request ID
         """
-        requisition: [String]
+        requisition: SearchToken
         """
         specimen [reference]
         Specimen to be tested
@@ -149,7 +149,7 @@ extend type Query {
         status [token]
         draft | active | on-hold | revoked | completed | entered-in-error | unknown
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         Search by subject

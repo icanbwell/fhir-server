@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for MeasureReport
@@ -65,7 +65,7 @@ extend type Query {
         identifier [token]
         External identifier of the measure report to be returned
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         measure [reference]
         The measure to return measure report results for
@@ -90,7 +90,7 @@ extend type Query {
         status [token]
         The status of the measure report
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         The identity of a subject to search for individual measure report results for

@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for AuditEvent
@@ -55,12 +55,12 @@ extend type Query {
         action [token]
         Type of action performed during the event
         """
-        action: [String]
+        action: SearchToken
         """
         address [string]
         Identifier for the network access point of the user device
         """
-        address: [String]
+        address: SearchString
         """
         agent [reference]
         Identifier of who
@@ -70,17 +70,17 @@ extend type Query {
         agent-name [string]
         Human friendly name for the agent
         """
-        agent_name: [String]
+        agent_name: SearchString
         """
         agent-role [token]
         Agent role in the event
         """
-        agent_role: [String]
+        agent_role: SearchToken
         """
         altid [token]
         Alternative User identity
         """
-        altid: [String]
+        altid: SearchToken
         """
         date [date]
         Time when the event was recorded
@@ -95,22 +95,22 @@ extend type Query {
         entity-name [string]
         Descriptor for entity
         """
-        entity_name: [String]
+        entity_name: SearchString
         """
         entity-role [token]
         What role the entity played
         """
-        entity_role: [String]
+        entity_role: SearchToken
         """
         entity-type [token]
         Type of entity involved
         """
-        entity_type: [String]
+        entity_type: SearchToken
         """
         outcome [token]
         Whether the event succeeded or failed
         """
-        outcome: [String]
+        outcome: SearchToken
         """
         patient [reference]
         Identifier of who
@@ -120,12 +120,12 @@ extend type Query {
         policy [uri]
         Policy that authorized event
         """
-        policy: [String]
+        policy: SearchString
         """
         site [token]
         Logical source location within the enterprise
         """
-        site: [String]
+        site: SearchToken
         """
         source [reference]
         The identity of source detecting the event
@@ -135,12 +135,12 @@ extend type Query {
         subtype [token]
         More specific type/id for the event
         """
-        subtype: [String]
+        subtype: SearchToken
         """
         type [token]
         Type/identifier of event
         """
-        type: [String]
+        type: SearchToken
         """
         return total number of records that meet this query
         """

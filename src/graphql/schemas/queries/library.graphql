@@ -23,7 +23,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -33,22 +33,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Library
@@ -61,12 +61,12 @@ extend type Query {
         content-type [token]
         The type of content in the library (e.g. text/cql)
         """
-        content_type: [String]
+        content_type: SearchToken
         """
         context [token]
         A use context assigned to the library
         """
-        context: [String]
+        context: SearchToken
         """
         context-quantity [quantity]
         A quantity- or range-valued use context assigned to the library
@@ -76,7 +76,7 @@ extend type Query {
         context-type [token]
         A type of use context assigned to the library
         """
-        context_type: [String]
+        context_type: SearchToken
         """
         date [date]
         The library publication date
@@ -96,7 +96,7 @@ extend type Query {
         description [string]
         The description of the library
         """
-        description: [String]
+        description: SearchString
         """
         effective [date]
         The time during which the library is intended to be in use
@@ -106,17 +106,17 @@ extend type Query {
         identifier [token]
         External identifier for the library
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         jurisdiction [token]
         Intended jurisdiction for the library
         """
-        jurisdiction: [String]
+        jurisdiction: SearchToken
         """
         name [string]
         Computationally friendly name of the library
         """
-        name: [String]
+        name: SearchString
         """
         predecessor [reference]
         What resource is being referenced
@@ -126,12 +126,12 @@ extend type Query {
         publisher [string]
         Name of the publisher of the library
         """
-        publisher: [String]
+        publisher: SearchString
         """
         status [token]
         The current status of the library
         """
-        status: [String]
+        status: SearchToken
         """
         successor [reference]
         What resource is being referenced
@@ -141,27 +141,27 @@ extend type Query {
         title [string]
         The human-friendly name of the library
         """
-        title: [String]
+        title: SearchString
         """
         topic [token]
         Topics associated with the module
         """
-        topic: [String]
+        topic: SearchToken
         """
         type [token]
         The type of the library (e.g. logic-library, model-definition, asset-collection, module-definition)
         """
-        type: [String]
+        type: SearchToken
         """
         url [uri]
         The uri that identifies the library
         """
-        url: [String]
+        url: SearchString
         """
         version [token]
         The business version of the library
         """
-        version: [String]
+        version: SearchToken
         """
         return total number of records that meet this query
         """

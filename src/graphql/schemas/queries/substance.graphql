@@ -20,7 +20,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -30,22 +30,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Substance
@@ -53,17 +53,17 @@ extend type Query {
         category [token]
         The category of the substance
         """
-        category: [String]
+        category: SearchToken
         """
         code [token]
         The code of the substance or ingredient
         """
-        code: [String]
+        code: SearchToken
         """
         container-identifier [token]
         Identifier of the package/container
         """
-        container_identifier: [String]
+        container_identifier: SearchToken
         """
         expiry [date]
         Expiry date of package or container of substance
@@ -73,7 +73,7 @@ extend type Query {
         identifier [token]
         Unique identifier for the substance
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         quantity [quantity]
         Amount of substance in the package
@@ -83,7 +83,7 @@ extend type Query {
         status [token]
         active | inactive | entered-in-error
         """
-        status: [String]
+        status: SearchToken
         """
         substance-reference [reference]
         A component of the substance

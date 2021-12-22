@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for OrganizationAffiliation
@@ -54,7 +54,7 @@ extend type Query {
         active [token]
         Whether this organization affiliation record is in active use
         """
-        active: [String]
+        active: SearchToken
         """
         date [date]
         The period during which the participatingOrganization is affiliated with the primary organization
@@ -64,7 +64,7 @@ extend type Query {
         email [token]
         A value in an email contact
         """
-        email: [String]
+        email: SearchToken
         """
         endpoint [reference]
         Technical endpoints providing access to services operated for this role
@@ -74,7 +74,7 @@ extend type Query {
         identifier [token]
         An organization affiliations Identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         location [reference]
         The location(s) at which the role occurs
@@ -94,7 +94,7 @@ extend type Query {
         phone [token]
         A value in a phone contact
         """
-        phone: [String]
+        phone: SearchToken
         """
         primary-organization [reference]
         The organization that receives the services from the participating organization
@@ -104,7 +104,7 @@ extend type Query {
         role [token]
         Definition of the role the participatingOrganization plays
         """
-        role: [String]
+        role: SearchToken
         """
         service [reference]
         Healthcare services provided through the role
@@ -114,12 +114,12 @@ extend type Query {
         specialty [token]
         Specific specialty of the participatingOrganization in the context of the role
         """
-        specialty: [String]
+        specialty: SearchToken
         """
         telecom [token]
         The value in any kind of contact
         """
-        telecom: [String]
+        telecom: SearchToken
         """
         return total number of records that meet this query
         """

@@ -24,7 +24,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -34,22 +34,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for MessageHeader
@@ -62,17 +62,17 @@ extend type Query {
         code [token]
         ok | transient-error | fatal-error
         """
-        code: [String]
+        code: SearchToken
         """
         destination [string]
         Name of system
         """
-        destination: [String]
+        destination: SearchString
         """
         destination-uri [uri]
         Actual destination address or id
         """
-        destination_uri: [String]
+        destination_uri: SearchString
         """
         enterer [reference]
         The source of the data entry
@@ -82,7 +82,7 @@ extend type Query {
         event [token]
         Code for the event this message represents or link to event definition
         """
-        event: [String]
+        event: SearchToken
         """
         focus [reference]
         The actual content of the message
@@ -97,7 +97,7 @@ extend type Query {
         response-id [token]
         Id of original message
         """
-        response_id: [String]
+        response_id: SearchToken
         """
         responsible [reference]
         Final responsibility for event
@@ -112,12 +112,12 @@ extend type Query {
         source [string]
         Name of system
         """
-        source: [String]
+        source: SearchString
         """
         source-uri [uri]
         Actual message source address or id
         """
-        source_uri: [String]
+        source_uri: SearchString
         """
         target [reference]
         Particular delivery destination within the destination

@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Device
@@ -55,12 +55,12 @@ extend type Query {
         device-name [string]
         A server defined search that may match any of the string fields in Device.deviceName or Device.type.
         """
-        device_name: [String]
+        device_name: SearchString
         """
         identifier [token]
         Instance id from manufacturer, owner, and others
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         location [reference]
         A location, where the resource is found
@@ -70,12 +70,12 @@ extend type Query {
         manufacturer [string]
         The manufacturer of the device
         """
-        manufacturer: [String]
+        manufacturer: SearchString
         """
         model [string]
         The model of the device
         """
-        model: [String]
+        model: SearchString
         """
         organization [reference]
         The organization responsible for the device
@@ -90,27 +90,27 @@ extend type Query {
         status [token]
         active | inactive | entered-in-error | unknown
         """
-        status: [String]
+        status: SearchToken
         """
         type [token]
         The type of the device
         """
-        type: [String]
+        type: SearchToken
         """
         udi-carrier [string]
         UDI Barcode (RFID or other technology) string in *HRF* format.
         """
-        udi_carrier: [String]
+        udi_carrier: SearchString
         """
         udi-di [string]
         The udi Device Identifier (DI)
         """
-        udi_di: [String]
+        udi_di: SearchString
         """
         url [uri]
         Network address to contact device
         """
-        url: [String]
+        url: SearchString
         """
         return total number of records that meet this query
         """

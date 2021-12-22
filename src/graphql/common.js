@@ -126,6 +126,7 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
 // eslint-disable-next-line no-unused-vars
 module.exports.getResources = async (parent, args, context, info, resourceType) => {
     return module.exports.unBundle(
+        // convert
         await search(
             {
                 base_version: '4_0_0',

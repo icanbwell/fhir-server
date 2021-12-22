@@ -1,0 +1,7 @@
+input SearchToken {
+    value: String
+    values: [String]
+    missing: Boolean
+    above: Boolean
+    below: Boolean
+}

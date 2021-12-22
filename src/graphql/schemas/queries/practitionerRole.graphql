@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for PractitionerRole
@@ -54,7 +54,7 @@ extend type Query {
         active [token]
         Whether this practitioner role record is in active use
         """
-        active: [String]
+        active: SearchToken
         """
         date [date]
         The period during which the practitioner is authorized to perform in these role(s)
@@ -64,7 +64,7 @@ extend type Query {
         email [token]
         Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact
         """
-        email: [String]
+        email: SearchToken
         """
         endpoint [reference]
         Technical endpoints providing access to services operated for the practitioner with this role
@@ -74,7 +74,7 @@ extend type Query {
         identifier [token]
         A practitioners Identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         location [reference]
         One of the locations at which this practitioner provides care
@@ -89,7 +89,7 @@ extend type Query {
         phone [token]
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
         """
-        phone: [String]
+        phone: SearchToken
         """
         practitioner [reference]
         Practitioner that is able to provide the defined services for the organization
@@ -99,7 +99,7 @@ extend type Query {
         role [token]
         The practitioner can perform this role at for the organization
         """
-        role: [String]
+        role: SearchToken
         """
         service [reference]
         The list of healthcare services that this worker provides for this roles Organization/Location(s)
@@ -109,12 +109,12 @@ extend type Query {
         specialty [token]
         The practitioner has this specialty at an organization
         """
-        specialty: [String]
+        specialty: SearchToken
         """
         telecom [token]
         Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact
         """
-        telecom: [String]
+        telecom: SearchToken
         """
         return total number of records that meet this query
         """

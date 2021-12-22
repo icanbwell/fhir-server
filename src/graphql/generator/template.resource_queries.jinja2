@@ -29,13 +29,15 @@ extend type Query {
         {{ search_parameter.description }}
         """
         {% if search_parameter.type == "string" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
+        {% elif search_parameter_name == "_id" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "token" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchToken
         {% elif search_parameter.type == "uri" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "quantity" %}
@@ -55,13 +57,15 @@ extend type Query {
         {{ search_parameter.description }}
         """
         {% if search_parameter.type == "string" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
+        {% elif search_parameter_name == "_id" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "token" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchToken
         {% elif search_parameter.type == "uri" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "quantity" %}

@@ -20,7 +20,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -30,22 +30,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Schedule
@@ -53,7 +53,7 @@ extend type Query {
         active [token]
         Is the schedule in active use
         """
-        active: [String]
+        active: SearchToken
         """
         actor [reference]
         The individual(HealthcareService, Practitioner, Location, ...) to find a Schedule for
@@ -68,22 +68,22 @@ extend type Query {
         identifier [token]
         A Schedule Identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         service-category [token]
         High-level category
         """
-        service_category: [String]
+        service_category: SearchToken
         """
         service-type [token]
         The type of appointments that can be booked into associated slot(s)
         """
-        service_type: [String]
+        service_type: SearchToken
         """
         specialty [token]
         Type of specialty needed
         """
-        specialty: [String]
+        specialty: SearchToken
         """
         return total number of records that meet this query
         """

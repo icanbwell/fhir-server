@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Location
@@ -55,32 +55,32 @@ extend type Query {
         address [string]
         A (part of the) address of the location
         """
-        address: [String]
+        address: SearchString
         """
         address-city [string]
         A city specified in an address
         """
-        address_city: [String]
+        address_city: SearchString
         """
         address-country [string]
         A country specified in an address
         """
-        address_country: [String]
+        address_country: SearchString
         """
         address-postalcode [string]
         A postal code specified in an address
         """
-        address_postalcode: [String]
+        address_postalcode: SearchString
         """
         address-state [string]
         A state specified in an address
         """
-        address_state: [String]
+        address_state: SearchString
         """
         address-use [token]
         A use code specified in an address
         """
-        address_use: [String]
+        address_use: SearchToken
         """
         endpoint [reference]
         Technical endpoints providing access to services operated for the location
@@ -90,12 +90,12 @@ extend type Query {
         identifier [token]
         An identifier for the location
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         name [string]
         A portion of the locations name or alias
         """
-        name: [String]
+        name: SearchString
         """
         near [special]
         Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as [latitude]|[longitude]|[distance]|[units] (using the WGS84 datum, see notes).If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near (and units are irrelevant)Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also
@@ -105,7 +105,7 @@ extend type Query {
         operational-status [token]
         Searches for locations (typically bed/room) that have an operational status (e.g. contaminated, housekeeping)
         """
-        operational_status: [String]
+        operational_status: SearchToken
         """
         organization [reference]
         Searches for locations that are managed by the provided organization
@@ -120,12 +120,12 @@ extend type Query {
         status [token]
         Searches for locations with a specific kind of status
         """
-        status: [String]
+        status: SearchToken
         """
         type [token]
         A code for the type of location
         """
-        type: [String]
+        type: SearchToken
         """
         return total number of records that meet this query
         """

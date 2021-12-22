@@ -26,7 +26,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -36,22 +36,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for ClinicalImpression
@@ -74,7 +74,7 @@ extend type Query {
         finding-code [token]
         What was found
         """
-        finding_code: [String]
+        finding_code: SearchToken
         """
         finding-ref [reference]
         What was found
@@ -84,7 +84,7 @@ extend type Query {
         identifier [token]
         Business identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         investigation [reference]
         Record of a specific investigation
@@ -109,7 +109,7 @@ extend type Query {
         status [token]
         in-progress | completed | entered-in-error
         """
-        status: [String]
+        status: SearchToken
         """
         subject [reference]
         Patient or group assessed

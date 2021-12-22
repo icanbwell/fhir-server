@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Practitioner
@@ -54,87 +54,87 @@ extend type Query {
         active [token]
         Whether the practitioner record is active
         """
-        active: [String]
+        active: SearchToken
         """
         address [string]
         Multiple Resources: * [Patient](patient.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Person](person.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Practitioner](practitioner.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [RelatedPerson](relatedperson.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text
         """
-        address: [String]
+        address: SearchString
         """
         address-city [string]
         Multiple Resources: * [Patient](patient.html): A city specified in an address* [Person](person.html): A city specified in an address* [Practitioner](practitioner.html): A city specified in an address* [RelatedPerson](relatedperson.html): A city specified in an address
         """
-        address_city: [String]
+        address_city: SearchString
         """
         address-country [string]
         Multiple Resources: * [Patient](patient.html): A country specified in an address* [Person](person.html): A country specified in an address* [Practitioner](practitioner.html): A country specified in an address* [RelatedPerson](relatedperson.html): A country specified in an address
         """
-        address_country: [String]
+        address_country: SearchString
         """
         address-postalcode [string]
         Multiple Resources: * [Patient](patient.html): A postalCode specified in an address* [Person](person.html): A postal code specified in an address* [Practitioner](practitioner.html): A postalCode specified in an address* [RelatedPerson](relatedperson.html): A postal code specified in an address
         """
-        address_postalcode: [String]
+        address_postalcode: SearchString
         """
         address-state [string]
         Multiple Resources: * [Patient](patient.html): A state specified in an address* [Person](person.html): A state specified in an address* [Practitioner](practitioner.html): A state specified in an address* [RelatedPerson](relatedperson.html): A state specified in an address
         """
-        address_state: [String]
+        address_state: SearchString
         """
         address-use [token]
         Multiple Resources: * [Patient](patient.html): A use code specified in an address* [Person](person.html): A use code specified in an address* [Practitioner](practitioner.html): A use code specified in an address* [RelatedPerson](relatedperson.html): A use code specified in an address
         """
-        address_use: [String]
+        address_use: SearchToken
         """
         communication [token]
         One of the languages that the practitioner can communicate with
         """
-        communication: [String]
+        communication: SearchToken
         """
         email [token]
         Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact
         """
-        email: [String]
+        email: SearchToken
         """
         family [string]
         Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name
         """
-        family: [String]
+        family: SearchString
         """
         gender [token]
         Multiple Resources: * [Patient](patient.html): Gender of the patient* [Person](person.html): The gender of the person* [Practitioner](practitioner.html): Gender of the practitioner* [RelatedPerson](relatedperson.html): Gender of the related person
         """
-        gender: [String]
+        gender: SearchToken
         """
         given [string]
         Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name
         """
-        given: [String]
+        given: SearchString
         """
         identifier [token]
         A practitioners Identifier
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         name [string]
         A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text
         """
-        name: [String]
+        name: SearchString
         """
         phone [token]
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
         """
-        phone: [String]
+        phone: SearchToken
         """
         phonetic [string]
         Multiple Resources: * [Patient](patient.html): A portion of either family or given name using some kind of phonetic matching algorithm* [Person](person.html): A portion of name using some kind of phonetic matching algorithm* [Practitioner](practitioner.html): A portion of either family or given name using some kind of phonetic matching algorithm* [RelatedPerson](relatedperson.html): A portion of name using some kind of phonetic matching algorithm
         """
-        phonetic: [String]
+        phonetic: SearchString
         """
         telecom [token]
         Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact
         """
-        telecom: [String]
+        telecom: SearchToken
         """
         return total number of records that meet this query
         """

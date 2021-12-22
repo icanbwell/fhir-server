@@ -22,7 +22,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -32,22 +32,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Endpoint
@@ -55,17 +55,17 @@ extend type Query {
         connection-type [token]
         Protocol/Profile/Standard to be used with this endpoint connection
         """
-        connection_type: [String]
+        connection_type: SearchToken
         """
         identifier [token]
         Identifies this endpoint across multiple systems
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         name [string]
         A name that this endpoint can be identified by
         """
-        name: [String]
+        name: SearchString
         """
         organization [reference]
         The organization that is managing the endpoint
@@ -75,12 +75,12 @@ extend type Query {
         payload-type [token]
         The type of content that may be used at this endpoint (e.g. XDS Discharge summaries)
         """
-        payload_type: [String]
+        payload_type: SearchToken
         """
         status [token]
         The current status of the Endpoint (usually expected to be active)
         """
-        status: [String]
+        status: SearchToken
         """
         return total number of records that meet this query
         """

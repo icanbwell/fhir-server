@@ -20,7 +20,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -30,22 +30,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for Bundle
@@ -58,7 +58,7 @@ extend type Query {
         identifier [token]
         Persistent identifier for the bundle
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         message [reference]
         The first resource in the bundle, if the bundle type is "message" - this is a message header, and this parameter provides access to search its contents
@@ -73,7 +73,7 @@ extend type Query {
         type [token]
         document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection
         """
-        type: [String]
+        type: SearchToken
         """
         return total number of records that meet this query
         """

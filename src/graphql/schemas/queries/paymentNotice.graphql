@@ -21,7 +21,7 @@ extend type Query {
         _id [token]
         Logical id of this artifact
         """
-        _id: [String]
+        _id: SearchString
         """
         _lastUpdated [date]
         When the resource version last changed
@@ -31,22 +31,22 @@ extend type Query {
         _profile [uri]
         Profiles this resource claims to conform to
         """
-        _profile: [String]
+        _profile: SearchString
         """
         _security [token]
         Security Labels applied to this resource
         """
-        _security: [String]
+        _security: SearchToken
         """
         _source [uri]
         Identifies where the resource comes from
         """
-        _source: [String]
+        _source: SearchString
         """
         _tag [token]
         Tags applied to this resource
         """
-        _tag: [String]
+        _tag: SearchToken
 
 
         # search parameters for PaymentNotice
@@ -59,12 +59,12 @@ extend type Query {
         identifier [token]
         The business identifier of the notice
         """
-        identifier: [String]
+        identifier: SearchToken
         """
         payment-status [token]
         The type of payment notice
         """
-        payment_status: [String]
+        payment_status: SearchToken
         """
         provider [reference]
         The reference to the provider
@@ -84,7 +84,7 @@ extend type Query {
         status [token]
         The status of the payment notice
         """
-        status: [String]
+        status: SearchToken
         """
         return total number of records that meet this query
         """
