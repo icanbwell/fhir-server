@@ -100,7 +100,7 @@ extend type Query {
         near [special]
         Search for locations where the location.position is near to, or within a specified distance of, the provided coordinates expressed as [latitude]|[longitude]|[distance]|[units] (using the WGS84 datum, see notes).If the units are omitted, then kms should be assumed. If the distance is omitted, then the server can use its own discretion as to what distances should be considered near (and units are irrelevant)Servers may search using various techniques that might have differing accuracies, depending on implementation efficiency.Requires the near-distance parameter to be provided also
         """
-        near: [String]
+        near: String
         """
         operational-status [token]
         Searches for locations (typically bed/room) that have an operational status (e.g. contaminated, housekeeping)

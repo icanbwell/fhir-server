@@ -45,7 +45,7 @@ extend type Query {
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchQuantity
         {% elif search_parameter.type == "special" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
         {% endif %}
@@ -75,7 +75,7 @@ extend type Query {
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchQuantity
         {% elif search_parameter.type == "special" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
         {% endif %}
