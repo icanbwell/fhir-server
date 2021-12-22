@@ -1,0 +1,17 @@
+input SearchDateValue {
+    eq: date
+    ne: date
+    gt: date
+    ge: date
+    lt: date
+    le: date
+    sa: date
+    eb: date
+    ap: date
+}
+input SearchDate {
+    searchType: String = "date"
+    value: SearchDateValue
+    values: [SearchDateValue]
+    missing: Boolean
+}

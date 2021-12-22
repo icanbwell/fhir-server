@@ -1,0 +1,17 @@
+input SearchDateTimeValue {
+    eq: dateTime
+    ne: dateTime
+    gt: dateTime
+    ge: dateTime
+    lt: dateTime
+    le: dateTime
+    sa: dateTime
+    eb: dateTime
+    ap: dateTime
+}
+input SearchDateTime {
+    searchType: String = "dateTime"
+    value: SearchDateTimeValue
+    values: [SearchDateTimeValue]
+    missing: Boolean
+}
