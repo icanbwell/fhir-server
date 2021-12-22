@@ -26,7 +26,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -59,7 +59,7 @@ extend type Query {
         date [date]
         The period during which the participatingOrganization is affiliated with the primary organization
         """
-        date: [String]
+        date: SearchDate
         """
         email [token]
         A value in an email contact

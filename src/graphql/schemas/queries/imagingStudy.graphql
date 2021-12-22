@@ -29,7 +29,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -127,7 +127,7 @@ extend type Query {
         started [date]
         When the study was started
         """
-        started: [String]
+        started: SearchDate
         """
         status [token]
         The status of the study

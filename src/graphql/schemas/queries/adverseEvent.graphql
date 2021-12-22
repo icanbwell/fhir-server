@@ -28,7 +28,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -66,7 +66,7 @@ extend type Query {
         date [date]
         When the event occurred
         """
-        date: [String]
+        date: SearchDate
         """
         event [token]
         Type of the event itself in relation to the subject

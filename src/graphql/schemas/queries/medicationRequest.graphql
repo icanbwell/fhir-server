@@ -29,7 +29,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -57,7 +57,7 @@ extend type Query {
         authoredon [date]
         Return prescriptions written on this date
         """
-        authoredon: [String]
+        authoredon: SearchDate
         """
         category [token]
         Returns prescriptions with different categories
@@ -72,7 +72,7 @@ extend type Query {
         date [date]
         Multiple Resources: * [MedicationRequest](medicationrequest.html): Returns medication request to be administered on a specific date
         """
-        date: [String]
+        date: SearchDate
         """
         encounter [reference]
         Multiple Resources: * [MedicationRequest](medicationrequest.html): Return prescriptions with this encounter identifier

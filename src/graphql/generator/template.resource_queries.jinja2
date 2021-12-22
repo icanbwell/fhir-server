@@ -30,8 +30,10 @@ extend type Query {
         """
         {% if search_parameter.type == "string" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
-        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {% elif search_parameter.type in [ 'date'] %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchDate
+        {% elif search_parameter.type in ['dateTime', 'period', 'instant'] %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchDateTime
         {% elif search_parameter_name == "_id" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "token" %}
@@ -58,8 +60,10 @@ extend type Query {
         """
         {% if search_parameter.type == "string" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
-        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {% elif search_parameter.type in [ 'date'] %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchDate
+        {% elif search_parameter.type in ['dateTime', 'period', 'instant'] %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchDateTime
         {% elif search_parameter_name == "_id" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "token" %}

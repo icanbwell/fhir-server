@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -60,7 +60,7 @@ extend type Query {
         authored [date]
         When the questionnaire response was last changed
         """
-        authored: [String]
+        authored: SearchDate
         """
         based-on [reference]
         Plan/proposal/order fulfilled by this questionnaire response

@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -55,7 +55,7 @@ extend type Query {
         authored [date]
         When request transitioned to being actionable
         """
-        authored: [String]
+        authored: SearchDate
         """
         based-on [reference]
         Fulfills plan or proposal
@@ -90,7 +90,7 @@ extend type Query {
         occurrence [date]
         When scheduled
         """
-        occurrence: [String]
+        occurrence: SearchDate
         """
         patient [reference]
         Focus of message

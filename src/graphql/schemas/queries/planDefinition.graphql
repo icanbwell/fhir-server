@@ -28,7 +28,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -76,7 +76,7 @@ extend type Query {
         date [date]
         The plan definition publication date
         """
-        date: [String]
+        date: SearchDate
         """
         definition [reference]
         Activity or plan definitions used by plan definition
@@ -101,7 +101,7 @@ extend type Query {
         effective [date]
         The time during which the plan definition is intended to be in use
         """
-        effective: [String]
+        effective: SearchDate
         """
         identifier [token]
         External identifier for the plan definition

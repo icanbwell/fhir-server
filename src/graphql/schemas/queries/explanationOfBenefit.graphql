@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -70,7 +70,7 @@ extend type Query {
         created [date]
         The creation date for the EOB
         """
-        created: [String]
+        created: SearchDate
         """
         detail-udi [reference]
         UDI associated with a line item detail product or service

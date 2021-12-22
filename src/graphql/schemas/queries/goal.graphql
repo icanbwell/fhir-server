@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -80,7 +80,7 @@ extend type Query {
         start-date [date]
         When goal pursuit begins
         """
-        start_date: [String]
+        start_date: SearchDate
         """
         subject [reference]
         Who this goal is intended for
@@ -90,7 +90,7 @@ extend type Query {
         target-date [date]
         Reach goal on or before
         """
-        target_date: [String]
+        target_date: SearchDate
         """
         return total number of records that meet this query
         """

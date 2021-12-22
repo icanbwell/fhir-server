@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -70,7 +70,7 @@ extend type Query {
         date [date]
         The risk evidence synthesis publication date
         """
-        date: [String]
+        date: SearchDate
         """
         description [string]
         The description of the risk evidence synthesis
@@ -80,7 +80,7 @@ extend type Query {
         effective [date]
         The time during which the risk evidence synthesis is intended to be in use
         """
-        effective: [String]
+        effective: SearchDate
         """
         identifier [token]
         External identifier for the risk evidence synthesis

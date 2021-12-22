@@ -25,7 +25,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -73,7 +73,7 @@ extend type Query {
         date [date]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The capability statement publication date* [CodeSystem](codesystem.html): The code system publication date* [CompartmentDefinition](compartmentdefinition.html): The compartment definition publication date* [ConceptMap](conceptmap.html): The concept map publication date* [GraphDefinition](graphdefinition.html): The graph definition publication date* [ImplementationGuide](implementationguide.html): The implementation guide publication date* [MessageDefinition](messagedefinition.html): The message definition publication date* [NamingSystem](namingsystem.html): The naming system publication date* [OperationDefinition](operationdefinition.html): The operation definition publication date* [SearchParameter](searchparameter.html): The search parameter publication date* [StructureDefinition](structuredefinition.html): The structure definition publication date* [StructureMap](structuremap.html): The structure map publication date* [TerminologyCapabilities](terminologycapabilities.html): The terminology capabilities publication date* [ValueSet](valueset.html): The value set publication date
         """
-        date: [String]
+        date: SearchDate
         """
         description [string]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set

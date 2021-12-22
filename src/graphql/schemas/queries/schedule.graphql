@@ -25,7 +25,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -63,7 +63,7 @@ extend type Query {
         date [date]
         Search for Schedule resources that have a period that contains this date specified
         """
-        date: [String]
+        date: SearchDate
         """
         identifier [token]
         A Schedule Identifier

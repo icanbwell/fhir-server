@@ -25,7 +25,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -68,7 +68,7 @@ extend type Query {
         date [date]
         The example scenario publication date
         """
-        date: [String]
+        date: SearchDate
         """
         identifier [token]
         External identifier for the example scenario

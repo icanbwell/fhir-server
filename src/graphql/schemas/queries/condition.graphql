@@ -26,7 +26,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -59,7 +59,7 @@ extend type Query {
         abatement-date [date]
         Date-related abatements (dateTime and period)
         """
-        abatement_date: [String]
+        abatement_date: SearchDate
         """
         abatement-string [string]
         Abatement as a string
@@ -119,7 +119,7 @@ extend type Query {
         onset-date [date]
         Date related onsets (dateTime and Period)
         """
-        onset_date: [String]
+        onset_date: SearchDate
         """
         onset-info [string]
         Onsets as a string
@@ -134,7 +134,7 @@ extend type Query {
         recorded-date [date]
         Date record was first recorded
         """
-        recorded_date: [String]
+        recorded_date: SearchDate
         """
         severity [token]
         The severity of the condition

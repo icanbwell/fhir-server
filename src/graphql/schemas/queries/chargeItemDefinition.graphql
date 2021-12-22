@@ -28,7 +28,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -71,7 +71,7 @@ extend type Query {
         date [date]
         The charge item definition publication date
         """
-        date: [String]
+        date: SearchDate
         """
         description [string]
         The description of the charge item definition
@@ -81,7 +81,7 @@ extend type Query {
         effective [date]
         The time during which the charge item definition is intended to be in use
         """
-        effective: [String]
+        effective: SearchDate
         """
         identifier [token]
         External identifier for the charge item definition

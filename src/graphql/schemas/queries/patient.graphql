@@ -26,7 +26,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -89,12 +89,12 @@ extend type Query {
         birthdate [date]
         Multiple Resources: * [Patient](patient.html): The patients date of birth* [Person](person.html): The persons date of birth* [RelatedPerson](relatedperson.html): The Related Persons date of birth
         """
-        birthdate: [String]
+        birthdate: SearchDate
         """
         death-date [date]
         The date of death has been provided and satisfies this search value
         """
-        death_date: [String]
+        death_date: SearchDate
         """
         deceased [token]
         This patient has been marked as deceased, or as a death date entered

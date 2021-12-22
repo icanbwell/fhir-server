@@ -27,7 +27,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -100,7 +100,7 @@ extend type Query {
         received [date]
         When received
         """
-        received: [String]
+        received: SearchDate
         """
         recipient [reference]
         Message recipient
@@ -115,7 +115,7 @@ extend type Query {
         sent [date]
         When sent
         """
-        sent: [String]
+        sent: SearchDate
         """
         status [token]
         preparation | in-progress | not-done | on-hold | stopped | completed | entered-in-error | unknown

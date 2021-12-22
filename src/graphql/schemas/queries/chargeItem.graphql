@@ -29,7 +29,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -72,7 +72,7 @@ extend type Query {
         entered-date [date]
         Date the charge item was entered
         """
-        entered_date: [String]
+        entered_date: SearchDate
         """
         enterer [reference]
         Individual who was entering
@@ -92,7 +92,7 @@ extend type Query {
         occurrence [date]
         When the charged service was applied
         """
-        occurrence: [String]
+        occurrence: SearchDate
         """
         patient [reference]
         Individual service was done for/to

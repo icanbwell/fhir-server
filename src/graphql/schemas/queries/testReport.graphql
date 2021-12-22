@@ -25,7 +25,7 @@ extend type Query {
         _lastUpdated [date]
         When the resource version last changed
         """
-        _lastUpdated: [String]
+        _lastUpdated: SearchDate
         """
         _profile [uri]
         Profiles this resource claims to conform to
@@ -58,7 +58,7 @@ extend type Query {
         issued [date]
         The test report generation date
         """
-        issued: [String]
+        issued: SearchDate
         """
         participant [uri]
         The reference to a participant in the test execution
