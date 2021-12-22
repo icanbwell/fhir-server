@@ -5,7 +5,6 @@
 # import Period from "../complex_types/period.graphql"
 # import decimal from "../simple_types/decimal.graphql"
 # import code from "../simple_types/code.graphql"
-# import code from "../simple_types/code.graphql"
 # import time from "../simple_types/time.graphql"
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 

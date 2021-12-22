@@ -4,7 +4,6 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import markdown from "../simple_types/markdown.graphql"
 # import CapabilityStatementInteraction from "../backbone_elements/capabilityStatementInteraction.graphql"
-# import code from "../simple_types/code.graphql"
 # import CapabilityStatementSearchParam from "../backbone_elements/capabilityStatementSearchParam.graphql"
 # import CapabilityStatementOperation from "../backbone_elements/capabilityStatementOperation.graphql"
 

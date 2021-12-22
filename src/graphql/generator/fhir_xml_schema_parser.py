@@ -137,6 +137,7 @@ class FhirXmlSchemaParser:
     def camel_to_snake(name: str) -> str:
         # name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
         # return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
+        # format for node.js
         return name[0].lower() + name[1:]
 
     @staticmethod
@@ -247,9 +248,9 @@ class FhirXmlSchemaParser:
         value_sets: List[FhirValueSet] = FhirXmlSchemaParser.get_value_sets()
 
         # and the target types for codeable concepts
-        # FhirXmlSchemaParser.process_types_for_codeable_concepts(
-        #     fhir_entities, value_sets
-        # )
+        FhirXmlSchemaParser.process_types_for_codeable_concepts(
+            fhir_entities, value_sets
+        )
 
         # value_set: FhirValueSet
         # for value_set in value_sets:
@@ -759,9 +760,9 @@ class FhirXmlSchemaParser:
                         cleaned_type=cleaned_type
                         if cleaned_type not in FhirXmlSchemaParser.cleaned_type_mapping
                         else FhirXmlSchemaParser.cleaned_type_mapping[cleaned_type],
-                        type_snake_case=cleaned_type
+                        type_snake_case=FhirXmlSchemaParser.camel_to_snake(cleaned_type)
                         if cleaned_type not in FhirXmlSchemaParser.cleaned_type_mapping
-                        else cleaned_type,
+                        else FhirXmlSchemaParser.camel_to_snake(cleaned_type),
                         optional=optional,
                         is_list=is_list,
                         documentation=[property_documentation],

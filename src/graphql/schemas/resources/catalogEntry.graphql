@@ -19,7 +19,6 @@
 # import SpecimenDefinition from "../resources/specimenDefinition.graphql"
 # import ObservationDefinition from "../resources/observationDefinition.graphql"
 # import Binary from "../resources/binary.graphql"
-# import code from "../simple_types/code.graphql"
 # import Period from "../complex_types/period.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import CatalogEntryRelatedEntry from "../backbone_elements/catalogEntryRelatedEntry.graphql"

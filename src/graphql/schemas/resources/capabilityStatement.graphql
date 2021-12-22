@@ -6,7 +6,6 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import code from "../simple_types/code.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import ContactDetail from "../complex_types/contactDetail.graphql"
 # import markdown from "../simple_types/markdown.graphql"

@@ -10,7 +10,6 @@
 # import ElementDefinitionType from "../backbone_elements/elementDefinitionType.graphql"
 # import base64Binary from "../simple_types/base64Binary.graphql"
 # import canonical from "../simple_types/canonical.graphql"
-# import code from "../simple_types/code.graphql"
 # import date from "../simple_types/date.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import decimal from "../simple_types/decimal.graphql"

@@ -10,7 +10,6 @@
 # import CarePlan from "../resources/carePlan.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
 # import canonical from "../simple_types/canonical.graphql"
-# import code from "../simple_types/code.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import QuestionnaireResponseItem from "../backbone_elements/questionnaireResponseItem.graphql"
 

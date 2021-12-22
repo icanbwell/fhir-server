@@ -10,7 +10,6 @@
 # import MedicationRequest from "../resources/medicationRequest.graphql"
 # import CarePlan from "../resources/carePlan.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
-# import MedicationStatusCodes from "../simple_types/medicationStatusCodes.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
@@ -135,7 +134,7 @@ type MedicationStatement {
     the medication used that this statement is about.  Generally, this will be
     active or completed.
     """
-    status: MedicationStatusCodes!        
+    status: code!        
     """
     Captures the reason for the current state of the MedicationStatement.
     """

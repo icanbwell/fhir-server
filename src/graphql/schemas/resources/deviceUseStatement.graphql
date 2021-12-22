@@ -8,7 +8,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
-# import code from "../simple_types/code.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 # import Period from "../complex_types/period.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"

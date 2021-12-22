@@ -7,9 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import code from "../simple_types/code.graphql"
 # import EnrollmentRequest from "../resources/enrollmentRequest.graphql"
-# import RemittanceOutcome from "../simple_types/remittanceOutcome.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 
 union EnrollmentResponseRequestProvider = Practitioner | PractitionerRole | Organization
@@ -99,7 +97,7 @@ type EnrollmentResponse {
     """
     Processing status: error, complete.
     """
-    outcome: RemittanceOutcome        
+    outcome: code        
     """
     A description of the status of the adjudication.
     """

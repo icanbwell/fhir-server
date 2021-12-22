@@ -7,11 +7,9 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import code from "../simple_types/code.graphql"
 # import Period from "../complex_types/period.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Organization from "../resources/organization.graphql"
-# import RemittanceOutcome from "../simple_types/remittanceOutcome.graphql"
 # import date from "../simple_types/date.graphql"
 # import Money from "../complex_types/money.graphql"
 # import PaymentReconciliationDetail from "../backbone_elements/paymentReconciliationDetail.graphql"
@@ -122,7 +120,7 @@ type PaymentReconciliation {
     """
     The outcome of a request for a reconciliation.
     """
-    outcome: RemittanceOutcome        
+    outcome: code        
     """
     A human readable description of the status of the request for the
     reconciliation.

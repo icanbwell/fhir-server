@@ -10,7 +10,6 @@
 # import HumanName from "../complex_types/humanName.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Address from "../complex_types/address.graphql"
-# import code from "../simple_types/code.graphql"
 # import date from "../simple_types/date.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import PractitionerQualification from "../backbone_elements/practitionerQualification.graphql"

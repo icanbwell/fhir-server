@@ -10,7 +10,6 @@
 # import Appointment from "../resources/appointment.graphql"
 # import instant from "../simple_types/instant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import code from "../simple_types/code.graphql"
 
 union AppointmentResponseActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
 

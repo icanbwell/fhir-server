@@ -9,7 +9,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import HumanName from "../complex_types/humanName.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
-# import code from "../simple_types/code.graphql"
 # import date from "../simple_types/date.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Address from "../complex_types/address.graphql"

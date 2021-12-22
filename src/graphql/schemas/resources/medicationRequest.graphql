@@ -7,10 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import medicationrequestStatus from "../simple_types/medicationrequestStatus.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import medicationRequestIntent from "../simple_types/medicationRequestIntent.graphql"
-# import code from "../simple_types/code.graphql"
 # import Patient from "../resources/patient.graphql"
 # import Practitioner from "../resources/practitioner.graphql"
 # import PractitionerRole from "../resources/practitionerRole.graphql"
@@ -117,7 +114,7 @@ type MedicationRequest {
     A code specifying the current state of the order.  Generally, this will be
     active or completed state.
     """
-    status: medicationrequestStatus!        
+    status: code!        
     """
     Captures the reason for the current state of the MedicationRequest.
     """
@@ -125,7 +122,7 @@ type MedicationRequest {
     """
     Whether the request is a proposal, plan, or an original order.
     """
-    intent: medicationRequestIntent!        
+    intent: code!        
     """
     Indicates the type of medication request (for example, where the medication is
     expected to be consumed or administered (i.e. inpatient or outpatient)).

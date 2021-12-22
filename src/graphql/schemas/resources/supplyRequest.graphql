@@ -7,7 +7,6 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import code from "../simple_types/code.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Medication from "../resources/medication.graphql"
 # import Substance from "../resources/substance.graphql"
