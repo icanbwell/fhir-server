@@ -82,7 +82,7 @@ extend type Query {
         factor-override [number]
         Factor overriding the associated rules
         """
-        factor_override: [Float]
+        factor_override: SearchNumber
         """
         identifier [token]
         Business Identifier for item

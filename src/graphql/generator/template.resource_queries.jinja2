@@ -47,7 +47,7 @@ extend type Query {
         {% elif search_parameter.type == "special" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "number" %}
-        {{ search_parameter_name.replace("-", "_") }}: [Float]
+        {{ search_parameter_name.replace("-", "_") }}: SearchNumber
         {% endif %}
     {%  endfor %}
 
@@ -77,7 +77,7 @@ extend type Query {
         {% elif search_parameter.type == "special" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "number" %}
-        {{ search_parameter_name.replace("-", "_") }}: [Float]
+        {{ search_parameter_name.replace("-", "_") }}: SearchNumber
         {% endif %}
     {%  endfor %}
         """

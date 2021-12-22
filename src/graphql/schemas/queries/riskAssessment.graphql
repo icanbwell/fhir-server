@@ -89,7 +89,7 @@ extend type Query {
         probability [number]
         Likelihood of specified outcome
         """
-        probability: [Float]
+        probability: SearchNumber
         """
         risk [token]
         Likelihood of specified outcome as a qualitative value
