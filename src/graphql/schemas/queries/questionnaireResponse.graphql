@@ -55,7 +55,7 @@ extend type Query {
         author [reference]
         The author of the questionnaire response
         """
-        author: [String]
+        author: SearchReference
         """
         authored [date]
         When the questionnaire response was last changed
@@ -65,12 +65,12 @@ extend type Query {
         based-on [reference]
         Plan/proposal/order fulfilled by this questionnaire response
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         encounter [reference]
         Encounter associated with the questionnaire response
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         identifier [token]
         The unique identifier for the questionnaire response
@@ -80,22 +80,22 @@ extend type Query {
         part-of [reference]
         Procedure or observation this questionnaire response was performed as a part of
         """
-        part_of: [String]
+        part_of: SearchReference
         """
         patient [reference]
         The patient that is the subject of the questionnaire response
         """
-        patient: [String]
+        patient: SearchReference
         """
         questionnaire [reference]
         The questionnaire the answers are provided for
         """
-        questionnaire: [String]
+        questionnaire: SearchReference
         """
         source [reference]
         The individual providing the information reflected in the questionnaire respose
         """
-        source: [String]
+        source: SearchReference
         """
         status [token]
         The status of the questionnaire response
@@ -105,7 +105,7 @@ extend type Query {
         subject [reference]
         The subject of the questionnaire response
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

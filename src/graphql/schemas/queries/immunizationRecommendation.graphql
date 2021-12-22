@@ -64,12 +64,12 @@ extend type Query {
         information [reference]
         Patient observations supporting recommendation
         """
-        information: [String]
+        information: SearchReference
         """
         patient [reference]
         Who this profile is for
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         Vaccine recommendation status
@@ -79,7 +79,7 @@ extend type Query {
         support [reference]
         Past immunizations supporting recommendation
         """
-        support: [String]
+        support: SearchReference
         """
         target-disease [token]
         Disease to be immunized against

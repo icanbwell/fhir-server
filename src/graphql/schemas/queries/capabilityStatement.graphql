@@ -91,7 +91,7 @@ extend type Query {
         guide [reference]
         Implementation guides supported
         """
-        guide: [String]
+        guide: SearchReference
         """
         jurisdiction [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): Intended jurisdiction for the capability statement* [CodeSystem](codesystem.html): Intended jurisdiction for the code system* [ConceptMap](conceptmap.html): Intended jurisdiction for the concept map* [GraphDefinition](graphdefinition.html): Intended jurisdiction for the graph definition* [ImplementationGuide](implementationguide.html): Intended jurisdiction for the implementation guide* [MessageDefinition](messagedefinition.html): Intended jurisdiction for the message definition* [NamingSystem](namingsystem.html): Intended jurisdiction for the naming system* [OperationDefinition](operationdefinition.html): Intended jurisdiction for the operation definition* [SearchParameter](searchparameter.html): Intended jurisdiction for the search parameter* [StructureDefinition](structuredefinition.html): Intended jurisdiction for the structure definition* [StructureMap](structuremap.html): Intended jurisdiction for the structure map* [TerminologyCapabilities](terminologycapabilities.html): Intended jurisdiction for the terminology capabilities* [ValueSet](valueset.html): Intended jurisdiction for the value set
@@ -121,7 +121,7 @@ extend type Query {
         resource-profile [reference]
         A profile id invoked in a capability statement
         """
-        resource_profile: [String]
+        resource_profile: SearchReference
         """
         security-service [token]
         OAuth | SMART-on-FHIR | NTLM | Basic | Kerberos | Certificates
@@ -141,7 +141,7 @@ extend type Query {
         supported-profile [reference]
         Profiles for use cases supported
         """
-        supported_profile: [String]
+        supported_profile: SearchReference
         """
         title [string]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The human-friendly name of the capability statement* [CodeSystem](codesystem.html): The human-friendly name of the code system* [ConceptMap](conceptmap.html): The human-friendly name of the concept map* [ImplementationGuide](implementationguide.html): The human-friendly name of the implementation guide* [MessageDefinition](messagedefinition.html): The human-friendly name of the message definition* [OperationDefinition](operationdefinition.html): The human-friendly name of the operation definition* [StructureDefinition](structuredefinition.html): The human-friendly name of the structure definition* [StructureMap](structuremap.html): The human-friendly name of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The human-friendly name of the terminology capabilities* [ValueSet](valueset.html): The human-friendly name of the value set

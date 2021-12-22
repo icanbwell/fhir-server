@@ -76,7 +76,7 @@ extend type Query {
         depends-on [reference]
         Identity of the IG that this depends on
         """
-        depends_on: [String]
+        depends_on: SearchReference
         """
         description [string]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set
@@ -91,7 +91,7 @@ extend type Query {
         global [reference]
         Profile that all resources must conform to
         """
-        global: [String]
+        global: SearchReference
         """
         jurisdiction [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): Intended jurisdiction for the capability statement* [CodeSystem](codesystem.html): Intended jurisdiction for the code system* [ConceptMap](conceptmap.html): Intended jurisdiction for the concept map* [GraphDefinition](graphdefinition.html): Intended jurisdiction for the graph definition* [ImplementationGuide](implementationguide.html): Intended jurisdiction for the implementation guide* [MessageDefinition](messagedefinition.html): Intended jurisdiction for the message definition* [NamingSystem](namingsystem.html): Intended jurisdiction for the naming system* [OperationDefinition](operationdefinition.html): Intended jurisdiction for the operation definition* [SearchParameter](searchparameter.html): Intended jurisdiction for the search parameter* [StructureDefinition](structuredefinition.html): Intended jurisdiction for the structure definition* [StructureMap](structuremap.html): Intended jurisdiction for the structure map* [TerminologyCapabilities](terminologycapabilities.html): Intended jurisdiction for the terminology capabilities* [ValueSet](valueset.html): Intended jurisdiction for the value set
@@ -111,7 +111,7 @@ extend type Query {
         resource [reference]
         Location of the resource
         """
-        resource: [String]
+        resource: SearchReference
         """
         status [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The current status of the capability statement* [CodeSystem](codesystem.html): The current status of the code system* [CompartmentDefinition](compartmentdefinition.html): The current status of the compartment definition* [ConceptMap](conceptmap.html): The current status of the concept map* [GraphDefinition](graphdefinition.html): The current status of the graph definition* [ImplementationGuide](implementationguide.html): The current status of the implementation guide* [MessageDefinition](messagedefinition.html): The current status of the message definition* [NamingSystem](namingsystem.html): The current status of the naming system* [OperationDefinition](operationdefinition.html): The current status of the operation definition* [SearchParameter](searchparameter.html): The current status of the search parameter* [StructureDefinition](structuredefinition.html): The current status of the structure definition* [StructureMap](structuremap.html): The current status of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The current status of the terminology capabilities* [ValueSet](valueset.html): The current status of the value set

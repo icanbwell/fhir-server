@@ -54,7 +54,7 @@ extend type Query {
         based-on [reference]
         Procedure that caused this media to be created
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         created [date]
         When Media was collected
@@ -64,12 +64,12 @@ extend type Query {
         device [reference]
         Observing Device
         """
-        device: [String]
+        device: SearchReference
         """
         encounter [reference]
         Encounter associated with media
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         identifier [token]
         Identifier(s) for the image
@@ -84,12 +84,12 @@ extend type Query {
         operator [reference]
         The person who generated the image
         """
-        operator: [String]
+        operator: SearchReference
         """
         patient [reference]
         Who/What this Media is a record of
         """
-        patient: [String]
+        patient: SearchReference
         """
         site [token]
         Observed body part
@@ -104,7 +104,7 @@ extend type Query {
         subject [reference]
         Who/What this Media is a record of
         """
-        subject: [String]
+        subject: SearchReference
         """
         type [token]
         Classification of media as image, video, or audio

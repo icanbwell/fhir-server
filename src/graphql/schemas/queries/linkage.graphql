@@ -54,17 +54,17 @@ extend type Query {
         author [reference]
         Author of the Linkage
         """
-        author: [String]
+        author: SearchReference
         """
         item [reference]
         Matches on any item in the Linkage
         """
-        item: [String]
+        item: SearchReference
         """
         source [reference]
         Matches on any item in the Linkage with a type of source
         """
-        source: [String]
+        source: SearchReference
         """
         return total number of records that meet this query
         """

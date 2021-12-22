@@ -69,7 +69,7 @@ extend type Query {
         patient [reference]
         Who this is about
         """
-        patient: [String]
+        patient: SearchReference
         """
         return total number of records that meet this query
         """

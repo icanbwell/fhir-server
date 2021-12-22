@@ -55,7 +55,7 @@ extend type Query {
         author [reference]
         Who created
         """
-        author: [String]
+        author: SearchReference
         """
         code [token]
         Kind of Resource
@@ -75,12 +75,12 @@ extend type Query {
         patient [reference]
         Identifies the focus of this resource
         """
-        patient: [String]
+        patient: SearchReference
         """
         subject [reference]
         Identifies the focus of this resource
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

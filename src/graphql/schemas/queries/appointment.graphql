@@ -55,7 +55,7 @@ extend type Query {
         actor [reference]
         Any one of the individuals participating in the appointment
         """
-        actor: [String]
+        actor: SearchReference
         """
         appointment-type [token]
         The style of appointment or patient that has been booked in the slot (not service type)
@@ -65,7 +65,7 @@ extend type Query {
         based-on [reference]
         The service request this appointment is allocated to assess
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         date [date]
         Appointment date/time.
@@ -80,7 +80,7 @@ extend type Query {
         location [reference]
         This location is listed in the participants of the appointment
         """
-        location: [String]
+        location: SearchReference
         """
         part-status [token]
         The Participation status of the subject, or other participant on the appointment. Can be used to locate participants that have not responded to meeting requests.
@@ -90,12 +90,12 @@ extend type Query {
         patient [reference]
         One of the individuals of the appointment is this patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         practitioner [reference]
         One of the individuals of the appointment is this practitioner
         """
-        practitioner: [String]
+        practitioner: SearchReference
         """
         reason-code [token]
         Coded reason this appointment is scheduled
@@ -105,7 +105,7 @@ extend type Query {
         reason-reference [reference]
         Reason the appointment is to take place (resource)
         """
-        reason_reference: [String]
+        reason_reference: SearchReference
         """
         service-category [token]
         A broad categorization of the service that is to be performed during this appointment
@@ -120,7 +120,7 @@ extend type Query {
         slot [reference]
         The slots that this appointment is filling
         """
-        slot: [String]
+        slot: SearchReference
         """
         specialty [token]
         The specialty of a practitioner that would be required to perform the service requested in this appointment
@@ -135,7 +135,7 @@ extend type Query {
         supporting-info [reference]
         Additional information to support the appointment
         """
-        supporting_info: [String]
+        supporting_info: SearchReference
         """
         return total number of records that meet this query
         """

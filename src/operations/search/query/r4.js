@@ -88,6 +88,16 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                     }
                                 }
                                 break;
+                            case 'reference':
+                                // eslint-disable-next-line no-case-declarations
+                                let referenceText = '';
+                                if (queryParameterValue['target']) {
+                                    referenceText = queryParameterValue['target'] + '/';
+                                }
+                                if (queryParameterValue['value']) {
+                                    referenceText += queryParameterValue['value'];
+                                }
+                                queryParameterValue = referenceText;
                         }
                         if (queryParameterValue['missing'] !== null) {
                             args[`${queryParameter}:missing`] = queryParameterValue['missing'];
@@ -209,7 +219,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 const target = propertyObj.target[0];
                                 and_segments.push(
                                     referenceQueryBuilder(
-                                        `${target}/` + queryParameterValue,
+                                        queryParameterValue.includes('/')
+                                            ? queryParameterValue : (`${target}/` + queryParameterValue),
                                         `${propertyObj.field}.reference`,
                                         null
                                     )
@@ -219,7 +230,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                     {
                                         $or: propertyObj.target.map(
                                             target => referenceQueryBuilder(
-                                                `${target}/` + queryParameterValue,
+                                                queryParameterValue.includes('/')
+                                                    ? queryParameterValue : (`${target}/` + queryParameterValue),
                                                 `${propertyObj.field}.reference`,
                                                 null
                                             )

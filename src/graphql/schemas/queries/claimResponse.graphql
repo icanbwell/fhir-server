@@ -69,7 +69,7 @@ extend type Query {
         insurer [reference]
         The organization which generated this resource
         """
-        insurer: [String]
+        insurer: SearchReference
         """
         outcome [token]
         The processing outcome
@@ -79,7 +79,7 @@ extend type Query {
         patient [reference]
         The subject of care
         """
-        patient: [String]
+        patient: SearchReference
         """
         payment-date [date]
         The expected payment date
@@ -89,12 +89,12 @@ extend type Query {
         request [reference]
         The claim reference
         """
-        request: [String]
+        request: SearchReference
         """
         requestor [reference]
         The Provider of the claim
         """
-        requestor: [String]
+        requestor: SearchReference
         """
         status [token]
         The status of the ClaimResponse

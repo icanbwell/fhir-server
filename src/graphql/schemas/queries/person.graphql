@@ -104,7 +104,7 @@ extend type Query {
         link [reference]
         Any link has this Patient, Person, RelatedPerson or Practitioner reference
         """
-        link: [String]
+        link: SearchReference
         """
         name [string]
         A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text
@@ -114,12 +114,12 @@ extend type Query {
         organization [reference]
         The organization at which this person record is being managed
         """
-        organization: [String]
+        organization: SearchReference
         """
         patient [reference]
         The Person links to this Patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         phone [token]
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
@@ -134,12 +134,12 @@ extend type Query {
         practitioner [reference]
         The Person links to this Practitioner
         """
-        practitioner: [String]
+        practitioner: SearchReference
         """
         relatedperson [reference]
         The Person links to this RelatedPerson
         """
-        relatedperson: [String]
+        relatedperson: SearchReference
         """
         telecom [token]
         Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact

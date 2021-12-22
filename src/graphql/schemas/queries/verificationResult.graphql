@@ -54,7 +54,7 @@ extend type Query {
         target [reference]
         A resource that was validated
         """
-        target: [String]
+        target: SearchReference
         """
         return total number of records that meet this query
         """

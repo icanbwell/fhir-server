@@ -110,6 +110,7 @@ run-pre-commit: setup-pre-commit
 graphql:
 	python3 src/graphql/generator/generate_classes.py && \
 	graphql-schema-linter src/graphql/schemas/**/*.graphql
+	#&& 	graphql-schema-linter src/tests/**/*.graphql
 
 .PHONY:searchParameters
 searchParameters:

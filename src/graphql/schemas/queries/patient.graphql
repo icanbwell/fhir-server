@@ -119,7 +119,7 @@ extend type Query {
         general-practitioner [reference]
         Patients nominated general practitioner, not the organization that manages the record
         """
-        general_practitioner: [String]
+        general_practitioner: SearchReference
         """
         given [string]
         Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name
@@ -139,7 +139,7 @@ extend type Query {
         link [reference]
         All patients linked to the given patient
         """
-        link: [String]
+        link: SearchReference
         """
         name [string]
         A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text
@@ -149,7 +149,7 @@ extend type Query {
         organization [reference]
         The organization that is the custodian of the patient record
         """
-        organization: [String]
+        organization: SearchReference
         """
         phone [token]
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact

@@ -55,7 +55,7 @@ extend type Query {
         care-team [reference]
         Member of the CareTeam
         """
-        care_team: [String]
+        care_team: SearchReference
         """
         created [date]
         The creation date for the Claim
@@ -65,22 +65,22 @@ extend type Query {
         detail-udi [reference]
         UDI associated with a line item, detail product or service
         """
-        detail_udi: [String]
+        detail_udi: SearchReference
         """
         encounter [reference]
         Encounters associated with a billed line item
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         enterer [reference]
         The party responsible for the entry of the Claim
         """
-        enterer: [String]
+        enterer: SearchReference
         """
         facility [reference]
         Facility where the products or services have been or will be provided
         """
-        facility: [String]
+        facility: SearchReference
         """
         identifier [token]
         The primary identifier of the financial resource
@@ -90,22 +90,22 @@ extend type Query {
         insurer [reference]
         The target payor/insurer for the Claim
         """
-        insurer: [String]
+        insurer: SearchReference
         """
         item-udi [reference]
         UDI associated with a line item product or service
         """
-        item_udi: [String]
+        item_udi: SearchReference
         """
         patient [reference]
         Patient receiving the products or services
         """
-        patient: [String]
+        patient: SearchReference
         """
         payee [reference]
         The party receiving any payment for the Claim
         """
-        payee: [String]
+        payee: SearchReference
         """
         priority [token]
         Processing priority requested
@@ -115,12 +115,12 @@ extend type Query {
         procedure-udi [reference]
         UDI associated with a procedure
         """
-        procedure_udi: [String]
+        procedure_udi: SearchReference
         """
         provider [reference]
         Provider responsible for the Claim
         """
-        provider: [String]
+        provider: SearchReference
         """
         status [token]
         The status of the Claim instance.
@@ -130,7 +130,7 @@ extend type Query {
         subdetail-udi [reference]
         UDI associated with a line item, detail, subdetail product or service
         """
-        subdetail_udi: [String]
+        subdetail_udi: SearchReference
         """
         use [token]
         The kind of financial resource

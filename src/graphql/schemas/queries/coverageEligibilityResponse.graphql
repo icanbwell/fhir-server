@@ -69,7 +69,7 @@ extend type Query {
         insurer [reference]
         The organization which generated this resource
         """
-        insurer: [String]
+        insurer: SearchReference
         """
         outcome [token]
         The processing outcome
@@ -79,17 +79,17 @@ extend type Query {
         patient [reference]
         The reference to the patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         request [reference]
         The EligibilityRequest reference
         """
-        request: [String]
+        request: SearchReference
         """
         requestor [reference]
         The EligibilityRequest provider
         """
-        requestor: [String]
+        requestor: SearchReference
         """
         status [token]
         The EligibilityRequest status

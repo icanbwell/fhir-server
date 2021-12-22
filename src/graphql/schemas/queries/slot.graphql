@@ -63,7 +63,7 @@ extend type Query {
         schedule [reference]
         The Schedule Resource that we are seeking a slot within
         """
-        schedule: [String]
+        schedule: SearchReference
         """
         service-category [token]
         A broad categorization of the service that is to be performed during this appointment

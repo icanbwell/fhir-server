@@ -62,12 +62,12 @@ extend type Query {
         enterer [reference]
         The party who is responsible for the request
         """
-        enterer: [String]
+        enterer: SearchReference
         """
         facility [reference]
         Facility responsible for the goods and services
         """
-        facility: [String]
+        facility: SearchReference
         """
         identifier [token]
         The business identifier of the Eligibility
@@ -77,12 +77,12 @@ extend type Query {
         patient [reference]
         The reference to the patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         provider [reference]
         The reference to the provider
         """
-        provider: [String]
+        provider: SearchReference
         """
         status [token]
         The status of the EligibilityRequest

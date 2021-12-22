@@ -59,7 +59,7 @@ extend type Query {
         patient [reference]
         The party to be enrolled
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         The status of the enrollment
@@ -69,7 +69,7 @@ extend type Query {
         subject [reference]
         The party to be enrolled
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

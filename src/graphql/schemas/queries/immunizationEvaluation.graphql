@@ -70,12 +70,12 @@ extend type Query {
         immunization-event [reference]
         The vaccine administration event being evaluated
         """
-        immunization_event: [String]
+        immunization_event: SearchReference
         """
         patient [reference]
         The patient being evaluated
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         Immunization evaluation status

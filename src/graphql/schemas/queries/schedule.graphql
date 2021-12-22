@@ -58,7 +58,7 @@ extend type Query {
         actor [reference]
         The individual(HealthcareService, Practitioner, Location, ...) to find a Schedule for
         """
-        actor: [String]
+        actor: SearchReference
         """
         date [date]
         Search for Schedule resources that have a period that contains this date specified

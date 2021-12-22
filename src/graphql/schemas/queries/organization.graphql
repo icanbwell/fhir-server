@@ -91,7 +91,7 @@ extend type Query {
         endpoint [reference]
         Technical endpoints providing access to services operated for the organization
         """
-        endpoint: [String]
+        endpoint: SearchReference
         """
         identifier [token]
         Any identifier for the organization (not the accreditation issuers identifier)
@@ -106,7 +106,7 @@ extend type Query {
         partof [reference]
         An organization of which this organization forms a part
         """
-        partof: [String]
+        partof: SearchReference
         """
         phonetic [string]
         A portion of the organizations name using some kind of phonetic matching algorithm

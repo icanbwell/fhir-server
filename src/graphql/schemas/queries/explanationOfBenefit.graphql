@@ -55,17 +55,17 @@ extend type Query {
         care-team [reference]
         Member of the CareTeam
         """
-        care_team: [String]
+        care_team: SearchReference
         """
         claim [reference]
         The reference to the claim
         """
-        claim: [String]
+        claim: SearchReference
         """
         coverage [reference]
         The plan under which the claim was adjudicated
         """
-        coverage: [String]
+        coverage: SearchReference
         """
         created [date]
         The creation date for the EOB
@@ -75,7 +75,7 @@ extend type Query {
         detail-udi [reference]
         UDI associated with a line item detail product or service
         """
-        detail_udi: [String]
+        detail_udi: SearchReference
         """
         disposition [string]
         The contents of the disposition message
@@ -85,17 +85,17 @@ extend type Query {
         encounter [reference]
         Encounters associated with a billed line item
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         enterer [reference]
         The party responsible for the entry of the Claim
         """
-        enterer: [String]
+        enterer: SearchReference
         """
         facility [reference]
         Facility responsible for the goods and services
         """
-        facility: [String]
+        facility: SearchReference
         """
         identifier [token]
         The business identifier of the Explanation of Benefit
@@ -105,27 +105,27 @@ extend type Query {
         item-udi [reference]
         UDI associated with a line item product or service
         """
-        item_udi: [String]
+        item_udi: SearchReference
         """
         patient [reference]
         The reference to the patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         payee [reference]
         The party receiving any payment for the Claim
         """
-        payee: [String]
+        payee: SearchReference
         """
         procedure-udi [reference]
         UDI associated with a procedure
         """
-        procedure_udi: [String]
+        procedure_udi: SearchReference
         """
         provider [reference]
         The reference to the provider
         """
-        provider: [String]
+        provider: SearchReference
         """
         status [token]
         Status of the instance
@@ -135,7 +135,7 @@ extend type Query {
         subdetail-udi [reference]
         UDI associated with a line item detail subdetail product or service
         """
-        subdetail_udi: [String]
+        subdetail_udi: SearchReference
         """
         return total number of records that meet this query
         """

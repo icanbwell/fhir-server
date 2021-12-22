@@ -54,12 +54,12 @@ extend type Query {
         actor [reference]
         The Person, Location/HealthcareService or Device that this appointment response replies for
         """
-        actor: [String]
+        actor: SearchReference
         """
         appointment [reference]
         The appointment that the response is attached to
         """
-        appointment: [String]
+        appointment: SearchReference
         """
         identifier [token]
         An Identifier in this appointment response
@@ -69,7 +69,7 @@ extend type Query {
         location [reference]
         This Response is for this Location
         """
-        location: [String]
+        location: SearchReference
         """
         part-status [token]
         The participants acceptance status for this appointment
@@ -79,12 +79,12 @@ extend type Query {
         patient [reference]
         This Response is for this Patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         practitioner [reference]
         This Response is for this Practitioner
         """
-        practitioner: [String]
+        practitioner: SearchReference
         """
         return total number of records that meet this query
         """

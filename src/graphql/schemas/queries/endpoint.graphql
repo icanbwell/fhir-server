@@ -70,7 +70,7 @@ extend type Query {
         organization [reference]
         The organization that is managing the endpoint
         """
-        organization: [String]
+        organization: SearchReference
         """
         payload-type [token]
         The type of content that may be used at this endpoint (e.g. XDS Discharge summaries)

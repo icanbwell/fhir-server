@@ -59,7 +59,7 @@ extend type Query {
         parent [reference]
         The parent DeviceDefinition resource
         """
-        parent: [String]
+        parent: SearchReference
         """
         type [token]
         The device component type

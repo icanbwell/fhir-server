@@ -58,7 +58,7 @@ extend type Query {
         subject [reference]
         The product with this is a pack for
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

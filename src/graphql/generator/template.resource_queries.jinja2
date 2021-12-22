@@ -39,7 +39,7 @@ extend type Query {
         {% elif search_parameter.type == "uri" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchReference
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "special" %}
@@ -67,7 +67,7 @@ extend type Query {
         {% elif search_parameter.type == "uri" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
-        {{ search_parameter_name.replace("-", "_") }}: [String]
+        {{ search_parameter_name.replace("-", "_") }}: SearchReference
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: [String]
         {% elif search_parameter.type == "special" %}

@@ -75,7 +75,7 @@ extend type Query {
         ingredient [reference]
         Returns medications for this ingredient reference
         """
-        ingredient: [String]
+        ingredient: SearchReference
         """
         ingredient-code [token]
         Returns medications for this ingredient code
@@ -90,7 +90,7 @@ extend type Query {
         manufacturer [reference]
         Returns medications made or sold for this manufacturer
         """
-        manufacturer: [String]
+        manufacturer: SearchReference
         """
         status [token]
         Returns medications for this status

@@ -59,7 +59,7 @@ extend type Query {
         request [reference]
         The reference to the claim
         """
-        request: [String]
+        request: SearchReference
         """
         status [token]
         The status of the enrollment response

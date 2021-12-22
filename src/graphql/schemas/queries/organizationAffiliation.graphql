@@ -69,7 +69,7 @@ extend type Query {
         endpoint [reference]
         Technical endpoints providing access to services operated for this role
         """
-        endpoint: [String]
+        endpoint: SearchReference
         """
         identifier [token]
         An organization affiliations Identifier
@@ -79,17 +79,17 @@ extend type Query {
         location [reference]
         The location(s) at which the role occurs
         """
-        location: [String]
+        location: SearchReference
         """
         network [reference]
         Health insurance provider network in which the participatingOrganization provides the roles services (if defined) at the indicated locations (if defined)
         """
-        network: [String]
+        network: SearchReference
         """
         participating-organization [reference]
         The organization that provides services to the primary organization
         """
-        participating_organization: [String]
+        participating_organization: SearchReference
         """
         phone [token]
         A value in a phone contact
@@ -99,7 +99,7 @@ extend type Query {
         primary-organization [reference]
         The organization that receives the services from the participating organization
         """
-        primary_organization: [String]
+        primary_organization: SearchReference
         """
         role [token]
         Definition of the role the participatingOrganization plays
@@ -109,7 +109,7 @@ extend type Query {
         service [reference]
         Healthcare services provided through the role
         """
-        service: [String]
+        service: SearchReference
         """
         specialty [token]
         Specific specialty of the participatingOrganization in the context of the role

@@ -68,7 +68,7 @@ extend type Query {
         collector [reference]
         Who collected the specimen
         """
-        collector: [String]
+        collector: SearchReference
         """
         container [token]
         The kind of specimen container
@@ -88,12 +88,12 @@ extend type Query {
         parent [reference]
         The parent of the specimen
         """
-        parent: [String]
+        parent: SearchReference
         """
         patient [reference]
         The patient the specimen comes from
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         available | unavailable | unsatisfactory | entered-in-error
@@ -103,7 +103,7 @@ extend type Query {
         subject [reference]
         The subject of the specimen
         """
-        subject: [String]
+        subject: SearchReference
         """
         type [token]
         The specimen type

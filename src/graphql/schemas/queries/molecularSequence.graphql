@@ -63,7 +63,7 @@ extend type Query {
         patient [reference]
         The subject that the observation is about
         """
-        patient: [String]
+        patient: SearchReference
         """
         referenceseqid [token]
         Reference Sequence of the sequence

@@ -57,7 +57,7 @@ extend type Query {
         account [reference]
         Account to place this charge
         """
-        account: [String]
+        account: SearchReference
         """
         code [token]
         A code that identifies the charge, like a billing code
@@ -67,7 +67,7 @@ extend type Query {
         context [reference]
         Encounter / Episode associated with event
         """
-        context: [String]
+        context: SearchReference
         """
         entered-date [date]
         Date the charge item was entered
@@ -77,7 +77,7 @@ extend type Query {
         enterer [reference]
         Individual who was entering
         """
-        enterer: [String]
+        enterer: SearchReference
         """
         factor-override [number]
         Factor overriding the associated rules
@@ -97,12 +97,12 @@ extend type Query {
         patient [reference]
         Individual service was done for/to
         """
-        patient: [String]
+        patient: SearchReference
         """
         performer-actor [reference]
         Individual who was performing
         """
-        performer_actor: [String]
+        performer_actor: SearchReference
         """
         performer-function [token]
         What type of performance was done
@@ -112,7 +112,7 @@ extend type Query {
         performing-organization [reference]
         Organization providing the charged service
         """
-        performing_organization: [String]
+        performing_organization: SearchReference
         """
         price-override [quantity]
         Price overriding the associated rules
@@ -127,17 +127,17 @@ extend type Query {
         requesting-organization [reference]
         Organization requesting the charged service
         """
-        requesting_organization: [String]
+        requesting_organization: SearchReference
         """
         service [reference]
         Which rendered service is being charged?
         """
-        service: [String]
+        service: SearchReference
         """
         subject [reference]
         Individual service was done for/to
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

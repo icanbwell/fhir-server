@@ -78,7 +78,7 @@ extend type Query {
         testscript [reference]
         The test script executed to produce this report
         """
-        testscript: [String]
+        testscript: SearchReference
         """
         return total number of records that meet this query
         """

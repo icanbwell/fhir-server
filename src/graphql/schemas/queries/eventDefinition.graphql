@@ -54,7 +54,7 @@ extend type Query {
         composed-of [reference]
         What resource is being referenced
         """
-        composed_of: [String]
+        composed_of: SearchReference
         """
         context [token]
         A use context assigned to the event definition
@@ -79,12 +79,12 @@ extend type Query {
         depends-on [reference]
         What resource is being referenced
         """
-        depends_on: [String]
+        depends_on: SearchReference
         """
         derived-from [reference]
         What resource is being referenced
         """
-        derived_from: [String]
+        derived_from: SearchReference
         """
         description [string]
         The description of the event definition
@@ -114,7 +114,7 @@ extend type Query {
         predecessor [reference]
         What resource is being referenced
         """
-        predecessor: [String]
+        predecessor: SearchReference
         """
         publisher [string]
         Name of the publisher of the event definition
@@ -129,7 +129,7 @@ extend type Query {
         successor [reference]
         What resource is being referenced
         """
-        successor: [String]
+        successor: SearchReference
         """
         title [string]
         The human-friendly name of the event definition

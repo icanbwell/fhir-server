@@ -60,7 +60,7 @@ extend type Query {
         evaluated-resource [reference]
         An evaluated resource referenced by the measure report
         """
-        evaluated_resource: [String]
+        evaluated_resource: SearchReference
         """
         identifier [token]
         External identifier of the measure report to be returned
@@ -70,12 +70,12 @@ extend type Query {
         measure [reference]
         The measure to return measure report results for
         """
-        measure: [String]
+        measure: SearchReference
         """
         patient [reference]
         The identity of a patient to search for individual measure report results for
         """
-        patient: [String]
+        patient: SearchReference
         """
         period [date]
         The period of the measure report
@@ -85,7 +85,7 @@ extend type Query {
         reporter [reference]
         The reporter to return measure report results for
         """
-        reporter: [String]
+        reporter: SearchReference
         """
         status [token]
         The status of the measure report
@@ -95,7 +95,7 @@ extend type Query {
         subject [reference]
         The identity of a subject to search for individual measure report results for
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

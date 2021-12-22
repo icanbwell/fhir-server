@@ -100,7 +100,7 @@ extend type Query {
         other [reference]
         canonical reference to an additional ConceptMap to use for mapping if the source concept is unmapped
         """
-        other: [String]
+        other: SearchReference
         """
         product [uri]
         Reference to property mapping depends on
@@ -115,7 +115,7 @@ extend type Query {
         source [reference]
         The source value set that contains the concepts that are being mapped
         """
-        source: [String]
+        source: SearchReference
         """
         source-code [token]
         Identifies element being mapped
@@ -130,7 +130,7 @@ extend type Query {
         source-uri [reference]
         The source value set that contains the concepts that are being mapped
         """
-        source_uri: [String]
+        source_uri: SearchReference
         """
         status [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The current status of the capability statement* [CodeSystem](codesystem.html): The current status of the code system* [CompartmentDefinition](compartmentdefinition.html): The current status of the compartment definition* [ConceptMap](conceptmap.html): The current status of the concept map* [GraphDefinition](graphdefinition.html): The current status of the graph definition* [ImplementationGuide](implementationguide.html): The current status of the implementation guide* [MessageDefinition](messagedefinition.html): The current status of the message definition* [NamingSystem](namingsystem.html): The current status of the naming system* [OperationDefinition](operationdefinition.html): The current status of the operation definition* [SearchParameter](searchparameter.html): The current status of the search parameter* [StructureDefinition](structuredefinition.html): The current status of the structure definition* [StructureMap](structuremap.html): The current status of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The current status of the terminology capabilities* [ValueSet](valueset.html): The current status of the value set
@@ -140,7 +140,7 @@ extend type Query {
         target [reference]
         The target value set which provides context for the mappings
         """
-        target: [String]
+        target: SearchReference
         """
         target-code [token]
         Code that identifies the target element
@@ -155,7 +155,7 @@ extend type Query {
         target-uri [reference]
         The target value set which provides context for the mappings
         """
-        target_uri: [String]
+        target_uri: SearchReference
         """
         title [string]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The human-friendly name of the capability statement* [CodeSystem](codesystem.html): The human-friendly name of the code system* [ConceptMap](conceptmap.html): The human-friendly name of the concept map* [ImplementationGuide](implementationguide.html): The human-friendly name of the implementation guide* [MessageDefinition](messagedefinition.html): The human-friendly name of the message definition* [OperationDefinition](operationdefinition.html): The human-friendly name of the operation definition* [StructureDefinition](structuredefinition.html): The human-friendly name of the structure definition* [StructureMap](structuremap.html): The human-friendly name of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The human-friendly name of the terminology capabilities* [ValueSet](valueset.html): The human-friendly name of the value set

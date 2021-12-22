@@ -65,7 +65,7 @@ extend type Query {
         agent [reference]
         Identifier of who
         """
-        agent: [String]
+        agent: SearchReference
         """
         agent-name [string]
         Human friendly name for the agent
@@ -90,7 +90,7 @@ extend type Query {
         entity [reference]
         Specific instance of resource
         """
-        entity: [String]
+        entity: SearchReference
         """
         entity-name [string]
         Descriptor for entity
@@ -115,7 +115,7 @@ extend type Query {
         patient [reference]
         Identifier of who
         """
-        patient: [String]
+        patient: SearchReference
         """
         policy [uri]
         Policy that authorized event
@@ -130,7 +130,7 @@ extend type Query {
         source [reference]
         The identity of source detecting the event
         """
-        source: [String]
+        source: SearchReference
         """
         subtype [token]
         More specific type/id for the event

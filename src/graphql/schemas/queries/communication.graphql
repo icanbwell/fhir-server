@@ -55,7 +55,7 @@ extend type Query {
         based-on [reference]
         Request fulfilled by this communication
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         category [token]
         Message category
@@ -65,7 +65,7 @@ extend type Query {
         encounter [reference]
         Encounter created as part of
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         identifier [token]
         Unique identifier
@@ -75,7 +75,7 @@ extend type Query {
         instantiates-canonical [reference]
         Instantiates FHIR protocol or definition
         """
-        instantiates_canonical: [String]
+        instantiates_canonical: SearchReference
         """
         instantiates-uri [uri]
         Instantiates external protocol or definition
@@ -90,12 +90,12 @@ extend type Query {
         part-of [reference]
         Part of this action
         """
-        part_of: [String]
+        part_of: SearchReference
         """
         patient [reference]
         Focus of message
         """
-        patient: [String]
+        patient: SearchReference
         """
         received [date]
         When received
@@ -105,12 +105,12 @@ extend type Query {
         recipient [reference]
         Message recipient
         """
-        recipient: [String]
+        recipient: SearchReference
         """
         sender [reference]
         Message sender
         """
-        sender: [String]
+        sender: SearchReference
         """
         sent [date]
         When sent
@@ -125,7 +125,7 @@ extend type Query {
         subject [reference]
         Focus of message
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

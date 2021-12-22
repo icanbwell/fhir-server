@@ -88,7 +88,7 @@ extend type Query {
         substance-reference [reference]
         A component of the substance
         """
-        substance_reference: [String]
+        substance_reference: SearchReference
         """
         return total number of records that meet this query
         """

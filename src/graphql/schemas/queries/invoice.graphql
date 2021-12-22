@@ -54,7 +54,7 @@ extend type Query {
         account [reference]
         Account that is being balanced
         """
-        account: [String]
+        account: SearchReference
         """
         date [date]
         Invoice date / posting date
@@ -69,12 +69,12 @@ extend type Query {
         issuer [reference]
         Issuing Organization of Invoice
         """
-        issuer: [String]
+        issuer: SearchReference
         """
         participant [reference]
         Individual who was involved
         """
-        participant: [String]
+        participant: SearchReference
         """
         participant-role [token]
         Type of involvement in creation of this Invoice
@@ -84,12 +84,12 @@ extend type Query {
         patient [reference]
         Recipient(s) of goods and services
         """
-        patient: [String]
+        patient: SearchReference
         """
         recipient [reference]
         Recipient of this invoice
         """
-        recipient: [String]
+        recipient: SearchReference
         """
         status [token]
         draft | issued | balanced | cancelled | entered-in-error
@@ -99,7 +99,7 @@ extend type Query {
         subject [reference]
         Recipient(s) of goods and services
         """
-        subject: [String]
+        subject: SearchReference
         """
         totalgross [quantity]
         Gross total of this Invoice

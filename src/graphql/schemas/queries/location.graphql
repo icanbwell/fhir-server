@@ -85,7 +85,7 @@ extend type Query {
         endpoint [reference]
         Technical endpoints providing access to services operated for the location
         """
-        endpoint: [String]
+        endpoint: SearchReference
         """
         identifier [token]
         An identifier for the location
@@ -110,12 +110,12 @@ extend type Query {
         organization [reference]
         Searches for locations that are managed by the provided organization
         """
-        organization: [String]
+        organization: SearchReference
         """
         partof [reference]
         A location of which this location is a part
         """
-        partof: [String]
+        partof: SearchReference
         """
         status [token]
         Searches for locations with a specific kind of status

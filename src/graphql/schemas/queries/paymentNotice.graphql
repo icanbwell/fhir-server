@@ -69,17 +69,17 @@ extend type Query {
         provider [reference]
         The reference to the provider
         """
-        provider: [String]
+        provider: SearchReference
         """
         request [reference]
         The Claim
         """
-        request: [String]
+        request: SearchReference
         """
         response [reference]
         The ClaimResponse
         """
-        response: [String]
+        response: SearchReference
         """
         status [token]
         The status of the payment notice

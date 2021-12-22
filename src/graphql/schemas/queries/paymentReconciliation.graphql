@@ -74,17 +74,17 @@ extend type Query {
         payment-issuer [reference]
         The organization which generated this resource
         """
-        payment_issuer: [String]
+        payment_issuer: SearchReference
         """
         request [reference]
         The reference to the claim
         """
-        request: [String]
+        request: SearchReference
         """
         requestor [reference]
         The reference to the provider who submitted the claim
         """
-        requestor: [String]
+        requestor: SearchReference
         """
         status [token]
         The status of the payment reconciliation

@@ -61,7 +61,7 @@ extend type Query {
         agent [reference]
         Who participated
         """
-        agent: [String]
+        agent: SearchReference
         """
         agent-role [token]
         What the agents role was
@@ -76,17 +76,17 @@ extend type Query {
         entity [reference]
         Identity of entity
         """
-        entity: [String]
+        entity: SearchReference
         """
         location [reference]
         Where the activity occurred, if relevant
         """
-        location: [String]
+        location: SearchReference
         """
         patient [reference]
         Target Reference(s) (usually version specific)
         """
-        patient: [String]
+        patient: SearchReference
         """
         recorded [date]
         When the activity was recorded / updated
@@ -101,7 +101,7 @@ extend type Query {
         target [reference]
         Target Reference(s) (usually version specific)
         """
-        target: [String]
+        target: SearchReference
         """
         when [date]
         When the activity occurred

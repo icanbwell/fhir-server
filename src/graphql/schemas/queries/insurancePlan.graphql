@@ -83,12 +83,12 @@ extend type Query {
         administered-by [reference]
         Product administrator
         """
-        administered_by: [String]
+        administered_by: SearchReference
         """
         endpoint [reference]
         Technical endpoint
         """
-        endpoint: [String]
+        endpoint: SearchReference
         """
         identifier [token]
         Any identifier for the organization (not the accreditation issuers identifier)
@@ -103,7 +103,7 @@ extend type Query {
         owned-by [reference]
         An organization of which this organization forms a part
         """
-        owned_by: [String]
+        owned_by: SearchReference
         """
         phonetic [string]
         A portion of the organizations name using some kind of phonetic matching algorithm

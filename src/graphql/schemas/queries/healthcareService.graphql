@@ -63,12 +63,12 @@ extend type Query {
         coverage-area [reference]
         Location(s) service is intended for/available to
         """
-        coverage_area: [String]
+        coverage_area: SearchReference
         """
         endpoint [reference]
         Technical endpoints providing access to electronic services operated for the healthcare service
         """
-        endpoint: [String]
+        endpoint: SearchReference
         """
         identifier [token]
         External identifiers for this item
@@ -78,7 +78,7 @@ extend type Query {
         location [reference]
         The location of the Healthcare Service
         """
-        location: [String]
+        location: SearchReference
         """
         name [string]
         A portion of the Healthcare service name
@@ -88,7 +88,7 @@ extend type Query {
         organization [reference]
         The organization that provides this Healthcare Service
         """
-        organization: [String]
+        organization: SearchReference
         """
         program [token]
         One of the Programs supported by this HealthcareService

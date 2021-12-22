@@ -58,7 +58,7 @@ extend type Query {
         based-on [reference]
         Search by requests this task is based on
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         business-status [token]
         Search by business status
@@ -73,12 +73,12 @@ extend type Query {
         encounter [reference]
         Search by encounter
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         focus [reference]
         Search by task focus
         """
-        focus: [String]
+        focus: SearchReference
         """
         group-identifier [token]
         Search by group identifier
@@ -103,17 +103,17 @@ extend type Query {
         owner [reference]
         Search by task owner
         """
-        owner: [String]
+        owner: SearchReference
         """
         part-of [reference]
         Search by task this task is part of
         """
-        part_of: [String]
+        part_of: SearchReference
         """
         patient [reference]
         Search by patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         performer [token]
         Search by recommended type of performer (e.g., Requester, Performer, Scheduler).
@@ -133,7 +133,7 @@ extend type Query {
         requester [reference]
         Search by task requester
         """
-        requester: [String]
+        requester: SearchReference
         """
         status [token]
         Search by task status
@@ -143,7 +143,7 @@ extend type Query {
         subject [reference]
         Search by subject
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

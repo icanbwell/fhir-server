@@ -64,7 +64,7 @@ extend type Query {
         component [reference]
         Defines how the part works
         """
-        component: [String]
+        component: SearchReference
         """
         context [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): A use context assigned to the capability statement* [CodeSystem](codesystem.html): A use context assigned to the code system* [CompartmentDefinition](compartmentdefinition.html): A use context assigned to the compartment definition* [ConceptMap](conceptmap.html): A use context assigned to the concept map* [GraphDefinition](graphdefinition.html): A use context assigned to the graph definition* [ImplementationGuide](implementationguide.html): A use context assigned to the implementation guide* [MessageDefinition](messagedefinition.html): A use context assigned to the message definition* [NamingSystem](namingsystem.html): A use context assigned to the naming system* [OperationDefinition](operationdefinition.html): A use context assigned to the operation definition* [SearchParameter](searchparameter.html): A use context assigned to the search parameter* [StructureDefinition](structuredefinition.html): A use context assigned to the structure definition* [StructureMap](structuremap.html): A use context assigned to the structure map* [TerminologyCapabilities](terminologycapabilities.html): A use context assigned to the terminology capabilities* [ValueSet](valueset.html): A use context assigned to the value set
@@ -89,7 +89,7 @@ extend type Query {
         derived-from [reference]
         Original definition for the search parameter
         """
-        derived_from: [String]
+        derived_from: SearchReference
         """
         description [string]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The description of the capability statement* [CodeSystem](codesystem.html): The description of the code system* [CompartmentDefinition](compartmentdefinition.html): The description of the compartment definition* [ConceptMap](conceptmap.html): The description of the concept map* [GraphDefinition](graphdefinition.html): The description of the graph definition* [ImplementationGuide](implementationguide.html): The description of the implementation guide* [MessageDefinition](messagedefinition.html): The description of the message definition* [NamingSystem](namingsystem.html): The description of the naming system* [OperationDefinition](operationdefinition.html): The description of the operation definition* [SearchParameter](searchparameter.html): The description of the search parameter* [StructureDefinition](structuredefinition.html): The description of the structure definition* [StructureMap](structuremap.html): The description of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The description of the terminology capabilities* [ValueSet](valueset.html): The description of the value set

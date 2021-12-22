@@ -54,7 +54,7 @@ extend type Query {
         beneficiary [reference]
         Covered party
         """
-        beneficiary: [String]
+        beneficiary: SearchReference
         """
         class-type [token]
         Coverage class (eg. plan, group)
@@ -79,17 +79,17 @@ extend type Query {
         patient [reference]
         Retrieve coverages for a patient
         """
-        patient: [String]
+        patient: SearchReference
         """
         payor [reference]
         The identity of the insurer or party paying for services
         """
-        payor: [String]
+        payor: SearchReference
         """
         policy-holder [reference]
         Reference to the policyholder
         """
-        policy_holder: [String]
+        policy_holder: SearchReference
         """
         status [token]
         The status of the Coverage
@@ -99,7 +99,7 @@ extend type Query {
         subscriber [reference]
         Reference to the subscriber
         """
-        subscriber: [String]
+        subscriber: SearchReference
         """
         type [token]
         The kind of coverage (health plan, auto, Workers Compensation)

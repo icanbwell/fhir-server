@@ -81,12 +81,12 @@ extend type Query {
         managing-entity [reference]
         Entity that is the custodian of the Groups definition
         """
-        managing_entity: [String]
+        managing_entity: SearchReference
         """
         member [reference]
         Reference to the group member
         """
-        member: [String]
+        member: SearchReference
         """
         type [token]
         The type of resources the group contains

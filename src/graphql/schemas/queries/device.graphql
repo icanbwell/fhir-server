@@ -65,7 +65,7 @@ extend type Query {
         location [reference]
         A location, where the resource is found
         """
-        location: [String]
+        location: SearchReference
         """
         manufacturer [string]
         The manufacturer of the device
@@ -80,12 +80,12 @@ extend type Query {
         organization [reference]
         The organization responsible for the device
         """
-        organization: [String]
+        organization: SearchReference
         """
         patient [reference]
         Patient information, if the resource is affixed to a person
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         active | inactive | entered-in-error | unknown

@@ -64,12 +64,12 @@ extend type Query {
         individual [reference]
         Who is part of study
         """
-        individual: [String]
+        individual: SearchReference
         """
         patient [reference]
         Who is part of study
         """
-        patient: [String]
+        patient: SearchReference
         """
         status [token]
         candidate | eligible | follow-up | ineligible | not-registered | off-study | on-study | on-study-intervention | on-study-observation | pending-on-study | potential-candidate | screening | withdrawn
@@ -79,7 +79,7 @@ extend type Query {
         study [reference]
         Study subject is part of
         """
-        study: [String]
+        study: SearchReference
         """
         return total number of records that meet this query
         """

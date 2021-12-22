@@ -54,12 +54,12 @@ extend type Query {
         authority [reference]
         The authority of the contract
         """
-        authority: [String]
+        authority: SearchReference
         """
         domain [reference]
         The domain of the contract
         """
-        domain: [String]
+        domain: SearchReference
         """
         identifier [token]
         The identity of the contract
@@ -79,12 +79,12 @@ extend type Query {
         patient [reference]
         The identity of the subject of the contract (if a patient)
         """
-        patient: [String]
+        patient: SearchReference
         """
         signer [reference]
         Contract Signatory Party
         """
-        signer: [String]
+        signer: SearchReference
         """
         status [token]
         The status of the contract
@@ -94,7 +94,7 @@ extend type Query {
         subject [reference]
         The identity of the subject of the contract
         """
-        subject: [String]
+        subject: SearchReference
         """
         url [uri]
         The basal contract definition

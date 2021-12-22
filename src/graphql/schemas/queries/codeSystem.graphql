@@ -120,7 +120,7 @@ extend type Query {
         supplements [reference]
         Find code system supplements for the referenced code system
         """
-        supplements: [String]
+        supplements: SearchReference
         """
         system [uri]
         The system for any codes defined by this code system (same as url)

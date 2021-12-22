@@ -57,7 +57,7 @@ extend type Query {
         author [reference]
         The source of the decision
         """
-        author: [String]
+        author: SearchReference
         """
         code [token]
         ok | transient-error | fatal-error
@@ -77,7 +77,7 @@ extend type Query {
         enterer [reference]
         The source of the data entry
         """
-        enterer: [String]
+        enterer: SearchReference
         """
         event [token]
         Code for the event this message represents or link to event definition
@@ -87,12 +87,12 @@ extend type Query {
         focus [reference]
         The actual content of the message
         """
-        focus: [String]
+        focus: SearchReference
         """
         receiver [reference]
         Intended "real-world" recipient for the data
         """
-        receiver: [String]
+        receiver: SearchReference
         """
         response-id [token]
         Id of original message
@@ -102,12 +102,12 @@ extend type Query {
         responsible [reference]
         Final responsibility for event
         """
-        responsible: [String]
+        responsible: SearchReference
         """
         sender [reference]
         Real world sender of the message
         """
-        sender: [String]
+        sender: SearchReference
         """
         source [string]
         Name of system
@@ -122,7 +122,7 @@ extend type Query {
         target [reference]
         Particular delivery destination within the destination
         """
-        target: [String]
+        target: SearchReference
         """
         return total number of records that meet this query
         """

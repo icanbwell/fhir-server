@@ -115,7 +115,7 @@ extend type Query {
         patient [reference]
         The patient this related person is related to
         """
-        patient: [String]
+        patient: SearchReference
         """
         phone [token]
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact

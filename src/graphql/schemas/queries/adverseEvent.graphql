@@ -76,17 +76,17 @@ extend type Query {
         location [reference]
         Location where adverse event occurred
         """
-        location: [String]
+        location: SearchReference
         """
         recorder [reference]
         Who recorded the adverse event
         """
-        recorder: [String]
+        recorder: SearchReference
         """
         resultingcondition [reference]
         Effect on the subject due to this event
         """
-        resultingcondition: [String]
+        resultingcondition: SearchReference
         """
         seriousness [token]
         Seriousness of the event
@@ -101,17 +101,17 @@ extend type Query {
         study [reference]
         AdverseEvent.study
         """
-        study: [String]
+        study: SearchReference
         """
         subject [reference]
         Subject impacted by event
         """
-        subject: [String]
+        subject: SearchReference
         """
         substance [reference]
         Refers to the specific entity that caused the adverse event
         """
-        substance: [String]
+        substance: SearchReference
         """
         return total number of records that meet this query
         """

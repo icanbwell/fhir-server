@@ -60,7 +60,7 @@ extend type Query {
         patient [reference]
         The identity of a patient to search for guidance response results
         """
-        patient: [String]
+        patient: SearchReference
         """
         request [token]
         The identifier of the request associated with the response
@@ -70,7 +70,7 @@ extend type Query {
         subject [reference]
         The subject that the guidance response is about
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

@@ -73,7 +73,7 @@ extend type Query {
         ingredient [reference]
         Medication(s) or substance(s) contained in the medication
         """
-        ingredient: [String]
+        ingredient: SearchReference
         """
         ingredient-code [token]
         Medication(s) or substance(s) contained in the medication
@@ -83,7 +83,7 @@ extend type Query {
         manufacturer [reference]
         Manufacturer of the item
         """
-        manufacturer: [String]
+        manufacturer: SearchReference
         """
         monitoring-program-name [token]
         Name of the reviewing program
@@ -98,7 +98,7 @@ extend type Query {
         monograph [reference]
         Associated documentation about the medication
         """
-        monograph: [String]
+        monograph: SearchReference
         """
         monograph-type [token]
         The category of medication document

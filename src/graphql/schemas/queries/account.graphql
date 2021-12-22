@@ -64,12 +64,12 @@ extend type Query {
         owner [reference]
         Entity managing the Account
         """
-        owner: [String]
+        owner: SearchReference
         """
         patient [reference]
         The entity that caused the expenses
         """
-        patient: [String]
+        patient: SearchReference
         """
         period [date]
         Transaction window
@@ -84,7 +84,7 @@ extend type Query {
         subject [reference]
         The entity that caused the expenses
         """
-        subject: [String]
+        subject: SearchReference
         """
         type [token]
         E.g. patient, expense, depreciation

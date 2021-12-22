@@ -64,12 +64,12 @@ extend type Query {
         parent [reference]
         The parent DeviceMetric resource
         """
-        parent: [String]
+        parent: SearchReference
         """
         source [reference]
         The device resource
         """
-        source: [String]
+        source: SearchReference
         """
         type [token]
         The component type

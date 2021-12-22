@@ -54,7 +54,7 @@ extend type Query {
         based-on [reference]
         Reference to the service request.
         """
-        based_on: [String]
+        based_on: SearchReference
         """
         category [token]
         The classification of the type of observation
@@ -119,27 +119,27 @@ extend type Query {
         derived-from [reference]
         Related measurements the observation is made from
         """
-        derived_from: [String]
+        derived_from: SearchReference
         """
         device [reference]
         The Device that generated the observation data.
         """
-        device: [String]
+        device: SearchReference
         """
         encounter [reference]
         Multiple Resources: * [Composition](composition.html): Context of the Composition* [DeviceRequest](devicerequest.html): Encounter during which request was created* [DiagnosticReport](diagnosticreport.html): The Encounter when the order was made* [DocumentReference](documentreference.html): Context of the document  content* [Flag](flag.html): Alert relevant during encounter* [List](list.html): Context in which list created* [NutritionOrder](nutritionorder.html): Return nutrition orders with this encounter identifier* [Observation](observation.html): Encounter related to the observation* [Procedure](procedure.html): Encounter created as part of* [RiskAssessment](riskassessment.html): Where was assessment performed?* [ServiceRequest](servicerequest.html): An encounter in which this request is made* [VisionPrescription](visionprescription.html): Return prescriptions with this encounter identifier
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         focus [reference]
         The focus of an observation when the focus is not the patient of record.
         """
-        focus: [String]
+        focus: SearchReference
         """
         has-member [reference]
         Related resource that belongs to the Observation group
         """
-        has_member: [String]
+        has_member: SearchReference
         """
         identifier [token]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): External ids for this item* [CarePlan](careplan.html): External Ids for this plan* [CareTeam](careteam.html): External Ids for this team* [Composition](composition.html): Version-independent identifier for the Composition* [Condition](condition.html): A unique identifier of the condition record* [Consent](consent.html): Identifier for this record (external references)* [DetectedIssue](detectedissue.html): Unique id for the detected issue* [DeviceRequest](devicerequest.html): Business identifier for request/order* [DiagnosticReport](diagnosticreport.html): An identifier for the report* [DocumentManifest](documentmanifest.html): Unique Identifier for the set of documents* [DocumentReference](documentreference.html): Master Version Specific Identifier* [Encounter](encounter.html): Identifier(s) by which this encounter is known* [EpisodeOfCare](episodeofcare.html): Business Identifier(s) relevant for this EpisodeOfCare* [FamilyMemberHistory](familymemberhistory.html): A search by a record identifier* [Goal](goal.html): External Ids for this goal* [ImagingStudy](imagingstudy.html): Identifiers for the Study, such as DICOM Study Instance UID and Accession number* [Immunization](immunization.html): Business identifier* [List](list.html): Business identifier* [MedicationAdministration](medicationadministration.html): Return administrations with this external identifier* [MedicationDispense](medicationdispense.html): Returns dispenses with this external identifier* [MedicationRequest](medicationrequest.html): Return prescriptions with this external identifier* [MedicationStatement](medicationstatement.html): Return statements with this external identifier* [NutritionOrder](nutritionorder.html): Return nutrition orders with this external identifier* [Observation](observation.html): The unique id for a particular observation* [Procedure](procedure.html): A unique identifier for a procedure* [RiskAssessment](riskassessment.html): Unique identifier for the assessment* [ServiceRequest](servicerequest.html): Identifiers assigned to this order* [SupplyDelivery](supplydelivery.html): External identifier* [SupplyRequest](supplyrequest.html): Business Identifier for SupplyRequest* [VisionPrescription](visionprescription.html): Return prescriptions with this external identifier
@@ -154,22 +154,22 @@ extend type Query {
         part-of [reference]
         Part of referenced event
         """
-        part_of: [String]
+        part_of: SearchReference
         """
         patient [reference]
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Who the sensitivity is for* [CarePlan](careplan.html): Who the care plan is for* [CareTeam](careteam.html): Who care team is for* [ClinicalImpression](clinicalimpression.html): Patient or group assessed* [Composition](composition.html): Who and/or what the composition is about* [Condition](condition.html): Who has the condition?* [Consent](consent.html): Who the consent applies to* [DetectedIssue](detectedissue.html): Associated patient* [DeviceRequest](devicerequest.html): Individual the service is ordered for* [DeviceUseStatement](deviceusestatement.html): Search by subject - a patient* [DiagnosticReport](diagnosticreport.html): The subject of the report if a patient* [DocumentManifest](documentmanifest.html): The subject of the set of documents* [DocumentReference](documentreference.html): Who/what is the subject of the document* [Encounter](encounter.html): The patient or group present at the encounter* [EpisodeOfCare](episodeofcare.html): The patient who is the focus of this episode of care* [FamilyMemberHistory](familymemberhistory.html): The identity of a subject to list family member history items for* [Flag](flag.html): The identity of a subject to list flags for* [Goal](goal.html): Who this goal is intended for* [ImagingStudy](imagingstudy.html): Who the study is about* [Immunization](immunization.html): The patient for the vaccination record* [List](list.html): If all resources have the same subject* [MedicationAdministration](medicationadministration.html): The identity of a patient to list administrations  for* [MedicationDispense](medicationdispense.html): The identity of a patient to list dispenses  for* [MedicationRequest](medicationrequest.html): Returns prescriptions for a specific patient* [MedicationStatement](medicationstatement.html): Returns statements for a specific patient.* [NutritionOrder](nutritionorder.html): The identity of the person who requires the diet, formula or nutritional supplement* [Observation](observation.html): The subject that the observation is about (if patient)* [Procedure](procedure.html): Search by subject - a patient* [RiskAssessment](riskassessment.html): Who/what does assessment apply to?* [ServiceRequest](servicerequest.html): Search by subject - a patient* [SupplyDelivery](supplydelivery.html): Patient for whom the item is supplied* [VisionPrescription](visionprescription.html): The identity of a patient to list dispenses for
         """
-        patient: [String]
+        patient: SearchReference
         """
         performer [reference]
         Who performed the observation
         """
-        performer: [String]
+        performer: SearchReference
         """
         specimen [reference]
         Specimen used for this observation
         """
-        specimen: [String]
+        specimen: SearchReference
         """
         status [token]
         The status of the observation
@@ -179,7 +179,7 @@ extend type Query {
         subject [reference]
         The subject that the observation is about
         """
-        subject: [String]
+        subject: SearchReference
         """
         value-concept [token]
         The value of the observation, if the value is a CodeableConcept

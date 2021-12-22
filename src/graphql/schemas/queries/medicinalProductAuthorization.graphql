@@ -58,7 +58,7 @@ extend type Query {
         holder [reference]
         Marketing Authorization Holder
         """
-        holder: [String]
+        holder: SearchReference
         """
         identifier [token]
         Business identifier for the marketing authorization, as assigned by a regulator
@@ -73,7 +73,7 @@ extend type Query {
         subject [reference]
         The medicinal product that is being authorized
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

@@ -60,7 +60,7 @@ extend type Query {
         base [reference]
         Definition that this type is constrained/specialized from
         """
-        base: [String]
+        base: SearchReference
         """
         base-path [token]
         Path that identifies the base element
@@ -165,7 +165,7 @@ extend type Query {
         valueset [reference]
         A vocabulary binding reference
         """
-        valueset: [String]
+        valueset: SearchReference
         """
         version [token]
         Multiple Resources: * [CapabilityStatement](capabilitystatement.html): The business version of the capability statement* [CodeSystem](codesystem.html): The business version of the code system* [CompartmentDefinition](compartmentdefinition.html): The business version of the compartment definition* [ConceptMap](conceptmap.html): The business version of the concept map* [GraphDefinition](graphdefinition.html): The business version of the graph definition* [ImplementationGuide](implementationguide.html): The business version of the implementation guide* [MessageDefinition](messagedefinition.html): The business version of the message definition* [OperationDefinition](operationdefinition.html): The business version of the operation definition* [SearchParameter](searchparameter.html): The business version of the search parameter* [StructureDefinition](structuredefinition.html): The business version of the structure definition* [StructureMap](structuremap.html): The business version of the structure map* [TerminologyCapabilities](terminologycapabilities.html): The business version of the terminology capabilities* [ValueSet](valueset.html): The business version of the value set

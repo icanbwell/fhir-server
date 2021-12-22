@@ -53,7 +53,7 @@ extend type Query {
         subject [reference]
         The medication for which this is an undesirable effect
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

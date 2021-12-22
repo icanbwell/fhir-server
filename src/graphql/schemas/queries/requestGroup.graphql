@@ -54,7 +54,7 @@ extend type Query {
         author [reference]
         The author of the request group
         """
-        author: [String]
+        author: SearchReference
         """
         authored [date]
         The date the request group was authored
@@ -69,7 +69,7 @@ extend type Query {
         encounter [reference]
         The encounter the request group applies to
         """
-        encounter: [String]
+        encounter: SearchReference
         """
         group-identifier [token]
         The group identifier for the request group
@@ -84,7 +84,7 @@ extend type Query {
         instantiates-canonical [reference]
         The FHIR-based definition from which the request group is realized
         """
-        instantiates_canonical: [String]
+        instantiates_canonical: SearchReference
         """
         instantiates-uri [uri]
         The external definition from which the request group is realized
@@ -99,12 +99,12 @@ extend type Query {
         participant [reference]
         The participant in the requests in the group
         """
-        participant: [String]
+        participant: SearchReference
         """
         patient [reference]
         The identity of a patient to search for request groups
         """
-        patient: [String]
+        patient: SearchReference
         """
         priority [token]
         The priority of the request group
@@ -119,7 +119,7 @@ extend type Query {
         subject [reference]
         The subject that the request group is about
         """
-        subject: [String]
+        subject: SearchReference
         """
         return total number of records that meet this query
         """

@@ -69,7 +69,7 @@ extend type Query {
         requester [reference]
         Individual making the request
         """
-        requester: [String]
+        requester: SearchReference
         """
         status [token]
         draft | active | suspended +
@@ -79,12 +79,12 @@ extend type Query {
         subject [reference]
         The destination of the supply
         """
-        subject: [String]
+        subject: SearchReference
         """
         supplier [reference]
         Who is intended to fulfill the request
         """
-        supplier: [String]
+        supplier: SearchReference
         """
         return total number of records that meet this query
         """
