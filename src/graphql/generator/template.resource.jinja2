@@ -94,80 +94,41 @@ extend type Query {
     {%  endfor %}
     """
     {{  lower_case_first_letter(fhir_entity.cleaned_name) }}(
-        """
-        list of ids to retrieve
-        """
-        id: [String]
-        type: String
-        """
-        search by name
-        """
-        name: String
-        """
-        search by family name
-        """
-        family: String
-        """
-        filter to records with the specified identifier (system|value) e.g., http://hl7.org/fhir/sid/us-npi|1487831681
-        """
-        identifier: String
-        """
-        filter to records with this source
-        """
-        source: String
-        """
-        filter to records with the specified security tags (system|value) e.g., https://www.icanbwell.com/access|somehealth
-        https://www.icanbwell.com/{access/owner/vendor}|{value}
-        """
-        _security: String
-        """
-        filter to records with the specified tags (system|value) e.g., https://www.icanbwell.com/access|somehealth
-        https://www.icanbwell.com/{access/owner/vendor}|{value}
-        """
-        _tag: String
-        """
-        filter to records with the specified version
-        """
-        versionId: String
-        """
-        filter to records with the specified last updated date time.  You can use:
-            gt: greater than
-            gte: greater than or equal to
-            lt: less than
-            lte: less than or equal to
 
-            Example: gt2021-01-18
-            Range: ["gt2021-01-18", "lt2021-01-17"]
+        # search parameters for all resources
+    {% for search_parameter_name, search_parameter in search_parameters_for_all_resources.items() %}
         """
-        _lastUpdated: [String]
+        {{ search_parameter_name }}
         """
-        filter to records related to the specified patient
+        {% if search_parameter.type == "string" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "token" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "uri" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "reference" -%}
+        {{ search_parameter_name }}: [String]
+        {% endif %}
+    {%  endfor %}
+        # search parameters for {{fhir_entity.fhir_name}}
+    {% for search_parameter_name, search_parameter in search_parameters_for_current_resource.items() %}
         """
-        patient: String
+        {{ search_parameter_name }}
         """
-        filter to records related to the specified patient id
-        """
-        practitioner: String
-        """
-        filter to records related to the specified organization id
-        """
-        organization: String
-        """
-        filter to records related to the specified location id
-        """
-        location: String
-        """
-        filter to records related to the specified agent id
-        """
-        agent: String
-        """
-        filter to records related to the specified healthcareService id
-        """
-        healthcareService: String
-        """
-        filter to active records
-        """
-        active: Boolean
+        {% if search_parameter.type == "string" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type in ['dateTime', 'date', 'period', 'instant'] -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "token" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "uri" -%}
+        {{ search_parameter_name }}: [String]
+        {% elif search_parameter.type == "reference" -%}
+        {{ search_parameter_name }}: [String]
+        {% endif %}
+    {%  endfor %}
         """
         return total number of records that meet this query
         """

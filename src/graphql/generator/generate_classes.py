@@ -3,12 +3,12 @@
 
 import os
 import shutil
-from os import path, listdir
+from os import path
 from pathlib import Path
-from shutil import copyfile
-from typing import Union, List
+from typing import Union, List, Dict, Any
 
 from fhir_xml_schema_parser import FhirXmlSchemaParser
+from search_parameters import search_parameter_queries
 
 
 def my_copytree(
@@ -139,6 +139,13 @@ def main() -> int:
             #     with open(file_path, "w") as file2:
             #         file2.write(result)
         elif fhir_entity.is_resource:
+            search_parameters_for_all_resources: Dict[str, Dict[str, Any]] = (
+                search_parameter_queries.get("Resource", {})
+            )
+            search_parameters_for_current_resource: Dict[str, Dict[str, Any]] = (
+                search_parameter_queries.get(fhir_entity.fhir_name, {})
+            )
+
             with open(data_dir.joinpath("template.resource.jinja2"), "r") as file:
                 template_contents = file.read()
                 from jinja2 import Template
@@ -150,6 +157,8 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    search_parameters_for_all_resources=search_parameters_for_all_resources,
+                    search_parameters_for_current_resource=search_parameters_for_current_resource
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:

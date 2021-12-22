@@ -151,80 +151,37 @@ extend type Query {
         If the element is present, it must have either a @value, an @id, or extensions
     """
     verificationResult(
-        """
-        list of ids to retrieve
-        """
-        id: [String]
-        type: String
-        """
-        search by name
-        """
-        name: String
-        """
-        search by family name
-        """
-        family: String
-        """
-        filter to records with the specified identifier (system|value) e.g., http://hl7.org/fhir/sid/us-npi|1487831681
-        """
-        identifier: String
-        """
-        filter to records with this source
-        """
-        source: String
-        """
-        filter to records with the specified security tags (system|value) e.g., https://www.icanbwell.com/access|somehealth
-        https://www.icanbwell.com/{access/owner/vendor}|{value}
-        """
-        _security: String
-        """
-        filter to records with the specified tags (system|value) e.g., https://www.icanbwell.com/access|somehealth
-        https://www.icanbwell.com/{access/owner/vendor}|{value}
-        """
-        _tag: String
-        """
-        filter to records with the specified version
-        """
-        versionId: String
-        """
-        filter to records with the specified last updated date time.  You can use:
-            gt: greater than
-            gte: greater than or equal to
-            lt: less than
-            lte: less than or equal to
 
-            Example: gt2021-01-18
-            Range: ["gt2021-01-18", "lt2021-01-17"]
+        # search parameters for all resources
         """
-        _lastUpdated: [String]
+        _id
         """
-        filter to records related to the specified patient
+_id: [String]
         """
-        patient: String
+        _lastUpdated
         """
-        filter to records related to the specified patient id
+_lastUpdated: [String]
         """
-        practitioner: String
+        _profile
         """
-        filter to records related to the specified organization id
+_profile: [String]
         """
-        organization: String
+        _security
         """
-        filter to records related to the specified location id
+_security: [String]
         """
-        location: String
+        _source
         """
-        filter to records related to the specified agent id
+_source: [String]
         """
-        agent: String
+        _tag
         """
-        filter to records related to the specified healthcareService id
+_tag: [String]
+        # search parameters for VerificationResult
         """
-        healthcareService: String
+        target
         """
-        filter to active records
-        """
-        active: Boolean
+target: [String]
         """
         return total number of records that meet this query
         """
