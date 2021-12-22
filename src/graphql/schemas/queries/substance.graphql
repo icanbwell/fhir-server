@@ -78,7 +78,7 @@ extend type Query {
         quantity [quantity]
         Amount of substance in the package
         """
-        quantity: [String]
+        quantity: SearchQuantity
         """
         status [token]
         active | inactive | entered-in-error

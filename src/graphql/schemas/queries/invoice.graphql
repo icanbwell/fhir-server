@@ -104,12 +104,12 @@ extend type Query {
         totalgross [quantity]
         Gross total of this Invoice
         """
-        totalgross: [String]
+        totalgross: SearchQuantity
         """
         totalnet [quantity]
         Net total of this Invoice
         """
-        totalnet: [String]
+        totalnet: SearchQuantity
         """
         type [token]
         Type of Invoice

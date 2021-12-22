@@ -59,7 +59,7 @@ extend type Query {
         context-quantity [quantity]
         A quantity- or range-valued use context assigned to the test script
         """
-        context_quantity: [String]
+        context_quantity: SearchQuantity
         """
         context-type [token]
         A type of use context assigned to the test script

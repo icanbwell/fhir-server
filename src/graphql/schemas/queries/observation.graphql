@@ -84,7 +84,7 @@ extend type Query {
         combo-value-quantity [quantity]
         The value or component value of the observation, if the value is a Quantity, or a SampledData (just search on the bounds of the values in sampled data)
         """
-        combo_value_quantity: [String]
+        combo_value_quantity: SearchQuantity
         """
         component-code [token]
         The component code of the observation type
@@ -104,7 +104,7 @@ extend type Query {
         component-value-quantity [quantity]
         The value of the component observation, if the value is a Quantity, or a SampledData (just search on the bounds of the values in sampled data)
         """
-        component_value_quantity: [String]
+        component_value_quantity: SearchQuantity
         """
         data-absent-reason [token]
         The reason why the expected value in the element Observation.value[x] is missing.
@@ -194,7 +194,7 @@ extend type Query {
         value-quantity [quantity]
         The value of the observation, if the value is a Quantity, or a SampledData (just search on the bounds of the values in sampled data)
         """
-        value_quantity: [String]
+        value_quantity: SearchQuantity
         """
         value-string [string]
         The value of the observation, if the value is a string, and also searches in CodeableConcept.text

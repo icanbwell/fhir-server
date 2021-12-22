@@ -54,7 +54,7 @@ extend type Query {
         abatement-age [quantity]
         Abatement as age or age range
         """
-        abatement_age: [String]
+        abatement_age: SearchQuantity
         """
         abatement-date [date]
         Date-related abatements (dateTime and period)
@@ -114,7 +114,7 @@ extend type Query {
         onset-age [quantity]
         Onsets as age or age range
         """
-        onset_age: [String]
+        onset_age: SearchQuantity
         """
         onset-date [date]
         Date related onsets (dateTime and Period)

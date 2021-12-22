@@ -94,7 +94,7 @@ extend type Query {
         length [quantity]
         Length of encounter in days
         """
-        length: [String]
+        length: SearchQuantity
         """
         location [reference]
         Location the encounter takes place

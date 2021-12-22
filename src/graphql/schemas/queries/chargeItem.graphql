@@ -117,12 +117,12 @@ extend type Query {
         price-override [quantity]
         Price overriding the associated rules
         """
-        price_override: [String]
+        price_override: SearchQuantity
         """
         quantity [quantity]
         Quantity of which the charge item has been serviced
         """
-        quantity: [String]
+        quantity: SearchQuantity
         """
         requesting-organization [reference]
         Organization requesting the charged service
