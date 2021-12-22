@@ -19,83 +19,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for MeasureReport
         """
-        date [date]
+        date (FHIR type: date)
         The date of the measure report
         """
         date: SearchDate
         """
-        evaluated-resource [reference]
+        evaluated-resource (FHIR type: reference)
         An evaluated resource referenced by the measure report
         """
         evaluated_resource: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         External identifier of the measure report to be returned
         """
         identifier: SearchToken
         """
-        measure [reference]
+        measure (FHIR type: reference)
         The measure to return measure report results for
         """
         measure: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The identity of a patient to search for individual measure report results for
         """
         patient: SearchReference
         """
-        period [date]
+        period (FHIR type: date)
         The period of the measure report
         """
         period: SearchDate
         """
-        reporter [reference]
+        reporter (FHIR type: reference)
         The reporter to return measure report results for
         """
         reporter: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the measure report
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         The identity of a subject to search for individual measure report results for
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

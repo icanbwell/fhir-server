@@ -18,103 +18,104 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Invoice
         """
-        account [reference]
+        account (FHIR type: reference)
         Account that is being balanced
         """
         account: SearchReference
         """
-        date [date]
+        date (FHIR type: date)
         Invoice date / posting date
         """
         date: SearchDate
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Business Identifier for item
         """
         identifier: SearchToken
         """
-        issuer [reference]
+        issuer (FHIR type: reference)
         Issuing Organization of Invoice
         """
         issuer: SearchReference
         """
-        participant [reference]
+        participant (FHIR type: reference)
         Individual who was involved
         """
         participant: SearchReference
         """
-        participant-role [token]
+        participant-role (FHIR type: token)
         Type of involvement in creation of this Invoice
         """
         participant_role: SearchToken
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Recipient(s) of goods and services
         """
         patient: SearchReference
         """
-        recipient [reference]
+        recipient (FHIR type: reference)
         Recipient of this invoice
         """
         recipient: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         draft | issued | balanced | cancelled | entered-in-error
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         Recipient(s) of goods and services
         """
         subject: SearchReference
         """
-        totalgross [quantity]
+        totalgross (FHIR type: quantity)
         Gross total of this Invoice
         """
         totalgross: SearchQuantity
         """
-        totalnet [quantity]
+        totalnet (FHIR type: quantity)
         Net total of this Invoice
         """
         totalnet: SearchQuantity
         """
-        type [token]
+        type (FHIR type: token)
         Type of Invoice
         """
         type: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

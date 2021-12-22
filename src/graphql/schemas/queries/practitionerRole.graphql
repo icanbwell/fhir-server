@@ -18,103 +18,104 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for PractitionerRole
         """
-        active [token]
+        active (FHIR type: token)
         Whether this practitioner role record is in active use
         """
         active: SearchToken
         """
-        date [date]
+        date (FHIR type: date)
         The period during which the practitioner is authorized to perform in these role(s)
         """
         date: SearchDate
         """
-        email [token]
+        email (FHIR type: token)
         Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact
         """
         email: SearchToken
         """
-        endpoint [reference]
+        endpoint (FHIR type: reference)
         Technical endpoints providing access to services operated for the practitioner with this role
         """
         endpoint: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         A practitioners Identifier
         """
         identifier: SearchToken
         """
-        location [reference]
+        location (FHIR type: reference)
         One of the locations at which this practitioner provides care
         """
         location: SearchReference
         """
-        organization [reference]
+        organization (FHIR type: reference)
         The identity of the organization the practitioner represents / acts on behalf of
         """
         organization: SearchReference
         """
-        phone [token]
+        phone (FHIR type: token)
         Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact
         """
         phone: SearchToken
         """
-        practitioner [reference]
+        practitioner (FHIR type: reference)
         Practitioner that is able to provide the defined services for the organization
         """
         practitioner: SearchReference
         """
-        role [token]
+        role (FHIR type: token)
         The practitioner can perform this role at for the organization
         """
         role: SearchToken
         """
-        service [reference]
+        service (FHIR type: reference)
         The list of healthcare services that this worker provides for this roles Organization/Location(s)
         """
         service: SearchReference
         """
-        specialty [token]
+        specialty (FHIR type: token)
         The practitioner has this specialty at an organization
         """
         specialty: SearchToken
         """
-        telecom [token]
+        telecom (FHIR type: token)
         Multiple Resources: * [Patient](patient.html): The value in any kind of telecom details of the patient* [Person](person.html): The value in any kind of contact* [Practitioner](practitioner.html): The value in any kind of contact* [PractitionerRole](practitionerrole.html): The value in any kind of contact* [RelatedPerson](relatedperson.html): The value in any kind of contact
         """
         telecom: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

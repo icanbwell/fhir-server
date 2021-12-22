@@ -18,68 +18,69 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for ResearchSubject
         """
-        date [date]
+        date (FHIR type: date)
         Start and end of participation
         """
         date: SearchDate
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Business Identifier for research subject in a study
         """
         identifier: SearchToken
         """
-        individual [reference]
+        individual (FHIR type: reference)
         Who is part of study
         """
         individual: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Who is part of study
         """
         patient: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         candidate | eligible | follow-up | ineligible | not-registered | off-study | on-study | on-study-intervention | on-study-observation | pending-on-study | potential-candidate | screening | withdrawn
         """
         status: SearchToken
         """
-        study [reference]
+        study (FHIR type: reference)
         Study subject is part of
         """
         study: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

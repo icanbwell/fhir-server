@@ -25,88 +25,89 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Provenance
         """
-        agent [reference]
+        agent (FHIR type: reference)
         Who participated
         """
         agent: SearchReference
         """
-        agent-role [token]
+        agent-role (FHIR type: token)
         What the agents role was
         """
         agent_role: SearchToken
         """
-        agent-type [token]
+        agent-type (FHIR type: token)
         How the agent participated
         """
         agent_type: SearchToken
         """
-        entity [reference]
+        entity (FHIR type: reference)
         Identity of entity
         """
         entity: SearchReference
         """
-        location [reference]
+        location (FHIR type: reference)
         Where the activity occurred, if relevant
         """
         location: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Target Reference(s) (usually version specific)
         """
         patient: SearchReference
         """
-        recorded [date]
+        recorded (FHIR type: date)
         When the activity was recorded / updated
         """
         recorded: SearchDate
         """
-        signature-type [token]
+        signature-type (FHIR type: token)
         Indication of the reason the entity signed the object(s)
         """
         signature_type: SearchToken
         """
-        target [reference]
+        target (FHIR type: reference)
         Target Reference(s) (usually version specific)
         """
         target: SearchReference
         """
-        when [date]
+        when (FHIR type: date)
         When the activity occurred
         """
         when: SearchDate
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

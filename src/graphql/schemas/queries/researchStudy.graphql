@@ -22,103 +22,104 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for ResearchStudy
         """
-        category [token]
+        category (FHIR type: token)
         Classifications for the study
         """
         category: SearchToken
         """
-        date [date]
+        date (FHIR type: date)
         When the study began and ended
         """
         date: SearchDate
         """
-        focus [token]
+        focus (FHIR type: token)
         Drugs, devices, etc. under study
         """
         focus: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Business Identifier for study
         """
         identifier: SearchToken
         """
-        keyword [token]
+        keyword (FHIR type: token)
         Used to search for the study
         """
         keyword: SearchToken
         """
-        location [token]
+        location (FHIR type: token)
         Geographic region(s) for study
         """
         location: SearchToken
         """
-        partof [reference]
+        partof (FHIR type: reference)
         Part of larger study
         """
         partof: SearchReference
         """
-        principalinvestigator [reference]
+        principalinvestigator (FHIR type: reference)
         Researcher who oversees multiple aspects of the study
         """
         principalinvestigator: SearchReference
         """
-        protocol [reference]
+        protocol (FHIR type: reference)
         Steps followed in executing study
         """
         protocol: SearchReference
         """
-        site [reference]
+        site (FHIR type: reference)
         Facility where study activities are conducted
         """
         site: SearchReference
         """
-        sponsor [reference]
+        sponsor (FHIR type: reference)
         Organization that initiates and is legally responsible for the study
         """
         sponsor: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         active | administratively-completed | approved | closed-to-accrual | closed-to-accrual-and-intervention | completed | disapproved | in-review | temporarily-closed-to-accrual | temporarily-closed-to-accrual-and-intervention | withdrawn
         """
         status: SearchToken
         """
-        title [string]
+        title (FHIR type: string)
         Name for this study
         """
         title: SearchString
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

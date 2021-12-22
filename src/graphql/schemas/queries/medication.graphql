@@ -19,83 +19,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Medication
         """
-        code [token]
+        code (FHIR type: token)
         Multiple Resources: * [AllergyIntolerance](allergyintolerance.html): Code that identifies the allergy or intolerance* [Condition](condition.html): Code for the condition* [DeviceRequest](devicerequest.html): Code for what is being requested/ordered* [DiagnosticReport](diagnosticreport.html): The code for the report, as opposed to codes for the atomic results, which are the names on the observation resource referred to from the result* [FamilyMemberHistory](familymemberhistory.html): A search by a condition code* [List](list.html): What the purpose of this list is* [Medication](medication.html): Returns medications for a specific code* [MedicationAdministration](medicationadministration.html): Return administrations of this medication code* [MedicationDispense](medicationdispense.html): Returns dispenses of this medicine code* [MedicationRequest](medicationrequest.html): Return prescriptions of this medication code* [MedicationStatement](medicationstatement.html): Return statements of this medication code* [Observation](observation.html): The code of the observation type* [Procedure](procedure.html): A code to identify a  procedure* [ServiceRequest](servicerequest.html): What is being requested/ordered
         """
         code: SearchToken
         """
-        expiration-date [date]
+        expiration-date (FHIR type: date)
         Returns medications in a batch with this expiration date
         """
         expiration_date: SearchDate
         """
-        form [token]
+        form (FHIR type: token)
         Returns medications for a specific dose form
         """
         form: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Returns medications with this external identifier
         """
         identifier: SearchToken
         """
-        ingredient [reference]
+        ingredient (FHIR type: reference)
         Returns medications for this ingredient reference
         """
         ingredient: SearchReference
         """
-        ingredient-code [token]
+        ingredient-code (FHIR type: token)
         Returns medications for this ingredient code
         """
         ingredient_code: SearchToken
         """
-        lot-number [token]
+        lot-number (FHIR type: token)
         Returns medications in a batch with this lot number
         """
         lot_number: SearchToken
         """
-        manufacturer [reference]
+        manufacturer (FHIR type: reference)
         Returns medications made or sold for this manufacturer
         """
         manufacturer: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         Returns medications for this status
         """
         status: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

@@ -18,108 +18,109 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for RequestGroup
         """
-        author [reference]
+        author (FHIR type: reference)
         The author of the request group
         """
         author: SearchReference
         """
-        authored [date]
+        authored (FHIR type: date)
         The date the request group was authored
         """
         authored: SearchDate
         """
-        code [token]
+        code (FHIR type: token)
         The code of the request group
         """
         code: SearchToken
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         The encounter the request group applies to
         """
         encounter: SearchReference
         """
-        group-identifier [token]
+        group-identifier (FHIR type: token)
         The group identifier for the request group
         """
         group_identifier: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         External identifiers for the request group
         """
         identifier: SearchToken
         """
-        instantiates-canonical [reference]
+        instantiates-canonical (FHIR type: reference)
         The FHIR-based definition from which the request group is realized
         """
         instantiates_canonical: SearchReference
         """
-        instantiates-uri [uri]
+        instantiates-uri (FHIR type: uri)
         The external definition from which the request group is realized
         """
         instantiates_uri: SearchString
         """
-        intent [token]
+        intent (FHIR type: token)
         The intent of the request group
         """
         intent: SearchToken
         """
-        participant [reference]
+        participant (FHIR type: reference)
         The participant in the requests in the group
         """
         participant: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The identity of a patient to search for request groups
         """
         patient: SearchReference
         """
-        priority [token]
+        priority (FHIR type: token)
         The priority of the request group
         """
         priority: SearchToken
         """
-        status [token]
+        status (FHIR type: token)
         The status of the request group
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         The subject that the request group is about
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

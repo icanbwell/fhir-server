@@ -19,93 +19,94 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for QuestionnaireResponse
         """
-        author [reference]
+        author (FHIR type: reference)
         The author of the questionnaire response
         """
         author: SearchReference
         """
-        authored [date]
+        authored (FHIR type: date)
         When the questionnaire response was last changed
         """
         authored: SearchDate
         """
-        based-on [reference]
+        based-on (FHIR type: reference)
         Plan/proposal/order fulfilled by this questionnaire response
         """
         based_on: SearchReference
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         Encounter associated with the questionnaire response
         """
         encounter: SearchReference
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The unique identifier for the questionnaire response
         """
         identifier: SearchToken
         """
-        part-of [reference]
+        part-of (FHIR type: reference)
         Procedure or observation this questionnaire response was performed as a part of
         """
         part_of: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The patient that is the subject of the questionnaire response
         """
         patient: SearchReference
         """
-        questionnaire [reference]
+        questionnaire (FHIR type: reference)
         The questionnaire the answers are provided for
         """
         questionnaire: SearchReference
         """
-        source [reference]
+        source (FHIR type: reference)
         The individual providing the information reflected in the questionnaire respose
         """
         source: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the questionnaire response
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         The subject of the questionnaire response
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

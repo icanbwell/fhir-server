@@ -17,133 +17,134 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Task
         """
-        authored-on [date]
+        authored-on (FHIR type: date)
         Search by creation date
         """
         authored_on: SearchDate
         """
-        based-on [reference]
+        based-on (FHIR type: reference)
         Search by requests this task is based on
         """
         based_on: SearchReference
         """
-        business-status [token]
+        business-status (FHIR type: token)
         Search by business status
         """
         business_status: SearchToken
         """
-        code [token]
+        code (FHIR type: token)
         Search by task code
         """
         code: SearchToken
         """
-        encounter [reference]
+        encounter (FHIR type: reference)
         Search by encounter
         """
         encounter: SearchReference
         """
-        focus [reference]
+        focus (FHIR type: reference)
         Search by task focus
         """
         focus: SearchReference
         """
-        group-identifier [token]
+        group-identifier (FHIR type: token)
         Search by group identifier
         """
         group_identifier: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         Search for a task instance by its business identifier
         """
         identifier: SearchToken
         """
-        intent [token]
+        intent (FHIR type: token)
         Search by task intent
         """
         intent: SearchToken
         """
-        modified [date]
+        modified (FHIR type: date)
         Search by last modification date
         """
         modified: SearchDate
         """
-        owner [reference]
+        owner (FHIR type: reference)
         Search by task owner
         """
         owner: SearchReference
         """
-        part-of [reference]
+        part-of (FHIR type: reference)
         Search by task this task is part of
         """
         part_of: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         Search by patient
         """
         patient: SearchReference
         """
-        performer [token]
+        performer (FHIR type: token)
         Search by recommended type of performer (e.g., Requester, Performer, Scheduler).
         """
         performer: SearchToken
         """
-        period [date]
+        period (FHIR type: date)
         Search by period Task is/was underway
         """
         period: SearchDate
         """
-        priority [token]
+        priority (FHIR type: token)
         Search by task priority
         """
         priority: SearchToken
         """
-        requester [reference]
+        requester (FHIR type: reference)
         Search by task requester
         """
         requester: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         Search by task status
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         Search by subject
         """
         subject: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

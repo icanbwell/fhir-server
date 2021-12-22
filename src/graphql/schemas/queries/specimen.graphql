@@ -17,98 +17,99 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for Specimen
         """
-        accession [token]
+        accession (FHIR type: token)
         The accession number associated with the specimen
         """
         accession: SearchToken
         """
-        bodysite [token]
+        bodysite (FHIR type: token)
         The code for the body site from where the specimen originated
         """
         bodysite: SearchToken
         """
-        collected [date]
+        collected (FHIR type: date)
         The date the specimen was collected
         """
         collected: SearchDate
         """
-        collector [reference]
+        collector (FHIR type: reference)
         Who collected the specimen
         """
         collector: SearchReference
         """
-        container [token]
+        container (FHIR type: token)
         The kind of specimen container
         """
         container: SearchToken
         """
-        container-id [token]
+        container-id (FHIR type: token)
         The unique identifier associated with the specimen container
         """
         container_id: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The unique identifier associated with the specimen
         """
         identifier: SearchToken
         """
-        parent [reference]
+        parent (FHIR type: reference)
         The parent of the specimen
         """
         parent: SearchReference
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The patient the specimen comes from
         """
         patient: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         available | unavailable | unsatisfactory | entered-in-error
         """
         status: SearchToken
         """
-        subject [reference]
+        subject (FHIR type: reference)
         The subject of the specimen
         """
         subject: SearchReference
         """
-        type [token]
+        type (FHIR type: token)
         The specimen type
         """
         type: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

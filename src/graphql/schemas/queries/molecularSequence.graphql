@@ -17,83 +17,84 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for MolecularSequence
         """
-        chromosome [token]
+        chromosome (FHIR type: token)
         Chromosome number of the reference sequence
         """
         chromosome: SearchToken
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The unique identity for a particular sequence
         """
         identifier: SearchToken
         """
-        patient [reference]
+        patient (FHIR type: reference)
         The subject that the observation is about
         """
         patient: SearchReference
         """
-        referenceseqid [token]
+        referenceseqid (FHIR type: token)
         Reference Sequence of the sequence
         """
         referenceseqid: SearchToken
         """
-        type [token]
+        type (FHIR type: token)
         Amino Acid Sequence/ DNA Sequence / RNA Sequence
         """
         type: SearchToken
         """
-        variant-end [number]
+        variant-end (FHIR type: number)
         End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the variant.
         """
         variant_end: SearchNumber
         """
-        variant-start [number]
+        variant-start (FHIR type: number)
         Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the variant.
         """
         variant_start: SearchNumber
         """
-        window-end [number]
+        window-end (FHIR type: number)
         End position (0-based exclusive, which menas the acid at this position will not be included, 1-based inclusive, which means the acid at this position will be included) of the reference sequence.
         """
         window_end: SearchNumber
         """
-        window-start [number]
+        window-start (FHIR type: number)
         Start position (0-based inclusive, 1-based inclusive, that means the nucleic acid or amino acid at this position will be included) of the reference sequence.
         """
         window_start: SearchNumber
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

@@ -18,78 +18,79 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for PaymentReconciliation
         """
-        created [date]
+        created (FHIR type: date)
         The creation date
         """
         created: SearchDate
         """
-        disposition [string]
+        disposition (FHIR type: string)
         The contents of the disposition message
         """
         disposition: SearchString
         """
-        identifier [token]
+        identifier (FHIR type: token)
         The business identifier of the ExplanationOfBenefit
         """
         identifier: SearchToken
         """
-        outcome [token]
+        outcome (FHIR type: token)
         The processing outcome
         """
         outcome: SearchToken
         """
-        payment-issuer [reference]
+        payment-issuer (FHIR type: reference)
         The organization which generated this resource
         """
         payment_issuer: SearchReference
         """
-        request [reference]
+        request (FHIR type: reference)
         The reference to the claim
         """
         request: SearchReference
         """
-        requestor [reference]
+        requestor (FHIR type: reference)
         The reference to the provider who submitted the claim
         """
         requestor: SearchReference
         """
-        status [token]
+        status (FHIR type: token)
         The status of the payment reconciliation
         """
         status: SearchToken
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """

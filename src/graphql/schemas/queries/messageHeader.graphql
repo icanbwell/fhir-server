@@ -21,108 +21,109 @@ extend type Query {
 
         # search parameters for all resources
         """
-        _id [token]
+        _id (FHIR type: token)
         Logical id of this artifact
         """
         _id: SearchString
         """
-        _lastUpdated [date]
+        _lastUpdated (FHIR type: date)
         When the resource version last changed
         """
         _lastUpdated: SearchDate
         """
-        _profile [uri]
+        _profile (FHIR type: uri)
         Profiles this resource claims to conform to
         """
         _profile: SearchString
         """
-        _security [token]
+        _security (FHIR type: token)
         Security Labels applied to this resource
         """
         _security: SearchToken
         """
-        _source [uri]
+        _source (FHIR type: uri)
         Identifies where the resource comes from
         """
         _source: SearchString
         """
-        _tag [token]
+        _tag (FHIR type: token)
         Tags applied to this resource
         """
         _tag: SearchToken
 
-
         # search parameters for MessageHeader
         """
-        author [reference]
+        author (FHIR type: reference)
         The source of the decision
         """
         author: SearchReference
         """
-        code [token]
+        code (FHIR type: token)
         ok | transient-error | fatal-error
         """
         code: SearchToken
         """
-        destination [string]
+        destination (FHIR type: string)
         Name of system
         """
         destination: SearchString
         """
-        destination-uri [uri]
+        destination-uri (FHIR type: uri)
         Actual destination address or id
         """
         destination_uri: SearchString
         """
-        enterer [reference]
+        enterer (FHIR type: reference)
         The source of the data entry
         """
         enterer: SearchReference
         """
-        event [token]
+        event (FHIR type: token)
         Code for the event this message represents or link to event definition
         """
         event: SearchToken
         """
-        focus [reference]
+        focus (FHIR type: reference)
         The actual content of the message
         """
         focus: SearchReference
         """
-        receiver [reference]
+        receiver (FHIR type: reference)
         Intended "real-world" recipient for the data
         """
         receiver: SearchReference
         """
-        response-id [token]
+        response-id (FHIR type: token)
         Id of original message
         """
         response_id: SearchToken
         """
-        responsible [reference]
+        responsible (FHIR type: reference)
         Final responsibility for event
         """
         responsible: SearchReference
         """
-        sender [reference]
+        sender (FHIR type: reference)
         Real world sender of the message
         """
         sender: SearchReference
         """
-        source [string]
+        source (FHIR type: string)
         Name of system
         """
         source: SearchString
         """
-        source-uri [uri]
+        source-uri (FHIR type: uri)
         Actual message source address or id
         """
         source_uri: SearchString
         """
-        target [reference]
+        target (FHIR type: reference)
         Particular delivery destination within the destination
         """
         target: SearchReference
+
+        # miscellaneous parameters
         """
         return total number of records that meet this query
         """
