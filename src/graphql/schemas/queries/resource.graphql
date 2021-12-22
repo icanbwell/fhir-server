@@ -14,42 +14,7 @@ extend type Query {
         """
         id: [String]
 
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
         # search parameters for all resources
-        """
-        _id [token]
-        Logical id of this artifact
-        """
-        _id: [String]
-        """
-        _lastUpdated [date]
-        When the resource version last changed
-        """
-        _lastUpdated: [String]
-        """
-        _profile [uri]
-        Profiles this resource claims to conform to
-        """
-        _profile: [String]
-        """
-        _security [token]
-        Security Labels applied to this resource
-        """
-        _security: [String]
-        """
-        _source [uri]
-        Identifies where the resource comes from
-        """
-        _source: [String]
-        """
-        _tag [token]
-        Tags applied to this resource
-        """
-        _tag: [String]
 
 
         # search parameters for Resource

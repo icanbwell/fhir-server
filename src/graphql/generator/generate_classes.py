@@ -145,7 +145,7 @@ def main() -> int:
             #         file2.write(result)
         elif fhir_entity.is_resource:
             search_parameters_for_all_resources: Dict[str, Dict[str, Any]] = (
-                search_parameter_queries.get("Resource", {})
+                search_parameter_queries.get("Resource", {}) if fhir_entity.fhir_name != "Resource" else {}
             )
             search_parameters_for_current_resource: Dict[str, Dict[str, Any]] = (
                 search_parameter_queries.get(fhir_entity.fhir_name, {})

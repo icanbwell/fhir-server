@@ -22,11 +22,6 @@ extend type Query {
         """
         id: [String]
 
-        """
-        list of sources to retrieve. DEPRECATED: Use `_source`
-        """
-        source: [String]
-
         # search parameters for all resources
     {% for search_parameter_name, search_parameter in search_parameters_for_all_resources.items() %}
         """
