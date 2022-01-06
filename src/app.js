@@ -26,7 +26,7 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 
-const {countAllRequests} = require('./monitoring');
+// const {countAllRequests} = require('./monitoring');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
