@@ -71,6 +71,16 @@ extend type Query {
         """
         date: SearchDate
         """
+        date (FHIR type: date)
+        Appointment date/time.
+        """
+        start: SearchDate
+        """
+        date (FHIR type: date)
+        Appointment Created date/time.
+        """
+        created: SearchDate
+        """
         identifier (FHIR type: token)
         An Identifier of the Appointment
         """
