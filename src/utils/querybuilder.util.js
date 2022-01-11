@@ -142,6 +142,7 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
     }
 
     if (system && value) {
+        // $elemMatch so we match on BOTH system and value in the same array element
         queryBuilder = {};
         queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
     }
