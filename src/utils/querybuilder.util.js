@@ -120,20 +120,31 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
         system = required;
     }
 
+    let queryBuilderSystem = {};
     if (system) {
         queryBuilder[`${field}.system`] = system;
+        queryBuilderSystem[`${field}.system`] = system;
     }
+
+    let queryBuilderValue = {};
     if (value) {
         if (value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
                 $in: values
             };
+            queryBuilderValue[`${field}.${type}`] = {
+                $in: values
+            };
         } else {
             queryBuilder[`${field}.${type}`] = value;
+            queryBuilderValue[`${field}.${type}`] = value;
         }
     }
 
+    if (system && value) {
+        queryBuilder = {$and: [queryBuilderSystem, queryBuilderValue]};
+    }
     return queryBuilder;
 };
 
