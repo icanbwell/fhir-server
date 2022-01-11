@@ -123,7 +123,7 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
     let queryBuilderSystem = {};
     if (system) {
         queryBuilder[`${field}.system`] = system;
-        queryBuilderSystem[`${field}.system`] = system;
+        queryBuilderSystem['system'] = system;
     }
 
     let queryBuilderValue = {};
@@ -133,17 +133,19 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
             queryBuilder[`${field}.${type}`] = {
                 $in: values
             };
-            queryBuilderValue[`${field}.${type}`] = {
+            queryBuilderValue[`${type}`] = {
                 $in: values
             };
         } else {
             queryBuilder[`${field}.${type}`] = value;
-            queryBuilderValue[`${field}.${type}`] = value;
+            queryBuilderValue[`${type}`] = value;
         }
     }
 
     if (system && value) {
-        queryBuilder = {$and: [queryBuilderSystem, queryBuilderValue]};
+        queryBuilder = {};
+        // queryBuilder[`${field}`] = {$elemMatch: {queryBuilderSystem, queryBuilderValue}};
+        queryBuilder[`${field}`] = {$elemMatch: {system: 'https://www.icanbwell.com/access', code: 'medstar'}};
     }
     return queryBuilder;
 };
