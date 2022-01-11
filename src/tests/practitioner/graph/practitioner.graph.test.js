@@ -5,6 +5,7 @@ const {app} = require('../../../app');
 // practice
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerRoleResource = require('./fixtures/practitioner/practitionerRole.json');
+const practitionerRoleDifferentSecurityTagResource = require('./fixtures/practitioner/practitionerRoleDifferentSecurityTag.json');
 const organizationResource = require('./fixtures/practitioner/organization.json');
 
 // graph
@@ -50,6 +51,16 @@ describe('Practitioner Graph Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/PractitionerRole/1/$merge')
+                .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders())
                 .expect(200);
             console.log('------- response practitionerResource ------------');

@@ -104,7 +104,7 @@ module.exports.graph = async (args, user, scope, body, path, host_, resource_nam
      * @param {string} host
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
-     * @param {string} reverse_property (Optional) Do a reverse link from child to parent using this property
+     * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @return {Promise<[{resource: Resource, fullUrl: string}]>}
      */
     async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_filter) {
