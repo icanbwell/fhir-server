@@ -57,10 +57,7 @@ describe('Practitioner Delete Tests', () => {
             resp = await request
                 .delete('/4_0_0/Patient/2')
                 .set(getHeaders())
-                .expect(200);
-            console.log('------- response delete by id ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
+                .expect(204);
 
             resp = await request
                 .get('/4_0_0/Patient')
