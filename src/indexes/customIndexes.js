@@ -43,6 +43,13 @@ module.exports = {
                 ],
             }
         ],
+        'Schedule_4_0_0': [
+            {
+                'actor.reference_1': [
+                    'actor.reference'
+                ],
+            }
+        ],
         'AuditEvent_4_0_0': [
             {
                 'helix_auditEvent_index_1': [
