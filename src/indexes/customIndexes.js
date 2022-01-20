@@ -50,6 +50,13 @@ module.exports = {
                 ],
             }
         ],
+        'Location_4_0_0': [
+            {
+                'managingOrganization.reference_1': [
+                    'managingOrganization.reference'
+                ],
+            }
+        ],
         'AuditEvent_4_0_0': [
             {
                 'helix_auditEvent_index_1': [
