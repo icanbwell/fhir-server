@@ -65,7 +65,7 @@ describe('Practitioner Delete Tests', () => {
             console.log('------- end response 3 ------------');
 
             resp = await request
-                .delete('/4_0_0/Patient/0/?id=2')
+                .delete('/4_0_0/Patient/0/?_source=http://medstarhealth.org/providerBad')
                 .set(getHeaders())
                 .expect(204);
 
