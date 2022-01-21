@@ -69,7 +69,7 @@ module.exports.remove = async (args, user, scope, resourceName, collection_name)
         throw e;
     }
 
-    logDebug(user, `Deleting ${JSON.stringify(query)}`);
+    logRequest(user, `Deleting ${JSON.stringify(query)}`);
 
     if (Object.keys(query).length === 0) {
         // don't delete everything
