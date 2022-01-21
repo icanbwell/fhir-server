@@ -20,6 +20,10 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 module.exports.remove = async (args, user, scope, resourceName, collection_name) => {
     logRequest(user, `${resourceName} >>> remove`);
 
+    if (args['id'] === '0') {
+        delete args['id'];
+    }
+
     // add any access codes from scopes
     const accessCodes = getAccessCodesFromScopes('read', user, scope);
     if (env.AUTH_ENABLED === '1') {
