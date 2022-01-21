@@ -76,6 +76,11 @@ module.exports.remove = async (args, user, scope, resourceName, collection_name)
 
     logDebug(user, `Deleting ${JSON.stringify(query)}`);
 
+    if (Object.keys(query).length === 0) {
+        // don't delete everything
+        return {deleted: 0};
+    }
+
     // Grab an instance of our DB and collection
     let db = globals.get(CLIENT_DB);
     let collection = db.collection(`${collection_name}_${base_version}`);
@@ -88,5 +93,5 @@ module.exports.remove = async (args, user, scope, resourceName, collection_name)
         throw new NotAllowedError(e.message);
     }
 
-    return {deleted: res.result && res.result.n};
+    return {deleted: res.deletedCount};
 };
