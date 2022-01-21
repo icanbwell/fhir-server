@@ -1,4 +1,4 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
+const {logRequest, logError} = require('../common/logging');
 const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
