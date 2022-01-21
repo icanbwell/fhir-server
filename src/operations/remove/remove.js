@@ -56,11 +56,6 @@ module.exports.remove = async (args, user, scope, resourceName, collection_name)
      */
     let query = {};
 
-    /**
-     * @type {Set}
-     */
-    let columns;
-
     // eslint-disable-next-line no-useless-catch
     try {
         if (base_version === VERSIONS['3_0_1']) {
@@ -68,7 +63,7 @@ module.exports.remove = async (args, user, scope, resourceName, collection_name)
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({query, columns} = buildR4SearchQuery(resourceName, args));
+            ({query} = buildR4SearchQuery(resourceName, args));
         }
     } catch (e) {
         throw e;
