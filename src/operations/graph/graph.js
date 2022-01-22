@@ -150,7 +150,21 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
     return entries;
 }
 
-async function processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries) {
+/**
+ * processes a single graph link
+ * @param {import('mongodb').Db} db
+ * @param {string} base_version
+ * @param {string} user
+ * @param {string} scope
+ * @param {{path: string, params: string, target: {type: string}[]}} link
+ * @param {string} host
+ * @param {Resource | [Resource]} parent_entity
+ * @param {[Resource]} parentEntities
+ * @param {[{resource: Resource, fullUrl: string}]} entries
+ * @return {Promise<[{resource: Resource, fullUrl: string}]>}
+ */
+async function processOneGraphLink(db, base_version, user, scope, host, link,
+                                   parent_entity, parentEntities, entries) {
     for (const parentEntity of parentEntities) {
         /**
          * entries
