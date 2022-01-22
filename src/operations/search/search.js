@@ -276,7 +276,7 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
         while (await cursor.hasNext()) {
             /**
              * element
-             * @type {Object}
+             * @type {Resource}
              */
             const element = await cursor.next();
             if (args['_elements']) {

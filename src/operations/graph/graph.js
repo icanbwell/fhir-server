@@ -6,7 +6,6 @@ const {
 } = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const env = require('var');
-const async = require('async');
 const moment = require('moment-timezone');
 const {isTrue} = require('../../utils/isTrue');
 const globals = require('../../globals');
@@ -14,6 +13,8 @@ const {CLIENT_DB} = require('../../constants');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {buildR4SearchQuery} = require('../query/r4');
+const pRetry = require('p-retry');
+const {logMessageToSlack} = require('../../utils/slack.logger');
 
 /**
  * Gets related resources
@@ -390,9 +391,9 @@ async function processReferences(parent_entity, linkReferences) {
 }
 
 /**
- * processing a single id
+ * processing multiple ids
  * @param {import('mongodb').Db} db
- * @param {import('mongodb').Collection<Document>} collection
+ * @param {string} collection_name
  * @param {string} base_version
  * @param {string} resource_name
  * @param {string[]} accessCodes
@@ -402,13 +403,17 @@ async function processReferences(parent_entity, linkReferences) {
  * @param {Resource} graphDefinition
  * @param {boolean} contained
  * @param {boolean} hash_references
- * @param {string} id1
+ * @param {string[]} idList
  * @return {Promise<{resource: Resource, fullUrl: string}[]>}
  */
-async function processSingleId(db, collection, base_version, resource_name, accessCodes, user,
-                               scope, host, graphDefinition,
-                               contained, hash_references,
-                               id1) {
+async function processMultipleIds(db, collection_name, base_version, resource_name, accessCodes, user,
+                                  scope, host, graphDefinition,
+                                  contained, hash_references,
+                                  idList) {
+    /**
+     * @type {import('mongodb').Collection<Document>}
+     */
+    let collection = db.collection(`${collection_name}_${base_version}`);
     /**
      * @type {function(?Object): Resource}
      */
@@ -417,19 +422,47 @@ async function processSingleId(db, collection, base_version, resource_name, acce
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     let entries = [];
+    const query = {
+        'id': {
+            $in: idList
+        }
+    };
+    const options = {};
     /**
-     * @type {?import('mongodb').Document | null}
+     * @type {number}
      */
-    let start_entry = await collection.findOne({id: id1.toString()});
+    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+    // Now run the query to get a cursor we will enumerate next
+    /**
+     * mongo db cursor
+     * @type {import('mongodb').Cursor}
+     */
+    let cursor = await pRetry(
+        async () =>
+            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
+        {
+            retries: 5,
+            onFailedAttempt: async error => {
+                let msg = `Search ${resource_name}/$graph/${JSON.stringify(idList)} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                logError(user, msg);
+                await logMessageToSlack(msg);
+            }
+        }
+    );
 
-    if (start_entry) {
+    while (await cursor.hasNext()) {
+        /**
+         * element
+         * @type {Resource}
+         */
+        const element = await cursor.next();
         // first add this object
         /**
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-            'resource': new StartResource(start_entry)
+            'fullUrl': `https://${host}/${base_version}/${element.resourceType}/${element.id}`,
+            'resource': new StartResource(element)
         };
         /**
          * @type {[{path:string, params: string,target:[{type: string}]}]}
@@ -439,7 +472,7 @@ async function processSingleId(db, collection, base_version, resource_name, acce
         /**
          * @type {[{resource: Resource, fullUrl: string}]}
          */
-        const related_entries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(start_entry), linkItems);
+        const related_entries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(element), linkItems);
         if (env.HASH_REFERENCE || hash_references) {
             /**
              * @type {[string]}
@@ -474,6 +507,7 @@ async function processSingleId(db, collection, base_version, resource_name, acce
             entries = entries.concat(related_entries);
         }
     }
+
     return entries;
 }
 
@@ -503,24 +537,17 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
      * @type {Resource}
      */
     const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
-    /**
-     * @type {import('mongodb').Collection<Document>}
-     */
-    let collection = db.collection(`${collection_name}_${base_version}`);
 
     if (!(Array.isArray(id))) {
         id = [id];
     }
 
     /**
-     * @type {[[{resource: Resource, fullUrl: string}]]}
-     */
-    const entriesById = await async.map(id, async x => await processSingleId(
-        db, collection, base_version, resource_name, accessCodes, user, scope, host, graphDefinition, contained, hash_references, x));
-    /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
-    let entries = entriesById.flat(2);
+    const entries = await processMultipleIds(
+        db, collection_name, base_version, resource_name, accessCodes, user, scope, host, graphDefinition, contained, hash_references, id);
+
     // remove duplicate resources
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
