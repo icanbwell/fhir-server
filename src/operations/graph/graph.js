@@ -77,6 +77,15 @@ async function get_related_resources(db, collectionName, base_version, host, rel
     return entries;
 }
 
+// find elements in other collection that link to this object
+/**
+ * converts a query string into an args array
+ * @type {import('mongodb').Document}
+ */
+function parseQueryStringIntoArgs(queryString) {
+    return Object.fromEntries(new URLSearchParams(queryString));
+}
+
 /**
  * Gets related resources using reverse link
  * @param {import('mongodb').Db} db
@@ -106,15 +115,6 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
      * @type {[import('mongodb').Document]}
      */
     let relatedResourcePropertyDocuments;
-
-    // find elements in other collection that link to this object
-    /**
-     * converts a query string into an args array
-     * @type {import('mongodb').Document}
-     */
-    function parseQueryStringIntoArgs(queryString) {
-        return Object.fromEntries(new URLSearchParams(queryString));
-    }
 
     const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
     /**
