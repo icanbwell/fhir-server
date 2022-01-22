@@ -150,7 +150,7 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
     return entries;
 }
 
-async function processOneGraphLink(parentEntities, link, user, scope, db, base_version, host, parent_entity, entries) {
+async function processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries) {
     for (const parentEntity of parentEntities) {
         /**
          * entries
@@ -376,7 +376,7 @@ async function processGraphLinks(db, base_version, user, scope, host, parent_ent
      */
     const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
     for (const link of linkItems) {
-        entries = await processOneGraphLink(parentEntities, link, user, scope, db, base_version, host, parent_entity, entries);
+        entries = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries);
     }
     return entries;
 }
