@@ -14,6 +14,141 @@ const {CLIENT_DB} = require('../../constants');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {buildR4SearchQuery} = require('../query/r4');
+
+/**
+ * Gets related resources
+ * @param {import('mongodb').Db} db
+ * @param {string} collectionName
+ * @param {string} base_version
+ * @param {string} host
+ * @param {string | [string]} relatedResourceProperty property to link
+ * @param {string | null} filterProperty (Optional) filter the sublist by this property
+ * @param {*} filterValue (Optional) match filterProperty to this value
+ * @return {Promise<[{resource: Resource, fullUrl: string}]|*[]>}
+ */
+async function get_related_resources(db, collectionName, base_version, host, relatedResourceProperty, filterProperty, filterValue) {
+    /**
+     * @type {import('mongodb').Collection<Document>}
+     */
+    const collection = db.collection(`${collectionName}_${base_version}`);
+    /**
+     * @type {function(?Object): Resource}
+     */
+    const RelatedResource = getResource(base_version, collectionName);
+    /**
+     * entries
+     * @type {[{resource: Resource, fullUrl: string}]}
+     */
+    let entries = [];
+    if (relatedResourceProperty) {
+        // check if property is a list or not.  If not make it a list to make the code below handle both
+        if (!(Array.isArray(relatedResourceProperty))) {
+            relatedResourceProperty = [relatedResourceProperty];
+        }
+        /**
+         * @type {string}
+         */
+        for (const relatedResourcePropertyCurrent of relatedResourceProperty) {
+            if (filterProperty) {
+                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                    continue;
+                }
+            }
+            if (relatedResourcePropertyCurrent.reference) {
+                /**
+                 * @type {string}
+                 */
+                const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
+
+                /**
+                 * @type {Document | null}
+                 */
+                const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
+                if (found_related_resource) {
+                    // noinspection UnnecessaryLocalVariableJS
+                    entries = entries.concat([{
+                        'fullUrl': `https://${host}/${base_version}/${found_related_resource.resourceType}/${found_related_resource.id}`,
+                        'resource': new RelatedResource(found_related_resource)
+                    }]);
+                }
+            }
+        }
+    }
+    return entries;
+}
+
+/**
+ * Gets related resources using reverse link
+ * @param {import('mongodb').Db} db
+ * @param {string} parentCollectionName
+ * @param {string} relatedResourceCollectionName
+ * @param {string} base_version
+ * @param {Resource} parent parent entity
+ * @param {string} host
+ * @param {string | null} filterProperty (Optional) filter the sublist by this property
+ * @param {*} filterValue (Optional) match filterProperty to this value
+ * @param {string} reverse_filter Do a reverse link from child to parent using this property
+ * @return {Promise<[{resource: Resource, fullUrl: string}]>}
+ */
+async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_filter) {
+    if (!(reverse_filter)) {
+        throw new Error('reverse_filter must be set');
+    }
+    /**
+     * @type {import('mongodb').Collection<Document>}
+     */
+    const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
+    /**
+     * @type {function(?Object): Resource}
+     */
+    const RelatedResource = getResource(base_version, relatedResourceCollectionName);
+    /**
+     * @type {[import('mongodb').Document]}
+     */
+    let relatedResourcePropertyDocuments;
+
+    // find elements in other collection that link to this object
+    /**
+     * converts a query string into an args array
+     * @type {import('mongodb').Document}
+     */
+    function parseQueryStringIntoArgs(queryString) {
+        return Object.fromEntries(new URLSearchParams(queryString));
+    }
+
+    const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
+    /**
+     * @type {import('mongodb').FindCursor}
+     */
+    const cursor = collection.find(query);
+    // noinspection JSUnresolvedFunction
+    relatedResourcePropertyDocuments = await cursor.toArray();
+    /**
+     * entries
+     * @type {[{resource: Resource, fullUrl: string}]}
+     */
+    let entries = [];
+    if (relatedResourcePropertyDocuments) {
+        /**
+         * relatedResourcePropertyCurrent
+         * @type Resource
+         */
+        for (const relatedResourcePropertyCurrent of relatedResourcePropertyDocuments) {
+            if (filterProperty !== null) {
+                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                    continue;
+                }
+            }
+            entries = entries.concat([{
+                'fullUrl': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
+                'resource': new RelatedResource(relatedResourcePropertyCurrent)
+            }]);
+
+        }
+    }
+    return entries;
+}
+
 /**
  * Supports $graph
  * @param {Object} args
@@ -31,138 +166,6 @@ module.exports.graph = async (args, user, scope, body, path, host_, resource_nam
     verifyHasValidScopes(resource_name, 'read', user, scope);
 
     const accessCodes = getAccessCodesFromScopes('read', user, scope);
-
-    /**
-     * Gets related resources
-     * @param {import('mongodb').Db} db
-     * @param {string} collectionName
-     * @param {string} base_version
-     * @param {string} host
-     * @param {string | [string]} relatedResourceProperty property to link
-     * @param {string | null} filterProperty (Optional) filter the sublist by this property
-     * @param {*} filterValue (Optional) match filterProperty to this value
-     * @return {Promise<[{resource: Resource, fullUrl: string}]|*[]>}
-     */
-    async function get_related_resources(db, collectionName, base_version, host, relatedResourceProperty, filterProperty, filterValue) {
-        /**
-         * @type {import('mongodb').Collection<Document>}
-         */
-        const collection = db.collection(`${collectionName}_${base_version}`);
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const RelatedResource = getResource(base_version, collectionName);
-        /**
-         * entries
-         * @type {[{resource: Resource, fullUrl: string}]}
-         */
-        let entries = [];
-        if (relatedResourceProperty) {
-            // check if property is a list or not.  If not make it a list to make the code below handle both
-            if (!(Array.isArray(relatedResourceProperty))) {
-                relatedResourceProperty = [relatedResourceProperty];
-            }
-            /**
-             * @type {string}
-             */
-            for (const relatedResourcePropertyCurrent of relatedResourceProperty) {
-                if (filterProperty) {
-                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                        continue;
-                    }
-                }
-                if (relatedResourcePropertyCurrent.reference) {
-                    /**
-                     * @type {string}
-                     */
-                    const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
-
-                    /**
-                     * @type {Document | null}
-                     */
-                    const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
-                    if (found_related_resource) {
-                        // noinspection UnnecessaryLocalVariableJS
-                        entries = entries.concat([{
-                            'fullUrl': `https://${host}/${base_version}/${found_related_resource.resourceType}/${found_related_resource.id}`,
-                            'resource': new RelatedResource(found_related_resource)
-                        }]);
-                    }
-                }
-            }
-        }
-        return entries;
-    }
-
-    /**
-     * Gets related resources using reverse link
-     * @param {import('mongodb').Db} db
-     * @param {string} parentCollectionName
-     * @param {string} relatedResourceCollectionName
-     * @param {string} base_version
-     * @param {Resource} parent parent entity
-     * @param {string} host
-     * @param {string | null} filterProperty (Optional) filter the sublist by this property
-     * @param {*} filterValue (Optional) match filterProperty to this value
-     * @param {string} reverse_filter Do a reverse link from child to parent using this property
-     * @return {Promise<[{resource: Resource, fullUrl: string}]>}
-     */
-    async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_filter) {
-        if (!(reverse_filter)) {
-            throw new Error('reverse_filter must be set');
-        }
-        /**
-         * @type {import('mongodb').Collection<Document>}
-         */
-        const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const RelatedResource = getResource(base_version, relatedResourceCollectionName);
-        /**
-         * @type {[import('mongodb').Document]}
-         */
-        let relatedResourcePropertyDocuments;
-        // find elements in other collection that link to this object
-        /**
-         * converts a query string into an args array
-         * @type {import('mongodb').Document}
-         */
-        function parseQueryStringIntoArgs(queryString){
-            return Object.fromEntries(new URLSearchParams(queryString));
-        }
-        const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
-        /**
-         * @type {import('mongodb').FindCursor}
-         */
-        const cursor = collection.find(query);
-        // noinspection JSUnresolvedFunction
-        relatedResourcePropertyDocuments = await cursor.toArray();
-        /**
-         * entries
-         * @type {[{resource: Resource, fullUrl: string}]}
-         */
-        let entries = [];
-        if (relatedResourcePropertyDocuments) {
-            /**
-             * relatedResourcePropertyCurrent
-             * @type Resource
-             */
-            for (const relatedResourcePropertyCurrent of relatedResourcePropertyDocuments) {
-                if (filterProperty !== null) {
-                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                        continue;
-                    }
-                }
-                entries = entries.concat([{
-                    'fullUrl': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
-                    'resource': new RelatedResource(relatedResourcePropertyCurrent)
-                }]);
-
-            }
-        }
-        return entries;
-    }
 
     /**
      * process GraphDefinition and returns a bundle with all the related resources
@@ -471,7 +474,7 @@ module.exports.graph = async (args, user, scope, body, path, host_, resource_nam
                     for (const related_item of related_entries) {
                         related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
                     }
-                    if (related_references.length > 0){
+                    if (related_references.length > 0) {
                         current_entity.resource = await processReferences(current_entity.resource, related_references);
                     }
                 }
