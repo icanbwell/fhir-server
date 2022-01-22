@@ -390,6 +390,95 @@ async function processReferences(parent_entity, linkReferences) {
 }
 
 /**
+ * processing a single id
+ * @param {import('mongodb').Db} db
+ * @param {import('mongodb').Collection<Document>} collection
+ * @param {string} base_version
+ * @param {string} resource_name
+ * @param {string[]} accessCodes
+ * @param {string} user
+ * @param {string} scope
+ * @param {string} host
+ * @param {Resource} graphDefinition
+ * @param {boolean} contained
+ * @param {boolean} hash_references
+ * @param {string} id1
+ * @return {Promise<{resource: Resource, fullUrl: string}[]>}
+ */
+async function processSingleId(db, collection, base_version, resource_name, accessCodes, user,
+                               scope, host, graphDefinition,
+                               contained, hash_references,
+                               id1) {
+    /**
+     * @type {function(?Object): Resource}
+     */
+    const StartResource = getResource(base_version, resource_name);
+    /**
+     * @type {[{resource: Resource, fullUrl: string}]}
+     */
+    let entries = [];
+    /**
+     * @type {?import('mongodb').Document | null}
+     */
+    let start_entry = await collection.findOne({id: id1.toString()});
+
+    if (start_entry) {
+        // first add this object
+        /**
+         * @type {{resource: Resource, fullUrl: string}}
+         */
+        let current_entity = {
+            'fullUrl': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
+            'resource': new StartResource(start_entry)
+        };
+        /**
+         * @type {[{path:string, params: string,target:[{type: string}]}]}
+         */
+        const linkItems = graphDefinition.link;
+        // add related resources as container
+        /**
+         * @type {[{resource: Resource, fullUrl: string}]}
+         */
+        const related_entries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(start_entry), linkItems);
+        if (env.HASH_REFERENCE || hash_references) {
+            /**
+             * @type {[string]}
+             */
+            const related_references = [];
+            /**
+             * @type {resource: Resource, fullUrl: string}
+             */
+            for (const related_item of related_entries) {
+                related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
+            }
+            if (related_references.length > 0) {
+                current_entity.resource = await processReferences(current_entity.resource, related_references);
+            }
+        }
+        if (contained) {
+            /**
+             * @type {Resource[]}
+             */
+            const related_resources = related_entries.map(e => e.resource).filter(
+                resource => doesResourceHaveAnyAccessCodeFromThisList(
+                    accessCodes, user, scope, resource
+                )
+            );
+
+            if (related_resources.length > 0) {
+                current_entity['resource']['contained'] = related_resources;
+            }
+        }
+        entries = entries.concat([current_entity]);
+        if (!contained) {
+            entries = entries.concat(related_entries);
+        }
+    }
+    return entries;
+}
+
+
+/**
  * process GraphDefinition and returns a bundle with all the related resources
  * @param {import('mongodb').Db} db
  * @param {string} collection_name
@@ -418,84 +507,16 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
      * @type {import('mongodb').Collection<Document>}
      */
     let collection = db.collection(`${collection_name}_${base_version}`);
-    /**
-     * @type {function(?Object): Resource}
-     */
-    const StartResource = getResource(base_version, resource_name);
 
     if (!(Array.isArray(id))) {
         id = [id];
     }
 
-    async function processSingleId(id1) {
-        /**
-         * @type {[{resource: Resource, fullUrl: string}]}
-         */
-        let entries = [];
-        /**
-         * @type {?import('mongodb').Document | null}
-         */
-        let start_entry = await collection.findOne({id: id1.toString()});
-
-        if (start_entry) {
-            // first add this object
-            /**
-             * @type {{resource: Resource, fullUrl: string}}
-             */
-            let current_entity = {
-                'fullUrl': `https://${host}/${base_version}/${start_entry.resourceType}/${start_entry.id}`,
-                'resource': new StartResource(start_entry)
-            };
-            /**
-             * @type {[{path:string, params: string,target:[{type: string}]}]}
-             */
-            const linkItems = graphDefinition.link;
-            // add related resources as container
-            /**
-             * @type {[{resource: Resource, fullUrl: string}]}
-             */
-            const related_entries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(start_entry), linkItems);
-            if (env.HASH_REFERENCE || hash_references) {
-                /**
-                 * @type {[string]}
-                 */
-                const related_references = [];
-                /**
-                 * @type {resource: Resource, fullUrl: string}
-                 */
-                for (const related_item of related_entries) {
-                    related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
-                }
-                if (related_references.length > 0) {
-                    current_entity.resource = await processReferences(current_entity.resource, related_references);
-                }
-            }
-            if (contained) {
-                /**
-                 * @type {Resource[]}
-                 */
-                const related_resources = related_entries.map(e => e.resource).filter(
-                    resource => doesResourceHaveAnyAccessCodeFromThisList(
-                        accessCodes, user, scope, resource
-                    )
-                );
-
-                if (related_resources.length > 0) {
-                    current_entity['resource']['contained'] = related_resources;
-                }
-            }
-            entries = entries.concat([current_entity]);
-            if (!contained) {
-                entries = entries.concat(related_entries);
-            }
-        }
-        return entries;
-    }
-
     /**
      * @type {[[{resource: Resource, fullUrl: string}]]}
      */
-    const entriesById = await async.map(id, async x => await processSingleId(x));
+    const entriesById = await async.map(id, async x => await processSingleId(
+        db, collection, base_version, resource_name, accessCodes, user, scope, host, graphDefinition, contained, hash_references, x));
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
