@@ -372,6 +372,24 @@ async function processGraphLinks(db, base_version, user, scope, host, parent_ent
 }
 
 /**
+ * prepends # character in references
+ * @param {Resource} parent_entity
+ * @param {[reference:string]} linkReferences
+ * @return {Promise<Resource>}
+ */
+async function processReferences(parent_entity, linkReferences) {
+    const uniqueReferences = new Set(linkReferences);
+    if (parent_entity) {
+        for (const link_reference of uniqueReferences) {
+            // eslint-disable-next-line security/detect-non-literal-regexp
+            let re = new RegExp('\\b' + link_reference + '\\b', 'g');
+            parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
+        }
+    }
+    return parent_entity;
+}
+
+/**
  * process GraphDefinition and returns a bundle with all the related resources
  * @param {import('mongodb').Db} db
  * @param {string} collection_name
@@ -407,24 +425,6 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
 
     if (!(Array.isArray(id))) {
         id = [id];
-    }
-
-    /**
-     * prepends # character in references
-     * @param {Resource} parent_entity
-     * @param {[reference:string]} linkReferences
-     * @return {Promise<Resource>}
-     */
-    async function processReferences(parent_entity, linkReferences) {
-        const uniqueReferences = new Set(linkReferences);
-        if (parent_entity) {
-            for (const link_reference of uniqueReferences) {
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                let re = new RegExp('\\b' + link_reference + '\\b', 'g');
-                parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
-            }
-        }
-        return parent_entity;
     }
 
     async function processSingleId(id1) {
