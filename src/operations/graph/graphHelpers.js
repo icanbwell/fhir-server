@@ -445,32 +445,37 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
  * @param {string} user
  * @param {string} scope
  * @param {string} host
- * @param {Resource | [Resource]} parent_entity
+ * @param {[Resource]} parentEntities
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
  * @return {Promise<[EntityAndContained]>}
  */
-async function processGraphLinks(db, base_version, user, scope, host, parent_entity, linkItems) {
+async function processGraphLinks(db, base_version, user, scope, host, parentEntities, linkItems) {
     /**
-     * @type {[Resource]}
+     * @type {[EntityAndContained]}
      */
-    const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
     const resultEntities = parentEntities.map(e => new EntityAndContained(e.id, e.resourceType,
         getFullUrlForResource(host, base_version, e), e, []));
     for (const link of linkItems) {
         /**
-         * @type {EntityAndContained[]}
+         * @type {Resource}
          */
-        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities);
-        // match up with existing entities
-        for (const resultEntity of resultEntities) {
+        for (const parentEntity of parentEntities) {
             /**
-             * @type {EntityAndContained}
+             * @type {EntityAndContained[]}
              */
-            const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
-                && x.entityResourceType === resultEntity.entityResourceType);
-            if (matchingEntity && matchingEntity.containedEntries.length > 0) {
-                resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
+            const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parentEntity, parentEntities);
+            // match up with existing entities
+            for (const resultEntity of resultEntities) {
+                /**
+                 * @type {EntityAndContained}
+                 */
+                const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
+                    && x.entityResourceType === resultEntity.entityResourceType);
+                if (matchingEntity && matchingEntity.containedEntries.length > 0) {
+                    resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
+                }
             }
+
         }
     }
     // now flatten the contained arrays
@@ -595,6 +600,10 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         }
     );
 
+    /**
+     * @type {Resource[]}
+     */
+    const resources = [];
     while (await cursor.hasNext()) {
         /**
          * element
@@ -603,11 +612,19 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         const element = await cursor.next();
         // first add this object
         /**
+         * @type {Resource}
+         */
+        const startResource = new StartResource(element);
+        resources.push(startResource);
+    }
+
+    for (const resource of resources) {
+        /**
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': getFullUrlForResource(host, base_version, element),
-            'resource': removeNull(new StartResource(element).toJSON())
+            'fullUrl': getFullUrlForResource(host, base_version, resource),
+            'resource': removeNull(resource.toJSON())
         };
         /**
          * @type {[{path:string, params: string,target:[{type: string}]}]}
@@ -617,7 +634,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         /**
          * @type {[EntityAndContained]}
          */
-        const allEntries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(element), linkItems);
+        const allEntries = await processGraphLinks(db, base_version, user, scope, host, [resource], linkItems);
         const matchingEntity = allEntries.find(e => e.entityId === current_entity.resource.id
             && e.entityResourceType === current_entity.resource.resourceType);
         /**
@@ -643,8 +660,8 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          * @type {Resource[]}
          */
         const related_resources = related_entries.map(e => e.resource).filter(
-            resource => doesResourceHaveAnyAccessCodeFromThisList(
-                accessCodes, user, scope, resource
+            r => doesResourceHaveAnyAccessCodeFromThisList(
+                accessCodes, user, scope, r
             )
         );
         if (contained) {
