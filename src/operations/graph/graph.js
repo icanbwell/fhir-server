@@ -15,6 +15,19 @@ const {BadRequestError} = require('../../utils/httpErrors');
 const {buildR4SearchQuery} = require('../query/r4');
 const pRetry = require('p-retry');
 const {logMessageToSlack} = require('../../utils/slack.logger');
+const assert = require('assert');
+
+
+/**
+ * generates a full url for an entity
+ * @param {string} host
+ * @param {string} base_version
+ * @param {Resource} parentEntity
+ * @return {string}
+ */
+function getFullUrlForResource(host, base_version, parentEntity) {
+    return `https://${host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
+}
 
 /**
  * Gets related resources
@@ -68,7 +81,7 @@ async function get_related_resources(db, collectionName, base_version, host, rel
                 if (found_related_resource) {
                     // noinspection UnnecessaryLocalVariableJS
                     entries = entries.concat([{
-                        'fullUrl': `https://${host}/${base_version}/${found_related_resource.resourceType}/${found_related_resource.id}`,
+                        'fullUrl': getFullUrlForResource(host, base_version, found_related_resource),
                         'resource': new RelatedResource(found_related_resource)
                     }]);
                 }
@@ -150,6 +163,36 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
     return entries;
 }
 
+class EntityAndContained {
+    constructor(entityId, entityResourceType, fullUrl, resource, containedEntries) {
+        /**
+         * @type {string}
+         */
+        assert(entityId);
+        this.entityId = entityId;
+        /**
+         * @type {string}
+         */
+        assert(entityResourceType);
+        this.entityResourceType = entityResourceType;
+        /**
+         * @type {string}
+         */
+        assert(fullUrl);
+        this.fullUrl = fullUrl;
+        /**
+         * @type {Resource}
+         */
+        assert(resource);
+        this.resource = resource;
+        /**
+         * @type {[EntityAndContained]}
+         */
+        assert(containedEntries);
+        this.containedEntries = containedEntries;
+    }
+}
+
 /**
  * processes a single graph link
  * @param {import('mongodb').Db} db
@@ -161,16 +204,25 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
  * @param {Resource | [Resource]} parent_entity
  * @param {[Resource]} parentEntities
  * @param {[{resource: Resource, fullUrl: string}]} entries
- * @return {Promise<[{resource: Resource, fullUrl: string}]>}
+ * @return {Promise<[EntityAndContained]>}
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
                                    parent_entity, parentEntities, entries) {
+    /**
+     * @type {EntityAndContained[]}
+     */
+    let result = [];
     for (const parentEntity of parentEntities) {
         /**
-         * entries
+         * entries for processing the current link
          * @type {[{resource: Resource, fullUrl: string}]}
          */
         let entries_for_current_link = [];
+        /**
+         * full url to resource
+         * @type {string}
+         */
+        const fullResourceUrl = getFullUrlForResource(host, base_version, parentEntity);
         let link_targets = link.target;
         for (const target of link_targets) {
             /**
@@ -344,9 +396,17 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 );
             }
         }
-        entries = entries.concat(
-            entries_for_current_link.filter(e => e.resource['resourceType'] && e.fullUrl)
-        );
+        /**
+         * @type {EntityAndContained}
+         */
+        const currentEntityAndContained = new EntityAndContained(parentEntity.id, parentEntity.resourceType,
+            fullResourceUrl,
+            parentEntity,
+            entries_for_current_link.filter(e => e.resource['resourceType'] && e.fullUrl
+            ).map(e => new EntityAndContained(e.resource.id, e.resource.resourceType, e.fullUrl, e.resource, [])));
+        result = result.concat(currentEntityAndContained);
+
+        // Now recurse down and process the link
         for (const target of link_targets) {
             /**
              * @type {[{path:string, params: string,target:[{type: string}]}]}
@@ -354,18 +414,28 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             const childLinks = target.link;
             if (childLinks) {
                 /**
-                 * @type {resource: Resource, fullUrl: string}
+                 * @type {EntityAndContained}
                  */
-                for (const entryItem of entries_for_current_link) {
-                    entries = entries.concat(
-                        // eslint-disable-next-line no-use-before-define
-                        await processGraphLinks(db, base_version, user, scope, host, entryItem.resource, childLinks)
-                    );
+                for (const entryItem of currentEntityAndContained.containedEntries) {
+                    for (const childLink of childLinks) {
+                        // noinspection UnnecessaryLocalVariableJS
+                        /**
+                         * @type {EntityAndContained[]}
+                         */
+                        const entitiesAndContained = await processOneGraphLink(
+                            db, base_version, user, scope, host,
+                            childLink,
+                            entryItem.resource,
+                            [entryItem.resource],
+                            entries
+                        );
+                        entryItem.containedEntries = entitiesAndContained;
+                    }
                 }
             }
         }
     }
-    return entries;
+    return result;
 }
 
 /**
@@ -377,22 +447,39 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
  * @param {string} host
  * @param {Resource | [Resource]} parent_entity
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
- * @return {Promise<[{resource: Resource, fullUrl: string}]>}
+ * @return {Promise<[EntityAndContained]>}
  */
 async function processGraphLinks(db, base_version, user, scope, host, parent_entity, linkItems) {
     /**
      * entries
-     * @type {[{resource: Resource, fullUrl: string}]}
+     * @type {[EntityAndContained]}
      */
     let entries = [];
     /**
      * @type {[Resource]}
      */
     const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
+    const resultEntities = parentEntities.map(e => new EntityAndContained(e.id, e.resourceType,
+        getFullUrlForResource(host, base_version, e), e, []));
     for (const link of linkItems) {
-        entries = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries);
+        /**
+         * @type {EntityAndContained[]}
+         */
+        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries);
+        // match up with existing entities
+        for (const resultEntity of resultEntities) {
+            /**
+             * @type {EntityAndContained}
+             */
+            const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
+                && x.entityResourceType === resultEntity.entityResourceType);
+            if (matchingEntity && matchingEntity.containedEntries.length > 0) {
+                resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
+            }
+        }
     }
-    return entries;
+    // now flatten the contained arrays
+    return resultEntities;
 }
 
 /**
@@ -484,7 +571,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': `https://${host}/${base_version}/${element.resourceType}/${element.id}`,
+            'fullUrl': getFullUrlForResource(host, base_version, element),
             'resource': new StartResource(element)
         };
         /**
@@ -493,9 +580,15 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         const linkItems = graphDefinition.link;
         // add related resources as container
         /**
-         * @type {[{resource: Resource, fullUrl: string}]}
+         * @type {[EntityAndContained]}
          */
-        const related_entries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(element), linkItems);
+        const allEntries = await processGraphLinks(db, base_version, user, scope, host, new StartResource(element), linkItems);
+        const matchingEntity = allEntries.find(e => e.entityId === current_entity.resource.id
+            && e.entityResourceType === current_entity.resource.resourceType);
+        /**
+         * @type {[EntityAndContained]}
+         */
+        const related_entries = matchingEntity.containedEntries;
         if (env.HASH_REFERENCE || hash_references) {
             /**
              * @type {[string]}
