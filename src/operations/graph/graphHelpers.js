@@ -68,10 +68,15 @@ async function get_related_resources(db, collectionName, base_version, host, rel
                  */
                 const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
 
+                const options = {};
+                const projection = {};
+                // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+                projection['_id'] = 0;
+                options['projection'] = projection;
                 /**
                  * @type {Document | null}
                  */
-                const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
+                const found_related_resource = await collection.findOne({id: related_resource_id.toString()}, options);
                 if (found_related_resource) {
                     // noinspection UnnecessaryLocalVariableJS
                     const relatedResource = new RelatedResource(found_related_resource);
@@ -126,34 +131,35 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
     let relatedResourcePropertyDocuments;
 
     const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
+
+    const options = {};
+    const projection = {};
+    // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+    projection['_id'] = 0;
+    options['projection'] = projection;
+
     /**
      * @type {import('mongodb').Cursor}
      */
-    const cursor = collection.find(query);
-    // noinspection JSUnresolvedFunction
-    relatedResourcePropertyDocuments = await cursor.toArray();
+    const cursor = collection.find(query, options);
+
     /**
      * entries
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     let entries = [];
-    if (relatedResourcePropertyDocuments) {
-        /**
-         * relatedResourcePropertyCurrent
-         * @type Resource
-         */
-        for (const relatedResourcePropertyCurrent of relatedResourcePropertyDocuments) {
-            if (filterProperty !== null) {
-                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                    continue;
-                }
-            }
-            entries = entries.concat([{
-                'fullUrl': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
-                'resource': new RelatedResource(relatedResourcePropertyCurrent)
-            }]);
 
+    while (await cursor.hasNext()) {
+        const relatedResourcePropertyCurrent = await cursor.next();
+        if (filterProperty !== null) {
+            if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                continue;
+            }
         }
+        entries = entries.concat([{
+            'fullUrl': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
+            'resource': removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON())
+        }]);
     }
     return entries;
 }
@@ -424,7 +430,12 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                             [entryItem.resource],
                             entries
                         );
-                        entryItem.containedEntries = entitiesAndContained;
+                        const matchingEntryItem = entitiesAndContained.find(
+                            m => m.entityId === entryItem.entityId
+                                && m.entityResourceType === entryItem.entityResourceType);
+                        if (matchingEntryItem) {
+                            entryItem.containedEntries = entryItem.containedEntries.concat(matchingEntryItem.containedEntries);
+                        }
                     }
                 }
             }
@@ -505,7 +516,10 @@ function getRecursiveContainedEntities(entityAndContained) {
      * @type {{resource: Resource, fullUrl: string}[]}
      */
     let result = [];
-    result = result.concat([{fullUrl: entityAndContained.fullUrl, resource: removeNull(entityAndContained.resource.toJSON())}]);
+    result = result.concat([{
+        fullUrl: entityAndContained.fullUrl,
+        resource: entityAndContained.resource
+    }]);
 
     // now recurse
     result = result.concat(entityAndContained.containedEntries.flatMap(c => getRecursiveContainedEntities(c)));
@@ -577,7 +591,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
     // Now run the query to get a cursor we will enumerate next
     /**
      * mongo db cursor
-     * @type {import('mongodb').Cursor}
+     * @type {Promise<Cursor<Document>> | *}
      */
     let cursor = await pRetry(
         async () =>
