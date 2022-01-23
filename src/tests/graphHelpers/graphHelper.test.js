@@ -198,6 +198,55 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
+        test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
+            let db = globals.get(CLIENT_DB);
+            let resourceType = 'PractitionerRole';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
+            );
+
+            let collection_name = 'Practitioner';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['1'],
+                graphDefinition,
+                true,
+                true
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'contained': [
+                                {
+                                    'id': '10',
+                                    'practitioner': {
+                                        'reference': 'Practitioner/1'
+                                    },
+                                    'resourceType': 'PractitionerRole'
+                                }
+                            ],
+                            'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
             let db = globals.get(CLIENT_DB);
             // add a PractitionerRole
