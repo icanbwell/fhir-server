@@ -35,6 +35,23 @@
                   "type": "HealthcareService"
                 }
               ]
+            },
+            {
+              "path": "extension.extension:url=plan",
+              "target": [
+                {
+                  "link": [
+                    {
+                      "path": "valueReference",
+                      "target": [
+                        {
+                          "type": "InsurancePlan"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

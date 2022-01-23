@@ -2,6 +2,7 @@ const {processGraph} = require('../../../src/operations/graph/graphHelpers');
 const {commonBeforeEach, commonAfterEach} = require('../common');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
+const graphSimpleDefinition = require('./fixtures/graphSimple.json');
 const graphDefinition = require('./fixtures/graph.json');
 
 describe('graphHelper Tests', () => {
@@ -34,7 +35,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphDefinition,
+                graphSimpleDefinition,
                 false,
                 false
             );
@@ -71,7 +72,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphDefinition,
+                graphSimpleDefinition,
                 false,
                 false
             );
@@ -91,6 +92,56 @@ describe('graphHelper Tests', () => {
                         'resource': {
                             'id': '2',
                             'resourceType': 'Practitioner'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
+        test('graphHelper simple single Practitioner with 1 level nesting works', async () => {
+            let db = globals.get(CLIENT_DB);
+            let resourceType = 'PractitionerRole';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
+            );
+
+            let collection_name = 'Practitioner';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['1'],
+                graphSimpleDefinition,
+                false,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/PractitionerRole/10',
+                        'resource': {
+                            'id': '10',
+                            'practitioner': {
+                                'reference': 'Practitioner/1'
+                            },
+                            'resourceType': 'PractitionerRole'
                         }
                     }
                 ],
@@ -141,6 +192,55 @@ describe('graphHelper Tests', () => {
                                 'reference': 'Practitioner/1'
                             },
                             'resourceType': 'PractitionerRole'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
+        test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
+            let db = globals.get(CLIENT_DB);
+            let resourceType = 'PractitionerRole';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
+            );
+
+            let collection_name = 'Practitioner';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['1'],
+                graphSimpleDefinition,
+                true,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'contained': [
+                                {
+                                    'id': '10',
+                                    'practitioner': {
+                                        'reference': 'Practitioner/1'
+                                    },
+                                    'resourceType': 'PractitionerRole'
+                                }
+                            ],
+                            'id': '1',
+                            'resourceType': 'Practitioner'
                         }
                     }
                 ],
@@ -217,7 +317,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphDefinition,
+                graphSimpleDefinition,
                 true,
                 true
             );
@@ -283,7 +383,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphDefinition,
+                graphSimpleDefinition,
                 false,
                 false
             );
@@ -380,7 +480,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphDefinition,
+                graphSimpleDefinition,
                 false,
                 false
             );
@@ -504,7 +604,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphDefinition,
+                graphSimpleDefinition,
                 true,
                 false
             );

@@ -11,6 +11,38 @@ const {logError} = require('../common/logging');
 const {logMessageToSlack} = require('../../utils/slack.logger');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
+const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
+
+
+class EntityAndContained {
+    constructor(entityId, entityResourceType, fullUrl, resource, containedEntries) {
+        /**
+         * @type {string}
+         */
+        assert(entityId);
+        this.entityId = entityId;
+        /**
+         * @type {string}
+         */
+        assert(entityResourceType);
+        this.entityResourceType = entityResourceType;
+        /**
+         * @type {string}
+         */
+        assert(fullUrl);
+        this.fullUrl = fullUrl;
+        /**
+         * @type {Resource}
+         */
+        assert(resource);
+        this.resource = resource;
+        /**
+         * @type {[EntityAndContained]}
+         */
+        assert(containedEntries);
+        this.containedEntries = containedEntries;
+    }
+}
 
 /**
  * generates a full url for an entity
@@ -32,7 +64,7 @@ function getFullUrlForResource(host, base_version, parentEntity) {
  * @param {string | [string]} relatedResourceProperty property to link
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
- * @return {Promise<[{resource: Resource, fullUrl: string}]|*[]>}
+ * @return {Promise<EntityAndContained[]>}
  */
 async function get_related_resources(db, collectionName, base_version, host, relatedResourceProperty, filterProperty, filterValue) {
     /**
@@ -101,22 +133,24 @@ function parseQueryStringIntoArgs(queryString) {
 }
 
 /**
- * Gets related resources using reverse link
+ * Gets related resources using reverse link and add them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
  * @param {string} parentCollectionName
  * @param {string} relatedResourceCollectionName
  * @param {string} base_version
- * @param {Resource} parent parent entity
+ * @param {EntityAndContained[]}  parentEntities parent entities
  * @param {string} host
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
  * @param {string} reverse_filter Do a reverse link from child to parent using this property
- * @return {Promise<[{resource: Resource, fullUrl: string}]>}
  */
-async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parent, host, filterProperty, filterValue, reverse_filter) {
+async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parentEntities, host, filterProperty, filterValue, reverse_filter) {
     if (!(reverse_filter)) {
         throw new Error('reverse_filter must be set');
     }
+    // create comma separated list of ids
+    const parentIdList = parentEntities.map(p => p.entityId);
+    const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentIdList.toString());
     /**
      * @type {import('mongodb').Collection<Document>}
      */
@@ -126,7 +160,12 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
      */
     const RelatedResource = getResource(base_version, relatedResourceCollectionName);
 
-    const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
+    /**
+     * @type {Object}
+     */
+    const args = parseQueryStringIntoArgs(reverseFilterWithParentIds);
+    const searchParameterName = Object.keys(args)[0];
+    const query = buildR4SearchQuery(relatedResourceCollectionName, args).query;
 
     const options = {};
     const projection = {};
@@ -139,11 +178,11 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
      */
     const cursor = collection.find(query, options);
 
+    // find matching field name in searchParameter list
     /**
-     * entries
-     * @type {[{resource: Resource, fullUrl: string}]}
+     * @type {string}
      */
-    let entries = [];
+    const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceCollectionName, searchParameterName);
 
     while (await cursor.hasNext()) {
         const relatedResourcePropertyCurrent = await cursor.next();
@@ -152,41 +191,21 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
                 continue;
             }
         }
-        entries = entries.concat([{
-            'fullUrl': `https://${host}/${base_version}/${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`,
-            'resource': removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON())
-        }]);
-    }
-    return entries;
-}
-
-class EntityAndContained {
-    constructor(entityId, entityResourceType, fullUrl, resource, containedEntries) {
-        /**
-         * @type {string}
-         */
-        assert(entityId);
-        this.entityId = entityId;
-        /**
-         * @type {string}
-         */
-        assert(entityResourceType);
-        this.entityResourceType = entityResourceType;
-        /**
-         * @type {string}
-         */
-        assert(fullUrl);
-        this.fullUrl = fullUrl;
-        /**
-         * @type {Resource}
-         */
-        assert(resource);
-        this.resource = resource;
-        /**
-         * @type {[EntityAndContained]}
-         */
-        assert(containedEntries);
-        this.containedEntries = containedEntries;
+        // now match to parent entity, so we can put under correct contained property
+        const matchingParentEntity = parentEntities.find(
+            p => `${p.resource.resourceType}/${p.resource.id}` === relatedResourcePropertyCurrent[`${fieldForSearchParameter}`]['reference']
+        );
+        if (matchingParentEntity) {
+            matchingParentEntity.containedEntries.push(
+                new EntityAndContained(
+                    relatedResourcePropertyCurrent.id,
+                    relatedResourcePropertyCurrent.resourceType,
+                    getFullUrlForResource(host, base_version, relatedResourcePropertyCurrent),
+                    removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                    []
+                )
+            );
+        }
     }
 }
 
@@ -198,242 +217,208 @@ class EntityAndContained {
  * @param {string} scope
  * @param {{path: string, params: string, target: {type: string}[]}} link
  * @param {string} host
- * @param {[Resource]} parentEntities
- * @return {Promise<[EntityAndContained]>}
+ * @param {[EntityAndContained]} parentEntities
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
                                    parentEntities) {
     /**
+     * entries for processing the current link
      * @type {EntityAndContained[]}
      */
-    let result = [];
-    for (const parentEntity of parentEntities) {
+    let entries_for_current_link = [];
+    let link_targets = link.target;
+    for (const target of link_targets) {
         /**
-         * entries for processing the current link
-         * @type {[{resource: Resource, fullUrl: string}]}
-         */
-        let entries_for_current_link = [];
-        /**
-         * full url to resource
          * @type {string}
          */
-        const fullResourceUrl = getFullUrlForResource(host, base_version, parentEntity);
-        let link_targets = link.target;
-        for (const target of link_targets) {
+        const resourceType = target.type;
+        // there are two types of linkages:
+        // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
+        // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
+        if (link.path) {
+            // forward link
             /**
              * @type {string}
              */
-            const resourceType = target.type;
-            // there are two types of linkages:
-            // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
-            // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
-            if (link.path) {
-                // forward link
+            let property = link.path.replace('[x]', '');
+            /**
+             * @type {string}
+             */
+            let filterProperty;
+            /**
+             * @type {string}
+             */
+            let filterValue;
+            // if path is more complex and includes filter
+            if (property.includes(':')) {
                 /**
-                 * @type {string}
+                 * @type {string[]}
                  */
-                let property = link.path.replace('[x]', '');
-                /**
-                 * @type {string}
-                 */
-                let filterProperty;
-                /**
-                 * @type {string}
-                 */
-                let filterValue;
-                // if path is more complex and includes filter
-                if (property.includes(':')) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const property_split = property.split(':');
-                    if (property_split && property_split.length > 0) {
-                        /**
-                         * @type {string}
-                         */
-                        property = property_split[0];
-                        /**
-                         * @type {string[]}
-                         */
-                        const filterPropertySplit = property_split[1].split('=');
-                        if (filterPropertySplit.length > 1) {
-                            /**
-                             * @type {string}
-                             */
-                            filterProperty = filterPropertySplit[0];
-                            /**
-                             * @type {string}
-                             */
-                            filterValue = filterPropertySplit[1];
-                        }
-                    }
-                }
-                // if the property name includes . then it is a nested link
-                // e.g, 'path': 'extension.extension:url=plan'
-                if (property.includes('.')) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const nestedProperties = property.split('.');
-                    /**
-                     * @type { Resource | [Resource]}
-                     */
-                    let parentEntityResources = parentEntity;
-                    if (parentEntityResources) {
-                        parentEntityResources = (
-                            Array.isArray(parentEntityResources)
-                                ? parentEntityResources
-                                : [parentEntityResources]
-                        );
-                    }
+                const property_split = property.split(':');
+                if (property_split && property_split.length > 0) {
                     /**
                      * @type {string}
                      */
-                    for (const nestedPropertyName of nestedProperties) {
+                    property = property_split[0];
+                    /**
+                     * @type {string[]}
+                     */
+                    const filterPropertySplit = property_split[1].split('=');
+                    if (filterPropertySplit.length > 1) {
                         /**
-                         * @type {[Resource]}
+                         * @type {string}
                          */
-                        let resultParentEntityPropertyResources = [];
-                        if (parentEntityResources) {
-                            /**
-                             * @type {Resource}
-                             */
-                            for (const parentEntityResource of parentEntityResources) {
-                                // since this is a nested entity the value of parentEntityResource[`${nestedPropertyName}`]
-                                //  will be a Resource
-                                if (parentEntityResource[`${nestedPropertyName}`]) {
-                                    if (Array.isArray(parentEntityResource[`${nestedPropertyName}`])) {
-                                        resultParentEntityPropertyResources = resultParentEntityPropertyResources.concat(
-                                            parentEntityResource[`${nestedPropertyName}`]
-                                        );
-                                    } else {
-                                        resultParentEntityPropertyResources.push(parentEntityResource[`${nestedPropertyName}`]);
-                                    }
-                                }
-                            }
-                            parentEntityResources = resultParentEntityPropertyResources;
-                        } else {
-                            break;
-                        }
+                        filterProperty = filterPropertySplit[0];
+                        /**
+                         * @type {string}
+                         */
+                        filterValue = filterPropertySplit[1];
                     }
-                    if (parentEntityResources) {
-                        if (filterProperty) {
-                            parentEntityResources = (Array.isArray(parentEntityResources)
-                                ? parentEntityResources
-                                : [parentEntityResources])
-                                .filter(e => e[`${filterProperty}`] === filterValue);
-                        }
-                        if (link.target && link.target.length > 0 && link.target[0].link) {
-                            /**
-                             * @type {Resource}
-                             */
-                            for (const parentResource of parentEntityResources) {
-                                // if no target specified then we don't write the resource but try to process the links
-                                entries_for_current_link = entries_for_current_link.concat([
-                                    {
-                                        'resource': parentResource,
-                                        'fullUrl': ''
-                                    }
-                                ]);
-                            }
-                        } else {
-                            /**
-                             * @type {Resource}
-                             */
-                            for (const parentEntityProperty1 of parentEntityResources) {
-                                verifyHasValidScopes(parentEntityProperty1.resourceType, 'read', user, scope);
-                                entries_for_current_link = entries_for_current_link.concat(
-                                    await get_related_resources(
-                                        db,
-                                        resourceType,
-                                        base_version,
-                                        host,
-                                        parentEntityProperty1,
-                                        filterProperty,
-                                        filterValue
-                                    )
-                                );
-                            }
-                        }
-                    }
-                } else {
-                    verifyHasValidScopes(parentEntity.resourceType, 'read', user, scope);
-                    entries_for_current_link = entries_for_current_link.concat(
-                        await get_related_resources(
-                            db,
-                            resourceType,
-                            base_version,
-                            host,
-                            parentEntity[`${property}`],
-                            filterProperty,
-                            filterValue
-                        )
+                }
+            }
+            // if the property name includes . then it is a nested link
+            // e.g, 'path': 'extension.extension:url=plan'
+            if (property.includes('.TODO')) {
+                /**
+                 * @type {string[]}
+                 */
+                const nestedProperties = property.split('.');
+                /**
+                 * @type { Resource | [Resource]}
+                 */
+                let parentEntityResources = parentEntity;
+                if (parentEntityResources) {
+                    parentEntityResources = (
+                        Array.isArray(parentEntityResources)
+                            ? parentEntityResources
+                            : [parentEntityResources]
                     );
                 }
-            } else if (target.params) {
-                // reverse link
                 /**
                  * @type {string}
                  */
-                verifyHasValidScopes(parentEntity.resourceType, 'read', user, scope);
-                entries_for_current_link = entries_for_current_link.concat(
-                    await get_reverse_related_resources(
-                        db,
-                        parentEntity.resourceType,
-                        resourceType,
-                        base_version,
-                        parentEntity,
-                        host,
-                        null,
-                        null,
-                        target.params.replace('{ref}', parentEntity['id'])
-                    )
-                );
-            }
-        }
-        /**
-         * @type {EntityAndContained}
-         */
-        const currentEntityAndContained = new EntityAndContained(parentEntity.id, parentEntity.resourceType,
-            fullResourceUrl,
-            parentEntity,
-            entries_for_current_link.filter(e => e.resource['resourceType'] && e.fullUrl
-            ).map(e => new EntityAndContained(e.resource.id, e.resource.resourceType, e.fullUrl, e.resource, [])));
-        result = result.concat(currentEntityAndContained);
-
-        // Now recurse down and process the link
-        for (const target of link_targets) {
-            /**
-             * @type {[{path:string, params: string,target:[{type: string}]}]}
-             */
-            const childLinks = target.link;
-            if (childLinks) {
-                /**
-                 * @type {EntityAndContained}
-                 */
-                for (const entryItem of currentEntityAndContained.containedEntries) {
-                    for (const childLink of childLinks) {
-                        // noinspection UnnecessaryLocalVariableJS
+                for (const nestedPropertyName of nestedProperties) {
+                    /**
+                     * @type {[Resource]}
+                     */
+                    let resultParentEntityPropertyResources = [];
+                    if (parentEntityResources) {
                         /**
-                         * @type {EntityAndContained[]}
+                         * @type {Resource}
                          */
-                        const entitiesAndContained = await processOneGraphLink(
-                            db, base_version, user, scope, host,
-                            childLink,
-                            [entryItem.resource]
-                        );
-                        const matchingEntryItem = entitiesAndContained.find(
-                            m => m.entityId === entryItem.entityId
-                                && m.entityResourceType === entryItem.entityResourceType);
-                        if (matchingEntryItem) {
-                            entryItem.containedEntries = entryItem.containedEntries.concat(matchingEntryItem.containedEntries);
+                        for (const parentEntityResource of parentEntityResources) {
+                            // since this is a nested entity the value of parentEntityResource[`${nestedPropertyName}`]
+                            //  will be a Resource
+                            if (parentEntityResource[`${nestedPropertyName}`]) {
+                                if (Array.isArray(parentEntityResource[`${nestedPropertyName}`])) {
+                                    resultParentEntityPropertyResources = resultParentEntityPropertyResources.concat(
+                                        parentEntityResource[`${nestedPropertyName}`]
+                                    );
+                                } else {
+                                    resultParentEntityPropertyResources.push(parentEntityResource[`${nestedPropertyName}`]);
+                                }
+                            }
+                        }
+                        parentEntityResources = resultParentEntityPropertyResources;
+                    } else {
+                        break;
+                    }
+                }
+                if (parentEntityResources) {
+                    if (filterProperty) {
+                        parentEntityResources = (Array.isArray(parentEntityResources)
+                            ? parentEntityResources
+                            : [parentEntityResources])
+                            .filter(e => e[`${filterProperty}`] === filterValue);
+                    }
+                    if (link.target && link.target.length > 0 && link.target[0].link) {
+                        /**
+                         * @type {Resource}
+                         */
+                        for (const parentResource of parentEntityResources) {
+                            // if no target specified then we don't write the resource but try to process the links
+                            entries_for_current_link = entries_for_current_link.concat([
+                                {
+                                    'resource': parentResource,
+                                    'fullUrl': ''
+                                }
+                            ]);
+                        }
+                    } else {
+                        /**
+                         * @type {Resource}
+                         */
+                        for (const parentEntityProperty1 of parentEntityResources) {
+                            verifyHasValidScopes(parentEntityProperty1.resourceType, 'read', user, scope);
+                            entries_for_current_link = entries_for_current_link.concat(
+                                await get_related_resources(
+                                    db,
+                                    resourceType,
+                                    base_version,
+                                    host,
+                                    parentEntityProperty1,
+                                    filterProperty,
+                                    filterValue
+                                )
+                            );
                         }
                     }
                 }
+            } else {
+                verifyHasValidScopes(resourceType, 'read', user, scope);
+                entries_for_current_link = entries_for_current_link.concat(
+                    await get_related_resources(
+                        db,
+                        resourceType,
+                        base_version,
+                        host,
+                        parentEntities.filter(p => p.resource[`${property}`]).map(p => p.resource[`${property}`]),
+                        filterProperty,
+                        filterValue
+                    )
+                );
+            }
+        } else if (target.params) {
+            // reverse link
+            /**
+             * @type {string}
+             */
+            verifyHasValidScopes(resourceType, 'read', user, scope);
+            await get_reverse_related_resources(
+                db,
+                resourceType,
+                resourceType,
+                base_version,
+                parentEntities,
+                host,
+                null,
+                null,
+                target.params
+            );
+        }
+    }
+
+    /**
+     * @type {EntityAndContained[]}
+     */
+    const childEntries = parentEntities.flatMap(p => p.containedEntries);
+    // Now recurse down and process the link
+    for (const target of link_targets) {
+        /**
+         * @type {[{path:string, params: string,target:[{type: string}]}]}
+         */
+        const childLinks = target.link;
+        if (childLinks) {
+            for (const childLink of childLinks) {
+                await processOneGraphLink(
+                    db, base_version, user, scope, host,
+                    childLink,
+                    childEntries
+                );
             }
         }
     }
-    return result;
+
 }
 
 /**
@@ -460,20 +445,8 @@ async function processGraphLinks(db, base_version, user, scope, host, parentEnti
         /**
          * @type {EntityAndContained[]}
          */
-        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parentEntities);
-        // match up with existing entities
-        for (const resultEntity of resultEntities) {
-            /**
-             * @type {EntityAndContained}
-             */
-            const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
-                && x.entityResourceType === resultEntity.entityResourceType);
-            if (matchingEntity && matchingEntity.containedEntries.length > 0) {
-                resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
-            }
-        }
+        await processOneGraphLink(db, base_version, user, scope, host, link, resultEntities);
     }
-    // now flatten the contained arrays
     return resultEntities;
 }
 
