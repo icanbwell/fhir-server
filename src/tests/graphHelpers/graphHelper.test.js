@@ -212,6 +212,13 @@ describe('graphHelper Tests', () => {
                             },
                             'resourceType': 'PractitionerRole'
                         }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/Organization/100',
+                        'resource': {
+                            'id': '100',
+                            'resourceType': 'Organization'
+                        }
                     }
                 ],
                 'id': 'bundle-example',
