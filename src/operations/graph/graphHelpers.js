@@ -343,16 +343,15 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                          */
                         for (const parentEntityProperty1 of parentEntityResources) {
                             verifyHasValidScopes(parentEntityProperty1.resourceType, 'read', user, scope);
-                            entries_for_current_link = entries_for_current_link.concat(
-                                await get_related_resources(
-                                    db,
-                                    resourceType,
-                                    base_version,
-                                    host,
-                                    parentEntityProperty1,
-                                    filterProperty,
-                                    filterValue
-                                )
+                            await get_related_resources(
+                                db,
+                                resourceType,
+                                base_version,
+                                host,
+                                parentEntityProperty1,
+                                property,
+                                filterProperty,
+                                filterValue
                             );
                         }
                     }
