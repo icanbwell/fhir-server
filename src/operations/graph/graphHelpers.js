@@ -61,12 +61,12 @@ function getFullUrlForResource(host, base_version, parentEntity) {
  * @param {string} collectionName
  * @param {string} base_version
  * @param {string} host
- * @param {string | [string]} relatedResourceProperty property to link
+ * @param {EntityAndContained[]} parentEntities
+ * @param {string} property
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
- * @return {Promise<EntityAndContained[]>}
  */
-async function get_related_resources(db, collectionName, base_version, host, relatedResourceProperty, filterProperty, filterValue) {
+async function get_related_resources(db, collectionName, base_version, host, parentEntities, property, filterProperty, filterValue) {
     /**
      * @type {import('mongodb').Collection<Document>}
      */
@@ -75,52 +75,45 @@ async function get_related_resources(db, collectionName, base_version, host, rel
      * @type {function(?Object): Resource}
      */
     const RelatedResource = getResource(base_version, collectionName);
-    /**
-     * entries
-     * @type {[{resource: Resource, fullUrl: string}]}
-     */
-    let entries = [];
-    if (relatedResourceProperty) {
-        // check if property is a list or not.  If not make it a list to make the code below handle both
-        if (!(Array.isArray(relatedResourceProperty))) {
-            relatedResourceProperty = [relatedResourceProperty];
-        }
-        /**
-         * @type {string}
-         */
-        for (const relatedResourcePropertyCurrent of relatedResourceProperty) {
-            if (filterProperty) {
-                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                    continue;
-                }
-            }
-            if (relatedResourcePropertyCurrent.reference) {
-                /**
-                 * @type {string}
-                 */
-                const related_resource_id = relatedResourcePropertyCurrent.reference.replace(collectionName + '/', '');
 
-                const options = {};
-                const projection = {};
-                // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-                projection['_id'] = 0;
-                options['projection'] = projection;
-                /**
-                 * @type {Document | null}
-                 */
-                const found_related_resource = await collection.findOne({id: related_resource_id.toString()}, options);
-                if (found_related_resource) {
-                    // noinspection UnnecessaryLocalVariableJS
-                    const relatedResource = new RelatedResource(found_related_resource);
-                    entries = entries.concat([{
-                        'fullUrl': getFullUrlForResource(host, base_version, relatedResource),
-                        'resource': removeNull(relatedResource.toJSON())
-                    }]);
-                }
-            }
+    const relatedReferences = parentEntities.map(p => p.resource[`${property}`]);
+    const relatedReferenceIds = relatedReferences.map(r => r.reference.replace(collectionName + '/', ''));
+    const options = {};
+    const projection = {};
+    // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+    projection['_id'] = 0;
+    options['projection'] = projection;
+    const query = {
+        'id': {
+            $in: relatedReferenceIds
+        }
+    };
+    const cursor = await collection.find(query, options);
+
+    while (await cursor.hasNext()) {
+        const element = await cursor.next();
+        const relatedResource = removeNull(new RelatedResource(element).toJSON());
+
+        // find matching parent and add to containedEntries
+        const relatedEntityAndContained = new EntityAndContained(
+            relatedResource.id,
+            relatedResource.resourceType,
+            getFullUrlForResource(host, base_version, relatedResource),
+            relatedResource,
+            []
+        );
+
+        const matchingParentEntities = parentEntities.filter(
+            p => p.resource[`${property}`].reference === `${relatedResource.resourceType}/${relatedResource.id}`
+        );
+
+        // add it to each one since there can be multiple resources that point to the same related resource
+        for (const matchingParentEntity of matchingParentEntities) {
+            matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
+                relatedEntityAndContained
+            );
         }
     }
-    return entries;
 }
 
 // find elements in other collection that link to this object
@@ -364,18 +357,17 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                         }
                     }
                 }
-            } else {
+            } else { // no filter was applied
                 verifyHasValidScopes(resourceType, 'read', user, scope);
-                entries_for_current_link = entries_for_current_link.concat(
-                    await get_related_resources(
-                        db,
-                        resourceType,
-                        base_version,
-                        host,
-                        parentEntities.filter(p => p.resource[`${property}`]).map(p => p.resource[`${property}`]),
-                        filterProperty,
-                        filterValue
-                    )
+                await get_related_resources(
+                    db,
+                    resourceType,
+                    base_version,
+                    host,
+                    parentEntities.filter(p => p.resource[`${property}`]),
+                    property,
+                    filterProperty,
+                    filterValue
                 );
             }
         } else if (target.params) {

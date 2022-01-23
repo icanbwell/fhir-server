@@ -2,7 +2,8 @@ const {processGraph} = require('../../../src/operations/graph/graphHelpers');
 const {commonBeforeEach, commonAfterEach} = require('../common');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
-const graphSimpleDefinition = require('./fixtures/graphSimple.json');
+const graphSimpleReverseDefinition = require('./fixtures/graphSimpleReverse.json');
+const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json');
 const graphDefinition = require('./fixtures/graph.json');
 
 describe('graphHelper Tests', () => {
@@ -35,7 +36,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphSimpleDefinition,
+                graphSimpleReverseDefinition,
                 false,
                 false
             );
@@ -72,7 +73,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphSimpleDefinition,
+                graphSimpleReverseDefinition,
                 false,
                 false
             );
@@ -100,7 +101,7 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
-        test('graphHelper simple single Practitioner with 1 level nesting works', async () => {
+        test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
             let db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -119,7 +120,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphSimpleDefinition,
+                graphSimpleReverseDefinition,
                 false,
                 false
             );
@@ -150,7 +151,7 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
-        test('graphHelper single Practitioner with 1 level nesting works', async () => {
+        test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
             let db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -219,7 +220,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphSimpleDefinition,
+                graphSimpleReverseDefinition,
                 true,
                 false
             );
@@ -298,6 +299,76 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
+        test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
+            let db = globals.get(CLIENT_DB);
+            // add a PractitionerRole
+            let resourceType = 'PractitionerRole';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {
+                    _id: '10',
+                    id: '10',
+                    resourceType: resourceType,
+                    practitioner: {
+                        reference: 'Practitioner/1'
+                    },
+                    organization: {
+                        reference: 'Organization/100'
+                    }
+                }
+            );
+            // add an Organization
+            resourceType = 'Organization';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: '100', id: '100', resourceType: resourceType}
+            );
+
+            let collection_name = 'PractitionerRole';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['10'],
+                graphSimpleForwardDefinition,
+                false,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/PractitionerRole/10',
+                        'resource': {
+                            'id': '10',
+                            'organization': {
+                                'reference': 'Organization/100'
+                            },
+                            'practitioner': {
+                                'reference': 'Practitioner/1'
+                            },
+                            'resourceType': 'PractitionerRole'
+                        }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/Organization/100',
+                        'resource': {
+                            'id': '100',
+                            'resourceType': 'Organization'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
             let db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
@@ -317,7 +388,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphSimpleDefinition,
+                graphSimpleReverseDefinition,
                 true,
                 true
             );
