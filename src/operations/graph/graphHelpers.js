@@ -505,7 +505,7 @@ function getRecursiveContainedEntities(entityAndContained) {
      * @type {{resource: Resource, fullUrl: string}[]}
      */
     let result = [];
-    result = result.concat([{fullUrl: entityAndContained.fullUrl, resource: entityAndContained.resource}]);
+    result = result.concat([{fullUrl: entityAndContained.fullUrl, resource: removeNull(entityAndContained.resource.toJSON())}]);
 
     // now recurse
     result = result.concat(entityAndContained.containedEntries.flatMap(c => getRecursiveContainedEntities(c)));
