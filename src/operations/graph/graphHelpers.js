@@ -258,17 +258,22 @@ function doesResourceHasProperty(resource, property, filterProperty, filterValue
 async function processOneGraphLink(db, base_version, user, scope, host, link,
                                    parentEntities) {
 
+    /**
+     * @type {EntityAndContained[]}
+     */
+    let childEntries = [];
     let link_targets = link.target;
     for (const target of link_targets) {
         /**
+         * If this is not set then the caller does not want this entity but a nested entity
+         * defined further in the GraphDefinition
          * @type {string}
          */
         const resourceType = target.type;
         // there are two types of linkages:
         // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
         // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
-        if (link.path) {
-            // forward link
+        if (link.path) { // forward link
             /**
              * @type {string}
              */
@@ -312,43 +317,51 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             // e.g, 'path': 'extension.extension:url=plan'
             // verifyHasValidScopes(resourceType, 'read', user, scope);
             // find parent entities that have a valid property
-            const parentEntitiesWithValidProperty = parentEntities.filter(
+            parentEntities = parentEntities.filter(
                 p => doesResourceHasProperty(p.resource, property, filterProperty, filterValue)
             );
-            await get_related_resources(
-                db,
-                resourceType,
-                base_version,
-                host,
-                parentEntitiesWithValidProperty,
-                property,
-                filterProperty,
-                filterValue
-            );
+            if (target.type) { // if caller has requested this entity or just wants a nested entity
+                await get_related_resources(
+                    db,
+                    resourceType,
+                    base_version,
+                    host,
+                    parentEntities,
+                    property,
+                    filterProperty,
+                    filterValue
+                );
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            } else {
+                childEntries = parentEntities;
+            }
         } else if (target.params) {
-            // reverse link
-            /**
-             * @type {string}
-             */
-            verifyHasValidScopes(resourceType, 'read', user, scope);
-            await get_reverse_related_resources(
-                db,
-                resourceType,
-                resourceType,
-                base_version,
-                parentEntities,
-                host,
-                null,
-                null,
-                target.params
-            );
+            if (target.type) { // if caller has requested this entity or just wants a nested entity
+                // reverse link
+                /**
+                 * @type {string}
+                 */
+                verifyHasValidScopes(resourceType, 'read', user, scope);
+                await get_reverse_related_resources(
+                    db,
+                    resourceType,
+                    resourceType,
+                    base_version,
+                    parentEntities,
+                    host,
+                    null,
+                    null,
+                    target.params
+                );
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            }
+        }
+
+        if (target.type) {
+
         }
     }
 
-    /**
-     * @type {EntityAndContained[]}
-     */
-    const childEntries = parentEntities.flatMap(p => p.containedEntries);
     if (childEntries && childEntries.length > 0) {
         // Now recurse down and process the link
         for (const target of link_targets) {
