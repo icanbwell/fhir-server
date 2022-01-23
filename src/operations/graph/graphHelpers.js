@@ -402,23 +402,24 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
      * @type {EntityAndContained[]}
      */
     const childEntries = parentEntities.flatMap(p => p.containedEntries);
-    // Now recurse down and process the link
-    for (const target of link_targets) {
-        /**
-         * @type {[{path:string, params: string,target:[{type: string}]}]}
-         */
-        const childLinks = target.link;
-        if (childLinks) {
-            for (const childLink of childLinks) {
-                await processOneGraphLink(
-                    db, base_version, user, scope, host,
-                    childLink,
-                    childEntries
-                );
+    if (childEntries && childEntries.length > 0) {
+        // Now recurse down and process the link
+        for (const target of link_targets) {
+            /**
+             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             */
+            const childLinks = target.link;
+            if (childLinks) {
+                for (const childLink of childLinks) {
+                    await processOneGraphLink(
+                        db, base_version, user, scope, host,
+                        childLink,
+                        childEntries
+                    );
+                }
             }
         }
     }
-
 }
 
 /**

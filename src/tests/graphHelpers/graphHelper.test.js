@@ -383,7 +383,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1'],
-                graphSimpleDefinition,
+                graphDefinition,
                 false,
                 false
             );
@@ -480,7 +480,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphSimpleDefinition,
+                graphDefinition,
                 false,
                 false
             );
@@ -604,7 +604,7 @@ describe('graphHelper Tests', () => {
                 'user/*.read access/*.*',
                 'host',
                 ['1', '2'],
-                graphSimpleDefinition,
+                graphDefinition,
                 true,
                 false
             );
