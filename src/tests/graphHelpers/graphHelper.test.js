@@ -396,6 +396,13 @@ describe('graphHelper Tests', () => {
                         }
                     },
                     {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/2',
+                        'resource': {
+                            'id': '2',
+                            'resourceType': 'Practitioner'
+                        }
+                    },
+                    {
                         'fullUrl': 'https://host/4_0_0/PractitionerRole/10',
                         'resource': {
                             'id': '10',
@@ -413,13 +420,6 @@ describe('graphHelper Tests', () => {
                         'resource': {
                             'id': '100',
                             'resourceType': 'Organization'
-                        }
-                    },
-                    {
-                        'fullUrl': 'https://host/4_0_0/Practitioner/2',
-                        'resource': {
-                            'id': '2',
-                            'resourceType': 'Practitioner'
                         }
                     },
                     {

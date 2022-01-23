@@ -198,12 +198,11 @@ class EntityAndContained {
  * @param {string} scope
  * @param {{path: string, params: string, target: {type: string}[]}} link
  * @param {string} host
- * @param {Resource | [Resource]} parent_entity
  * @param {[Resource]} parentEntities
  * @return {Promise<[EntityAndContained]>}
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
-                                   parent_entity, parentEntities) {
+                                   parentEntities) {
     /**
      * @type {EntityAndContained[]}
      */
@@ -380,14 +379,14 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 entries_for_current_link = entries_for_current_link.concat(
                     await get_reverse_related_resources(
                         db,
-                        parent_entity.resourceType,
+                        parentEntity.resourceType,
                         resourceType,
                         base_version,
                         parentEntity,
                         host,
                         null,
                         null,
-                        target.params.replace('{ref}', parent_entity['id'])
+                        target.params.replace('{ref}', parentEntity['id'])
                     )
                 );
             }
@@ -421,7 +420,6 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                         const entitiesAndContained = await processOneGraphLink(
                             db, base_version, user, scope, host,
                             childLink,
-                            entryItem.resource,
                             [entryItem.resource]
                         );
                         const matchingEntryItem = entitiesAndContained.find(
@@ -459,23 +457,20 @@ async function processGraphLinks(db, base_version, user, scope, host, parentEnti
         /**
          * @type {Resource}
          */
-        for (const parentEntity of parentEntities) {
+        /**
+         * @type {EntityAndContained[]}
+         */
+        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parentEntities);
+        // match up with existing entities
+        for (const resultEntity of resultEntities) {
             /**
-             * @type {EntityAndContained[]}
+             * @type {EntityAndContained}
              */
-            const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parentEntity, parentEntities);
-            // match up with existing entities
-            for (const resultEntity of resultEntities) {
-                /**
-                 * @type {EntityAndContained}
-                 */
-                const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
-                    && x.entityResourceType === resultEntity.entityResourceType);
-                if (matchingEntity && matchingEntity.containedEntries.length > 0) {
-                    resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
-                }
+            const matchingEntity = entitiesAndContained.find(x => x.entityId === resultEntity.entityId
+                && x.entityResourceType === resultEntity.entityResourceType);
+            if (matchingEntity && matchingEntity.containedEntries.length > 0) {
+                resultEntity.containedEntries = resultEntity.containedEntries.concat(matchingEntity.containedEntries);
             }
-
         }
     }
     // now flatten the contained arrays
@@ -601,9 +596,10 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
     );
 
     /**
-     * @type {Resource[]}
+     * @type {[EntityAndContained]}
      */
-    const resources = [];
+    const topLevelBundleEntries = [];
+
     while (await cursor.hasNext()) {
         /**
          * element
@@ -615,28 +611,31 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          * @type {Resource}
          */
         const startResource = new StartResource(element);
-        resources.push(startResource);
-    }
-
-    for (const resource of resources) {
         /**
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': getFullUrlForResource(host, base_version, resource),
-            'resource': removeNull(resource.toJSON())
+            'fullUrl': getFullUrlForResource(host, base_version, startResource),
+            'resource': removeNull(startResource.toJSON())
         };
-        /**
-         * @type {[{path:string, params: string,target:[{type: string}]}]}
-         */
-        const linkItems = graphDefinition.link;
+        entries = entries.concat([current_entity]);
+        topLevelBundleEntries.push(current_entity);
+    }
+
+    /**
+     * @type {[{path:string, params: string,target:[{type: string}]}]}
+     */
+    const linkItems = graphDefinition.link;
+    /**
+     * @type {[EntityAndContained]}
+     */
+    const allRelatedEntries = await processGraphLinks(db, base_version, user, scope, host,
+        topLevelBundleEntries.map(e => e.resource), linkItems);
+
+    for (const topLevelBundleEntry of topLevelBundleEntries) {
         // add related resources as container
-        /**
-         * @type {[EntityAndContained]}
-         */
-        const allEntries = await processGraphLinks(db, base_version, user, scope, host, [resource], linkItems);
-        const matchingEntity = allEntries.find(e => e.entityId === current_entity.resource.id
-            && e.entityResourceType === current_entity.resource.resourceType);
+        const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id
+            && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
         /**
          * @type {[EntityAndContained]}
          */
@@ -653,7 +652,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
                 related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
             }
             if (related_references.length > 0) {
-                current_entity.resource = await processReferences(current_entity.resource, related_references);
+                topLevelBundleEntry.resource = await processReferences(topLevelBundleEntry.resource, related_references);
             }
         }
         /**
@@ -666,10 +665,9 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         );
         if (contained) {
             if (related_resources.length > 0) {
-                current_entity['resource']['contained'] = related_resources;
+                topLevelBundleEntry['resource']['contained'] = related_resources;
             }
         }
-        entries = entries.concat([current_entity]);
         if (!contained) {
             entries = entries.concat(related_entries.flatMap(r => getRecursiveContainedEntities(r)));
         }
