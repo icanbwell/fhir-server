@@ -501,6 +501,38 @@ async function processReferences(parent_entity, linkReferences) {
 }
 
 /**
+ *
+ * @param {EntityAndContained} entityAndContained
+ * @returns {{resource: Resource, fullUrl: string}[]}
+ */
+function getRecursiveContainedEntities(entityAndContained) {
+    /**
+     * @type {{resource: Resource, fullUrl: string}[]}
+     */
+    let result = [];
+    result = result.concat([{fullUrl: entityAndContained.fullUrl, resource: entityAndContained.resource}]);
+
+    // now recurse
+    result = result.concat(entityAndContained.containedEntries.flatMap(c => getRecursiveContainedEntities(c)));
+    return result;
+}
+
+
+/**
+ * removes duplicate items from array
+ * @param {*[]} array
+ * @param fnCompare
+ * @returns {*[]}
+ */
+const removeDuplicatesWithLambda = (array, fnCompare) => {
+    return array.filter((value, index, self) =>
+            index === self.findIndex((t) => (
+                fnCompare(t, value)
+            ))
+    );
+};
+
+/**
  * processing multiple ids
  * @param {import('mongodb').Db} db
  * @param {string} collection_name
@@ -604,29 +636,29 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
                 current_entity.resource = await processReferences(current_entity.resource, related_references);
             }
         }
+        /**
+         * @type {Resource[]}
+         */
+        const related_resources = related_entries.map(e => e.resource).filter(
+            resource => doesResourceHaveAnyAccessCodeFromThisList(
+                accessCodes, user, scope, resource
+            )
+        );
         if (contained) {
-            /**
-             * @type {Resource[]}
-             */
-            const related_resources = related_entries.map(e => e.resource).filter(
-                resource => doesResourceHaveAnyAccessCodeFromThisList(
-                    accessCodes, user, scope, resource
-                )
-            );
-
             if (related_resources.length > 0) {
                 current_entity['resource']['contained'] = related_resources;
             }
         }
         entries = entries.concat([current_entity]);
         if (!contained) {
-            entries = entries.concat(related_entries);
+            entries = entries.concat(related_entries.flatMap(r => getRecursiveContainedEntities(r)));
         }
     }
 
+    entries = removeDuplicatesWithLambda(entries,
+        (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
     return entries;
 }
-
 
 /**
  * process GraphDefinition and returns a bundle with all the related resources
