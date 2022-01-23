@@ -5,8 +5,15 @@ const {CLIENT_DB} = require('../../constants');
 const graphDefinition = require('./fixtures/graph.json');
 
 describe('graphHelper Tests', () => {
+    const base_version = '4_0_0';
     beforeEach(async () => {
         await commonBeforeEach();
+        let db = globals.get(CLIENT_DB);
+        let collection_name = 'Practitioner';
+        let collection = db.collection(`${collection_name}_${base_version}`);
+
+        await collection.insertOne({_id: '1', id: '1', resourceType: 'Practitioner'});
+        // const doc = await collection.findOne({id: '1'});
     });
 
     afterEach(async () => {
@@ -16,11 +23,7 @@ describe('graphHelper Tests', () => {
     describe('graphHelper Tests', () => {
         test('graphHelper works', async () => {
             let db = globals.get(CLIENT_DB);
-            const base_version = '4_0_0';
             let collection_name = 'Practitioner';
-            let collection = db.collection(`${collection_name}_${base_version}`);
-            await collection.insertOne({_id: '1', id: '1', resourceType: 'Practitioner'});
-            const doc = await collection.findOne({id: '1'});
             const result = await processGraph(
                 db,
                 collection_name,
