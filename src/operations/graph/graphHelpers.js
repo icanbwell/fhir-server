@@ -10,6 +10,7 @@ const pRetry = require('p-retry');
 const {logError} = require('../common/logging');
 const {logMessageToSlack} = require('../../utils/slack.logger');
 const moment = require('moment-timezone');
+const {removeNull} = require('../../utils/nullRemover');
 
 /**
  * generates a full url for an entity
@@ -73,9 +74,10 @@ async function get_related_resources(db, collectionName, base_version, host, rel
                 const found_related_resource = await collection.findOne({id: related_resource_id.toString()});
                 if (found_related_resource) {
                     // noinspection UnnecessaryLocalVariableJS
+                    const relatedResource = new RelatedResource(found_related_resource);
                     entries = entries.concat([{
-                        'fullUrl': getFullUrlForResource(host, base_version, found_related_resource),
-                        'resource': new RelatedResource(found_related_resource)
+                        'fullUrl': getFullUrlForResource(host, base_version, relatedResource),
+                        'resource': removeNull(relatedResource.toJSON())
                     }]);
                 }
             }
@@ -563,6 +565,11 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         }
     };
     const options = {};
+    const projection = {};
+    // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+    projection['_id'] = 0;
+    options['projection'] = projection;
+
     /**
      * @type {number}
      */
@@ -597,7 +604,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          */
         let current_entity = {
             'fullUrl': getFullUrlForResource(host, base_version, element),
-            'resource': new StartResource(element)
+            'resource': removeNull(new StartResource(element).toJSON())
         };
         /**
          * @type {[{path:string, params: string,target:[{type: string}]}]}
@@ -693,12 +700,9 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
-    const uniqueEntries = entries.reduce((acc, item) => {
-        if (!acc.find(a => a.resourceType === item.resource.resourceType && a.id === item.resource.id)) {
-            acc.push(item);
-        }
-        return acc;
-    }, []).filter(
+    let uniqueEntries = removeDuplicatesWithLambda(entries,
+        (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+    uniqueEntries = uniqueEntries.filter(
         e => doesResourceHaveAnyAccessCodeFromThisList(
             accessCodes, user, scope, e.resource
         )

@@ -19,13 +19,14 @@ describe('graphHelper Tests', () => {
             const base_version = '4_0_0';
             let collection_name = 'Practitioner';
             let collection = db.collection(`${collection_name}_${base_version}`);
-            collection.insertOne({id: '1', resourceType: 'Practitioner'});
+            await collection.insertOne({_id: '1', id: '1', resourceType: 'Practitioner'});
+            const doc = await collection.findOne({id: '1'});
             const result = await processGraph(
                 db,
                 collection_name,
                 base_version,
                 collection_name,
-                null,
+                ['*'],
                 'user',
                 'user/*.read access/*.*',
                 'host',
@@ -37,7 +38,15 @@ describe('graphHelper Tests', () => {
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result).toStrictEqual({
-                'entry': [],
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    }
+                ],
                 'id': 'bundle-example',
                 'resourceType': 'Bundle',
                 'type': 'collection'
