@@ -200,11 +200,10 @@ class EntityAndContained {
  * @param {string} host
  * @param {Resource | [Resource]} parent_entity
  * @param {[Resource]} parentEntities
- * @param {[{resource: Resource, fullUrl: string}]} entries
  * @return {Promise<[EntityAndContained]>}
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
-                                   parent_entity, parentEntities, entries) {
+                                   parent_entity, parentEntities) {
     /**
      * @type {EntityAndContained[]}
      */
@@ -423,8 +422,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                             db, base_version, user, scope, host,
                             childLink,
                             entryItem.resource,
-                            [entryItem.resource],
-                            entries
+                            [entryItem.resource]
                         );
                         const matchingEntryItem = entitiesAndContained.find(
                             m => m.entityId === entryItem.entityId
@@ -453,11 +451,6 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
  */
 async function processGraphLinks(db, base_version, user, scope, host, parent_entity, linkItems) {
     /**
-     * entries
-     * @type {[EntityAndContained]}
-     */
-    let entries = [];
-    /**
      * @type {[Resource]}
      */
     const parentEntities = Array.isArray(parent_entity) ? parent_entity : [parent_entity];
@@ -467,7 +460,7 @@ async function processGraphLinks(db, base_version, user, scope, host, parent_ent
         /**
          * @type {EntityAndContained[]}
          */
-        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities, entries);
+        const entitiesAndContained = await processOneGraphLink(db, base_version, user, scope, host, link, parent_entity, parentEntities);
         // match up with existing entities
         for (const resultEntity of resultEntities) {
             /**
