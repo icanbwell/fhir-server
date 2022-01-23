@@ -399,5 +399,113 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
+        test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
+            let db = globals.get(CLIENT_DB);
+            let resourceType = 'Practitioner';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
+
+            // add a PractitionerRole
+            resourceType = 'PractitionerRole';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {
+                    _id: '10',
+                    id: '10',
+                    resourceType: resourceType,
+                    practitioner: {
+                        reference: 'Practitioner/1'
+                    },
+                    organization: {
+                        reference: 'Organization/100'
+                    }
+                }
+            );
+            await collection.insertOne(
+                {
+                    _id: '20',
+                    id: '20',
+                    resourceType: resourceType,
+                    practitioner: {
+                        reference: 'Practitioner/2'
+                    },
+                    organization: {
+                        reference: 'Organization/200'
+                    }
+                }
+            );
+            // add an Organization
+            resourceType = 'Organization';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: '100', id: '100', resourceType: resourceType}
+            );
+            await collection.insertOne(
+                {_id: '200', id: '200', resourceType: resourceType}
+            );
+
+            let collection_name = 'Practitioner';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['1', '2'],
+                graphDefinition,
+                true,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'contained': [
+                                {
+                                    'id': '10',
+                                    'organization': {
+                                        'reference': 'Organization/100'
+                                    },
+                                    'practitioner': {
+                                        'reference': 'Practitioner/1'
+                                    },
+                                    'resourceType': 'PractitionerRole'
+                                }
+                            ],
+                            'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/2',
+                        'resource': {
+                            'contained': [
+                                {
+                                    'id': '20',
+                                    'organization': {
+                                        'reference': 'Organization/200'
+                                    },
+                                    'practitioner': {
+                                        'reference': 'Practitioner/2'
+                                    },
+                                    'resourceType': 'PractitionerRole'
+                                }
+                            ],
+                            'id': '2',
+                            'resourceType': 'Practitioner'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
     });
 });
