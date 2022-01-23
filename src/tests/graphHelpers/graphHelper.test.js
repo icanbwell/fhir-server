@@ -226,6 +226,5 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
-
     });
 });

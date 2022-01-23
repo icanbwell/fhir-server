@@ -125,10 +125,6 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
      * @type {function(?Object): Resource}
      */
     const RelatedResource = getResource(base_version, relatedResourceCollectionName);
-    /**
-     * @type {[import('mongodb').Document]}
-     */
-    let relatedResourcePropertyDocuments;
 
     const query = buildR4SearchQuery(relatedResourceCollectionName, parseQueryStringIntoArgs(reverse_filter)).query;
 
