@@ -67,7 +67,7 @@ function getFullUrlForResource(host, base_version, parentEntity) {
  * @param {*} filterValue (Optional) match filterProperty to this value
  */
 async function get_related_resources(db, collectionName, base_version, host, parentEntities, property, filterProperty, filterValue) {
-    if (!parentEntities || parentEntities.length == 0) {
+    if (!parentEntities || parentEntities.length === 0) {
         return; // nothing to do
     }
     /**
@@ -212,6 +212,40 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
 }
 
 /**
+ * returns whether the resource has the passed in property (handles nested properties)
+ * @param {Resource} resource
+ * @param {string} property
+ * @param {string} filterProperty
+ * @param {string} filterValue
+ * @returns {*}
+ */
+function doesResourceHasProperty(resource, property, filterProperty, filterValue) {
+    if (property.includes('.')) {
+        /**
+         * @type {string[]}
+         */
+        const propertyComponents = property.split('.');
+        let currentElements = [resource];
+        for (const propertyComponent of propertyComponents) {
+            // find nested elements where the property is present and select the property
+            currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
+            if (currentElements.length === 0) {
+                return false;
+            }
+        }
+        // if there is a filter then check that the last element has that value
+        if (filterProperty) {
+            currentElements = currentElements.filter(c => c[`${filterProperty}`] && c[`${filterProperty}`] === filterValue);
+            return (currentElements.length > 0);
+        } else { // if not filter then just return true if we find the field
+            return true;
+        }
+    } else {
+        return resource[`${property}`];
+    }
+}
+
+/**
  * processes a single graph link
  * @param {import('mongodb').Db} db
  * @param {string} base_version
@@ -223,11 +257,7 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
                                    parentEntities) {
-    /**
-     * entries for processing the current link
-     * @type {EntityAndContained[]}
-     */
-    let entries_for_current_link = [];
+
     let link_targets = link.target;
     for (const target of link_targets) {
         /**
@@ -281,12 +311,16 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             // if the property name includes . then it is a nested link
             // e.g, 'path': 'extension.extension:url=plan'
             // verifyHasValidScopes(resourceType, 'read', user, scope);
+            // find parent entities that have a valid property
+            const parentEntitiesWithValidProperty = parentEntities.filter(
+                p => doesResourceHasProperty(p.resource, property, filterProperty, filterValue)
+            );
             await get_related_resources(
                 db,
                 resourceType,
                 base_version,
                 host,
-                parentEntities.filter(p => p.resource[`${property}`]),
+                parentEntitiesWithValidProperty,
                 property,
                 filterProperty,
                 filterValue

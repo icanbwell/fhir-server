@@ -6,6 +6,7 @@ const graphSimpleReverseDefinition = require('./fixtures/graphSimpleReverse.json
 const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json');
 const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
+const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
 
 describe('graphHelper Tests', () => {
     const base_version = '4_0_0';
@@ -732,7 +733,18 @@ describe('graphHelper Tests', () => {
             let db = globals.get(CLIENT_DB);
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                _id: '2', id: '2', resourceType: 'Practitioner', extension: [
+                    {
+                        extension: {
+                            url: 'plan',
+                            valueReference: {
+                                reference: 'InsurancePlan/2000'
+                            }
+                        }
+                    }
+                ]
+            });
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
@@ -747,7 +759,34 @@ describe('graphHelper Tests', () => {
                     },
                     organization: {
                         reference: 'Organization/100'
-                    }
+                    },
+                    'extension': [
+                        {
+                            'id': 'IDHP',
+                            'extension': [
+                                {
+                                    'url': 'for_system',
+                                    'valueUri': 'http://medstarhealth.org/IDHP'
+                                },
+                                {
+                                    'url': 'availability_score',
+                                    'valueDecimal': 0.1234567890123
+                                }
+                            ],
+                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
+                        },
+                        {
+                            'extension': [
+                                {
+                                    'url': 'plan',
+                                    'valueReference': {
+                                        'reference': 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                    }
+                                }
+                            ],
+                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                        }
+                    ]
                 }
             );
             await collection.insertOne(
@@ -852,6 +891,122 @@ describe('graphHelper Tests', () => {
                 'type': 'collection'
             });
         });
+        test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
+            let db = globals.get(CLIENT_DB);
+            // add a PractitionerRole
+            let resourceType = 'PractitionerRole';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {
+                    _id: '10',
+                    id: '10',
+                    resourceType: resourceType,
+                    practitioner: {
+                        reference: 'Practitioner/1'
+                    },
+                    organization: {
+                        reference: 'Organization/100'
+                    },
+                    extension: [
+                        {
+                            'id': 'IDHP',
+                            'extension': [
+                                {
+                                    'url': 'for_system',
+                                    'valueUri': 'http://medstarhealth.org/IDHP'
+                                },
+                                {
+                                    'url': 'availability_score',
+                                    'valueDecimal': 0.1234567890123
+                                }
+                            ],
+                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
+                        },
+                        {
+                            'extension': [
+                                {
+                                    'url': 'plan',
+                                    'valueReference': {
+                                        'reference': 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                    }
+                                }
+                            ],
+                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                        }
+                    ]
+                }
+            );
+            // add an Organization
+            resourceType = 'InsurancePlan';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(
+                {_id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He', id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He', resourceType: resourceType}
+            );
 
+            let collection_name = 'PractitionerRole';
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['10'],
+                graphSimpleWithExtensionDefinition,
+                false,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/PractitionerRole/10',
+                        'resource': {
+                            'extension': [
+                                {
+                                    'extension': [
+                                        {
+                                            'url': 'for_system',
+                                            'valueUri': 'http://medstarhealth.org/IDHP'
+                                        },
+                                        {
+                                            'url': 'availability_score',
+                                            'valueDecimal': 0.1234567890123
+                                        }
+                                    ],
+                                    'id': 'IDHP',
+                                    'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
+                                },
+                                {
+                                    'extension': [
+                                        {
+                                            'url': 'plan',
+                                            'valueReference': {
+                                                'reference': 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                            }
+                                        }
+                                    ],
+                                    'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                }
+                            ],
+                            'id': '10',
+                            'organization': {
+                                'reference': 'Organization/100'
+                            },
+                            'practitioner': {
+                                'reference': 'Practitioner/1'
+                            },
+                            'resourceType': 'PractitionerRole'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
     });
 });
