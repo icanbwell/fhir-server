@@ -21,7 +21,7 @@ describe('graphHelper Tests', () => {
     });
 
     describe('graphHelper Tests', () => {
-        test('graphHelper works', async () => {
+        test('graphHelper single Practitioner works', async () => {
             let db = globals.get(CLIENT_DB);
             let collection_name = 'Practitioner';
             const result = await processGraph(
@@ -46,6 +46,50 @@ describe('graphHelper Tests', () => {
                         'fullUrl': 'https://host/4_0_0/Practitioner/1',
                         'resource': {
                             'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    }
+                ],
+                'id': 'bundle-example',
+                'resourceType': 'Bundle',
+                'type': 'collection'
+            });
+        });
+        test('graphHelper multiple Practitioners works', async () => {
+            let db = globals.get(CLIENT_DB);
+            let collection_name = 'Practitioner';
+            let collection = db.collection(`${collection_name}_${base_version}`);
+
+            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
+            const result = await processGraph(
+                db,
+                collection_name,
+                base_version,
+                collection_name,
+                ['*'],
+                'user',
+                'user/*.read access/*.*',
+                'host',
+                ['1', '2'],
+                graphDefinition,
+                false,
+                false
+            );
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result).toStrictEqual({
+                'entry': [
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'resource': {
+                            'id': '1',
+                            'resourceType': 'Practitioner'
+                        }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/Practitioner/2',
+                        'resource': {
+                            'id': '2',
                             'resourceType': 'Practitioner'
                         }
                     }
