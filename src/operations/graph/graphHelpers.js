@@ -99,6 +99,52 @@ function getFullUrlForResource(host, base_version, parentEntity) {
     return `https://${host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
 }
 
+
+/**
+ * returns property values
+ * @param {EntityAndContainedBase} entity
+ * @param {string} property
+ * @param {string?} filterProperty
+ * @param {string?} filterValue
+ * @returns {*[]}
+ */
+function getPropertiesForEntity(entity, property, filterProperty, filterValue) {
+    const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
+    if (property.includes('.')) {
+        /**
+         * @type {string[]}
+         */
+        const propertyComponents = property.split('.');
+        let currentElements = [item];
+        for (const propertyComponent of propertyComponents) {
+            // find nested elements where the property is present and select the property
+            currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
+            if (currentElements.length === 0) {
+                return [];
+            }
+        }
+        // if there is a filter then check that the last element has that value
+        if (filterProperty) {
+            currentElements = currentElements.filter(c => c[`${filterProperty}`] && c[`${filterProperty}`] === filterValue);
+        }
+        return currentElements;
+    } else {
+        return [item[`${property}`]];
+    }
+}
+
+/**
+ * returns first property value
+ * @param {EntityAndContainedBase} entity
+ * @param {string} property
+ * @param {string?} filterProperty
+ * @param {string?} filterValue
+ * @returns {*[]}
+ */
+function getFirstPropertyForEntity(entity, property, filterProperty, filterValue) {
+    return getPropertiesForEntity(entity, property, filterProperty, filterValue)[0];
+}
+
 /**
  * Gets related resources
  * @param {import('mongodb').Db} db
@@ -129,9 +175,14 @@ async function get_related_resources(db, collectionName, base_version, host, par
     //      */
     //     const nestedProperties = property.split('.');
     // }
-    const relatedReferences = parentEntities.map(p =>
-        (p instanceof ResourceEntityAndContained) ? p.resource[`${property}`] : p.item[`${property}`]);
-    const relatedReferenceIds = relatedReferences.map(r => r.reference.replace(collectionName + '/', ''));
+    const relatedReferences = parentEntities.flatMap(p =>
+        getPropertiesForEntity(p, property));
+    let relatedReferenceIds = relatedReferences.filter(
+        r => r['reference']).map(r => r.reference.replace(collectionName + '/', ''));
+    if (relatedReferenceIds.length === 0) {
+        return; // nothing to do
+    }
+    relatedReferenceIds = Array.from(new Set(relatedReferenceIds)); // remove duplicates to speed up data access
     const options = {};
     const projection = {};
     // also exclude _id so if there is a covering index the query can be satisfied from the covering index
@@ -143,7 +194,7 @@ async function get_related_resources(db, collectionName, base_version, host, par
         }
     };
     if (filterProperty) {
-        query[`${filterProperty}`] = {$eq: filterValue};
+        query[`${filterProperty}`] = filterValue;
     }
     const cursor = await collection.find(query, options);
 
@@ -163,8 +214,9 @@ async function get_related_resources(db, collectionName, base_version, host, par
 
         const matchingParentEntities = parentEntities.filter(
             p => (
-                (p instanceof ResourceEntityAndContained) ? p.resource[`${property}`] : p.item[`${property}`]
-            ).reference === `${relatedResource.resourceType}/${relatedResource.id}`
+                getFirstPropertyForEntity(p, property) &&
+                getFirstPropertyForEntity(p, property)['reference'] === `${relatedResource.resourceType}/${relatedResource.id}`
+            )
         );
 
         // add it to each one since there can be multiple resources that point to the same related resource
@@ -299,39 +351,6 @@ function doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
 }
 
 /**
- * returns property values
- * @param {EntityAndContainedBase} entity
- * @param {string} property
- * @param {string} filterProperty
- * @param {string} filterValue
- * @returns {*[]}
- */
-function getPropertiesMatchingFilter(entity, property, filterProperty, filterValue) {
-    const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
-    if (property.includes('.')) {
-        /**
-         * @type {string[]}
-         */
-        const propertyComponents = property.split('.');
-        let currentElements = [item];
-        for (const propertyComponent of propertyComponents) {
-            // find nested elements where the property is present and select the property
-            currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
-            if (currentElements.length === 0) {
-                return [];
-            }
-        }
-        // if there is a filter then check that the last element has that value
-        if (filterProperty) {
-            currentElements = currentElements.filter(c => c[`${filterProperty}`] && c[`${filterProperty}`] === filterValue);
-        }
-        return currentElements;
-    } else {
-        return [item[`${property}`]];
-    }
-}
-
-/**
  * processes a single graph link
  * @param {import('mongodb').Db} db
  * @param {string} base_version
@@ -423,7 +442,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 childEntries = [];
                 for (const parentEntity of parentEntities) {
                     // create child entries
-                    const children = getPropertiesMatchingFilter(parentEntity, property, filterProperty, filterValue);
+                    const children = getPropertiesForEntity(parentEntity, property, filterProperty, filterValue);
                     const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
                             target.type !== undefined,
                             c,
