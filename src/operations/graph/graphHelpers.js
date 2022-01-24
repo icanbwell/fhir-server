@@ -357,14 +357,8 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             }
         }
 
-        if (target.type) {
-
-        }
-    }
-
-    if (childEntries && childEntries.length > 0) {
-        // Now recurse down and process the link
-        for (const target of link_targets) {
+        if (childEntries && childEntries.length > 0) {
+            // Now recurse down and process the link
             /**
              * @type {[{path:string, params: string,target:[{type: string}]}]}
              */
