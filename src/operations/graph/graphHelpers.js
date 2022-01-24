@@ -142,6 +142,9 @@ async function get_related_resources(db, collectionName, base_version, host, par
             $in: relatedReferenceIds
         }
     };
+    if (filterProperty) {
+        query[`${filterProperty}`] = {$eq: filterValue};
+    }
     const cursor = await collection.find(query, options);
 
     while (await cursor.hasNext()) {
