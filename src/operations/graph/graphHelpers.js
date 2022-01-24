@@ -14,8 +14,30 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 
 
-class EntityAndContained {
-    constructor(entityId, entityResourceType, fullUrl, resource, containedEntries) {
+class EntityAndContainedBase {
+    /**
+     * @param {boolean} includeInOutput
+     */
+    constructor(includeInOutput) {
+        /**
+         * @type {boolean}
+         */
+        this.includeInOutput = includeInOutput;
+    }
+}
+
+class ResourceEntityAndContained extends EntityAndContainedBase {
+    /**
+     * class
+     * @param {string} entityId
+     * @param {string} entityResourceType
+     * @param {string} fullUrl
+     * @param {boolean} includeInOutput
+     * @param {Resource} resource
+     * @param {EntityAndContainedBase[]} containedEntries
+     */
+    constructor(entityId, entityResourceType, fullUrl, includeInOutput, resource, containedEntries) {
+        super(includeInOutput);
         /**
          * @type {string}
          */
@@ -37,7 +59,29 @@ class EntityAndContained {
         assert(resource);
         this.resource = resource;
         /**
-         * @type {[EntityAndContained]}
+         * @type {[EntityAndContainedBase]}
+         */
+        assert(containedEntries);
+        this.containedEntries = containedEntries;
+    }
+}
+
+class NonResourceEntityAndContained extends EntityAndContainedBase {
+    /**
+     * class
+     * @param {boolean} includeInOutput
+     * @param {*} item
+     * @param {EntityAndContainedBase[]} containedEntries
+     */
+    constructor(includeInOutput, item, containedEntries) {
+        super(includeInOutput);
+        /**
+         * @type {*}
+         */
+        assert(item);
+        this.item = item;
+        /**
+         * @type {[EntityAndContainedBase]}
          */
         assert(containedEntries);
         this.containedEntries = containedEntries;
@@ -61,7 +105,7 @@ function getFullUrlForResource(host, base_version, parentEntity) {
  * @param {string} collectionName
  * @param {string} base_version
  * @param {string} host
- * @param {EntityAndContained[]} parentEntities
+ * @param {ResourceEntityAndContained[]} parentEntities
  * @param {string} property
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
@@ -85,7 +129,8 @@ async function get_related_resources(db, collectionName, base_version, host, par
     //      */
     //     const nestedProperties = property.split('.');
     // }
-    const relatedReferences = parentEntities.map(p => p.resource[`${property}`]);
+    const relatedReferences = parentEntities.map(p =>
+        (p instanceof ResourceEntityAndContained) ? p.resource[`${property}`] : p.item[`${property}`]);
     const relatedReferenceIds = relatedReferences.map(r => r.reference.replace(collectionName + '/', ''));
     const options = {};
     const projection = {};
@@ -104,16 +149,19 @@ async function get_related_resources(db, collectionName, base_version, host, par
         const relatedResource = removeNull(new RelatedResource(element).toJSON());
 
         // find matching parent and add to containedEntries
-        const relatedEntityAndContained = new EntityAndContained(
+        const relatedEntityAndContained = new ResourceEntityAndContained(
             relatedResource.id,
             relatedResource.resourceType,
             getFullUrlForResource(host, base_version, relatedResource),
+            true,
             relatedResource,
             []
         );
 
         const matchingParentEntities = parentEntities.filter(
-            p => p.resource[`${property}`].reference === `${relatedResource.resourceType}/${relatedResource.id}`
+            p => (
+                (p instanceof ResourceEntityAndContained) ? p.resource[`${property}`] : p.item[`${property}`]
+            ).reference === `${relatedResource.resourceType}/${relatedResource.id}`
         );
 
         // add it to each one since there can be multiple resources that point to the same related resource
@@ -140,7 +188,7 @@ function parseQueryStringIntoArgs(queryString) {
  * @param {string} parentCollectionName
  * @param {string} relatedResourceCollectionName
  * @param {string} base_version
- * @param {EntityAndContained[]}  parentEntities parent entities
+ * @param {ResourceEntityAndContained[]}  parentEntities parent entities
  * @param {string} host
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
@@ -199,10 +247,11 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
         );
         if (matchingParentEntity) {
             matchingParentEntity.containedEntries.push(
-                new EntityAndContained(
+                new ResourceEntityAndContained(
                     relatedResourcePropertyCurrent.id,
                     relatedResourcePropertyCurrent.resourceType,
                     getFullUrlForResource(host, base_version, relatedResourcePropertyCurrent),
+                    true,
                     removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
                     []
                 )
@@ -213,19 +262,20 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
 
 /**
  * returns whether the resource has the passed in property (handles nested properties)
- * @param {Resource} resource
+ * @param {EntityAndContainedBase} entity
  * @param {string} property
  * @param {string} filterProperty
  * @param {string} filterValue
  * @returns {*}
  */
-function doesResourceHasProperty(resource, property, filterProperty, filterValue) {
+function doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
+    const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
     if (property.includes('.')) {
         /**
          * @type {string[]}
          */
         const propertyComponents = property.split('.');
-        let currentElements = [resource];
+        let currentElements = [item];
         for (const propertyComponent of propertyComponents) {
             // find nested elements where the property is present and select the property
             currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
@@ -241,7 +291,40 @@ function doesResourceHasProperty(resource, property, filterProperty, filterValue
             return true;
         }
     } else {
-        return resource[`${property}`];
+        return item[`${property}`];
+    }
+}
+
+/**
+ * returns property values
+ * @param {EntityAndContainedBase} entity
+ * @param {string} property
+ * @param {string} filterProperty
+ * @param {string} filterValue
+ * @returns {*[]}
+ */
+function getPropertiesMatchingFilter(entity, property, filterProperty, filterValue) {
+    const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
+    if (property.includes('.')) {
+        /**
+         * @type {string[]}
+         */
+        const propertyComponents = property.split('.');
+        let currentElements = [item];
+        for (const propertyComponent of propertyComponents) {
+            // find nested elements where the property is present and select the property
+            currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
+            if (currentElements.length === 0) {
+                return [];
+            }
+        }
+        // if there is a filter then check that the last element has that value
+        if (filterProperty) {
+            currentElements = currentElements.filter(c => c[`${filterProperty}`] && c[`${filterProperty}`] === filterValue);
+        }
+        return currentElements;
+    } else {
+        return [item[`${property}`]];
     }
 }
 
@@ -253,13 +336,13 @@ function doesResourceHasProperty(resource, property, filterProperty, filterValue
  * @param {string} scope
  * @param {{path: string, params: string, target: {type: string}[]}} link
  * @param {string} host
- * @param {[EntityAndContained]} parentEntities
+ * @param {[EntityAndContainedBase]} parentEntities
  */
 async function processOneGraphLink(db, base_version, user, scope, host, link,
                                    parentEntities) {
 
     /**
-     * @type {EntityAndContained[]}
+     * @type {EntityAndContainedBase[]}
      */
     let childEntries = [];
     let link_targets = link.target;
@@ -318,8 +401,9 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             // verifyHasValidScopes(resourceType, 'read', user, scope);
             // find parent entities that have a valid property
             parentEntities = parentEntities.filter(
-                p => doesResourceHasProperty(p.resource, property, filterProperty, filterValue)
+                p => doesEntityHaveProperty(p, property, filterProperty, filterValue)
             );
+            // if this is a reference then get related resources
             if (target.type) { // if caller has requested this entity or just wants a nested entity
                 await get_related_resources(
                     db,
@@ -333,7 +417,19 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 );
                 childEntries = parentEntities.flatMap(p => p.containedEntries);
             } else {
-                childEntries = parentEntities;
+                childEntries = [];
+                for (const parentEntity of parentEntities) {
+                    // create child entries
+                    const children = getPropertiesMatchingFilter(parentEntity, property, filterProperty, filterValue);
+                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
+                            target.type !== undefined,
+                            c,
+                            []
+                        )
+                    );
+                    childEntries = childEntries.concat(childEntriesForCurrentEntity);
+                    parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
+                }
             }
         } else if (target.params) {
             if (target.type) { // if caller has requested this entity or just wants a nested entity
@@ -385,20 +481,20 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
  * @param {string} host
  * @param {[Resource]} parentEntities
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
- * @return {Promise<[EntityAndContained]>}
+ * @return {Promise<[ResourceEntityAndContained]>}
  */
 async function processGraphLinks(db, base_version, user, scope, host, parentEntities, linkItems) {
     /**
-     * @type {[EntityAndContained]}
+     * @type {[ResourceEntityAndContained]}
      */
-    const resultEntities = parentEntities.map(e => new EntityAndContained(e.id, e.resourceType,
-        getFullUrlForResource(host, base_version, e), e, []));
+    const resultEntities = parentEntities.map(e => new ResourceEntityAndContained(e.id, e.resourceType,
+        getFullUrlForResource(host, base_version, e), true, e, []));
     for (const link of linkItems) {
         /**
          * @type {Resource}
          */
         /**
-         * @type {EntityAndContained[]}
+         * @type {ResourceEntityAndContained[]}
          */
         await processOneGraphLink(db, base_version, user, scope, host, link, resultEntities);
     }
@@ -425,7 +521,7 @@ async function processReferences(parent_entity, linkReferences) {
 
 /**
  *
- * @param {EntityAndContained} entityAndContained
+ * @param {EntityAndContainedBase} entityAndContained
  * @returns {{resource: Resource, fullUrl: string}[]}
  */
 function getRecursiveContainedEntities(entityAndContained) {
@@ -433,10 +529,12 @@ function getRecursiveContainedEntities(entityAndContained) {
      * @type {{resource: Resource, fullUrl: string}[]}
      */
     let result = [];
-    result = result.concat([{
-        fullUrl: entityAndContained.fullUrl,
-        resource: entityAndContained.resource
-    }]);
+    if (entityAndContained.includeInOutput) {
+        result = result.concat([{
+            fullUrl: entityAndContained.fullUrl,
+            resource: entityAndContained.resource
+        }]);
+    }
 
     // now recurse
     result = result.concat(entityAndContained.containedEntries.flatMap(c => getRecursiveContainedEntities(c)));
@@ -524,7 +622,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
     );
 
     /**
-     * @type {[EntityAndContained]}
+     * @type {[ResourceEntityAndContained]}
      */
     const topLevelBundleEntries = [];
 
@@ -555,7 +653,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
      */
     const linkItems = graphDefinition.link;
     /**
-     * @type {[EntityAndContained]}
+     * @type {[ResourceEntityAndContained]}
      */
     const allRelatedEntries = await processGraphLinks(db, base_version, user, scope, host,
         topLevelBundleEntries.map(e => e.resource), linkItems);
@@ -565,7 +663,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id
             && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
         /**
-         * @type {[EntityAndContained]}
+         * @type {[ResourceEntityAndContained]}
          */
         const related_entries = matchingEntity.containedEntries;
         if (env.HASH_REFERENCE || hash_references) {

@@ -841,6 +841,18 @@ describe('graphHelper Tests', () => {
                     {
                         'fullUrl': 'https://host/4_0_0/Practitioner/2',
                         'resource': {
+                            'extension': [
+                                {
+                                    'extension': [
+                                        {
+                                            'url': 'plan',
+                                            'valueReference': {
+                                                'reference': 'InsurancePlan/2000'
+                                            }
+                                        }
+                                    ]
+                                }
+                            ],
                             'id': '2',
                             'resourceType': 'Practitioner'
                         }
@@ -848,6 +860,33 @@ describe('graphHelper Tests', () => {
                     {
                         'fullUrl': 'https://host/4_0_0/PractitionerRole/10',
                         'resource': {
+                            'extension': [
+                                {
+                                    'extension': [
+                                        {
+                                            'url': 'for_system',
+                                            'valueUri': 'http://medstarhealth.org/IDHP'
+                                        },
+                                        {
+                                            'url': 'availability_score',
+                                            'valueDecimal': 0.1234567890123
+                                        }
+                                    ],
+                                    'id': 'IDHP',
+                                    'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
+                                },
+                                {
+                                    'extension': [
+                                        {
+                                            'url': 'plan',
+                                            'valueReference': {
+                                                'reference': 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                            }
+                                        }
+                                    ],
+                                    'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                }
+                            ],
                             'id': '10',
                             'organization': {
                                 'reference': 'Organization/100'
@@ -940,7 +979,11 @@ describe('graphHelper Tests', () => {
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
-                {_id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He', id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He', resourceType: resourceType}
+                {
+                    _id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                    id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                    resourceType: resourceType
+                }
             );
 
             let collection_name = 'PractitionerRole';
@@ -1000,6 +1043,13 @@ describe('graphHelper Tests', () => {
                                 'reference': 'Practitioner/1'
                             },
                             'resourceType': 'PractitionerRole'
+                        }
+                    },
+                    {
+                        'fullUrl': 'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                        'resource': {
+                            'id': 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                            'resourceType': 'InsurancePlan'
                         }
                     }
                 ],
