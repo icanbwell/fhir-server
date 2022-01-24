@@ -682,20 +682,15 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
             }
         }
         /**
-         * @type {Resource[]}
+         * @type {{resource: Resource, fullUrl: string}[]}
          */
-        const related_resources = related_entries.map(e => e.resource).filter(
-            r => doesResourceHaveAnyAccessCodeFromThisList(
-                accessCodes, user, scope, r
-            )
-        );
+        const relatedEntities = related_entries.flatMap(r => getRecursiveContainedEntities(r));
         if (contained) {
-            if (related_resources.length > 0) {
-                topLevelBundleEntry['resource']['contained'] = related_resources;
+            if (relatedEntities.length > 0) {
+                topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
             }
-        }
-        if (!contained) {
-            entries = entries.concat(related_entries.flatMap(r => getRecursiveContainedEntities(r)));
+        } else {
+            entries = entries.concat(relatedEntities);
         }
     }
 
