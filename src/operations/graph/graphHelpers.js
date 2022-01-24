@@ -146,12 +146,31 @@ function getFirstPropertyForEntity(entity, property, filterProperty, filterValue
 }
 
 /**
+ * returns property values
+ * @param {EntityAndContainedBase[]} entities
+ * @param {string} property
+ * @param {string?} filterProperty
+ * @param {string?} filterValue
+ * @returns {boolean}
+ */
+function isPropertyAReference(entities, property, filterProperty, filterValue) {
+    for (const entity of entities) {
+        const propertiesForEntity = getPropertiesForEntity(entity, property, filterProperty, filterValue);
+        if (propertiesForEntity.some(p => p['reference'])) { // if it has a 'reference' property then it is a reference
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/**
  * Gets related resources
  * @param {import('mongodb').Db} db
  * @param {string} collectionName
  * @param {string} base_version
  * @param {string} host
- * @param {ResourceEntityAndContained[]} parentEntities
+ * @param {EntityAndContainedBase[]} parentEntities
  * @param {string} property
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
@@ -218,6 +237,8 @@ async function get_related_resources(db, collectionName, base_version, host, par
                 getFirstPropertyForEntity(p, property)['reference'] === `${relatedResource.resourceType}/${relatedResource.id}`
             )
         );
+
+        assert(matchingParentEntities.length > 0); // we should always find at least one match
 
         // add it to each one since there can be multiple resources that point to the same related resource
         for (const matchingParentEntity of matchingParentEntities) {
@@ -426,7 +447,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 p => doesEntityHaveProperty(p, property, filterProperty, filterValue)
             );
             // if this is a reference then get related resources
-            if (target.type) { // if caller has requested this entity or just wants a nested entity
+            if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) { // if caller has requested this entity or just wants a nested entity
                 await get_related_resources(
                     db,
                     resourceType,
@@ -438,7 +459,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                     filterValue
                 );
                 childEntries = parentEntities.flatMap(p => p.containedEntries);
-            } else {
+            } else { // handle paths that are not references
                 childEntries = [];
                 for (const parentEntity of parentEntities) {
                     // create child entries
