@@ -727,10 +727,12 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         /**
          * @type {{resource: Resource, fullUrl: string}[]}
          */
-        const relatedEntities = related_entries.flatMap(r => getRecursiveContainedEntities(r));
+        const relatedEntities = related_entries
+            .flatMap(r => getRecursiveContainedEntities(r))
+            .filter(r => r.resource);
         if (contained) {
             if (relatedEntities.length > 0) {
-                topLevelBundleEntry['resource']['contained'] = relatedEntities.filter(r => r.resource).map(r => r.resource);
+                topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
             }
         } else {
             entries = entries.concat(relatedEntities);
