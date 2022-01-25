@@ -665,7 +665,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
     );
 
     /**
-     * @type {[ResourceEntityAndContained]}
+     * @type {{resource: Resource, fullUrl: string}[]}
      */
     const topLevelBundleEntries = [];
 
@@ -706,7 +706,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id
             && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
         /**
-         * @type {[ResourceEntityAndContained]}
+         * @type {[EntityAndContainedBase]}
          */
         const related_entries = matchingEntity.containedEntries;
         if (env.HASH_REFERENCE || hash_references) {
@@ -730,7 +730,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
         const relatedEntities = related_entries.flatMap(r => getRecursiveContainedEntities(r));
         if (contained) {
             if (relatedEntities.length > 0) {
-                topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+                topLevelBundleEntry['resource']['contained'] = relatedEntities.filter(r => r.resource).map(r => r.resource);
             }
         } else {
             entries = entries.concat(relatedEntities);
