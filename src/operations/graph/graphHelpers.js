@@ -104,12 +104,17 @@ class GraphParameters {
      * @param {string} user
      * @param {string} scope
      * @param {string} host
+     * @param {string} protocol
      */
-    constructor(base_version, host, user, scope, accessCodes) {
+    constructor(base_version, protocol, host, user, scope, accessCodes) {
         /**
          * @type {string}
          */
         this.base_version = base_version;
+        /**
+         * @type {string}
+         */
+        this.protocol = protocol;
         /**
          * @type {string}
          */
@@ -136,7 +141,7 @@ class GraphParameters {
  * @return {string}
  */
 function getFullUrlForResource(graphParameters, parentEntity) {
-    return `https://${graphParameters.host}/${graphParameters.base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
+    return `${graphParameters.protocol}://${graphParameters.host}/${graphParameters.base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
 }
 
 
@@ -738,7 +743,8 @@ const removeDuplicatesWithLambda = (array, fnCompare) => {
  * @param {string[]} idList
  * @return {Promise<{resource: Resource, fullUrl: string}[]>}
  */
-async function processMultipleIds(db, graphParameters, collection_name, resource_name, graphDefinition,
+async function processMultipleIds(db, graphParameters, collection_name,
+                                  resource_name, graphDefinition,
                                   contained, hash_references,
                                   idList) {
     /**
@@ -878,6 +884,7 @@ async function processMultipleIds(db, graphParameters, collection_name, resource
  * @param {string[]} accessCodes
  * @param {string} user
  * @param {string} scope
+ * @param {string} protocol
  * @param {string} host
  * @param {string | string[]} id (accepts a single id or a list of ids)
  * @param {*} graphDefinitionJson (a GraphDefinition resource)
@@ -885,7 +892,11 @@ async function processMultipleIds(db, graphParameters, collection_name, resource
  * @param {boolean} hash_references
  * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-async function processGraph(db, collection_name, base_version, resource_name, accessCodes, user, scope, host, id, graphDefinitionJson, contained, hash_references) {
+async function processGraph(db, collection_name, base_version, resource_name,
+                            accessCodes, user, scope,
+                            protocol,
+                            host, id,
+                            graphDefinitionJson, contained, hash_references) {
     /**
      * @type {function(?Object): Resource}
      */
@@ -904,7 +915,7 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
      */
     const entries = await processMultipleIds(
         db,
-        new GraphParameters(base_version, host, user, scope, accessCodes),
+        new GraphParameters(base_version, protocol, host, user, scope, accessCodes),
         collection_name, resource_name, graphDefinition, contained, hash_references, id);
 
     // remove duplicate resources

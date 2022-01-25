@@ -19,12 +19,13 @@ const env = require('var');
  * @param {string} scope
  * @param {Object} body
  * @param {string} path
+ * @param {string} protocol
  * @param {string} host_
  * @param {string} resource_name
  * @param {string} collection_name
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-module.exports.graph = async (args, user, scope, body, path, host_, resource_name, collection_name) => {
+module.exports.graph = async (args, user, scope, body, path, protocol, host_, resource_name, collection_name) => {
     if (isTrue(env.USE_OLD_GRAPH)) {
         return oldGraph(args, user, scope, body, path, host_, resource_name, collection_name);
     }
@@ -77,6 +78,7 @@ module.exports.graph = async (args, user, scope, body, path, host_, resource_nam
             accessCodes,
             user,
             scope,
+            protocol,
             host,
             id,
             graphDefinitionRaw,
