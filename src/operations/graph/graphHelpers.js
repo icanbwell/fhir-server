@@ -97,15 +97,46 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
     }
 }
 
+class GraphParameters {
+    /**
+     * @param {string} base_version
+     * @param {string[]} accessCodes
+     * @param {string} user
+     * @param {string} scope
+     * @param {string} host
+     */
+    constructor(base_version, host, user, scope, accessCodes) {
+        /**
+         * @type {string}
+         */
+        this.base_version = base_version;
+        /**
+         * @type {string}
+         */
+        this.host = host;
+        /**
+         * @type {string}
+         */
+        this.user = user;
+        /**
+         * @type {string}
+         */
+        this.scope = scope;
+        /**
+         * @type {string[]}
+         */
+        this.accessCodes = accessCodes;
+    }
+}
+
 /**
  * generates a full url for an entity
- * @param {string} host
- * @param {string} base_version
+ * @param {GraphParameters} graphParameters
  * @param {Resource} parentEntity
  * @return {string}
  */
-function getFullUrlForResource(host, base_version, parentEntity) {
-    return `https://${host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
+function getFullUrlForResource(graphParameters, parentEntity) {
+    return `https://${graphParameters.host}/${graphParameters.base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
 }
 
 
@@ -189,27 +220,27 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
 /**
  * Gets related resources and adds them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
- * @param {string} user
+ * @param {GraphParameters} graphParameters
  * @param {string} collectionName
- * @param {string} base_version
- * @param {string} host
  * @param {EntityAndContainedBase[]} parentEntities
  * @param {string} property
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
  */
-async function get_related_resources(db, user, collectionName, base_version, host, parentEntities, property, filterProperty, filterValue) {
+async function get_related_resources(db, graphParameters, collectionName,
+                                     parentEntities, property,
+                                     filterProperty, filterValue) {
     if (!parentEntities || parentEntities.length === 0) {
         return; // nothing to do
     }
     /**
      * @type {import('mongodb').Collection<Document>}
      */
-    const collection = db.collection(`${collectionName}_${base_version}`);
+    const collection = db.collection(`${collectionName}_${graphParameters.base_version}`);
     /**
      * @type {function(?Object): Resource}
      */
-    const RelatedResource = getResource(base_version, collectionName);
+    const RelatedResource = getResource(graphParameters.base_version, collectionName);
 
     // get values of this property from all the entities
     const relatedReferences = parentEntities.flatMap(p =>
@@ -235,7 +266,7 @@ async function get_related_resources(db, user, collectionName, base_version, hos
     if (filterProperty) {
         query[`${filterProperty}`] = filterValue;
     }
-        /**
+    /**
      * @type {number}
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
@@ -250,7 +281,7 @@ async function get_related_resources(db, user, collectionName, base_version, hos
             retries: 5,
             onFailedAttempt: async error => {
                 let msg = `get_related_resources ${collectionName} ${JSON.stringify(relatedReferenceIds)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(user, msg);
+                logError(graphParameters.user, msg);
                 await logMessageToSlack(msg);
             }
         }
@@ -264,7 +295,7 @@ async function get_related_resources(db, user, collectionName, base_version, hos
         const relatedEntityAndContained = new ResourceEntityAndContained(
             relatedResource.id,
             relatedResource.resourceType,
-            getFullUrlForResource(host, base_version, relatedResource),
+            getFullUrlForResource(graphParameters, relatedResource),
             true,
             relatedResource,
             []
@@ -300,17 +331,19 @@ function parseQueryStringIntoArgs(queryString) {
 /**
  * Gets related resources using reverse link and add them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
- * @param {string} user
+ * @param {GraphParameters} graphParameters
  * @param {string} parentCollectionName
  * @param {string} relatedResourceCollectionName
- * @param {string} base_version
  * @param {EntityAndContainedBase[]}  parentEntities parent entities
- * @param {string} host
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
  * @param {string} reverse_filter Do a reverse link from child to parent using this property
  */
-async function get_reverse_related_resources(db, user, parentCollectionName, relatedResourceCollectionName, base_version, parentEntities, host, filterProperty, filterValue, reverse_filter) {
+async function get_reverse_related_resources(
+    db,
+    graphParameters, parentCollectionName,
+    relatedResourceCollectionName, parentEntities,
+    filterProperty, filterValue, reverse_filter) {
     if (!(reverse_filter)) {
         throw new Error('reverse_filter must be set');
     }
@@ -323,11 +356,11 @@ async function get_reverse_related_resources(db, user, parentCollectionName, rel
     /**
      * @type {import('mongodb').Collection<Document>}
      */
-    const collection = db.collection(`${relatedResourceCollectionName}_${base_version}`);
+    const collection = db.collection(`${relatedResourceCollectionName}_${graphParameters.base_version}`);
     /**
      * @type {function(?Object): Resource}
      */
-    const RelatedResource = getResource(base_version, relatedResourceCollectionName);
+    const RelatedResource = getResource(graphParameters.base_version, relatedResourceCollectionName);
 
     /**
      * @type {Object}
@@ -360,7 +393,7 @@ async function get_reverse_related_resources(db, user, parentCollectionName, rel
             retries: 5,
             onFailedAttempt: async error => {
                 let msg = `get_reverse_related_resources ${relatedResourceCollectionName} ${reverseFilterWithParentIds} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(user, msg);
+                logError(graphParameters.user, msg);
                 await logMessageToSlack(msg);
             }
         }
@@ -391,7 +424,7 @@ async function get_reverse_related_resources(db, user, parentCollectionName, rel
                 new ResourceEntityAndContained(
                     relatedResourcePropertyCurrent.id,
                     relatedResourcePropertyCurrent.resourceType,
-                    getFullUrlForResource(host, base_version, relatedResourcePropertyCurrent),
+                    getFullUrlForResource(graphParameters, relatedResourcePropertyCurrent),
                     true,
                     removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
                     []
@@ -489,14 +522,11 @@ function getFilterFromPropertyPath(property) {
 /**
  * processes a single graph link
  * @param {import('mongodb').Db} db
- * @param {string} base_version
- * @param {string} user
- * @param {string} scope
+ * @param {GraphParameters} graphParameters
  * @param {{path: string, params: string, target: {type: string}[]}} link
- * @param {string} host
  * @param {[EntityAndContainedBase]} parentEntities
  */
-async function processOneGraphLink(db, base_version, user, scope, host, link,
+async function processOneGraphLink(db, graphParameters, link,
                                    parentEntities) {
 
     /**
@@ -529,13 +559,11 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             );
             // if this is a reference then get related resources
             if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) {
-                verifyHasValidScopes(resourceType, 'read', user, scope);
+                verifyHasValidScopes(resourceType, 'read', graphParameters.user, graphParameters.scope);
                 await get_related_resources(
                     db,
-                    user,
+                    graphParameters,
                     resourceType,
-                    base_version,
-                    host,
                     parentEntities,
                     property,
                     filterProperty,
@@ -569,15 +597,13 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 /**
                  * @type {string}
                  */
-                verifyHasValidScopes(resourceType, 'read', user, scope);
+                verifyHasValidScopes(resourceType, 'read', graphParameters.user, graphParameters.scope);
                 await get_reverse_related_resources(
                     db,
-                    user,
+                    graphParameters,
                     resourceType,
                     resourceType,
-                    base_version,
                     parentEntities,
-                    host,
                     null,
                     null,
                     target.params
@@ -599,7 +625,8 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 for (const childLink of childLinks) {
                     // now recurse and process the next link in GraphDefinition
                     await processOneGraphLink(
-                        db, base_version, user, scope, host,
+                        db,
+                        graphParameters,
                         childLink,
                         childEntries
                     );
@@ -612,20 +639,17 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
 /**
  * processes a list of graph links
  * @param {import('mongodb').Db} db
- * @param {string} base_version
- * @param {string} user
- * @param {string} scope
- * @param {string} host
+ * @param {GraphParameters} graphParameters
  * @param {[Resource]} parentEntities
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
  * @return {Promise<[ResourceEntityAndContained]>}
  */
-async function processGraphLinks(db, base_version, user, scope, host, parentEntities, linkItems) {
+async function processGraphLinks(db, graphParameters, parentEntities, linkItems) {
     /**
      * @type {[ResourceEntityAndContained]}
      */
     const resultEntities = parentEntities.map(e => new ResourceEntityAndContained(e.id, e.resourceType,
-        getFullUrlForResource(host, base_version, e), true, e, []));
+        getFullUrlForResource(graphParameters, e), true, e, []));
     /**
      * @type {{path:string, params: string,target:[{type: string}]}}
      */
@@ -636,7 +660,7 @@ async function processGraphLinks(db, base_version, user, scope, host, parentEnti
         /**
          * @type {ResourceEntityAndContained[]}
          */
-        await processOneGraphLink(db, base_version, user, scope, host, link, resultEntities);
+        await processOneGraphLink(db, graphParameters, link, resultEntities);
     }
     return resultEntities;
 }
@@ -705,31 +729,26 @@ const removeDuplicatesWithLambda = (array, fnCompare) => {
 /**
  * processing multiple ids
  * @param {import('mongodb').Db} db
+ * @param {GraphParameters} graphParameters
  * @param {string} collection_name
- * @param {string} base_version
  * @param {string} resource_name
- * @param {string[]} accessCodes
- * @param {string} user
- * @param {string} scope
- * @param {string} host
  * @param {Resource} graphDefinition
  * @param {boolean} contained
  * @param {boolean} hash_references
  * @param {string[]} idList
  * @return {Promise<{resource: Resource, fullUrl: string}[]>}
  */
-async function processMultipleIds(db, collection_name, base_version, resource_name, accessCodes, user,
-                                  scope, host, graphDefinition,
+async function processMultipleIds(db, graphParameters, collection_name, resource_name, graphDefinition,
                                   contained, hash_references,
                                   idList) {
     /**
      * @type {import('mongodb').Collection<Document>}
      */
-    let collection = db.collection(`${collection_name}_${base_version}`);
+    let collection = db.collection(`${collection_name}_${graphParameters.base_version}`);
     /**
      * @type {function(?Object): Resource}
      */
-    const StartResource = getResource(base_version, resource_name);
+    const StartResource = getResource(graphParameters.base_version, resource_name);
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
@@ -761,7 +780,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
             retries: 5,
             onFailedAttempt: async error => {
                 let msg = `Search ${resource_name}/$graph/${JSON.stringify(idList)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(user, msg);
+                logError(graphParameters.user, msg);
                 await logMessageToSlack(msg);
             }
         }
@@ -787,7 +806,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': getFullUrlForResource(host, base_version, startResource),
+            'fullUrl': getFullUrlForResource(graphParameters, startResource),
             'resource': removeNull(startResource.toJSON())
         };
         entries = entries.concat([current_entity]);
@@ -801,7 +820,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
     /**
      * @type {[ResourceEntityAndContained]}
      */
-    const allRelatedEntries = await processGraphLinks(db, base_version, user, scope, host,
+    const allRelatedEntries = await processGraphLinks(db, graphParameters,
         topLevelBundleEntries.map(e => e.resource), linkItems);
 
     for (const topLevelBundleEntry of topLevelBundleEntries) {
@@ -884,7 +903,9 @@ async function processGraph(db, collection_name, base_version, resource_name, ac
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     const entries = await processMultipleIds(
-        db, collection_name, base_version, resource_name, accessCodes, user, scope, host, graphDefinition, contained, hash_references, id);
+        db,
+        new GraphParameters(base_version, host, user, scope, accessCodes),
+        collection_name, resource_name, graphDefinition, contained, hash_references, id);
 
     // remove duplicate resources
     /**
