@@ -729,7 +729,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
          */
         const relatedEntities = related_entries
             .flatMap(r => getRecursiveContainedEntities(r))
-            .filter(r => r.resource);
+            .filter(r => r.resource !== undefined);
         if (contained) {
             if (relatedEntities.length > 0) {
                 topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
