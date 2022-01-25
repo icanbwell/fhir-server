@@ -264,7 +264,7 @@ function parseQueryStringIntoArgs(queryString) {
  * @param {string} parentCollectionName
  * @param {string} relatedResourceCollectionName
  * @param {string} base_version
- * @param {ResourceEntityAndContained[]}  parentEntities parent entities
+ * @param {EntityAndContainedBase[]}  parentEntities parent entities
  * @param {string} host
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
