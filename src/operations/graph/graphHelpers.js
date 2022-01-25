@@ -14,6 +14,9 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 
 
+/**
+ * Base class for an entity and its contained entities
+ */
 class EntityAndContainedBase {
     /**
      * @param {boolean} includeInOutput
@@ -26,6 +29,9 @@ class EntityAndContainedBase {
     }
 }
 
+/**
+ * class that represents a resource and its contained entities
+ */
 class ResourceEntityAndContained extends EntityAndContainedBase {
     /**
      * class
@@ -66,6 +72,9 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
     }
 }
 
+/**
+ * class that represents a non-resource (such as an element inside a resource) and its contained entities
+ */
 class NonResourceEntityAndContained extends EntityAndContainedBase {
     /**
      * class
@@ -103,14 +112,14 @@ function getFullUrlForResource(host, base_version, parentEntity) {
 /**
  * returns property values
  * @param {EntityAndContainedBase} entity
- * @param {string} property
- * @param {string?} filterProperty
- * @param {string?} filterValue
+ * @param {string} property Property to read
+ * @param {string?} filterProperty Filter property (optional)
+ * @param {string?} filterValue Filter value (optional)
  * @returns {*[]}
  */
 function getPropertiesForEntity(entity, property, filterProperty, filterValue) {
     const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
-    if (property.includes('.')) {
+    if (property.includes('.')) { // this is a nested property so recurse down and find the value
         /**
          * @type {string[]}
          */
@@ -142,11 +151,18 @@ function getPropertiesForEntity(entity, property, filterProperty, filterValue) {
  * @returns {*[]}
  */
 function getFirstPropertyForEntity(entity, property, filterProperty, filterValue) {
-    return getPropertiesForEntity(entity, property, filterProperty, filterValue)[0];
+    /**
+     * @type {*[]}
+     */
+    const properties = getPropertiesForEntity(entity, property, filterProperty, filterValue);
+    if (properties && properties.length > 0) {
+        return properties[0];
+    }
+    return [];
 }
 
 /**
- * returns property values
+ * returns whether this property is a reference (by checking if it has a reference sub property)
  * @param {EntityAndContainedBase[]} entities
  * @param {string} property
  * @param {string?} filterProperty
@@ -154,10 +170,16 @@ function getFirstPropertyForEntity(entity, property, filterProperty, filterValue
  * @returns {boolean}
  */
 function isPropertyAReference(entities, property, filterProperty, filterValue) {
+    /**
+     * @type {EntityAndContainedBase}
+     */
     for (const entity of entities) {
+        /**
+         * @type {*[]}
+         */
         const propertiesForEntity = getPropertiesForEntity(entity, property, filterProperty, filterValue);
         if (propertiesForEntity.some(p => p['reference'])) { // if it has a 'reference' property then it is a reference
-            return true;
+            return true; // we assume that if one entity has it then all entities can since they are of same type
         }
     }
     return false;
@@ -165,8 +187,9 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
 
 
 /**
- * Gets related resources
+ * Gets related resources and adds them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
+ * @param {string} user
  * @param {string} collectionName
  * @param {string} base_version
  * @param {string} host
@@ -175,7 +198,7 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*} filterValue (Optional) match filterProperty to this value
  */
-async function get_related_resources(db, collectionName, base_version, host, parentEntities, property, filterProperty, filterValue) {
+async function get_related_resources(db, user, collectionName, base_version, host, parentEntities, property, filterProperty, filterValue) {
     if (!parentEntities || parentEntities.length === 0) {
         return; // nothing to do
     }
@@ -188,20 +211,17 @@ async function get_related_resources(db, collectionName, base_version, host, par
      */
     const RelatedResource = getResource(base_version, collectionName);
 
-    // if (property.includes('.')) {
-    //     /**
-    //      * @type {string[]}
-    //      */
-    //     const nestedProperties = property.split('.');
-    // }
+    // get values of this property from all the entities
     const relatedReferences = parentEntities.flatMap(p =>
         getPropertiesForEntity(p, property));
+    // select just the ids from those reference properties
     let relatedReferenceIds = relatedReferences.filter(
         r => r['reference']).map(r => r.reference.replace(collectionName + '/', ''));
     if (relatedReferenceIds.length === 0) {
         return; // nothing to do
     }
-    relatedReferenceIds = Array.from(new Set(relatedReferenceIds)); // remove duplicates to speed up data access
+    // remove duplicates to speed up data access
+    relatedReferenceIds = Array.from(new Set(relatedReferenceIds));
     const options = {};
     const projection = {};
     // also exclude _id so if there is a covering index the query can be satisfied from the covering index
@@ -215,13 +235,32 @@ async function get_related_resources(db, collectionName, base_version, host, par
     if (filterProperty) {
         query[`${filterProperty}`] = filterValue;
     }
-    const cursor = await collection.find(query, options);
+        /**
+     * @type {number}
+     */
+    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+    /**
+     * mongo db cursor
+     * @type {Promise<Cursor<Document>> | *}
+     */
+    const cursor = await pRetry(
+        async () =>
+            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
+        {
+            retries: 5,
+            onFailedAttempt: async error => {
+                let msg = `get_related_resources ${collectionName} ${JSON.stringify(relatedReferenceIds)} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                logError(user, msg);
+                await logMessageToSlack(msg);
+            }
+        }
+    );
 
     while (await cursor.hasNext()) {
         const element = await cursor.next();
         const relatedResource = removeNull(new RelatedResource(element).toJSON());
 
-        // find matching parent and add to containedEntries
+        // create a class to hold information about this resource
         const relatedEntityAndContained = new ResourceEntityAndContained(
             relatedResource.id,
             relatedResource.resourceType,
@@ -231,6 +270,7 @@ async function get_related_resources(db, collectionName, base_version, host, par
             []
         );
 
+        // find matching parent and add to containedEntries
         const matchingParentEntities = parentEntities.filter(
             p => (
                 getFirstPropertyForEntity(p, property) &&
@@ -249,7 +289,6 @@ async function get_related_resources(db, collectionName, base_version, host, par
     }
 }
 
-// find elements in other collection that link to this object
 /**
  * converts a query string into an args array
  * @type {import('mongodb').Document}
@@ -261,6 +300,7 @@ function parseQueryStringIntoArgs(queryString) {
 /**
  * Gets related resources using reverse link and add them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
+ * @param {string} user
  * @param {string} parentCollectionName
  * @param {string} relatedResourceCollectionName
  * @param {string} base_version
@@ -270,12 +310,15 @@ function parseQueryStringIntoArgs(queryString) {
  * @param {*} filterValue (Optional) match filterProperty to this value
  * @param {string} reverse_filter Do a reverse link from child to parent using this property
  */
-async function get_reverse_related_resources(db, parentCollectionName, relatedResourceCollectionName, base_version, parentEntities, host, filterProperty, filterValue, reverse_filter) {
+async function get_reverse_related_resources(db, user, parentCollectionName, relatedResourceCollectionName, base_version, parentEntities, host, filterProperty, filterValue, reverse_filter) {
     if (!(reverse_filter)) {
         throw new Error('reverse_filter must be set');
     }
     // create comma separated list of ids
-    const parentIdList = parentEntities.map(p => p.entityId);
+    const parentIdList = parentEntities.map(p => p.entityId).filter(p => p !== undefined);
+    if (parentIdList.length === 0) {
+        return;
+    }
     const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentIdList.toString());
     /**
      * @type {import('mongodb').Collection<Document>}
@@ -300,17 +343,39 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
     options['projection'] = projection;
 
     /**
+     * @type {number}
+     */
+    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+    /**
      * @type {import('mongodb').Cursor}
      */
-    const cursor = collection.find(query, options);
+    /**
+     * mongo db cursor
+     * @type {Promise<Cursor<Document>> | *}
+     */
+    const cursor = await pRetry(
+        async () =>
+            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
+        {
+            retries: 5,
+            onFailedAttempt: async error => {
+                let msg = `get_reverse_related_resources ${relatedResourceCollectionName} ${reverseFilterWithParentIds} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                logError(user, msg);
+                await logMessageToSlack(msg);
+            }
+        }
+    );
 
-    // find matching field name in searchParameter list
+    // find matching field name in searchParameter list.  We will use this to match up to parent
     /**
      * @type {string}
      */
     const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceCollectionName, searchParameterName);
 
     while (await cursor.hasNext()) {
+        /**
+         * @type {Resource}
+         */
         const relatedResourcePropertyCurrent = await cursor.next();
         if (filterProperty !== null) {
             if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
@@ -318,10 +383,10 @@ async function get_reverse_related_resources(db, parentCollectionName, relatedRe
             }
         }
         // now match to parent entity, so we can put under correct contained property
-        const matchingParentEntity = parentEntities.find(
+        const matchingParentEntities = parentEntities.filter(
             p => `${p.resource.resourceType}/${p.resource.id}` === relatedResourcePropertyCurrent[`${fieldForSearchParameter}`]['reference']
         );
-        if (matchingParentEntity) {
+        for (const matchingParentEntity of matchingParentEntities) {
             matchingParentEntity.containedEntries.push(
                 new ResourceEntityAndContained(
                     relatedResourcePropertyCurrent.id,
@@ -351,7 +416,13 @@ function doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
          * @type {string[]}
          */
         const propertyComponents = property.split('.');
+        /**
+         * @type {*[]}
+         */
         let currentElements = [item];
+        /**
+         * @type {string}
+         */
         for (const propertyComponent of propertyComponents) {
             // find nested elements where the property is present and select the property
             currentElements = currentElements.filter(c => c[`${propertyComponent}`]).flatMap(c => c[`${propertyComponent}`]);
@@ -372,6 +443,50 @@ function doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
 }
 
 /**
+ * Parses the filter out of the property name
+ * @param {string} property
+ * @returns {{filterValue: string, filterProperty: string, property: string}}
+ */
+function getFilterFromPropertyPath(property) {
+    /**
+     * @type {string}
+     */
+    let filterProperty;
+    /**
+     * @type {string}
+     */
+    let filterValue;
+    // if path is more complex and includes filter
+    if (property.includes(':')) {
+        /**
+         * @type {string[]}
+         */
+        const property_split = property.split(':');
+        if (property_split && property_split.length > 0) {
+            /**
+             * @type {string}
+             */
+            property = property_split[0];
+            /**
+             * @type {string[]}
+             */
+            const filterPropertySplit = property_split[1].split('=');
+            if (filterPropertySplit.length > 1) {
+                /**
+                 * @type {string}
+                 */
+                filterProperty = filterPropertySplit[0];
+                /**
+                 * @type {string}
+                 */
+                filterValue = filterPropertySplit[1];
+            }
+        }
+    }
+    return {filterProperty, filterValue, property};
+}
+
+/**
  * processes a single graph link
  * @param {import('mongodb').Db} db
  * @param {string} base_version
@@ -388,12 +503,15 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
      * @type {EntityAndContainedBase[]}
      */
     let childEntries = [];
+    /**
+     * @type {{type: string}[]}
+     */
     let link_targets = link.target;
     for (const target of link_targets) {
         /**
          * If this is not set then the caller does not want this entity but a nested entity
          * defined further in the GraphDefinition
-         * @type {string}
+         * @type {string | null}
          */
         const resourceType = target.type;
         // there are two types of linkages:
@@ -403,53 +521,18 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
             /**
              * @type {string}
              */
-            let property = link.path.replace('[x]', '');
-            /**
-             * @type {string}
-             */
-            let filterProperty;
-            /**
-             * @type {string}
-             */
-            let filterValue;
-            // if path is more complex and includes filter
-            if (property.includes(':')) {
-                /**
-                 * @type {string[]}
-                 */
-                const property_split = property.split(':');
-                if (property_split && property_split.length > 0) {
-                    /**
-                     * @type {string}
-                     */
-                    property = property_split[0];
-                    /**
-                     * @type {string[]}
-                     */
-                    const filterPropertySplit = property_split[1].split('=');
-                    if (filterPropertySplit.length > 1) {
-                        /**
-                         * @type {string}
-                         */
-                        filterProperty = filterPropertySplit[0];
-                        /**
-                         * @type {string}
-                         */
-                        filterValue = filterPropertySplit[1];
-                    }
-                }
-            }
-            // if the property name includes . then it is a nested link
-            // e.g, 'path': 'extension.extension:url=plan'
-            // verifyHasValidScopes(resourceType, 'read', user, scope);
+            const originalProperty = link.path.replace('[x]', '');
+            const {filterProperty, filterValue, property} = getFilterFromPropertyPath(originalProperty);
             // find parent entities that have a valid property
             parentEntities = parentEntities.filter(
                 p => doesEntityHaveProperty(p, property, filterProperty, filterValue)
             );
             // if this is a reference then get related resources
-            if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) { // if caller has requested this entity or just wants a nested entity
+            if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) {
+                verifyHasValidScopes(resourceType, 'read', user, scope);
                 await get_related_resources(
                     db,
+                    user,
                     resourceType,
                     base_version,
                     host,
@@ -463,9 +546,15 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 childEntries = [];
                 for (const parentEntity of parentEntities) {
                     // create child entries
+                    /**
+                     * @type {*[]}
+                     */
                     const children = getPropertiesForEntity(parentEntity, property, filterProperty, filterValue);
+                    /**
+                     * @type {NonResourceEntityAndContained[]}
+                     */
                     const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
-                            target.type !== undefined,
+                            target.type !== undefined, // if caller has requested this entity or just wants a nested entity
                             c,
                             []
                         )
@@ -474,7 +563,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                     parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
                 }
             }
-        } else if (target.params) {
+        } else if (target.params) { // reverse link
             if (target.type) { // if caller has requested this entity or just wants a nested entity
                 // reverse link
                 /**
@@ -483,6 +572,7 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
                 verifyHasValidScopes(resourceType, 'read', user, scope);
                 await get_reverse_related_resources(
                     db,
+                    user,
                     resourceType,
                     resourceType,
                     base_version,
@@ -503,7 +593,11 @@ async function processOneGraphLink(db, base_version, user, scope, host, link,
              */
             const childLinks = target.link;
             if (childLinks) {
+                /**
+                 * @type {{path:string, params: string,target:[{type: string}]}}
+                 */
                 for (const childLink of childLinks) {
+                    // now recurse and process the next link in GraphDefinition
                     await processOneGraphLink(
                         db, base_version, user, scope, host,
                         childLink,
@@ -532,6 +626,9 @@ async function processGraphLinks(db, base_version, user, scope, host, parentEnti
      */
     const resultEntities = parentEntities.map(e => new ResourceEntityAndContained(e.id, e.resourceType,
         getFullUrlForResource(host, base_version, e), true, e, []));
+    /**
+     * @type {{path:string, params: string,target:[{type: string}]}}
+     */
     for (const link of linkItems) {
         /**
          * @type {Resource}
@@ -550,9 +647,15 @@ async function processGraphLinks(db, base_version, user, scope, host, parentEnti
  * @param {[reference:string]} linkReferences
  * @return {Promise<Resource>}
  */
-async function processReferences(parent_entity, linkReferences) {
+async function convertToHashedReferences(parent_entity, linkReferences) {
+    /**
+     * @type {Set<string>}
+     */
     const uniqueReferences = new Set(linkReferences);
     if (parent_entity) {
+        /**
+         * @type {string}
+         */
         for (const link_reference of uniqueReferences) {
             // eslint-disable-next-line security/detect-non-literal-regexp
             let re = new RegExp('\\b' + link_reference + '\\b', 'g');
@@ -563,7 +666,7 @@ async function processReferences(parent_entity, linkReferences) {
 }
 
 /**
- *
+ * get all the contained entities recursively
  * @param {EntityAndContainedBase} entityAndContained
  * @returns {{resource: Resource, fullUrl: string}[]}
  */
@@ -572,7 +675,7 @@ function getRecursiveContainedEntities(entityAndContained) {
      * @type {{resource: Resource, fullUrl: string}[]}
      */
     let result = [];
-    if (entityAndContained.includeInOutput) {
+    if (entityAndContained.includeInOutput) { // only include entities the caller has requested
         result = result.concat([{
             fullUrl: entityAndContained.fullUrl,
             resource: entityAndContained.resource
@@ -703,6 +806,9 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
 
     for (const topLevelBundleEntry of topLevelBundleEntries) {
         // add related resources as container
+        /**
+         * @type {ResourceEntityAndContained}
+         */
         const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id
             && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
         /**
@@ -721,7 +827,7 @@ async function processMultipleIds(db, collection_name, base_version, resource_na
                 related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
             }
             if (related_references.length > 0) {
-                topLevelBundleEntry.resource = await processReferences(topLevelBundleEntry.resource, related_references);
+                topLevelBundleEntry.resource = await convertToHashedReferences(topLevelBundleEntry.resource, related_references);
             }
         }
         /**
