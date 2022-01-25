@@ -9,7 +9,8 @@ const {CLIENT_DB} = require('../../constants');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
-
+const {oldGraph} = require('./oldgraph');
+const env = require('var');
 
 /**
  * Supports $graph
@@ -24,6 +25,10 @@ const {processGraph} = require('./graphHelpers');
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (args, user, scope, body, path, host_, resource_name, collection_name) => {
+    if (isTrue(env.USE_OLD_GRAPH)) {
+        return oldGraph(args, user, scope, body, path, host_, resource_name, collection_name);
+    }
+
     logRequest(user, `${resource_name} >>> graph`);
     verifyHasValidScopes(resource_name, 'read', user, scope);
 
