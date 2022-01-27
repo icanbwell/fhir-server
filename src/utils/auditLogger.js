@@ -62,6 +62,16 @@ async function logAuditEntry(user, scope, base_version, resourceType, operation,
         meta: new Meta({
             versionId: '1',
             lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+            security: [
+                {
+                    'system': 'https://www.icanbwell.com/owner',
+                    'code': 'bwell'
+                },
+                {
+                    'system': 'https://www.icanbwell.com/access',
+                    'code': 'bwell'
+                }
+            ]
         }),
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         type: {

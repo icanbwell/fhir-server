@@ -4,7 +4,17 @@
     "resourceType": "AuditEvent",
     "meta": {
       "versionId": "1",
-      "lastUpdated": "2022-01-27T23:01:50.000Z"
+      "lastUpdated": "2022-01-27T23:01:50.000Z",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        }
+      ]
     },
     "type": {
       "system": "http://dicom.nema.org/resources/ontology/DCM",
@@ -36,7 +46,17 @@
     "resourceType": "AuditEvent",
     "meta": {
       "versionId": "1",
-      "lastUpdated": "2022-01-27T23:02:00.000Z"
+      "lastUpdated": "2022-01-27T23:02:00.000Z",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        }
+      ]
     },
     "type": {
       "system": "http://dicom.nema.org/resources/ontology/DCM",
@@ -68,7 +88,17 @@
     "resourceType": "AuditEvent",
     "meta": {
       "versionId": "1",
-      "lastUpdated": "2022-01-27T23:02:32.000Z"
+      "lastUpdated": "2022-01-27T23:02:32.000Z",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "bwell"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "bwell"
+        }
+      ]
     },
     "type": {
       "system": "http://dicom.nema.org/resources/ontology/DCM",
