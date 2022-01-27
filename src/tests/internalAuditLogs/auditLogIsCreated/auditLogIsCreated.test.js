@@ -45,7 +45,7 @@ describe('InternalAuditLog Tests', () => {
              */
             let db = globals.get(CLIENT_DB);
             const base_version = '4_0_0';
-            const collection_name = env.INTERNAL_AUDIT_TABLE || 'InternalAuditEvent';
+            const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             /**
              * @type {string}
              */

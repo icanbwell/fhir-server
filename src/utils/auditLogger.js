@@ -31,7 +31,7 @@ async function logAuditEntry(user, scope, base_version, resourceType, operation,
      * @type {import('mongodb').Db}
      */
     let db = globals.get(CLIENT_DB);
-    const collection_name = env.INTERNAL_AUDIT_TABLE || 'InternalAuditEvent';
+    const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
     /**
      * @type {string}
      */
