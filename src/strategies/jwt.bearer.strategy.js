@@ -73,13 +73,29 @@ const verify = (jwt_payload, done) => {
          */
         const groups = jwt_payload[env.AUTH_CUSTOM_GROUP] ? jwt_payload[env.AUTH_CUSTOM_GROUP] : '';
 
+        /**
+         * @type {string}
+         */
+        const username = jwt_payload.username ? jwt_payload.username : jwt_payload[env.AUTH_CUSTOM_USERNAME];
+
+        /**
+         * @type {string}
+         */
+        const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
+
         if (groups.length > 0) {
             scope = scope + ' ' + groups.join(' ');
         }
 
         logRequest('', 'Verified client_id: ' + client_id + ' scope: ' + scope);
 
-        const context = null;
+        const context = {};
+        if (username) {
+            context['username'] = username;
+        }
+        if (subject) {
+            context['subject'] = subject;
+        }
 
         return done(null, client_id, {scope, context});
     }

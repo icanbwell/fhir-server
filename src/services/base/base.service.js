@@ -41,10 +41,14 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
      */
     const user = req.user;
     /**
-     * @type {string}
+     * @type {string | null}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return search(combined_args, user, scope, resource_name, collection_name, req.protocol, req.originalUrl);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+    return search(combined_args, username || user, scope, resource_name, collection_name, req.protocol, req.originalUrl);
 };
 
 /**
@@ -64,7 +68,12 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return searchById(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return searchById(args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -93,8 +102,12 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const path = req.path;
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
 
-    return create(combined_args, user, scope, body, path, resource_name, collection_name);
+    return create(combined_args, username || user, scope, body, path, resource_name, collection_name);
 };
 
 /**
@@ -123,7 +136,12 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const path = req.path;
-    return update(combined_args, user, scope, body, path, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return update(combined_args, username || user, scope, body, path, resource_name, collection_name);
 };
 
 /**
@@ -153,7 +171,12 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const path = req.path;
-    return merge(combined_args, user, scope, body, path, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return merge(combined_args, username || user, scope, body, path, resource_name, collection_name);
 };
 
 /**
@@ -185,7 +208,12 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
      * @type {string}
      */
     const host = req.headers.host;
-    return everything(combined_args, user, scope, path, req.protocol, host, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return everything(combined_args, username || user, scope, path, req.protocol, host, resource_name, collection_name);
 };
 
 /**
@@ -210,7 +238,12 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return remove(combined_args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return remove(combined_args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -230,7 +263,12 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return searchByVersionId(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return searchByVersionId(args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -250,7 +288,12 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return history(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return history(args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -270,7 +313,12 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return historyById(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return historyById(args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -290,7 +338,12 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return patch(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return patch(args, username || user, scope, resource_name, collection_name);
 };
 
 /**
@@ -313,7 +366,12 @@ module.exports.validate = async (args, {req}, resource_name) => {
      * @type {string}
      */
     const path = req.path;
-    return validate(args, user, scope, body, path, resource_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return validate(args, username || user, scope, body, path, resource_name);
 };
 
 /**
@@ -347,8 +405,12 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const host = req.headers.host;
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
 
-    return graph(combined_args, user, scope, body, path, req.protocol, host, resource_name, collection_name);
+    return graph(combined_args, username || user, scope, body, path, req.protocol, host, resource_name, collection_name);
 };
 
 /**
@@ -368,5 +430,10 @@ module.exports.expand = async (args, {req}, resource_name, collection_name) => {
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
-    return expand(args, user, scope, resource_name, collection_name);
+    /**
+     * @type {string | null}
+     */
+    const username = req.authInfo.context.username || req.authInfo.context.subject;
+
+    return expand(args, username || user, scope, resource_name, collection_name);
 };
