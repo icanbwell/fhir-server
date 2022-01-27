@@ -23,6 +23,8 @@
         <%- include('../partials/coding', {codings: res.subtype, name: "SubType"}); %>
         <%}%>
 
+        <h4>Action</h4><%= res.action %>
+
         <h4>Recorded</h4><%= res.recorded %>
 
         <% if (res.agent) { %>
