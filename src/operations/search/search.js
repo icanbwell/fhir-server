@@ -320,8 +320,10 @@ module.exports.search = async (args, user, scope, resourceName, collection_name,
         // run any enrichment
         resources = await enrich(resources, resourceName);
 
-        // log access to audit logs
-        await logAuditEntry(user, base_version, resourceName, 'search', resources.map(r => r['id']));
+        if (resources.length > 0) {
+            // log access to audit logs
+            await logAuditEntry(user, base_version, resourceName, 'read', resources.map(r => r['id']));
+        }
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
