@@ -77,6 +77,14 @@ module.exports = {
                     'id',
                     'meta.security.system',
                     'meta.security.code'
+                ],
+                'helix_auditEvent_index_who': [
+                    'agent.who.reference',
+                    'id'
+                ],
+                'helix_auditEvent_index_entity': [
+                    'entity.what.reference',
+                    'id'
                 ]
             }
         ]
