@@ -83,6 +83,7 @@ const verify = (jwt_payload, done) => {
          */
         const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
+
         if (groups.length > 0) {
             scope = scope + ' ' + groups.join(' ');
         }
