@@ -12,7 +12,7 @@ const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require("../../utils/auditLogger");
+const {logAuditEntry} = require('../../utils/auditLogger');
 
 /**
  * does a FHIR Create (POST)
