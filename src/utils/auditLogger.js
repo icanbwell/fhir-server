@@ -15,13 +15,14 @@ const {isTrue} = require('./isTrue');
 /**
  * logs an entry for audit
  * @param {string} user
+ * @param {string} remoteIPAddress
  * @param {string} scope
  * @param {string} resourceType
  * @param {string} base_version
  * @param {string} operation
  * @param {string[]} ids
  */
-async function logAuditEntry(user, scope, base_version, resourceType, operation, ids) {
+async function logAuditEntry(user, remoteIPAddress, scope, base_version, resourceType, operation, ids) {
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
     }
@@ -85,7 +86,12 @@ async function logAuditEntry(user, scope, base_version, resourceType, operation,
                     reference: `Person/${user}`
                 },
                 altId: scope,
-                requestor: true
+                requestor: true,
+                name: user,
+                network: {
+                    address: remoteIPAddress,
+                    type: 2
+                }
             }
         ],
         action: operationCodeMapping[`${operation}`],

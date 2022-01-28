@@ -7,8 +7,8 @@ const {join} = require('path');
 // const {GraphQLFileLoader} = require('@graphql-tools/graphql-file-loader');
 // const {addResolversToSchema} = require('@graphql-tools/schema');
 const resolvers = require('../graphql/resolvers');
-const { loadFilesSync } = require('@graphql-tools/load-files');
-const { mergeTypeDefs } = require('@graphql-tools/merge');
+const {loadFilesSync} = require('@graphql-tools/load-files');
+const {mergeTypeDefs} = require('@graphql-tools/merge');
 
 const {
     ApolloServerPluginLandingPageGraphQLPlayground,
@@ -16,9 +16,8 @@ const {
 } = require('apollo-server-core');
 
 
-
 const graphql = async () => {
-    const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), { recursive: true });
+    const typesArray = loadFilesSync(join(__dirname, '../graphql/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // const sources = loadTypedefsSync(join(__dirname, '../graphql/schemas/schema.graphql'), {
     //   loaders: [new GraphQLFileLoader()],
@@ -62,8 +61,14 @@ const graphql = async () => {
                 return {
                     req,
                     res,
-                    user: req.user,
-                    scope: req.authInfo && req.authInfo.scope
+                    user: req.authInfo.context.username || req.authInfo.context.subject || req.user,
+                    scope: req.authInfo && req.authInfo.scope,
+                    remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    protocol: req.protocol,
+                    originalUrl: req.originalUrl,
+                    path: req.path,
+                    host: req.host,
+                    body: req.body
                 };
             }
         });

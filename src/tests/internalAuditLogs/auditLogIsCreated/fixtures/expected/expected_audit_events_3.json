@@ -29,6 +29,11 @@
           "reference": "Person/imran"
         },
         "altId": "user/*.read user/*.write access/*.*",
+        "name": "imran",
+        "network": {
+          "address": "::ffff:127.0.0.1",
+          "type": 2
+        },
         "requestor": true
       }
     ],
@@ -71,6 +76,11 @@
           "reference": "Person/imran"
         },
         "altId": "user/*.read user/*.write access/*.*",
+        "name": "imran",
+        "network": {
+          "address": "::ffff:127.0.0.1",
+          "type": 2
+        },
         "requestor": true
       }
     ],
@@ -113,6 +123,11 @@
           "reference": "Person/imran"
         },
         "altId": "user/*.read user/*.write access/*.*",
+        "name": "imran",
+        "network": {
+          "address": "::ffff:127.0.0.1",
+          "type": 2
+        },
         "requestor": true
       }
     ],
