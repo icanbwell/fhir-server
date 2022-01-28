@@ -619,8 +619,14 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         const returnVal = result.flat(1);
         if (returnVal && returnVal.length > 0) {
-            // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, returnVal.map(r => r['id']));
+            const createdItems = returnVal.filter(r => r['created'] === true);
+            const updatedItems = returnVal.filter(r => r['updated'] === true);
+            if (createdItems && createdItems.length > 0) {
+                await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
+            }
+            if (updatedItems && updatedItems.length > 0) {
+                await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
+            }
         }
 
         logDebug(user, '--- Merge array result ----');
