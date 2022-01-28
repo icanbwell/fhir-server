@@ -636,7 +636,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     } else {
         const returnVal = await merge_resource_with_retry(resources_incoming);
         if (returnVal) {
-            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+            if (returnVal['created'] === true) {
+                await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
+            }
+            if (returnVal['updated'] === true) {
+                await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+            }
         }
         logDebug(user, '--- Merge result ----');
         logDebug(user, JSON.stringify(returnVal));

@@ -110,6 +110,33 @@ describe('InternalAuditLog Tests', () => {
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
+            // try to merge the same item again. No audit event shuld be created
+            resp = await request
+                .post('/4_0_0/Practitioner/0/$merge')
+                .send(practitionerResource2)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(false);
+            expect(resp.body['updated']).toBe(false);
+            logs = await internalAuditEventCollection.find({}).toArray();
+            expect(logs.length).toStrictEqual(2);
+            logs.forEach(log => {
+                delete log['meta']['lastUpdated'];
+                delete log['_id'];
+                delete log['id'];
+                delete log['recorded'];
+            });
+            expectedAuditEvents2.forEach(log => {
+                delete log['meta']['lastUpdated'];
+                delete log['_id'];
+                delete log['id'];
+                delete log['recorded'];
+            });
+            expect(logs).toStrictEqual(expectedAuditEvents2);
+
             // now check that we get the right record back
             resp = await request
                 .get('/4_0_0/Practitioner/0')

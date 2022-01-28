@@ -1,6 +1,6 @@
 [
   {
-    "action": "U",
+    "action": "C",
     "agent": [
       {
         "altId": "user/*.read user/*.write access/*.*",
