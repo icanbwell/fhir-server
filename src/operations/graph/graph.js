@@ -23,7 +23,6 @@ const env = require('var');
 module.exports.graph = async (requestInfo, args, resource_name, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    // const remoteIPAddress = requestInfo.remoteIpAddress;
     const path = requestInfo.path;
     const host = requestInfo.host;
     const protocol = requestInfo.protocol;
