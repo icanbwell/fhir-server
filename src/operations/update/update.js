@@ -29,7 +29,6 @@ const {logAuditEntry} = require('../../utils/auditLogger');
 module.exports.update = async (requestInfo, args, resource_name, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
     const path = requestInfo.path;
     const body = requestInfo.body;
     logRequest(user, `'${resource_name} >>> update`);
@@ -203,7 +202,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         await history_collection.insertOne(history_resource);
 
         // log access to audit logs
-        await logAuditEntry(user, remoteIPAddress, scope, base_version, resource_name, 'update', [resource_incoming['id']]);
+        await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [resource_incoming['id']]);
 
         return {
             id: id,

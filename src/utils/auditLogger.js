@@ -8,21 +8,19 @@ const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
 const {getResource} = require('../operations/common/getResource');
 const {getUuid} = require('./uid.util');
-const {logDebug} = require('../operations/common/logging');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 
 /**
  * logs an entry for audit
- * @param {string} user
- * @param {string} remoteIPAddress
- * @param {string} scope
+ * @param {import('./requestInfo').RequestInfo} requestInfo
  * @param {string} resourceType
  * @param {string} base_version
  * @param {string} operation
+ * @param {Object} args
  * @param {string[]} ids
  */
-async function logAuditEntry(user, remoteIPAddress, scope, base_version, resourceType, operation, ids) {
+async function logAuditEntry(requestInfo, base_version, resourceType, operation, args, ids) {
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
     }
@@ -83,13 +81,13 @@ async function logAuditEntry(user, remoteIPAddress, scope, base_version, resourc
         agent: [
             {
                 who: {
-                    reference: `Person/${user}`
+                    reference: `Person/${requestInfo.user}`
                 },
-                altId: scope,
+                altId: requestInfo.scope,
                 requestor: true,
-                name: user,
+                name: requestInfo.user,
                 network: {
-                    address: remoteIPAddress,
+                    address: requestInfo.remoteIPAddress,
                     type: 2
                 }
             }
@@ -99,14 +97,19 @@ async function logAuditEntry(user, remoteIPAddress, scope, base_version, resourc
             return {
                 what: {
                     reference: `${resourceType}/${id}`
-                }
+                },
+                detail: Object.entries(args).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
+                    return {
+                        type: key,
+                        valueString: value
+                    };
+                })
             };
         })
     };
     let resource = new Resource(document);
 
     let id = getUuid(resource);
-    logDebug(user, `id: ${id}`);
 
     let doc = removeNull(resource.toJSON());
     Object.assign(doc, {id: id});

@@ -41,7 +41,6 @@ const {logAuditEntry} = require('../../utils/auditLogger');
 module.exports.merge = async (requestInfo, args, resource_name, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
     const path = requestInfo.path;
     const body = requestInfo.body;
     /**
@@ -621,7 +620,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         const returnVal = result.flat(1);
         if (returnVal && returnVal.length > 0) {
             // log access to audit logs
-            await logAuditEntry(user, remoteIPAddress, scope, base_version, resource_name, 'update', returnVal.map(r => r['id']));
+            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, returnVal.map(r => r['id']));
         }
 
         logDebug(user, '--- Merge array result ----');
@@ -631,7 +630,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     } else {
         const returnVal = await merge_resource_with_retry(resources_incoming);
         if (returnVal) {
-            await logAuditEntry(user, remoteIPAddress, scope, base_version, resource_name, 'update', [returnVal['id']]);
+            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
         }
         logDebug(user, '--- Merge result ----');
         logDebug(user, JSON.stringify(returnVal));

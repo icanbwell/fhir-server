@@ -20,7 +20,6 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 module.exports.remove = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
 
     logRequest(user, `${resourceName} >>> remove`);
 
@@ -104,7 +103,7 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
         res = await collection.deleteMany(query);
 
         // log access to audit logs
-        await logAuditEntry(user, remoteIPAddress, scope, base_version, resourceName, 'delete', []);
+        await logAuditEntry(requestInfo, base_version, resourceName, 'delete', args, []);
 
     } catch (e) {
         logError(user, `Error with ${resourceName}.remove`);

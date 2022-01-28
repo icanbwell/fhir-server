@@ -30,7 +30,6 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 module.exports.search = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
     const url = requestInfo.originalUrl;
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
@@ -339,7 +338,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
         if (resources.length > 0) {
             // log access to audit logs
-            await logAuditEntry(user, remoteIPAddress, scope, base_version, resourceName, 'read', resources.map(r => r['id']));
+            await logAuditEntry(requestInfo, base_version, resourceName, 'read', args, resources.map(r => r['id']));
         }
 
         // if env.RETURN_BUNDLE is set then return as a Bundle

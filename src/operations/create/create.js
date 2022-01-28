@@ -25,7 +25,6 @@ const {logAuditEntry} = require('../../utils/auditLogger');
 module.exports.create = async (requestInfo, args, path, resource_name, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
     const body = requestInfo.body;
 
     logRequest(user, `${resource_name} >>> create`);
@@ -125,7 +124,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         Object.assign(doc, {id: id});
 
         // log access to audit logs
-        await logAuditEntry(user, remoteIPAddress, scope, base_version, resource_name, 'create', [resource['id']]);
+        await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
 
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document

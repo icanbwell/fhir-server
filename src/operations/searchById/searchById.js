@@ -22,7 +22,6 @@ const {logAuditEntry} = require('../../utils/auditLogger');
 module.exports.searchById = async (requestInfo, args, resource_name, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    const remoteIPAddress = requestInfo.remoteIpAddress;
     logRequest(user, `${resource_name} >>> searchById`);
     logDebug(user, JSON.stringify(args));
 
@@ -81,7 +80,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
         // run any enrichment
         resource = (await enrich([resource], resource_name))[0];
         // log access to audit logs
-        await logAuditEntry(user, remoteIPAddress, scope, base_version, resource_name, 'read', [resource['id']]);
+        await logAuditEntry(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
         return new Resource(resource);
     } else {
         throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);

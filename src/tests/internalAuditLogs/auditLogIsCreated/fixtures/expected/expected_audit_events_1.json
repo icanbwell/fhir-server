@@ -1,49 +1,58 @@
 [
   {
-    "_id": "61f32377a4c5a3dec24ef266",
-    "resourceType": "AuditEvent",
-    "meta": {
-      "versionId": "1",
-      "lastUpdated": "2022-01-27T22:57:59.000Z",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/owner",
-          "code": "bwell"
-        },
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "bwell"
-        }
-      ]
-    },
-    "type": {
-      "system": "http://dicom.nema.org/resources/ontology/DCM",
-      "code": 110112,
-      "display": "Query"
-    },
     "action": "U",
-    "recorded": "2022-01-27T22:57:59.000Z",
     "agent": [
       {
-        "who": {
-          "reference": "Person/imran"
-        },
         "altId": "user/*.read user/*.write access/*.*",
         "name": "imran",
         "network": {
-          "address": "::ffff:127.0.0.1",
           "type": 2
         },
-        "requestor": true
+        "requestor": true,
+        "who": {
+          "reference": "Person/imran"
+        }
       }
     ],
     "entity": [
       {
+        "detail": [
+          {
+            "type": "id",
+            "valueString": "1679033641"
+          },
+          {
+            "type": "base_version",
+            "valueString": "4_0_0"
+          },
+          {
+            "type": "validate",
+            "valueString": "true"
+          }
+        ],
         "what": {
           "reference": "Practitioner/1679033641"
         }
       }
     ],
-    "id": "4a2ab085cb1dc4066a03337e2ffb761ad9d3889a"
+    "meta": {
+      "security": [
+        {
+          "code": "bwell",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "bwell",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
+    "resourceType": "AuditEvent",
+    "type": {
+      "code": 110112,
+      "display": "Query",
+      "system": "http://dicom.nema.org/resources/ontology/DCM"
+    }
   }
 ]
