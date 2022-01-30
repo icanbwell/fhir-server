@@ -245,6 +245,9 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         // Now run the query to get a cursor we will enumerate next
         let cursorQuery = collection.find(query, options).maxTimeMS(maxMongoTimeMS);
 
+        /**
+         * @type {int | null}
+         */
         let batchSize = null;
         // set batch size if specified
         if (env.MONGO_BATCH_SIZE || args['_dbBatchSize']) {
@@ -444,7 +447,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                         display: `${(stopTime - startTime) / 1000}`
                     }
                 ];
-                if (batchSize) {
+                if (batchSize !== null && batchSize > 0) {
                     tag.push(
                         {
                             system: 'https://www.icanbwell.com/queryBatchSize',
