@@ -248,12 +248,12 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         /**
          * @type {int | null}
          */
-        let batchSize = null;
+        let cursorBatchSize = null;
         // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || args['_dbBatchSize']) {
-            batchSize = args['_dbBatchSize'] ? parseInt(args['_dbBatchSize']) : parseInt(env.MONGO_BATCH_SIZE);
-            if (batchSize > 0) {
-                cursorQuery = cursorQuery.batchSize(batchSize);
+        if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
+            cursorBatchSize = args['_cursorBatchSize'] ? parseInt(args['_cursorBatchSize']) : parseInt(env.MONGO_BATCH_SIZE);
+            if (cursorBatchSize > 0) {
+                cursorQuery = cursorQuery.batchSize(cursorBatchSize);
             }
         }
         /**
@@ -447,11 +447,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                         display: `${(stopTime - startTime) / 1000}`
                     }
                 ];
-                if (batchSize !== null && batchSize > 0) {
+                if (cursorBatchSize !== null && cursorBatchSize > 0) {
                     tag.push(
                         {
-                            system: 'https://www.icanbwell.com/queryBatchSize',
-                            display: `${batchSize}`
+                            system: 'https://www.icanbwell.com/queryCursorBatchSize',
+                            display: `${cursorBatchSize}`
                         }
                     );
                 }
