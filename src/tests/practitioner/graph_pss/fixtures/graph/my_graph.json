@@ -10,7 +10,7 @@
       "target": [
         {
           "type": "PractitionerRole",
-          "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|medstar",
+          "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|myhealthsystem",
           "link": [
             {
               "path": "organization",
@@ -57,7 +57,7 @@
               "target": [
                 {
                   "type": "Schedule",
-                  "params": "actor={ref}&_security=https://www.icanbwell.com/access|medstar"
+                  "params": "actor={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
                 }
               ]
             }
@@ -70,7 +70,7 @@
       "target": [
         {
           "type": "Group",
-          "params": "member.entity={ref}&_security=https://www.icanbwell.com/access|medstar"
+          "params": "member.entity={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
         }
       ]
     },
@@ -79,7 +79,7 @@
       "target": [
         {
           "type": "MeasureReport",
-          "params": "subject={ref}&_security=https://www.icanbwell.com/access|medstar"
+          "params": "subject={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
         }
       ]
     }
