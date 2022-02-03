@@ -47,7 +47,7 @@ const graphql = async () => {
                     protocol: req.protocol,
                     originalUrl: req.originalUrl,
                     path: req.path,
-                    host: req.host,
+                    host: req.hostname,
                     body: req.body
                 };
             }
