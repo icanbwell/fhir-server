@@ -439,7 +439,7 @@ async function get_reverse_related_resources(
         /**
          * @type {string[]}
          */
-        const references = properties.map(r => r['reference']).filter(r => r !== undefined);
+        const references = properties.flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']]).filter(r => r !== undefined);
         const matchingParentEntities = parentEntities.filter(
             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
         );
