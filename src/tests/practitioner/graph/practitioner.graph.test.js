@@ -17,6 +17,7 @@ const expectedHashReferencesResource = require('./fixtures/expected/expected_has
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {findDuplicateResources} = require('../../../utils/list.util');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -156,6 +157,15 @@ describe('Practitioner Graph Contained Tests', () => {
                     });
                 }
             });
+            console.log('----- Received resources ----');
+            console.log(`${body.entry.map(e => e.resource).map(a => `${a.resourceType}/${a.id}`)}`);
+            console.log('----- End of Received resources ----');
+            // verify there are no duplicate ids
+            const duplicates = findDuplicateResources(
+                body.entry.map(e => e.resource)
+            );
+            expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
+
             expect(body).toStrictEqual(expected);
         });
     });

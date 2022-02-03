@@ -285,9 +285,6 @@ describe('Practitioner Everything Tests', () => {
             });
             console.log('----- Received resources ----');
             console.log(`${body.entry.map(e => e.resource).map(a => `${a.resourceType}/${a.id}`)}`);
-            // body.entry.forEach(a => {
-            //     console.log(`${a.resource.resourceType}/${a.resource.id}`);
-            // });
             console.log('----- End of Received resources ----');
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(

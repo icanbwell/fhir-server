@@ -1,10 +1,18 @@
 {
   "resourceType": "GraphDefinition",
   "id": "o",
-  "name": "provider_everything",
+  "name": "practitioner_references",
   "status": "active",
   "start": "Practitioner",
   "link": [
+    {
+      "path": "qualification[x].issuer",
+      "target": [
+        {
+          "type": "Organization"
+        }
+      ]
+    },
     {
       "description": "Practitioner Roles for this Practitioner",
       "target": [
@@ -70,7 +78,7 @@
       "target": [
         {
           "type": "Group",
-          "params": "member.entity={ref}&_security=https://www.icanbwell.com/access|medstar"
+          "params": "member={ref}&_security=https://www.icanbwell.com/access|medstar"
         }
       ]
     },
