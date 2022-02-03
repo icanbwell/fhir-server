@@ -179,6 +179,16 @@ function getPropertiesForEntity(entity, property, filterProperty, filterValue) {
 }
 
 /**
+ * retrieves references from the provided property.
+ * Always returns an array of references whether the property value is an array or just an object
+ * @param {Object || Object[]} propertyValue
+ * @return {string[]}
+ */
+function getReferencesFromPropertyValue(propertyValue) {
+    return Array.isArray(propertyValue) ? propertyValue.map(a => a['reference']) : [propertyValue['reference']];
+}
+
+/**
  * returns whether this property is a reference (by checking if it has a reference sub property)
  * @param {EntityAndContainedBase[]} entities
  * @param {string} property
@@ -196,7 +206,7 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
          */
         const propertiesForEntity = getPropertiesForEntity(entity, property, filterProperty, filterValue);
         const references = propertiesForEntity
-            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .flatMap(r => getReferencesFromPropertyValue(r))
             .filter(r => r !== undefined);
 
         if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
@@ -235,7 +245,7 @@ async function get_related_resources(db, graphParameters, collectionName,
     // get values of this property from all the entities
     const relatedReferences = parentEntities.flatMap(p =>
         getPropertiesForEntity(p, property)
-            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .flatMap(r => getReferencesFromPropertyValue(r))
             .filter(r => r !== undefined)
     );
     // select just the ids from those reference properties
@@ -297,7 +307,7 @@ async function get_related_resources(db, graphParameters, collectionName,
         const matchingParentEntities = parentEntities.filter(
             p => (
                 getPropertiesForEntity(p, property)
-                    .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+                    .flatMap(r => getReferencesFromPropertyValue(r))
                     .filter(r => r !== undefined)
                     .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
             )
@@ -435,7 +445,7 @@ async function get_reverse_related_resources(
          * @type {string[]}
          */
         const references = properties
-            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .flatMap(r => getReferencesFromPropertyValue(r))
             .filter(r => r !== undefined);
         const matchingParentEntities = parentEntities.filter(
             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
