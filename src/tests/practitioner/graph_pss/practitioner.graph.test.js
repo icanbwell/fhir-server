@@ -116,12 +116,11 @@ describe('Practitioner Graph Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true')
                 .send(graphDefinitionResource)
-                .set(getHeaders())
-                .expect(200);
-
+                .set(getHeaders());
             console.log('------- response Practitioner 1003059437 $graph ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
+            expect(resp.statusCode).toStrictEqual(200);
             let body = resp.body;
             delete body['timestamp'];
             body.entry.forEach(element => {

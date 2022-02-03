@@ -36,5 +36,11 @@
   "managingEntity": {
     "reference": "Organization/myhealthsystem"
   },
-  "member": []
+  "member": [
+    {
+      "entity": {
+        "reference": "Practitioner/1003059437"
+      }
+    }
+  ]
 }

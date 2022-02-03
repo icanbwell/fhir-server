@@ -70,7 +70,7 @@
       "target": [
         {
           "type": "Group",
-          "params": "member.entity={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
+          "params": "member={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
         }
       ]
     },

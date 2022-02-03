@@ -410,6 +410,10 @@ async function get_reverse_related_resources(
      */
     const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceCollectionName, searchParameterName);
 
+    if (!fieldForSearchParameter) {
+        throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceCollectionName}`);
+    }
+
     while (await cursor.hasNext()) {
         /**
          * @type {Resource}
@@ -420,22 +424,28 @@ async function get_reverse_related_resources(
                 continue;
             }
         }
+        // create the entry
+        const resourceEntityAndContained = new ResourceEntityAndContained(
+            relatedResourcePropertyCurrent.id,
+            relatedResourcePropertyCurrent.resourceType,
+            getFullUrlForResource(graphParameters, relatedResourcePropertyCurrent),
+            true,
+            removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+            []
+        );
         // now match to parent entity, so we can put under correct contained property
+        const properties = getPropertiesForEntity(resourceEntityAndContained, fieldForSearchParameter);
+        // the reference property can be a single item or an array.
+        /**
+         * @type {string[]}
+         */
+        const references = properties.map(r => r['reference']).filter(r => r !== undefined);
         const matchingParentEntities = parentEntities.filter(
-            p => relatedResourcePropertyCurrent[`${fieldForSearchParameter}`]
-                && `${p.resource.resourceType}/${p.resource.id}`
-                === relatedResourcePropertyCurrent[`${fieldForSearchParameter}`]['reference']
+            p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
         );
         for (const matchingParentEntity of matchingParentEntities) {
             matchingParentEntity.containedEntries.push(
-                new ResourceEntityAndContained(
-                    relatedResourcePropertyCurrent.id,
-                    relatedResourcePropertyCurrent.resourceType,
-                    getFullUrlForResource(graphParameters, relatedResourcePropertyCurrent),
-                    true,
-                    removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
-                    []
-                )
+                resourceEntityAndContained
             );
         }
     }
