@@ -179,25 +179,6 @@ function getPropertiesForEntity(entity, property, filterProperty, filterValue) {
 }
 
 /**
- * returns first property value
- * @param {EntityAndContainedBase} entity
- * @param {string} property
- * @param {string?} filterProperty
- * @param {string?} filterValue
- * @returns {*[]}
- */
-function getFirstPropertyForEntity(entity, property, filterProperty, filterValue) {
-    /**
-     * @type {*[]}
-     */
-    const properties = getPropertiesForEntity(entity, property, filterProperty, filterValue);
-    if (properties && properties.length > 0) {
-        return properties[0];
-    }
-    return [];
-}
-
-/**
  * returns whether this property is a reference (by checking if it has a reference sub property)
  * @param {EntityAndContainedBase[]} entities
  * @param {string} property
@@ -214,7 +195,11 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
          * @type {*[]}
          */
         const propertiesForEntity = getPropertiesForEntity(entity, property, filterProperty, filterValue);
-        if (propertiesForEntity.filter(p => p !== undefined).some(p => p['reference'])) { // if it has a 'reference' property then it is a reference
+        const references = propertiesForEntity
+            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .filter(r => r !== undefined);
+
+        if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
             return true; // we assume that if one entity has it then all entities can since they are of same type
         }
     }
@@ -249,10 +234,12 @@ async function get_related_resources(db, graphParameters, collectionName,
 
     // get values of this property from all the entities
     const relatedReferences = parentEntities.flatMap(p =>
-        getPropertiesForEntity(p, property));
+        getPropertiesForEntity(p, property)
+            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .filter(r => r !== undefined)
+    );
     // select just the ids from those reference properties
-    let relatedReferenceIds = relatedReferences.filter(
-        r => r['reference']).map(r => r.reference.replace(collectionName + '/', ''));
+    let relatedReferenceIds = relatedReferences.filter(r => r.includes('/')).map(r => r.split('/')[1]);
     if (relatedReferenceIds.length === 0) {
         return; // nothing to do
     }
@@ -309,12 +296,20 @@ async function get_related_resources(db, graphParameters, collectionName,
         // find matching parent and add to containedEntries
         const matchingParentEntities = parentEntities.filter(
             p => (
-                getFirstPropertyForEntity(p, property) &&
-                getFirstPropertyForEntity(p, property)['reference'] === `${relatedResource.resourceType}/${relatedResource.id}`
+                getPropertiesForEntity(p, property)
+                    .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+                    .filter(r => r !== undefined)
+                    .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
             )
         );
 
-        assert(matchingParentEntities.length > 0); // we should always find at least one match
+        if (matchingParentEntities.length === 0) {
+            throw new Error(
+                `No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}`
+                + ` in parent entities ${parentEntities.map(p => p.resource.resourceType)[0]}`
+                + ` ${parentEntities.map(p => p.resource.id).toString()} using property ${property}`
+            );
+        }
 
         // add it to each one since there can be multiple resources that point to the same related resource
         for (const matchingParentEntity of matchingParentEntities) {
@@ -439,10 +434,21 @@ async function get_reverse_related_resources(
         /**
          * @type {string[]}
          */
-        const references = properties.flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']]).filter(r => r !== undefined);
+        const references = properties
+            .flatMap(r => Array.isArray(r) ? r.map(a => a['reference']) : [r['reference']])
+            .filter(r => r !== undefined);
         const matchingParentEntities = parentEntities.filter(
             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
         );
+
+        if (matchingParentEntities.length === 0) {
+            throw new Error(
+                `No match found for parent entities ${parentEntities.map(p => p.resource.resourceType)[0]}`
+                + ` ${parentEntities.map(p => p.resource.id).toString()} using property ${fieldForSearchParameter}`
+                + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+            );
+        }
+
         for (const matchingParentEntity of matchingParentEntities) {
             matchingParentEntity.containedEntries.push(
                 resourceEntityAndContained
