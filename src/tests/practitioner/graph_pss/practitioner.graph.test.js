@@ -153,12 +153,12 @@ describe('Practitioner Graph Contained Tests', () => {
             expect(body).toStrictEqual(expected);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true')
+                .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true&_hash_references=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Practitioner 1679033641 $graph ------------');
+            console.log('------- response Practitioner 1003059437 $graph hashed_references ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             body = resp.body;
