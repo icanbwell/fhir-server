@@ -4,7 +4,11 @@
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const assert = require('assert');
-const {verifyHasValidScopes, doesResourceHaveAnyAccessCodeFromThisList} = require('../security/scopes');
+const {
+    verifyHasValidScopes,
+    doesResourceHaveAnyAccessCodeFromThisList,
+    getAccessCodesFromScopes
+} = require('../security/scopes');
 const env = require('var');
 const pRetry = require('p-retry');
 const {logError} = require('../common/logging');
@@ -12,6 +16,7 @@ const {logMessageToSlack} = require('../../utils/slack.logger');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
+const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 
 
 /**
@@ -97,6 +102,9 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
     }
 }
 
+/**
+ * This class has request related parameters
+ */
 class GraphParameters {
     /**
      * @param {string} base_version
@@ -143,7 +151,6 @@ class GraphParameters {
 function getFullUrlForResource(graphParameters, parentEntity) {
     return `${graphParameters.protocol}://${graphParameters.host}/${graphParameters.base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
 }
-
 
 /**
  * returns property values
@@ -216,7 +223,6 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
     return false;
 }
 
-
 /**
  * Gets related resources and adds them to containedEntries in parentEntities
  * @param {import('mongodb').Db} db
@@ -260,7 +266,14 @@ async function get_related_resources(db, graphParameters, collectionName,
     // also exclude _id so if there is a covering index the query can be satisfied from the covering index
     projection['_id'] = 0;
     options['projection'] = projection;
-    const query = {
+    /**
+     * @type {string[]}
+     */
+    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    /**
+     * @type {Object}
+     */
+    let query = {
         'id': {
             $in: relatedReferenceIds
         }
@@ -268,6 +281,7 @@ async function get_related_resources(db, graphParameters, collectionName,
     if (filterProperty) {
         query[`${filterProperty}`] = filterValue;
     }
+    query = getQueryWithSecurityTags(securityTags, query);
     /**
      * @type {number}
      */
@@ -377,7 +391,13 @@ async function get_reverse_related_resources(
      */
     const args = parseQueryStringIntoArgs(reverseFilterWithParentIds);
     const searchParameterName = Object.keys(args)[0];
-    const query = buildR4SearchQuery(relatedResourceCollectionName, args).query;
+    let query = buildR4SearchQuery(relatedResourceCollectionName, args).query;
+
+    /**
+     * @type {string[]}
+     */
+    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    query = getQueryWithSecurityTags(securityTags, query);
 
     const options = {};
     const projection = {};
@@ -787,11 +807,17 @@ async function processMultipleIds(db, graphParameters, collection_name,
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     let entries = [];
-    const query = {
+    let query = {
         'id': {
             $in: idList
         }
     };
+    /**
+     * @type {string[]}
+     */
+    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    query = getQueryWithSecurityTags(securityTags, query);
+
     const options = {};
     const projection = {};
     // also exclude _id so if there is a covering index the query can be satisfied from the covering index
@@ -905,26 +931,22 @@ async function processMultipleIds(db, graphParameters, collection_name,
 
 /**
  * process GraphDefinition and returns a bundle with all the related resources
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {import('mongodb').Db} db
  * @param {string} collection_name
  * @param {string} base_version
  * @param {string} resource_name
- * @param {string[]} accessCodes
- * @param {string} user
- * @param {string} scope
- * @param {string} protocol
- * @param {string} host
  * @param {string | string[]} id (accepts a single id or a list of ids)
  * @param {*} graphDefinitionJson (a GraphDefinition resource)
  * @param {boolean} contained
  * @param {boolean} hash_references
  * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-async function processGraph(db, collection_name, base_version, resource_name,
-                            accessCodes, user, scope,
-                            protocol,
-                            host, id,
-                            graphDefinitionJson, contained, hash_references) {
+async function processGraph(
+    requestInfo,
+    db, collection_name, base_version, resource_name,
+    id,
+    graphDefinitionJson, contained, hash_references) {
     /**
      * @type {function(?Object): Resource}
      */
@@ -938,12 +960,16 @@ async function processGraph(db, collection_name, base_version, resource_name,
         id = [id];
     }
 
+    const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
+        requestInfo.user, requestInfo.scope,
+        getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
+    );
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     const entries = await processMultipleIds(
         db,
-        new GraphParameters(base_version, protocol, host, user, scope, accessCodes),
+        graphParameters,
         collection_name, resource_name, graphDefinition, contained, hash_references, id);
 
     // remove duplicate resources
@@ -954,7 +980,7 @@ async function processGraph(db, collection_name, base_version, resource_name,
         (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
     uniqueEntries = uniqueEntries.filter(
         e => doesResourceHaveAnyAccessCodeFromThisList(
-            accessCodes, user, scope, e.resource
+            graphParameters.accessCodes, graphParameters.user, graphParameters.scope, e.resource
         )
     );
     // create a bundle
