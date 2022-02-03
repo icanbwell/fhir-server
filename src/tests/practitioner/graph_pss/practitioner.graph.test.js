@@ -90,7 +90,8 @@ describe('Practitioner Graph Contained Tests', () => {
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body[0]['created']).toBe(true);
+            expect(resp.body[1]['created']).toBe(true);
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
