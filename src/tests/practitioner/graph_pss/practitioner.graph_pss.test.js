@@ -21,7 +21,7 @@ const expectedHashReferencesResource = require('./fixtures/expected/expected_has
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 
-describe('Practitioner Graph Contained Tests', () => {
+describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -30,8 +30,8 @@ describe('Practitioner Graph Contained Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Graph Contained Tests', () => {
-        test('Graph contained works properly', async () => {
+    describe('Graph Contained PSS Tests', () => {
+        test('Graph contained PSS works properly', async () => {
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -80,7 +80,8 @@ describe('Practitioner Graph Contained Tests', () => {
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body[0]['created']).toBe(true);
+            expect(resp.body[1]['created']).toBe(true);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
