@@ -316,7 +316,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             queryParameterValue,
                                             `${propertyObj.field}.reference`, null)
                                     );
-                                } else {
+                                } else { // else search for these ids in all the target resources
                                     and_segments.push({
                                         $or: propertyObj.target.map(
                                             target => referenceQueryBuilder(
