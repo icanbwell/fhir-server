@@ -693,7 +693,7 @@ async function processOneGraphLink(db, graphParameters,
             /**
              * @type {string|null}
              */
-            const childResourceType = childEntries[0].resource ? childEntries[0].resource.resourceType : null;
+            const childResourceType = target.type;
 
             // Now recurse down and process the link
             /**
