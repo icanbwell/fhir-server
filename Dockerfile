@@ -22,6 +22,9 @@ FROM node:16.13-bullseye-slim
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
 
+# Update everything on the OS
+RUN apt-get -y update && apt-get -y install curl && apt-get clean
+
 # Set the working directory
 RUN mkdir -p /srv/src && chown node:node /srv/src
 WORKDIR /srv/src

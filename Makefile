@@ -1,5 +1,9 @@
 .PHONY:build
 build:
+	docker buildx build --platform=linux/amd64 -t imranq2/node-fhir-server-mongo:local .
+
+.PHONY:build_all
+build_all:
 	docker buildx build --platform=linux/amd64,linux/arm64 -t imranq2/node-fhir-server-mongo:local .
 
 .PHONY:publish
