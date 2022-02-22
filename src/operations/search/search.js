@@ -3,7 +3,7 @@ const {CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
-const {verifyHasValidScopes} = require('../security/scopes');
+const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildR4SearchQuery} = require('../query/r4');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -17,6 +17,7 @@ const {logMessageToSlack} = require('../../utils/slack.logger');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
+const deepcopy = require('deepcopy');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
@@ -207,108 +208,162 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             options['sort'][`${defaultSortId}`] = 1;
         }
 
-        // Now run the query to get a cursor we will enumerate next
-        let cursorQuery = collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+        /**
+         * queries for logging
+         * @type {*|*[]}
+         */
+        let originalQuery = deepcopy(query);
+        /**
+         * options for logging
+         * @type {*|*[]}
+         */
+        let originalOptions = deepcopy(options);
 
         /**
-         * @type {int | null}
+         * whether to use the two-step optimization
+         * In the two-step optimization we request the ids first and then request the documents for those ids
+         *  This can be faster in large tables as both queries can then be satisfied by indexes
+         * @type {boolean}
          */
-        let cursorBatchSize = null;
-        // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
-            cursorBatchSize = args['_cursorBatchSize'] ? parseInt(args['_cursorBatchSize']) : parseInt(env.MONGO_BATCH_SIZE);
-            if (cursorBatchSize > 0) {
-                cursorQuery = cursorQuery.batchSize(cursorBatchSize);
-            }
-        }
-        /**
-         * mongo db cursor
-         * @type {Promise<Cursor<unknown>> | *}
-         */
-        let cursor = await pRetry(
-            async () =>
-                await cursorQuery,
-            {
-                retries: 5,
-                onFailedAttempt: async error => {
-                    let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                    logError(user, msg);
-                    await logMessageToSlack(msg);
-                }
-            }
-        );
-
-        // find columns being queried and match them to an index
-        /**
-         * which index hint to use (if any)
-         * @type {string|null}
-         */
-        let indexHint = null;
-        if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
-            indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
-            if (indexHint) {
-                cursor = cursor.hint(indexHint);
-                logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
+        const useTwoStepSearchOptimization = !args['_elements'] && !args['id']
+            && (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+        if (useTwoStepSearchOptimization) {
+            // first get just the ids
+            const projection = {};
+            projection['_id'] = 0;
+            projection['id'] = 1;
+            options['projection'] = projection;
+            originalQuery = [query];
+            originalOptions = [options];
+            let idResults = await collection.find(query, options).maxTimeMS(maxMongoTimeMS).toArray();
+            if (idResults.length > 0) {
+                // now get the documents for those ids.  We can clear all the other query parameters
+                query = {'id': {$in: idResults.map(r => r.id)}};
+                // query = getQueryWithSecurityTags(securityTags, query);
+                options = {}; // reset options since we'll be looking by id
+                originalQuery.push(query);
+                originalOptions.push(options);
+            } else { // no results
+                query = null; //no need to query
             }
         }
 
-        // if _total is specified then ask mongo for the total else set total to 0
-        let total_count = 0;
-        if (args['_total'] && (['accurate', 'estimate'].includes(args['_total']))) {
-            // https://www.hl7.org/fhir/search.html#total
-            // if _total is passed then calculate the total count for matching records also
-            // don't use the options since they set a limit and skip
-            if (args['_total'] === 'estimate') {
-                total_count = await collection.estimatedDocumentCount(query, {maxTimeMS: maxMongoTimeMS});
-            } else {
-                total_count = await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
-            }
-        }
-        // Resource is a resource cursor, pull documents out before resolving
         /**
          * resources to return
          * @type {Resource[]}
          */
         let resources = [];
-        while (await cursor.hasNext()) {
+        /**
+         * @type {number}
+         */
+        let total_count = 0;
+        /**
+         * which index hint to use (if any)
+         * @type {string|null}
+         */
+        let indexHint = null;
+        /**
+         * @type {int | null}
+         */
+        let cursorBatchSize = null;
+        // run the query and get the results
+        if (query !== null) {
+            // Now run the query to get a cursor we will enumerate next
+            let cursorQuery = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+
+            // set batch size if specified
+            if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
+                cursorBatchSize = args['_cursorBatchSize'] ? parseInt(args['_cursorBatchSize']) : parseInt(env.MONGO_BATCH_SIZE);
+                if (cursorBatchSize > 0) {
+                    cursorQuery = cursorQuery.batchSize(cursorBatchSize);
+                }
+            }
             /**
-             * element
-             * @type {Resource}
+             * mongo db cursor
+             * @type {Promise<Cursor<unknown>> | *}
              */
-            const element = await cursor.next();
-            if (args['_elements']) {
-                /**
-                 * @type {string}
-                 */
-                const properties_to_return_as_csv = args['_elements'];
-                /**
-                 * @type {string[]}
-                 */
-                const properties_to_return_list = properties_to_return_as_csv.split(',');
-                /**
-                 * @type {Resource}
-                 */
-                const element_to_return = new Resource(null);
-                /**
-                 * @type {string}
-                 */
-                for (const property of properties_to_return_list) {
-                    if (property in element_to_return) {
-                        element_to_return[`${property}`] = element[`${property}`];
+            let cursor = await pRetry(
+                async () =>
+                    await cursorQuery,
+                {
+                    retries: 5,
+                    onFailedAttempt: async error => {
+                        let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${error.attemptNumber}: ${error.message}`;
+                        logError(user, msg);
+                        await logMessageToSlack(msg);
                     }
                 }
-                // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-                if (resourceName === 'Library') {
-                    element_to_return['id'] = element['id'];
-                    element_to_return['url'] = element['url'];
-                }
+            );
 
-                resources.push(element_to_return);
-            } else {
-                resources.push(new Resource(element));
+            // find columns being queried and match them to an index
+            if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
+                indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
+                if (indexHint) {
+                    cursor = cursor.hint(indexHint);
+                    logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
+                }
+            }
+
+            // if _total is specified then ask mongo for the total else set total to 0
+            if (args['_total'] && (['accurate', 'estimate'].includes(args['_total']))) {
+                // https://www.hl7.org/fhir/search.html#total
+                // if _total is passed then calculate the total count for matching records also
+                // don't use the options since they set a limit and skip
+                if (args['_total'] === 'estimate') {
+                    total_count = await collection.estimatedDocumentCount(query, {maxTimeMS: maxMongoTimeMS});
+                } else {
+                    total_count = await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
+                }
+            }
+            // Resource is a resource cursor, pull documents out before resolving
+            while (await cursor.hasNext()) {
+                /**
+                 * element
+                 * @type {Resource}
+                 */
+                const element = await cursor.next();
+                if (
+                    !isAccessToResourceAllowedBySecurityTags(
+                        element,
+                        user,
+                        scope
+                    )
+                ) {
+                    continue;
+                }
+                if (args['_elements']) {
+                    /**
+                     * @type {string}
+                     */
+                    const properties_to_return_as_csv = args['_elements'];
+                    /**
+                     * @type {string[]}
+                     */
+                    const properties_to_return_list = properties_to_return_as_csv.split(',');
+                    /**
+                     * @type {Resource}
+                     */
+                    const element_to_return = new Resource(null);
+                    /**
+                     * @type {string}
+                     */
+                    for (const property of properties_to_return_list) {
+                        if (property in element_to_return) {
+                            element_to_return[`${property}`] = element[`${property}`];
+                        }
+                    }
+                    // this is a hack for the CQL Evaluator since it does not request these fields but expects them
+                    if (resourceName === 'Library') {
+                        element_to_return['id'] = element['id'];
+                        element_to_return['url'] = element['url'];
+                    }
+
+                    resources.push(element_to_return);
+                } else {
+                    resources.push(new Resource(element));
+                }
             }
         }
-
         // remove any nulls or empty objects or arrays
         resources = resources.map(r => removeNull(r.toJSON()));
 
@@ -388,12 +443,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             if (args['_debug'] || (env.LOGLEVEL === 'DEBUG')) {
                 const tag = [
                     {
-                        system: 'https://www.icanbwell.com/queryIndexHint',
-                        code: indexHint
-                    },
-                    {
                         system: 'https://www.icanbwell.com/query',
-                        display: JSON.stringify(query)
+                        display: JSON.stringify(originalQuery)
                     },
                     {
                         system: 'https://www.icanbwell.com/queryCollection',
@@ -401,7 +452,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                     },
                     {
                         system: 'https://www.icanbwell.com/queryOptions',
-                        display: options ? JSON.stringify(options) : null
+                        display: originalOptions ? JSON.stringify(originalOptions) : null
                     },
                     {
                         system: 'https://www.icanbwell.com/queryFields',
@@ -410,8 +461,20 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                     {
                         system: 'https://www.icanbwell.com/queryTime',
                         display: `${(stopTime - startTime) / 1000}`
+                    },
+                    {
+                        system: 'https://www.icanbwell.com/queryOptimization',
+                        display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
                     }
                 ];
+                if (indexHint) {
+                    tag.push(
+                        {
+                            system: 'https://www.icanbwell.com/queryIndexHint',
+                            code: indexHint
+                        },
+                    );
+                }
                 if (cursorBatchSize !== null && cursorBatchSize > 0) {
                     tag.push(
                         {
