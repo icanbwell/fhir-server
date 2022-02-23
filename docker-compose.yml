@@ -41,6 +41,7 @@ services:
       RETURN_BUNDLE: "1"
     ports:
       - '3000:3000'
+      - '9229:9229'
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
