@@ -18,6 +18,7 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const deepcopy = require('deepcopy');
+const {searchOld} = require('./searchOld');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
@@ -405,6 +406,14 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources
  */
 module.exports.search = async (requestInfo, args, resourceName, collection_name) => {
+    if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
+        return searchOld(
+            requestInfo,
+            args,
+            resourceName,
+            collection_name
+        );
+    }
     /**
      * @type {number}
      */
