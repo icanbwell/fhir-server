@@ -189,8 +189,9 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send('{id:"0,1679033641"}')
-                .set(getHeaders());
+                .send({id: '0,1679033641'})
+                .set(getHeaders())
+                .expect(200);
 
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));

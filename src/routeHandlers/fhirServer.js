@@ -9,10 +9,10 @@ const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
 const {slackErrorHandler} = require('../middleware/slackErrorHandler');
 const {isTrue} = require('../utils/isTrue');
-const loggers = require("@asymmetrik/node-fhir-server-core/dist/server/winston");
-const {resolveSchema, isValidVersion} = require("@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils");
-const {VERSIONS} = require("@asymmetrik/node-fhir-server-core/dist/constants");
-const ServerError = require("@asymmetrik/node-fhir-server-core/dist/server/utils/server.error");
+const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston');
+const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
+const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
+const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
 
 class MyFHIRServer extends FHIRServer.Server {
     configureMiddleware() {
