@@ -156,5 +156,58 @@ describe('PractitionerReturnIdTests', () => {
             // expected[0]['meta'] = { 'versionId': '2' };
             expect(body).toStrictEqual(expected);
         });
+        test('search by multiple id works via POST', async () => {
+            let resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge')
+                .send(practitionerResource)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/0/$merge')
+                .send(practitionerResource2)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge')
+                .send(practitionerResource3)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/_search?_sort=id')
+                .send('{id:"0,1679033641"}')
+                .set(getHeaders());
+
+            console.log('------- response Practitioner sorted ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response sort ------------');
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(2);
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            let expected = expectedPractitionerResource;
+            expected.forEach(element => {
+                delete element['meta']['lastUpdated'];
+                delete element['$schema'];
+            });
+            // expected[0]['meta'] = { 'versionId': '2' };
+            expect(body).toStrictEqual(expected);
+        });
     });
 });
