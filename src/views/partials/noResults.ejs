@@ -1,4 +1,7 @@
 <% if (results === 0) { %>
 <div class="fa fa-search no-results-icon"></div>
-<div class="no-results">No Results Found</div>
+<div class="no-results">
+    <!-- prettier-ignore -->
+    <%= typeof(terms) !== 'undefined' && terms === 0 ? 'No Search Terms Provided' : 'No Results Found' %>
+</div>
 <% } %>

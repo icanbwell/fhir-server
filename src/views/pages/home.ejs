@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
-    <div class="container-fluid">
-      <table class="table sticky-table">
-        <thead>
-          <tr>
-            <th scope="col">Resource</th>
-            <th scope="col">Description</th>
-            <th scope="col">Url</th>
-          </tr>
-        </thead>
-        <tbody class="border-0">
-          <% resources.forEach(function(resource){%>
-          <tr>
-            <td>
-              <a href="<%= resource.url %>" title="FHIR Specification for <%= resource.name %>"
-                ><%= resource.name %></a
-              >
-            </td>
-            <td><%= resource.description %></td>
-            <td>
-              <a href="/4_0_0/<%= resource.name %>">/4_0_0/<%= resource.name %></a>
-            </td>
-          </tr>
-          <%})%>
-        </tbody>
-      </table>
-    </div>
-    <!-- prettier-ignore -->
-    <%- include('../partials/footer', {url: locals.url ? url : '', currentYear: locals.currentYear, meta: locals.meta ? meta : {}}); %>
-  </body>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+        <div class="container-fluid">
+            <table class="table sticky-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Resource</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody class="border-0">
+                    <% resources.forEach(function(resource){%>
+                    <tr onclick="searchResource('<%= resource.name %>')" class="row-click">
+                        <td><%= resource.name %></td>
+                        <td class="pe-5 position-relative">
+                            <%= resource.description %>
+                            <i
+                                class="fa fa-file-text-o dox-icon"
+                                onclick="openDox(event, '<%= resource.url %>')"
+                                title="FHIR Specification for <%= resource.name %>"
+                            ></i>
+                        </td>
+                    </tr>
+                    <%})%>
+                </tbody>
+            </table>
+        </div>
+        <!-- prettier-ignore -->
+        <%- include('../partials/footer', {url: locals.url ? url : '', currentYear: locals.currentYear, meta: locals.meta ? meta : {}}); %>
+        <script type="text/javascript" src="/js/home.js"></script>
+    </body>
 </html>

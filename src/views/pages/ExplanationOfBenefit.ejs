@@ -1,134 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <!-- prettier-ignore -->
-        <%- include('../partials/noResults', {results: resources.length}); %>
+        <main class="d-flex align-items-start">
+            <%- include('../partials/searchForm'); %>
+            <div class="search-results">
+                <!-- prettier-ignore -->
+                <%- include('../partials/noResults', {results: resources.length}); %>
         <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <%- include('../partials/resourceHeader', {res: res}); %>
+                <div class="resource-item">
+                    <%- include('../partials/resourceHeader', {res: res}); %>
 
-          <h4>Status</h4>
-          <%= res.status %>
+                    <h4>Status</h4>
+                    <%= res.status %>
 
-          <h4>Outcome</h4>
-          <%= res.outcome %>
-          <h4>Created</h4>
-          <%= res.created %>
+                    <h4>Outcome</h4>
+                    <%= res.outcome %>
+                    <h4>Created</h4>
+                    <%= res.created %>
 
-          <!-- prettier-ignore -->
-          <% if (res.billablePeriod) {%>
-          <h4>Billable Period</h4>
-          <%= res.billablePeriod.start %> to <%= res.billablePeriod.start %><%}%>
+                    <!-- prettier-ignore -->
+                    <% if (res.billablePeriod) {%>
+                    <h4>Billable Period</h4>
+                    <%= res.billablePeriod.start %> to <%= res.billablePeriod.start %><%}%>
 
-          <!-- prettier-ignore -->
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.type], name: "Type", searchParameter: ''}); %>
+                    <!-- prettier-ignore -->
+                    <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.type], name: "Type", searchParameter: ''}); %>
           <%- include('../partials/reference', {references: [res.patient], name: "Patient"}); %>
           <%- include('../partials/reference', {references: [res.insurer], name: "Insurer"}); %>
           <%- include('../partials/reference', {references: [res.provider], name: "Provider"}); %>
           <%- include('../partials/reference', {references: [res.claim], name: "Claim"}); %>
 
         <% if (res.diagnosis) { %>
-          <div>
-            <h4>Diagnosis</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Sequence</th>
-                  <th scope="col">Code</th>
-                  <th scope="col">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.diagnosis.forEach(function(diagnosisItem){ %>
-                <tr>
-                  <td><%= diagnosisItem.sequence %></td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (diagnosisItem.diagnosisCodeableConcept){%>
+                    <div>
+                        <h4>Diagnosis</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sequence</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.diagnosis.forEach(function(diagnosisItem){ %>
+                                <tr>
+                                    <td><%= diagnosisItem.sequence %></td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (diagnosisItem.diagnosisCodeableConcept){%>
                         <% diagnosisItem.diagnosisCodeableConcept.coding.forEach(function(coding) {%>
                             <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (diagnosisItem.type){%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (diagnosisItem.type){%>
                         <% diagnosisItem.type.forEach(function(type) {%>
                             <% type.coding.forEach(function(coding) {%>
                                 <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.procedure) { %>
-          <div>
-            <h4>Procedure</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Sequence</th>
-                  <th scope="col">Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.procedure.forEach(function(procedure){ %>
-                <tr>
-                  <td><%= procedure.sequence %></td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (procedure.procedureCodeableConcept){%>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.procedure) { %>
+                    <div>
+                        <h4>Procedure</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sequence</th>
+                                    <th scope="col">Code</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.procedure.forEach(function(procedure){ %>
+                                <tr>
+                                    <td><%= procedure.sequence %></td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (procedure.procedureCodeableConcept){%>
                         <% procedure.procedureCodeableConcept.coding.forEach(function(coding) {%>
                             <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.item) { %>
-          <div>
-            <h4>Items</h4>
-            <table class="table table-bordered table-sm">
-              <thead>
-                <tr>
-                  <th scope="col">Sequence</th>
-                  <th scope="col">Date</th>
-                  <th scope="col">Code</th>
-                  <th scope="col">Quantity</th>
-                  <th scope="col">Revenue</th>
-                  <th scope="col">Submitted</th>
-                  <th scope="col">Allowed</th>
-                  <th scope="col">Deductible</th>
-                  <th scope="col">Coinsurance</th>
-                  <th scope="col">CoPay</th>
-                  <th scope="col">Non-covered</th>
-                  <th scope="col">COB</th>
-                  <th scope="col">Payment</th>
-                  <th scope="col">Patient</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.item.forEach(function(item){ %>
-                <tr>
-                  <td><%= item.sequence %></td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.servicedDate) { %>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.item) { %>
+                    <div>
+                        <h4>Items</h4>
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sequence</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Revenue</th>
+                                    <th scope="col">Submitted</th>
+                                    <th scope="col">Allowed</th>
+                                    <th scope="col">Deductible</th>
+                                    <th scope="col">Coinsurance</th>
+                                    <th scope="col">CoPay</th>
+                                    <th scope="col">Non-covered</th>
+                                    <th scope="col">COB</th>
+                                    <th scope="col">Payment</th>
+                                    <th scope="col">Patient</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.item.forEach(function(item){ %>
+                                <tr>
+                                    <td><%= item.sequence %></td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.servicedDate) { %>
                         <%= item.servicedDate %>
                     <%} else if (item.servicedPeriod) {%>
                         <% if (item.servicedPeriod.start !== item.servicedPeriod.end) {%>
@@ -137,346 +137,349 @@
                             <%= item.servicedPeriod.start %>
                         <%}%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.productOrService) { %>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.productOrService) { %>
                         <% item.productOrService.coding.forEach(function(coding){ %>
                             <%= coding.code %>
                             (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                  <td><% if (item.quantity) { %> <%= item.quantity.value %> <%}%></td>
-                  <td>
-                    <% if (item.revenue) { %> <% item.revenue.coding.forEach(function(coding){ %>
-                    <%= coding.code %> <%})%> <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <% if (item.quantity) { %> <%= item.quantity.value %> <%}%>
+                                    </td>
+                                    <td>
+                                        <% if (item.revenue) { %> <%
+                                        item.revenue.coding.forEach(function(coding){ %> <%=
+                                        coding.code %> <%})%> <%}%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'submittedamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'allowedamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'deductibleamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'coinsuranceamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'copayamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'noncoveredamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code ==='cobamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'paymentamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.adjudication) {%>
                         <% item.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'patientpayamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.adjudication) { %>
-          <div>
-            <h4>Adjudication</h4>
-            <table class="table table-bordered table-sm">
-              <thead>
-                <tr>
-                  <th scope="col">Submitted</th>
-                  <th scope="col">Allowed</th>
-                  <th scope="col">Deductible</th>
-                  <th scope="col">Coinsurance</th>
-                  <th scope="col">CoPay</th>
-                  <th scope="col">Non-covered</th>
-                  <th scope="col">COB</th>
-                  <th scope="col">Payment</th>
-                  <th scope="col">Patient</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.adjudication) { %>
+                    <div>
+                        <h4>Adjudication</h4>
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Submitted</th>
+                                    <th scope="col">Allowed</th>
+                                    <th scope="col">Deductible</th>
+                                    <th scope="col">Coinsurance</th>
+                                    <th scope="col">CoPay</th>
+                                    <th scope="col">Non-covered</th>
+                                    <th scope="col">COB</th>
+                                    <th scope="col">Payment</th>
+                                    <th scope="col">Patient</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'submittedamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                       <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'allowedamount')).forEach(function(adjudication){%>
                         <% adjudication.category.coding.forEach(function(coding){ %>
                           <%= adjudication.amount.value %>
                         <%})%>
                       <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'deductibleamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'coinsuranceamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'copayamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'noncoveredamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'cobamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'paymentamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%= adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (res.adjudication) {%>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (res.adjudication) {%>
                         <% res.adjudication.filter(x => x.category && x.category.coding && x.category.coding.some(y => y.code === 'patientpayamount')).forEach(function(adjudication){%>
                             <% adjudication.category.coding.forEach(function(coding){ %>
                                 <%=adjudication.amount.value %>
                             <%})%>
                         <%})%>
                     <%}%>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.careTeam) { %>
-          <div>
-            <h4>Care Team</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Sequence</th>
-                  <th scope="col">Provider</th>
-                  <th scope="col">Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.careTeam.forEach(function(item){ %>
-                <tr>
-                  <td><%= item.sequence %></td>
-                  <td>
-                    <a href="/4_0_0/<%= item.provider.reference %>"
-                      ><%= item.provider.reference %></a
-                    >
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.role && item.role.coding){%>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.careTeam) { %>
+                    <div>
+                        <h4>Care Team</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sequence</th>
+                                    <th scope="col">Provider</th>
+                                    <th scope="col">Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.careTeam.forEach(function(item){ %>
+                                <tr>
+                                    <td><%= item.sequence %></td>
+                                    <td>
+                                        <a href="/4_0_0/<%= item.provider.reference %>"
+                                            ><%= item.provider.reference %></a
+                                        >
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.role && item.role.coding){%>
                         <% item.role.coding.forEach(function(coding){%>
                             <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.insurance) { %>
-          <div>
-            <h4>Insurance</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Focal</th>
-                  <th scope="col">Coverage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.insurance.forEach(function(item){ %>
-                <tr>
-                  <td><%= item.focal %></td>
-                  <td>
-                    <a href="/4_0_0/<%= item.coverage.reference %>"
-                      ><%= item.coverage.reference %></a
-                    >
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.total) { %>
-          <div>
-            <h4>Totals</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">id</th>
-                  <th scope="col">Code</th>
-                  <th scope="col">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.total.forEach(function(total){ %>
-                <tr>
-                  <td><%= total.id %></td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (total.category) { %>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.insurance) { %>
+                    <div>
+                        <h4>Insurance</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Focal</th>
+                                    <th scope="col">Coverage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.insurance.forEach(function(item){ %>
+                                <tr>
+                                    <td><%= item.focal %></td>
+                                    <td>
+                                        <a href="/4_0_0/<%= item.coverage.reference %>"
+                                            ><%= item.coverage.reference %></a
+                                        >
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.total) { %>
+                    <div>
+                        <h4>Totals</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">id</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.total.forEach(function(total){ %>
+                                <tr>
+                                    <td><%= total.id %></td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (total.category) { %>
                         <% total.category.coding.forEach(function(coding){ %>
                             <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (total.amount) { %>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (total.amount) { %>
                       <%= total.amount.value %>
                     <%}%>
-                  </td>
-                </tr>
-                <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%> <% if (res.supportingInfo) { %>
-          <div>
-            <h4>Supporting Info</h4>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">Sequence</th>
-                  <th scope="col">Code</th>
-                  <th scope="col">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% res.supportingInfo.forEach(function(item){ %>
-                <tr>
-                  <td><%= item.sequence %></td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.category && item.category.coding) { %>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%> <% if (res.supportingInfo) { %>
+                    <div>
+                        <h4>Supporting Info</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Sequence</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% res.supportingInfo.forEach(function(item){ %>
+                                <tr>
+                                    <td><%= item.sequence %></td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.category && item.category.coding) { %>
                         <%item.category.coding.forEach(function(coding){ %>
                             <%= coding.code %> (<%= coding.system.split('/').pop() %>)
                         <%})%>
                     <%}%>
-                  </td>
-                  <td>
-                    <!-- prettier-ignore -->
-                    <% if (item.valueQuantity) { %>
+                                    </td>
+                                    <td>
+                                        <!-- prettier-ignore -->
+                                        <% if (item.valueQuantity) { %>
                         <%= item.valueQuantity.value %>
                     <%} else if (item.code && item.code.coding && item.code.coding.length > 0) { %>
                         <% item.code.coding.forEach(function(coding){%>
@@ -488,21 +491,21 @@
                     <%} else if (item.valueString) { %>
                         <%= item.valueString %>
                     <%}%>
-                  </td>
-                </tr>
+                                    </td>
+                                </tr>
+                                <%})%>
+                            </tbody>
+                        </table>
+                    </div>
+                    <%}%>
+
+                    <!-- prettier-ignore -->
+                    <%- include('../partials/json', {res: res, index: index}); %>
+                </div>
                 <%})%>
-              </tbody>
-            </table>
-          </div>
-          <%}%>
+            </div>
+        </main>
 
-          <!-- prettier-ignore -->
-          <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
-
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

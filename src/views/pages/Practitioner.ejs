@@ -1,61 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <!-- prettier-ignore -->
-        <%- include('../partials/noResults', {results: resources.length}); %>
+        <main class="d-flex align-items-start">
+            <%- include('../partials/searchForm'); %>
+            <div class="search-results">
+                <!-- prettier-ignore -->
+                <%- include('../partials/noResults', {results: resources.length}); %>
         <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
+                <div class="resource-item">
+                    <!-- prettier-ignore -->
+                    <%- include('../partials/resourceHeader', {res: res}); %>
           <%- include('../partials/humanNames', {names: res.name, resourceType: res.resourceType}); %>
 
-          <h4>Gender</h4>
-          <%= res.gender %> <% if (res.qualification) { %>
-          <h4>Qualifications</h4>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Code</th>
-                <th scope="col">Display</th>
-                <th scope="col">System</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- prettier-ignore -->
-              <% res.qualification.forEach(function(qualification){ %>
+                    <h4>Gender</h4>
+                    <%= res.gender %> <% if (res.qualification) { %>
+                    <h4>Qualifications</h4>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Code</th>
+                                <th scope="col">Display</th>
+                                <th scope="col">System</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- prettier-ignore -->
+                            <% res.qualification.forEach(function(qualification){ %>
                 <% if (qualification.code && qualification.code.coding) { %>
                   <% qualification.code.coding.forEach(function(coding){ %>
-              <tr>
-                <td><%= coding.code %></td>
-                <td><%= coding.display %></td>
-                <td><%= coding.system %></td>
-              </tr>
-              <!-- prettier-ignore -->
-              <%})%>
+                            <tr>
+                                <td><%= coding.code %></td>
+                                <td><%= coding.display %></td>
+                                <td><%= coding.system %></td>
+                            </tr>
+                            <!-- prettier-ignore -->
+                            <%})%>
               <%}%>
               <%})%>
-            </tbody>
-          </table>
-          <%}%>
-          <!-- prettier-ignore -->
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.communication, name: "Communication", searchParameter: 'communication'}); %>
+                        </tbody>
+                    </table>
+                    <%}%>
+                    <!-- prettier-ignore -->
+                    <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.communication, name: "Communication", searchParameter: 'communication'}); %>
           <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %>
           <%- include('../partials/reverse_reference', {reverseReferences: [{target:'PractitionerRole', property:'practitioner'}], id:res.id, name: "Practitioner Role"}); %>
           <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'actor'}], id:res.id, name: "Schedule (also check schedules on PractitionerRole)"}); %>
           <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
+                </div>
+                <%})%>
+            </div>
+        </main>
 
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <!-- prettier-ignore -->
-        <%- include('../partials/noResults', {results: resources.length}); %>
+        <main class="d-flex align-items-start">
+            <%- include('../partials/searchForm'); %>
+            <div class="search-results">
+                <!-- prettier-ignore -->
+                <%- include('../partials/noResults', {results: resources.length}); %>
         <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
+                <div class="resource-item">
+                    <!-- prettier-ignore -->
+                    <%- include('../partials/resourceHeader', {res: res}); %>
           <%- include('../partials/reference', {references: [res.providedBy], name: "Provided By"}); %>
           <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter: 'service-type'}); %>
           <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.specialty, name: "Specialty", searchParameter: 'specialty'}); %>
@@ -24,11 +24,11 @@
           <%- include('../partials/reverse_reference', {reverseReferences: [{target:'PractitionerRole', property:'actor'}], id:res.id, name: "Practitioner Role"}); %>
           <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'healthcareService'}], id:res.id, name: "Schedule"}); %>
           <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
+                </div>
+                <%})%>
+            </div>
+        </main>
 
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

@@ -1,6 +1,6 @@
 const identifierUrl = 'http://hl7.org/fhir/sid/us-npi|';
-const advSearchJson = require('../graphql/v1/generator/json/definitions.json/search-parameters.json');
-const searchLimit = 10;
+const advSearchJson = require('../graphql/v2/generator/json/definitions.json/search-parameters.json');
+const searchLimit = 100;
 
 function getSearchParams(req) {
     const bodyEntries = Object.entries(req.body);
@@ -59,6 +59,16 @@ function getPractitionerForm(params) {
     return practitionerArray;
 }
 
+function getOrganizationForm(params) {
+    const formElements = [];
+    formElements.push({
+        label: 'Name',
+        name: 'name',
+        value: params.name ? params.name : '',
+    });
+    return formElements;
+}
+
 const getFormData = (req, resourceName) => {
     const params = getModifierParams(req);
     let formData = [];
@@ -69,6 +79,9 @@ const getFormData = (req, resourceName) => {
             break;
         case 'Practitioner':
             formData = formData.concat(getPractitionerForm(params));
+            break;
+        case 'Organization':
+            formData = formData.concat(getOrganizationForm(params));
             break;
     }
 
@@ -108,20 +121,18 @@ const getAdvSearchFormData = (req, resourceName) => {
     return advFormData;
 };
 
-function getCurrentPageIndex(req) {
-    let pageIndex = req.body._getpagesoffset;
+function getCurrentPageIndex(pageIndex) {
     pageIndex = pageIndex && pageIndex !== '' ? parseInt(pageIndex) : 0;
     return pageIndex;
 }
 
-const getHasPrev = (req) => {
-    const pageIndex = getCurrentPageIndex(req);
+const getHasPrev = (pageOffset) => {
+    const pageIndex = getCurrentPageIndex(pageOffset);
     return pageIndex > 0;
 };
 
-const getHasNext = (req, total) => {
-    const pageIndex = getCurrentPageIndex(req);
-    return pageIndex * searchLimit < total - searchLimit;
+const getHasNext = (res) => {
+    return res.resources.length === searchLimit;
 };
 
 const getLastUpdate = function (req, modifier) {
@@ -135,13 +146,53 @@ const getLastUpdate = function (req, modifier) {
     return dateString;
 };
 
+const formatDate = (dateString) => {
+    const dateSplit = dateString.split('T');
+    const time = dateSplit[1].substring(0, dateSplit[1].indexOf('+'));
+    return `${dateSplit[0]} ${time}`;
+};
+
+const getFieldValue = (res, name) => {
+    switch (name) {
+        case '_source':
+            return res.meta && res.meta.source ? res.meta.source : '';
+        case 'npi':
+            return res.identifier ? res.identifier.map((id) => id.value).join(', ') : '';
+        case 'given':
+            return res.name ? res.name.map((n) => n.given[0]).join(', ') : '';
+        case 'family':
+            return res.name ? res.name.map((n) => n.family).join(', ') : '';
+        case 'name':
+            return res.name ? res.name : '';
+    }
+    return '';
+};
+
+const getTotalMessage = (res) => {
+    const isValid =
+        res.resources.length > 0 && res.resources[0].resourceType === res.resourceDefinition.name;
+    const pageIndex = getCurrentPageIndex(res.body._getpagesoffset);
+    const lowCount = searchLimit * pageIndex + 1;
+    const increaseCount = res.resources.length < searchLimit ? res.resources.length : searchLimit;
+    const highCount = searchLimit * pageIndex + increaseCount;
+    const paginationMessage = `${lowCount} to ${highCount} of found results`;
+    return isValid && res.resources.length > 0 ? paginationMessage : '';
+};
+
+const utils = {
+    hasPrev: getHasPrev,
+    hasNext: getHasNext,
+    formatDate: formatDate,
+    fieldValue: getFieldValue,
+    totalMessage: getTotalMessage,
+    pageIndex: getCurrentPageIndex,
+};
+
 module.exports = {
     advSearchFormData: getAdvSearchFormData,
     searchFormData: getFormData,
     lastUpdateStart: getLastUpdate,
     lastUpdateEnd: getLastUpdate,
-    hasPrev: getHasPrev,
-    hasNext: getHasNext,
     limit: searchLimit,
-    pageIndex: getCurrentPageIndex,
+    searchUtils: utils,
 };

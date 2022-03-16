@@ -1,18 +1,26 @@
+<!-- prettier-ignore -->
+<%
+const hasPrev = typeof(searchUtils) !== "undefined" ? searchUtils.hasPrev(body._getpagesoffset) : false;
+const hasNext = typeof(searchUtils) !== "undefined" ? searchUtils.hasNext(locals) : false;
+%>
+
 <footer class="px-3 p-1 d-flex border-top">
-    <ul class="pagination flex-grow-1 mb-1">
-        <% if(typeof(hasPrev) !== "undefined" && (hasPrev || hasNext)) { %>
-        <li class="page-item<%= !hasPrev ? ' disabled' : '' %>">
+    <% if(url && url.includes('/_search')){ %>
+    <ul class="pagination mb-1">
+        <li class="page-item<%= hasPrev ? '' : ' disabled' %>">
             <button type="button" class="page-link" id="lnkPrevious">Previous</button>
         </li>
-        <li class="page-item<%= !hasNext ? ' disabled' : '' %>">
+        <li class="page-item<%= hasNext ? '' : ' disabled' %>">
             <button type="button" class="page-link" id="lnkNext">Next</button>
         </li>
-        <% } %>
     </ul>
-    <div class="small text-end pt-2">
+    <div class="px-3 pt-2"><%= searchUtils.totalMessage(locals, total) %></div>
+    <% } %>
+    <div class="flex-grow-1 small text-end pt-2">
         &copy; Copyright <%= currentYear %> b.well Connected Health
     </div>
 </footer>
 
 <script type="text/javascript" src="/js/footernav.js"></script>
 <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>

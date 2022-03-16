@@ -1,19 +1,55 @@
-<% const hasResource = typeof(resourceDefinition) !== 'undefined' %>
+<!-- prettier-ignore -->
+<% 
+const hasResource = typeof(resourceDefinition) !== 'undefined';
+const resourceName = hasResource ? resourceDefinition.name : '';
+%>
 
+<% if(url && url.includes('/_search')){ %>
 <form
-    class="search-form px-3"
-    action="/4_0_0/<%= hasResource ? resourceDefinition.name : '' %>/_search"
+    class="search-form ps-3"
+    action="/4_0_0/<%= resourceName %>/_search"
     id="searchForm"
     method="post"
 >
-    <button
-        type="button"
-        id="advSearchButton"
-        class="btn btn-light fa fa-ellipsis-v"
-        title="Advanced Search"
-        data-bs-toggle="modal"
-        data-bs-target="#advSearchModal"
-    ></button>
+    <div class="dropdown dropstart">
+        <button
+            class="btn btn-light fa fa-ellipsis-v"
+            type="button"
+            id="advSearchDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        ></button>
+
+        <div
+            class="dropdown-menu adv-search-dropdown px-2 ms-1 bg-light shadow"
+            aria-labelledby="advSearchDropdown"
+        >
+            <h5>Advanced Search</h5>
+            <% for (var i = 0; i < advSearchFormData.length; i++) { %>
+            <div class="row mb-2 flex-nowrap">
+                <label
+                    for="<%= advSearchFormData[i].name %>"
+                    class="col-sm col-form-label col-form-label-sm text-nowrap"
+                    ><%= advSearchFormData[i].label %></label
+                >
+                <div class="col-auto flex-grow-1 form-group-clear">
+                    <input
+                        type="text"
+                        id="<%= advSearchFormData[i].name %>"
+                        name="<%= advSearchFormData[i].name %>:contains"
+                        value="<%= advSearchFormData[i].value %>"
+                        class="form-control form-control-sm clear-allowed"
+                        autocomplete="nope"
+                    />
+                    <span
+                        class="fa fa-times clear-input <%= advSearchFormData[i].value !== '' ? 'showInputClearLink' : '' %>"
+                    ></span>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
     <h5 class="mt-3">
         <%= hasResource ? resourceDefinition.name : '' %>
         <a
@@ -68,13 +104,6 @@
     </div>
     <!-- prettier-ignore -->
     <% } %>
-    <% for (var i = 0; i < advSearchFormData.length; i++) { %>
-    <input
-        type="hidden"
-        name="<%= advSearchFormData[i].name %>:contains"
-        value="<%= advSearchFormData[i].value %>"
-    />
-    <% } %>
     <input type="hidden" name="identifier" />
 
     <div class="form-group">
@@ -88,64 +117,11 @@
         type="hidden"
         class="search-pagination"
         name="_getpagesoffset"
-        value="<%= pageIndex %>"
+        value="<%= searchUtils.pageIndex(body._getpagesoffset) %>"
     />
     <input type="hidden" class="search-pagination" name="_count" value="<%= limit %>" />
-    <input type="hidden" class="search-pagination" name="_total" value="estimate" />
 </form>
-
-<div class="modal fade" id="advSearchModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header py-2">
-                <h5 class="modal-title">
-                    Advanced Search - <%= hasResource ? resourceDefinition.name : '' %>
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-            </div>
-            <div class="modal-body">
-                <form id="advSearchForm">
-                    <% for (var i = 0; i < advSearchFormData.length; i++) { %>
-                    <div class="row mb-2">
-                        <label
-                            for="<%= advSearchFormData[i].name %>"
-                            class="col-sm col-form-label col-form-label-sm text-nowrap"
-                            ><%= advSearchFormData[i].label %></label
-                        >
-                        <div class="col-auto flex-grow-1 form-group-clear">
-                            <input
-                                type="text"
-                                id="<%= advSearchFormData[i].name %>"
-                                name="<%= advSearchFormData[i].name %>"
-                                value="<%= advSearchFormData[i].value %>"
-                                class="form-control form-control-sm clear-allowed"
-                                autocomplete="nope"
-                            />
-                            <span
-                                class="fa fa-times clear-input <%= advSearchFormData[i].value !== '' ? 'showInputClearLink' : '' %>"
-                            ></span>
-                        </div>
-                    </div>
-                    <% } %>
-                    <input type="submit" class="position-absolute invisible" />
-                </form>
-            </div>
-            <div class="modal-footer py-1">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                </button>
-                <button type="button" class="btn btn-primary" id="advSearchModalButton">
-                    <i class="fa fa-search"></i> Search
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script type="text/javascript" src="/js/datepicker-full.min.js"></script>
 <script type="text/javascript" src="/js/search.js"></script>
+<% } %>

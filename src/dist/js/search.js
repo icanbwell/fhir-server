@@ -12,9 +12,6 @@ const datepicker = new DateRangePicker(dateRangeElement, {
     allowOneSidedRange: true,
 });
 
-const advSearchModalButton = document.getElementById('advSearchModalButton');
-advSearchModalButton.addEventListener('click', advSearch);
-
 function advSearch(event) {
     if (event) {
         event.preventDefault();
@@ -29,9 +26,9 @@ function advSearch(event) {
 }
 
 const clearInputs = document.querySelectorAll('.clear-input');
-for (const input of clearInputs) {
+clearInputs.forEach((input) => {
     input.addEventListener('click', clearInput);
-}
+});
 
 const inputElements = document.querySelectorAll('.clear-allowed');
 for (const input of inputElements) {
@@ -57,8 +54,7 @@ function submitSearchForm(event, resetIndex = true) {
         formElement.querySelectorAll('input:not(.search-pagination)')
     ).filter((input) => input.value !== '');
     if (notEmpty.length === 0) {
-        const noSearchUrl = formElement.action.replace('/_search', '');
-        window.location.assign(noSearchUrl);
+        resetSubmit();
     } else {
         if (resetIndex) {
             formElement.querySelector('input[name="_getpagesoffset"]').value = '';
@@ -80,9 +76,5 @@ function clearInput(e) {
 }
 
 function resetSubmit() {
-    const allInputs = formElement.querySelectorAll('input');
-    allInputs.forEach((input) => {
-        input.value = '';
-    });
-    submitSearchForm(null, true);
+    window.location.assign(formElement.action);
 }
