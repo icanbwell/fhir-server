@@ -120,6 +120,7 @@ a.fa {
 }
 
 .clear-input {
+    bottom: 0px;
     color: var(--bs-danger);
     cursor: pointer;
     display: none;
@@ -127,7 +128,6 @@ a.fa {
     padding: 0.5rem 0.8rem;
     position: absolute;
     right: 0px;
-    bottom: 0px;
 }
 
 .form-group-clear {
@@ -135,8 +135,8 @@ a.fa {
 }
 
 .form-group-clear.col-auto .clear-input {
-    right: 0.7rem;
     padding: 0.3rem 0.8rem;
+    right: 0.7rem;
 }
 
 .showInputClearLink {

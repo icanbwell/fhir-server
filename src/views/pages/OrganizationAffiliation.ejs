@@ -5,27 +5,21 @@
     </head>
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
-
-        <main class="d-flex align-items-start">
-            <%- include('../partials/searchForm'); %>
-            <div class="search-results">
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
                 <!-- prettier-ignore -->
-                <%- include('../partials/noResults', {results: resources.length}); %>
-        <% resources.forEach(function(res, index){ %>
-                <div class="resource-item">
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/resourceHeader', {res: res}); %>
+                <%- include('../partials/resourceHeader', {res: res}); %>
 
-                    <h4>Active</h4>
-                    <%= res.active %>
+                <h4>Active</h4>
+                <%= res.active %>
 
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/reference', {references: [res.organization], name: "Organization"}); %>
-          <%- include('../partials/reference', {references: [res.participatingOrganization], name: "Participating Organization"}); %>
-          <%- include('../partials/json', {res: res, index: index}); %>
-                </div>
-                <%})%>
+                <!-- prettier-ignore -->
+                <%- include('../partials/reference', {references: [res.organization], name: "Organization"}); %>
+                <%- include('../partials/reference', {references: [res.participatingOrganization], name: "Participating Organization"}); %>
+                <%- include('../partials/json', {res: res, index: index}); %>
             </div>
+            <%})%>
         </main>
 
         <%- include('../partials/footer', {url: url, meta: meta}); %>

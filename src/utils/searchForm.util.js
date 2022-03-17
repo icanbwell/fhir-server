@@ -152,6 +152,16 @@ const formatDate = (dateString) => {
     return `${dateSplit[0]} ${time}`;
 };
 
+const givenNameValue = (nameObj) => {
+    if (!nameObj) {
+        return '';
+    }
+    const nameMap = nameObj.map((n) => {
+        return n.given ? n.given[0] : '';
+    });
+    return nameMap.join(', ');
+};
+
 const getFieldValue = (res, name) => {
     switch (name) {
         case '_source':
@@ -159,7 +169,7 @@ const getFieldValue = (res, name) => {
         case 'npi':
             return res.identifier ? res.identifier.map((id) => id.value).join(', ') : '';
         case 'given':
-            return res.name ? res.name.map((n) => n.given[0]).join(', ') : '';
+            return givenNameValue(res.name);
         case 'family':
             return res.name ? res.name.map((n) => n.family).join(', ') : '';
         case 'name':
@@ -168,15 +178,23 @@ const getFieldValue = (res, name) => {
     return '';
 };
 
+const isValidResource = (resource, resourceName) => {
+    if (!resource || !resourceName) {
+        return false;
+    }
+    return resource.resourceType === resourceName;
+};
+
 const getTotalMessage = (res) => {
-    const isValid =
-        res.resources.length > 0 && res.resources[0].resourceType === res.resourceDefinition.name;
     const pageIndex = getCurrentPageIndex(res.body._getpagesoffset);
     const lowCount = searchLimit * pageIndex + 1;
     const increaseCount = res.resources.length < searchLimit ? res.resources.length : searchLimit;
     const highCount = searchLimit * pageIndex + increaseCount;
     const paginationMessage = `${lowCount} to ${highCount} of found results`;
-    return isValid && res.resources.length > 0 ? paginationMessage : '';
+    return isValidResource(res.resources[0], res.resourceDefinition.name) &&
+        res.resources.length > 0
+        ? paginationMessage
+        : '';
 };
 
 const utils = {
@@ -186,6 +204,7 @@ const utils = {
     fieldValue: getFieldValue,
     totalMessage: getTotalMessage,
     pageIndex: getCurrentPageIndex,
+    validResource: isValidResource,
 };
 
 module.exports = {
