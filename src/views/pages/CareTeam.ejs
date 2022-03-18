@@ -5,70 +5,62 @@
     </head>
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
-
-        <main class="d-flex align-items-start">
-            <%- include('../partials/searchForm'); %>
-            <div class="search-results">
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
                 <!-- prettier-ignore -->
-                <%- include('../partials/noResults', {results: resources.length}); %>
-        <% resources.forEach(function(res, index){ %>
-                <div class="resource-item">
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/resourceHeader', {res: res}); %>
+                <%- include('../partials/resourceHeader', {res: res}); %>
 
-                    <h4>Name</h4>
-                    <%= res.name %>
+                <h4>Name</h4>
+                <%= res.name %>
 
-                    <h4>Status</h4>
-                    <%= res.status %>
+                <h4>Status</h4>
+                <%= res.status %>
 
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.category, name: "Category", searchParameter: 'category'}); %>
-          <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
-
-          <% if (res.participant) { %>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Member</th>
-                                <th scope="col">Role</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% res.participant.forEach(function(participant) { %>
-                            <tr>
-                                <td>
-                                    <% if (participant.member){ %>
-                                    <a href="/4_0_0/<%= participant.member.reference %>"
-                                        ><%= participant.member.reference %></a
-                                    >
-                                    <%}%>
-                                </td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (participant.role){ %>
-                    <% participant.role.forEach(function(role){%>
-                      <% if(role.coding){ %>
-                        <% role.coding.forEach(function(coding){%>
-                          <%= coding.code %> (<%= coding.display %>)
+                <!-- prettier-ignore -->
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.category, name: "Category", searchParameter: 'category'}); %>
+                <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
+                <% if (res.participant) { %>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Member</th>
+                            <th scope="col">Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% res.participant.forEach(function(participant) { %>
+                        <tr>
+                            <td>
+                                <% if (participant.member){ %>
+                                <a href="/4_0_0/<%= participant.member.reference %>"
+                                    ><%= participant.member.reference %></a
+                                >
+                                <%}%>
+                            </td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (participant.role){ %>
+                                    <% participant.role.forEach(function(role){%>
+                                        <% if(role.coding){ %>
+                                            <% role.coding.forEach(function(coding){%>
+                                                <%= coding.code %> (<%= coding.display %>)
+                                            <%})%>
+                                        <%}%>
+                                    <%})%>
+                                <%}%>
+                            </td>
+                        </tr>
                         <%})%>
-                      <%}%>
-                    <%})%>
-                  <%}%>
-                                </td>
-                            </tr>
-                            <%})%>
-                        </tbody>
-                    </table>
-                    <%}%>
+                    </tbody>
+                </table>
+                <%}%>
 
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/json', {res: res, index: index}); %>
-                </div>
-                <%})%>
+                <!-- prettier-ignore -->
+                <%- include('../partials/json', {res: res, index: index}); %>
             </div>
+            <%})%>
         </main>
-
         <%- include('../partials/footer', {url: url, meta: meta}); %>
     </body>
 </html>

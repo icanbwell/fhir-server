@@ -5,27 +5,21 @@
     </head>
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
-
         <main class="d-flex align-items-start">
-            <%- include('../partials/searchForm'); %>
-            <div class="search-results">
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
                 <!-- prettier-ignore -->
-                <%- include('../partials/noResults', {results: resources.length}); %>
-        <% resources.forEach(function(res, index){ %>
-                <div class="resource-item">
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/resourceHeader', {res: res}); %>
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.serviceCategory, name: "Service Category", searchParameter: 'service-category'}); %>
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.serviceType, name: "Service Type", searchParameter: 'service-type'}); %>
-          <%- include('../partials/reference', {references: [res.schedule], name: "Schedule"}); %>
+                <%- include('../partials/resourceHeader', {res: res}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.serviceCategory, name: "Service Category", searchParameter: 'service-category'}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.serviceType, name: "Service Type", searchParameter: 'service-type'}); %>
+                <%- include('../partials/reference', {references: [res.schedule], name: "Schedule"}); %>
 
-                    <h4>Start</h4>
-                    <%= res.start %>
-                    <h4>End</h4>
-                    <%= res.end %> <%- include('../partials/json', {res: res, index: index}); %>
-                </div>
-                <%})%>
+                <h4>Start</h4>
+                <%= res.start %>
+                <h4>End</h4>
+                <%= res.end %> <%- include('../partials/json', {res: res, index: index}); %>
             </div>
+            <%})%>
         </main>
 
         <%- include('../partials/footer', {url: url, meta: meta}); %>

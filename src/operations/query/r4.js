@@ -141,6 +141,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
     return queryParameterValue;
 }
 
+function paramMatch(fields, param) {
+    const found = fields.find((field) => field === param);
+    return found;
+}
+
 /**
  * Builds a mongo query for search parameters
  * @param {string} resourceName
@@ -428,10 +433,11 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:contains`]) {
                     and_segments.push({
-                        [`${propertyObj.field}`]: {
-                            $regex: args[`${queryParameter}:contains`],
-                            $options: 'i',
-                        },
+                        [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
+                            {
+                                $regex: args[`${queryParameter}:contains`],
+                                $options: 'i',
+                            },
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {

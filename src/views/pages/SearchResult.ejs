@@ -20,7 +20,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% resources.forEach(function(res, index){ %>
+                        <!-- prettier-ignore -->
+                        <% resources.forEach(function(res, index){%>
                         <tr class="row-click" data-identifier="<%=res.id%>">
                             <% formData.forEach(function(field){%>
                             <td><%= searchUtils.fieldValue(res,field.name) %></td>
@@ -32,7 +33,7 @@
                 </table>
                 <!-- prettier-ignore -->
                 <% } %>
-                <%- include('../partials/noResults', {results: resources.length, terms: Object.keys(body).length}); %>
+                <%- include('../partials/noResults', {options: locals}); %>
             </div>
         </main>
 

@@ -5,116 +5,117 @@
     </head>
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
+                <%- include('../partials/resourceHeader', {res: res}); %>
 
-        <main class="d-flex align-items-start">
-            <%- include('../partials/searchForm'); %>
-            <div class="search-results">
                 <!-- prettier-ignore -->
-                <%- include('../partials/noResults', {results: resources.length}); %>
-        <% resources.forEach(function(res, index){ %>
-                <div class="resource-item">
-                    <%- include('../partials/resourceHeader', {res: res}); %>
-
-                    <!-- prettier-ignore -->
-                    <% if (res.type) { %>
+                <% if (res.type) { %>
             <%- include('../partials/coding', {resourceType: res.resourceType, codings: [res.type], name: "Type", searchParameter: 'type'}); %>
           <%}%>
 
-                    <!-- prettier-ignore -->
-                    <% if (res.subtype) { %>
+                <!-- prettier-ignore -->
+                <% if (res.subtype) { %>
             <%- include('../partials/coding', {resourceType: res.resourceType, codings: res.subtype, name: "SubType", searchParameter: 'subtype'}); %>
           <%}%>
 
-                    <h4>Recorded</h4>
-                    <%= res.recorded %> <% if (res.agent) { %>
-                    <h4>Agents</h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Type</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">Who</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% res.agent.forEach(function(agent){ %>
-                            <tr>
-                                <td>
+                <h4>Recorded</h4>
+                <%= res.recorded %> <% if (res.agent) { %>
+                <h4>Agents</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Type</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Who</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% res.agent.forEach(function(agent){ %>
+                        <tr>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (agent.type && agent.type.coding && agent.type.coding.length > 0) { %><%=agent.type.coding[0].code %><%}%>
+                            </td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (agent.role && agent.role.length > 0 && agent.role[0].coding) { %><%= agent.role[0].coding[0].code %><%}%>
+                            </td>
+                            <td>
+                                <% if (agent.who) { %>
+                                <a href="/4_0_0/<%= agent.who.reference %>">
                                     <!-- prettier-ignore -->
-                                    <% if (agent.type && agent.type.coding && agent.type.coding.length > 0) { %><%=agent.type.coding[0].code %><%}%>
-                                </td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (agent.role && agent.role.length > 0 && agent.role[0].coding) { %><%= agent.role[0].coding[0].code %><%}%>
-                                </td>
-                                <td>
-                                    <% if (agent.who) { %>
-                                    <a href="/4_0_0/<%= agent.who.reference %>">
-                                        <!-- prettier-ignore -->
-                                        <% if (agent.who.display) { %><%= agent.who.display %><% } else {%><%= agent.who.reference %><% } %>
-                                    </a>
-                                    <%}%>
-                                </td>
-                            </tr>
-                            <%})%>
-                        </tbody>
-                    </table>
-                    <%}%> <% if (res.source) { %>
-                    <h4>Source</h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Site</th>
-                                <th scope="col">Observer</th>
-                                <th scope="col">Type System</th>
-                                <th scope="col">Type Code</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><% if (res.source) { %><%= res.source.site %><%}%></td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (res.source && res.source.observer) { %><%= res.source.observer.reference %><%}%>
-                                </td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (res.source && res.source.type && res.source.type.length > 0) { %><%= res.source.type[0].system %><%}%>
-                                </td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (res.source && res.source.type && res.source.type.length > 0) { %><%= res.source.type[0].code %><%}%>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <%}%> <% if (res.entity) { %>
-                    <h4>Entity</h4>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Type</th>
-                                <th scope="col">Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- prettier-ignore -->
-                            <% res.entity.forEach(function(entity){ %>
-                <% if (entity.detail) { %>
-                  <% entity.detail.forEach(function(detail){ %>
-                            <tr>
-                                <td><%= detail.type %></td>
-                                <td><%= detail.valueString %></td>
-                            </tr>
-                            <%})%> <%}%> <%})%>
-                        </tbody>
-                    </table>
-                    <%}%>
-                    <!-- prettier-ignore -->
-                    <%- include('../partials/json', {res: res, index: index}); %>
-                </div>
-                <%})%>
+                                    <% if (agent.who.display) { %><%= agent.who.display %><% } else {%><%= agent.who.reference %><% } %>
+                                </a>
+                                <%}%>
+                            </td>
+                        </tr>
+                        <%})%>
+                    </tbody>
+                </table>
+                <!-- prettier-ignore -->
+                <%}%>
+                <% if (res.source) { %>
+                <h4>Source</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Site</th>
+                            <th scope="col">Observer</th>
+                            <th scope="col">Type System</th>
+                            <th scope="col">Type Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><% if (res.source) { %><%= res.source.site %><%}%></td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (res.source && res.source.observer) { %><%= res.source.observer.reference %><%}%>
+                            </td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (res.source && res.source.type && res.source.type.length > 0) { %><%= res.source.type[0].system %><%}%>
+                            </td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (res.source && res.source.type && res.source.type.length > 0) { %><%= res.source.type[0].code %><%}%>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- prettier-ignore -->
+                <%}%>
+                <% if (res.entity) { %>
+                <h4>Entity</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Type</th>
+                            <th scope="col">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- prettier-ignore -->
+                        <% res.entity.forEach(function(entity){ %>
+                        <% if (entity.detail) { %>
+                            <% entity.detail.forEach(function(detail){ %>
+                        <tr>
+                            <td><%= detail.type %></td>
+                            <td><%= detail.valueString %></td>
+                        </tr>
+                        <!-- prettier-ignore -->
+                        <%})%>
+                        <%}%>
+                        <%})%>
+                    </tbody>
+                </table>
+                <!-- prettier-ignore -->
+                <%}%>
+                <%- include('../partials/json', {res: res, index: index}); %>
             </div>
+            <%})%>
         </main>
 
         <%- include('../partials/footer', {url: url, meta: meta}); %>
