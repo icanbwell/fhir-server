@@ -73,7 +73,6 @@ main td {
 }
 
 h2 {
-    width: calc(100vw - var(--left-nav-offset) - 7rem);
     word-wrap: break-word;
 }
 
@@ -119,6 +118,22 @@ a.fa {
     right: 0;
 }
 
+.table-sortable th {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.table-sortable th:hover {
+    color: var(--bs-teal);
+}
+
+.table-sortable th .fa {
+    color: var(--bs-teal);
+    display: inline-block;
+    margin-left: 0.5rem;
+    min-width: 1rem;
+}
+
 .clear-input {
     bottom: 0px;
     color: var(--bs-danger);
@@ -158,7 +173,7 @@ a.fa {
 
 #advSearchDropdown {
     position: absolute;
-    right: 1rem;
+    right: 0rem;
     top: 1.2rem;
 }
 
@@ -174,10 +189,10 @@ main {
 }
 
 .dox-icon:hover {
-    color: var(--bs-primary);
+    color: var(--bs-teal);
 }
 
-.row-click:hover {
+.table-hover tbody tr:hover {
     background-color: azure;
     cursor: pointer;
 }

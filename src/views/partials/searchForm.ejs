@@ -119,6 +119,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
         name="_getpagesoffset"
         value="<%= searchUtils.pageIndex(body._getpagesoffset) %>"
     />
+    <input type="hidden" class="search-pagination" name="_sort" value="<%= body._sort %>" />
     <input type="hidden" class="search-pagination" name="_count" value="<%= limit %>" />
 </form>
 
