@@ -6,6 +6,7 @@ const valueset1Resource = require('./fixtures/ValueSet/valueset1.json');
 
 // expected
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
+const expectedValueSetExpandResources = require('./fixtures/expected/expected_ValueSet_expand.json');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders, wrapResourceInBundle} = require('../../common');
@@ -32,7 +33,6 @@ describe('ValueSet Tests', () => {
             assertMergeIsSuccessful(resp.body);
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right ValueSet back
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31')
                 .set(getHeaders())
@@ -41,9 +41,19 @@ describe('ValueSet Tests', () => {
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
+            assertCompareBundles(wrapResourceInBundle(resp.body), expectedValueSetResources);
+
+            // ACT & ASSERT
+            resp = await request
+                .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31/$expand')
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response Practitioner sorted ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response sort ------------');
             // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            assertCompareBundles(wrapResourceInBundle(body), expectedValueSetResources);
+            assertCompareBundles(wrapResourceInBundle(resp.body), expectedValueSetExpandResources);
         });
     });
 });
