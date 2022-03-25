@@ -6,14 +6,14 @@
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
         <div class="container-fluid">
-            <table class="table sticky-table">
+            <table class="table sticky-table table-striped table-hover">
                 <thead>
                     <tr>
                         <th scope="col">Resource</th>
                         <th scope="col">Description</th>
                     </tr>
                 </thead>
-                <tbody class="border-0">
+                <tbody>
                     <% resources.forEach(function(resource){%>
                     <tr onclick="searchResource('<%= resource.name %>')" class="row-click">
                         <td><%= resource.name %></td>

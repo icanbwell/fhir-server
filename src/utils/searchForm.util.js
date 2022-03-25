@@ -28,6 +28,7 @@ function givenNameField(params) {
     return {
         label: 'Given (Name)',
         name: 'given',
+        sortField: 'name.given',
         value: params.given ? params.given : '',
     };
 }
@@ -36,6 +37,7 @@ function familyNameField(params) {
     return {
         label: 'Family (Name)',
         name: 'family',
+        sortField: 'name.family',
         value: params.family ? params.family : '',
     };
 }
@@ -54,6 +56,7 @@ function getPractitionerForm(params) {
     practitionerArray.push({
         label: 'NPI',
         name: 'npi',
+        sortField: 'identifier',
         value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
     });
     return practitionerArray;
@@ -64,6 +67,7 @@ function getOrganizationForm(params) {
     formElements.push({
         label: 'Name',
         name: 'name',
+        sortField: 'name',
         value: params.name ? params.name : '',
     });
     return formElements;
@@ -88,6 +92,7 @@ const getFormData = (req, resourceName) => {
     formData.push({
         label: 'Source',
         name: '_source',
+        sortField: 'meta.source',
         value: params._source ? params._source : '',
     });
 
@@ -146,7 +151,11 @@ const getLastUpdate = function (req, modifier) {
     return dateString;
 };
 
-const formatDate = (dateString) => {
+const formatDate = (res) => {
+    const dateString = res.meta && res.meta.lastUpdated ? res.meta.lastUpdated : '';
+    if (dateString === '') {
+        return '';
+    }
     const dateSplit = dateString.split('T');
     const time = dateSplit[1].substring(0, dateSplit[1].indexOf('+'));
     return `${dateSplit[0]} ${time}`;
@@ -197,6 +206,16 @@ const getTotalMessage = (res) => {
         : '';
 };
 
+const getSortIcon = (fieldName, sortField) => {
+    if (fieldName === sortField) {
+        return ' fa-sort-amount-asc';
+    }
+    if (`-${fieldName}` === sortField) {
+        return ' fa-sort-amount-desc';
+    }
+    return '';
+};
+
 const utils = {
     hasPrev: getHasPrev,
     hasNext: getHasNext,
@@ -205,6 +224,7 @@ const utils = {
     totalMessage: getTotalMessage,
     pageIndex: getCurrentPageIndex,
     validResource: isValidResource,
+    sortIcon: getSortIcon,
 };
 
 module.exports = {

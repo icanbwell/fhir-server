@@ -10,13 +10,22 @@
             <%- include('../partials/searchForm'); %>
             <div class="search-results">
                 <% if(Object.keys(body).length > 0 && resources.length > 0){ %>
-                <table class="table sticky-table">
+                <table class="table sticky-table table-striped table-hover table-sortable">
                     <thead>
                         <tr>
                             <% formData.forEach(function(field){%>
-                            <th><%= field.label %></th>
+                            <th data-field="<%= field.sortField %>">
+                                <%= field.label %><i
+                                    class="fa<%= searchUtils.sortIcon(field.sortField, body._sort) %>"
+                                ></i>
+                            </th>
                             <%})%>
-                            <th>Last Updated</th>
+                            <th data-field="meta.lastUpdated">
+                                Last Updated
+                                <i
+                                    class="fa<%= searchUtils.sortIcon('meta.lastUpdated', body._sort) %>"
+                                ></i>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -26,7 +35,7 @@
                             <% formData.forEach(function(field){%>
                             <td><%= searchUtils.fieldValue(res,field.name) %></td>
                             <%})%>
-                            <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
+                            <td><%= searchUtils.formatDate(res) %></td>
                         </tr>
                         <%})%>
                     </tbody>
