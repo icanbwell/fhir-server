@@ -11,6 +11,7 @@
             <% resources.forEach(function(res, index){ %>
             <div class="resource-item">
                 <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
                 <%- include('../partials/humanNames', {names: res.name, resourceType: res.resourceType}); %>
 
                 <div>
