@@ -94,8 +94,33 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
     }
     return query;
 };
+const getQueryWithPatientFilter = (patients, query) => {
+    const patientsQuery = {
+        'patient': {
+            '$in': patients
+        }
+    }
+    if (query.$and) {
+        query.$and.push(
+          patientsQuery
+        );
+        return query;
+    } else {
+        return {
+            $and: [
+                query,
+                patientsQuery
+            ]
+        };
+    }
+}
+const getPatientsFromUser = (user) => {
+    // todo
+}
 
 module.exports = {
     getSecurityTagsFromScope: getSecurityTagsFromScope,
-    getQueryWithSecurityTags: getQueryWithSecurityTags
+    getQueryWithSecurityTags: getQueryWithSecurityTags,
+    getQueryWithPatientFilter:  getQueryWithPatientFilter,
+    getPatientsFromUser: getPatientsFromUser
 };

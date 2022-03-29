@@ -16,6 +16,7 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
+const {getQueryWithSecurityTags, getQueryWithPatientFilter} = require("../common/getSecurityTags");
 
 
 /**
@@ -72,7 +73,6 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * @type {boolean}
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
     // Grab an instance of our DB and collection
     // noinspection JSValidateTypes
     /**
