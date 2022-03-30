@@ -200,3 +200,8 @@ main {
 .adv-search-dropdown {
     min-width: 30rem;
 }
+
+.modal-body {
+    max-height: calc(100vh - 155px);
+    overflow: auto;
+}
