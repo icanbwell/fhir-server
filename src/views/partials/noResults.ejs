@@ -1,4 +1,12 @@
-<% if (results === 0) { %>
+<!-- prettier-ignore -->
+<%
+const hasResources = options.resources.length > 0 && options.resourceName === options.resources[0].resourceType;
+const terms = Object.keys(options.body).length;
+%>
+<% if (!hasResources) { %>
 <div class="fa fa-search no-results-icon"></div>
-<div class="no-results">No Results Found</div>
+<div class="no-results">
+    <!-- prettier-ignore -->
+    <%= terms === 0 ? 'No Search Terms Provided' : 'No Results Found' %>
+</div>
 <% } %>

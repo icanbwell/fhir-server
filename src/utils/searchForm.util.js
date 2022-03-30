@@ -1,6 +1,6 @@
 const identifierUrl = 'http://hl7.org/fhir/sid/us-npi|';
-const advSearchJson = require('../graphql/v1/generator/json/definitions.json/search-parameters.json');
-const searchLimit = 10;
+const advSearchJson = require('../graphql/v2/generator/json/definitions.json/search-parameters.json');
+const searchLimit = 100;
 
 function getSearchParams(req) {
     const bodyEntries = Object.entries(req.body);
@@ -28,6 +28,7 @@ function givenNameField(params) {
     return {
         label: 'Given (Name)',
         name: 'given',
+        sortField: 'name.given',
         value: params.given ? params.given : '',
     };
 }
@@ -36,6 +37,7 @@ function familyNameField(params) {
     return {
         label: 'Family (Name)',
         name: 'family',
+        sortField: 'name.family',
         value: params.family ? params.family : '',
     };
 }
@@ -54,9 +56,21 @@ function getPractitionerForm(params) {
     practitionerArray.push({
         label: 'NPI',
         name: 'npi',
+        sortField: 'identifier',
         value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
     });
     return practitionerArray;
+}
+
+function getOrganizationForm(params) {
+    const formElements = [];
+    formElements.push({
+        label: 'Name',
+        name: 'name',
+        sortField: 'name',
+        value: params.name ? params.name : '',
+    });
+    return formElements;
 }
 
 const getFormData = (req, resourceName) => {
@@ -70,11 +84,15 @@ const getFormData = (req, resourceName) => {
         case 'Practitioner':
             formData = formData.concat(getPractitionerForm(params));
             break;
+        case 'Organization':
+            formData = formData.concat(getOrganizationForm(params));
+            break;
     }
 
     formData.push({
         label: 'Source',
         name: '_source',
+        sortField: 'meta.source',
         value: params._source ? params._source : '',
     });
 
@@ -108,20 +126,18 @@ const getAdvSearchFormData = (req, resourceName) => {
     return advFormData;
 };
 
-function getCurrentPageIndex(req) {
-    let pageIndex = req.body._getpagesoffset;
+function getCurrentPageIndex(pageIndex) {
     pageIndex = pageIndex && pageIndex !== '' ? parseInt(pageIndex) : 0;
     return pageIndex;
 }
 
-const getHasPrev = (req) => {
-    const pageIndex = getCurrentPageIndex(req);
+const getHasPrev = (pageOffset) => {
+    const pageIndex = getCurrentPageIndex(pageOffset);
     return pageIndex > 0;
 };
 
-const getHasNext = (req, total) => {
-    const pageIndex = getCurrentPageIndex(req);
-    return pageIndex * searchLimit < total - searchLimit;
+const getHasNext = (res) => {
+    return res.resources.length === searchLimit;
 };
 
 const getLastUpdate = function (req, modifier) {
@@ -135,13 +151,95 @@ const getLastUpdate = function (req, modifier) {
     return dateString;
 };
 
+const zeroPad = (number) => {
+    return number < 10 ? `0${number}` : `${number}`;
+};
+
+const formatDate = (dateString) => {
+    if (dateString === '') {
+        return '';
+    }
+    const dateObj = new Date(dateString);
+    return `${dateObj.getFullYear()}-${zeroPad(dateObj.getMonth() + 1)}-${zeroPad(
+        dateObj.getDate()
+    )} 
+        ${zeroPad(dateObj.getHours())}:${zeroPad(dateObj.getMinutes())}
+        `;
+};
+
+const givenNameValue = (nameObj) => {
+    if (!nameObj) {
+        return '';
+    }
+    const nameMap = nameObj.map((n) => {
+        return n.given ? n.given[0] : '';
+    });
+    return nameMap.join(', ');
+};
+
+const getFieldValue = (res, name) => {
+    switch (name) {
+        case '_source':
+            return res.meta && res.meta.source ? res.meta.source : '';
+        case 'npi':
+            return res.identifier ? res.identifier.map((id) => id.value).join(', ') : '';
+        case 'given':
+            return givenNameValue(res.name);
+        case 'family':
+            return res.name ? res.name.map((n) => n.family).join(', ') : '';
+        case 'name':
+            return res.name ? res.name : '';
+    }
+    return '';
+};
+
+const isValidResource = (resource, resourceName) => {
+    if (!resource || !resourceName) {
+        return false;
+    }
+    return resource.resourceType === resourceName;
+};
+
+const getTotalMessage = (res) => {
+    if (
+        res.resources.length === 0 ||
+        !isValidResource(res.resources[0], res.resourceDefinition.name)
+    ) {
+        return '';
+    }
+    const pageIndex = getCurrentPageIndex(res.body._getpagesoffset);
+    const lowCount = searchLimit * pageIndex + 1;
+    const increaseCount = res.resources.length < searchLimit ? res.resources.length : searchLimit;
+    const highCount = searchLimit * pageIndex + increaseCount;
+    return `${lowCount} to ${highCount} of found results`;
+};
+
+const getSortIcon = (fieldName, sortField) => {
+    if (fieldName === sortField) {
+        return ' fa-sort-amount-asc';
+    }
+    if (`-${fieldName}` === sortField) {
+        return ' fa-sort-amount-desc';
+    }
+    return '';
+};
+
+const utils = {
+    hasPrev: getHasPrev,
+    hasNext: getHasNext,
+    formatDate: formatDate,
+    fieldValue: getFieldValue,
+    totalMessage: getTotalMessage,
+    pageIndex: getCurrentPageIndex,
+    validResource: isValidResource,
+    sortIcon: getSortIcon,
+};
+
 module.exports = {
     advSearchFormData: getAdvSearchFormData,
     searchFormData: getFormData,
     lastUpdateStart: getLastUpdate,
     lastUpdateEnd: getLastUpdate,
-    hasPrev: getHasPrev,
-    hasNext: getHasNext,
     limit: searchLimit,
-    pageIndex: getCurrentPageIndex,
+    searchUtils: utils,
 };

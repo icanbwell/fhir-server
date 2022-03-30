@@ -1,71 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Patient</title>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <title>Patient</title>
+        <%- include('../partials/head'); %>
+    </head>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <!-- prettier-ignore -->
-        <%- include('../partials/noResults', {results: resources.length}); %>
-        <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
-          <%- include('../partials/humanNames', {names: res.name, resourceType: res.resourceType}); %>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
+                <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
+                <%- include('../partials/humanNames', {names: res.name, resourceType: res.resourceType}); %>
 
-          <div>
-            <h4>Gender</h4>
-            <%= res.gender %>
-          </div>
+                <div>
+                    <h4>Gender</h4>
+                    <%= res.gender %>
+                </div>
 
-          <% if (res.birthDate) {%>
-          <div>
-            <h4>BirthDate</h4>
-            <a
-              title="Search for <%= res.birthDate %>"
-              href="/4_0_0/<%= res.resourceType %>?birthdate=<%= res.birthDate %>"
-              ><%= res.birthDate %></a
-            >
-          </div>
-          <%}%> <% if (res.generalPractitioner) { %>
-          <div>
-            <h4>General Practitioners</h4>
-            <% res.generalPractitioner.forEach(function(generalPractitioner){ %>
-            <div>
-              <a href="/4_0_0/<%= generalPractitioner.reference %>"
-                ><%= generalPractitioner.display %></a
-              >
+                <% if (res.birthDate) {%>
+                <div>
+                    <h4>BirthDate</h4>
+                    <a
+                        title="Search for <%= res.birthDate %>"
+                        href="/4_0_0/<%= res.resourceType %>?birthdate=<%= res.birthDate %>"
+                    >
+                        <%= res.birthDate %>
+                    </a>
+                </div>
+                <!-- prettier-ignore -->
+                <%}%>
+                <% if (res.generalPractitioner) { %>
+                <div>
+                    <h4>General Practitioners</h4>
+                    <% res.generalPractitioner.forEach(function(generalPractitioner){ %>
+                    <div>
+                        <a href="/4_0_0/<%= generalPractitioner.reference %>">
+                            <%= generalPractitioner.display %>
+                        </a>
+                    </div>
+                    <%})%>
+                </div>
+                <%}%>
+                <!-- prettier-ignore -->
+                <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom" }); %>
+                <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:res.id, name: "Account" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Appointment', property:'patient'}], id:res.id, name: "Appointment" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AuditEvent', property:'patient'}], id:res.id, name: "AuditEvent" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'CareTeam', property:'patient'}], id:res.id, name: "CareTeam" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Condition', property:'patient'}], id:res.id, name: "Condition" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ChargeItem', property:'patient'}], id:res.id, name: "ChargeItem" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Coverage', property:'patient'}], id:res.id, name: "Coverage" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Encounter', property:'patient'}], id:res.id, name: "Encounter" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:res.id, name: "Observation" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:res.id, name: "ExplanationOfBenefit" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:res.id, name: "MeasureReport" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:res.id, name: "Person" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:res.id, name: "Schedule" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:res.id, name: "ServiceRequest" }); %>
+                <%- include('../partials/json', {res: res, index: index}); %>
             </div>
             <%})%>
-          </div>
-          <%}%>
-          <!-- prettier-ignore -->
-          <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom"}); %> <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:res.id, name: "Account"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Appointment', property:'patient'}], id:res.id, name: "Appointment"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AuditEvent', property:'patient'}], id:res.id, name: "AuditEvent"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'CareTeam', property:'patient'}], id:res.id, name: "CareTeam"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Condition', property:'subject'}], id:res.id, name: "Condition"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ChargeItem', property:'patient'}], id:res.id, name: "ChargeItem"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Coverage', property:'patient'}], id:res.id, name: "Coverage"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Encounter', property:'patient'}], id:res.id, name: "Encounter"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:res.id, name: "Observation"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:res.id, name: "ExplanationOfBenefit"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:res.id, name: "MeasureReport"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:res.id, name: "Person"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'actor'}], id:res.id, name: "Schedule"}); %>
-          <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:res.id, name: "ServiceRequest"}); %>
-          <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
-
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        </main>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

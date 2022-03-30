@@ -7,10 +7,8 @@ const {
     advSearchFormData,
     lastUpdateStart,
     lastUpdateEnd,
-    hasNext,
-    hasPrev,
-    pageIndex,
     limit,
+    searchUtils,
 } = require('../utils/searchForm.util');
 
 const htmlRenderer = (req, res, next) => {
@@ -53,6 +51,7 @@ const htmlRenderer = (req, res, next) => {
                     meta: meta,
                     resources: parsedData,
                     url: req.url,
+                    body: req.body,
                     idpUrl: env.AUTH_CODE_FLOW_URL,
                     clientId: env.AUTH_CODE_FLOW_CLIENT_ID,
                     total: total,
@@ -64,14 +63,17 @@ const htmlRenderer = (req, res, next) => {
                     currentYear: new Date().getFullYear(),
                     lastUpdateStart: lastUpdateStart(req, 'above'),
                     lastUpdateEnd: lastUpdateEnd(req, 'below'),
-                    hasNext: hasNext(req, total),
-                    hasPrev: hasPrev(req),
-                    pageIndex: pageIndex(req),
                     limit: limit,
+                    searchUtils: searchUtils,
+                    searchMethod: req.method,
                 };
 
                 if (resourceDefinition) {
-                    return res.render(__dirname + '/../views/pages/' + resourceName, options);
+                    if (req.url && req.url.includes('/_search')) {
+                        return res.render(__dirname + '/../views/pages/SearchResult', options);
+                    } else {
+                        return res.render(__dirname + '/../views/pages/' + resourceName, options);
+                    }
                 } else {
                     return res.render(__dirname + '/../views/pages/index', options);
                 }

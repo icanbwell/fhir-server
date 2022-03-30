@@ -24,7 +24,8 @@ if (prevLink) {
 }
 
 const currentPageOffset = () => {
-    return pageOffsetInput.value !== '' ? parseInt(pageOffsetInput.value) : 0;
+    const parsedValue = parseInt(pageOffsetInput.value);
+    return isNaN(parsedValue) ? 0 : parsedValue;
 };
 
 function goNext() {
