@@ -115,11 +115,13 @@ services:
 
   mongo-test:
     image: mongo:4.4.8
-    command: mongod --port 27017
+    command:  bash -c "mongod --port 27017"
     ports:
       - '27018:27017'
     volumes:
       - mongo_test_data:/data/db
+      - ./backup:/data/backup
+
 
 #  mongoclient:
 #    image: imranq2/mongoclient-aws:0.1.8
@@ -131,3 +133,5 @@ services:
 volumes:
   mongo_data:
   mongo_test_data:
+  mongo_backup_data:
+
