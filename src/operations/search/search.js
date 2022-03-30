@@ -172,7 +172,13 @@ async function handleTwoStepSearchOptimization(
     options['projection'] = projection;
     originalQuery = [query];
     originalOptions = [options];
-    let idResults = await collection.find(query, options).maxTimeMS(maxMongoTimeMS).toArray();
+    const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+
+    let idResults = await collection
+        .find(query, options)
+        .sort(sortOption)
+        .maxTimeMS(maxMongoTimeMS)
+        .toArray();
     if (idResults.length > 0) {
         // now get the documents for those ids.  We can clear all the other query parameters
         query = { id: { $in: idResults.map((r) => r.id) } };
@@ -621,7 +627,12 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             /**
              * @type {Cursor<unknown> | *}
              */
-            let cursorQuery = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+            const sortOption =
+                originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+            let cursorQuery = await collection
+                .find(query, options)
+                .sort(sortOption)
+                .maxTimeMS(maxMongoTimeMS);
 
             // set batch size if specified
             if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
