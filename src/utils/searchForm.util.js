@@ -28,7 +28,7 @@ function givenNameField(params) {
     return {
         label: 'Given (Name)',
         name: 'given',
-        sortField: 'name.given',
+        sortField: 'name',
         value: params.given ? params.given : '',
     };
 }
