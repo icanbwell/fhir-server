@@ -151,14 +151,20 @@ const getLastUpdate = function (req, modifier) {
     return dateString;
 };
 
-const formatDate = (res) => {
-    const dateString = res.meta && res.meta.lastUpdated ? res.meta.lastUpdated : '';
+const zeroPad = (number) => {
+    return number < 10 ? `0${number}` : `${number}`;
+};
+
+const formatDate = (dateString) => {
     if (dateString === '') {
         return '';
     }
-    const dateSplit = dateString.split('T');
-    const time = dateSplit[1].substring(0, dateSplit[1].indexOf('+'));
-    return `${dateSplit[0]} ${time}`;
+    const dateObj = new Date(dateString);
+    return `${dateObj.getFullYear()}-${zeroPad(dateObj.getMonth() + 1)}-${zeroPad(
+        dateObj.getDate()
+    )} 
+        ${zeroPad(dateObj.getHours())}:${zeroPad(dateObj.getMinutes())}
+        `;
 };
 
 const givenNameValue = (nameObj) => {

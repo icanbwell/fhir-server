@@ -35,7 +35,7 @@
                             <% formData.forEach(function(field){%>
                             <td><%= searchUtils.fieldValue(res,field.name) %></td>
                             <%})%>
-                            <td><%= searchUtils.formatDate(res) %></td>
+                            <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
                         </tr>
                         <%})%>
                     </tbody>
