@@ -201,15 +201,17 @@ const isValidResource = (resource, resourceName) => {
 };
 
 const getTotalMessage = (res) => {
+    if (
+        res.resources.length === 0 ||
+        !isValidResource(res.resources[0], res.resourceDefinition.name)
+    ) {
+        return '';
+    }
     const pageIndex = getCurrentPageIndex(res.body._getpagesoffset);
     const lowCount = searchLimit * pageIndex + 1;
     const increaseCount = res.resources.length < searchLimit ? res.resources.length : searchLimit;
     const highCount = searchLimit * pageIndex + increaseCount;
-    const paginationMessage = `${lowCount} to ${highCount} of found results`;
-    return isValidResource(res.resources[0], res.resourceDefinition.name) &&
-        res.resources.length > 0
-        ? paginationMessage
-        : '';
+    return `${lowCount} to ${highCount} of found results`;
 };
 
 const getSortIcon = (fieldName, sortField) => {
