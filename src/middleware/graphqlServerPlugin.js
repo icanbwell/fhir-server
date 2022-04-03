@@ -2,7 +2,10 @@
 //     ApolloServerPlugin,
 // } = 'apollo-server-plugin-base';
 
-class MyApolloServerPlugin {
+class BundleMetaApolloServerPlugin {
+    /**
+     * This plugin set the meta from each query into the results to provide debugging information
+     */
     constructor() {
     }
 
@@ -47,13 +50,13 @@ class MyApolloServerPlugin {
     }
 }
 
-const getMyApolloServerPlugin = () => {
-    return new MyApolloServerPlugin();
+const getBundleMetaApolloServerPlugin = () => {
+    return new BundleMetaApolloServerPlugin();
 };
 
 module.exports = {
-    MyApolloServerPlugin: MyApolloServerPlugin,
-    getMyApolloServerPlugin: getMyApolloServerPlugin
+    BundleMetaApolloServerPlugin: BundleMetaApolloServerPlugin,
+    getBundleMetaApolloServerPlugin: getBundleMetaApolloServerPlugin
 };
 
 

@@ -11,6 +11,7 @@ const {
     ApolloServerPluginLandingPageGraphQLPlayground,
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
+const {getApolloServerLoggingPlugin} = require("./graphqlLoggingPlugin");
 
 
 const graphql = async () => {
@@ -37,6 +38,7 @@ const graphql = async () => {
                         faviconUrl: '',
                     }
                 ),
+                getApolloServerLoggingPlugin('graphqlv1')
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
