@@ -3,19 +3,23 @@
  */
 const {ApolloServer} = require('apollo-server-express');
 const {join} = require('path');
-const resolvers = require('../graphql/v1/resolvers');
+const resolvers = require('../../graphql/v2/resolvers');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
+const {FhirDataSource} = require('../../graphql/v2/dataSource');
 
 const {
     ApolloServerPluginLandingPageGraphQLPlayground,
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
-const {getApolloServerLoggingPlugin} = require('./graphqlLoggingPlugin');
+const {getRequestInfo} = require('../../graphql/v2/requestInfoHelper');
+const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlServerPlugin');
+const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+
 
 
 const graphql = async () => {
-    const typesArray = loadFilesSync(join(__dirname, '../graphql/v1/schemas/'), {recursive: true});
+    const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
     const server = new ApolloServer(
@@ -38,13 +42,12 @@ const graphql = async () => {
                         faviconUrl: '',
                     }
                 ),
-                getApolloServerLoggingPlugin('graphqlv1')
+                getBundleMetaApolloServerPlugin(),
+                getApolloServerLoggingPlugin('graphqlv2')
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
-                return {
-                    req,
-                    res,
+                const requestInfo = {
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username)
                         || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
                         || req.user,
@@ -54,15 +57,21 @@ const graphql = async () => {
                     originalUrl: req.originalUrl,
                     path: req.path,
                     host: req.hostname,
-                    body: req.body
+                    body: req.body,
+                };
+                return {
+                    req,
+                    res,
+                    ...requestInfo,
+                    dataApi: new FhirDataSource(getRequestInfo(requestInfo))
                 };
             }
         });
 
-    // apollo requires us to start the sever first
+    // apollo requires us to start the server first
     await server.start();
 
     return server.getMiddleware({path: '/'});
 };
 
-module.exports.graphqlv1 = graphql;
+module.exports.graphql = graphql;

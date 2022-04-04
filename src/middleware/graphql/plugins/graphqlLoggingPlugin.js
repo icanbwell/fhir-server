@@ -1,4 +1,4 @@
-const {logRequest, logError} = require('../operations/common/logging');
+const {logRequest, logError} = require('../../../operations/common/logging');
 
 /***
  * Plugin to log calls to GraphQL
