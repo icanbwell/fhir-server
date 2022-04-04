@@ -45,6 +45,7 @@ services:
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
+      - ./yarn.lock:./yarn.lock
     command: npm run dev
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
