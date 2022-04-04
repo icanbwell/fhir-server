@@ -3,7 +3,7 @@
  */
 const {ApolloServer} = require('apollo-server-express');
 const {join} = require('path');
-const resolvers = require('../graphql/v1/resolvers');
+const resolvers = require('../../graphql/v1/resolvers');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 
@@ -11,10 +11,11 @@ const {
     ApolloServerPluginLandingPageGraphQLPlayground,
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
+const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 
 
 const graphql = async () => {
-    const typesArray = loadFilesSync(join(__dirname, '../graphql/v1/schemas/'), {recursive: true});
+    const typesArray = loadFilesSync(join(__dirname, '../../graphql/v1/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
     const server = new ApolloServer(
@@ -37,6 +38,7 @@ const graphql = async () => {
                         faviconUrl: '',
                     }
                 ),
+                getApolloServerLoggingPlugin('graphqlv1')
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {

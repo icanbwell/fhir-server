@@ -9,8 +9,8 @@ const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const {graphqlv1} = require('./middleware/graphqlServer1');
-const {graphql} = require('./middleware/graphqlServer');
+const {graphqlv1} = require('./middleware/graphql/graphqlServer1');
+const {graphql} = require('./middleware/graphql/graphqlServer');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
 const passport = require('passport');

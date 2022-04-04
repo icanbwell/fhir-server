@@ -29,7 +29,7 @@ services:
       MAX_INDEX_NAME_LENGTH: 65
       ENV: foo
       MONGO_TIMEOUT: 30000
-      LOGLEVEL: "DEBUG"
+      LOGLEVEL: "INFO"
       ENABLE_GRAPHQL: 1
       NODE_ENV: "development"
       EXTERNAL_AUTH_JWKS_URLS: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json"
