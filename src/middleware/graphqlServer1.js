@@ -11,7 +11,7 @@ const {
     ApolloServerPluginLandingPageGraphQLPlayground,
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
-const {getApolloServerLoggingPlugin} = require("./graphqlLoggingPlugin");
+const {getApolloServerLoggingPlugin} = require('./graphqlLoggingPlugin');
 
 
 const graphql = async () => {

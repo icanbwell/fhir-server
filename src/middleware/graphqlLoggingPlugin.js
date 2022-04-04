@@ -26,9 +26,7 @@ class MyApolloServerLoggingPlugin {
      */
     async requestDidStart(requestContext) {
         const req = requestContext.request;
-        const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username)
-            || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
-            || req.user;
+        const user = requestContext.context ? requestContext.context.user : null;
         logRequest(user, `GraphQL Request ${this.endpoint} Op:${req.operationName}, query:${req.query}`);
 
         return {
