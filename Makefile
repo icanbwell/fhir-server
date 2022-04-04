@@ -1,4 +1,4 @@
-NODE_VERSION=16.14.0
+NODE_VERSION=16.14.2
 
 .PHONY:build
 build:
@@ -63,6 +63,7 @@ init:
 .PHONY:update
 update:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm install --global yarn && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
