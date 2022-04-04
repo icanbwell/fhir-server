@@ -13,7 +13,7 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 const {getRequestInfo} = require('../../graphql/v2/requestInfoHelper');
-const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlServerPlugin');
+const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 
 
