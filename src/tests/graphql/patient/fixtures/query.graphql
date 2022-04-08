@@ -22,5 +22,17 @@ query my_patient {
                 text
             }
         }
+        careTeam {
+            id
+            resourceType
+            category {
+                coding {
+                    system
+                    code
+                }
+            }
+            name
+            status
+        }
     }
 }
