@@ -1,29 +1,29 @@
 const globals = require('../../globals');
-const { CLIENT_DB } = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
-const { MongoError } = require('../../utils/mongoErrors');
+const {MongoError} = require('../../utils/mongoErrors');
 const {
     verifyHasValidScopes,
     isAccessToResourceAllowedBySecurityTags,
 } = require('../security/scopes');
-const { buildR4SearchQuery } = require('../query/r4');
-const { buildDstu2SearchQuery } = require('../query/dstu2');
-const { buildStu3SearchQuery } = require('../query/stu3');
-const { getResource } = require('../common/getResource');
-const { logRequest, logDebug, logError } = require('../common/logging');
-const { enrich } = require('../../enrich/enrich');
-const { findIndexForFields } = require('../../indexes/indexHinter');
-const { isTrue } = require('../../utils/isTrue');
+const {buildR4SearchQuery} = require('../query/r4');
+const {buildDstu2SearchQuery} = require('../query/dstu2');
+const {buildStu3SearchQuery} = require('../query/stu3');
+const {getResource} = require('../common/getResource');
+const {logRequest, logDebug, logError} = require('../common/logging');
+const {enrich} = require('../../enrich/enrich');
+const {findIndexForFields} = require('../../indexes/indexHinter');
+const {isTrue} = require('../../utils/isTrue');
 const pRetry = require('p-retry');
-const { logMessageToSlack } = require('../../utils/slack.logger');
-const { removeNull } = require('../../utils/nullRemover');
-const { logAuditEntry } = require('../../utils/auditLogger');
-const { getSecurityTagsFromScope, getQueryWithSecurityTags } = require('../common/getSecurityTags');
+const {logMessageToSlack} = require('../../utils/slack.logger');
+const {removeNull} = require('../../utils/nullRemover');
+const {logAuditEntry} = require('../../utils/auditLogger');
+const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const deepcopy = require('deepcopy');
-const { searchOld } = require('./searchOld');
-const { VERSIONS } = require('@asymmetrik/node-fhir-server-core').constants;
-const { limit } = require('../../utils/searchForm.util');
+const {searchOld} = require('./searchOld');
+const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+const {limit} = require('../../utils/searchForm.util');
 
 /**
  * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
@@ -64,7 +64,7 @@ function handleElementsQuery(args, columns, resourceName, options) {
         options['projection'] = projection;
     }
 
-    return { columns: columns, options: options };
+    return {columns: columns, options: options};
 }
 
 /**
@@ -107,7 +107,7 @@ function handleSortQuery(args, columns, options) {
         }
         options['sort'] = sort;
     }
-    return { columns: columns, options: options };
+    return {columns: columns, options: options};
 }
 
 /**
@@ -132,7 +132,7 @@ function handleCountOption(args, options) {
     }
     options['limit'] = nPerPage;
 
-    return { options: options };
+    return {options: options};
 }
 
 /**
@@ -181,7 +181,7 @@ async function handleTwoStepSearchOptimization(
         .toArray();
     if (idResults.length > 0) {
         // now get the documents for those ids.  We can clear all the other query parameters
-        query = { id: { $in: idResults.map((r) => r.id) } };
+        query = {id: {$in: idResults.map((r) => r.id)}};
         // query = getQueryWithSecurityTags(securityTags, query);
         options = {}; // reset options since we'll be looking by id
         originalQuery.push(query);
@@ -190,7 +190,7 @@ async function handleTwoStepSearchOptimization(
         // no results
         query = null; //no need to query
     }
-    return { options, originalQuery, query, originalOptions };
+    return {options, originalQuery, query, originalOptions};
 }
 
 /**
@@ -206,7 +206,7 @@ function setCursorBatchSize(args, cursorQuery) {
     if (cursorBatchSize > 0) {
         cursorQuery = cursorQuery.batchSize(cursorBatchSize);
     }
-    return { cursorBatchSize, cursorQuery };
+    return {cursorBatchSize, cursorQuery};
 }
 
 /**
@@ -227,7 +227,7 @@ function setIndexHint(indexHint, mongoCollectionName, columns, cursor, user) {
             `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`
         );
     }
-    return { indexHint, cursor };
+    return {indexHint, cursor};
 }
 
 /**
@@ -243,9 +243,9 @@ async function handleGetTotals(args, collection, query, maxMongoTimeMS) {
     // if _total is passed then calculate the total count for matching records also
     // don't use the options since they set a limit and skip
     if (args['_total'] === 'estimate') {
-        return await collection.estimatedDocumentCount(query, { maxTimeMS: maxMongoTimeMS });
+        return await collection.estimatedDocumentCount(query, {maxTimeMS: maxMongoTimeMS});
     } else {
-        return await collection.countDocuments(query, { maxTimeMS: maxMongoTimeMS });
+        return await collection.countDocuments(query, {maxTimeMS: maxMongoTimeMS});
     }
 }
 
@@ -373,7 +373,7 @@ function createBundle(
      * @type {{resource: Resource}[]}
      */
     const entries = resources.map((resource) => {
-        return { resource: resource };
+        return {resource: resource};
     });
     const bundle = new Bundle({
         type: 'searchset',
@@ -472,7 +472,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     /**
      * @type {string}
      */
-    let { base_version } = args;
+    let {base_version} = args;
     /**
      * @type {import('mongodb').Document}
      */
@@ -490,7 +490,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({ query, columns } = buildR4SearchQuery(resourceName, args));
+            ({query, columns} = buildR4SearchQuery(resourceName, args));
         }
     } catch (e) {
         throw e;
@@ -503,7 +503,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = globals.get(CLIENT_DB);
+    let db = ((isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas'])) && globals.has(ATLAS_CLIENT_DB))
+        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */

@@ -7,8 +7,9 @@ const {app, fhirApp} = require('./app');
 const asyncHandler = require('./lib/async-handler');
 const mongoClient = require('./lib/mongo');
 const globals = require('./globals');
-const {fhirServerConfig, mongoConfig} = require('./config');
-const {CLIENT, CLIENT_DB} = require('./constants');
+const {fhirServerConfig, mongoConfig, atlasMongoConfig} = require('./config');
+const {CLIENT, CLIENT_DB, ATLAS_CLIENT, ATLAS_CLIENT_DB} = require('./constants');
+const env = require('var');
 
 const main = async function () {
     // Connect to mongo and pass any options here
@@ -21,9 +22,23 @@ const main = async function () {
         console.error(mongoConfig.connection);
         process.exit(1);
     }
-
     globals.set(CLIENT, client);
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
+
+    if (env.ATLAS_MONGO_URL) {
+        let [atlasMongoErr, atlasClient] = await asyncHandler(
+            mongoClient(atlasMongoConfig.connection, atlasMongoConfig.options)
+        );
+
+        if (atlasMongoErr) {
+            console.error(atlasMongoErr.message);
+            console.error(atlasMongoConfig.connection);
+            process.exit(1);
+        }
+        globals.set(ATLAS_CLIENT, atlasClient);
+        globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
+    }
+
 
     const server = app.listen(fhirServerConfig.server.port, () =>
         fhirApp.logger.verbose('Server is up and running!')
