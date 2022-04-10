@@ -303,6 +303,7 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {string} indexHint
  * @param {number | null} cursorBatchSize
  * @param {string | null} user
+ * @param {boolean | null} useAtlas
  * @return {Resource}
  */
 function createBundle(
@@ -320,7 +321,8 @@ function createBundle(
     useTwoStepSearchOptimization,
     indexHint,
     cursorBatchSize,
-    user
+    user,
+    useAtlas
 ) {
     /**
      * array of links
@@ -416,6 +418,12 @@ function createBundle(
                 code: indexHint,
             });
         }
+        if (useAtlas) {
+            tag.push({
+                system: 'https://www.icanbwell.com/queryUseAtlas',
+                code: useAtlas,
+            });
+        }
         if (cursorBatchSize !== null && cursorBatchSize > 0) {
             tag.push({
                 system: 'https://www.icanbwell.com/queryCursorBatchSize',
@@ -497,13 +505,18 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     }
     query = getQueryWithSecurityTags(securityTags, query);
 
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
     // Grab an instance of our DB and collection
     // noinspection JSValidateTypes
     /**
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = ((isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas'])) && globals.has(ATLAS_CLIENT_DB))
+    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
         ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
@@ -731,7 +744,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                 useTwoStepSearchOptimization,
                 indexHint,
                 cursorBatchSize,
-                user
+                user,
+                useAtlas
             );
         } else {
             return resources;
