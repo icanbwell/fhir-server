@@ -711,15 +711,17 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         resources = await enrich(resources, resourceName);
 
         if (resources.length > 0) {
-            // log access to audit logs
-            await logAuditEntry(
-                requestInfo,
-                base_version,
-                resourceName,
-                'read',
-                args,
-                resources.map((r) => r['id'])
-            );
+            if (resourceName !== 'AuditEvent') {
+                // log access to audit logs
+                await logAuditEntry(
+                    requestInfo,
+                    base_version,
+                    resourceName,
+                    'read',
+                    args,
+                    resources.map((r) => r['id'])
+                );
+            }
         }
 
         /**

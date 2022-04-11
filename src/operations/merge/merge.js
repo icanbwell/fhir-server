@@ -453,8 +453,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         let id = resource_to_merge.id;
 
-        if (resource_to_merge.meta && resource_to_merge.meta.lastUpdated && typeof resource_to_merge.meta.lastUpdated !== 'string')
-        {
+        if (resource_to_merge.meta && resource_to_merge.meta.lastUpdated && typeof resource_to_merge.meta.lastUpdated !== 'string') {
             resource_to_merge.meta.lastUpdated = new Date(resource_to_merge.meta.lastUpdated).toISOString();
         }
 
@@ -619,10 +618,14 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
             const createdItems = returnVal.filter(r => r['created'] === true);
             const updatedItems = returnVal.filter(r => r['updated'] === true);
             if (createdItems && createdItems.length > 0) {
-                await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
+                if (resource_name !== 'AuditEvent') {
+                    await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
+                }
             }
             if (updatedItems && updatedItems.length > 0) {
-                await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
+                if (resource_name !== 'AuditEvent') {
+                    await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
+                }
             }
         }
 

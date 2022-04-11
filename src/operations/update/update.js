@@ -201,8 +201,10 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         // Insert our resource record to history but don't assign _id
         await history_collection.insertOne(history_resource);
 
-        // log access to audit logs
-        await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [resource_incoming['id']]);
+        if (resource_name !== 'AuditEvent') {
+            // log access to audit logs
+            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [resource_incoming['id']]);
+        }
 
         return {
             id: id,
