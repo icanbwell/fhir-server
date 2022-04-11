@@ -25,6 +25,24 @@
         ]
       }
     ],
+    "careTeam": [
+      {
+        "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+        "resourceType": "CareTeam",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "www.icanbwell.com/care-team-category",
+                "code": "favorite-practitioners"
+              }
+            ]
+          }
+        ],
+        "name": "Favorites",
+        "status": "active"
+      }
+    ],
     "id": "WPS-0559166162",
     "name": [
       {
@@ -49,6 +67,7 @@
         ]
       }
     ],
+    "careTeam": [],
     "id": "WPS-5458231534",
     "name": [
       {

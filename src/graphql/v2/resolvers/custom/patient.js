@@ -77,6 +77,18 @@ module.exports = {
                 'CarePlan'
             );
         },
+        careTeam: async (parent, args, context, info) => {
+            return await context.dataApi.getResources(
+                parent,
+                {
+                    ...args,
+                    'patient': parent.id,
+                },
+                context,
+                info,
+                'CareTeam'
+            );
+        },
     },
     Mutation: {
         updateGeneralPractitioner:
