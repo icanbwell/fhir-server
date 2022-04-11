@@ -45,18 +45,22 @@ services:
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
-      - ./yarn.lock:./yarn.lock
+      - ./yarn.lock:/srv/src/yarn.lock
     command: npm run dev
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
 
   mongo:
-    image: mongo:4.4.8
-    command: mongod --port 27017
+#    image: docker.io/bitnami/mongodb:4.4.9
+    image: mongo:4.4.12
     ports:
       - '27017:27017'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
 #  mongoclient:
 #    image: imranq2/mongoclient-aws:0.1.1

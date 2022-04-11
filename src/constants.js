@@ -4,7 +4,9 @@
  */
 module.exports = {
   CLIENT: 'client',
+  ATLAS_CLIENT: 'atlasClient',
   CLIENT_DB: 'client_db',
+  ATLAS_CLIENT_DB: 'atlasClient_db',
   COLLECTION: {
     ACCOUNT: 'Account',
     ACTIVITYDEFINITION: 'ActivityDefinition',
