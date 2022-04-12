@@ -63,7 +63,7 @@ services:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
 #  mongoclient:
-#    image: imranq2/mongoclient-aws:0.1.1
+#    image: imranq2/mongoclient-aws:0.1.8
 #    ports:
 #      - '3010:3000'
 #    environment:

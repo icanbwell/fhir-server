@@ -22,6 +22,8 @@ const main = async function () {
         console.error(mongoConfig.connection);
         process.exit(1);
     }
+    client.db('admin').command({ping: 1});
+
     globals.set(CLIENT, client);
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
 
@@ -35,6 +37,7 @@ const main = async function () {
             console.error(atlasMongoConfig.connection);
             process.exit(1);
         }
+        atlasClient.db('admin').command({ping: 1});
         globals.set(ATLAS_CLIENT, atlasClient);
         globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
     }
