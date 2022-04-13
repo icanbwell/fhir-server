@@ -601,7 +601,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         const useTwoStepSearchOptimization =
             !args['_elements'] &&
             !args['id'] &&
-            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization'])
+            && !useAtlas;
         if (useTwoStepSearchOptimization) {
             const __ret = await handleTwoStepSearchOptimization(
                 options,
@@ -641,12 +642,18 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             /**
              * @type {Cursor<unknown> | *}
              */
-            // const sortOption =
-            //     originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
             let cursorQuery = await collection
                 .find(query, options)
-                // .sort(sortOption)
                 .maxTimeMS(maxMongoTimeMS);
+
+            // avoid double sorting since Mongo gives you different results
+            if (useTwoStepSearchOptimization && !options['sort']) {
+                const sortOption =
+                    originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
+                if (sortOption !== null) {
+                    cursorQuery = cursorQuery.sort(sortOption);
+                }
+            }
 
             // set batch size if specified
             if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
@@ -656,6 +663,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             }
             /**
              * mongo db cursor
+             * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
              * @type {Promise<Cursor<unknown>> | *}
              */
             let cursor = await pRetry(async () => await cursorQuery, {
