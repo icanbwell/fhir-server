@@ -641,11 +641,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             /**
              * @type {Cursor<unknown> | *}
              */
-            const sortOption =
-                originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+            // const sortOption =
+            //     originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
             let cursorQuery = await collection
                 .find(query, options)
-                .sort(sortOption)
+                // .sort(sortOption)
                 .maxTimeMS(maxMongoTimeMS);
 
             // set batch size if specified
