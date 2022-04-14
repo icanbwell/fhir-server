@@ -25,7 +25,8 @@ let mongoConfig = {
         keepAlive: true,
         connectTimeoutMS: 60000,
         socketTimeoutMS: 60000,
-        retryReads: true
+        retryReads: true,
+        // minPoolSize: 100,
     },
 };
 
@@ -45,12 +46,11 @@ let atlasMongoConfig = {
     db_name: String(env.MONGO_DB_NAME),
     options: {
         appName: 'fhir',
-        keepAlive: true,
+        // keepAlive: true,
         // connectTimeoutMS: 60000,
         // socketTimeoutMS: 60000,
         retryReads: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+        // minPoolSize: 100,
     },
 };
 
