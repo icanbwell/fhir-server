@@ -377,9 +377,11 @@
                             <tr>
                                 <td><%= item.sequence %></td>
                                 <td>
+                                    <% if (item.provider && item.provider.reference){%>
                                     <a href="/4_0_0/<%= item.provider.reference %>"
                                         ><%= item.provider.reference %></a
                                     >
+                                    <%}%>
                                 </td>
                                 <td>
                                     <!-- prettier-ignore -->
