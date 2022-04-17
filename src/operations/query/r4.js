@@ -96,6 +96,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
                     if (queryParameterValue['values']) {
+                        const numberValues = [];
                         for (const dateValue of queryParameterValue['values']) {
                             queryParameterValue = [];
                             let dateString = '';
@@ -127,8 +128,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                                 dateString = 'ap' + dateValue['approximately'];
                             }
                             if (dateString) {
-                                queryParameterValue.push(dateString);
+                                numberValues.push(dateString);
                             }
+                        }
+                        if (numberValues.length > 0) {
+                            queryParameterValue = queryParameterValue.concat(numberValues);
                         }
                     }
                     break;
