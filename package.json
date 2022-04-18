@@ -9,7 +9,7 @@
     "node": "16.14.x"
   },
   "scripts": {
-    "start": "NODE_ENV=production node src/index.js",
+    "start": "NODE_ENV=development node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev --node-args=\"--inspect-brk=0.0.0.0\" start ./src/index.js;",
     "test": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jest",
     "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
@@ -27,8 +27,7 @@
     "prettier-fix": "prettier --write \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "fix_lint": "eslint --fix \"src/**/*.js\""
   },
-  "pre-commit": [
-  ],
+  "pre-commit": [],
   "jest": {
     "verbose": false,
     "testEnvironment": "node",

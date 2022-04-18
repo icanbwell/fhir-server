@@ -12,7 +12,7 @@ let connect = (url, options) =>
         // Connect to mongo
         MongoClient.connect(url, options, (err, client) => {
             if (err) {
-                return reject(err);
+            return reject(err);
             }
             return resolve(client);
         });

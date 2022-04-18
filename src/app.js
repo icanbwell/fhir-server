@@ -13,8 +13,8 @@ const {graphqlv1} = require('./middleware/graphqlServer1');
 const {graphql} = require('./middleware/graphqlServer');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
-// const passport = require('passport');
-// const { strategy } = require('./strategies/jwt.bearer.strategy');
+const passport = require('passport');
+const {strategy} = require('./strategies/jwt.bearer.strategy');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
@@ -46,7 +46,7 @@ app.use(cookieParser());
 
 app.use(useragent.express());
 
-// app.use(passport.initialize({}));
+app.use(passport.initialize({}));
 
 app.use(helmet());
 app.use(Prometheus.requestCounters);
@@ -61,15 +61,15 @@ app.set('view engine', 'ejs');
 
 // const fhirApp = MyFHIRServer.initialize(fhirServerConfig);
 const fhirApp = new MyFHIRServer(fhirServerConfig)
-  .configureMiddleware()
-  .configureSession()
-  .configureHelmet()
-  // .configurePassport()
-  .configureHtmlRenderer()
-  .setPublicDirectory()
-  .setProfileRoutes()
-  .configureSlackErrorHandler()
-  .setErrorRoutes();
+    .configureMiddleware()
+    .configureSession()
+    .configureHelmet()
+    .configurePassport()
+    .configureHtmlRenderer()
+    .setPublicDirectory()
+    .setProfileRoutes()
+    .configureSlackErrorHandler()
+    .setErrorRoutes();
 
 app.use(handleSecurityPolicy);
 
@@ -149,7 +149,7 @@ app.use('/fonts', express.static(path.join(__dirname, '../node_modules/fontaweso
 app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
 // noinspection JSCheckFunctionSignatures
-// passport.use('graphqlStrategy', strategy);
+passport.use('graphqlStrategy', strategy);
 
 if (isTrue(env.ENABLE_GRAPHQL)) {
     app.use(cors(fhirServerConfig.server.corsOptions));
@@ -159,8 +159,8 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
-                // router.use(passport.initialize({}));
-                // router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                router.use(passport.initialize({}));
+                router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);
 
@@ -170,8 +170,8 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
             .then((graphqlMiddlewareV1) => {
                 // eslint-disable-next-line new-cap
                 const router1 = express.Router();
-                // router1.use(passport.initialize({}));
-                // router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                router1.use(passport.initialize({}));
+                router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 router1.use(graphqlMiddlewareV1);
 
                 app.use('/graphqlv1', router1);
@@ -184,8 +184,8 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
-                // router.use(passport.initialize({}));
-                // router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                router.use(passport.initialize({}));
+                router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);
             })
@@ -193,8 +193,8 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
             .then((graphqlMiddlewareV1) => {
                 // eslint-disable-next-line new-cap
                 const router1 = express.Router();
-                // router1.use(passport.initialize({}));
-                // router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                router1.use(passport.initialize({}));
+                router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 router1.use(graphqlMiddlewareV1);
 
                 app.use('/graphqlv1', router1);

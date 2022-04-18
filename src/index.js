@@ -1,6 +1,7 @@
 /**
  * Implements the main function
  */
+require('dotenv').config();
 const {createHttpTerminator} = require('http-terminator');
 
 const {app, fhirApp} = require('./app');
