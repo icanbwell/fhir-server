@@ -1,4 +1,4 @@
-query {
+query my_patient {
     patient {
         id
         name {
@@ -21,6 +21,18 @@ query {
             code {
                 text
             }
+        }
+        careTeam {
+            id
+            resourceType
+            category {
+                coding {
+                    system
+                    code
+                }
+            }
+            name
+            status
         }
     }
 }

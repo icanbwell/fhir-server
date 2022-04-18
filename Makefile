@@ -1,4 +1,4 @@
-NODE_VERSION=16.14.0
+NODE_VERSION=16.14.2
 
 .PHONY:build
 build:
@@ -17,8 +17,12 @@ publish:
 up:
 	docker-compose -f docker-compose.yml  -p fhir-dev build --parallel && \
 	docker-compose -p fhir-dev -f docker-compose.yml up --detach && \
-	echo "waiting for Fhir server to become healthy" && \
-	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; do printf "." && sleep 2; done
+	echo "\nwaiting for Mongo server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_mongo_1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_mongo_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_mongo_1 =========\n" && exit 1; fi
+	echo "\nwaiting for FHIR server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_fhir_1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
 	echo FHIR server: http://localhost:3000/
 
@@ -63,6 +67,7 @@ init:
 .PHONY:update
 update:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm install --global yarn && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 

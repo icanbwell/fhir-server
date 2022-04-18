@@ -79,8 +79,10 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
 
         // run any enrichment
         resource = (await enrich([resource], resource_name))[0];
-        // log access to audit logs
-        await logAuditEntry(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
+        if (resource_name !== 'AuditEvent') {
+            // log access to audit logs
+            await logAuditEntry(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
+        }
         return new Resource(resource);
     } else {
         throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);

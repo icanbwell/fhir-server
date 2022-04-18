@@ -8,12 +8,17 @@ const {app, fhirApp} = require('./app');
 const asyncHandler = require('./lib/async-handler');
 const mongoClient = require('./lib/mongo');
 const globals = require('./globals');
-const {fhirServerConfig, mongoConfig} = require('./config');
-const {CLIENT, CLIENT_DB} = require('./constants');
+const {fhirServerConfig, mongoConfig, atlasMongoConfig} = require('./config');
+const {CLIENT, CLIENT_DB, ATLAS_CLIENT, ATLAS_CLIENT_DB} = require('./constants');
+const env = require('var');
+const {isTrue} = require('./utils/isTrue');
 
 const main = async function () {
+    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        mongoConfig.options.monitorCommands = true;
+    }
     // Connect to mongo and pass any options here
-    let [mongoErr, client] = await asyncHandler(
+    let [mongoErr, /** @type {import("mongodb").MongoClient} **/ client] = await asyncHandler(
         mongoClient(mongoConfig.connection, mongoConfig.options)
     );
 
@@ -22,9 +27,54 @@ const main = async function () {
         console.error(mongoConfig.connection);
         process.exit(1);
     }
+    client.db('admin').command({ping: 1});
 
     globals.set(CLIENT, client);
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
+
+    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
+        client.on('commandStarted', event => {
+            console.log(`AWS Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+        client.on('commandSucceeded', event => {
+            console.log(`AWS Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+        client.on('commandFailed', event => {
+            console.log(`AWS Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+    }
+
+    if (env.ATLAS_MONGO_URL) {
+        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+            atlasMongoConfig.options.monitorCommands = true;
+        }
+        let [atlasMongoErr, atlasClient] = await asyncHandler(
+            mongoClient(atlasMongoConfig.connection, atlasMongoConfig.options)
+        );
+
+        if (atlasMongoErr) {
+            console.error(atlasMongoErr.message);
+            console.error(atlasMongoConfig.connection);
+            process.exit(1);
+        }
+        atlasClient.db('admin').command({ping: 1});
+        globals.set(ATLAS_CLIENT, atlasClient);
+        globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
+        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
+            atlasClient.on('commandStarted', event => {
+                console.log(`Atlas Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
+            });
+            atlasClient.on('commandSucceeded', event => {
+                console.log(`Atlas Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
+            });
+            atlasClient.on('commandFailed', event => {
+                console.log(`Atlas Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
+            });
+        }
+    }
+
 
     const server = app.listen(fhirServerConfig.server.port, () =>
         fhirApp.logger.verbose('Server is up and running!')

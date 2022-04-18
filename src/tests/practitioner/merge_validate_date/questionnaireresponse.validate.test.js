@@ -21,32 +21,25 @@ describe('Practitioner Update Tests', () => {
 
     describe('Practitioner Validate', () => {
         test('POST Valid resource', async () => {
-            // noinspection UnnecessaryLocalVariableJS
-            await async.waterfall([
-                    (cb) => // first confirm there are no practitioners
-                        request
-                            .get('/4_0_0/QuestionnaireResponse')
-                                .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                expect(resp.body.length).toBe(0);
-                                console.log('------- response 1 ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response 1 ------------');
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/QuestionnaireResponse')
-                            .send(validResource)
-                                .set(getHeaders())
-                            .expect(201, (err, resp) => {
-                                let body = resp.body;
-                                console.log('------- response 1 ------------');
-                                console.log(JSON.stringify(body, null, 2));
-                                console.log('------- end response 1 ------------');
-                                return cb(err, resp);
-                            }),
-                ]);
+            let resp = await request
+                .get('/4_0_0/QuestionnaireResponse')
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.length).toBe(0);
+            console.log('------- response 1 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 1 ------------');
+
+            resp = await request
+                .post('/4_0_0/QuestionnaireResponse')
+                .send(validResource)
+                .set(getHeaders())
+                .expect(201);
+            let body = resp.body;
+            console.log('------- response 1 ------------');
+            console.log(JSON.stringify(body, null, 2));
+            console.log('------- end response 1 ------------');
         });
     });
 });

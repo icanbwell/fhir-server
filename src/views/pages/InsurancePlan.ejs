@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
+                <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
+                <h4>Name</h4>
+                <!-- prettier-ignore -->
+                <%= res.name %>
+                <%- include('../partials/reference', {references: [res.ownedBy], name: "Owned By"}); %>
+                <% if (res.plan) {%>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Type</th>
+                            <th scope="col">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- prettier-ignore -->
+                        <% res.plan.forEach(function(plan){%>
+                        <% if (plan.identifier) {%>
+                            <% plan.identifier.forEach(function(identifier){%>
+                        <tr>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (identifier.type && identifier.type.coding) {%>
+                                    <% identifier.type.coding.forEach(function(coding){%>
+                                        <%= coding.code %> (<%= coding.display %>)
+                                    <%})%>
+                                <%}%>
+                            </td>
+                            <td><%= identifier.value %></td>
+                        </tr>
+                        <!-- prettier-ignore -->
+                        <%})%>
+                        <%}%>
+                        <%})%>
+                    </tbody>
+                </table>
+                <!-- prettier-ignore -->
+                <%}%>
+                <%- include('../partials/json', {res: res, index: index}); %>
+            </div>
+            <%})%>
+        </main>
 
-          <h4>Name</h4>
-          <!-- prettier-ignore -->
-          <%= res.name %>
-          <%- include('../partials/reference', {references: [res.ownedBy], name: "Owned By"}); %>
-          <% if (res.plan) {%>
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Type</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- prettier-ignore -->
-              <% res.plan.forEach(function(plan){%>
-              <% if (plan.identifier) {%>
-                <% plan.identifier.forEach(function(identifier){%>
-              <tr>
-                <td>
-                  <!-- prettier-ignore -->
-                  <% if (identifier.type && identifier.type.coding) {%>
-                    <% identifier.type.coding.forEach(function(coding){%>
-                      <%= coding.code %> (<%= coding.display %>)
-                    <%})%>
-                  <%}%>
-                </td>
-                <td><%= identifier.value %></td>
-              </tr>
-              <%})%> <%}%> <%})%>
-            </tbody>
-          </table>
-          <%}%> <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
-
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

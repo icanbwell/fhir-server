@@ -1,43 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
+                <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
 
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
+                <h4>Status</h4>
+                <%= res.status %>
+                <!-- prettier-ignore -->
+                <%- include('../partials/coding', {resourceType: res.resourceType, codings: [res.class], name: "Class", searchParameter: 'class'}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter:'type'}); %>
+                <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
+                <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
+                <% if (res.participant) { %>
+                    <% res.participant.forEach(function(participant){ %>
+                        <%- include('../partials/reference', {references: [participant.individual], name: "Participant"}); %>
+                    <% }) %>
+                <% } %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: 'reason-code'}); %>
+                <% if (res.location) { %>
+                    <% res.location.forEach(function(location){ %>
+                        <%- include('../partials/reference', {references: [location.location], name: "Location"}); %>
+                    <% }) %>
+                <% } %>
+                <%- include('../partials/json', {res: res, index: index}); %>
+            </div>
+            <%})%>
+        </main>
 
-          <h4>Status</h4>
-          <%= res.status %>
-          <!-- prettier-ignore -->
-          <%- include('../partials/coding', {resourceType: res.resourceType, codings: [res.class], name: "Class", searchParameter: 'class'}); %>
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter:'type'}); %>
-          <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
-          <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
-          <% if (res.participant) { %>
-              <% res.participant.forEach(function(participant){ %>
-                  <%- include('../partials/reference', {references: [participant.individual], name: "Participant"}); %>
-              <% }) %>
-          <% } %>
-          <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: 'reason-code'}); %>
-          <% if (res.location) { %>
-              <% res.location.forEach(function(location){ %>
-                  <%- include('../partials/reference', {references: [location.location], name: "Location"}); %>
-              <% }) %>
-          <% } %>
-          <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
-
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

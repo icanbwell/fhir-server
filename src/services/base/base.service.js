@@ -14,6 +14,7 @@ const {validate} = require('../../operations/validate/validate');
 const {graph} = require('../../operations/graph/graph');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {RequestInfo} = require('../../utils/requestInfo');
+const {logDebug} = require('../../operations/common/logging');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -24,6 +25,8 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 });
 
 function getRequestInfo(req) {
+    logDebug(req.user, req.originalUrl);
+
     return new RequestInfo(
         (req.authInfo && req.authInfo.context && req.authInfo.context.username)
         || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
@@ -51,7 +54,10 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
      * combined args
      * @type {string[]}
      */
-    const combined_args = get_all_args(req, args);
+    let combined_args = get_all_args(req, args);
+    if (req.body && Object.keys(req.body).length > 0) {
+        combined_args = Object.assign({}, args, req.body);
+    }
     return search(
         getRequestInfo(req),
         combined_args, resource_name, collection_name);

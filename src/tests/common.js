@@ -126,6 +126,14 @@ module.exports.getHeaders = (scope) => {
     };
 };
 
+module.exports.getHeadersFormUrlEncoded = (scope) => {
+    return {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/fhir+json',
+        'Authorization': `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
+    };
+};
+
 module.exports.getGraphQLHeaders = (scope) => {
     return {
         'Content-Type': 'application/json; charset=utf-8',
@@ -156,3 +164,31 @@ module.exports.getHeadersWithCustomToken = (scope) => {
     };
 };
 
+module.exports.getHtmlHeaders = (scope) => {
+    return {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
+        'Authorization': `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
+    };
+};
+
+/**
+ * wraps a single resource into a bundle
+ * @param {Object} resource
+ * @return {{entry: [{resource: Object}], resourceType: string}}
+ */
+module.exports.wrapResourceInBundle = (resource) => {
+    if (resource.resourceType === 'Bundle') {
+        return resource; // already a bundle
+    }
+    return {
+        'resourceType': 'Bundle',
+        'total': 0,
+        'type': 'searchset',
+        'entry': [
+            {
+                'resource': resource
+            }
+        ]
+    };
+};

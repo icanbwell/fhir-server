@@ -1,9 +1,12 @@
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
+const {
+    verifyHasValidScopes,
+    isAccessToResourceAllowedBySecurityTags,
+} = require('../security/scopes');
 const {buildR4SearchQuery} = require('../query/r4');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -20,6 +23,7 @@ const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/
 const deepcopy = require('deepcopy');
 const {searchOld} = require('./searchOld');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+const {limit} = require('../../utils/searchForm.util');
 
 /**
  * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
@@ -77,7 +81,9 @@ function handleSortQuery(args, columns, options) {
     /**
      * @type {string[]}
      */
-    const sort_properties_list = Array.isArray(args['_sort']) ? args['_sort'] : args['_sort'].split(',');
+    const sort_properties_list = Array.isArray(args['_sort'])
+        ? args['_sort']
+        : args['_sort'].split(',');
     if (sort_properties_list.length > 0) {
         /**
          * @type {import('mongodb').Sort}
@@ -122,7 +128,7 @@ function handleCountOption(args, options) {
          * @type {number}
          */
         const pageNumber = Number(args['_getpagesoffset']);
-        options['skip'] = pageNumber > 0 ? (pageNumber * nPerPage) : 0;
+        options['skip'] = pageNumber > 0 ? pageNumber * nPerPage : 0;
     }
     options['limit'] = nPerPage;
 
@@ -137,7 +143,7 @@ function handleCountOption(args, options) {
 function setDefaultSort(args, options) {
     if (!args['id'] && !args['_elements']) {
         // set a limit so the server does not come down due to volume of data
-        options['limit'] = 10;
+        options['limit'] = limit;
     }
 }
 
@@ -166,15 +172,22 @@ async function handleTwoStepSearchOptimization(
     options['projection'] = projection;
     originalQuery = [query];
     originalOptions = [options];
-    let idResults = await collection.find(query, options).maxTimeMS(maxMongoTimeMS).toArray();
+    const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+
+    let idResults = await collection
+        .find(query, options)
+        .sort(sortOption)
+        .maxTimeMS(maxMongoTimeMS)
+        .toArray();
     if (idResults.length > 0) {
         // now get the documents for those ids.  We can clear all the other query parameters
-        query = {'id': {$in: idResults.map(r => r.id)}};
+        query = {id: {$in: idResults.map((r) => r.id)}};
         // query = getQueryWithSecurityTags(securityTags, query);
         options = {}; // reset options since we'll be looking by id
         originalQuery.push(query);
         originalOptions.push(options);
-    } else { // no results
+    } else {
+        // no results
         query = null; //no need to query
     }
     return {options, originalQuery, query, originalOptions};
@@ -187,7 +200,9 @@ async function handleTwoStepSearchOptimization(
  * @return {{cursorBatchSize: number, cursorQuery}}
  */
 function setCursorBatchSize(args, cursorQuery) {
-    const cursorBatchSize = args['_cursorBatchSize'] ? parseInt(args['_cursorBatchSize']) : parseInt(env.MONGO_BATCH_SIZE);
+    const cursorBatchSize = args['_cursorBatchSize']
+        ? parseInt(args['_cursorBatchSize'])
+        : parseInt(env.MONGO_BATCH_SIZE);
     if (cursorBatchSize > 0) {
         cursorQuery = cursorQuery.batchSize(cursorBatchSize);
     }
@@ -207,7 +222,10 @@ function setIndexHint(indexHint, mongoCollectionName, columns, cursor, user) {
     indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
     if (indexHint) {
         cursor = cursor.hint(indexHint);
-        logDebug(user, `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`);
+        logDebug(
+            user,
+            `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`
+        );
     }
     return {indexHint, cursor};
 }
@@ -285,9 +303,27 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {string} indexHint
  * @param {number | null} cursorBatchSize
  * @param {string | null} user
+ * @param {boolean | null} useAtlas
  * @return {Resource}
  */
-function createBundle(url, resources, base_version, total_count, args, originalQuery, mongoCollectionName, originalOptions, columns, stopTime, startTime, useTwoStepSearchOptimization, indexHint, cursorBatchSize, user) {
+function createBundle(
+    url,
+    resources,
+    base_version,
+    total_count,
+    args,
+    originalQuery,
+    mongoCollectionName,
+    originalOptions,
+    columns,
+    stopTime,
+    startTime,
+    useTwoStepSearchOptimization,
+    indexHint,
+    cursorBatchSize,
+    user,
+    useAtlas
+) {
     /**
      * array of links
      * @type {[{relation:string, url: string}]}
@@ -295,7 +331,6 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
     let link = [];
     // find id of last resource
     if (url) {
-
         /**
          * id of last resource in the list
          * @type {?number}
@@ -315,20 +350,20 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
             nextUrl.searchParams.delete('_getpagesoffset');
             link = [
                 {
-                    'relation': 'self',
-                    'url': `${url}`
+                    relation: 'self',
+                    url: `${url}`,
                 },
                 {
-                    'relation': 'next',
-                    'url': `${nextUrl.toString().replace(baseUrl, '')}`
-                }
+                    relation: 'next',
+                    url: `${nextUrl.toString().replace(baseUrl, '')}`,
+                },
             ];
         } else {
             link = [
                 {
-                    'relation': 'self',
-                    'url': `${url}`
-                }
+                    relation: 'self',
+                    url: `${url}`,
+                },
             ];
         }
     }
@@ -339,7 +374,7 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
     /**
      * @type {{resource: Resource}[]}
      */
-    const entries = resources.map(resource => {
+    const entries = resources.map((resource) => {
         return {resource: resource};
     });
     const bundle = new Bundle({
@@ -347,53 +382,56 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
         timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
         entry: entries,
         total: total_count,
-        link: link
+        link: link,
     });
-    if (args['_debug'] || (env.LOGLEVEL === 'DEBUG')) {
+
+    if (args['_debug'] || env.LOGLEVEL === 'DEBUG') {
         const tag = [
             {
                 system: 'https://www.icanbwell.com/query',
-                display: JSON.stringify(originalQuery)
+                display: JSON.stringify(originalQuery),
             },
             {
                 system: 'https://www.icanbwell.com/queryCollection',
-                code: mongoCollectionName
+                code: mongoCollectionName,
             },
             {
                 system: 'https://www.icanbwell.com/queryOptions',
-                display: originalOptions ? JSON.stringify(originalOptions) : null
+                display: originalOptions ? JSON.stringify(originalOptions) : null,
             },
             {
                 system: 'https://www.icanbwell.com/queryFields',
-                display: columns ? JSON.stringify(Array.from(columns)) : null
+                display: columns ? JSON.stringify(Array.from(columns)) : null,
             },
             {
                 system: 'https://www.icanbwell.com/queryTime',
-                display: `${(stopTime - startTime) / 1000}`
+                display: `${(stopTime - startTime) / 1000}`,
             },
             {
                 system: 'https://www.icanbwell.com/queryOptimization',
-                display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
-            }
+                display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`,
+            },
         ];
         if (indexHint) {
-            tag.push(
-                {
-                    system: 'https://www.icanbwell.com/queryIndexHint',
-                    code: indexHint
-                },
-            );
+            tag.push({
+                system: 'https://www.icanbwell.com/queryIndexHint',
+                code: indexHint,
+            });
+        }
+        if (useAtlas) {
+            tag.push({
+                system: 'https://www.icanbwell.com/queryUseAtlas',
+                code: useAtlas,
+            });
         }
         if (cursorBatchSize !== null && cursorBatchSize > 0) {
-            tag.push(
-                {
-                    system: 'https://www.icanbwell.com/queryCursorBatchSize',
-                    display: `${cursorBatchSize}`
-                }
-            );
+            tag.push({
+                system: 'https://www.icanbwell.com/queryCursorBatchSize',
+                display: `${cursorBatchSize}`,
+            });
         }
         bundle['meta'] = {
-            tag: tag
+            tag: tag,
         };
         logDebug(user, JSON.stringify(bundle));
     }
@@ -410,12 +448,7 @@ function createBundle(url, resources, base_version, total_count, args, originalQ
  */
 module.exports.search = async (requestInfo, args, resourceName, collection_name) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(
-            requestInfo,
-            args,
-            resourceName,
-            collection_name
-        );
+        return searchOld(requestInfo, args, resourceName, collection_name);
     }
     /**
      * @type {number}
@@ -472,13 +505,19 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     }
     query = getQueryWithSecurityTags(securityTags, query);
 
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
     // Grab an instance of our DB and collection
     // noinspection JSValidateTypes
     /**
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = globals.get(CLIENT_DB);
+    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
+        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -506,7 +545,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     /**
      * @type {number}
      */
-    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -559,11 +598,20 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
          *  This can be faster in large tables as both queries can then be satisfied by indexes
          * @type {boolean}
          */
-        const useTwoStepSearchOptimization = !args['_elements'] && !args['id']
-            && (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+        const useTwoStepSearchOptimization =
+            !args['_elements'] &&
+            !args['id'] &&
+            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization'])
+            && !useAtlas;
         if (useTwoStepSearchOptimization) {
             const __ret = await handleTwoStepSearchOptimization(
-                options, originalQuery, query, originalOptions, collection, maxMongoTimeMS);
+                options,
+                originalQuery,
+                query,
+                originalOptions,
+                collection,
+                maxMongoTimeMS
+            );
             options = __ret.options;
             originalQuery = __ret.originalQuery;
             query = __ret.query;
@@ -594,7 +642,18 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             /**
              * @type {Cursor<unknown> | *}
              */
-            let cursorQuery = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+            let cursorQuery = await collection
+                .find(query, options)
+                .maxTimeMS(maxMongoTimeMS);
+
+            // avoid double sorting since Mongo gives you different results
+            if (useTwoStepSearchOptimization && !options['sort']) {
+                const sortOption =
+                    originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
+                if (sortOption !== null) {
+                    cursorQuery = cursorQuery.sort(sortOption);
+                }
+            }
 
             // set batch size if specified
             if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
@@ -604,20 +663,19 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             }
             /**
              * mongo db cursor
+             * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
              * @type {Promise<Cursor<unknown>> | *}
              */
-            let cursor = await pRetry(
-                async () =>
-                    await cursorQuery,
-                {
-                    retries: 5,
-                    onFailedAttempt: async error => {
-                        let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                        logError(user, msg);
-                        await logMessageToSlack(msg);
-                    }
-                }
-            );
+            let cursor = await pRetry(async () => await cursorQuery, {
+                retries: 5,
+                onFailedAttempt: async (error) => {
+                    let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${
+                        error.attemptNumber
+                    }: ${error.message}`;
+                    logError(user, msg);
+                    await logMessageToSlack(msg);
+                },
+            });
 
             // find columns being queried and match them to an index
             if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
@@ -627,7 +685,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             }
 
             // if _total is specified then ask mongo for the total else set total to 0
-            if (args['_total'] && (['accurate', 'estimate'].includes(args['_total']))) {
+            if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
                 total_count = await handleGetTotals(args, collection, query, maxMongoTimeMS);
             }
             // Resource is a resource cursor, pull documents out before resolving
@@ -637,17 +695,16 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                  * @type {Resource}
                  */
                 const element = await cursor.next();
-                if (
-                    !isAccessToResourceAllowedBySecurityTags(
-                        element,
-                        user,
-                        scope
-                    )
-                ) {
+                if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
                     continue;
                 }
                 if (args['_elements']) {
-                    const element_to_return = selectSpecificElements(args, Resource, element, resourceName);
+                    const element_to_return = selectSpecificElements(
+                        args,
+                        Resource,
+                        element,
+                        resourceName
+                    );
 
                     resources.push(element_to_return);
                 } else {
@@ -656,14 +713,23 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             }
         }
         // remove any nulls or empty objects or arrays
-        resources = resources.map(r => removeNull(r.toJSON()));
+        resources = resources.map((r) => removeNull(r.toJSON()));
 
         // run any enrichment
         resources = await enrich(resources, resourceName);
 
         if (resources.length > 0) {
-            // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resourceName, 'read', args, resources.map(r => r['id']));
+            if (resourceName !== 'AuditEvent') {
+                // log access to audit logs
+                await logAuditEntry(
+                    requestInfo,
+                    base_version,
+                    resourceName,
+                    'read',
+                    args,
+                    resources.map((r) => r['id'])
+                );
+            }
         }
 
         /**
@@ -674,15 +740,27 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
             return createBundle(
-                url, resources, base_version, total_count, args, originalQuery,
-                mongoCollectionName, originalOptions, columns, stopTime, startTime,
-                useTwoStepSearchOptimization, indexHint, cursorBatchSize, user
+                url,
+                resources,
+                base_version,
+                total_count,
+                args,
+                originalQuery,
+                mongoCollectionName,
+                originalOptions,
+                columns,
+                stopTime,
+                startTime,
+                useTwoStepSearchOptimization,
+                indexHint,
+                cursorBatchSize,
+                user,
+                useAtlas
             );
         } else {
             return resources;
         }
-    } catch
-        (e) {
+    } catch (e) {
         throw new MongoError(e.message, e, mongoCollectionName, query, options);
     }
 };

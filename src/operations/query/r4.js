@@ -1,16 +1,13 @@
 const {
     dateQueryBuilder,
     referenceQueryBuilder,
-    // nameQueryBuilder,
-    // stringQueryBuilder,
-    // addressQueryBuilder,
     tokenQueryBuilder,
-    dateQueryBuilderNative
+    dateQueryBuilderNative,
 } = require('../../utils/querybuilder.util');
-const {isTrue} = require('../../utils/isTrue');
+const { isTrue } = require('../../utils/isTrue');
 
-const {fhirFilterTypes} = require('./customQueries');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const { fhirFilterTypes } = require('./customQueries');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 
 // /**
 //  * @type {import('winston').logger}
@@ -27,7 +24,11 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
     if (queryParameterValue) {
         // un-bundle any objects coming from graphql
-        if (typeof queryParameterValue === 'object' && !Array.isArray(queryParameterValue) && queryParameterValue['searchType']) {
+        if (
+            typeof queryParameterValue === 'object' &&
+            !Array.isArray(queryParameterValue) &&
+            queryParameterValue['searchType']
+        ) {
             switch (queryParameterValue['searchType']) {
                 case 'string':
                     // handle SearchString
@@ -140,6 +141,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
     return queryParameterValue;
 }
 
+function paramMatch(fields, param) {
+    const found = fields.find((field) => field === param);
+    return found;
+}
+
 /**
  * Builds a mongo query for search parameters
  * @param {string} resourceName
@@ -181,27 +187,34 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         if (resourceType === resourceName || resourceType === 'Resource') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 let queryParameterValue = args[`${queryParameter}`];
-                queryParameterValue = convertGraphQLParameters(queryParameterValue, args, queryParameter);
+                queryParameterValue = convertGraphQLParameters(
+                    queryParameterValue,
+                    args,
+                    queryParameter
+                );
                 // if just a query parameter is passed then check it
                 if (queryParameterValue) {
                     // handle id differently since it is a token, but we want to do exact match
                     if (queryParameter === '_id') {
-                        if (Array.isArray(queryParameterValue)) { // if array is passed then check in array
+                        if (Array.isArray(queryParameterValue)) {
+                            // if array is passed then check in array
                             and_segments.push({
                                 [`${propertyObj.field}`]: {
-                                    $in: queryParameterValue
-                                }
+                                    $in: queryParameterValue,
+                                },
                             });
-                        } else if (queryParameterValue.includes(',')) { // see if this is a comma separated list
+                        } else if (queryParameterValue.includes(',')) {
+                            // see if this is a comma separated list
                             const value_list = queryParameterValue.split(',');
                             and_segments.push({
                                 [`${propertyObj.field}`]: {
-                                    $in: value_list
-                                }
+                                    $in: value_list,
+                                },
                             });
-                        } else { // single value is passed
+                        } else {
+                            // single value is passed
                             and_segments.push({
-                                [`${propertyObj.field}`]: queryParameterValue
+                                [`${propertyObj.field}`]: queryParameterValue,
                             });
                         }
                         columns.add(`${propertyObj.field}`);
@@ -209,28 +222,31 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     }
                     switch (propertyObj.type) {
                         case fhirFilterTypes.string:
-                            if (Array.isArray(queryParameterValue)) { // if array is passed then check in array
+                            if (Array.isArray(queryParameterValue)) {
+                                // if array is passed then check in array
                                 and_segments.push({
                                     [`${propertyObj.field}`]: {
-                                        $in: queryParameterValue
-                                    }
+                                        $in: queryParameterValue,
+                                    },
                                 });
-                            } else if (queryParameterValue.includes(',')) { // see if this is a comma separated list
+                            } else if (queryParameterValue.includes(',')) {
+                                // see if this is a comma separated list
                                 const value_list = queryParameterValue.split(',');
                                 and_segments.push({
                                     [`${propertyObj.field}`]: {
-                                        $in: value_list
-                                    }
+                                        $in: value_list,
+                                    },
                                 });
-                            } else { // single value is passed
+                            } else {
+                                // single value is passed
                                 and_segments.push({
-                                    [`${propertyObj.field}`]: queryParameterValue
+                                    [`${propertyObj.field}`]: queryParameterValue,
                                 });
                             }
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.uri:
-                            and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
+                            and_segments.push({ [`${propertyObj.field}`]: queryParameterValue });
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
@@ -243,23 +259,32 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             for (const dateQueryItem of queryParameterValue) {
                                 if (propertyObj.fields) {
                                     and_segments.push({
-                                        $or: propertyObj.fields.map(f => {
+                                        $or: propertyObj.fields.map((f) => {
                                             return {
                                                 [`${f}`]: dateQueryBuilder(
-                                                    dateQueryItem, propertyObj.type, '')
+                                                    dateQueryItem,
+                                                    propertyObj.type,
+                                                    ''
+                                                ),
                                             };
-                                        })
+                                        }),
                                     });
                                 } else if (propertyObj.field === 'meta.lastUpdated') {
                                     // this field stores the date as a native date so we can do faster queries
                                     and_segments.push({
                                         [`${propertyObj.field}`]: dateQueryBuilderNative(
-                                            dateQueryItem, propertyObj.type, '')
+                                            dateQueryItem,
+                                            propertyObj.type,
+                                            ''
+                                        ),
                                     });
                                 } else {
                                     and_segments.push({
                                         [`${propertyObj.field}`]: dateQueryBuilder(
-                                            dateQueryItem, propertyObj.type, '')
+                                            dateQueryItem,
+                                            propertyObj.type,
+                                            ''
+                                        ),
                                     });
                                 }
                             }
@@ -270,81 +295,127 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 queryParameterValue = [queryParameterValue];
                             }
                             for (const tokenQueryItem of queryParameterValue) {
-                                if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
-                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, 'email'));
+                                if (propertyObj.fieldFilter === "[system/@value='email']") {
+                                    and_segments.push(
+                                        tokenQueryBuilder(
+                                            tokenQueryItem,
+                                            'value',
+                                            `${propertyObj.field}`,
+                                            'email'
+                                        )
+                                    );
                                     columns.add(`${propertyObj.field}.system`);
                                     columns.add(`${propertyObj.field}.value`);
-                                } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
-                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, 'phone'));
+                                } else if (propertyObj.fieldFilter === "[system/@value='phone']") {
+                                    and_segments.push(
+                                        tokenQueryBuilder(
+                                            tokenQueryItem,
+                                            'value',
+                                            `${propertyObj.field}`,
+                                            'phone'
+                                        )
+                                    );
                                     columns.add(`${propertyObj.field}.system`);
                                     columns.add(`${propertyObj.field}.value`);
-                                } else if (propertyObj.field === 'identifier') { // http://www.hl7.org/fhir/search.html#token
-                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'value', `${propertyObj.field}`, ''));
+                                } else if (propertyObj.field === 'identifier') {
+                                    // http://www.hl7.org/fhir/search.html#token
+                                    and_segments.push(
+                                        tokenQueryBuilder(
+                                            tokenQueryItem,
+                                            'value',
+                                            `${propertyObj.field}`,
+                                            ''
+                                        )
+                                    );
                                     columns.add(`${propertyObj.field}.system`);
                                     columns.add(`${propertyObj.field}.value`);
-                                } else if (propertyObj.field === 'meta.security' || propertyObj.field === 'meta.tag') { // http://www.hl7.org/fhir/search.html#token
-                                    and_segments.push(tokenQueryBuilder(tokenQueryItem, 'code', `${propertyObj.field}`, ''));
+                                } else if (
+                                    propertyObj.field === 'meta.security' ||
+                                    propertyObj.field === 'meta.tag'
+                                ) {
+                                    // http://www.hl7.org/fhir/search.html#token
+                                    and_segments.push(
+                                        tokenQueryBuilder(
+                                            tokenQueryItem,
+                                            'code',
+                                            `${propertyObj.field}`,
+                                            ''
+                                        )
+                                    );
                                     columns.add(`${propertyObj.field}.system`);
                                     columns.add(`${propertyObj.field}.code`);
                                 } else {
-                                    and_segments.push(
-                                        {
-                                            $or: [
-                                                tokenQueryBuilder(
-                                                    tokenQueryItem,
-                                                    'code',
-                                                    `${propertyObj.field}`,
-                                                    ''
-                                                ),
-                                                tokenQueryBuilder(
-                                                    tokenQueryItem,
-                                                    'code',
-                                                    `${propertyObj.field}.coding`,
-                                                    ''
-                                                ),
-                                            ]
-                                        }
-                                    );
+                                    and_segments.push({
+                                        $or: [
+                                            tokenQueryBuilder(
+                                                tokenQueryItem,
+                                                'code',
+                                                `${propertyObj.field}`,
+                                                ''
+                                            ),
+                                            tokenQueryBuilder(
+                                                tokenQueryItem,
+                                                'code',
+                                                `${propertyObj.field}.coding`,
+                                                ''
+                                            ),
+                                        ],
+                                    });
                                     columns.add(`${propertyObj.field}.coding.system`);
                                     columns.add(`${propertyObj.field}.coding.code`);
                                 }
                             }
                             break;
                         case fhirFilterTypes.reference:
-                            if (propertyObj.target.length === 1) { // handle simple case without an OR to keep it simple
+                            if (propertyObj.target.length === 1) {
+                                // handle simple case without an OR to keep it simple
                                 const target = propertyObj.target[0];
                                 if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
                                     and_segments.push({
-                                        $or: propertyObj.fields.map(field =>
+                                        $or: propertyObj.fields.map((field) =>
                                             referenceQueryBuilder(
                                                 queryParameterValue.includes('/')
-                                                    ? queryParameterValue : (`${target}/` + queryParameterValue),
-                                                `${field}.reference`, null))
+                                                    ? queryParameterValue
+                                                    : `${target}/` + queryParameterValue,
+                                                `${field}.reference`,
+                                                null
+                                            )
+                                        ),
                                     });
                                 } else {
                                     and_segments.push(
                                         referenceQueryBuilder(
                                             queryParameterValue.includes('/')
-                                                ? queryParameterValue : (`${target}/` + queryParameterValue),
-                                            `${propertyObj.field}.reference`, null)
+                                                ? queryParameterValue
+                                                : `${target}/` + queryParameterValue,
+                                            `${propertyObj.field}.reference`,
+                                            null
+                                        )
                                     );
                                 }
-                            } else { // handle multiple targets
+                            } else {
+                                // handle multiple targets
                                 // if resourceType is specified then search for only those resources
                                 if (queryParameterValue.includes('/')) {
                                     and_segments.push(
                                         referenceQueryBuilder(
                                             queryParameterValue,
-                                            `${propertyObj.field}.reference`, null)
-                                    );
-                                } else { // else search for these ids in all the target resources
-                                    and_segments.push({
-                                        $or: propertyObj.target.map(
-                                            target => referenceQueryBuilder(
-                                                queryParameterValue.includes('/')
-                                                    ? queryParameterValue : (`${target}/` + queryParameterValue),
-                                                `${propertyObj.field}.reference`, null)
+                                            `${propertyObj.field}.reference`,
+                                            null
                                         )
+                                    );
+                                } else {
+                                    // else search for these ids in all the target resources
+                                    and_segments.push({
+                                        $or: propertyObj.target.map((target) =>
+                                            referenceQueryBuilder(
+                                                queryParameterValue.includes('/')
+                                                    ? queryParameterValue
+                                                    : `${target}/` + queryParameterValue,
+                                                `${propertyObj.field}.reference`,
+                                                null
+                                            )
+                                        ),
                                     });
                                 }
                             }
@@ -353,20 +424,40 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         default:
                             throw new Error('Unknown type=' + propertyObj.type);
                     }
-                } else if (args[`${queryParameter}:missing`]) { // handle check for missing values
+                } else if (args[`${queryParameter}:missing`]) {
+                    // handle check for missing values
                     const exists_flag = !isTrue(args[`${queryParameter}:missing`]);
                     and_segments.push({
-                        [`${propertyObj.field}`]: {$exists: exists_flag}
+                        [`${propertyObj.field}`]: { $exists: exists_flag },
                     });
                     columns.add(`${propertyObj.field}`);
-                } else if (args[`${queryParameter}:above`]) { // handle check for above the passed in  value
+                } else if (args[`${queryParameter}:contains`]) {
                     and_segments.push({
-                        [`${propertyObj.field}`]: {$gt: args[`${queryParameter}:above`]}
+                        [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
+                            {
+                                $regex: args[`${queryParameter}:contains`],
+                                $options: 'i',
+                            },
                     });
                     columns.add(`${propertyObj.field}`);
-                } else if (args[`${queryParameter}:below`]) { // handle check for below the passed in value
+                } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
                     and_segments.push({
-                        [`${propertyObj.field}`]: {$lt: args[`${queryParameter}:below`]}
+                        [`${propertyObj.field}`]: {
+                            $gt: args[`${queryParameter}:above`],
+                            $lt: args[`${queryParameter}:below`],
+                        },
+                    });
+                    columns.add(`${propertyObj.field}`);
+                } else if (args[`${queryParameter}:above`]) {
+                    // handle check for above the passed in  value
+                    and_segments.push({
+                        [`${propertyObj.field}`]: { $gt: args[`${queryParameter}:above`] },
+                    });
+                    columns.add(`${propertyObj.field}`);
+                } else if (args[`${queryParameter}:below`]) {
+                    // handle check for below the passed in value
+                    and_segments.push({
+                        [`${propertyObj.field}`]: { $lt: args[`${queryParameter}:below`] },
                     });
                     columns.add(`${propertyObj.field}`);
                 }
@@ -387,6 +478,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     return {
         query: query,
-        columns: columns
+        columns: columns,
     };
 };

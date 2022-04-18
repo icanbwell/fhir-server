@@ -4,6 +4,7 @@ const supertest = require('supertest');
 const {app} = require('../../../app');
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits.json');
 const allergyIntoleranceBundleResource = require('./fixtures/allergy_intolerances.json');
+const careTeamBundleResource = require('./fixtures/care_team.json');
 const expectedGraphQlResponse = require('./fixtures/expected_graphql_response.json');
 const expectedGraphqlMissingUserScopesResponse = require('./fixtures/expected_graphql_missing_user_scopes_response.json');
 const expectedGraphqlMissingAccessScopesResponse = require('./fixtures/expected_graphql_missing_access_scopes_response.json');
@@ -96,6 +97,16 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
                 .set(getHeaders())
                 .expect(200);
 
@@ -217,6 +228,16 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- end response 2  ------------');
 
             resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
                 .get('/4_0_0/Patient/')
                 .set(getHeaders())
                 .expect(200);
@@ -301,6 +322,16 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
                 .set(getHeaders())
                 .expect(200);
 
@@ -400,6 +431,16 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
                 .set(getHeaders())
                 .expect(200);
 

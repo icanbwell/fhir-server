@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body class="container-fluid p-0">
-    <%- include('../partials/header', {resources: resources}); %>
-
-    <main class="d-flex align-items-start">
-      <%- include('../partials/searchForm'); %>
-      <div class="search-results">
-        <% resources.forEach(function(res, index){ %>
-        <div class="resource-item p-3">
-          <!-- prettier-ignore -->
-          <%- include('../partials/resourceHeader', {res: res}); %>
-
-        <% if (res.content && res.content.length > 0) { %>
-          <p></p>
-          <div class="accordion" id="accordianContent<%= index %>">
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="headingOne">
-                <button
-                  class="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseContent"
-                  aria-expanded="false"
-                  aria-controls="collapseContent"
-                >
-                  Content
-                </button>
-              </h2>
-              <div
-                id="collapseContent"
-                class="accordion-collapse collapse"
-                aria-labelledby="headingOne"
-                data-bs-parent="#accordianContent<%= index %>"
-              >
-                <div class="accordion-body">
-                  <pre>
-                    <code>
-                    <%= new Buffer(res.content[0].data, 'base64').toString('ascii') %>
-                    </code>
-                </pre>
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+        <main>
+            <% resources.forEach(function(res, index){ %>
+            <div class="resource-item">
+                <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
+                <% if (res.content && res.content.length > 0) { %>
+                <p></p>
+                <div class="accordion" id="accordianContent<%= index %>">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button
+                                class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapseContent"
+                                aria-expanded="false"
+                                aria-controls="collapseContent"
+                            >
+                                Content
+                            </button>
+                        </h2>
+                        <div
+                            id="collapseContent"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="headingOne"
+                            data-bs-parent="#accordianContent<%= index %>"
+                        >
+                            <div class="accordion-body">
+                                <pre>
+                                    <code>
+                                    <%= new Buffer(res.content[0].data, 'base64').toString('ascii') %>
+                                    </code>
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+                <!-- prettier-ignore -->
+                <% } %>
+                <%- include('../partials/json', {res: res, index: index}); %>
             </div>
-          </div>
-          <% } %> <%- include('../partials/json', {res: res, index: index}); %>
-        </div>
-        <%})%>
-      </div>
-    </main>
+            <%})%>
+        </main>
 
-    <%- include('../partials/footer', {url: url, meta: meta}); %>
-  </body>
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
 </html>

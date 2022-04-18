@@ -1,0 +1,60 @@
+[
+    {
+        "resourceType": "CareTeam",
+        "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2022-03-28T18:05:42.000Z",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
+                }
+            ]
+        },
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "www.icanbwell.com/care-team-category",
+                        "code": "favorite-practitioners"
+                    }
+                ]
+            }
+        ],
+        "name": "Favorites",
+        "status": "active",
+        "subject": {
+            "reference": "Patient/WPS-0559166162"
+        }
+    },
+    {
+        "resourceType": "CareTeam",
+        "id": "7d968f42-c0d9-48ff-8b8b-64fd4456280",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2022-03-28T17:55:48.000Z",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
+                }
+            ]
+        },
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "www.icanbwell.com/care-team-category",
+                        "code": "favorite-practitioners"
+                    }
+                ]
+            }
+        ],
+        "name": "Favorites",
+        "status": "active",
+        "subject": {
+            "reference": "Patient/e4690a9f-f11b-871d-400f-300a9159aa64"
+        }
+    }
+]

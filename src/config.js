@@ -25,7 +25,32 @@ let mongoConfig = {
         keepAlive: true,
         connectTimeoutMS: 60000,
         socketTimeoutMS: 60000,
-        retryReads: true
+        retryReads: true,
+        // minPoolSize: 100,
+    },
+};
+
+let atlasMongoUrl = env.ATLAS_MONGO_URL;
+if (env.ATLAS_MONGO_USERNAME !== undefined) {
+    atlasMongoUrl = atlasMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
+}
+// url-encode the url
+atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
+/**
+ * @name mongoConfig
+ * @summary Configurations for our Mongo instance
+ * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let atlasMongoConfig = {
+    connection: atlasMongoUrl,
+    db_name: String(env.MONGO_DB_NAME),
+    options: {
+        appName: 'fhir',
+        // keepAlive: true,
+        // connectTimeoutMS: 60000,
+        // socketTimeoutMS: 60000,
+        retryReads: true,
+        // minPoolSize: 100,
     },
 };
 
@@ -116,4 +141,5 @@ if (env.AUTH_ENABLED === '1') {
 module.exports = {
     fhirServerConfig,
     mongoConfig,
+    atlasMongoConfig
 };

@@ -31,7 +31,7 @@ services:
       MAX_INDEX_NAME_LENGTH: 65
       ENV: foo
       MONGO_TIMEOUT: 30000
-      LOGLEVEL: "DEBUG"
+      LOGLEVEL: "INFO"
       ENABLE_GRAPHQL: 1
       NODE_ENV: "development"
       EXTERNAL_AUTH_JWKS_URLS: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json"
@@ -48,20 +48,25 @@ services:
     volumes:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
+      - ./yarn.lock:/srv/src/yarn.lock
     command: npm run dev
     healthcheck:
         test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
 
-  # mongo:
-  #   image: mongo:4.4.8
-  #   command: mongod --port 27017
-  #   ports:
-  #     - '27017:27017'
-  #   volumes:
-  #     - mongo_data:/data/db
+#   mongo:
+# #    image: docker.io/bitnami/mongodb:4.4.9
+#     image: mongo:4.4.12
+#     ports:
+#       - '27017:27017'
+#     environment:
+#       - ALLOW_EMPTY_PASSWORD=yes
+#     volumes:
+#       - mongo_data:/data/db
+#     healthcheck:
+#       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
 #  mongoclient:
-#    image: imranq2/mongoclient-aws:0.1.1
+#    image: imranq2/mongoclient-aws:0.1.8
 #    ports:
 #      - '3010:3000'
 #    environment:

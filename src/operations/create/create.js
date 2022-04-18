@@ -123,9 +123,10 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         let doc = removeNull(resource.toJSON());
         Object.assign(doc, {id: id});
 
-        // log access to audit logs
-        await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
-
+        if (resource_name !== 'AuditEvent') {
+            // log access to audit logs
+            await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
+        }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document
         let history_doc = Object.assign({}, doc);
