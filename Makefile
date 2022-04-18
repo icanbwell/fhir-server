@@ -17,9 +17,6 @@ publish:
 up:
 	docker-compose -f docker-compose.yml  -p fhir-dev build --parallel && \
 	docker-compose -p fhir-dev -f docker-compose.yml up --detach && \
-	echo "\nwaiting for Mongo server to become healthy" && \
-	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_mongo_1`" != "restarting" ]; do printf "." && sleep 2; done && \
-	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_mongo_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_mongo_1 =========\n" && exit 1; fi
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_fhir_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
