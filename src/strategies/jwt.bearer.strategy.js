@@ -64,9 +64,9 @@ const verify = (jwt_payload, done) => {
         /**
          * @type {string}
          */
-        let isUser = false
-        if (jwt_payload[env.AUTH_CUSTOM_CLIENT_ID]) {
-            isUser = true
+        let isUser = false;
+        if (jwt_payload['cognito:username']) {
+            isUser = true;
         }
         const client_id = jwt_payload.client_id
             ? jwt_payload.client_id
@@ -85,7 +85,7 @@ const verify = (jwt_payload, done) => {
          */
         const username = jwt_payload.username
             ? jwt_payload.username
-            : jwt_payload[env.AUTH_CUSTOM_USERNAME];
+            : jwt_payload['cognito:username'];
 
         /**
          * @type {string}

@@ -168,6 +168,7 @@ const profiles = {
     AllergyIntolerance: {
       service: './src/services/allergyintolerance/allergyintolerance.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -654,6 +655,7 @@ const profiles = {
     CarePlan: {
       service: './src/services/careplan/careplan.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -1356,6 +1358,7 @@ const profiles = {
     Condition: {
       service: './src/services/condition/condition.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -2220,6 +2223,7 @@ const profiles = {
     Encounter: {
       service: './src/services/encounter/encounter.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -2598,6 +2602,7 @@ const profiles = {
     ExplanationOfBenefit: {
       service: './src/services/explanationofbenefit/explanationofbenefit.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -3084,6 +3089,7 @@ const profiles = {
     Immunization: {
       service: './src/services/immunization/immunization.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -4002,6 +4008,7 @@ const profiles = {
     MedicationRequest: {
       service: './src/services/medicationrequest/medicationrequest.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -4056,6 +4063,7 @@ const profiles = {
     MedicationStatement: {
       service: './src/services/medicationstatement/medicationstatement.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -4704,6 +4712,7 @@ const profiles = {
     Observation: {
       service: './src/services/observation/observation.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -4920,6 +4929,7 @@ const profiles = {
     Patient: {
       service: './src/services/patient/patient.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
@@ -5298,6 +5308,7 @@ const profiles = {
     Procedure: {
       service: './src/services/procedure/procedure.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',
