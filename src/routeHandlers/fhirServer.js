@@ -16,6 +16,11 @@ const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils
 const router = require('../middleware/fhir/router');
 
 class MyFHIRServer extends FHIRServer.Server {
+    constructor(config = {}, app) {
+        // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
+        super(config, app);
+    }
+
     configureMiddleware() {
         //Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
