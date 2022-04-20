@@ -1,6 +1,5 @@
 const async = require('async');
 const {logMessageToSlack} = require('../utils/slack.logger');
-const globals = require('../globals');
 const {CLIENT_DB} = require('../constants');
 const moment = require('moment-timezone');
 // const {Db} = require('mongodb');
@@ -132,7 +131,7 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
         /**
          * @type {import('mongodb').Db}
          */
-        db = client.db(CLIENT_DB);
+        const db = client.db(CLIENT_DB);
         await fixLastUpdatedDatesInAllCollectionsInDatabase(db, collectionNamesToInclude, batchSize);
     } finally {
         await disconnectClient(client);
@@ -141,6 +140,6 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
 
 module.exports = {
     fixLastUpdatedDatesInAllCollections: fixLastUpdatedDatesInAllCollections,
-    fixLastUpdatedDatesInAllCollectionsInDatabase:fixLastUpdatedDatesInAllCollectionsInDatabase,
+    fixLastUpdatedDatesInAllCollectionsInDatabase: fixLastUpdatedDatesInAllCollectionsInDatabase,
     fixLastUpdatedDates: fixLastUpdatedDates
 };

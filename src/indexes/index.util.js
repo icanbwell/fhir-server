@@ -8,7 +8,6 @@ const env = require('var');
 const {logMessageToSlack} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
 const {createClient, disconnectClient} = require('../utils/connect');
-const globals = require('../globals');
 const {CLIENT_DB} = require('../constants');
 
 /**
