@@ -90,7 +90,7 @@ function hasValidService(route = {}, profile = {}) {
 
 
 function loadController(lowercaseKey, interaction, service) {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         const {
             base_version
         } = req.params;
@@ -98,7 +98,7 @@ function loadController(lowercaseKey, interaction, service) {
 
         const controller = getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 
-        controller[interaction](service)(req, res, next);
+        await controller[interaction](service)(req, res, next);
     };
 }
 
