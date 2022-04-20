@@ -2,14 +2,14 @@
  * This file implements code to index the mongo database and to list the current indexes
  */
 
-const asyncHandler = require('../lib/async-handler');
-const mongoClient = require('../lib/mongo');
-const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
 
 const {logMessageToSlack} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
+const {createClient, disconnectClient} = require('../utils/connect');
+const globals = require('../globals');
+const {CLIENT_DB} = require('../constants');
 
 /**
  * creates a multi key index if it does not exist
@@ -93,41 +93,36 @@ async function indexCollection(collection_name, db) {
  * @param {string?} tableName
  * @return {Promise<*>}
  */
-// noinspection UnnecessaryLocalVariableJS
 async function indexAllCollections(tableName) {
-    // eslint-disable-next-line no-unused-vars
-    let [mongoError, client] = await asyncHandler(
-        mongoClient(mongoConfig.connection, mongoConfig.options)
-    );
+    /**
+     * @type {import("mongodb").MongoClient}
+     */
+    const client = await createClient();
+    try {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
+        let collection_names = [];
+        // const collections = await db.listCollections().toArray();
 
-    if (mongoError) {
-        console.error(mongoError.message);
-        console.error(mongoConfig.connection);
-        await client.close();
-        throw new Error(mongoError.message);
-    }
-    //create client by providing database name
-    const db = client.db(mongoConfig.db_name);
-    let collection_names = [];
-    // const collections = await db.listCollections().toArray();
+        await db.listCollections().forEach(collection => {
+            if (collection.name.indexOf('system.') === -1) {
+                collection_names.push(collection.name);
+            }
+        });
 
-    await db.listCollections().forEach(collection => {
-        if (collection.name.indexOf('system.') === -1) {
-            collection_names.push(collection.name);
+        if (tableName) {
+            collection_names = collection_names.filter(c => c === tableName);
         }
-    });
-
-    if (tableName) {
-        collection_names = collection_names.filter(c => c === tableName);
+        // now add indices on id column for every collection
+        return async.map(
+            collection_names,
+            async collection_name => await indexCollection(collection_name, db)
+        );
+    } finally {
+        await disconnectClient(client);
     }
-    // now add indices on id column for every collection
-    const collection_stats = await async.map(
-        collection_names,
-        async collection_name => await indexCollection(collection_name, db)
-    );
-
-    await client.close();
-    return collection_stats;
 }
 
 /**
@@ -160,39 +155,31 @@ async function deleteIndexesInCollection(collection_name, db) {
  * @return {Promise<*>}
  */
 async function getIndexesInAllCollections() {
-    // eslint-disable-next-line no-unused-vars
-    let [mongoError, client] = await asyncHandler(
-        mongoClient(mongoConfig.connection, mongoConfig.options)
-    );
-
-    if (mongoError) {
-        console.error(mongoError.message);
-        console.error(mongoConfig.connection);
-        await client.close();
-        throw new Error(mongoError.message);
-    }
-    //create client by providing database name
     /**
-     * @type {import('mongodb').Db}
+     * @type {import("mongodb").MongoClient}
      */
-    const db = client.db(mongoConfig.db_name);
-    const collection_names = [];
-    // const collections = await db.listCollections().toArray();
+    const client = await createClient();
+    try {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
+        const collection_names = [];
+        // const collections = await db.listCollections().toArray();
 
-    await db.listCollections().forEach(collection => {
-        if (collection.name.indexOf('system.') === -1) {
-            collection_names.push(collection.name);
+        for await (const collection of db.listCollections()) {
+            if (collection.name.indexOf('system.') === -1) {
+                collection_names.push(collection.name);
+            }
         }
-    });
-
-    // now add indices on id column for every collection
-    const collection_stats = await async.map(
-        collection_names,
-        async collection_name => await getIndexesInCollection(collection_name, db)
-    );
-
-    await client.close();
-    return collection_stats;
+        // now add indices on id column for every collection
+        return await async.map(
+            collection_names,
+            async collection_name => await getIndexesInCollection(collection_name, db)
+        );
+    } finally {
+        await disconnectClient(client);
+    }
 }
 
 /**
@@ -202,41 +189,36 @@ async function getIndexesInAllCollections() {
  */
 async function deleteIndexesInAllCollections(tableName) {
     console.log('starting deleteIndexesInAllCollections');
-    // eslint-disable-next-line no-unused-vars
-    let [mongoError, client] = await asyncHandler(
-        mongoClient(mongoConfig.connection, mongoConfig.options)
-    );
-
-    if (mongoError) {
-        console.error(mongoError.message);
-        console.error(mongoConfig.connection);
-        await client.close();
-        throw new Error(mongoError.message);
-    }
-    //create client by providing database name
     /**
-     * @type {import('mongodb').Db}
+     * @type {import("mongodb").MongoClient}
      */
-    const db = client.db(mongoConfig.db_name);
-    let collection_names = [];
+    const client = await createClient();
+    try {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
+        let collection_names = [];
 
-    await db.listCollections().forEach(collection => {
-        if (collection.name.indexOf('system.') === -1) {
-            collection_names.push(collection.name);
+        for await (const collection of db.listCollections()) {
+            if (collection.name.indexOf('system.') === -1) {
+                collection_names.push(collection.name);
+            }
         }
-    });
 
-    if (tableName) {
-        collection_names = collection_names.filter(c => c === tableName);
+        if (tableName) {
+            collection_names = collection_names.filter(c => c === tableName);
+        }
+
+        for await (const collection_name of collection_names) {
+            console.log('Deleting all indexes in ' + collection_name);
+            await deleteIndexesInCollection(collection_name, db);
+        }
+
+        console.log('Finished deleteIndexesInAllCollections');
+    } finally {
+        await disconnectClient(client);
     }
-
-    for await (const collection_name of collection_names) {
-        console.log('Deleting all indexes in ' + collection_name);
-        await deleteIndexesInCollection(collection_name, db);
-    }
-
-    await client.close();
-    console.log('Finished deleteIndexesInAllCollections');
 }
 
 module.exports = {

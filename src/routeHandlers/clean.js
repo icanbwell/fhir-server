@@ -3,28 +3,25 @@
  */
 
 const env = require('var');
-const asyncHandler = require('../lib/async-handler');
-const mongoClient = require('../lib/mongo');
-const {mongoConfig} = require('../config');
 const async = require('async');
+const {disconnectClient, createClient} = require('../utils/connect');
+const {CLIENT_DB} = require('../constants');
+
 module.exports.handleClean = async (req, res) => {
     // const query_args_array = Object.entries(req.query);
     // return res.status(200).json(req.params);
     if (!env.DISABLE_CLEAN_ENDPOINT) {
         console.info('Running clean');
 
-        // Connect to mongo and pass any options here
-        let [mongoError, client] = await asyncHandler(
-            mongoClient(mongoConfig.connection, mongoConfig.options)
-        );
-        if (mongoError) {
-            console.error(mongoError.message);
-            console.error(mongoConfig.connection);
-            client.close();
-            res.status(500).json({success: false, error: mongoError});
-        } else {
-            //create client by providing database name
-            const db = client.db(mongoConfig.db_name);
+        /**
+         * @type {import("mongodb").MongoClient}
+         */
+        const client = await createClient();
+        try {
+            /**
+             * @type {import('mongodb').Db}
+             */
+            const db = client.db(CLIENT_DB);
             let collection_names = [];
             // const collections = await db.listCollections().toArray();
 
@@ -34,7 +31,7 @@ module.exports.handleClean = async (req, res) => {
                 return res.status(400).json({message: 'IS_PRODUCTION env var is set so you must pass a specific collection to clean'});
             }
 
-            await db.listCollections().forEach(collection => {
+            for await (const collection of db.listCollections()) {
                 console.log(collection.name);
                 if (collection.name.indexOf('system.') === -1) {
                     if (
@@ -45,7 +42,7 @@ module.exports.handleClean = async (req, res) => {
                         collection_names.push(collection.name);
                     }
                 }
-            });
+            }
 
             console.info('Collection_names:' + collection_names);
             res.status(202).json({
@@ -56,7 +53,8 @@ module.exports.handleClean = async (req, res) => {
                 collection_names,
                 async collection_name => await db.collection(collection_name).deleteMany({})
             );
-            await client.close();
+        } finally {
+            await disconnectClient(client);
         }
     } else {
         res.status(403).json();
