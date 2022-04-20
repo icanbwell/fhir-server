@@ -472,10 +472,21 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
                 element,
                 resourceName
             );
-
             resources.push(element_to_return);
         } else {
-            resources.push(new Resource(element));
+            /**
+             * @type  {Resource}
+             */
+            const resource = new Resource(element);
+            /**
+             * @type {Object}
+             */
+            const cleanResource = removeNull(resource.toJSON());
+            /**
+             * @type {Resource[]}
+             */
+            const enrichedResources = await enrich([cleanResource], resourceName);
+            resources = resources.concat(enrichedResources);
         }
     }
     return resources;
@@ -742,11 +753,6 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             }
             resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
         }
-        // remove any nulls or empty objects or arrays
-        resources = resources.map((r) => removeNull(r.toJSON()));
-
-        // run any enrichment
-        resources = await enrich(resources, resourceName);
 
         if (resources.length > 0) {
             if (resourceName !== 'AuditEvent') {
