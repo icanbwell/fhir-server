@@ -1,4 +1,4 @@
-const handler = require('@asymmetrik/fhir-response-util');
+const handler = require('../../fhir-response-util');
 /**
  * @function search
  * @param {Function} service
