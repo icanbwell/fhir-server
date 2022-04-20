@@ -13,6 +13,7 @@ const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston')
 const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
+const router = require('../middleware/fhir/router');
 
 class MyFHIRServer extends FHIRServer.Server {
     configureMiddleware() {
@@ -137,6 +138,12 @@ class MyFHIRServer extends FHIRServer.Server {
         // return self for chaining
         return this;
     }
+
+    setProfileRoutes() {
+        router.setRoutes(this); // return self for chaining
+
+        return this;
+    } // Setup custom logging
 }
 
 module.exports = {

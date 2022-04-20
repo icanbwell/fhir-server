@@ -24,6 +24,7 @@ const deepcopy = require('deepcopy');
 const {searchOld} = require('./searchOld');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {limit} = require('../../utils/searchForm.util');
+const {streamData} = require('../common/streamer');
 
 /**
  * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
@@ -688,6 +689,16 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
                 total_count = await handleGetTotals(args, collection, query, maxMongoTimeMS);
             }
+
+            if (isTrue(env.STREAM_DATA) || args['_stream']) {
+                await streamData(
+                    requestInfo.request,
+                    requestInfo.response,
+                    cursor
+                );
+                return;
+            }
+
             // Resource is a resource cursor, pull documents out before resolving
             while (await cursor.hasNext()) {
                 /**
