@@ -440,6 +440,46 @@ function createBundle(
 }
 
 /**
+ * @param {string | null} user
+ * @param {string | null} scope
+ * @param {Object} args
+ * @param {Function} Resource
+ * @param {Resource} element
+ * @param {string} resourceName
+ * @returns {Promise<Resource[]>}
+ */
+async function prepareResource(user, scope, args, Resource, element, resourceName) {
+    let resources = [];
+    if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+        return [];
+    }
+    if (args['_elements']) {
+        const element_to_return = selectSpecificElements(
+            args,
+            Resource,
+            element,
+            resourceName
+        );
+        resources.push(element_to_return);
+    } else {
+        /**
+         * @type  {Resource}
+         */
+        const resource = new Resource(element);
+        /**
+         * @type {Object}
+         */
+        const cleanResource = removeNull(resource.toJSON());
+        /**
+         * @type {Resource[]}
+         */
+        const enrichedResources = await enrich([cleanResource], resourceName);
+        resources = resources.concat(enrichedResources);
+    }
+    return resources;
+}
+
+/**
  * Reads resources from Mongo cursor
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
  * @param {string | null} user
@@ -462,32 +502,7 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
          * @type {Resource}
          */
         const element = await cursor.next();
-        if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-            continue;
-        }
-        if (args['_elements']) {
-            const element_to_return = selectSpecificElements(
-                args,
-                Resource,
-                element,
-                resourceName
-            );
-            resources.push(element_to_return);
-        } else {
-            /**
-             * @type  {Resource}
-             */
-            const resource = new Resource(element);
-            /**
-             * @type {Object}
-             */
-            const cleanResource = removeNull(resource.toJSON());
-            /**
-             * @type {Resource[]}
-             */
-            const enrichedResources = await enrich([cleanResource], resourceName);
-            resources = resources.concat(enrichedResources);
-        }
+        resources = resources.concat(await prepareResource(user, scope, args, Resource, element, resourceName));
     }
     return resources;
 }
