@@ -710,6 +710,7 @@ const profiles = {
     CareTeam: {
       service: './src/services/careteam/careteam.service.js',
       versions: [VERSIONS['4_0_0']],
+      filterByPerson: true,
       operation: [
         {
           name: 'everything',

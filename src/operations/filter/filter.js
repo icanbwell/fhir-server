@@ -1,7 +1,6 @@
 const env = require('var');
 const { searchById } = require('../searchById/searchById');
 const { logRequest } = require('../common/logging');
-const { verifyHasValidScopes } = require('../security/scopes');
 const { getRequestInfo } = require('../../graphql/v2/requestInfoHelper');
 
 module.exports.filter = async (requestInfo, args, resourceName) => {
@@ -15,30 +14,14 @@ module.exports.filter = async (requestInfo, args, resourceName) => {
     const scope = requestInfo.scope;
 
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceName, 'read', user, scope);
     logRequest(user, '---- args ----');
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    const filteredResources = [
-        'CarePlan',
-        'Encounter',
-        'Observation',
-        'Patient',
-        'AllergyIntolerance',
-        'MedicationRequest',
-        'MedicationStatement',
-        'Immunization',
-        'ExplanationOfBenefit',
-        'Procedure',
-        'Condition',
-    ];
     let patients = [];
     // if (env.ENABLE_PATIENT_FILTERING && requestInfo.user.isUser) {
     let personId = requestInfo['custom:bwell_fhir_id'];
-    if (env.ENABLE_PATIENT_FILTERING && personId && filteredResources.includes(resourceName)) {
+    if (env.ENABLE_PATIENT_FILTERING && personId) { //&& filteredResources.includes(resourceName)) {
         // let patients = getPatientsFromUser(user);
         // requestInfo['custom:bwell_fhir_id'] = 'bwell-123456789';
         let person = await searchById(
