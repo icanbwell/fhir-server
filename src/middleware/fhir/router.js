@@ -303,11 +303,19 @@ function enableResourceRoutes(app, config, corsDefaults) {
 
                 app.options(profileRoute, cors(corsOptions)); // Enable this operation route
 
-                app[route.type](profileRoute, cors(corsOptions), versionValidationMiddleware(profile), sanitizeMiddleware(route.args), authenticationMiddleware(config), sofScopeMiddleware({
-                    route,
-                    auth: config.auth,
-                    name: profileName
-                }), loadController(lowercaseKey, route.interaction, profile.serviceModule));
+                app[route.type](
+                    profileRoute,
+                    cors(corsOptions),
+                    versionValidationMiddleware(profile),
+                    sanitizeMiddleware(route.args),
+                    authenticationMiddleware(config),
+                    sofScopeMiddleware({
+                        route,
+                        auth: config.auth,
+                        name: profileName
+                    }),
+                    loadController(lowercaseKey, route.interaction, profile.serviceModule)
+                );
             }
         }
     }

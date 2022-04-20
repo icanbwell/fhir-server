@@ -117,7 +117,7 @@ function update(req, res, json, options) {
  * @param {Express.res} res - Express response object
  * @param {Object} json - json to send to client
  */
-function remove(_req, res, json) {
+function remove(req, res, json) {
     if (json && json.deleted) {
         res.set('ETag', json.deleted);
     }
