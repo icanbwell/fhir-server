@@ -288,7 +288,7 @@ function selectSpecificElements(args, Resource, element, resourceName) {
 }
 
 /**
- * creates a bundle
+ * creates a bundle from the given resources
  * @param {string | null} url
  * @param {Resource[]} resources
  * @param {string} base_version
@@ -437,6 +437,48 @@ function createBundle(
         logDebug(user, JSON.stringify(bundle));
     }
     return bundle;
+}
+
+/**
+ * Reads resources from Mongo cursor
+ * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {string | null} user
+ * @param {string | null} scope
+ * @param {Object?} args
+ * @param {Function} Resource
+ * @param {string} resourceName
+ * @returns {Promise<Resource[]>}
+ */
+async function readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName) {
+    /**
+     * resources to return
+     * @type {Resource[]}
+     */
+    let resources = [];
+    // Resource is a resource cursor, pull documents out before resolving
+    while (await cursor.hasNext()) {
+        /**
+         * element
+         * @type {Resource}
+         */
+        const element = await cursor.next();
+        if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+            continue;
+        }
+        if (args['_elements']) {
+            const element_to_return = selectSpecificElements(
+                args,
+                Resource,
+                element,
+                resourceName
+            );
+
+            resources.push(element_to_return);
+        } else {
+            resources.push(new Resource(element));
+        }
+    }
+    return resources;
 }
 
 /**
@@ -665,7 +707,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             /**
              * mongo db cursor
              * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
-             * @type {Promise<Cursor<unknown>> | *}
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<Document>>}
              */
             let cursor = await pRetry(async () => await cursorQuery, {
                 retries: 5,
@@ -698,30 +740,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                 );
                 return;
             }
-
-            // Resource is a resource cursor, pull documents out before resolving
-            while (await cursor.hasNext()) {
-                /**
-                 * element
-                 * @type {Resource}
-                 */
-                const element = await cursor.next();
-                if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-                    continue;
-                }
-                if (args['_elements']) {
-                    const element_to_return = selectSpecificElements(
-                        args,
-                        Resource,
-                        element,
-                        resourceName
-                    );
-
-                    resources.push(element_to_return);
-                } else {
-                    resources.push(new Resource(element));
-                }
-            }
+            resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
         }
         // remove any nulls or empty objects or arrays
         resources = resources.map((r) => removeNull(r.toJSON()));
