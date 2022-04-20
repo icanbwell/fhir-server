@@ -22,7 +22,7 @@ const {
 
 const {
     getController
-} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/controllers.utils');
+} = require('./controller.utils');
 
 const {
     getSearchParameters
