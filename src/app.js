@@ -59,17 +59,19 @@ Prometheus.startCollection();
 app.set('views', path.join(__dirname, '/views'));
 app.set('view engine', 'ejs');
 
-// const fhirApp = MyFHIRServer.initialize(fhirServerConfig);
-const fhirApp = new MyFHIRServer(fhirServerConfig)
-    .configureMiddleware()
-    .configureSession()
-    .configureHelmet()
-    .configurePassport()
-    .configureHtmlRenderer()
-    .setPublicDirectory()
-    .setProfileRoutes()
-    .configureSlackErrorHandler()
-    .setErrorRoutes();
+function createFhirApp(app1) {
+    return new MyFHIRServer(fhirServerConfig, app1)
+        .configureMiddleware()
+        .configureSession()
+        .configureHelmet()
+        .configurePassport()
+        .configureHtmlRenderer()
+        .setPublicDirectory()
+        .setProfileRoutes()
+        .configureSlackErrorHandler()
+        .setErrorRoutes();
+}
+
 
 app.use(handleSecurityPolicy);
 
@@ -177,7 +179,8 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
                 app.use('/graphqlv1', router1);
             })
             .then((_) => {
-                app.use(fhirApp.app);
+                // app.use(fhirApp.app);
+                createFhirApp(app);
             });
     } else {
         graphql()
@@ -201,12 +204,14 @@ if (isTrue(env.ENABLE_GRAPHQL)) {
                 app.use('/graphql', router1);
             })
             .then((_) => {
-                app.use(fhirApp.app);
+                // app.use(fhirApp.app);
+                createFhirApp(app);
             });
     }
 } else {
-    app.use(fhirApp.app);
+    // app.use(fhirApp.app);
+    createFhirApp(app);
 }
 app.locals.currentYear = new Date().getFullYear();
 
-module.exports = {app, fhirApp};
+module.exports = {app};

@@ -3,7 +3,7 @@
  */
 const {createHttpTerminator} = require('http-terminator');
 
-const {app, fhirApp} = require('./app');
+const {app} = require('./app');
 const asyncHandler = require('./lib/async-handler');
 const mongoClient = require('./lib/mongo');
 const globals = require('./globals');
@@ -11,6 +11,8 @@ const {fhirServerConfig, mongoConfig, atlasMongoConfig} = require('./config');
 const {CLIENT, CLIENT_DB, ATLAS_CLIENT, ATLAS_CLIENT_DB} = require('./constants');
 const env = require('var');
 const {isTrue} = require('./utils/isTrue');
+const { loggers } = require('@asymmetrik/node-fhir-server-core');
+const logger = loggers.get('default');
 
 const main = async function () {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
@@ -76,7 +78,7 @@ const main = async function () {
 
 
     const server = app.listen(fhirServerConfig.server.port, () =>
-        fhirApp.logger.verbose('Server is up and running!')
+        logger.verbose('Server is up and running!')
     );
 
     const httpTerminator = createHttpTerminator({
@@ -85,26 +87,26 @@ const main = async function () {
     });
 
     process.on('SIGTERM', async function onSigterm() {
-        fhirApp.logger.info('Beginning shutdown of server');
+        logger.info('Beginning shutdown of server');
         try {
             await httpTerminator.terminate();
-            fhirApp.logger.info('Successfully shut down server');
+            logger.info('Successfully shut down server');
             process.exit(0);
         } catch (error) {
-            fhirApp.logger.error('Failed to shutdown server: ', error);
+            logger.error('Failed to shutdown server: ', error);
             process.exit(1);
         }
     });
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigterm() {
-        fhirApp.logger.info('Beginning shutdown of server for SIGINT');
+        logger.info('Beginning shutdown of server for SIGINT');
         try {
             await httpTerminator.terminate();
-            fhirApp.logger.info('Successfully shut down server for SIGINT');
+            logger.info('Successfully shut down server for SIGINT');
             process.exit(0);
         } catch (error) {
-            fhirApp.logger.error('Failed to shutdown server for SIGINT: ', error);
+            logger.error('Failed to shutdown server for SIGINT: ', error);
             process.exit(1);
         }
     });
