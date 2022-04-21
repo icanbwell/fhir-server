@@ -38,7 +38,8 @@ function getRequestInfo(req) {
         req.originalUrl,
         req.path,
         req.hostname,
-        req.body
+        req.body,
+        req.headers.accept
     );
 }
 

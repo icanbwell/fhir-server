@@ -10,18 +10,25 @@ const JSONStream = require('JSONStream');
  * @param {string | null} scope
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
+ * @param {string} useJson
  * @param {string} resourceName
+ * @param {string} contentType
  * @returns {Promise<void>}
  */
 async function streamResourcesFromCursor(cursor, res, user, scope,
-                                         args, Resource, resourceName) {
+                                         args,
+                                         Resource,
+                                         resourceName,
+                                         contentType = 'application/fhir+json') {
     /**
      * @type {Readable}
      */
     const stream = cursor.stream();
 
-    let openJson = '[';
-    let closeJson = ']';
+    const useJson = contentType !== 'application/fhir+ndjson';
+
+    let openJson = useJson ? '[' : '';
+    let closeJson = useJson ? ']' : '';
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
@@ -41,8 +48,8 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
             }
         },
         // https://www.npmjs.com/package/JSONStream
-        JSONStream.stringify(openJson, ',', closeJson),
-        res.type('application/fhir+json')
+        JSONStream.stringify(openJson, useJson ? ',' : '\n', closeJson),
+        res.type(contentType)
     );
 }
 

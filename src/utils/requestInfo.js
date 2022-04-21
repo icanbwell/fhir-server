@@ -9,6 +9,7 @@ class RequestInfo {
      * @param {string | null} path
      * @param {string | null} host
      * @param {Object | Object[] | null} body
+     * @param {string | null} accept
      */
     constructor(user,
                 scope,
@@ -17,7 +18,8 @@ class RequestInfo {
                 originalUrl,
                 path,
                 host,
-                body) {
+                body,
+                accept) {
         /**
          * @type {string|null}
          */
@@ -50,6 +52,10 @@ class RequestInfo {
          * @type {Object|Object[]|null}
          */
         this.body = body;
+        /**
+         * @type {string | null}
+         */
+        this.accept = accept;
     }
 }
 

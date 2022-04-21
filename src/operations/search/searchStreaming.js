@@ -120,34 +120,38 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         const stopTime = Date.now();
 
         if (cursor !== null) { // usually means the two-step optimization found no results
-            // if env.RETURN_BUNDLE is set then return as a Bundle
-            if (env.RETURN_BUNDLE || args['_bundle']) {
-                /**
-                 * @type {Resource}
-                 */
-                const bundle = createBundle(
-                    url,
-                    resources,
-                    base_version,
-                    total_count,
-                    args,
-                    originalQuery,
-                    mongoCollectionName,
-                    originalOptions,
-                    columns,
-                    stopTime,
-                    startTime,
-                    useTwoStepSearchOptimization,
-                    indexHint,
-                    cursorBatchSize,
-                    user,
-                    useAtlas
-                );
-                await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
+            if (requestInfo.accept.includes('application/fhir+ndjson')) {
+                await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName,
+                    'application/fhir+ndjson');
             } else {
-                await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+                // if env.RETURN_BUNDLE is set then return as a Bundle
+                if (env.RETURN_BUNDLE || args['_bundle']) {
+                    /**
+                     * @type {Resource}
+                     */
+                    const bundle = createBundle(
+                        url,
+                        resources,
+                        base_version,
+                        total_count,
+                        args,
+                        originalQuery,
+                        mongoCollectionName,
+                        originalOptions,
+                        columns,
+                        stopTime,
+                        startTime,
+                        useTwoStepSearchOptimization,
+                        indexHint,
+                        cursorBatchSize,
+                        user,
+                        useAtlas
+                    );
+                    await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
+                } else {
+                    await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+                }
             }
-
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {
                     // log access to audit logs
