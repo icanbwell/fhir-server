@@ -4,6 +4,7 @@ const handler = require('../../fhir-response-util');
  * @typedef FhirService
  * @type {object}
  * @property {Function} search
+ * @property {Function} searchStreaming
  * @property {Function} searchById
  * @property {Function} searchByVersionId
  * @property {Function} create
@@ -22,16 +23,25 @@ const handler = require('../../fhir-response-util');
 module.exports.search = function search(service) {
     return async (req, res, next) => {
         try {
-            const bundle = await service.search(req.sanitized_args, {
-                req,
-                res
-            });
-            handler.read(req, res, bundle);
+            const stream = true;
+            if (stream) {
+                await service.searchStreaming(req.sanitized_args, {
+                    req,
+                    res
+                });
+            } else {
+                const bundle = await service.search(req.sanitized_args, {
+                    req,
+                    res
+                });
+                handler.read(req, res, bundle);
+            }
         } catch (e) {
             next(e);
         }
     };
 };
+
 /**
  * @function searchById
  * @param {FhirService} service
