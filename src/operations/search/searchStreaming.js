@@ -161,9 +161,38 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                     );
                 }
             }
+        } else {
+            // return empty bundle
+            if (env.RETURN_BUNDLE || args['_bundle']) {
+                /**
+                 * @type {Resource}
+                 */
+                const bundle = createBundle(
+                    url,
+                    resources,
+                    base_version,
+                    total_count,
+                    args,
+                    originalQuery,
+                    mongoCollectionName,
+                    originalOptions,
+                    columns,
+                    stopTime,
+                    startTime,
+                    useTwoStepSearchOptimization,
+                    indexHint,
+                    cursorBatchSize,
+                    user,
+                    useAtlas
+                );
+                res.type('application/fhir+json').json(bundle.toJson());
+            } else {
+                res.type('application/fhir+json').json([]);
+            }
         }
-
-    } catch (e) {
+    } catch
+        (e) {
         throw new MongoError(e.message, e, mongoCollectionName, query, options);
     }
-};
+}
+;
