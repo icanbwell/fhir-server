@@ -185,7 +185,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                     user,
                     useAtlas
                 );
-                res.type('application/fhir+json').json(bundle.toJson());
+                res.type('application/fhir+json').json(bundle.toJSON());
             } else {
                 res.type('application/fhir+json').json([]);
             }
