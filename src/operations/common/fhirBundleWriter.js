@@ -13,17 +13,9 @@ class FhirBundleWriter extends Transform {
          * @private
          */
         this._bundle = bundle;
-        const cleanObject = removeNull(bundle.toJSON());
-        cleanObject['entry'] = [];
-        /**
-         * @type {string}
-         */
-        this.bundleJson = JSON.stringify(cleanObject);
-        const strings = this.bundleJson.split('entry":[');
-        this._beginningJson = strings[0] + 'entry":[';
-        this._endingJson = strings[1];
         this._first = true;
-        this.push(this._beginningJson);
+        this.push('{"entry":[');
+        this._lastid = null;
     }
 
     /**
@@ -47,12 +39,22 @@ class FhirBundleWriter extends Transform {
             // add comma at the beginning to make it legal json
             this.push(',' + resourceJson, encoding);
         }
+        this._lastid = chunk['id'];
         callback();
     }
 
     _flush(callback) {
+        /**
+         * @type {Object}
+         */
+        const cleanObject = removeNull(this._bundle.toJSON());
+        /**
+         * @type {string}
+         */
+        const bundleJson = JSON.stringify(cleanObject);
+
         // write ending json
-        this.push(this._endingJson);
+        this.push('],' + bundleJson.substring(1)); // skip the first }
         callback();
     }
 }
