@@ -8,6 +8,9 @@ const collection_name = COLLECTION.SEARCHPARAMETER;
 module.exports.search = async (args, { req, res }) =>
   await base_service.search(args, { req, res }, resource_name, collection_name);
 
+module.exports.searchStreaming = async (args, { req, res }) =>
+  await base_service.searchStreaming(args, { req, res }, resource_name, collection_name);
+
 module.exports.searchById = async (args, { req, res }) =>
   await base_service.searchById(args, { req, res }, resource_name, collection_name);
 
