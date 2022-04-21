@@ -1,10 +1,11 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
-const JSONStream = require('JSONStream');
+const {FhirBundleWriter} = require('../common/fhirBundleWriter');
 
 /**
  * Reads resources from Mongo cursor
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {Resource} bundle
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
  * @param {string | null} scope
@@ -13,15 +14,14 @@ const JSONStream = require('JSONStream');
  * @param {string} resourceName
  * @returns {Promise<void>}
  */
-async function streamResourcesFromCursor(cursor, res, user, scope,
-                                         args, Resource, resourceName) {
+async function streamBundleFromCursor(cursor, bundle, res, user, scope,
+                                      args, Resource, resourceName) {
     /**
      * @type {Readable}
      */
     const stream = cursor.stream();
 
-    let openJson = '[';
-    let closeJson = ']';
+    const fhirBundleWriter = new FhirBundleWriter(bundle);
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
@@ -40,13 +40,12 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
                 }
             }
         },
-        // https://www.npmjs.com/package/JSONStream
-        JSONStream.stringify(openJson, ',', closeJson),
+        fhirBundleWriter,
         res.type('application/fhir+json')
     );
 }
 
 
 module.exports = {
-    streamResourcesFromCursor: streamResourcesFromCursor
+    streamBundleFromCursor: streamBundleFromCursor
 };

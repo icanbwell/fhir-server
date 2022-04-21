@@ -12,10 +12,10 @@ const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
 const {getCursorForQuery} = require('./getCursorForQuery');
-const {readResourcesFromCursor} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {streamResourcesFromCursor} = require('./streamResourcesFromCursor');
+const {streamBundleFromCursor} = require('./streamBundleFromCursor');
 
 
 /**
@@ -114,8 +114,39 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         let cursorBatchSize = __ret.cursorBatchSize;
         let cursor = __ret.cursor;
 
+        /**
+         * @type {number}
+         */
+        const stopTime = Date.now();
+
         if (cursor !== null) { // usually means the two-step optimization found no results
-            await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+            // if env.RETURN_BUNDLE is set then return as a Bundle
+            if (env.RETURN_BUNDLE || args['_bundle']) {
+                /**
+                 * @type {Resource}
+                 */
+                const bundle = createBundle(
+                    url,
+                    resources,
+                    base_version,
+                    total_count,
+                    args,
+                    originalQuery,
+                    mongoCollectionName,
+                    originalOptions,
+                    columns,
+                    stopTime,
+                    startTime,
+                    useTwoStepSearchOptimization,
+                    indexHint,
+                    cursorBatchSize,
+                    user,
+                    useAtlas
+                );
+                await streamBundleFromCursor(cursor, bundle, res, user, scope, args, Resource, resourceName);
+            } else {
+                await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+            }
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {
@@ -131,11 +162,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                 }
             }
         }
-
-        /**
-         * @type {number}
-         */
-        const stopTime = Date.now();
 
     } catch (e) {
         throw new MongoError(e.message, e, mongoCollectionName, query, options);
