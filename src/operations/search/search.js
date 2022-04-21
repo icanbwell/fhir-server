@@ -5,19 +5,15 @@ const {MongoError} = require('../../utils/mongoErrors');
 const {
     verifyHasValidScopes,
 } = require('../security/scopes');
-const {buildR4SearchQuery} = require('../query/r4');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {buildStu3SearchQuery} = require('../query/stu3');
 const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntry} = require('../../utils/auditLogger');
-const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {searchOld} = require('./searchOld');
-const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {getCursorForQuery} = require('./getCursorForQuery');
 const {readResourcesFromCursor} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
+const {constructQuery} = require('./constructQuery');
 
 
 /**
@@ -55,37 +51,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     logRequest(user, '---- args ----');
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
-    /**
-     * @type {string[]}
-     */
-    let securityTags = getSecurityTagsFromScope(user, scope);
-    /**
-     * @type {string}
-     */
-    let {base_version} = args;
-    /**
-     * @type {import('mongodb').Document}
-     */
-    let query;
 
-    /**
-     * @type {Set}
-     */
-    let columns;
-
-    // eslint-disable-next-line no-useless-catch
-    try {
-        if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
-        } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
-        } else {
-            ({query, columns} = buildR4SearchQuery(resourceName, args));
-        }
-    } catch (e) {
-        throw e;
-    }
-    query = getQueryWithSecurityTags(securityTags, query);
+    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName);
 
     /**
      * @type {boolean}
@@ -144,7 +111,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         let cursorBatchSize = __ret.cursorBatchSize;
         let cursor = __ret.cursor;
 
-        if (cursor !== null) { // usually means the two step optimization found no results
+        if (cursor !== null) { // usually means the two-step optimization found no results
             resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
 
             if (resources.length > 0) {
