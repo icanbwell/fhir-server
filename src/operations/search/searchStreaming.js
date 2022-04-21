@@ -143,7 +143,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                     user,
                     useAtlas
                 );
-                await streamBundleFromCursor(cursor, bundle, res, user, scope, args, Resource, resourceName);
+                await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
             } else {
                 await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
             }

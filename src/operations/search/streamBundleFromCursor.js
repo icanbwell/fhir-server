@@ -5,6 +5,7 @@ const {FhirBundleWriter} = require('../common/fhirBundleWriter');
 /**
  * Reads resources from Mongo cursor
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {string | null} url
  * @param {Resource} bundle
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
@@ -14,14 +15,14 @@ const {FhirBundleWriter} = require('../common/fhirBundleWriter');
  * @param {string} resourceName
  * @returns {Promise<void>}
  */
-async function streamBundleFromCursor(cursor, bundle, res, user, scope,
+async function streamBundleFromCursor(cursor, url, bundle, res, user, scope,
                                       args, Resource, resourceName) {
     /**
      * @type {Readable}
      */
     const stream = cursor.stream();
 
-    const fhirBundleWriter = new FhirBundleWriter(bundle);
+    const fhirBundleWriter = new FhirBundleWriter(bundle, url);
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
