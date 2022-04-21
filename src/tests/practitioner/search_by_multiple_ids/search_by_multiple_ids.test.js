@@ -24,14 +24,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = null;
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')

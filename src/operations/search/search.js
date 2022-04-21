@@ -5,19 +5,16 @@ const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
 const {
     verifyHasValidScopes,
-    isAccessToResourceAllowedBySecurityTags,
 } = require('../security/scopes');
 const {buildR4SearchQuery} = require('../query/r4');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {getResource} = require('../common/getResource');
 const {logRequest, logDebug, logError} = require('../common/logging');
-const {enrich} = require('../../enrich/enrich');
 const {findIndexForFields} = require('../../indexes/indexHinter');
 const {isTrue} = require('../../utils/isTrue');
 const pRetry = require('p-retry');
 const {logMessageToSlack} = require('../../utils/slack.logger');
-const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const deepcopy = require('deepcopy');
@@ -25,6 +22,10 @@ const {searchOld} = require('./searchOld');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {limit} = require('../../utils/searchForm.util');
 const {streamData} = require('../common/streamer');
+const {pipeline} = require('stream/promises');
+// const {StreamToArrayWriter} = require('../common/streamToArrayWriter');
+// const {ResourcePreparerTransform} = require('../common/resourcePreparerTransform');
+const {prepareResource} = require('../common/resourcePreparer');
 
 /**
  * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
@@ -250,42 +251,6 @@ async function handleGetTotals(args, collection, query, maxMongoTimeMS) {
     }
 }
 
-/**
- * handles selection of specific elements
- * @param {Object} args
- * @param {function(?Object): Resource} Resource
- * @param {Resource} element
- * @param {string} resourceName
- * @return {Resource}
- */
-function selectSpecificElements(args, Resource, element, resourceName) {
-    /**
-     * @type {string}
-     */
-    const properties_to_return_as_csv = args['_elements'];
-    /**
-     * @type {string[]}
-     */
-    const properties_to_return_list = properties_to_return_as_csv.split(',');
-    /**
-     * @type {Resource}
-     */
-    const element_to_return = new Resource(null);
-    /**
-     * @type {string}
-     */
-    for (const property of properties_to_return_list) {
-        if (property in element_to_return) {
-            element_to_return[`${property}`] = element[`${property}`];
-        }
-    }
-    // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-    if (resourceName === 'Library') {
-        element_to_return['id'] = element['id'];
-        element_to_return['url'] = element['url'];
-    }
-    return element_to_return;
-}
 
 /**
  * creates a bundle from the given resources
@@ -440,46 +405,6 @@ function createBundle(
 }
 
 /**
- * @param {string | null} user
- * @param {string | null} scope
- * @param {Object} args
- * @param {Function} Resource
- * @param {Resource} element
- * @param {string} resourceName
- * @returns {Promise<Resource[]>}
- */
-async function prepareResource(user, scope, args, Resource, element, resourceName) {
-    let resources = [];
-    if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-        return [];
-    }
-    if (args['_elements']) {
-        const element_to_return = selectSpecificElements(
-            args,
-            Resource,
-            element,
-            resourceName
-        );
-        resources.push(element_to_return);
-    } else {
-        /**
-         * @type  {Resource}
-         */
-        const resource = new Resource(element);
-        /**
-         * @type {Object}
-         */
-        const cleanResource = removeNull(resource.toJSON());
-        /**
-         * @type {Resource[]}
-         */
-        const enrichedResources = await enrich([cleanResource], resourceName);
-        resources = resources.concat(enrichedResources);
-    }
-    return resources;
-}
-
-/**
  * Reads resources from Mongo cursor
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
  * @param {string | null} user
@@ -494,16 +419,45 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
      * resources to return
      * @type {Resource[]}
      */
-    let resources = [];
+    const resources = [];
+
+    /**
+     * @type {Readable}
+     */
+    const stream = cursor.stream();
+
+    // const streamToArray = new StreamToArrayWriter(buffer);
+
+    // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
+    await pipeline(
+        stream,
+        // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
+        async function* (source) {
+            for await (const chunk of source) {
+                yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
+            }
+        },
+        async function* (source) {
+            for await (const chunk of source) {
+                for (const item1 of chunk) {
+                    resources.push(item1);
+                }
+                yield 1;
+            }
+        },
+        // streamToArray
+    );
+
+    // resources = streamToArray.getArray();
     // Resource is a resource cursor, pull documents out before resolving
-    while (await cursor.hasNext()) {
-        /**
-         * element
-         * @type {Resource}
-         */
-        const element = await cursor.next();
-        resources = resources.concat(await prepareResource(user, scope, args, Resource, element, resourceName));
-    }
+    // while (await cursor.hasNext()) {
+    //     /**
+    //      * element
+    //      * @type {Resource}
+    //      */
+    //     const element = await cursor.next();
+    //     resources = resources.concat(await prepareResource(user, scope, args, Resource, element, resourceName));
+    // }
     return resources;
 }
 
