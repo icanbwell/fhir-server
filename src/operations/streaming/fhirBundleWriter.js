@@ -4,22 +4,20 @@ const {removeNull} = require('../../utils/nullRemover');
 class FhirBundleWriter extends Transform {
     /**
      * Streams the incoming data inside a FHIR Bundle
-     * @param {Resource} bundle
+     * @param {function (string[], number): Resource} fnBundle
      * @param {string | null} url
-     * @param {number} startTime
      */
-    constructor(bundle, url, startTime) {
+    constructor(fnBundle, url) {
         super({objectMode: true});
         /**
-         * @type {Resource}
+         * @type {function(string[], number): Resource}
          * @private
          */
-        this._bundle = bundle;
+        this._fnBundle = fnBundle;
         this._url = url;
         this._first = true;
         this.push('{"entry":[');
         this._lastid = null;
-        this._startTime = startTime;
     }
 
     /**
@@ -49,38 +47,19 @@ class FhirBundleWriter extends Transform {
 
     _flush(callback) {
         /**
+         * @type {number}
+         */
+        const stopTime = Date.now();
+
+        /**
+         * @type {Resource}
+         */
+        const bundle = this._fnBundle(this._lastid, stopTime);
+
+        /**
          * @type {Object}
          */
-        const cleanObject = removeNull(this._bundle.toJSON());
-
-        // update the "next" link
-        if (this._lastid) {
-            // have to use a base url or URL() errors
-            const baseUrl = 'https://example.org';
-            /**
-             * url to get next page
-             * @type {URL}
-             */
-            const nextUrl = new URL(this._url, baseUrl);
-            // add or update the id:above param
-            nextUrl.searchParams.set('id:above', `${this._lastid}`);
-            // remove the _getpagesoffset param since that will skip again from this id
-            nextUrl.searchParams.delete('_getpagesoffset');
-            cleanObject.link.push({
-                relation: 'next',
-                url: `${nextUrl.toString().replace(baseUrl, '')}`,
-            });
-            /**
-             * @type {number}
-             */
-            const stopTime = Date.now();
-
-            // set end time
-            const queryTimeTag = cleanObject.meta.tag.find(t => t.system === 'https://www.icanbwell.com/queryTime');
-            if (queryTimeTag) {
-                queryTimeTag['display'] = `${(stopTime - this._startTime) / 1000}`;
-            }
-        }
+        const cleanObject = removeNull(bundle.toJSON());
         /**
          * @type {string}
          */

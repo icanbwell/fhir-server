@@ -136,8 +136,14 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+            /**
+             * id of last resource in the list
+             * @type {?number}
+             */
+            const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             return createBundle(
                 url,
+                last_id,
                 resources,
                 base_version,
                 total_count,

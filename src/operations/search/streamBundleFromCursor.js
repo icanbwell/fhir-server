@@ -7,7 +7,7 @@ const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
  * Reads resources from Mongo cursor
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
  * @param {string | null} url
- * @param {Resource} bundle
+ * @param {function (string | null, number): Resource} fnBundle
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
  * @param {string | null} scope
@@ -16,14 +16,14 @@ const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
  * @param {string} resourceName
  * @returns {Promise<number>}
  */
-async function streamBundleFromCursor(cursor, url, bundle, res, user, scope,
+async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
                                       args, Resource, resourceName) {
     /**
      * @type {Readable}
      */
     const stream = cursor.stream();
 
-    const fhirBundleWriter = new FhirBundleWriter(bundle, url);
+    const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
     const tracker = {
         id: []

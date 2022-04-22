@@ -131,28 +131,27 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
-                    /**
-                     * @type {Resource}
-                     */
-                    const bundle = createBundle(
-                        url,
-                        [],
-                        base_version,
-                        total_count,
-                        args,
-                        originalQuery,
-                        mongoCollectionName,
-                        originalOptions,
-                        columns,
-                        stopTime,
-                        startTime,
-                        useTwoStepSearchOptimization,
-                        indexHint,
-                        cursorBatchSize,
-                        user,
-                        useAtlas
-                    );
-                    resourceIds = await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
+                    resourceIds = await streamBundleFromCursor(cursor, url,
+                        (last_id, stopTime1) => createBundle(
+                            url,
+                            last_id,
+                            [],
+                            base_version,
+                            total_count,
+                            args,
+                            originalQuery,
+                            mongoCollectionName,
+                            originalOptions,
+                            columns,
+                            stopTime1,
+                            startTime,
+                            useTwoStepSearchOptimization,
+                            indexHint,
+                            cursorBatchSize,
+                            user,
+                            useAtlas
+                        ),
+                        res, user, scope, args, Resource, resourceName);
                 } else {
                     resourceIds = await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
                 }
@@ -183,6 +182,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                      */
                     const bundle = createBundle(
                         url,
+                        null,
                         resources,
                         base_version,
                         total_count,

@@ -6,6 +6,7 @@ const {logDebug} = require('../common/logging');
 /**
  * creates a bundle from the given resources
  * @param {string | null} url
+ * @param {string | null} last_id
  * @param {Resource[]} resources
  * @param {string} base_version
  * @param {number} total_count
@@ -25,6 +26,7 @@ const {logDebug} = require('../common/logging');
  */
 function createBundle(
     url,
+    last_id,
     resources,
     base_version,
     total_count,
@@ -48,11 +50,6 @@ function createBundle(
     let link = [];
     // find id of last resource
     if (url) {
-        /**
-         * id of last resource in the list
-         * @type {?number}
-         */
-        const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
         if (last_id) {
             // have to use a base url or URL() errors
             const baseUrl = 'https://example.org';
