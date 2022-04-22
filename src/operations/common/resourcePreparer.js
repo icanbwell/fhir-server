@@ -40,6 +40,7 @@ function selectSpecificElements(args, Resource, element, resourceName) {
 }
 
 /**
+ * Converts the Mongo document into a document we can return to the client
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object} args

@@ -1,6 +1,7 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
-const JSONStream = require('JSONStream');
+const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
+const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 
 /**
  * Reads resources from Mongo cursor
@@ -10,7 +11,6 @@ const JSONStream = require('JSONStream');
  * @param {string | null} scope
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
- * @param {string} useJson
  * @param {string} resourceName
  * @param {string} contentType
  * @returns {Promise<void>}
@@ -27,8 +27,7 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
 
     const useJson = contentType !== 'application/fhir+ndjson';
 
-    let openJson = useJson ? '[' : '';
-    let closeJson = useJson ? ']' : '';
+    const writer = useJson ? new FhirResourceWriter() : new FhirResourceNdJsonWriter();
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
@@ -47,8 +46,7 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
                 }
             }
         },
-        // https://www.npmjs.com/package/JSONStream
-        JSONStream.stringify(openJson, useJson ? ',' : '\n', closeJson),
+        writer,
         res.type(contentType)
     );
 }

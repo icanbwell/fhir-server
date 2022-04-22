@@ -1,6 +1,6 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
-const {FhirBundleWriter} = require('../common/fhirBundleWriter');
+const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 
 /**
  * Reads resources from Mongo cursor
