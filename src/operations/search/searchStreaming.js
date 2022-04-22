@@ -16,6 +16,7 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {streamResourcesFromCursor} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursor} = require('./streamBundleFromCursor');
+const {fhirContentTypes} = require('../../utils/contentTypes');
 
 
 /**
@@ -119,10 +120,12 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
          */
         const stopTime = Date.now();
 
+        const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
+
         if (cursor !== null) { // usually means the two-step optimization found no results
-            if (requestInfo.accept.includes('application/fhir+ndjson')) {
+            if (useNdJson) {
                 await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName,
-                    'application/fhir+ndjson');
+                    fhirContentTypes.ndJson);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
@@ -165,33 +168,39 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                     );
                 }
             }
-        } else {
-            // return empty bundle
-            if (env.RETURN_BUNDLE || args['_bundle']) {
-                /**
-                 * @type {Resource}
-                 */
-                const bundle = createBundle(
-                    url,
-                    resources,
-                    base_version,
-                    total_count,
-                    args,
-                    originalQuery,
-                    mongoCollectionName,
-                    originalOptions,
-                    columns,
-                    stopTime,
-                    startTime,
-                    useTwoStepSearchOptimization,
-                    indexHint,
-                    cursorBatchSize,
-                    user,
-                    useAtlas
-                );
-                res.type('application/fhir+json').json(bundle.toJSON());
+        } else { // no records found
+            if (useNdJson) {
+                // empty response
+                res.type(fhirContentTypes.ndJson);
+                res.status(200).end();
             } else {
-                res.type('application/fhir+json').json([]);
+                // return empty bundle
+                if (env.RETURN_BUNDLE || args['_bundle']) {
+                    /**
+                     * @type {Resource}
+                     */
+                    const bundle = createBundle(
+                        url,
+                        resources,
+                        base_version,
+                        total_count,
+                        args,
+                        originalQuery,
+                        mongoCollectionName,
+                        originalOptions,
+                        columns,
+                        stopTime,
+                        startTime,
+                        useTwoStepSearchOptimization,
+                        indexHint,
+                        cursorBatchSize,
+                        user,
+                        useAtlas
+                    );
+                    res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
+                } else {
+                    res.type(fhirContentTypes.fhirJson).json([]);
+                }
             }
         }
     } catch
