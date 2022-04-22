@@ -135,7 +135,7 @@ function enableOperationRoutesForProfile(app, config, profile, key, parameters, 
         });
 
         if (profile.baseUrls && profile.baseUrls.length && profile.baseUrls.includes('/')) {
-            const operationsRoute = '/'.concat(op.route).replace('$', '([$])'); // Enable cors with preflight
+            const operationsRoute = '/'.concat(op.route).replace(/\$/g, '([$])'); // Enable cors with preflight
 
             app.options(operationsRoute, cors(corsOptions)); // Enable this operation route
 
@@ -152,7 +152,7 @@ function enableOperationRoutesForProfile(app, config, profile, key, parameters, 
                 }));
         }
 
-        const operationRoute = route.path.replace(':resource', key).concat(op.route).replace('$', '([$])'); // Enable cors with preflight
+        const operationRoute = route.path.replace(':resource', key).concat(op.route).replace(/\$/g, '([$])'); // Enable cors with preflight
 
         app.options(operationRoute, cors(corsOptions)); // Enable this operation route
 
