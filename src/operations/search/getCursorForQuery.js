@@ -48,7 +48,9 @@ async function getCursorForQuery(args, columns, resourceName, options,
         const __ret = handleCountOption(args, options);
         options = __ret.options;
     } else {
-        setDefaultLimit(args, options);
+        if (!args['_streamResponse']) {
+            setDefaultLimit(args, options);
+        }
     }
 
     // for consistency in results while paging, always sort by id
