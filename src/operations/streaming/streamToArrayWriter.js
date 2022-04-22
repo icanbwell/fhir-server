@@ -15,6 +15,13 @@ class StreamToArrayWriter extends Writable {
         this._buffer = buffer;
     }
 
+    /**
+     * transforms a chunk
+     * @param {Object} chunk
+     * @param {BufferEncoding} encoding
+     * @param {CallableFunction} callback
+     * @private
+     */
     _write(chunk, encoding, callback) {
         for (const item of chunk) {
             this._buffer.push(item);
@@ -25,10 +32,6 @@ class StreamToArrayWriter extends Writable {
     _final(callback) {
         this.push(this._buffer);
         callback();
-    }
-
-    getArray() {
-        return this._buffer;
     }
 }
 

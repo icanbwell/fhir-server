@@ -122,9 +122,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
 
         const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
 
+        let resourceIds = [];
+
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName,
+                resourceIds = await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName,
                     fhirContentTypes.ndJson);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -134,7 +136,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                      */
                     const bundle = createBundle(
                         url,
-                        resources,
+                        [],
                         base_version,
                         total_count,
                         args,
@@ -150,12 +152,12 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                         user,
                         useAtlas
                     );
-                    await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
+                    resourceIds = await streamBundleFromCursor(cursor, url, bundle, res, user, scope, args, Resource, resourceName);
                 } else {
-                    await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+                    resourceIds = await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
                 }
             }
-            if (resources.length > 0) {
+            if (resourceIds.length > 0) {
                 if (resourceName !== 'AuditEvent') {
                     // log access to audit logs
                     await logAuditEntry(
@@ -164,7 +166,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                         resourceName,
                         'read',
                         args,
-                        resources.map((r) => r['id'])
+                        resourceIds
                     );
                 }
             }

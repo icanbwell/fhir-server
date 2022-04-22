@@ -1,6 +1,7 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
+const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 
 /**
  * Reads resources from Mongo cursor
@@ -13,7 +14,7 @@ const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
  * @param {string} resourceName
- * @returns {Promise<void>}
+ * @returns {Promise<number>}
  */
 async function streamBundleFromCursor(cursor, url, bundle, res, user, scope,
                                       args, Resource, resourceName) {
@@ -23,6 +24,10 @@ async function streamBundleFromCursor(cursor, url, bundle, res, user, scope,
     const stream = cursor.stream();
 
     const fhirBundleWriter = new FhirBundleWriter(bundle, url);
+
+    const tracker = {
+        id: []
+    };
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
@@ -41,9 +46,11 @@ async function streamBundleFromCursor(cursor, url, bundle, res, user, scope,
                 }
             }
         },
+        new ResourceIdTracker(tracker),
         fhirBundleWriter,
         res.type('application/fhir+json')
     );
+    return tracker.id;
 }
 
 
