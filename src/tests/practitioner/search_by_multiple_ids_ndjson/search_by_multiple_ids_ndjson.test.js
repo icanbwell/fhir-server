@@ -31,7 +31,7 @@ describe('PractitionerReturnIdTests', () => {
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
             let resp = await request
-                .get('/4_0_0/Practitioner')
+                .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
             let body = JSON.parse(ndjsonToJsonText(resp.text));
@@ -63,7 +63,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request
-                .get('/4_0_0/Practitioner')
+                .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
 
@@ -73,7 +73,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response 3 ------------');
 
             resp = await request
-                .get('/4_0_0/Practitioner?id=0')
+                .get('/4_0_0/Practitioner?id=0&_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
 
@@ -95,7 +95,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by multiple id works', async () => {
             let resp = await request
-                .get('/4_0_0/Practitioner')
+                .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
             let body = JSON.parse(ndjsonToJsonText(resp.text));
@@ -135,7 +135,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request
-                .get('/4_0_0/Practitioner')
+                .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
             body = JSON.parse(ndjsonToJsonText(resp.text));
@@ -144,7 +144,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response 3 ------------');
 
             resp = await request
-                .get('/4_0_0/Practitioner?id=0,1679033641&_sort=id')
+                .get('/4_0_0/Practitioner?id=0,1679033641&_sort=id&_streamResponse=1')
                 .set(getHeadersNdJson())
                 .expect(200);
 
@@ -196,7 +196,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request
-                .post('/4_0_0/Practitioner/_search?_sort=id')
+                .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
                 .send({id: '0,1679033641'})
                 .set(getHeadersNdJson())
                 .expect(200);
@@ -249,7 +249,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request
-                .post('/4_0_0/Practitioner/_search?_sort=id')
+                .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
                 .send('id=0,1679033641')
                 .set(getHeadersNdJsonFormUrlEncoded())
                 .expect(200);

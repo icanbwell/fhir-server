@@ -1,4 +1,6 @@
 const handler = require('../../fhir-response-util');
+const {isTrue} = require('../../../../utils/isTrue');
+const env = require('var');
 
 /**
  * @typedef FhirService
@@ -23,7 +25,11 @@ const handler = require('../../fhir-response-util');
 module.exports.search = function search(service) {
     return async (req, res, next) => {
         try {
-            const stream = true;
+            /**
+             * @type {boolean}
+             */
+            const stream = (isTrue(env.STREAM_RESPONSE) || isTrue(req.query._streamResponse));
+
             if (stream) {
                 await service.searchStreaming(req.sanitized_args, {
                     req,
