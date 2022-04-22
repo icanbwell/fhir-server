@@ -5,7 +5,7 @@ const {limit} = require('../../utils/searchForm.util');
  * @param {Object} args
  * @param {Object} options
  */
-function setDefaultSort(args, options) {
+function setDefaultLimit(args, options) {
     if (!args['id'] && !args['_elements']) {
         // set a limit so the server does not come down due to volume of data
         options['limit'] = limit;
@@ -13,5 +13,5 @@ function setDefaultSort(args, options) {
 }
 
 module.exports = {
-    setDefaultSort: setDefaultSort
+    setDefaultLimit: setDefaultLimit
 };

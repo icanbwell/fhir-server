@@ -5,7 +5,7 @@ const searchLimit = 100;
 function getSearchParams(req) {
     const bodyEntries = Object.entries(req.body);
     // eslint-disable-next-line no-unused-vars
-    const nonEmptyOrNull = bodyEntries.filter(([key, val]) => val !== '' && val !== null);
+    const nonEmptyOrNull = bodyEntries.filter(([, val]) => val !== '' && val !== null);
     return Object.fromEntries(nonEmptyOrNull);
 }
 
@@ -19,7 +19,7 @@ function getModifierParams(req) {
     return Object.assign(
         {},
         ...Object.keys(searchParams).map((key) => ({
-            [handleModifierKey(key)]: searchParams[key],
+            [handleModifierKey(key)]: searchParams[`${key}`],
         }))
     );
 }
@@ -145,7 +145,7 @@ const getLastUpdate = function (req, modifier) {
     let dateString = '';
     Object.keys(searchParams).forEach((key) => {
         if (key.includes('_lastUpdated') && key.includes(modifier)) {
-            dateString = searchParams[key];
+            dateString = searchParams[`${key}`];
         }
     });
     return dateString;
@@ -162,7 +162,7 @@ const formatDate = (dateString) => {
     const dateObj = new Date(dateString);
     return `${dateObj.getFullYear()}-${zeroPad(dateObj.getMonth() + 1)}-${zeroPad(
         dateObj.getDate()
-    )} 
+    )}
         ${zeroPad(dateObj.getHours())}:${zeroPad(dateObj.getMinutes())}
         `;
 };

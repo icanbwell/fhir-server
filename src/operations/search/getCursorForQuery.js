@@ -7,7 +7,7 @@ const {logMessageToSlack} = require('../../utils/slack.logger');
 const {handleElementsQuery} = require('./handleElementsQuery');
 const {handleSortQuery} = require('./handleSortQuery');
 const {handleCountOption} = require('./handleCountOption');
-const {setDefaultSort} = require('./setDefaultSort');
+const {setDefaultLimit} = require('./setDefaultLimit');
 const {handleTwoStepSearchOptimization} = require('./handleTwoStepOptimization');
 const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotals} = require('./handleGetTotals');
@@ -48,7 +48,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
         const __ret = handleCountOption(args, options);
         options = __ret.options;
     } else {
-        setDefaultSort(args, options);
+        setDefaultLimit(args, options);
     }
 
     // for consistency in results while paging, always sort by id
