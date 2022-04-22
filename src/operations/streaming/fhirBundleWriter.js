@@ -6,8 +6,9 @@ class FhirBundleWriter extends Transform {
      * Streams the incoming data inside a FHIR Bundle
      * @param {Resource} bundle
      * @param {string | null} url
+     * @param {number} startTime
      */
-    constructor(bundle, url) {
+    constructor(bundle, url, startTime) {
         super({objectMode: true});
         /**
          * @type {Resource}
@@ -18,6 +19,7 @@ class FhirBundleWriter extends Transform {
         this._first = true;
         this.push('{"entry":[');
         this._lastid = null;
+        this._startTime = startTime;
     }
 
     /**
@@ -68,6 +70,16 @@ class FhirBundleWriter extends Transform {
                 relation: 'next',
                 url: `${nextUrl.toString().replace(baseUrl, '')}`,
             });
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+
+            // set end time
+            const queryTimeTag = cleanObject.meta.tag.find(t => t.system === 'https://www.icanbwell.com/queryTime');
+            if (queryTimeTag) {
+                queryTimeTag['display'] = `${(stopTime - this._startTime) / 1000}`;
+            }
         }
         /**
          * @type {string}
