@@ -10,17 +10,20 @@ const {
     limit,
     searchUtils,
 } = require('../utils/searchForm.util');
+const {shouldReturnHtml} = require("../utils/requestHelpers");
 
+/**
+ * middleware to render HTML
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ * @param {function : void} next
+ */
 const htmlRenderer = (req, res, next) => {
     const parts = req.url.split(/[/?,&]+/);
     if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0') {
         const resourceName = parts[2];
         // If the request is from a browser for HTML then return HTML page instead of json
-        if (
-            (req.accepts('text/html') && !req.headers.accept.includes('application/fhir+json')) // if the request is for HTML
-            && (req.method === 'GET' || req.method === 'POST') // and this is a GET or a POST
-            && (req.useragent && req.useragent.isDesktop) // Postman sends */* so we need this to avoid sending html to Postman
-        ) {
+        if (shouldReturnHtml(req)) {
             // override the json function, so we can intercept the data being sent the client
             let oldJson = res.json;
             res.json = (data) => {

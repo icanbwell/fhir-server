@@ -1,6 +1,7 @@
 const handler = require('../../fhir-response-util');
 const {isTrue} = require('../../../../utils/isTrue');
 const env = require('var');
+const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 
 /**
  * @typedef FhirService
@@ -30,12 +31,13 @@ module.exports.search = function search(service) {
              */
             const stream = (isTrue(env.STREAM_RESPONSE) || isTrue(req.query._streamResponse));
 
-            if (stream) {
+            // if stream option is set, and we are not returning HTML then stream the data to client
+            if (stream && !shouldReturnHtml(req)) {
                 await service.searchStreaming(req.sanitized_args, {
                     req,
                     res
                 });
-            } else {
+            } else { // else return the data without streaming
                 const bundle = await service.search(req.sanitized_args, {
                     req,
                     res
