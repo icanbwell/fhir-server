@@ -32,7 +32,7 @@ class MyFHIRServer extends FHIRServer.Server {
         this.app.use(compression({ // https://www.npmjs.com/package/compression
             level: 9,
             // eslint-disable-next-line no-unused-vars
-            filter: (req, res) => true // compress everything
+            filter: (req, res) => !isTrue(env.DISABLE_COMPRESSION) // compress everything
         })); // Enable the body parser
 
         this.app.use(bodyParser.urlencoded({
