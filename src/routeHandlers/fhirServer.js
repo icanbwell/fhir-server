@@ -29,8 +29,10 @@ class MyFHIRServer extends FHIRServer.Server {
 
         this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
-        this.app.use(compression({
-            level: 9
+        this.app.use(compression({ // https://www.npmjs.com/package/compression
+            level: 9,
+            // eslint-disable-next-line no-unused-vars
+            filter: (req, res) => true // compress everything
         })); // Enable the body parser
 
         this.app.use(bodyParser.urlencoded({
