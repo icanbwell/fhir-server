@@ -85,8 +85,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
     const useTwoStepSearchOptimization =
         !args['_elements'] &&
         !args['id'] &&
-        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization'])
-        && !useAtlas;
+        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
     if (useTwoStepSearchOptimization) {
         const __ret = await handleTwoStepSearchOptimization(
             options,
@@ -156,6 +155,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
 
     // set batch size if specified
     if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
+        // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
         const __ret = setCursorBatchSize(args, cursorQuery);
         cursorBatchSize = __ret.cursorBatchSize;
         cursorQuery = __ret.cursorQuery;
