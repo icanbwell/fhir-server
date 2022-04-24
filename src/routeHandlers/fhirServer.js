@@ -29,11 +29,23 @@ class MyFHIRServer extends FHIRServer.Server {
 
         this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
-        this.app.use(compression({ // https://www.npmjs.com/package/compression
-            level: 9,
-            // eslint-disable-next-line no-unused-vars
-            filter: (req, res) => !isTrue(env.DISABLE_COMPRESSION) // compress everything
-        })); // Enable the body parser
+        this.app.use(
+            compression(
+                { // https://www.npmjs.com/package/compression
+                    level: 9,
+                    filter: (req, _) => {
+                        if (req.headers['x-no-compression']) {
+                            // don't compress responses with this request header
+                            return false;
+                        }
+                        // compress everything
+                        return !isTrue(env.DISABLE_COMPRESSION);
+                    }
+                }
+            )
+        );
+
+        // Enable the body parser
 
         this.app.use(bodyParser.urlencoded({
             extended: true,
