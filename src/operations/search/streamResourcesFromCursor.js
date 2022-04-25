@@ -3,6 +3,7 @@ const {prepareResource} = require('../common/resourcePreparer');
 const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
 const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
+const {fhirContentTypes} = require('../../utils/contentTypes');
 
 /**
  * Reads resources from Mongo cursor
@@ -26,7 +27,7 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
      */
     const stream = cursor.stream();
 
-    const useJson = contentType !== 'application/fhir+ndjson';
+    const useJson = contentType !== fhirContentTypes.ndJson;
 
     const writer = useJson ? new FhirResourceWriter() : new FhirResourceNdJsonWriter();
 
