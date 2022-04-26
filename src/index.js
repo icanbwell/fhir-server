@@ -3,80 +3,17 @@
  */
 const {createHttpTerminator} = require('http-terminator');
 
-const {app, fhirApp} = require('./app');
-const asyncHandler = require('./lib/async-handler');
-const mongoClient = require('./lib/mongo');
-const globals = require('./globals');
-const {fhirServerConfig, mongoConfig, atlasMongoConfig} = require('./config');
-const {CLIENT, CLIENT_DB, ATLAS_CLIENT, ATLAS_CLIENT_DB} = require('./constants');
-const env = require('var');
-const {isTrue} = require('./utils/isTrue');
+const {app} = require('./app');
+const {fhirServerConfig} = require('./config');
+const {loggers} = require('@asymmetrik/node-fhir-server-core');
+const {connect} = require('./utils/connect');
+const logger = loggers.get('default');
 
 const main = async function () {
-    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-        mongoConfig.options.monitorCommands = true;
-    }
-    // Connect to mongo and pass any options here
-    let [mongoErr, /** @type {import("mongodb").MongoClient} **/ client] = await asyncHandler(
-        mongoClient(mongoConfig.connection, mongoConfig.options)
-    );
-
-    if (mongoErr) {
-        console.error(mongoErr.message);
-        console.error(mongoConfig.connection);
-        process.exit(1);
-    }
-    client.db('admin').command({ping: 1});
-
-    globals.set(CLIENT, client);
-    globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
-
-    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-        // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
-        client.on('commandStarted', event => {
-            console.log(`AWS Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-        client.on('commandSucceeded', event => {
-            console.log(`AWS Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-        client.on('commandFailed', event => {
-            console.log(`AWS Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-    }
-
-    if (env.ATLAS_MONGO_URL) {
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-            atlasMongoConfig.options.monitorCommands = true;
-        }
-        let [atlasMongoErr, atlasClient] = await asyncHandler(
-            mongoClient(atlasMongoConfig.connection, atlasMongoConfig.options)
-        );
-
-        if (atlasMongoErr) {
-            console.error(atlasMongoErr.message);
-            console.error(atlasMongoConfig.connection);
-            process.exit(1);
-        }
-        atlasClient.db('admin').command({ping: 1});
-        globals.set(ATLAS_CLIENT, atlasClient);
-        globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
-            atlasClient.on('commandStarted', event => {
-                console.log(`Atlas Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-            atlasClient.on('commandSucceeded', event => {
-                console.log(`Atlas Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-            atlasClient.on('commandFailed', event => {
-                console.log(`Atlas Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-        }
-    }
-
+    await connect();
 
     const server = app.listen(fhirServerConfig.server.port, () =>
-        fhirApp.logger.verbose('Server is up and running!')
+        logger.verbose('Server is up and running!')
     );
 
     const httpTerminator = createHttpTerminator({
@@ -85,26 +22,26 @@ const main = async function () {
     });
 
     process.on('SIGTERM', async function onSigterm() {
-        fhirApp.logger.info('Beginning shutdown of server');
+        logger.info('Beginning shutdown of server');
         try {
             await httpTerminator.terminate();
-            fhirApp.logger.info('Successfully shut down server');
+            logger.info('Successfully shut down server');
             process.exit(0);
         } catch (error) {
-            fhirApp.logger.error('Failed to shutdown server: ', error);
+            logger.error('Failed to shutdown server: ', error);
             process.exit(1);
         }
     });
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigterm() {
-        fhirApp.logger.info('Beginning shutdown of server for SIGINT');
+        logger.info('Beginning shutdown of server for SIGINT');
         try {
             await httpTerminator.terminate();
-            fhirApp.logger.info('Successfully shut down server for SIGINT');
+            logger.info('Successfully shut down server for SIGINT');
             process.exit(0);
         } catch (error) {
-            fhirApp.logger.error('Failed to shutdown server for SIGINT: ', error);
+            logger.error('Failed to shutdown server for SIGINT: ', error);
             process.exit(1);
         }
     });

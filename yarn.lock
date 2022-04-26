@@ -9645,6 +9645,11 @@
   "resolved" "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   "version" "1.4.0"
 
+"ndjson-to-json-text@^1.0.2":
+  "integrity" "sha512-zXzzXQmZWh7XPn7SGAo0Dn5NUqJJEDu04Dgi/BLHmY+zN/Tud9RnfhOUeMKFdV2Ye95CmMGPLW5G38rhNvmVRQ=="
+  "resolved" "https://registry.npmjs.org/ndjson-to-json-text/-/ndjson-to-json-text-1.0.2.tgz"
+  "version" "1.0.2"
+
 "nearley@^2.7.10":
   "integrity" "sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ=="
   "resolved" "https://registry.npmjs.org/nearley/-/nearley-2.20.1.tgz"

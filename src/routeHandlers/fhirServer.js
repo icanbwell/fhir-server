@@ -13,8 +13,14 @@ const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston')
 const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
+const router = require('../middleware/fhir/router');
 
 class MyFHIRServer extends FHIRServer.Server {
+    constructor(config = {}, app) {
+        // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
+        super(config, app);
+    }
+
     configureMiddleware() {
         //Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
@@ -23,9 +29,23 @@ class MyFHIRServer extends FHIRServer.Server {
 
         this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
-        this.app.use(compression({
-            level: 9
-        })); // Enable the body parser
+        this.app.use(
+            compression(
+                { // https://www.npmjs.com/package/compression
+                    level: 9,
+                    filter: (req, _) => {
+                        if (req.headers['x-no-compression']) {
+                            // don't compress responses with this request header
+                            return false;
+                        }
+                        // compress everything
+                        return !isTrue(env.DISABLE_COMPRESSION);
+                    }
+                }
+            )
+        );
+
+        // Enable the body parser
 
         this.app.use(bodyParser.urlencoded({
             extended: true,
@@ -137,6 +157,12 @@ class MyFHIRServer extends FHIRServer.Server {
         // return self for chaining
         return this;
     }
+
+    setProfileRoutes() {
+        router.setRoutes(this); // return self for chaining
+
+        return this;
+    } // Setup custom logging
 }
 
 module.exports = {

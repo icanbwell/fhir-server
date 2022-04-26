@@ -4,7 +4,8 @@ const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
 const {getOrCreateCollection} = require('../../../utils/mongoCollectionManager');
 const {getSchemaOfMongoDocument} = require('../../../utils/mongoSchemaHelper');
-const {fixLastUpdatedDatesInAllCollections} = require('../../../indexes/dateFixer');
+const {fixLastUpdatedDatesInAllCollectionsInDatabase} = require('../../../indexes/dateFixer');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('dateFixer Tests', () => {
     beforeEach(async () => {
@@ -31,7 +32,7 @@ describe('dateFixer Tests', () => {
             let element = await collection.findOne({});
             let result = getSchemaOfMongoDocument(null, element, 0);
             expect(result['meta.lastUpdated']).toStrictEqual('string');
-            await fixLastUpdatedDatesInAllCollections();
+            await fixLastUpdatedDatesInAllCollectionsInDatabase(db, null, 1);
             element = await collection.findOne({});
             // make sure other elements are not changed
             expect(element['meta']['versionId']).toStrictEqual('26');
@@ -39,7 +40,7 @@ describe('dateFixer Tests', () => {
             // confirm that the type has been changed to Date
             expect(result['meta.lastUpdated']).toStrictEqual('Date');
             // now try to run it again to make sure it remains a Date
-            await fixLastUpdatedDatesInAllCollections();
+            await fixLastUpdatedDatesInAllCollectionsInDatabase(db, null, 1);
             element = await collection.findOne({});
             result = getSchemaOfMongoDocument(null, element, 0);
             // confirm that the type has been changed to Date

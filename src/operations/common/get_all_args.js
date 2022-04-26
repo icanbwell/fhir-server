@@ -2,7 +2,7 @@ const {logDebug} = require('./logging');
 
 /**
  * combines args with args from request
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string[]} args
  * @returns {string[]} array of combined arguments
  */
