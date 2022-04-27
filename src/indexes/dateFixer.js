@@ -1,14 +1,11 @@
-const asyncHandler = require('../lib/async-handler');
-const mongoClient = require('../lib/mongo');
-const {mongoConfig} = require('../config');
 const async = require('async');
 const {logMessageToSlack} = require('../utils/slack.logger');
-const globals = require('../globals');
 const {CLIENT_DB} = require('../constants');
 const moment = require('moment-timezone');
 // const {Db} = require('mongodb');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
+const {createClient, disconnectClient} = require('../utils/connect');
 
 /**
  * converts the type of field in collection to Date
@@ -89,36 +86,20 @@ const fixLastUpdatedDates = async (collection_name, db, batchSize) => {
 };
 
 /**
- * Converts lastUpdated date to Date in all collections
- * @param {string[]} collectionNamesToInclude
+ * fix dates
+ * @param {import('mongodb').Db} db
+ * @param {string[]|null} collectionNamesToInclude
  * @param {int} batchSize
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
-const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, batchSize) => {
-    // eslint-disable-next-line no-unused-vars
-    let [mongoError, client] = await asyncHandler(
-        mongoClient(mongoConfig.connection, mongoConfig.options)
-    );
-
-    if (mongoError) {
-        console.error(mongoError.message);
-        console.error(mongoConfig.connection);
-        await client.close();
-        throw new Error(mongoError.message);
-    }
-    //create client by providing database name
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    const db = globals.get(CLIENT_DB) || client.db(mongoConfig.db_name);
+async function fixLastUpdatedDatesInAllCollectionsInDatabase(db, collectionNamesToInclude, batchSize) {
     const collection_names = [];
 
-    await db.listCollections().forEach(collection => {
+    for await (const collection of db.listCollections()) {
         if (collection.name.indexOf('system.') === -1) {
             collection_names.push(collection.name);
         }
-    });
+    }
 
     const collectionNamesToSkip = env.FIXDATE_COLLECTIONS_TO_SKIP ? env.FIXDATE_COLLECTIONS_TO_SKIP.split(',') : [];
 
@@ -133,11 +114,32 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
             async collection_name => await fixLastUpdatedDates(collection_name, db, batchSize)
         );
     }
+}
 
-    await client.close();
+/**
+ * Converts lastUpdated date to Date in all collections
+ * @param {string[]|null} collectionNamesToInclude
+ * @param {int} batchSize
+ * @return {Promise<void>}
+ */
+const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, batchSize) => {
+    /**
+     * @type {import("mongodb").MongoClient}
+     */
+    const client = await createClient();
+    try {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
+        await fixLastUpdatedDatesInAllCollectionsInDatabase(db, collectionNamesToInclude, batchSize);
+    } finally {
+        await disconnectClient(client);
+    }
 };
 
 module.exports = {
     fixLastUpdatedDatesInAllCollections: fixLastUpdatedDatesInAllCollections,
+    fixLastUpdatedDatesInAllCollectionsInDatabase: fixLastUpdatedDatesInAllCollectionsInDatabase,
     fixLastUpdatedDates: fixLastUpdatedDates
 };

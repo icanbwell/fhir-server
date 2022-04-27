@@ -15,6 +15,7 @@ const {graph} = require('../../operations/graph/graph');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {RequestInfo} = require('../../utils/requestInfo');
 const {logDebug} = require('../../operations/common/logging');
+const {searchStreaming} = require('../../operations/search/searchStreaming');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -37,14 +38,15 @@ function getRequestInfo(req) {
         req.originalUrl,
         req.path,
         req.hostname,
-        req.body
+        req.body,
+        req.headers.accept
     );
 }
 
 /**
  * does a FHIR Search
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  * @return {Resource[] | Resource} array of resources
@@ -64,9 +66,33 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
 };
 
 /**
+ * does a FHIR Search and streams results
+ * @param {string[]} args
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ * @param {string} resource_name
+ * @param {string} collection_name
+ * @return {Resource[] | Resource} array of resources
+ */
+module.exports.searchStreaming = async (args, {req, res}, resource_name, collection_name) => {
+    /**
+     * combined args
+     * @type {string[]}
+     */
+    let combined_args = get_all_args(req, args);
+    if (req.body && Object.keys(req.body).length > 0) {
+        combined_args = Object.assign({}, args, req.body);
+    }
+    return searchStreaming(
+        getRequestInfo(req),
+        res,
+        combined_args, resource_name, collection_name);
+};
+
+/**
  * does a FHIR Search By Id
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -80,7 +106,7 @@ module.exports.searchById = async (args, {req}, resource_name, collection_name) 
 /**
  * does a FHIR Create (POST)
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -103,7 +129,7 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR Update (PUT)
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -122,7 +148,7 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR Merge
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  * @return {Resource | Resource[]}
@@ -142,7 +168,7 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR $everything
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -161,7 +187,7 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 /**
  * does a FHIR Remove (DELETE)
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -181,7 +207,7 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR Search By Version
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -195,7 +221,7 @@ module.exports.searchByVersionId = async (args, {req}, resource_name, collection
 /**
  * does a FHIR History
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -209,7 +235,7 @@ module.exports.history = async (args, {req}, resource_name, collection_name) => 
 /**
  * does a FHIR History By Id
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -223,7 +249,7 @@ module.exports.historyById = async (args, {req}, resource_name, collection_name)
 /**
  * does a FHIR Patch
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */
@@ -237,7 +263,7 @@ module.exports.patch = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR Validate
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  */
 module.exports.validate = async (args, {req}, resource_name) => {
@@ -249,7 +275,7 @@ module.exports.validate = async (args, {req}, resource_name) => {
 /**
  * Supports $graph
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
@@ -269,7 +295,7 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 /**
  * does a FHIR Search By Id
  * @param {string[]} args
- * @param {IncomingMessage} req
+ * @param {import('http').IncomingMessage} req
  * @param {string} resource_name
  * @param {string} collection_name
  */

@@ -149,6 +149,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^8.4.2",
     "mongodb-memory-server-core": "^8.4.2",
+    "ndjson-to-json-text": "^1.0.2",
     "nock": "^13.2.4",
     "pm2": "^5.2.0",
     "pre-commit": "^1.2.2",

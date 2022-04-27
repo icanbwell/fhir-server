@@ -1,0 +1,36 @@
+const {Transform} = require('stream');
+
+class ResourceIdTracker extends Transform {
+    /**
+     * Tracks the ids of the objects flowing through the stream
+     * @param  {{id: string[]}} tracker
+     */
+    constructor(tracker) {
+        super({objectMode: true});
+        /**
+         * @type {{id: string[]}}
+         * @private
+         */
+        this._tracker = tracker;
+        this._tracker.id = [];
+    }
+
+    /**
+     * transforms a chunk
+     * @param {Object} chunk
+     * @param {BufferEncoding} encoding
+     * @param {CallableFunction} callback
+     * @private
+     */
+    _transform(chunk, encoding, callback) {
+        if (chunk !== null) {
+            this._tracker.id.push(chunk['id']);
+        }
+        this.push(chunk, encoding);
+        callback();
+    }
+}
+
+module.exports = {
+    ResourceIdTracker: ResourceIdTracker
+};
