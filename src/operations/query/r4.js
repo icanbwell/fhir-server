@@ -171,6 +171,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (args['id:below'] && !args['_id:below']) {
         args['_id:below'] = args['id:below'];
     }
+    if (args['onset_date'] && !args['onset-date']) {
+        args['onset-date'] = args['onset_date'];
+    }
+
     // ---- end of backward compatibility mappings ---
 
     /**
