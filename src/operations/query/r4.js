@@ -96,6 +96,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
                     if (queryParameterValue['values']) {
+                        const numberValues = [];
                         for (const dateValue of queryParameterValue['values']) {
                             queryParameterValue = [];
                             let dateString = '';
@@ -127,8 +128,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                                 dateString = 'ap' + dateValue['approximately'];
                             }
                             if (dateString) {
-                                queryParameterValue.push(dateString);
+                                numberValues.push(dateString);
                             }
+                        }
+                        if (numberValues.length > 0) {
+                            queryParameterValue = queryParameterValue.concat(numberValues);
                         }
                     }
                     break;
@@ -167,6 +171,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (args['id:below'] && !args['_id:below']) {
         args['_id:below'] = args['id:below'];
     }
+    if (args['onset_date'] && !args['onset-date']) {
+        args['onset-date'] = args['onset_date'];
+    }
+
     // ---- end of backward compatibility mappings ---
 
     /**
