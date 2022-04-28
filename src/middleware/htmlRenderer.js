@@ -10,7 +10,7 @@ const {
     limit,
     searchUtils,
 } = require('../utils/searchForm.util');
-const {shouldReturnHtml} = require("../utils/requestHelpers");
+const {shouldReturnHtml} = require('../utils/requestHelpers');
 
 /**
  * middleware to render HTML
