@@ -188,14 +188,6 @@ async function getCursorForQuery(args, columns, resourceName, options,
         total_count = await handleGetTotals(args, collection, query, maxMongoTimeMS);
     }
 
-    // if (isTrue(env.STREAM_DATA) || args['_stream']) {
-    //     await streamData(
-    //         requestInfo.request,
-    //         requestInfo.response,
-    //         cursor
-    //     );
-    //     // return;
-    // }
     return {
         columns,
         options,

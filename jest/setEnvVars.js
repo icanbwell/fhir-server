@@ -11,3 +11,4 @@ process.env.AUTH_CUSTOM_CLIENT_ID = 'custom_client_id';
 process.env.CREATE_INDEX_ON_COLLECTION_CREATION = '1';
 process.env.USE_TWO_STEP_SEARCH_OPTIMIZATION = '1';
 process.env.STREAM_RESPONSE = '0';
+// process.env.OLD_SEARCH = '1';

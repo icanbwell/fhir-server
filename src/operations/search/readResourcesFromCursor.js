@@ -34,6 +34,7 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
                 yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
             }
         },
+        // streamToArray
         async function* (source) {
             for await (const chunk of source) {
                 for (const item1 of chunk) {
@@ -42,19 +43,8 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
                 yield 1;
             }
         },
-        // streamToArray
     );
 
-    // resources = streamToArray.getArray();
-    // Resource is a resource cursor, pull documents out before resolving
-    // while (await cursor.hasNext()) {
-    //     /**
-    //      * element
-    //      * @type {Resource}
-    //      */
-    //     const element = await cursor.next();
-    //     resources = resources.concat(await prepareResource(user, scope, args, Resource, element, resourceName));
-    // }
     return resources;
 }
 

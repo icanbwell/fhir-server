@@ -65,8 +65,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
-        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -138,7 +137,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         if (env.RETURN_BUNDLE || args['_bundle']) {
             /**
              * id of last resource in the list
-             * @type {?number}
+             * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             return createBundle(
