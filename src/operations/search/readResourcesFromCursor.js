@@ -1,5 +1,6 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
+const {logError} = require('../common/logging');
 
 /**
  * Reads resources from Mongo cursor
@@ -18,33 +19,35 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
      */
     const resources = [];
 
+    // noinspection JSUnresolvedFunction
     /**
      * @type {Readable}
      */
     const stream = cursor.stream();
 
-    // const streamToArray = new StreamToArrayWriter(buffer);
-
-    // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
-    await pipeline(
-        stream,
-        // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
-        async function* (source) {
-            for await (const chunk of source) {
-                yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
-            }
-        },
-        // streamToArray
-        async function* (source) {
-            for await (const chunk of source) {
-                for (const item1 of chunk) {
-                    resources.push(item1);
+    try {
+        // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
+        await pipeline(
+            stream,
+            // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
+            async function* (source) {
+                for await (const chunk of source) {
+                    yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
                 }
-                yield 1;
-            }
-        },
-    );
-
+            },
+            // streamToArray
+            async function* (source) {
+                for await (const chunk of source) {
+                    for (const item1 of chunk) {
+                        resources.push(item1);
+                    }
+                    yield 1;
+                }
+            },
+        );
+    } catch (e) {
+        logError(user, e);
+    }
     return resources;
 }
 
