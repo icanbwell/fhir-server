@@ -56,7 +56,9 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
                      */
                     const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
                     if (resources.length > 0) {
-                        yield resources[0];
+                        for (const resource in resources) {
+                            yield resource;
+                        }
                     } else {
                         yield null;
                     }
