@@ -23,13 +23,14 @@ async function createClient() {
     try {
         await client.connect();
     } catch (e) {
-        console.error(`Failed to connect 1 to ${mongoConfig.connection}: ${e}`);
+        console.error(`Failed to connect to ${mongoConfig.connection}: ${e}`);
+        throw e;
     }
     try {
-        await client.db('admin').command({ping: 1})
-            .catch(reason => console.error(`Failed to connect 3 to ${mongoConfig.connection}: ${reason}`));
+        await client.db('admin').command({ping: 1});
     } catch (e) {
-        console.error(`Failed to connect 2 to ${mongoConfig.connection}: ${e}`);
+        console.error(`Failed to execute ping on ${mongoConfig.connection}: ${e}`);
+        throw e;
     }
     console.log('Successfully connected to AWS DocumentDB ');
 
@@ -63,8 +64,18 @@ const connect = async function () {
         }
         const atlasClient = new MongoClient(atlasMongoConfig.connection, atlasMongoConfig.options);
 
-        await atlasClient.connect();
-        await atlasClient.db('admin').command({ping: 1});
+        try {
+            await atlasClient.connect();
+        } catch (e) {
+            console.error(`Failed to connect to ${atlasMongoConfig.connection}: ${e}`);
+            throw e;
+        }
+        try {
+            await atlasClient.db('admin').command({ping: 1});
+        } catch (e) {
+            console.error(`Failed to execute ping on ${atlasMongoConfig.connection}: ${e}`);
+            throw e;
+        }
         console.log('Successfully connected to Atlas');
 
         globals.set(ATLAS_CLIENT, atlasClient);
