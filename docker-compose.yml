@@ -42,7 +42,7 @@ services:
       RETURN_BUNDLE: "1"
       USE_TWO_STEP_SEARCH_OPTIMIZATION: "0"
       STREAM_RESPONSE: "0"
-      LOG_ALL_MONGO_CALLS: "1"
+      LOG_ALL_MONGO_CALLS: "0"
     ports:
       - '3000:3000'
     volumes:

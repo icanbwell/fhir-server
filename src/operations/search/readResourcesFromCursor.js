@@ -1,23 +1,7 @@
 const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
 const {logError, logDebug} = require('../common/logging');
-const stream = require('stream');
 
-
-class ResourcesWritable extends stream.Writable {
-    constructor(options) {
-        options = options || {};
-        super({objectMode: true});
-
-        this.resources = options.resources;
-    }
-
-    _write(chunk, encoding, callback) {
-        console.log(`write: chunk:${this.resources.length}`);
-        this.resources.push(chunk);
-        callback();
-    }
-}
 
 /**
  * Reads resources from Mongo cursor
@@ -65,14 +49,14 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
             //         yield await cursor.next();
             //     }
             // },
-            // async function* (source) {
-            //     let chunk_number = 0;
-            //     for await (const chunk of source) {
-            //         chunk_number += 1;
-            //         console.log(`prepareResource: chunk:${chunk_number}`);
-            //         yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
-            //     }
-            // },
+            async function* (source) {
+                let chunk_number = 0;
+                for await (const chunk of source) {
+                    chunk_number += 1;
+                    console.log(`prepareResource: chunk:${chunk_number}`);
+                    yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
+                }
+            },
             // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
             // async function* (source) {
             //     let chunk_number = 0;
@@ -101,9 +85,14 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
             async function (source) {
                 let chunk_number = 0;
                 for await (const chunk of source) {
+                    let item_number = 0;
                     chunk_number += 1;
                     console.log(`streamToArray: chunk:${chunk_number}`);
-                    resources.push(chunk);
+                    for (const item1 of chunk) {
+                        item_number += 1;
+                        console.log(`streamToArray: chunk:${chunk_number}, item:${item_number}`);
+                        resources.push(item1);
+                    }
                 }
             }
         );
