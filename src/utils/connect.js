@@ -12,6 +12,7 @@ const env = require('var');
 async function createClient() {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         mongoConfig.options.monitorCommands = true;
+        console.log(`Connecting to ${mongoConfig.connection}`);
     }
     // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/
     /**
@@ -19,8 +20,17 @@ async function createClient() {
      */
     const client = new MongoClient(mongoConfig.connection, mongoConfig.options);
 
-    await client.connect();
-    await client.db('admin').command({ping: 1});
+    try {
+        await client.connect();
+    } catch (e) {
+        console.error(`Failed to connect 1 to ${mongoConfig.connection}: ${e}`);
+    }
+    try {
+        await client.db('admin').command({ping: 1})
+            .catch(reason => console.error(`Failed to connect 3 to ${mongoConfig.connection}: ${reason}`));
+    } catch (e) {
+        console.error(`Failed to connect 2 to ${mongoConfig.connection}: ${e}`);
+    }
     console.log('Successfully connected to AWS DocumentDB ');
 
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {

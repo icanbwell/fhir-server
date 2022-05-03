@@ -111,6 +111,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         let cursor = __ret.cursor;
 
         if (cursor !== null) { // usually means the two-step optimization found no results
+            logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
             resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
 
             if (resources.length > 0) {
