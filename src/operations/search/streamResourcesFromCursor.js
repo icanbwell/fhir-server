@@ -22,10 +22,6 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
                                          Resource,
                                          resourceName,
                                          contentType = 'application/fhir+json') {
-    /**
-     * @type {Readable}
-     */
-    const stream = cursor.stream();
 
     const useJson = contentType !== fhirContentTypes.ndJson;
 
@@ -37,7 +33,19 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
 
     // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
     await pipeline(
-        stream,
+        async function* () {
+            // let chunk_number = 0;
+            while (await cursor.hasNext()) {
+                // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
+                // chunk_number += 1;
+                // console.log(`read: chunk:${chunk_number}`);
+                /**
+                 * element
+                 * @type {Resource}
+                 */
+                yield await cursor.next();
+            }
+        },
         // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
         async function* (source) {
             for await (const chunk of source) {
