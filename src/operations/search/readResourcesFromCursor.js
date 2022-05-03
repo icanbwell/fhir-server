@@ -32,12 +32,10 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
         // https://mongodb.github.io/node-mongodb-native/4.5/classes/FindCursor.html
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
-        // const resourcesWritable = new ResourcesWritable({resources: resources});
         await pipeline(
             cursorStream,
             // async function* () {
             //     let chunk_number = 0;
-            //     // https://stackoverflow.com/questions/23915967/mongodb-nodejs-native-cursor-closing-prematurely
             //     while (await cursor.hasNext()) {
             //         logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
             //         chunk_number += 1;
@@ -50,47 +48,23 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
             //     }
             // },
             async function* (source) {
-                let chunk_number = 0;
+                // let chunk_number = 0;
                 for await (const chunk of source) {
-                    chunk_number += 1;
-                    console.log(`prepareResource: chunk:${chunk_number}`);
+                    // chunk_number += 1;
+                    // console.log(`prepareResource: chunk:${chunk_number}`);
                     yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
                 }
             },
-            // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
-            // async function* (source) {
-            //     let chunk_number = 0;
-            //     for await (const chunk of source) {
-            //         chunk_number += 1;
-            //         console.log(`prepareResource: chunk:${chunk_number}`);
-            //         yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
-            //     }
-            // },
-            // // streamToArray
-            // function (source) {
-            //     let chunk_number = 0;
-            //     for (const chunk of source) {
-            //         chunk_number += 1;
-            //         // let item_number = 0;
-            //         console.log(`streamToArray: chunk:${chunk_number}`);
-            //         // for (const item1 of chunk) {
-            //         //     item_number += 1;
-            //         //     console.log(`streamToArray: chunk:${chunk_number}, item:${item_number}`);
-            //         //     // resources.push(item1);
-            //         // }
-            //         // yield 1;
-            //     }
-            // }
-            // resourcesWritable
+            // do not use an async generator as the last writer otherwise the pipeline will hang
             async function (source) {
-                let chunk_number = 0;
+                // let chunk_number = 0;
                 for await (const chunk of source) {
-                    let item_number = 0;
-                    chunk_number += 1;
-                    console.log(`streamToArray: chunk:${chunk_number}`);
+                    // let item_number = 0;
+                    // chunk_number += 1;
+                    // console.log(`streamToArray: chunk:${chunk_number}`);
                     for (const item1 of chunk) {
-                        item_number += 1;
-                        console.log(`streamToArray: chunk:${chunk_number}, item:${item_number}`);
+                        // item_number += 1;
+                        // console.log(`streamToArray: chunk:${chunk_number}, item:${item_number}`);
                         resources.push(item1);
                     }
                 }
@@ -99,7 +73,7 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
     } catch (e) {
         logError(user, e);
     }
-    logDebug(user, 'Done with loading resources');
+    // logDebug(user, 'Done with loading resources');
     return resources;
 }
 

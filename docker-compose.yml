@@ -13,7 +13,7 @@ services:
       SERVER_PORT: 3000
       MONGO_DB_NAME: "fhir_staging"
       MONGO_USERNAME: "root"
-      MONGO_PASSWORD: ""
+      MONGO_PASSWORD: "n5%iY0hH%guF"
       MONGO_URL: "mongodb://prod-shared-document-db.cluster-cuvhexicj6ws.us-east-1.docdb.amazonaws.com:27017/?tls=true&tlsCAFile=/srv/src/rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
       RESOURCE_SERVER: http://localhost:3000/
       AUTH_SERVER_URI: http://myauthzserver.com
