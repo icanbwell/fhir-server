@@ -73,6 +73,7 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
         );
     } catch (e) {
         logError(user, e);
+        throw e;
     }
     // logDebug(user, 'Done with loading resources');
     return resources;
