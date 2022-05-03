@@ -49,7 +49,7 @@ async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
                      */
                     const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
                     if (resources.length > 0) {
-                        for (const resource in resources) {
+                        for (const resource of resources) {
                             yield resource;
                         }
                     } else {
