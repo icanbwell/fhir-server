@@ -49,6 +49,45 @@ async function createClient() {
     return client;
 }
 
+/**
+ * Creates a new connection to Atlas
+ * @returns {Promise<import("mongodb").MongoClient>}
+ */
+async function createAtlasClient() {
+    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        atlasMongoConfig.options.monitorCommands = true;
+    }
+    const atlasClient = new MongoClient(atlasMongoConfig.connection, atlasMongoConfig.options);
+
+    try {
+        await atlasClient.connect();
+    } catch (e) {
+        console.error(`Failed to connect to ${atlasMongoConfig.connection}: ${e}`);
+        throw e;
+    }
+    try {
+        await atlasClient.db('admin').command({ping: 1});
+    } catch (e) {
+        console.error(`Failed to execute ping on ${atlasMongoConfig.connection}: ${e}`);
+        throw e;
+    }
+    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
+        // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
+        atlasClient.on('commandStarted', event => {
+            console.log(`Atlas Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+        atlasClient.on('commandSucceeded', event => {
+            console.log(`Atlas Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+        atlasClient.on('commandFailed', event => {
+            console.log(`Atlas Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
+        });
+    }
+
+    console.log('Successfully connected to Atlas');
+    return atlasClient;
+}
+
 const connect = async function () {
     if (globals.get(CLIENT)) {
         return;
@@ -59,39 +98,10 @@ const connect = async function () {
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
 
     if (env.ATLAS_MONGO_URL) {
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-            atlasMongoConfig.options.monitorCommands = true;
-        }
-        const atlasClient = new MongoClient(atlasMongoConfig.connection, atlasMongoConfig.options);
-
-        try {
-            await atlasClient.connect();
-        } catch (e) {
-            console.error(`Failed to connect to ${atlasMongoConfig.connection}: ${e}`);
-            throw e;
-        }
-        try {
-            await atlasClient.db('admin').command({ping: 1});
-        } catch (e) {
-            console.error(`Failed to execute ping on ${atlasMongoConfig.connection}: ${e}`);
-            throw e;
-        }
-        console.log('Successfully connected to Atlas');
+        const atlasClient = await createAtlasClient();
 
         globals.set(ATLAS_CLIENT, atlasClient);
         globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
-        if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
-            atlasClient.on('commandStarted', event => {
-                console.log(`Atlas Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-            atlasClient.on('commandSucceeded', event => {
-                console.log(`Atlas Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-            atlasClient.on('commandFailed', event => {
-                console.log(`Atlas Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
-            });
-        }
     }
 };
 
