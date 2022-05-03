@@ -2,6 +2,7 @@ const {pipeline} = require('stream/promises');
 const {prepareResource} = require('../common/resourcePreparer');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
+const {logError} = require('../common/logging');
 
 /**
  * Reads resources from Mongo cursor
@@ -18,38 +19,52 @@ const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
  */
 async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
                                       args, Resource, resourceName) {
-    /**
-     * @type {Readable}
-     */
-    const stream = cursor.stream();
-
     const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
     const tracker = {
         id: []
     };
 
-    // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
-    await pipeline(
-        stream,
-        // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
-        async function* (source) {
-            for await (const chunk of source) {
-                /**
-                 * @type {Resource[]}
-                 */
-                const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
-                if (resources.length > 0) {
-                    yield resources[0];
-                } else {
-                    yield null;
+    try {
+        // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
+        await pipeline(
+            async function* () {
+                // let chunk_number = 0;
+                while (await cursor.hasNext()) {
+                    // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
+                    // chunk_number += 1;
+                    // console.log(`read: chunk:${chunk_number}`);
+                    /**
+                     * element
+                     * @type {Resource}
+                     */
+                    yield await cursor.next();
                 }
-            }
-        },
-        new ResourceIdTracker(tracker),
-        fhirBundleWriter,
-        res.type('application/fhir+json')
-    );
+            },
+            // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
+            async function* (source) {
+                for await (const chunk of source) {
+                    /**
+                     * @type {Resource[]}
+                     */
+                    const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
+                    if (resources.length > 0) {
+                        for (const resource of resources) {
+                            yield resource;
+                        }
+                    } else {
+                        yield null;
+                    }
+                }
+            },
+            new ResourceIdTracker(tracker),
+            fhirBundleWriter,
+            res.type('application/fhir+json')
+        );
+    } catch (e) {
+        logError(user, e);
+        throw e;
+    }
     return tracker.id;
 }
 
