@@ -4,10 +4,10 @@ const {
     tokenQueryBuilder,
     dateQueryBuilderNative,
 } = require('../../utils/querybuilder.util');
-const { isTrue } = require('../../utils/isTrue');
+const {isTrue} = require('../../utils/isTrue');
 
-const { fhirFilterTypes } = require('./customQueries');
-const { searchParameterQueries } = require('../../searchParameters/searchParameters');
+const {fhirFilterTypes} = require('./customQueries');
+const {searchParameterQueries} = require('../../searchParameters/searchParameters');
 
 // /**
 //  * @type {import('winston').logger}
@@ -254,7 +254,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.uri:
-                            and_segments.push({ [`${propertyObj.field}`]: queryParameterValue });
+                            and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
@@ -434,10 +434,20 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     }
                 } else if (args[`${queryParameter}:missing`]) {
                     // handle check for missing values
-                    const exists_flag = !isTrue(args[`${queryParameter}:missing`]);
-                    and_segments.push({
-                        [`${propertyObj.field}`]: { $exists: exists_flag },
-                    });
+                    const missing_flag = isTrue(args[`${queryParameter}:missing`]);
+                    if (missing_flag === true) {
+                        // https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#equality-filter
+                        // if we are looking for resources where this is missing
+                        and_segments.push({
+                            [`${propertyObj.field}`]: null,
+                        });
+                    } else {
+                        // if we are looking for resources where this is NOT missing
+                        // http://docs.mongodb.org/manual/reference/operator/query/ne/
+                        and_segments.push({
+                            [`${propertyObj.field}`]: {$ne: null}
+                        });
+                    }
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:contains`]) {
                     and_segments.push({
@@ -459,13 +469,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                 } else if (args[`${queryParameter}:above`]) {
                     // handle check for above the passed in  value
                     and_segments.push({
-                        [`${propertyObj.field}`]: { $gt: args[`${queryParameter}:above`] },
+                        [`${propertyObj.field}`]: {$gt: args[`${queryParameter}:above`]},
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:below`]) {
                     // handle check for below the passed in value
                     and_segments.push({
-                        [`${propertyObj.field}`]: { $lt: args[`${queryParameter}:below`] },
+                        [`${propertyObj.field}`]: {$lt: args[`${queryParameter}:below`]},
                     });
                     columns.add(`${propertyObj.field}`);
                 }
