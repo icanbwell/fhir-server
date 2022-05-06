@@ -18,14 +18,20 @@ async function logMessageToSlack(message) {
     }
 }
 
-async function logErrorToSlack(err) {
+/**
+ *
+ * @param {string} message
+ * @param {Error} err
+ * @returns {Promise<void>}
+ */
+async function logErrorToSlackAsync(message, err) {
     if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
         const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
         const web = new WebClient(options.token);
         // Post a message to the channel, and await the result.
         // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
         await web.chat.postMessage({
-            text: err.stack,
+            text: message + ':' + err.stack,
             channel: options.channel,
         });
     }
@@ -52,39 +58,58 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
         body: req.body || {},
         user: req.user
     };
+    const fields = [
+        {
+            title: 'Request Method',
+            value: req.method,
+            short: true
+        },
+        {
+            title: 'Request URL',
+            value: req.url,
+            short: true
+        },
+        {
+            title: 'User',
+            value: req.user,
+            short: true
+        },
+        {
+            title: 'Remote Address',
+            value: getRemoteAddress(req),
+            short: true
+        },
+        {
+            title: 'Status Code',
+            value: err.statusCode,
+            short: true
+        }
+    ];
+    if (err.elapsedTimeInSecs) {
+        fields.push(
+            {
+                title: 'Elapsed Time (secs)',
+                value: err.elapsedTimeInSecs,
+                short: true
+            }
+        );
+    }
+
+    if (err.options) {
+        for (const [key, value] of Object.entries(err.options)) {
+            fields.push({
+                title: key,
+                value: value,
+                short: true
+            });
+        }
+    }
     const attachment = {
         fallback: 'FHIR Server Error: ' + err.message,
         color: err.statusCode < 500 ? 'warning' : 'danger',
         author_name: req.headers.host,
         title: 'FHIR Server Error: ' + err.message,
-        fields: [
-            {
-                title: 'Request Method',
-                value: req.method,
-                short: true
-            },
-            {
-                title: 'Request URL',
-                value: req.url,
-                short: true
-            },
-            {
-                title: 'User',
-                value: req.user,
-                short: true
-            },
-            {
-                title: 'Remote Address',
-                value: getRemoteAddress(req),
-                short: true
-            },
-
-            {
-                title: 'Status Code',
-                value: err.statusCode,
-                short: true
-            }
-        ],
+        fields: fields,
         text: [
             {
                 title: 'Error:', code: err.message
@@ -101,7 +126,7 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
         }).join(''),
         mrkdwn_in: ['text'],
         footer: 'express-errors-to-slack',
-        ts: parseInt(Date.now() / 1000)
+        ts: Date.now() / 1000
     };
     const web = new WebClient(token);
 
@@ -121,6 +146,6 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
 
 module.exports = {
     logMessageToSlack,
-    logErrorToSlack,
+    logErrorToSlackAsync,
     logErrorAndRequestToSlack
 };

@@ -10,11 +10,20 @@ class MongoError extends Error {
      * @param {string} collection
      * @param {*} query
      * @param {*} options
+     * @param {number} elapsedTime
      */
-    constructor(message, error, collection, query, options = {}) {
-        super(message + ': ' + collection + ': ' + JSON.stringify(query) + ' , ' + JSON.stringify(options));
+    constructor(message, error, collection, query, elapsedTime, options = {},) {
+        const elapsedTimeInSecs = (elapsedTime) / 1000;
+        super(
+            message + ': ' + collection + ': ' +
+            JSON.stringify(query) +
+            ' , ' + JSON.stringify(options) +
+            ` , elapsedTime=${elapsedTimeInSecs} secs`
+        );
         this.collection = collection;
         this.query = query;
+        this.options = options;
+        this.elapsedTimeInSecs = elapsedTimeInSecs;
         for (const [key, value] of Object.entries(options)) {
             this[`${key}`] = value;
         }
@@ -32,5 +41,5 @@ class MongoError extends Error {
 }
 
 module.exports = {
-    MongoError
+    MongoError: MongoError
 };

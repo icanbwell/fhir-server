@@ -14,6 +14,7 @@ const {getCursorForQuery} = require('./getCursorForQuery');
 const {readResourcesFromCursor} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
+const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 
 
 /**
@@ -116,15 +117,19 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {
-                    // log access to audit logs
-                    await logAuditEntry(
-                        requestInfo,
-                        base_version,
-                        resourceName,
-                        'read',
-                        args,
-                        resources.map((r) => r['id'])
-                    );
+                    try {
+                        // log access to audit logs
+                        await logAuditEntry(
+                            requestInfo,
+                            base_version,
+                            resourceName,
+                            'read',
+                            args,
+                            resources.map((r) => r['id'])
+                        );
+                    } catch (e) {
+                        await logErrorToSlackAsync(`Error writing AuditEvent fo resource ${resourceName}`, e);
+                    }
                 }
             }
         }
@@ -164,6 +169,10 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 };

@@ -757,6 +757,10 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+                /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 };

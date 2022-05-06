@@ -205,9 +205,12 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                 }
             }
         }
-    } catch
-        (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+    } catch (e) {
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 }
 ;
