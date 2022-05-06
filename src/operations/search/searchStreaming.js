@@ -56,7 +56,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName);
+    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName, collection_name);
 
     /**
      * @type {boolean}
@@ -69,8 +69,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
-        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */

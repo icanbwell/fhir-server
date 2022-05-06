@@ -499,7 +499,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(collection_name, securityTags, query);
 
     /**
      * @type {boolean}

@@ -33,22 +33,49 @@ const getSecurityTagsFromScope = (user, scope) => {
 
 /**
  * returns the passed query by adding a check for security tgs
+ * @param {string} collection_name
  * @param {string[]} securityTags
  * @param {Object} query
  * @return {Object}
  */
-const getQueryWithSecurityTags = (securityTags, query) => {
+const getQueryWithSecurityTags = (collection_name, securityTags, query) => {
     if (securityTags && securityTags.length > 0) {
-        const securityTagQuery = {
-            'meta.security': {
-                '$elemMatch': {
-                    'system': 'https://www.icanbwell.com/access',
-                    'code': {
-                        '$in': securityTags
+        let securityTagQuery;
+        const collectionsWithAccessIndex = (env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',').map((col) => col.trim())) || [];
+        // special handling for large collections for performance
+        if (collectionsWithAccessIndex.includes(collection_name)) {
+            if (securityTags.length === 1) {
+                securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
+            } else {
+                securityTagQuery = {
+                    $or: securityTags.map(s => {
+                            return {[`_access.${s}`]: 1};
+                        }
+                    )
+                };
+            }
+        } else if (securityTags.length === 1) {
+            securityTagQuery = {
+                'meta.security': {
+                    '$elemMatch': {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': securityTags[0]
                     }
                 }
-            }
-        };
+            };
+        } else {
+            securityTagQuery = {
+                'meta.security': {
+                    '$elemMatch': {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': {
+                            '$in': securityTags
+                        }
+                    }
+                }
+            };
+        }
+
         // if there is already an $and statement then just add to it
         if (query.$and) {
             query.$and.push(

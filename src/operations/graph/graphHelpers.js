@@ -284,7 +284,7 @@ async function get_forward_references(db, graphParameters, collectionName,
     if (filterProperty) {
         query[`${filterProperty}`] = filterValue;
     }
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(collectionName, securityTags, query);
     /**
      * @type {number}
      */
@@ -405,7 +405,7 @@ async function get_reverse_references(
      * @type {string[]}
      */
     let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(relatedResourceCollectionName, securityTags, query);
 
     const options = {};
     const projection = {};
@@ -849,7 +849,7 @@ async function processMultipleIds(db, graphParameters, collection_name,
      * @type {string[]}
      */
     let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(collection_name, securityTags, query);
 
     const options = {};
     const projection = {};

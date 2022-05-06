@@ -10,9 +10,10 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @param {string | null} scope
  * @param {Object?} args
  * @param {string} resourceName
+ * @param {string} collectionName
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
-function constructQuery(user, scope, args, resourceName) {
+function constructQuery(user, scope, args, resourceName, collectionName) {
     /**
      * @type {string[]}
      */
@@ -43,7 +44,7 @@ function constructQuery(user, scope, args, resourceName) {
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(collectionName, securityTags, query);
     return {base_version, query, columns};
 }
 

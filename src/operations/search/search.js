@@ -53,7 +53,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName);
+    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName, collection_name);
 
     /**
      * @type {boolean}
