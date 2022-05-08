@@ -25,8 +25,9 @@ class MyFHIRServer extends FHIRServer.Server {
         //Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
             this.app.use(this.config.errorTracking.requestHandler());
-        } // Enable stack traces
+        }
 
+        // Enable stack traces
         this.app.set('showStackError', !this.env.IS_PRODUCTION); // Show stack error
 
         this.app.use(
@@ -46,7 +47,6 @@ class MyFHIRServer extends FHIRServer.Server {
         );
 
         // Enable the body parser
-
         this.app.use(bodyParser.urlencoded({
             extended: true,
             limit: '50mb',

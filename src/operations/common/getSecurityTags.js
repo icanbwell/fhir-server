@@ -36,14 +36,15 @@ const getSecurityTagsFromScope = (user, scope) => {
  * @param {string} collection_name
  * @param {string[]} securityTags
  * @param {Object} query
+ * @param {boolean} useAccessIndex
  * @return {Object}
  */
-const getQueryWithSecurityTags = (collection_name, securityTags, query) => {
+const getQueryWithSecurityTags = (collection_name, securityTags, query, useAccessIndex = false) => {
     if (securityTags && securityTags.length > 0) {
         let securityTagQuery;
         const collectionsWithAccessIndex = (env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',').map((col) => col.trim())) || [];
         // special handling for large collections for performance
-        if (collectionsWithAccessIndex.includes(collection_name)) {
+        if (useAccessIndex && collectionsWithAccessIndex.includes(collection_name)) {
             if (securityTags.length === 1) {
                 securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
             } else {

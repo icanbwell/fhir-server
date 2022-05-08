@@ -56,7 +56,16 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName, collection_name);
+    /**
+     * @type {boolean}
+     */
+    const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
+
+    let {
+        base_version,
+        query,
+        columns
+    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}
