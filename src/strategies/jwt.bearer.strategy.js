@@ -110,8 +110,14 @@ const verify = (jwt_payload, done) => {
         if (subject) {
             context['subject'] = subject;
         }
-
-        return done(null, {id: client_id, isUser }, { scope, context });
+        if (isUser) {
+            context['isUser'] = isUser;
+        }
+        const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
+        if (fhirPersonId) {
+            context['fhirPersonId'] = fhirPersonId;
+        }
+        return done(null, { id: client_id, isUser }, { scope, context, isUser, fhirPersonId });
     }
 
     return done(null, false);
