@@ -41,8 +41,8 @@ let addressQueryBuilder = function (target) {
                 // eslint-disable-next-line security/detect-non-literal-regexp
                 { 'address.postalCode': { $regex: new RegExp(`${totalSplit[`${index}`]}`, 'i') } },
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                { 'address.country': { $regex: new RegExp(`${totalSplit[`${index}`]}`, 'i') } },
-            ],
+                { 'address.country': { $regex: new RegExp(`${totalSplit[`${index}`]}`, 'i') } }
+            ]
         });
     }
     return ors;
@@ -71,8 +71,8 @@ let nameQueryBuilder = function (target) {
                 // eslint-disable-next-line security/detect-non-literal-regexp
                 { 'name.suffix': { $regex: new RegExp(`${split[`${i}`]}`, 'i') } },
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                { 'name.prefix': { $regex: new RegExp(`${split[`${i}`]}`, 'i') } },
-            ],
+                { 'name.prefix': { $regex: new RegExp(`${split[`${i}`]}`, 'i') } }
+            ]
         });
     }
     return ors;
@@ -128,10 +128,10 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
         if (value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
-                $in: values,
+                $in: values
             };
             queryBuilderElementMatch[`${type}`] = {
-                $in: values,
+                $in: values
             };
         } else {
             queryBuilder[`${field}.${type}`] = value;
@@ -336,10 +336,10 @@ let getDateFromNum = function (days) {
 //  UNLESS, the search parameter is teh exact same as what is stored.  So, if something is stored as 2016-06-03T05:00-03:00, then the search parameter must be 2016-06-03T05:00-03:00
 //It's important to make sure formatting is right, dont forget a leading 0 when dealing with single digit times.
 let dateQueryBuilder = function (date, type, path) {
+    // prettier-ignore
     // noinspection RegExpSingleCharAlternation
     // eslint-disable-next-line security/detect-unsafe-regex
-    let regex =
-        /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    let regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
     let match = date.match(regex);
     let str = '';
     let toRet = [];
@@ -469,10 +469,9 @@ let dateQueryBuilder = function (date, type, path) {
                         }
                         pArr[5] = str + '$';
                         str = str + 'T' + ('0' + hrs).slice(-2) + ':' + ('0' + mins).slice(-2); //proper formatting for leading 0's
+                        // prettier-ignore
                         // eslint-disable-next-line security/detect-unsafe-regex
-                        let match2 = str.match(
-                            /^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/
-                        );
+                        let match2 = str.match(/^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/);
                         if (match2 && match2.length >= 1) {
                             pArr[0] = match2[1] + '$'; //YYYY
                             pArr[1] = match2[1] + match2[2] + '$'; //YYYY-MM
@@ -521,7 +520,7 @@ let dateQueryBuilder = function (date, type, path) {
                             ')|(?:' +
                             pArr[4] +
                             ')'
-                    ),
+                    )
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -531,16 +530,16 @@ let dateQueryBuilder = function (date, type, path) {
                         {
                             $and: [
                                 { [pS]: { $lte: str } },
-                                { $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] },
-                            ],
+                                { $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] }
+                            ]
                         },
                         { $and: [{ [pS]: { $lte: str } }, { [pE]: undefined }] },
                         {
                             $and: [
                                 { $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] },
-                                { [pS]: undefined },
-                            ],
-                        },
+                                { [pS]: undefined }
+                            ]
+                        }
                     ];
                     return toRet;
                 }
@@ -562,22 +561,22 @@ let dateQueryBuilder = function (date, type, path) {
                                         ')|(?:' +
                                         tempFill,
                                     'i'
-                                ),
-                            },
+                                )
+                            }
                         },
                         {
                             $and: [
                                 { [pBPS]: { $lte: str } },
-                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] },
-                            ],
+                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] }
+                            ]
                         },
                         { $and: [{ [pBPS]: { $lte: str } }, { [pBPE]: undefined }] },
                         {
                             $and: [
                                 { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] },
-                                { [pBPS]: undefined },
-                            ],
-                        },
+                                { [pBPS]: undefined }
+                            ]
+                        }
                     ];
                     return toRet;
                 }
@@ -592,7 +591,7 @@ let dateQueryBuilder = function (date, type, path) {
                             ')|(?:' +
                             tempFill,
                         'i'
-                    ),
+                    )
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
@@ -604,7 +603,7 @@ let dateQueryBuilder = function (date, type, path) {
                 // convert to format that mongo uses to store
                 const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
                 return {
-                    [prefix]: new Date(datetime_utc).toISOString(),
+                    [prefix]: new Date(datetime_utc).toISOString()
                 };
             }
         }
@@ -681,8 +680,8 @@ let compositeQueryBuilder = function (target, field1, field2) {
             composite.push({
                 $or: [
                     { $and: [tokenQueryBuilder(target1, 'code', path1, '')] },
-                    { $and: [tokenQueryBuilder(target1, 'value', path1, '')] },
-                ],
+                    { $and: [tokenQueryBuilder(target1, 'value', path1, '')] }
+                ]
             });
             break;
         case 'reference':
@@ -703,8 +702,8 @@ let compositeQueryBuilder = function (target, field1, field2) {
                     { [path1]: dateQueryBuilder(target1, 'dateTime', '') },
                     { [path1]: dateQueryBuilder(target1, 'instant', '') },
                     { $or: dateQueryBuilder(target1, 'period', path1) },
-                    { $or: dateQueryBuilder(target1, 'timing', path1) },
-                ],
+                    { $or: dateQueryBuilder(target1, 'timing', path1) }
+                ]
             });
             break;
         default:
@@ -722,8 +721,8 @@ let compositeQueryBuilder = function (target, field1, field2) {
             composite.push({
                 $or: [
                     { $and: [tokenQueryBuilder(target2, 'code', path2, '')] },
-                    { $and: [tokenQueryBuilder(target2, 'value', path2, '')] },
-                ],
+                    { $and: [tokenQueryBuilder(target2, 'value', path2, '')] }
+                ]
             });
             break;
         case 'reference':
@@ -744,8 +743,8 @@ let compositeQueryBuilder = function (target, field1, field2) {
                     { [path2]: dateQueryBuilder(target2, 'dateTime', '') },
                     { [path2]: dateQueryBuilder(target2, 'instant', '') },
                     { $or: dateQueryBuilder(target2, 'period', path2) },
-                    { $or: dateQueryBuilder(target2, 'timing', path2) },
-                ],
+                    { $or: dateQueryBuilder(target2, 'timing', path2) }
+                ]
             });
             break;
         default:
@@ -774,5 +773,5 @@ module.exports = {
     quantityQueryBuilder,
     compositeQueryBuilder,
     dateQueryBuilder,
-    dateQueryBuilderNative,
+    dateQueryBuilderNative
 };

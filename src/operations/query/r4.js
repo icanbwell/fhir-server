@@ -2,7 +2,7 @@ const {
     dateQueryBuilder,
     referenceQueryBuilder,
     tokenQueryBuilder,
-    dateQueryBuilderNative,
+    dateQueryBuilderNative
 } = require('../../utils/querybuilder.util');
 const { isTrue } = require('../../utils/isTrue');
 
@@ -208,21 +208,21 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             // if array is passed then check in array
                             and_segments.push({
                                 [`${propertyObj.field}`]: {
-                                    $in: queryParameterValue,
-                                },
+                                    $in: queryParameterValue
+                                }
                             });
                         } else if (queryParameterValue.includes(',')) {
                             // see if this is a comma separated list
                             const value_list = queryParameterValue.split(',');
                             and_segments.push({
                                 [`${propertyObj.field}`]: {
-                                    $in: value_list,
-                                },
+                                    $in: value_list
+                                }
                             });
                         } else {
                             // single value is passed
                             and_segments.push({
-                                [`${propertyObj.field}`]: queryParameterValue,
+                                [`${propertyObj.field}`]: queryParameterValue
                             });
                         }
                         columns.add(`${propertyObj.field}`);
@@ -234,21 +234,21 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 // if array is passed then check in array
                                 and_segments.push({
                                     [`${propertyObj.field}`]: {
-                                        $in: queryParameterValue,
-                                    },
+                                        $in: queryParameterValue
+                                    }
                                 });
                             } else if (queryParameterValue.includes(',')) {
                                 // see if this is a comma separated list
                                 const value_list = queryParameterValue.split(',');
                                 and_segments.push({
                                     [`${propertyObj.field}`]: {
-                                        $in: value_list,
-                                    },
+                                        $in: value_list
+                                    }
                                 });
                             } else {
                                 // single value is passed
                                 and_segments.push({
-                                    [`${propertyObj.field}`]: queryParameterValue,
+                                    [`${propertyObj.field}`]: queryParameterValue
                                 });
                             }
                             columns.add(`${propertyObj.field}`);
@@ -266,6 +266,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             }
 
                             for (const dateQueryItem of queryParameterValue) {
+                                // prettier-ignore
+                                // eslint-disable-next-line security/detect-object-injection
                                 const resourceSearch = searchParameterQueries[resourceName];
                                 const hasDateParam = resourceSearch[fhirFilterTypes.date];
                                 const isDateSearchingPeriod = hasDateParam
@@ -277,14 +279,14 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             `le${dateQueryItem.slice(2)}`,
                                             propertyObj.type,
                                             ''
-                                        ),
+                                        )
                                     });
                                     and_segments.push({
                                         ['period.end']: dateQueryBuilder(
                                             `ge${dateQueryItem.slice(2)}`,
                                             propertyObj.type,
                                             ''
-                                        ),
+                                        )
                                     });
                                 } else if (propertyObj.fields) {
                                     and_segments.push({
@@ -294,9 +296,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                                     dateQueryItem,
                                                     propertyObj.type,
                                                     ''
-                                                ),
+                                                )
                                             };
-                                        }),
+                                        })
                                     });
                                 } else if (propertyObj.field === 'meta.lastUpdated') {
                                     // this field stores the date as a native date so we can do faster queries
@@ -305,7 +307,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             dateQueryItem,
                                             propertyObj.type,
                                             ''
-                                        ),
+                                        )
                                     });
                                 } else {
                                     and_segments.push({
@@ -313,7 +315,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             dateQueryItem,
                                             propertyObj.type,
                                             ''
-                                        ),
+                                        )
                                     });
                                 }
                             }
@@ -387,8 +389,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                                 'code',
                                                 `${propertyObj.field}.coding`,
                                                 ''
-                                            ),
-                                        ],
+                                            )
+                                        ]
                                     });
                                     columns.add(`${propertyObj.field}.coding.system`);
                                     columns.add(`${propertyObj.field}.coding.code`);
@@ -409,7 +411,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                                 `${field}.reference`,
                                                 null
                                             )
-                                        ),
+                                        )
                                     });
                                 } else {
                                     and_segments.push(
@@ -444,7 +446,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                                 `${propertyObj.field}.reference`,
                                                 null
                                             )
-                                        ),
+                                        )
                                     });
                                 }
                             }
@@ -460,13 +462,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         // https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#equality-filter
                         // if we are looking for resources where this is missing
                         and_segments.push({
-                            [`${propertyObj.field}`]: null,
+                            [`${propertyObj.field}`]: null
                         });
                     } else {
                         // if we are looking for resources where this is NOT missing
                         // http://docs.mongodb.org/manual/reference/operator/query/ne/
                         and_segments.push({
-                            [`${propertyObj.field}`]: { $ne: null },
+                            [`${propertyObj.field}`]: { $ne: null }
                         });
                     }
                     columns.add(`${propertyObj.field}`);
@@ -475,28 +477,28 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
                             {
                                 $regex: args[`${queryParameter}:contains`],
-                                $options: 'i',
-                            },
+                                $options: 'i'
+                            }
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
                     and_segments.push({
                         [`${propertyObj.field}`]: {
                             $gt: args[`${queryParameter}:above`],
-                            $lt: args[`${queryParameter}:below`],
-                        },
+                            $lt: args[`${queryParameter}:below`]
+                        }
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:above`]) {
                     // handle check for above the passed in  value
                     and_segments.push({
-                        [`${propertyObj.field}`]: { $gt: args[`${queryParameter}:above`] },
+                        [`${propertyObj.field}`]: { $gt: args[`${queryParameter}:above`] }
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:below`]) {
                     // handle check for below the passed in value
                     and_segments.push({
-                        [`${propertyObj.field}`]: { $lt: args[`${queryParameter}:below`] },
+                        [`${propertyObj.field}`]: { $lt: args[`${queryParameter}:below`] }
                     });
                     columns.add(`${propertyObj.field}`);
                 }
@@ -516,6 +518,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     return {
         query: query,
-        columns: columns,
+        columns: columns
     };
 };
