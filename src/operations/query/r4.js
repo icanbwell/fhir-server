@@ -4,10 +4,10 @@ const {
     tokenQueryBuilder,
     dateQueryBuilderNative,
 } = require('../../utils/querybuilder.util');
-const {isTrue} = require('../../utils/isTrue');
+const { isTrue } = require('../../utils/isTrue');
 
-const {fhirFilterTypes} = require('./customQueries');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const { fhirFilterTypes } = require('./customQueries');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 
 // /**
 //  * @type {import('winston').logger}
@@ -254,7 +254,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.uri:
-                            and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
+                            and_segments.push({ [`${propertyObj.field}`]: queryParameterValue });
                             columns.add(`${propertyObj.field}`);
                             break;
                         case fhirFilterTypes.dateTime:
@@ -264,8 +264,29 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                             if (!Array.isArray(queryParameterValue)) {
                                 queryParameterValue = [queryParameterValue];
                             }
+
                             for (const dateQueryItem of queryParameterValue) {
-                                if (propertyObj.fields) {
+                                const resourceSearch = searchParameterQueries[resourceName];
+                                const hasDateParam = resourceSearch[fhirFilterTypes.date];
+                                const isDateSearchingPeriod = hasDateParam
+                                    ? hasDateParam['field'] === 'period'
+                                    : false;
+                                if (isDateSearchingPeriod) {
+                                    and_segments.push({
+                                        ['period.start']: dateQueryBuilder(
+                                            `le${dateQueryItem.slice(2)}`,
+                                            propertyObj.type,
+                                            ''
+                                        ),
+                                    });
+                                    and_segments.push({
+                                        ['period.end']: dateQueryBuilder(
+                                            `ge${dateQueryItem.slice(2)}`,
+                                            propertyObj.type,
+                                            ''
+                                        ),
+                                    });
+                                } else if (propertyObj.fields) {
                                     and_segments.push({
                                         $or: propertyObj.fields.map((f) => {
                                             return {
@@ -445,7 +466,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         // if we are looking for resources where this is NOT missing
                         // http://docs.mongodb.org/manual/reference/operator/query/ne/
                         and_segments.push({
-                            [`${propertyObj.field}`]: {$ne: null}
+                            [`${propertyObj.field}`]: { $ne: null },
                         });
                     }
                     columns.add(`${propertyObj.field}`);
@@ -469,13 +490,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                 } else if (args[`${queryParameter}:above`]) {
                     // handle check for above the passed in  value
                     and_segments.push({
-                        [`${propertyObj.field}`]: {$gt: args[`${queryParameter}:above`]},
+                        [`${propertyObj.field}`]: { $gt: args[`${queryParameter}:above`] },
                     });
                     columns.add(`${propertyObj.field}`);
                 } else if (args[`${queryParameter}:below`]) {
                     // handle check for below the passed in value
                     and_segments.push({
-                        [`${propertyObj.field}`]: {$lt: args[`${queryParameter}:below`]},
+                        [`${propertyObj.field}`]: { $lt: args[`${queryParameter}:below`] },
                     });
                     columns.add(`${propertyObj.field}`);
                 }
@@ -488,7 +509,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
      * @type {{}}
      */
     let query = {};
-
     if (and_segments.length !== 0) {
         // noinspection JSUndefinedPropertyAssignment
         query.$and = and_segments;
