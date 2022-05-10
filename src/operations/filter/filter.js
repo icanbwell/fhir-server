@@ -22,8 +22,6 @@ module.exports.filter = async (requestInfo, args, resourceName) => {
     // if (env.ENABLE_PATIENT_FILTERING && requestInfo.user.isUser) {
     let personId = requestInfo.fhirPersonId;
     if (env.ENABLE_PATIENT_FILTERING === '1' && personId) {
-        // let patients = getPatientsFromUser(user);
-        // requestInfo['custom:bwell_fhir_id'] = 'bwell-123456789';
         let person = await searchById(
             getRequestInfo(requestInfo),
             { ...args, id: personId },
