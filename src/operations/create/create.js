@@ -13,6 +13,7 @@ const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
+const {preSave} = require('../common/preSave');
 
 /**
  * does a FHIR Create (POST)
@@ -85,16 +86,21 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         let collection = await getOrCreateCollection(db, `${collection_name}_${base_version}`);
 
         // Get current record
-        let Resource = getResource(base_version, resource_name);
-        logDebug(user, `Resource: ${Resource}`);
-        let resource = new Resource(resource_incoming);
+        /**
+         * @type {function({Object}): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resource_name);
+        /**
+         * @type {Resource}
+         */
+        const resource = new ResourceCreator(resource_incoming);
         // noinspection JSUnresolvedFunction
         logDebug(user, `resource: ${resource.toJSON()}`);
 
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!doesResourceHaveAccessTags(resource)) {
                 // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
             }
         }
 
@@ -107,16 +113,19 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
          * @type {function({Object}): Meta}
          */
         let Meta = getMeta(base_version);
-        if (!resource_incoming.meta) {
-            resource_incoming.meta = new Meta({
+        if (!resource.meta) {
+            // noinspection SpellCheckingInspection
+            resource.meta = new Meta({
                 versionId: '1',
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
             });
         } else {
-            resource_incoming.meta['versionId'] = '1';
-            // noinspection JSValidateTypes
-            resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resource.meta['versionId'] = '1';
+            // noinspection JSValidateTypes,SpellCheckingInspection
+            resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
+
+        await preSave(resource);
 
         // Create the document to be inserted into Mongo
         // noinspection JSUnresolvedFunction

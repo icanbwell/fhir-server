@@ -2,7 +2,7 @@
  * @typedef Meta
  * @type {object}
  * @property {string} versionId - an ID.
- * @property {string} lastUpdated
+ * @property {Date} lastUpdated
  * @property {string} source
  * @property {{system: string, code: string, display: string}[]} tag
  */
@@ -11,6 +11,7 @@
  * @typedef Resource
  * @type {object}
  * @property {string} id - an ID.
+ * @property {Meta} meta
  * @property {string} resourceType
  */
 
