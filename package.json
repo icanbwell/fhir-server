@@ -72,7 +72,7 @@
     "@asymmetrik/node-fhir-server-core": "^2.2.4",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@graphql-eslint/eslint-plugin": "^3.10.2",
-    "@graphql-tools/graphql-file-loader": "^7.3.8",
+    "@graphql-tools/graphql-file-loader": "^7.3.11",
     "@graphql-tools/load": "^7.5.7",
     "@graphql-tools/load-files": "^6.5.3",
     "@graphql-tools/merge": "^8.2.7",
