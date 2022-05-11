@@ -128,7 +128,7 @@
     "passport-jwt": "^4.0.0",
     "prom-client": "^14.0.1",
     "response-time": "^2.3.2",
-    "snyk": "^1.904.0",
+    "snyk": "^1.908.0",
     "superagent": "^7.1.2",
     "swagger-ui-express": "^4.3.0",
     "vanillajs-datepicker": "^1.2.0",
