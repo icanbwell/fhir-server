@@ -6,8 +6,11 @@ const {isColumnDateType} = require('./isColumnDateType');
  */
 const preSave = async function (resource) {
     for (const [fieldName, field] of Object.entries(resource)) {
+        // if a column is of date type then set it to date (if not already)
         if (isColumnDateType(resource.resourceType, fieldName)) {
-            resource[`${fieldName}`] = new Date(field);
+            if (!(resource[`${fieldName}`] instanceof Date)) {
+                resource[`${fieldName}`] = new Date(field);
+            }
         }
     }
 
