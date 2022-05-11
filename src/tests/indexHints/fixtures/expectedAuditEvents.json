@@ -189,7 +189,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-20T12:44:59Z",
+        "recorded": "2021-09-20T12:44:59.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -405,7 +405,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-17T14:27:30Z",
+        "recorded": "2021-09-17T14:27:30.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {

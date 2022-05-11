@@ -189,7 +189,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-20T12:44:59Z",
+        "recorded": "2021-09-20T12:44:59.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -405,7 +405,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-17T14:27:30Z",
+        "recorded": "2021-09-17T14:27:30.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -447,7 +447,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[{\"$and\":[{\"recorded\":{\"$gt\":\"2021-06-01T00:00:00+00:00\"}},{\"meta.lastUpdated\":{\"$gt\":\"2021-06-01T00:00:00.000Z\"}},{\"meta.lastUpdated\":{\"$lt\":\"2031-10-26T00:00:00.000Z\"}},{\"meta.security\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"fake\"}}}]},{\"id\":{\"$in\":[\"MixP-0001r5i3yr8g2cuj\",\"MixP-0001wx03abn1tez5\"]}}]",
+        "display": "[{\"$and\":[{\"recorded\":{\"$gt\":\"2021-06-01T00:00:00.000Z\"}},{\"meta.lastUpdated\":{\"$gt\":\"2021-06-01T00:00:00.000Z\"}},{\"meta.lastUpdated\":{\"$lt\":\"2031-10-26T00:00:00.000Z\"}},{\"meta.security\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"fake\"}}}]},{\"id\":{\"$in\":[\"MixP-0001r5i3yr8g2cuj\",\"MixP-0001wx03abn1tez5\"]}}]",
         "system": "https://www.icanbwell.com/query"
       },
       {

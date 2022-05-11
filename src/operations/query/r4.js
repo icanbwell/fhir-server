@@ -8,6 +8,7 @@ const {isTrue} = require('../../utils/isTrue');
 
 const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const {isColumnDateType} = require('../common/isColumnDateType');
 
 // /**
 //  * @type {import('winston').logger}
@@ -146,8 +147,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
 }
 
 function paramMatch(fields, param) {
-    const found = fields.find((field) => field === param);
-    return found;
+    return fields.find((field) => field === param);
 }
 
 /**
@@ -277,8 +277,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                             };
                                         }),
                                     });
-                                } else if (propertyObj.field === 'meta.lastUpdated') {
-                                    // this field stores the date as a native date so we can do faster queries
+                                } else if (propertyObj.field === 'meta.lastUpdated' ||
+                                    isColumnDateType(resourceName, propertyObj.field)) {
+                                    // this field stores the date as a native date, so we can do faster queries
                                     and_segments.push({
                                         [`${propertyObj.field}`]: dateQueryBuilderNative(
                                             dateQueryItem,
@@ -380,12 +381,11 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 const target = propertyObj.target[0];
                                 if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
                                     and_segments.push({
-                                        $or: propertyObj.fields.map((field) =>
+                                        $or: propertyObj.fields.map((field1) =>
                                             referenceQueryBuilder(
-                                                queryParameterValue.includes('/')
-                                                    ? queryParameterValue
+                                                queryParameterValue.includes('/') ? queryParameterValue
                                                     : `${target}/` + queryParameterValue,
-                                                `${field}.reference`,
+                                                `${field1}.reference`,
                                                 null
                                             )
                                         ),
@@ -393,8 +393,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 } else {
                                     and_segments.push(
                                         referenceQueryBuilder(
-                                            queryParameterValue.includes('/')
-                                                ? queryParameterValue
+                                            queryParameterValue.includes('/') ? queryParameterValue
                                                 : `${target}/` + queryParameterValue,
                                             `${propertyObj.field}.reference`,
                                             null
@@ -415,11 +414,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 } else {
                                     // else search for these ids in all the target resources
                                     and_segments.push({
-                                        $or: propertyObj.target.map((target) =>
+                                        $or: propertyObj.target.map((target1) =>
                                             referenceQueryBuilder(
-                                                queryParameterValue.includes('/')
-                                                    ? queryParameterValue
-                                                    : `${target}/` + queryParameterValue,
+                                                queryParameterValue.includes('/') ? queryParameterValue
+                                                    : `${target1}/` + queryParameterValue,
                                                 `${propertyObj.field}.reference`,
                                                 null
                                             )
