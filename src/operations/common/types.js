@@ -13,6 +13,7 @@
  * @property {string} id - an ID.
  * @property {Meta} meta
  * @property {string} resourceType
+ * @property {Object} _access
  */
 
 // from https://www.hl7.org/fhir/operationoutcome.html

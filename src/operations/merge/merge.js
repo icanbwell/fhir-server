@@ -319,6 +319,9 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          * @type {Object}
          */
         let my_data = deepcopy(data);
+
+        await preSave(my_data);
+
         delete my_data['_id']; // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that
         my_data = removeNull(my_data);
@@ -347,7 +350,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         /**
          * @type {Operation[]}
          */
-        let patchContent = compare(data, resource_merged);
+        let patchContent = compare(my_data, resource_merged);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         logDebug(user, '------ patches --------');
