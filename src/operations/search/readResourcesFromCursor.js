@@ -13,11 +13,13 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
  * @param {Object?} args
  * @param {Function} Resource
  * @param {string} resourceName
+ * @param {number} batchObjectCount
  * @param {boolean} useAccessIndex
  * @returns {Promise<Resource[]>}
  */
 async function readResourcesFromCursorAsync(cursor, user, scope,
                                             args, Resource, resourceName,
+                                            batchObjectCount,
                                             useAccessIndex) {
     /**
      * resources to return

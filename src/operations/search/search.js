@@ -120,9 +120,16 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         let cursorBatchSize = __ret.cursorBatchSize;
         let cursor = __ret.cursor;
 
+        /**
+         * @type {number}
+         */
+        const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
-            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, useAccessIndex);
+            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, batchObjectCount,
+                useAccessIndex
+            );
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {
