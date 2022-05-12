@@ -1,154 +1,20 @@
-const {
-    dateQueryBuilder,
-    referenceQueryBuilder,
-    tokenQueryBuilder,
-    dateQueryBuilderNative,
-} = require('../../utils/querybuilder.util');
-const {isTrue} = require('../../utils/isTrue');
-
 const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {isColumnDateType} = require('../common/isColumnDateType');
+const {filterById} = require('./filters/id');
+const {filterByString} = require('./filters/string');
+const {filterByUri} = require('./filters/uri');
+const {filterByDateTime} = require('./filters/dateTime');
+const {filterByToken} = require('./filters/token');
+const {filterByReference} = require('./filters/reference');
+const {filterByMissing} = require('./filters/missing');
+const {filterByContains} = require('./filters/contains');
+const {filterByAboveAndBelow, filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
+const {convertGraphQLParameters} = require('./convertGraphQLParameters');
 
 // /**
 //  * @type {import('winston').logger}
 //  */
 // const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
-
-/**
- * converts graphql parameters to standard FHIR parameters
- * @param queryParameterValue
- * @param args
- * @param queryParameter
- * @return {*[]|string}
- */
-function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
-    if (queryParameterValue) {
-        // un-bundle any objects coming from graphql
-        if (
-            typeof queryParameterValue === 'object' &&
-            !Array.isArray(queryParameterValue) &&
-            queryParameterValue['searchType']
-        ) {
-            switch (queryParameterValue['searchType']) {
-                case 'string':
-                    // handle SearchString
-                    if (queryParameterValue['value']) {
-                        queryParameterValue = queryParameterValue['value'];
-                    } else if (queryParameterValue['values']) {
-                        queryParameterValue = queryParameterValue['values'];
-                    }
-                    break;
-                case 'token':
-                    if (queryParameterValue['value']) {
-                        queryParameterValue['values'] = [queryParameterValue['value']];
-                    }
-                    if (queryParameterValue['values']) {
-                        for (const token of queryParameterValue['values']) {
-                            queryParameterValue = [];
-                            let tokenString = '';
-                            if (token['system']) {
-                                tokenString = token['system'] + '|';
-                            }
-                            if (token['code']) {
-                                tokenString += token['code'];
-                            }
-                            if (token['value']) {
-                                tokenString += token['value'];
-                            }
-                            if (tokenString) {
-                                queryParameterValue.push(tokenString);
-                            }
-                        }
-                    }
-                    break;
-                case 'reference':
-                    // eslint-disable-next-line no-case-declarations
-                    let referenceText = '';
-                    if (queryParameterValue['target']) {
-                        referenceText = queryParameterValue['target'] + '/';
-                    }
-                    if (queryParameterValue['value']) {
-                        referenceText += queryParameterValue['value'];
-                    }
-                    queryParameterValue = referenceText;
-                    break;
-                case 'quantity':
-                    // eslint-disable-next-line no-case-declarations
-                    let quantityString = '';
-                    if (queryParameterValue['prefix']) {
-                        quantityString += queryParameterValue['prefix'];
-                    }
-                    if (queryParameterValue['value']) {
-                        quantityString += queryParameterValue['value'];
-                    }
-                    if (queryParameterValue['system']) {
-                        quantityString = '|' + queryParameterValue['system'];
-                    }
-                    if (queryParameterValue['code']) {
-                        quantityString = '|' + queryParameterValue['code'];
-                    }
-                    queryParameterValue = quantityString;
-                    break;
-                case 'date':
-                case 'dateTime':
-                case 'number':
-                    if (queryParameterValue['value']) {
-                        queryParameterValue['values'] = [queryParameterValue['value']];
-                    }
-                    if (queryParameterValue['values']) {
-                        const numberValues = [];
-                        for (const dateValue of queryParameterValue['values']) {
-                            queryParameterValue = [];
-                            let dateString = '';
-                            if (dateValue['equals']) {
-                                dateString = 'eq' + dateValue['equals'];
-                            }
-                            if (dateValue['notEquals']) {
-                                dateString = 'ne' + dateValue['notEquals'];
-                            }
-                            if (dateValue['greaterThan']) {
-                                dateString = 'gt' + dateValue['greaterThan'];
-                            }
-                            if (dateValue['greaterThanOrEqualTo']) {
-                                dateString = 'ge' + dateValue['greaterThanOrEqualTo'];
-                            }
-                            if (dateValue['lessThan']) {
-                                dateString = 'lt' + dateValue['lessThan'];
-                            }
-                            if (dateValue['lessThanOrEqualTo']) {
-                                dateString = 'le' + dateValue['lessThanOrEqualTo'];
-                            }
-                            if (dateValue['startsAfter']) {
-                                dateString = 'sa' + dateValue['startsAfter'];
-                            }
-                            if (dateValue['endsBefore']) {
-                                dateString = 'eb' + dateValue['endsBefore'];
-                            }
-                            if (dateValue['approximately']) {
-                                dateString = 'ap' + dateValue['approximately'];
-                            }
-                            if (dateString) {
-                                numberValues.push(dateString);
-                            }
-                        }
-                        if (numberValues.length > 0) {
-                            queryParameterValue = queryParameterValue.concat(numberValues);
-                        }
-                    }
-                    break;
-            }
-            if (queryParameterValue['missing'] !== null) {
-                args[`${queryParameter}:missing`] = queryParameterValue['missing'];
-            }
-        }
-    }
-    return queryParameterValue;
-}
-
-function paramMatch(fields, param) {
-    return fields.find((field) => field === param);
-}
 
 /**
  * Builds a mongo query for search parameters
@@ -193,7 +59,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
         if (resourceType === resourceName || resourceType === 'Resource') {
-            for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
+            for (const [ /** @type {string} **/ queryParameter,
+                /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj]
+                of Object.entries(resourceObj)) {
+                /**
+                 * @type {string | string[]}
+                 */
                 let queryParameterValue = args[`${queryParameter}`];
                 queryParameterValue = convertGraphQLParameters(
                     queryParameterValue,
@@ -204,278 +75,41 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                 if (queryParameterValue) {
                     // handle id differently since it is a token, but we want to do exact match
                     if (queryParameter === '_id') {
-                        if (Array.isArray(queryParameterValue)) {
-                            // if array is passed then check in array
-                            and_segments.push({
-                                [`${propertyObj.field}`]: {
-                                    $in: queryParameterValue,
-                                },
-                            });
-                        } else if (queryParameterValue.includes(',')) {
-                            // see if this is a comma separated list
-                            const value_list = queryParameterValue.split(',');
-                            and_segments.push({
-                                [`${propertyObj.field}`]: {
-                                    $in: value_list,
-                                },
-                            });
-                        } else {
-                            // single value is passed
-                            and_segments.push({
-                                [`${propertyObj.field}`]: queryParameterValue,
-                            });
-                        }
-                        columns.add(`${propertyObj.field}`);
+                        filterById(queryParameterValue, and_segments, propertyObj, columns);
                         continue; // skip processing rest of this loop
                     }
                     switch (propertyObj.type) {
                         case fhirFilterTypes.string:
-                            if (Array.isArray(queryParameterValue)) {
-                                // if array is passed then check in array
-                                and_segments.push({
-                                    [`${propertyObj.field}`]: {
-                                        $in: queryParameterValue,
-                                    },
-                                });
-                            } else if (queryParameterValue.includes(',')) {
-                                // see if this is a comma separated list
-                                const value_list = queryParameterValue.split(',');
-                                and_segments.push({
-                                    [`${propertyObj.field}`]: {
-                                        $in: value_list,
-                                    },
-                                });
-                            } else {
-                                // single value is passed
-                                and_segments.push({
-                                    [`${propertyObj.field}`]: queryParameterValue,
-                                });
-                            }
-                            columns.add(`${propertyObj.field}`);
+                            filterByString(queryParameterValue, and_segments, propertyObj, columns);
                             break;
                         case fhirFilterTypes.uri:
-                            and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
-                            columns.add(`${propertyObj.field}`);
+                            filterByUri(and_segments, propertyObj, queryParameterValue, columns);
                             break;
                         case fhirFilterTypes.dateTime:
                         case fhirFilterTypes.date:
                         case fhirFilterTypes.period:
                         case fhirFilterTypes.instant:
-                            if (!Array.isArray(queryParameterValue)) {
-                                queryParameterValue = [queryParameterValue];
-                            }
-                            for (const dateQueryItem of queryParameterValue) {
-                                if (propertyObj.fields) {
-                                    and_segments.push({
-                                        $or: propertyObj.fields.map((f) => {
-                                            return {
-                                                [`${f}`]: dateQueryBuilder(
-                                                    dateQueryItem,
-                                                    propertyObj.type,
-                                                    ''
-                                                ),
-                                            };
-                                        }),
-                                    });
-                                } else if (propertyObj.field === 'meta.lastUpdated' ||
-                                    isColumnDateType(resourceName, propertyObj.field)) {
-                                    // this field stores the date as a native date, so we can do faster queries
-                                    and_segments.push({
-                                        [`${propertyObj.field}`]: dateQueryBuilderNative(
-                                            dateQueryItem,
-                                            propertyObj.type,
-                                            ''
-                                        ),
-                                    });
-                                } else {
-                                    and_segments.push({
-                                        [`${propertyObj.field}`]: dateQueryBuilder(
-                                            dateQueryItem,
-                                            propertyObj.type,
-                                            ''
-                                        ),
-                                    });
-                                }
-                            }
-                            columns.add(`${propertyObj.field}`);
+                            filterByDateTime(queryParameterValue, propertyObj, and_segments, resourceName, columns);
                             break;
                         case fhirFilterTypes.token:
-                            if (!Array.isArray(queryParameterValue)) {
-                                queryParameterValue = [queryParameterValue];
-                            }
-                            for (const tokenQueryItem of queryParameterValue) {
-                                if (propertyObj.fieldFilter === "[system/@value='email']") {
-                                    and_segments.push(
-                                        tokenQueryBuilder(
-                                            tokenQueryItem,
-                                            'value',
-                                            `${propertyObj.field}`,
-                                            'email'
-                                        )
-                                    );
-                                    columns.add(`${propertyObj.field}.system`);
-                                    columns.add(`${propertyObj.field}.value`);
-                                } else if (propertyObj.fieldFilter === "[system/@value='phone']") {
-                                    and_segments.push(
-                                        tokenQueryBuilder(
-                                            tokenQueryItem,
-                                            'value',
-                                            `${propertyObj.field}`,
-                                            'phone'
-                                        )
-                                    );
-                                    columns.add(`${propertyObj.field}.system`);
-                                    columns.add(`${propertyObj.field}.value`);
-                                } else if (propertyObj.field === 'identifier') {
-                                    // http://www.hl7.org/fhir/search.html#token
-                                    and_segments.push(
-                                        tokenQueryBuilder(
-                                            tokenQueryItem,
-                                            'value',
-                                            `${propertyObj.field}`,
-                                            ''
-                                        )
-                                    );
-                                    columns.add(`${propertyObj.field}.system`);
-                                    columns.add(`${propertyObj.field}.value`);
-                                } else if (
-                                    propertyObj.field === 'meta.security' ||
-                                    propertyObj.field === 'meta.tag'
-                                ) {
-                                    // http://www.hl7.org/fhir/search.html#token
-                                    and_segments.push(
-                                        tokenQueryBuilder(
-                                            tokenQueryItem,
-                                            'code',
-                                            `${propertyObj.field}`,
-                                            ''
-                                        )
-                                    );
-                                    columns.add(`${propertyObj.field}.system`);
-                                    columns.add(`${propertyObj.field}.code`);
-                                } else {
-                                    and_segments.push({
-                                        $or: [
-                                            tokenQueryBuilder(
-                                                tokenQueryItem,
-                                                'code',
-                                                `${propertyObj.field}`,
-                                                ''
-                                            ),
-                                            tokenQueryBuilder(
-                                                tokenQueryItem,
-                                                'code',
-                                                `${propertyObj.field}.coding`,
-                                                ''
-                                            ),
-                                        ],
-                                    });
-                                    columns.add(`${propertyObj.field}.coding.system`);
-                                    columns.add(`${propertyObj.field}.coding.code`);
-                                }
-                            }
+                            filterByToken(queryParameterValue, propertyObj, and_segments, columns);
                             break;
                         case fhirFilterTypes.reference:
-                            if (propertyObj.target.length === 1) {
-                                // handle simple case without an OR to keep it simple
-                                const target = propertyObj.target[0];
-                                if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
-                                    and_segments.push({
-                                        $or: propertyObj.fields.map((field1) =>
-                                            referenceQueryBuilder(
-                                                queryParameterValue.includes('/') ? queryParameterValue
-                                                    : `${target}/` + queryParameterValue,
-                                                `${field1}.reference`,
-                                                null
-                                            )
-                                        ),
-                                    });
-                                } else {
-                                    and_segments.push(
-                                        referenceQueryBuilder(
-                                            queryParameterValue.includes('/') ? queryParameterValue
-                                                : `${target}/` + queryParameterValue,
-                                            `${propertyObj.field}.reference`,
-                                            null
-                                        )
-                                    );
-                                }
-                            } else {
-                                // handle multiple targets
-                                // if resourceType is specified then search for only those resources
-                                if (queryParameterValue.includes('/')) {
-                                    and_segments.push(
-                                        referenceQueryBuilder(
-                                            queryParameterValue,
-                                            `${propertyObj.field}.reference`,
-                                            null
-                                        )
-                                    );
-                                } else {
-                                    // else search for these ids in all the target resources
-                                    and_segments.push({
-                                        $or: propertyObj.target.map((target1) =>
-                                            referenceQueryBuilder(
-                                                queryParameterValue.includes('/') ? queryParameterValue
-                                                    : `${target1}/` + queryParameterValue,
-                                                `${propertyObj.field}.reference`,
-                                                null
-                                            )
-                                        ),
-                                    });
-                                }
-                            }
-                            columns.add(`${propertyObj.field}.reference`);
+                            filterByReference(propertyObj, and_segments, queryParameterValue, columns);
                             break;
                         default:
                             throw new Error('Unknown type=' + propertyObj.type);
                     }
                 } else if (args[`${queryParameter}:missing`]) {
-                    // handle check for missing values
-                    const missing_flag = isTrue(args[`${queryParameter}:missing`]);
-                    if (missing_flag === true) {
-                        // https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#equality-filter
-                        // if we are looking for resources where this is missing
-                        and_segments.push({
-                            [`${propertyObj.field}`]: null,
-                        });
-                    } else {
-                        // if we are looking for resources where this is NOT missing
-                        // http://docs.mongodb.org/manual/reference/operator/query/ne/
-                        and_segments.push({
-                            [`${propertyObj.field}`]: {$ne: null}
-                        });
-                    }
-                    columns.add(`${propertyObj.field}`);
+                    filterByMissing(args, queryParameter, and_segments, propertyObj, columns);
                 } else if (args[`${queryParameter}:contains`]) {
-                    and_segments.push({
-                        [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
-                            {
-                                $regex: args[`${queryParameter}:contains`],
-                                $options: 'i',
-                            },
-                    });
-                    columns.add(`${propertyObj.field}`);
+                    filterByContains(and_segments, propertyObj, queryParameter, args, columns);
                 } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
-                    and_segments.push({
-                        [`${propertyObj.field}`]: {
-                            $gt: args[`${queryParameter}:above`],
-                            $lt: args[`${queryParameter}:below`],
-                        },
-                    });
-                    columns.add(`${propertyObj.field}`);
+                    filterByAboveAndBelow(and_segments, propertyObj, args, queryParameter, columns);
                 } else if (args[`${queryParameter}:above`]) {
-                    // handle check for above the passed in  value
-                    and_segments.push({
-                        [`${propertyObj.field}`]: {$gt: args[`${queryParameter}:above`]},
-                    });
-                    columns.add(`${propertyObj.field}`);
+                    filterByAbove(and_segments, propertyObj, args, queryParameter, columns);
                 } else if (args[`${queryParameter}:below`]) {
-                    // handle check for below the passed in value
-                    and_segments.push({
-                        [`${propertyObj.field}`]: {$lt: args[`${queryParameter}:below`]},
-                    });
-                    columns.add(`${propertyObj.field}`);
+                    filterByBelow(and_segments, propertyObj, args, queryParameter, columns);
                 }
             }
         }
@@ -483,7 +117,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     /**
      * query to run on mongo
-     * @type {{}}
+     * @type {{$and: Object[]}}
      */
     let query = {};
 

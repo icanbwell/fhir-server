@@ -23,3 +23,16 @@
  * @property {string} resourceType
  * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
  */
+
+
+/**
+ * @typedef SearchParameterDefinition
+ * @type {object}
+ * @property {string | null} field
+ * @property {string[] | null} fields
+ * @property {string | null} fieldFilter
+ * @property {string | null} description
+ * @property {string | null} type
+ * @property {string[] | null} target
+ */
+
