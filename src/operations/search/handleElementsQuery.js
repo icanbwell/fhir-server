@@ -9,7 +9,7 @@
  */
 function handleElementsQuery(args, columns, resourceName, options,
                              // eslint-disable-next-line no-unused-vars
-                             useAccessIndex = false
+                             useAccessIndex
 ) {
     // GET [base]/Observation?_elements=status,date,category
     /**
@@ -36,6 +36,12 @@ function handleElementsQuery(args, columns, resourceName, options,
         }
         // also exclude _id so if there is a covering index the query can be satisfied from the covering index
         projection['_id'] = 0;
+        if (!useAccessIndex || properties_to_return_list.length > 1 || properties_to_return_list[0] !== 'id') {
+            // special optimization when only ids are requested so the query can be satisfied by covering index
+            // always add meta column, so we can do security checks
+            projection['meta.security.system'] = 1;
+            projection['meta.security.code'] = 1;
+        }
         options['projection'] = projection;
     }
 

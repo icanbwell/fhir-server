@@ -9,8 +9,9 @@ class ResourcePreparerTransform extends Transform {
      * @param {Object} args
      * @param {function(?Object): Resource} Resource
      * @param {string} resourceName
+     * @param {boolean} useAccessIndex
      */
-    constructor(user, scope, args, Resource, resourceName) {
+    constructor(user, scope, args, Resource, resourceName, useAccessIndex) {
         super({objectMode: true});
         /**
          * @type {string|null}
@@ -32,13 +33,14 @@ class ResourcePreparerTransform extends Transform {
          * @type {string}
          */
         this.resourceName = resourceName;
+        this.useAccessIndex = useAccessIndex;
     }
 
     _transform(chunk, encoding, callback) {
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
         for (const chunk1 of chunks) {
-            prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1, this.resourceName).then(
+            prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1, this.resourceName, this.useAccessIndex).then(
                 resources => {
                     if (resources.length > 0) {
                         for (const resource of resources) {

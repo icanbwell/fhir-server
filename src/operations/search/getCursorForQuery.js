@@ -26,15 +26,16 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {string | null} user
  * @param {string} mongoCollectionName
  * @param {boolean} isStreaming
+ * @param {boolean} useAccessIndex
  * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
 async function getCursorForQueryAsync(args, columns, resourceName, options,
                                  query, useAtlas, collection, maxMongoTimeMS,
                                  user, mongoCollectionName,
-                                 isStreaming) {
+                                 isStreaming, useAccessIndex) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
-        const __ret = handleElementsQuery(args, columns, resourceName, options);
+        const __ret = handleElementsQuery(args, columns, resourceName, options, useAccessIndex);
         columns = __ret.columns;
         options = __ret.options;
     }

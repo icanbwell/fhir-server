@@ -107,10 +107,10 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
     try {
         const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName, false);
+            maxMongoTimeMS, user, mongoCollectionName, false, useAccessIndex);
         columns = __ret.columns;
-        options = __ret.options;
-        query = __ret.query;
+        // options = __ret.options;
+        // query = __ret.query;
         let originalQuery = __ret.originalQuery;
         let originalOptions = __ret.originalOptions;
         const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
@@ -122,7 +122,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
-            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName);
+            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, useAccessIndex);
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {

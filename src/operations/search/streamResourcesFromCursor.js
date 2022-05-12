@@ -16,6 +16,7 @@ const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
  * @param {string} resourceName
+ * @param {boolean} useAccessIndex
  * @param {string} contentType
  * @param {number} batchObjectCount
  * @returns {Promise<string[]>} ids of resources streamed
@@ -25,6 +26,7 @@ async function streamResourcesFromCursorAsync(
     args,
     Resource,
     resourceName,
+    useAccessIndex,
     contentType = 'application/fhir+json',
     // eslint-disable-next-line no-unused-vars
     batchObjectCount = 1) {
@@ -48,7 +50,7 @@ async function streamResourcesFromCursorAsync(
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
+            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
             new ResourceIdTracker(tracker),
             fhirWriter,
             res.type(contentType)

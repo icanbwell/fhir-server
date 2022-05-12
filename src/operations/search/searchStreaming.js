@@ -110,7 +110,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
 
     try {
         const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName, true);
+            maxMongoTimeMS, user, mongoCollectionName, true, useAccessIndex);
         columns = __ret.columns;
         options = __ret.options;
         query = __ret.query;
@@ -139,6 +139,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
                 resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
+                    useAccessIndex,
                     fhirContentTypes.ndJson, batchObjectCount);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -163,7 +164,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                             user,
                             useAtlas
                         ),
-                        res, user, scope, args, Resource, resourceName, batchObjectCount);
+                        res, user, scope, args, Resource, resourceName, useAccessIndex, batchObjectCount);
                 } else {
                     resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
                         batchObjectCount);

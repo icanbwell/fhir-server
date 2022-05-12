@@ -16,12 +16,14 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
  * @param {string} resourceName
+ * @param {boolean} useAccessIndex
  * @param {number} batchObjectCount
  * @returns {Promise<number>}
  */
 async function streamBundleFromCursorAsync(
     cursor, url, fnBundle, res, user, scope,
     args, Resource, resourceName,
+    useAccessIndex,
     // eslint-disable-next-line no-unused-vars
     batchObjectCount
 ) {
@@ -42,7 +44,7 @@ async function streamBundleFromCursorAsync(
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
+            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
             new ResourceIdTracker(tracker),
             fhirBundleWriter,
             res.type('application/fhir+json')
