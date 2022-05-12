@@ -1,5 +1,5 @@
 const {pipeline} = require('stream/promises');
-const {prepareResource} = require('../common/resourcePreparer');
+const {prepareResourceAsync} = require('../common/resourcePreparer');
 const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
 const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
@@ -18,7 +18,7 @@ const {logError} = require('../common/logging');
  * @param {string} contentType
  * @returns {Promise<string[]>} ids of resources streamed
  */
-async function streamResourcesFromCursor(cursor, res, user, scope,
+async function streamResourcesFromCursorAsync(cursor, res, user, scope,
                                          args,
                                          Resource,
                                          resourceName,
@@ -54,7 +54,7 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
                     /**
                      * @type {Resource[]}
                      */
-                    const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
+                    const resources = await prepareResourceAsync(user, scope, args, Resource, chunk, resourceName);
                     if (resources.length > 0) {
                         for (const resource of resources) {
                             yield resource;
@@ -77,5 +77,5 @@ async function streamResourcesFromCursor(cursor, res, user, scope,
 
 
 module.exports = {
-    streamResourcesFromCursor: streamResourcesFromCursor
+    streamResourcesFromCursorAsync: streamResourcesFromCursorAsync
 };

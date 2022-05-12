@@ -8,9 +8,9 @@ const {handleElementsQuery} = require('./handleElementsQuery');
 const {handleSortQuery} = require('./handleSortQuery');
 const {handleCountOption} = require('./handleCountOption');
 const {setDefaultLimit} = require('./setDefaultLimit');
-const {handleTwoStepSearchOptimization} = require('./handleTwoStepOptimization');
+const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimization');
 const {setCursorBatchSize} = require('./setCursorBatchSize');
-const {handleGetTotals} = require('./handleGetTotals');
+const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
 
 /**
@@ -28,7 +28,7 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {boolean} isStreaming
  * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-async function getCursorForQuery(args, columns, resourceName, options,
+async function getCursorForQueryAsync(args, columns, resourceName, options,
                                  query, useAtlas, collection, maxMongoTimeMS,
                                  user, mongoCollectionName,
                                  isStreaming) {
@@ -87,7 +87,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
         !args['id'] &&
         (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
     if (useTwoStepSearchOptimization) {
-        const __ret = await handleTwoStepSearchOptimization(
+        const __ret = await handleTwoStepSearchOptimizationAsync(
             options,
             originalQuery,
             query,
@@ -185,7 +185,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
 
     // if _total is specified then ask mongo for the total else set total to 0
     if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
-        total_count = await handleGetTotals(args, collection, query, maxMongoTimeMS);
+        total_count = await handleGetTotalsAsync(args, collection, query, maxMongoTimeMS);
     }
 
     return {
@@ -204,5 +204,5 @@ async function getCursorForQuery(args, columns, resourceName, options,
 }
 
 module.exports = {
-    getCursorForQuery: getCursorForQuery
+    getCursorForQueryAsync: getCursorForQueryAsync
 };

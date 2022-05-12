@@ -13,7 +13,7 @@ const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
-const {preSave} = require('../common/preSave');
+const {preSaveAsync} = require('../common/preSave');
 
 /**
  * does a FHIR Create (POST)
@@ -132,7 +132,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
             resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
 
-        await preSave(resource);
+        await preSaveAsync(resource);
 
         // Create the document to be inserted into Mongo
         // noinspection JSUnresolvedFunction

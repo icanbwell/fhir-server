@@ -4,7 +4,7 @@ const {isColumnDateType} = require('./isColumnDateType');
  * @param {Resource} resource
  * @returns {Promise<Resource>}
  */
-const preSave = async function (resource) {
+const preSaveAsync = async function (resource) {
     for (const [fieldName, field] of Object.entries(resource)) {
         // if a column is of date type then set it to date (if not already)
         // TODO: this currently only handles one level deep fields.  Change it to handle fields multiple levels deep
@@ -41,5 +41,5 @@ const preSave = async function (resource) {
 };
 
 module.exports = {
-    preSave: preSave,
+    preSaveAsync: preSaveAsync,
 };

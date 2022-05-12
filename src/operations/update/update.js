@@ -19,7 +19,7 @@ const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
-const {preSave} = require('../common/preSave');
+const {preSaveAsync} = require('../common/preSave');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -135,7 +135,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             logDebug(user, JSON.stringify(resource_incoming));
             logDebug(user, '------ end incoming document --------');
 
-            await preSave(resource_incoming);
+            await preSaveAsync(resource_incoming);
 
             const foundResourceObject = removeNull(foundResource.toJSON());
             const resourceIncomingObject = removeNull(resource_incoming.toJSON());
@@ -175,7 +175,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             resource_incoming.meta = meta;
 
-            await preSave(resource_incoming);
+            await preSaveAsync(resource_incoming);
 
             // Same as update from this point on
             cleaned = removeNull(resource_incoming);
@@ -207,7 +207,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
                 resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
-            await preSave(resource_incoming);
+            await preSaveAsync(resource_incoming);
 
             cleaned = removeNull(resource_incoming.toJSON());
             doc = Object.assign(cleaned, {_id: id});

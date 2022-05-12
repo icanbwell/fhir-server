@@ -10,8 +10,8 @@ const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
-const {getCursorForQuery} = require('./getCursorForQuery');
-const {readResourcesFromCursor} = require('./readResourcesFromCursor');
+const {getCursorForQueryAsync} = require('./getCursorForQuery');
+const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
@@ -106,7 +106,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
-        const __ret = await getCursorForQuery(args, columns, resourceName, options, query, useAtlas, collection,
+        const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
             maxMongoTimeMS, user, mongoCollectionName, false);
         columns = __ret.columns;
         options = __ret.options;
@@ -122,7 +122,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
-            resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
+            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName);
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {

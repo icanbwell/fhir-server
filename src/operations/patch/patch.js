@@ -7,7 +7,7 @@ const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
-const {preSave} = require('../common/preSave');
+const {preSaveAsync} = require('../common/preSave');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -64,7 +64,7 @@ module.exports.patch = async (requestInfo, args, resource_name, collection_name)
         throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
     }
 
-    await preSave(resource);
+    await preSaveAsync(resource);
 
     // Same as update from this point on
     let cleaned = removeNull(resource.toJSON());

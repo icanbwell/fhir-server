@@ -1,5 +1,5 @@
 const {pipeline} = require('stream/promises');
-const {prepareResource} = require('../common/resourcePreparer');
+const {prepareResourceAsync} = require('../common/resourcePreparer');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {logError} = require('../common/logging');
@@ -17,7 +17,7 @@ const {logError} = require('../common/logging');
  * @param {string} resourceName
  * @returns {Promise<number>}
  */
-async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
+async function streamBundleFromCursorAsync(cursor, url, fnBundle, res, user, scope,
                                       args, Resource, resourceName) {
     const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
@@ -47,7 +47,7 @@ async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
                     /**
                      * @type {Resource[]}
                      */
-                    const resources = await prepareResource(user, scope, args, Resource, chunk, resourceName);
+                    const resources = await prepareResourceAsync(user, scope, args, Resource, chunk, resourceName);
                     if (resources.length > 0) {
                         for (const resource of resources) {
                             yield resource;
@@ -70,5 +70,5 @@ async function streamBundleFromCursor(cursor, url, fnBundle, res, user, scope,
 
 
 module.exports = {
-    streamBundleFromCursor: streamBundleFromCursor
+    streamBundleFromCursorAsync: streamBundleFromCursorAsync
 };

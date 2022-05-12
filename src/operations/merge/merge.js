@@ -29,7 +29,7 @@ const {mergeObject} = require('../../utils/mergeHelper');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
-const {preSave} = require('../common/preSave');
+const {preSaveAsync} = require('../common/preSave');
 
 // noinspection JSValidateTypes
 /**
@@ -243,7 +243,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         let collection = await getOrCreateCollection(db, `${resourceToMerge.resourceType}_${base_version}`);
 
-        await preSave(doc);
+        await preSaveAsync(doc);
 
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
@@ -320,7 +320,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         let my_data = deepcopy(data);
 
-        await preSave(my_data);
+        await preSaveAsync(my_data);
 
         delete my_data['_id']; // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that

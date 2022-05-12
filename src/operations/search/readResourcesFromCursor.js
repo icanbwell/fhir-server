@@ -1,5 +1,5 @@
 const {pipeline} = require('stream/promises');
-const {prepareResource} = require('../common/resourcePreparer');
+const {prepareResourceAsync} = require('../common/resourcePreparer');
 const {logError} = require('../common/logging');
 
 
@@ -13,7 +13,7 @@ const {logError} = require('../common/logging');
  * @param {string} resourceName
  * @returns {Promise<Resource[]>}
  */
-async function readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName) {
+async function readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName) {
     /**
      * resources to return
      * @type {Resource[]}
@@ -53,7 +53,7 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
                 for await (const chunk of source) {
                     // chunk_number += 1;
                     // console.log(`prepareResource: chunk:${chunk_number}`);
-                    yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
+                    yield await prepareResourceAsync(user, scope, args, Resource, chunk, resourceName);
                 }
             },
             // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -81,5 +81,5 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
 
 
 module.exports = {
-    readResourcesFromCursor: readResourcesFromCursor
+    readResourcesFromCursorAsync: readResourcesFromCursorAsync
 };
