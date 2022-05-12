@@ -107,7 +107,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
 
     try {
         const __ret = await getCursorForQuery(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName);
+            maxMongoTimeMS, user, mongoCollectionName, false);
         columns = __ret.columns;
         options = __ret.options;
         query = __ret.query;

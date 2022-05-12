@@ -110,7 +110,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
 
     try {
         const __ret = await getCursorForQuery(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName);
+            maxMongoTimeMS, user, mongoCollectionName, true);
         columns = __ret.columns;
         options = __ret.options;
         query = __ret.query;

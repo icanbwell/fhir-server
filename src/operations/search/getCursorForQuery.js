@@ -25,11 +25,13 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {number} maxMongoTimeMS
  * @param {string | null} user
  * @param {string} mongoCollectionName
+ * @param {boolean} isStreaming
  * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
 async function getCursorForQuery(args, columns, resourceName, options,
                                  query, useAtlas, collection, maxMongoTimeMS,
-                                 user, mongoCollectionName) {
+                                 user, mongoCollectionName,
+                                 isStreaming) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
         const __ret = handleElementsQuery(args, columns, resourceName, options);
@@ -45,12 +47,10 @@ async function getCursorForQuery(args, columns, resourceName, options,
 
     // if _count is specified then limit mongo query to that
     if (args['_count']) {
-        const __ret = handleCountOption(args, options);
+        const __ret = handleCountOption(args, options, isStreaming);
         options = __ret.options;
-    } else {
-        if (!args['_streamResponse']) {
-            setDefaultLimit(args, options);
-        }
+    } else if (!isStreaming) {
+        setDefaultLimit(args, options);
     }
 
     // for consistency in results while paging, always sort by id
