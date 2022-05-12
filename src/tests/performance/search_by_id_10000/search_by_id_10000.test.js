@@ -76,6 +76,6 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response sort ------------');
             const lines = resp.text.split('\n');
             expect(lines.length).toBe(numberOfResources + 1);
-        }, 120 * 1000);
+        }, 240 * 1000);
     });
 });
