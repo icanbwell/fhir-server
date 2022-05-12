@@ -110,7 +110,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
 
     try {
         const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName, true);
+            maxMongoTimeMS, user, mongoCollectionName, true, useAccessIndex);
         columns = __ret.columns;
         options = __ret.options;
         query = __ret.query;
@@ -131,11 +131,16 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
 
         let resourceIds = [];
+        /**
+         * @type {number}
+         */
+        const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
                 resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
-                    fhirContentTypes.ndJson);
+                    useAccessIndex,
+                    fhirContentTypes.ndJson, batchObjectCount);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
@@ -159,9 +164,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                             user,
                             useAtlas
                         ),
-                        res, user, scope, args, Resource, resourceName);
+                        res, user, scope, args, Resource, resourceName, useAccessIndex, batchObjectCount);
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName);
+                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
+                        batchObjectCount);
                 }
             }
             if (resourceIds.length > 0) {

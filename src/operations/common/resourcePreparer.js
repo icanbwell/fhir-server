@@ -1,6 +1,7 @@
 const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {removeNull} = require('../../utils/nullRemover');
 const {enrich} = require('../../enrich/enrich');
+const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 
 /**
  * handles selection of specific elements
@@ -44,17 +45,22 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object} args
- * @param {Function} Resource
+ * @param {function(?Object): Resource} Resource
  * @param {Resource} element
  * @param {string} resourceName
+ * @param {boolean} useAccessIndex
  * @returns {Promise<Resource[]>}
  */
-async function prepareResourceAsync(user, scope, args, Resource, element, resourceName) {
+async function prepareResourceAsync(user, scope, args, Resource, element, resourceName, useAccessIndex) {
     let resources = [];
-    if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-        return [];
-    }
     if (args['_elements']) {
+        if (!useAccessIndex || !resourceHasAccessIndex(resourceName)) {
+            // if the whole resource is returned then we have security tags to check again to be double sure
+            if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+                return [];
+            }
+        }
+
         const element_to_return = selectSpecificElements(
             args,
             Resource,
@@ -63,6 +69,10 @@ async function prepareResourceAsync(user, scope, args, Resource, element, resour
         );
         resources.push(element_to_return);
     } else {
+        // if the whole resource is returned then we have security tags to check again to be double sure
+        if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+            return [];
+        }
         /**
          * @type  {Resource}
          */

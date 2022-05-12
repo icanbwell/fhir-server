@@ -1,6 +1,7 @@
 const {getAccessCodesFromScopes} = require('../security/scopes');
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
+const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 
 /**
  * returns security tags to filter by based on the scope
@@ -42,9 +43,8 @@ const getSecurityTagsFromScope = (user, scope) => {
 const getQueryWithSecurityTags = (collection_name, securityTags, query, useAccessIndex = false) => {
     if (securityTags && securityTags.length > 0) {
         let securityTagQuery;
-        const collectionsWithAccessIndex = (env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',').map((col) => col.trim())) || [];
         // special handling for large collections for performance
-        if (useAccessIndex && collectionsWithAccessIndex.includes(collection_name)) {
+        if (useAccessIndex && resourceHasAccessIndex(collection_name)) {
             if (securityTags.length === 1) {
                 securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
             } else {
