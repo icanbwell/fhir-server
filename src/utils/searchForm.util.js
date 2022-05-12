@@ -1,6 +1,7 @@
 const identifierUrl = 'http://hl7.org/fhir/sid/us-npi|';
 const advSearchJson = require('../graphql/v2/generator/json/definitions.json/search-parameters.json');
 const searchLimit = 100;
+const searchLimitForIds = 10000;
 
 function getSearchParams(req) {
     const bodyEntries = Object.entries(req.body);
@@ -241,5 +242,6 @@ module.exports = {
     lastUpdateStart: getLastUpdate,
     lastUpdateEnd: getLastUpdate,
     limit: searchLimit,
+    searchLimitForIds: searchLimitForIds,
     searchUtils: utils,
 };

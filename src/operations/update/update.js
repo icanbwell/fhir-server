@@ -19,6 +19,7 @@ const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
+const {preSaveAsync} = require('../common/preSave');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -36,18 +37,18 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
     verifyHasValidScopes(resource_name, 'write', user, scope);
 
     // read the incoming resource from request body
-    let resource_incoming = body;
+    let resource_incoming_json = body;
     let {base_version, id} = args;
     logDebug(user, base_version);
     logDebug(user, id);
     logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resource_incoming));
+    logDebug(user, JSON.stringify(resource_incoming_json));
 
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         await sendToS3('logs',
             resource_name,
-            resource_incoming,
+            resource_incoming_json,
             currentDate,
             id,
             'update');
@@ -55,16 +56,16 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
         logDebug(user, '--- validate schema ----');
-        const operationOutcome = validateResource(resource_incoming, resource_name, path);
+        const operationOutcome = validateResource(resource_incoming_json, resource_name, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            const uuid = getUuid(resource_incoming);
+            const uuid = getUuid(resource_incoming_json);
             operationOutcome.expression = [
                 resource_name + '/' + uuid
             ];
             await sendToS3('validation_failures',
                 resource_name,
-                resource_incoming,
+                resource_incoming_json,
                 currentDate,
                 uuid,
                 'update');
@@ -90,10 +91,20 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         // Get current record
         // Query our collection for this observation
         // noinspection JSUnresolvedVariable
+        /**
+         * @type {Resource | null}
+         */
         let data = await collection.findOne({id: id.toString()});
         // create a resource with incoming data
-        let Resource = getResource(base_version, resource_name);
+        /**
+         * @type {function(?Object): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resource_name);
 
+        /**
+         * @type {Resource}
+         */
+        let resource_incoming = new ResourceCreator(resource_incoming_json);
         let cleaned;
         let doc;
 
@@ -102,7 +113,10 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         if (data && data.meta) {
             // found an existing resource
             logDebug(user, 'found resource: ' + data);
-            let foundResource = new Resource(data);
+            /**
+             * @type {Resource}
+             */
+            let foundResource = new ResourceCreator(data);
             if (!(isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new ForbiddenError(
@@ -121,11 +135,13 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             logDebug(user, JSON.stringify(resource_incoming));
             logDebug(user, '------ end incoming document --------');
 
-            data = removeNull(data);
-            resource_incoming = removeNull(resource_incoming);
+            await preSaveAsync(resource_incoming);
+
+            const foundResourceObject = removeNull(foundResource.toJSON());
+            const resourceIncomingObject = removeNull(resource_incoming.toJSON());
             // now create a patch between the document in db and the incoming document
             //  this returns an array of patches
-            let patchContent = compare(data, resource_incoming);
+            let patchContent = compare(foundResourceObject, resourceIncomingObject);
             // ignore any changes to _id since that's an internal field
             patchContent = patchContent.filter(item => item.path !== '/_id');
             logDebug(user, '------ patches --------');
@@ -155,8 +171,12 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
              */
             let meta = foundResource.meta;
             meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
+            // noinspection SpellCheckingInspection
             meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             resource_incoming.meta = meta;
+
+            await preSaveAsync(resource_incoming);
+
             // Same as update from this point on
             cleaned = removeNull(resource_incoming);
             doc = Object.assign(cleaned, {_id: id});
@@ -165,13 +185,16 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             // not found so insert
             logDebug(user, 'update: new resource: ' + resource_incoming);
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-                if (!doesResourceHaveAccessTags(new Resource(resource_incoming))) {
+                if (!doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                    throw new BadRequestError(new Error('ResourceC is missing a security access tag with system: https://www.icanbwell.com/access '));
                 }
             }
 
             // create the metadata
+            /**
+             * @type {function({Object}): Meta}
+             */
             let Meta = getMeta(base_version);
             if (!resource_incoming.meta) {
                 // noinspection JSPrimitiveTypeWrapperUsage
@@ -184,7 +207,9 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
                 resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
-            cleaned = removeNull(resource_incoming);
+            await preSaveAsync(resource_incoming);
+
+            cleaned = removeNull(resource_incoming.toJSON());
             doc = Object.assign(cleaned, {_id: id});
         }
 
@@ -217,7 +242,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
 
         await sendToS3('errors',
             resource_name,
-            resource_incoming,
+            resource_incoming_json,
             currentDate,
             id,
             'update');

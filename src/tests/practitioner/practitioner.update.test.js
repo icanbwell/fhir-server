@@ -19,7 +19,7 @@ describe('Practitioner Update Tests', () => {
     });
 
     describe('Practitioner Merges', () => {
-        test('Multiple calls to Practitioner merge properly', async () => {
+        test('Multiple calls to Practitioner update properly', async () => {
             await async.waterfall([
                     (cb) => // first confirm there are no practitioners
                         request

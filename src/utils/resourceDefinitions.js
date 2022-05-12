@@ -54,6 +54,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/observation.html'
     },
     {
+        name: 'Medication',
+        description: 'This resource is primarily used for the identification and definition of a medication for the purposes of prescribing, dispensing, and administering a medication as well as for making statements about medication use.',
+        url: 'https://www.hl7.org/fhir/medication.html'
+    },
+    {
         name: 'Appointment',
         description: 'A booking of a healthcare event among patient(s), practitioner(s), related person(s) and/or device(s) for a specific date/time. This may result in one or more Encounter(s).',
         url: 'https://www.hl7.org/fhir/appointment.html'

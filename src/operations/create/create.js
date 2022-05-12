@@ -13,6 +13,7 @@ const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
+const {preSaveAsync} = require('../common/preSave');
 
 /**
  * does a FHIR Create (POST)
@@ -38,7 +39,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
     logDebug(user, '--- body ----');
     logDebug(user, JSON.stringify(resource_incoming));
     logDebug(user, '-----------------');
-    const uuid = getUuid(resource_incoming);
+    const uuid = resource_incoming.id || getUuid(resource_incoming);
 
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -78,6 +79,10 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
 
     try {
         // Grab an instance of our DB and collection (by version)
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
         let db = globals.get(CLIENT_DB);
         /**
          * @type {import('mongodb').Collection}
@@ -85,21 +90,29 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         let collection = await getOrCreateCollection(db, `${collection_name}_${base_version}`);
 
         // Get current record
-        let Resource = getResource(base_version, resource_name);
-        logDebug(user, `Resource: ${Resource}`);
-        let resource = new Resource(resource_incoming);
+        /**
+         * @type {function({Object}): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resource_name);
+        /**
+         * @type {Resource}
+         */
+        const resource = new ResourceCreator(resource_incoming);
         // noinspection JSUnresolvedFunction
         logDebug(user, `resource: ${resource.toJSON()}`);
 
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!doesResourceHaveAccessTags(resource)) {
                 // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
             }
         }
 
         // If no resource ID was provided, generate one.
-        let id = getUuid(resource);
+        /**
+         * @type {string}
+         */
+        let id = resource_incoming.id || getUuid(resource);
         logDebug(user, `id: ${id}`);
 
         // Create the resource's metadata
@@ -107,19 +120,25 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
          * @type {function({Object}): Meta}
          */
         let Meta = getMeta(base_version);
-        if (!resource_incoming.meta) {
-            resource_incoming.meta = new Meta({
+        if (!resource.meta) {
+            // noinspection SpellCheckingInspection
+            resource.meta = new Meta({
                 versionId: '1',
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
             });
         } else {
-            resource_incoming.meta['versionId'] = '1';
-            // noinspection JSValidateTypes
-            resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resource.meta['versionId'] = '1';
+            // noinspection JSValidateTypes,SpellCheckingInspection
+            resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
+
+        await preSaveAsync(resource);
 
         // Create the document to be inserted into Mongo
         // noinspection JSUnresolvedFunction
+        /**
+         * @type {Object}
+         */
         let doc = removeNull(resource.toJSON());
         Object.assign(doc, {id: id});
 
@@ -129,6 +148,9 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document
+        /**
+         * @type {Object}
+         */
         let history_doc = Object.assign({}, doc);
         Object.assign(doc, {_id: id});
 

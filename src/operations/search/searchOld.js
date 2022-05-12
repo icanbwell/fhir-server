@@ -499,7 +499,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(securityTags, query);
+    query = getQueryWithSecurityTags(collection_name, securityTags, query);
 
     /**
      * @type {boolean}
@@ -757,6 +757,10 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+                /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 };

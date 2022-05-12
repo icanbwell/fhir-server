@@ -11,11 +11,11 @@ const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
-const {getCursorForQuery} = require('./getCursorForQuery');
+const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
-const {streamResourcesFromCursor} = require('./streamResourcesFromCursor');
-const {streamBundleFromCursor} = require('./streamBundleFromCursor');
+const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
+const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 
 
@@ -56,7 +56,16 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName);
+    /**
+     * @type {boolean}
+     */
+    const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
+
+    let {
+        base_version,
+        query,
+        columns
+    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}
@@ -69,8 +78,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
-        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -101,8 +109,8 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
-        const __ret = await getCursorForQuery(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName);
+        const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
+            maxMongoTimeMS, user, mongoCollectionName, true);
         columns = __ret.columns;
         options = __ret.options;
         query = __ret.query;
@@ -126,12 +134,12 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName,
+                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
                     fhirContentTypes.ndJson);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
-                    resourceIds = await streamBundleFromCursor(cursor, url,
+                    resourceIds = await streamBundleFromCursorAsync(cursor, url,
                         (last_id, stopTime1) => createBundle(
                             url,
                             last_id,
@@ -153,7 +161,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                         ),
                         res, user, scope, args, Resource, resourceName);
                 } else {
-                    resourceIds = await streamResourcesFromCursor(cursor, res, user, scope, args, Resource, resourceName);
+                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName);
                 }
             }
             if (resourceIds.length > 0) {
@@ -205,9 +213,12 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                 }
             }
         }
-    } catch
-        (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+    } catch (e) {
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 }
 ;

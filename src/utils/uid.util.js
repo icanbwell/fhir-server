@@ -20,7 +20,7 @@ function getRandomInt(min, max) {
  *
  * Prefix may contain 'ge, le, lt, gt'.
  *
- * @param {*} dates
+ * @param {number} length
  */
 let getUid = function (length) {
   let uid = '';
@@ -39,7 +39,7 @@ let getUid = function (length) {
  * TODO Improve this. Stuck this in just because it's more of a uniqueness guarantee than the above 'getUID' function.
  * TODO If we're actually going to generate hashes, we should probably do it in a more secure manner.
  * @param obj
- * @returns {*|*}
+ * @returns {string}
  */
 const getUuid = (obj) => {
   return hash(obj);

@@ -49,7 +49,7 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {string} resourceName
  * @returns {Promise<Resource[]>}
  */
-async function prepareResource(user, scope, args, Resource, element, resourceName) {
+async function prepareResourceAsync(user, scope, args, Resource, element, resourceName) {
     let resources = [];
     if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
         return [];
@@ -81,5 +81,5 @@ async function prepareResource(user, scope, args, Resource, element, resourceNam
 }
 
 module.exports = {
-    prepareResource: prepareResource,
+    prepareResourceAsync: prepareResourceAsync,
 };

@@ -8,9 +8,9 @@ const {handleElementsQuery} = require('./handleElementsQuery');
 const {handleSortQuery} = require('./handleSortQuery');
 const {handleCountOption} = require('./handleCountOption');
 const {setDefaultLimit} = require('./setDefaultLimit');
-const {handleTwoStepSearchOptimization} = require('./handleTwoStepOptimization');
+const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimization');
 const {setCursorBatchSize} = require('./setCursorBatchSize');
-const {handleGetTotals} = require('./handleGetTotals');
+const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
 
 /**
@@ -25,11 +25,13 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {number} maxMongoTimeMS
  * @param {string | null} user
  * @param {string} mongoCollectionName
+ * @param {boolean} isStreaming
  * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-async function getCursorForQuery(args, columns, resourceName, options,
+async function getCursorForQueryAsync(args, columns, resourceName, options,
                                  query, useAtlas, collection, maxMongoTimeMS,
-                                 user, mongoCollectionName) {
+                                 user, mongoCollectionName,
+                                 isStreaming) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
         const __ret = handleElementsQuery(args, columns, resourceName, options);
@@ -45,12 +47,10 @@ async function getCursorForQuery(args, columns, resourceName, options,
 
     // if _count is specified then limit mongo query to that
     if (args['_count']) {
-        const __ret = handleCountOption(args, options);
+        const __ret = handleCountOption(args, options, isStreaming);
         options = __ret.options;
-    } else {
-        if (!args['_streamResponse']) {
-            setDefaultLimit(args, options);
-        }
+    } else if (!isStreaming) {
+        setDefaultLimit(args, options, isStreaming);
     }
 
     // for consistency in results while paging, always sort by id
@@ -87,7 +87,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
         !args['id'] &&
         (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
     if (useTwoStepSearchOptimization) {
-        const __ret = await handleTwoStepSearchOptimization(
+        const __ret = await handleTwoStepSearchOptimizationAsync(
             options,
             originalQuery,
             query,
@@ -185,7 +185,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
 
     // if _total is specified then ask mongo for the total else set total to 0
     if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
-        total_count = await handleGetTotals(args, collection, query, maxMongoTimeMS);
+        total_count = await handleGetTotalsAsync(args, collection, query, maxMongoTimeMS);
     }
 
     return {
@@ -204,5 +204,5 @@ async function getCursorForQuery(args, columns, resourceName, options,
 }
 
 module.exports = {
-    getCursorForQuery: getCursorForQuery
+    getCursorForQueryAsync: getCursorForQueryAsync
 };

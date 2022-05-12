@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <% if (res.manufacturer) { %>
+                <h4>Status: </h4><%= res.status %>
+            <% } %>
+            <!-- prettier-ignore -->
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.code], name: "Code", searchParameter: 'code'}); %>
+
+            <% if (res.manufacturer) { %>
+                <%- include('../partials/reference', {references: [res.manufacturer], name: "Manufacturer"}); %>
+            <% } %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.form], name: "Form", searchParameter: 'form'}); %>
+
+            <%- include('../partials/ratio', {ratio: res.amount, name: "Amount"}); %>
+
+            <% if (res.ingredient) { %>
+                <h4>Ingredients</h4>
+                <% res.ingredient.forEach(function(ingredient, index){ %>
+                    <h4>Ingredient <%= index + 1 %></h4>
+                    <% if (ingredient.itemCodeableConcept) { %>
+                        <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [ingredient.itemCodeableConcept], name: "Ingredient Code", searchParameter: ''}); %>
+                    <% } %>
+                    <% if (ingredient.isActive) { %><h5>Active: </h5><%= ingredient.isActive || "" %><% } %>
+                    <%- include('../partials/ratio', {ratio: ingredient.strength, name: "Strength"}); %>
+                <% }) %>
+            <% } %>
+
+            <% if (res.batch) { %>
+                <% if (res.batch.lotNumber) { %><h4>Batch Lot Number: </h4><%= res.batch.lotNumber %><% } %>
+                <% if (res.batch.expirationDate) { %><h4>Batch Lot Expiration
+                    Date: </h4><%= res.batch.expirationDate %><% } %>
+            <% } %>
+
+            <!-- prettier-ignore -->
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }) %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>

@@ -29,6 +29,7 @@ const {mergeObject} = require('../../utils/mergeHelper');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
+const {preSaveAsync} = require('../common/preSave');
 
 // noinspection JSValidateTypes
 /**
@@ -85,7 +86,15 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     logDebug(user, JSON.stringify(resources_incoming));
     logDebug(user, '-----------------');
 
+    /**
+     * check merge
+     * @param resourceToMerge
+     * @returns {Promise<{operationOutcome: OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|{operationOutcome: {issue: [{severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}], resourceType: string}, issue: ({severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}|null), created: boolean, id: *, updated: boolean}|{operationOutcome: ?OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|boolean>}
+     */
     async function preMergeChecks(resourceToMerge) {
+        /**
+         * @type {string} id
+         */
         let id = resourceToMerge.id;
         if (!(resourceToMerge.resourceType)) {
             /**
@@ -216,6 +225,13 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         return false;
     }
 
+    /**
+     * performs the db update
+     * @param {Object} resourceToMerge
+     * @param {Object} doc
+     * @param {Object} cleaned
+     * @returns {Promise<{created: boolean, id: *, updated: any, resource_version}>}
+     */
     async function performMergeDbUpdate(resourceToMerge, doc, cleaned) {
         let id = resourceToMerge.id;
         /**
@@ -227,10 +243,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         let collection = await getOrCreateCollection(db, `${resourceToMerge.resourceType}_${base_version}`);
 
+        await preSaveAsync(doc);
+
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
         /**
-         * @type {Object}
+         * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
          */
         let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
 
@@ -258,6 +276,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         };
     }
 
+    /**
+     * resource to merge
+     * @param resourceToMerge
+     * @param data
+     * @returns {Promise<{created: boolean, id: *, message: string, updated: boolean, resource_version}|{created: boolean, id: *, updated: *, resource_version}>}
+     */
     async function mergeExisting(resourceToMerge, data) {
         let id = resourceToMerge.id;
         // create a resource with incoming data
@@ -295,6 +319,9 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          * @type {Object}
          */
         let my_data = deepcopy(data);
+
+        await preSaveAsync(my_data);
+
         delete my_data['_id']; // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that
         my_data = removeNull(my_data);
@@ -323,7 +350,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         /**
          * @type {Operation[]}
          */
-        let patchContent = compare(data, resource_merged);
+        let patchContent = compare(my_data, resource_merged);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         logDebug(user, '------ patches --------');
@@ -353,12 +380,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         let patched_incoming_data = applyPatch(data, patchContent).newDocument;
         /**
-         * @type {Object}
+         * @type {Resource}
          */
         let patched_resource_incoming = new Resource(patched_incoming_data);
         // update the metadata to increment versionId
         /**
-         * @type {{versionId: string, lastUpdated: Date, source: string}}
+         * @type {Meta}
          */
         let meta = foundResource.meta;
         meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
@@ -383,7 +410,14 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         // const cleaned = JSON.parse(JSON.stringify(patched_resource_incoming));
         // check_fhir_mismatch(cleaned, patched_incoming_data);
         // const cleaned = patched_resource_incoming;
+
+        /**
+         * @type {Object}
+         */
         const cleaned = patched_resource_incoming.toJSON();
+        /**
+         * @type {Object}
+         */
         const doc = Object.assign(cleaned, {_id: id});
         if (env.LOG_ALL_MERGES) {
             await sendToS3('logs',
@@ -401,14 +435,19 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         return await performMergeDbUpdate(resourceToMerge, doc, cleaned);
     }
 
+    /**
+     * merge insert
+     * @param resourceToMerge
+     * @returns {Promise<{created: boolean, id: *, updated: *, resource_version}>}
+     */
     async function mergeInsert(resourceToMerge) {
         let id = resourceToMerge.id;
         // not found so insert
         logDebug(user,
             resourceToMerge.resourceType +
             ': merge new resource ' +
-            '[' + resourceToMerge.id + ']: '
-            + JSON.stringify(resourceToMerge)
+            '[' + resourceToMerge.id + ']: ' +
+            JSON.stringify(resourceToMerge)
         );
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!doesResourceHaveAccessTags(resourceToMerge)) {
@@ -553,11 +592,6 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
      * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
      *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
      *  and then the other ones tries to insert too
-     * @param {Object} resource_to_merge
-     * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
-     */
-    /**
-     * merges resources and retries on error
      * @param resource_to_merge
      * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
      */
@@ -587,6 +621,9 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         resources_incoming = resources_incoming.entry.map(e => e.resource);
     }
     if (Array.isArray(resources_incoming)) {
+        /**
+         * @type {string[]}
+         */
         const ids_of_resources = resources_incoming.map(r => r.id);
         logRequest(user,
             '==================' + resource_name + ': Merge received array ' +
@@ -606,6 +643,9 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          */
         const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
+        /**
+         * @type {Awaited<unknown>[]}
+         */
         const result = await Promise.all([
             async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x)), // run in parallel
             async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x)) // run in series
@@ -634,13 +674,20 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         logDebug(user, '-----------------');
         return returnVal;
     } else {
+        /**
+         * @type {{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}, created: boolean, id: String, updated: boolean}}
+         */
         const returnVal = await merge_resource_with_retry(resources_incoming);
         if (returnVal) {
             if (returnVal['created'] === true) {
-                await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
+                if (resource_name !== 'AuditEvent') {
+                    await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
+                }
             }
             if (returnVal['updated'] === true) {
-                await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+                if (resource_name !== 'AuditEvent') {
+                    await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+                }
             }
         }
         logDebug(user, '--- Merge result ----');
