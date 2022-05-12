@@ -5,9 +5,10 @@ const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWrite
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logError} = require('../common/logging');
+const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
- * Reads resources from Mongo cursor
+ * Reads resources from Mongo cursor and writes to response
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
@@ -16,13 +17,16 @@ const {logError} = require('../common/logging');
  * @param {function (Object): Resource} Resource
  * @param {string} resourceName
  * @param {string} contentType
+ * @param {number} batchObjectCount
  * @returns {Promise<string[]>} ids of resources streamed
  */
-async function streamResourcesFromCursorAsync(cursor, res, user, scope,
-                                         args,
-                                         Resource,
-                                         resourceName,
-                                         contentType = 'application/fhir+json') {
+async function streamResourcesFromCursorAsync(
+    cursor, res, user, scope,
+    args,
+    Resource,
+    resourceName,
+    contentType = 'application/fhir+json',
+    batchObjectCount = 1) {
 
     const useJson = contentType !== fhirContentTypes.ndJson;
 
@@ -48,6 +52,7 @@ async function streamResourcesFromCursorAsync(cursor, res, user, scope,
                     yield await cursor.next();
                 }
             },
+            // new ObjectChunker(batchObjectCount),
             // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
             async function* (source) {
                 for await (const chunk of source) {

@@ -3,9 +3,10 @@ const {prepareResourceAsync} = require('../common/resourcePreparer');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {logError} = require('../common/logging');
+const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
- * Reads resources from Mongo cursor
+ * Reads resources from Mongo cursor and writes to response
  * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
  * @param {string | null} url
  * @param {function (string | null, number): Resource} fnBundle
@@ -15,10 +16,12 @@ const {logError} = require('../common/logging');
  * @param {Object?} args
  * @param {function (Object): Resource} Resource
  * @param {string} resourceName
+ * @param {number} batchObjectCount
  * @returns {Promise<number>}
  */
-async function streamBundleFromCursorAsync(cursor, url, fnBundle, res, user, scope,
-                                      args, Resource, resourceName) {
+async function streamBundleFromCursorAsync(
+    cursor, url, fnBundle, res, user, scope,
+    args, Resource, resourceName, batchObjectCount) {
     const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
     const tracker = {
@@ -41,6 +44,7 @@ async function streamBundleFromCursorAsync(cursor, url, fnBundle, res, user, sco
                     yield await cursor.next();
                 }
             },
+            // new ObjectChunker(batchObjectCount),
             // new ResourcePreparerTransform(user, scope, args, Resource, resourceName),
             async function* (source) {
                 for await (const chunk of source) {
