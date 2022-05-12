@@ -603,7 +603,7 @@ let dateQueryBuilder = function (date, type, path) {
                 // convert to format that mongo uses to store
                 const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
                 return {
-                    [prefix]: new Date(datetime_utc).toISOString()
+                    [prefix]: datetime_utc
                 };
             }
         }
