@@ -4,9 +4,6 @@ const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 
-// expected
-const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
-
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersNdJson} = require('../../common');
 
