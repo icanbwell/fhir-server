@@ -27,7 +27,8 @@
 
             <% if (res.ingredient) { %>
                 <h4>Ingredients</h4>
-                <% res.ingredient.forEach(function(ingredient){ %>
+                <% res.ingredient.forEach(function(ingredient, index){ %>
+                    <h4>Ingredient <%= index + 1 %></h4>
                     <% if (ingredient.itemCodeableConcept) { %>
                         <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [ingredient.itemCodeableConcept], name: "Ingredient Code", searchParameter: ''}); %>
                     <% } %>
