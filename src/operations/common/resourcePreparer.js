@@ -44,16 +44,13 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object} args
- * @param {Function} Resource
+ * @param {function(?Object): Resource} Resource
  * @param {Resource} element
  * @param {string} resourceName
  * @returns {Promise<Resource[]>}
  */
 async function prepareResourceAsync(user, scope, args, Resource, element, resourceName) {
     let resources = [];
-    if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-        return [];
-    }
     if (args['_elements']) {
         const element_to_return = selectSpecificElements(
             args,
@@ -63,6 +60,10 @@ async function prepareResourceAsync(user, scope, args, Resource, element, resour
         );
         resources.push(element_to_return);
     } else {
+        // if the whole resource is returned then we have security tags to check again to be double sure
+        if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+            return [];
+        }
         /**
          * @type  {Resource}
          */
