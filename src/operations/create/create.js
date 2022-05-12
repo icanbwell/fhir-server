@@ -39,7 +39,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
     logDebug(user, '--- body ----');
     logDebug(user, JSON.stringify(resource_incoming));
     logDebug(user, '-----------------');
-    const uuid = getUuid(resource_incoming);
+    const uuid = resource_incoming.id || getUuid(resource_incoming);
 
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -79,6 +79,10 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
 
     try {
         // Grab an instance of our DB and collection (by version)
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
         let db = globals.get(CLIENT_DB);
         /**
          * @type {import('mongodb').Collection}
@@ -105,7 +109,10 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         }
 
         // If no resource ID was provided, generate one.
-        let id = getUuid(resource);
+        /**
+         * @type {string}
+         */
+        let id = resource_incoming.id || getUuid(resource);
         logDebug(user, `id: ${id}`);
 
         // Create the resource's metadata
@@ -129,6 +136,9 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
 
         // Create the document to be inserted into Mongo
         // noinspection JSUnresolvedFunction
+        /**
+         * @type {Object}
+         */
         let doc = removeNull(resource.toJSON());
         Object.assign(doc, {id: id});
 
@@ -138,6 +148,9 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document
+        /**
+         * @type {Object}
+         */
         let history_doc = Object.assign({}, doc);
         Object.assign(doc, {_id: id});
 

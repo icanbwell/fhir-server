@@ -50,7 +50,7 @@ async function getCursorForQuery(args, columns, resourceName, options,
         const __ret = handleCountOption(args, options, isStreaming);
         options = __ret.options;
     } else if (!isStreaming) {
-        setDefaultLimit(args, options);
+        setDefaultLimit(args, options, isStreaming);
     }
 
     // for consistency in results while paging, always sort by id

@@ -7,6 +7,7 @@ const {isColumnDateType} = require('./isColumnDateType');
 const preSave = async function (resource) {
     for (const [fieldName, field] of Object.entries(resource)) {
         // if a column is of date type then set it to date (if not already)
+        // TODO: this currently only handles one level deep fields.  Change it to handle fields multiple levels deep
         if (isColumnDateType(resource.resourceType, fieldName)) {
             if (!(resource[`${fieldName}`] instanceof Date)) {
                 resource[`${fieldName}`] = new Date(field);
@@ -28,7 +29,7 @@ const preSave = async function (resource) {
                 }
             }
             // now add any new/updated tags
-            for (const accessCode of accessCodes) {
+            for (const /** @type {string} **/ accessCode of accessCodes) {
                 if (resource._access[`${accessCode}`] !== 1) {
                     resource._access[`${accessCode}`] = 1;
                 }

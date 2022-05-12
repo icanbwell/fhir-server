@@ -135,6 +135,8 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             logDebug(user, JSON.stringify(resource_incoming));
             logDebug(user, '------ end incoming document --------');
 
+            await preSave(resource_incoming);
+
             const foundResourceObject = removeNull(foundResource.toJSON());
             const resourceIncomingObject = removeNull(resource_incoming.toJSON());
             // now create a patch between the document in db and the incoming document
