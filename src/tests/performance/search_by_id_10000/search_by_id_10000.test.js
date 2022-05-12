@@ -39,7 +39,6 @@ describe('PractitionerReturnIdTests', () => {
                 bundle.entry.push({
                     resource: deepcopy(practitionerResource)
                 });
-                console.log(`------- added ${practitionerResource.id} ------------`);
             }
 
             // now add a record
