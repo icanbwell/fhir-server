@@ -52,8 +52,7 @@ services:
         test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
 
   mongo:
-#    image: docker.io/bitnami/mongodb:4.4.9
-    image: mongo:4.4.12
+    image: mongo:4.4.14
     ports:
       - '27017:27017'
     environment:
