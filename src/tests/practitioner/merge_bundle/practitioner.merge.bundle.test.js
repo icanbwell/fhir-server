@@ -1,10 +1,8 @@
-/* eslint-disable no-unused-vars */
 const supertest = require('supertest');
 
 const {app} = require('../../../app');
 const practitionerBundleResource = require('./fixtures/providers/practitioner_bundle.json');
 const expectedPractitionerBundleResource = require('./fixtures/providers/expected_practitioner_bundle.json');
-const async = require('async');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -20,56 +18,48 @@ describe('Practitioner Merge Bundle Tests', () => {
 
     describe('Practitioner Merge Bundles', () => {
         test('Multiple calls to Practitioner merge bundles properly', async () => {
-            await async.waterfall([
-                    (cb) => // first confirm there are no practitioners
-                        request
-                            .get('/4_0_0/Practitioner')
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                expect(resp.body.length).toBe(0);
-                                console.log('------- response 1 ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response 1 ------------');
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Practitioner/4657/$merge')
-                            .send(practitionerBundleResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                console.log('------- response 2 ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response 2  ------------');
-                                return cb(err, resp);
-                            }),
-                    (results, cb) => request
-                        .get('/4_0_0/Practitioner')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            console.log('------- response 5 ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response 5  ------------');
-                            expect(body.length).toBe(2);
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                            });
-                            let expected = expectedPractitionerBundleResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta']['lastUpdated'];
-                                }
-                                element['meta']['versionId'] = '1';
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                ]);
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+
+            expect(resp.body.length).toBe(0);
+            console.log('------- response 1 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 1 ------------');
+
+            resp = await request
+                .post('/4_0_0/Practitioner/4657/$merge')
+                .send(practitionerBundleResource)
+                .set(getHeaders());
+
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            console.log('------- response 5 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 5  ------------');
+            expect(body.length).toBe(2);
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            let expected = expectedPractitionerBundleResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+                element['meta']['versionId'] = '1';
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+            expect(body).toStrictEqual(expected);
         });
     });
 });
