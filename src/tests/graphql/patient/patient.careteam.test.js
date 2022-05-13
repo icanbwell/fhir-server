@@ -32,7 +32,6 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
   describe('GraphQL Patient Update Care Team', () => {
     test('GraphQL Update General Practitioner for Patient', async () => {
-      jest.useFakeTimers('legacy');
       // noinspection JSUnusedLocalSymbols
       const graphqlQueryText = query.replace(/\\n/g, '');
 
