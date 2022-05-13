@@ -1112,7 +1112,7 @@
   dependencies:
     "ajv" "^6.12.6"
 
-"@graphql-eslint/eslint-plugin@^3.10.2":
+"@graphql-eslint/eslint-plugin@^3.10.3":
   "integrity" "sha512-QQiTBw5T28INXayJHHp8lsfiJoanJIYuTqqA0axKlSyDMtNlbfsL3Kc+a+hth29Fw7zyi9XMGAhTDmIOkpskhg=="
   "resolved" "https://registry.npmjs.org/@graphql-eslint/eslint-plugin/-/eslint-plugin-3.10.3.tgz"
   "version" "3.10.3"
@@ -1686,7 +1686,14 @@
   "resolved" "https://registry.npmjs.org/@opentelemetry/api-metrics/-/api-metrics-0.27.0.tgz"
   "version" "0.27.0"
 
-"@opentelemetry/api@^1.0.0", "@opentelemetry/api@^1.0.1", "@opentelemetry/api@^1.0.2", "@opentelemetry/api@^1.0.4", "@opentelemetry/api@>=1.0.0 <1.1.0":
+"@opentelemetry/api-metrics@0.28.0":
+  "integrity" "sha512-UcrJqEiV20YTibYXUT0TDBtl4uLh4tMpAYSa1g1780QrVMlsOMAnBrdD3EYTMPog14Zw+2QzPnDJ4X7q67YrSA=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/api-metrics/-/api-metrics-0.28.0.tgz"
+  "version" "0.28.0"
+  dependencies:
+    "@opentelemetry/api" "^1.0.0"
+
+"@opentelemetry/api@^1.0.0", "@opentelemetry/api@^1.0.1", "@opentelemetry/api@^1.0.2", "@opentelemetry/api@^1.0.4", "@opentelemetry/api@>=1.0.0 <1.1.0", "@opentelemetry/api@>=1.0.0 <1.2.0":
   "integrity" "sha512-BuJuXRSJNQ3QoKA6GWWDyuLpOUck+9hAXNMCnrloc1aWVoy6Xq6t9PUV08aBZ4Lutqq2LEHM486bpZqoViScog=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/api/-/api-1.0.4.tgz"
   "version" "1.0.4"
@@ -1726,12 +1733,12 @@
     "@opentelemetry/instrumentation-restify" "^0.27.2"
     "@opentelemetry/instrumentation-winston" "^0.27.3"
 
-"@opentelemetry/context-async-hooks@1.0.1":
-  "integrity" "sha512-oGCPjDlZ03gXPAdLxw5iqaQJIpL8BZFaiZhAPgF7Vj6XYmrmrA/FXVIsjfNECQTa2D+lt5p8vf0xYIkFufgceQ=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/context-async-hooks/-/context-async-hooks-1.0.1.tgz"
-  "version" "1.0.1"
+"@opentelemetry/context-async-hooks@1.2.0":
+  "integrity" "sha512-b0ui4aDc5UtU+EWkQlgyxPrTPjird8RhzdyaruoTyiHECWXs9O6qiTv4GLAnBt1XIPK4A/t5aqdW5whDcXDBnA=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/context-async-hooks/-/context-async-hooks-1.2.0.tgz"
+  "version" "1.2.0"
 
-"@opentelemetry/core@^1.0.0", "@opentelemetry/core@~1.0.0", "@opentelemetry/core@1.0.1":
+"@opentelemetry/core@^1.0.0", "@opentelemetry/core@1.0.1":
   "integrity" "sha512-90nQ2X6b/8X+xjcLDBYKooAcOsIlwLRYm+1VsxcX5cHl6V4CSVmDpBreQSDH/A21SqROzapk6813008SatmPpQ=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/core/-/core-1.0.1.tgz"
   "version" "1.0.1"
@@ -1753,6 +1760,13 @@
   dependencies:
     "@opentelemetry/semantic-conventions" "0.25.0"
     "semver" "^7.3.5"
+
+"@opentelemetry/core@1.2.0":
+  "integrity" "sha512-QiKp8fBbT9ZhRTP+ZVVMyqH62tD/ZQa4gWPi+GnpNetvK1SWPO/8DmRpaSXHwAhu5FWUDJrbFgpLsrDd1zGPOw=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/core/-/core-1.2.0.tgz"
+  "version" "1.2.0"
+  dependencies:
+    "@opentelemetry/semantic-conventions" "1.2.0"
 
 "@opentelemetry/exporter-collector@^0.25.0":
   "integrity" "sha512-xZYstLt4hz1aTloJaepWdjMMf9305MqwqbUWjcU/X9pOxvgFWRlchO6x/HQTw7ow0i/S+ShzC+greKnb+1WvLA=="
@@ -1897,6 +1911,16 @@
     "@opentelemetry/semantic-conventions" "1.0.1"
     "semver" "^7.3.5"
 
+"@opentelemetry/instrumentation-http@^0.28.0":
+  "integrity" "sha512-j6nqdGekv7Xtq3uRgiHdRrf1s9Y/fJTD//z8NG2RHGJAlOPRIzDO4m2tzZ5DX03Yzbb7tVgRsYhJJVsinQl9Bw=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/instrumentation-http/-/instrumentation-http-0.28.0.tgz"
+  "version" "0.28.0"
+  dependencies:
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/instrumentation" "0.28.0"
+    "@opentelemetry/semantic-conventions" "1.2.0"
+    "semver" "^7.3.5"
+
 "@opentelemetry/instrumentation-ioredis@^0.28.0":
   "integrity" "sha512-cIXWW3iTYAxIxuaSdoQNPc5j2nvD829H4Y4wdnIQw0lcfSKZLfXfsXYJGDklnRgNyil5PMFlBxVnjZf5gYieHQ=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/instrumentation-ioredis/-/instrumentation-ioredis-0.28.0.tgz"
@@ -2031,6 +2055,16 @@
     "semver" "^7.3.2"
     "shimmer" "^1.2.1"
 
+"@opentelemetry/instrumentation@0.28.0":
+  "integrity" "sha512-hcL+U02vp0vcouoMjoJArP0USBuBXnWF+sAt+Z5k77ROEcSCHZh0DkWigWGMyN8w3M5SpoqRlJiXLDM+9RtXNg=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/instrumentation/-/instrumentation-0.28.0.tgz"
+  "version" "0.28.0"
+  dependencies:
+    "@opentelemetry/api-metrics" "0.28.0"
+    "require-in-the-middle" "^5.0.3"
+    "semver" "^7.3.2"
+    "shimmer" "^1.2.1"
+
 "@opentelemetry/metrics@^0.24.0":
   "integrity" "sha512-QqmQCzrSuJE+sCOJ2xXNhctWPp/Am9ILs0Y01MDS08PRJoK20akKHM7eC4oU8ZdXphMg8rYgW2w7tY8rqvYnJg=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/metrics/-/metrics-0.24.0.tgz"
@@ -2053,19 +2087,19 @@
   dependencies:
     "@opentelemetry/core" "^1.0.0"
 
-"@opentelemetry/propagator-b3@1.0.1":
-  "integrity" "sha512-UQQiOpR/WXyoqIRQEkn6RuXtGfpjhBDMq/1HrVxRCRPMVn7f4e+zxZWoQSsCOvSGQTu9S+W8eAutm00sRJN7fg=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/propagator-b3/-/propagator-b3-1.0.1.tgz"
-  "version" "1.0.1"
+"@opentelemetry/propagator-b3@1.2.0":
+  "integrity" "sha512-sjZNnJb3Dz8il5hvaDcScSMBZcwsAs8rnZ4cXMhe3Gv4ewO0x+B7rzWS4k7wDwXPijmuTFy3mj0otDiJhp6bVA=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/propagator-b3/-/propagator-b3-1.2.0.tgz"
+  "version" "1.2.0"
   dependencies:
-    "@opentelemetry/core" "1.0.1"
+    "@opentelemetry/core" "1.2.0"
 
-"@opentelemetry/propagator-jaeger@1.0.1":
-  "integrity" "sha512-bzvXksBn3j0GyiFXQbx87CUSGC1UDyp4hjL+CCOrQfzIEdp6usKCLHv40Ib5WU6739hPMkyr59CPfKwzlviTtA=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/propagator-jaeger/-/propagator-jaeger-1.0.1.tgz"
-  "version" "1.0.1"
+"@opentelemetry/propagator-jaeger@1.2.0":
+  "integrity" "sha512-xs/7VTADlCbMY96dMmgS4RKokZ6k5EfFgWcQriaIkpM+Mb/Snh4wZlfAx4Mr4vPCVM92MwshZ02WI2Ssg0DU8w=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/propagator-jaeger/-/propagator-jaeger-1.2.0.tgz"
+  "version" "1.2.0"
   dependencies:
-    "@opentelemetry/core" "1.0.1"
+    "@opentelemetry/core" "1.2.0"
 
 "@opentelemetry/resource-detector-aws@~1.0.0":
   "integrity" "sha512-LUInf8YGJBuYK3Rc9P73YXwraoHiCCrkcokWDHZHo+GBIZKLDyYvIRg54cn9fIkGTAc2lKSoE1OkxoRKHUWBJQ=="
@@ -2094,14 +2128,6 @@
     "@opentelemetry/core" "1.0.1"
     "@opentelemetry/semantic-conventions" "1.0.1"
 
-"@opentelemetry/resources@~1.0.0", "@opentelemetry/resources@1.0.1":
-  "integrity" "sha512-p8DevOaAEepPucUtImR4cZKHOE2L1jgQAtkdZporV+XnxPA/HqCHPEESyUVuo4f5M0NUlL6k5Pba75KwNJlTRg=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/resources/-/resources-1.0.1.tgz"
-  "version" "1.0.1"
-  dependencies:
-    "@opentelemetry/core" "1.0.1"
-    "@opentelemetry/semantic-conventions" "1.0.1"
-
 "@opentelemetry/resources@0.24.0":
   "integrity" "sha512-uEr2m13IRkjQAjX6fsYqJ21aONCspRvuQunaCl8LbH1NS1Gj82TuRUHF6TM82ulBPK8pU+nrrqXKuky2cMcIzw=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/resources/-/resources-0.24.0.tgz"
@@ -2118,6 +2144,14 @@
     "@opentelemetry/core" "0.25.0"
     "@opentelemetry/semantic-conventions" "0.25.0"
 
+"@opentelemetry/resources@1.2.0":
+  "integrity" "sha512-S5ZlZa2JF+1qhiF7eb3tTtDfKmTODO//pvam9vEyZvr+/At45rIQ7cyznRdMWCppZbholwXWXnrKml29IIG9vQ=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/resources/-/resources-1.2.0.tgz"
+  "version" "1.2.0"
+  dependencies:
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/semantic-conventions" "1.2.0"
+
 "@opentelemetry/sdk-metrics-base@0.25.0":
   "integrity" "sha512-7fwPlAFB5Xw8mnVQfq0wqKNw3RXiAMad9T1bk5Sza9LK/L6hz8RTuHWCsFMsj+1OOSAaiPFuUMYrK1J75+2IAg=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-metrics-base/-/sdk-metrics-base-0.25.0.tgz"
@@ -2128,39 +2162,30 @@
     "@opentelemetry/resources" "0.25.0"
     "lodash.merge" "^4.6.2"
 
-"@opentelemetry/sdk-metrics-base@0.27.0":
-  "integrity" "sha512-HpiWI4sVNsjp3FGyUlc24KvUY2Whl4PQVwcbA/gWv2kHaLQrDJrWC+3rjUR+87Mrd0nsiqJ85xhGFU6IK8h7gg=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-metrics-base/-/sdk-metrics-base-0.27.0.tgz"
-  "version" "0.27.0"
+"@opentelemetry/sdk-metrics-base@0.28.0":
+  "integrity" "sha512-PFjk9+WWU6Y51ZjxClnPW1rzTtcT79pR1FTiFjTsNmKSG0zU3qvUHAoTo0+jvvrO0Djihj7AE+iIG2xLWY4GNQ=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-metrics-base/-/sdk-metrics-base-0.28.0.tgz"
+  "version" "0.28.0"
   dependencies:
-    "@opentelemetry/api-metrics" "0.27.0"
-    "@opentelemetry/core" "1.0.1"
-    "@opentelemetry/resources" "1.0.1"
-    "lodash.merge" "^4.6.2"
+    "@opentelemetry/api-metrics" "0.28.0"
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/resources" "1.2.0"
+    "lodash.merge" "4.6.2"
 
-"@opentelemetry/sdk-node@^0.27.0":
-  "integrity" "sha512-WVk4FfL+weXPFKBDUmJKc0e9xxhpmIB81dW+5Wohu56XAgItbm+cbLf9dH/vu++yMfeLwqfGQeDNGmbMoGAXJg=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-node/-/sdk-node-0.27.0.tgz"
-  "version" "0.27.0"
+"@opentelemetry/sdk-node@^0.28.0":
+  "integrity" "sha512-DNJdaAxcVPFBxHNGfBfwIjeeGk8C0Uv2eG8wnWPlIrhW/803oAt80DXK1NiT3qNeASauHrx3AWozn2sJoua5NA=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-node/-/sdk-node-0.28.0.tgz"
+  "version" "0.28.0"
   dependencies:
-    "@opentelemetry/api-metrics" "0.27.0"
-    "@opentelemetry/core" "~1.0.0"
-    "@opentelemetry/instrumentation" "0.27.0"
+    "@opentelemetry/api-metrics" "0.28.0"
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/instrumentation" "0.28.0"
     "@opentelemetry/resource-detector-aws" "~1.0.0"
     "@opentelemetry/resource-detector-gcp" "~0.26.0"
-    "@opentelemetry/resources" "~1.0.0"
-    "@opentelemetry/sdk-metrics-base" "0.27.0"
-    "@opentelemetry/sdk-trace-base" "~1.0.0"
-    "@opentelemetry/sdk-trace-node" "~1.0.0"
-
-"@opentelemetry/sdk-trace-base@~1.0.0":
-  "integrity" "sha512-JVSAepTpW7dnqfV7XFN0zHj1jXGNd5OcvIGQl76buogqffdgJdgJWQNrOuUJaus56zrOtlzqFH+YtMA9RGEg8w=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-1.0.1.tgz"
-  "version" "1.0.1"
-  dependencies:
-    "@opentelemetry/core" "1.0.1"
-    "@opentelemetry/resources" "1.0.1"
-    "@opentelemetry/semantic-conventions" "1.0.1"
+    "@opentelemetry/resources" "1.2.0"
+    "@opentelemetry/sdk-metrics-base" "0.28.0"
+    "@opentelemetry/sdk-trace-base" "1.2.0"
+    "@opentelemetry/sdk-trace-node" "1.2.0"
 
 "@opentelemetry/sdk-trace-base@0.25.0":
   "integrity" "sha512-TInkLSF/ThM3GNVM+9tgnCVjyNLnRxvAkG585Fhu0HNwaEtCTUwI0r7AvMRIREOreeRWttBG6kvT0LOKdo8yjw=="
@@ -2172,25 +2197,25 @@
     "@opentelemetry/semantic-conventions" "0.25.0"
     "lodash.merge" "^4.6.2"
 
-"@opentelemetry/sdk-trace-base@1.0.1":
-  "integrity" "sha512-JVSAepTpW7dnqfV7XFN0zHj1jXGNd5OcvIGQl76buogqffdgJdgJWQNrOuUJaus56zrOtlzqFH+YtMA9RGEg8w=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-1.0.1.tgz"
-  "version" "1.0.1"
+"@opentelemetry/sdk-trace-base@1.2.0":
+  "integrity" "sha512-eHrG9c9OhoDhUmMe63Qzgpcvlgxr2L7BFBbbj2DdZu3vGstayytTT6TDv6mz727lXBqR1HXMbqTGVafS07r3bg=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-trace-base/-/sdk-trace-base-1.2.0.tgz"
+  "version" "1.2.0"
   dependencies:
-    "@opentelemetry/core" "1.0.1"
-    "@opentelemetry/resources" "1.0.1"
-    "@opentelemetry/semantic-conventions" "1.0.1"
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/resources" "1.2.0"
+    "@opentelemetry/semantic-conventions" "1.2.0"
 
-"@opentelemetry/sdk-trace-node@~1.0.0":
-  "integrity" "sha512-0ifT2pEI5aXy14zDDUQkl3ODzY6jjaC1plbxyAuz5BdPxGJzav9vzIJ2BhEwfXDn1LKqpQ5D1Yy+XnNRQpOo3w=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-trace-node/-/sdk-trace-node-1.0.1.tgz"
-  "version" "1.0.1"
+"@opentelemetry/sdk-trace-node@1.2.0":
+  "integrity" "sha512-QchyGlJ63qosjmEl1Rl0kpX5GTBFqQCWo8L6JdTAufvTexrQwlcvQ5Qy4y2bFX0vQ23d/4aBv5ScRg9V+liZAg=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/sdk-trace-node/-/sdk-trace-node-1.2.0.tgz"
+  "version" "1.2.0"
   dependencies:
-    "@opentelemetry/context-async-hooks" "1.0.1"
-    "@opentelemetry/core" "1.0.1"
-    "@opentelemetry/propagator-b3" "1.0.1"
-    "@opentelemetry/propagator-jaeger" "1.0.1"
-    "@opentelemetry/sdk-trace-base" "1.0.1"
+    "@opentelemetry/context-async-hooks" "1.2.0"
+    "@opentelemetry/core" "1.2.0"
+    "@opentelemetry/propagator-b3" "1.2.0"
+    "@opentelemetry/propagator-jaeger" "1.2.0"
+    "@opentelemetry/sdk-trace-base" "1.2.0"
     "semver" "^7.3.5"
 
 "@opentelemetry/semantic-conventions@^1.0.0", "@opentelemetry/semantic-conventions@1.0.1":
@@ -2207,6 +2232,11 @@
   "integrity" "sha512-V3N+MDBiv0TUlorbgiSqk6CvcP876CYUk/41Tg6s8OIyvniTwprE6vPvFQayuABiVkGlHOxv1Mlvp0w4qNdnVg=="
   "resolved" "https://registry.npmjs.org/@opentelemetry/semantic-conventions/-/semantic-conventions-0.25.0.tgz"
   "version" "0.25.0"
+
+"@opentelemetry/semantic-conventions@1.2.0":
+  "integrity" "sha512-BNKB9fiYVghALJzCuWO3eNYfdTExPVK4ykrtmfNfy0A6UWYhOYjGMXifUmkunDJNL8ju9tBobo8jF0WR9zGy1Q=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/semantic-conventions/-/semantic-conventions-1.2.0.tgz"
+  "version" "1.2.0"
 
 "@panva/asn1.js@^1.0.0":
   "integrity" "sha512-UdkG3mLEqXgnlKsWanWcgb6dOjUzJ+XC5f+aWw30qrtjxeNUSfKX1cd5FBzOaXQumoe9nIqeZUvrRJS03HCCtw=="
@@ -2353,7 +2383,7 @@
     "@sentry/types" "6.19.7"
     "tslib" "^1.9.3"
 
-"@sentry/node@^6.19.6":
+"@sentry/node@^6.19.7":
   "integrity" "sha512-gtmRC4dAXKODMpHXKfrkfvyBL3cI8y64vEi3fDD046uqYcrWdgoQsffuBbxMAizc6Ez1ia+f0Flue6p15Qaltg=="
   "resolved" "https://registry.npmjs.org/@sentry/node/-/node-6.19.7.tgz"
   "version" "6.19.7"
@@ -2380,7 +2410,7 @@
     "@sentry/types" "6.19.7"
     "tslib" "^1.9.3"
 
-"@shelf/jest-mongodb@^2.2.1":
+"@shelf/jest-mongodb@^2.2.2":
   "integrity" "sha512-trlJCZ0wPWHlsyr6WBDk+DshYwMg7UiXsCCz/XH3jLtEyCKKUOGn8UUI9KCJY/SwCiHmNFSWHrOjVqM/RKC1Iw=="
   "resolved" "https://registry.npmjs.org/@shelf/jest-mongodb/-/jest-mongodb-2.2.2.tgz"
   "version" "2.2.2"
@@ -3440,7 +3470,7 @@
     "fastq" "^1.6.1"
     "queue-microtask" "^1.1.2"
 
-"aws-sdk@^2.1112.0":
+"aws-sdk@^2.1134.0":
   "integrity" "sha512-CvIcPSDzKFn4LRmk6GcQZYWtCxD/FwbbC1yaslvmpOYP8CndCmdz1MHMOPy/QyUyrH2WnUrVTAP2WdWqq6oCjQ=="
   "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1134.0.tgz"
   "version" "2.1134.0"
@@ -5374,7 +5404,7 @@
   dependencies:
     "is-obj" "^2.0.0"
 
-"dotenv@^16.0.0":
+"dotenv@^16.0.1":
   "integrity" "sha512-1K6hR6wtk2FviQ4kEiSjFiH5rpzEVi8WW0x96aztHVMhEspNpc4DVOUTEHtEva5VThQ8IaBX1Pe4gSzpVVUsKQ=="
   "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-16.0.1.tgz"
   "version" "16.0.1"
@@ -5464,7 +5494,7 @@
   "resolved" "https://registry.npmjs.org/ejs-include-regex/-/ejs-include-regex-1.0.0.tgz"
   "version" "1.0.0"
 
-"ejs-lint@^1.2.1":
+"ejs-lint@^1.2.2":
   "integrity" "sha512-ESR/MePvJJJfkK3EUAYlPKe2JM2nRDc4uFkGgbB5Prr06nluN7JozNVFL3Ze7LV7xNY7JPWEi5H3i4hOl6mxXw=="
   "resolved" "https://registry.npmjs.org/ejs-lint/-/ejs-lint-1.2.2.tgz"
   "version" "1.2.2"
@@ -5478,7 +5508,7 @@
     "syntax-error" "^1.1.6"
     "yargs" "^16.0.0"
 
-"ejs@^3.1.6":
+"ejs@^3.1.8":
   "integrity" "sha512-/sXZeMlhS0ArkfX2Aw780gJzXSMPnKjtspYZv+f3NiKLlubezAHDU5+9xz6gd3/NhG3txQCo6xlglmTS+oTGEQ=="
   "resolved" "https://registry.npmjs.org/ejs/-/ejs-3.1.8.tgz"
   "version" "3.1.8"
@@ -5743,7 +5773,7 @@
   optionalDependencies:
     "source-map" "~0.6.1"
 
-"eslint-plugin-security@^1.4.0":
+"eslint-plugin-security@^1.5.0":
   "integrity" "sha512-hAFVwLZ/UeXrlyVD2TDarv/x00CoFVpaY0IUZhKjPjiFxqkuQVixsK4f2rxngeQOqSxi6OUjzJM/jMwKEVjJ8g=="
   "resolved" "https://registry.npmjs.org/eslint-plugin-security/-/eslint-plugin-security-1.5.0.tgz"
   "version" "1.5.0"
@@ -5775,7 +5805,7 @@
   "resolved" "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-3.3.0.tgz"
   "version" "3.3.0"
 
-"eslint@^8.1.0", "eslint@^8.13.0", "eslint@>=5":
+"eslint@^8.1.0", "eslint@^8.15.0", "eslint@>=5":
   "integrity" "sha512-GG5USZ1jhCu8HJkzGgeK8/+RGnHaNYZGrGDzUtigK3BsGESW/rs2az23XqE0WVwDxy1VRvvjSSGu5nB0Bu+6SA=="
   "resolved" "https://registry.npmjs.org/eslint/-/eslint-8.15.0.tgz"
   "version" "8.15.0"
@@ -7055,17 +7085,16 @@
   "resolved" "https://registry.npmjs.org/graphql-executor/-/graphql-executor-0.0.22.tgz"
   "version" "0.0.22"
 
-"graphql-schema-linter@^2.0.1":
-  "integrity" "sha512-0XgP1//kkLsK/TwLDP185HHawBWW34Fstfx/pjo38G4ld00MNWpoSHkSHyLKXBkU8AfavpMKu7Prv62z0KVdPg=="
-  "resolved" "https://registry.npmjs.org/graphql-schema-linter/-/graphql-schema-linter-2.0.2.tgz"
-  "version" "2.0.2"
+"graphql-schema-linter@^3.0.0":
+  "integrity" "sha512-nXsyFvcqrD9/QWgimvJjvRBsUXHw8O7XoPLhpnGZd9eX6r2ZXsOBCGhTzF9ZrFtWosCBEfBGU2xpFUPe0qCHVg=="
+  "resolved" "https://registry.npmjs.org/graphql-schema-linter/-/graphql-schema-linter-3.0.0.tgz"
+  "version" "3.0.0"
   dependencies:
     "chalk" "^2.0.1"
     "columnify" "^1.5.4"
     "commander" "^3.0.0"
     "cosmiconfig" "^5.2.1"
     "glob" "^7.1.2"
-    "graphql" "^15.0.0"
 
 "graphql-sse@^1.0.1":
   "integrity" "sha512-xE8AGPJa5X+g7iFmRQw/8H+7lXIDJvSkW6lou/XSSq17opPQl+dbKOMiqraHMx52VrDgS061ZVx90OSuqS6ykA=="
@@ -7088,11 +7117,6 @@
   "integrity" "sha512-qbHgh8Ix+j/qY+a/ZcJnFQ+j8ezakqPiHwPiZhV/3PgGlgf96QMBB5/f2rkiC9sgLoy/xvT6TSiaf2nTHJh5iA=="
   "resolved" "https://registry.npmjs.org/graphql/-/graphql-16.5.0.tgz"
   "version" "16.5.0"
-
-"graphql@^15.0.0":
-  "integrity" "sha512-5gghUc24tP9HRznNpV2+FIoq3xKkj5dTQqf4v0CpdPbFVwFkWoxOM+o+2OC9ZSvjEMTjfmG9QT+gcvggTwW1zw=="
-  "resolved" "https://registry.npmjs.org/graphql/-/graphql-15.8.0.tgz"
-  "version" "15.8.0"
 
 "graphql@^15.5.1":
   "integrity" "sha512-5gghUc24tP9HRznNpV2+FIoq3xKkj5dTQqf4v0CpdPbFVwFkWoxOM+o+2OC9ZSvjEMTjfmG9QT+gcvggTwW1zw=="
@@ -7452,7 +7476,7 @@
     "pify" "^4.0.1"
     "replace-ext" "^1.0.0"
 
-"immer@^9.0.12":
+"immer@^9.0.14":
   "integrity" "sha512-ubBeqQutOSLIFCUBN03jGeOS6a3DoYlSYwYJTa+gSKEZKU5redJIqkIdZ3JVv/4RZpfcXdAWH5zCNLWPRv2WDw=="
   "resolved" "https://registry.npmjs.org/immer/-/immer-9.0.14.tgz"
   "version" "9.0.14"
@@ -8665,7 +8689,7 @@
     "elliptic" "^6.5.4"
     "safe-buffer" "^5.0.1"
 
-"jwks-rsa@^2.0.5":
+"jwks-rsa@^2.1.2":
   "integrity" "sha512-QW2SNEUVvMqULiBJVsIJXSuX73Qj9il/DMCsJZsmCI8AQFZ6BjXgQW6h9wOlPr1LswQBNDdyFT2LPogwMRr1ew=="
   "resolved" "https://registry.npmjs.org/jwks-rsa/-/jwks-rsa-2.1.2.tgz"
   "version" "2.1.2"
@@ -8950,7 +8974,7 @@
   "resolved" "https://registry.npmjs.org/lodash.memoize/-/lodash.memoize-4.1.2.tgz"
   "version" "4.1.2"
 
-"lodash.merge@^4.4.0", "lodash.merge@^4.6.2":
+"lodash.merge@^4.4.0", "lodash.merge@^4.6.2", "lodash.merge@4.6.2":
   "integrity" "sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ=="
   "resolved" "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
   "version" "4.6.2"
@@ -9456,7 +9480,7 @@
   dependencies:
     "moment" ">= 2.9.0"
 
-"moment@^2.29.1", "moment@^2.29.2", "moment@>= 2.9.0":
+"moment@^2.29.1", "moment@^2.29.3", "moment@>= 2.9.0":
   "integrity" "sha512-c6YRvhEo//6T2Jz/vVtYzqBzwvPT95JBQ+smCytzf7c50oMZRsR/a4w88aD34I+/QVSfnoAnSBFPJHItlOMJVw=="
   "resolved" "https://registry.npmjs.org/moment/-/moment-2.29.3.tgz"
   "version" "2.29.3"
@@ -9469,7 +9493,7 @@
     "@types/whatwg-url" "^8.2.1"
     "whatwg-url" "^11.0.0"
 
-"mongodb-memory-server-core@^8.4.2", "mongodb-memory-server-core@8.5.2":
+"mongodb-memory-server-core@^8.5.2", "mongodb-memory-server-core@8.5.2":
   "integrity" "sha512-JVQWZ0ZRWsEeX23cAxhetaJ9q5eILU01dKHrJBwHmMc79BKLdUI2iyIiGve6vyyzYNh4amBcUiWpnbgLmiTlrQ=="
   "resolved" "https://registry.npmjs.org/mongodb-memory-server-core/-/mongodb-memory-server-core-8.5.2.tgz"
   "version" "8.5.2"
@@ -9515,7 +9539,7 @@
     "uuid" "^8.3.1"
     "yauzl" "^2.10.0"
 
-"mongodb-memory-server@^8.4.2":
+"mongodb-memory-server@^8.5.2":
   "integrity" "sha512-+4/zxz9TxpPMxaUEm0axQvSf+tS6GtPyc5MEjwkiprBGsH7aTe9GEjuHKnXGP8ObarHFpgW3kV4C4oEzYvxQIQ=="
   "resolved" "https://registry.npmjs.org/mongodb-memory-server/-/mongodb-memory-server-8.5.2.tgz"
   "version" "8.5.2"
@@ -11853,9 +11877,9 @@
     "lru-cache" "^6.0.0"
 
 "semver@^7.3.5":
-  "integrity" "sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ=="
-  "resolved" "https://registry.npmjs.org/semver/-/semver-7.3.5.tgz"
-  "version" "7.3.5"
+  "integrity" "sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g=="
+  "resolved" "https://registry.npmjs.org/semver/-/semver-7.3.7.tgz"
+  "version" "7.3.7"
   dependencies:
     "lru-cache" "^6.0.0"
 
@@ -12102,7 +12126,7 @@
     "source-map-resolve" "^0.5.0"
     "use" "^3.1.0"
 
-"snyk@^1.746.0", "snyk@^1.904.0":
+"snyk@^1.746.0", "snyk@^1.928.0":
   "integrity" "sha512-5Surqm2iWk6sAC0i0JrBw4qPKBTW2YQ8f3s4YDuuLFUinEaDbit2DNqPgFESIRWUVWp7j+g1OT+K2KA7K3RM7Q=="
   "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.928.0.tgz"
   "version" "1.928.0"
@@ -12521,7 +12545,7 @@
     "readable-stream" "^3.6.0"
     "semver" "^7.3.2"
 
-"superagent@^7.1.2", "superagent@^7.1.3":
+"superagent@^7.1.3":
   "integrity" "sha512-WA6et4nAvgBCS73lJvv1D0ssI5uk5Gh+TGN/kNe+B608EtcVs/yzfl+OLXTzDs7tOBDIpvgh/WUs1K2OK1zTeQ=="
   "resolved" "https://registry.npmjs.org/superagent/-/superagent-7.1.3.tgz"
   "version" "7.1.3"
@@ -12538,7 +12562,7 @@
     "readable-stream" "^3.6.0"
     "semver" "^7.3.7"
 
-"supertest@^6.2.2":
+"supertest@^6.2.3":
   "integrity" "sha512-3GSdMYTMItzsSYjnIcljxMVZKPW1J9kYHZY+7yLfD0wpPwww97GeImZC1oOk0S5+wYl2niJwuFusBJqwLqYM3g=="
   "resolved" "https://registry.npmjs.org/supertest/-/supertest-6.2.3.tgz"
   "version" "6.2.3"
@@ -13051,7 +13075,7 @@
   "resolved" "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   "version" "0.0.6"
 
-"typescript@^4.6.3", "typescript@>=2.7":
+"typescript@^4.6.4", "typescript@>=2.7":
   "integrity" "sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg=="
   "resolved" "https://registry.npmjs.org/typescript/-/typescript-4.6.4.tgz"
   "version" "4.6.4"
