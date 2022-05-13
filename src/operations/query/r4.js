@@ -1,15 +1,15 @@
-const { fhirFilterTypes } = require('./customQueries');
-const { searchParameterQueries } = require('../../searchParameters/searchParameters');
-const { filterById } = require('./filters/id');
-const { filterByString } = require('./filters/string');
-const { filterByUri } = require('./filters/uri');
-const { filterByDateTime } = require('./filters/dateTime');
-const { filterByToken } = require('./filters/token');
-const { filterByReference } = require('./filters/reference');
-const { filterByMissing } = require('./filters/missing');
-const { filterByContains } = require('./filters/contains');
-const { filterByAboveAndBelow, filterByAbove, filterByBelow } = require('./filters/aboveAndBelow');
-const { convertGraphQLParameters } = require('./convertGraphQLParameters');
+const {fhirFilterTypes} = require('./customQueries');
+const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const {filterById} = require('./filters/id');
+const {filterByString} = require('./filters/string');
+const {filterByUri} = require('./filters/uri');
+const {filterByDateTime} = require('./filters/dateTime');
+const {filterByToken} = require('./filters/token');
+const {filterByReference} = require('./filters/reference');
+const {filterByMissing} = require('./filters/missing');
+const {filterByContains} = require('./filters/contains');
+const {filterByAboveAndBelow, filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
+const {convertGraphQLParameters} = require('./convertGraphQLParameters');
 
 // /**
 //  * @type {import('winston').logger}
@@ -59,10 +59,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
         if (resourceType === resourceName || resourceType === 'Resource') {
-            for (const [
-                /** @type {string} **/ queryParameter,
-                /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj
-            ] of Object.entries(resourceObj)) {
+            for (const [ /** @type {string} **/ queryParameter,
+                /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj]
+                of Object.entries(resourceObj)) {
                 /**
                  * @type {string | string[]}
                  */
@@ -90,24 +89,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         case fhirFilterTypes.date:
                         case fhirFilterTypes.period:
                         case fhirFilterTypes.instant:
-                            filterByDateTime(
-                                queryParameterValue,
-                                propertyObj,
-                                and_segments,
-                                resourceName,
-                                columns
-                            );
+                            filterByDateTime(queryParameterValue, propertyObj, and_segments, resourceName, columns);
                             break;
                         case fhirFilterTypes.token:
                             filterByToken(queryParameterValue, propertyObj, and_segments, columns);
                             break;
                         case fhirFilterTypes.reference:
-                            filterByReference(
-                                propertyObj,
-                                and_segments,
-                                queryParameterValue,
-                                columns
-                            );
+                            filterByReference(propertyObj, and_segments, queryParameterValue, columns);
                             break;
                         default:
                             throw new Error('Unknown type=' + propertyObj.type);
@@ -132,6 +120,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
      * @type {{$and: Object[]}}
      */
     let query = {};
+
     if (and_segments.length !== 0) {
         // noinspection JSUndefinedPropertyAssignment
         query.$and = and_segments;
@@ -139,6 +128,6 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
 
     return {
         query: query,
-        columns: columns
+        columns: columns,
     };
 };

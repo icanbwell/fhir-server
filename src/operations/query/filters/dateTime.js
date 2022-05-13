@@ -29,23 +29,23 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
                     `le${dateQueryItem.slice(2)}`,
                     propertyObj.type,
                     ''
-                )
+                ),
             });
             and_segments.push({
                 ['period.end']: dateQueryBuilder(
                     `ge${dateQueryItem.slice(2)}`,
                     propertyObj.type,
                     ''
-                )
+                ),
             });
         } else if (propertyObj.fields) {
             // if there are multiple fields
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
                     return {
-                        [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')
+                        [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
                     };
-                })
+                }),
             });
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
@@ -58,12 +58,12 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
                     dateQueryItem,
                     propertyObj.type,
                     ''
-                )
+                ),
             });
         } else {
             // if this is date as a string
             and_segments.push({
-                [`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, '')
+                [`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
             });
         }
     }
@@ -72,5 +72,5 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
 }
 
 module.exports = {
-    filterByDateTime: filterByDateTime
+    filterByDateTime: filterByDateTime,
 };
