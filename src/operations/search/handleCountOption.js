@@ -1,10 +1,13 @@
+const {searchLimitForIds} = require('../../utils/searchForm.util');
+
 /**
  * Handle count: https://www.hl7.org/fhir/search.html#count
  * @param {Object} args
  * @param {Object} options
+ * @param {boolean} isStreaming
  * @return {{options: Object}} columns selected and changed options
  */
-function handleCountOption(args, options) {
+function handleCountOption(args, options, isStreaming) {
     /**
      * @type {number}
      */
@@ -18,7 +21,8 @@ function handleCountOption(args, options) {
         const pageNumber = Number(args['_getpagesoffset']);
         options['skip'] = pageNumber > 0 ? pageNumber * nPerPage : 0;
     }
-    options['limit'] = nPerPage;
+    // cap it at searchLimitForIds to avoid running out of memory
+    options['limit'] = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
 
     return {options: options};
 }

@@ -1,6 +1,10 @@
 const {Transform} = require('stream');
 
 class ObjectChunker extends Transform {
+    /**
+     * Batches up objects to chunkSize before writing them to output
+     * @param {number} chunkSize
+     */
     constructor(chunkSize) {
         super({objectMode: true});
         this._buffer = [];

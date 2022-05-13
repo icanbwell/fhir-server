@@ -10,10 +10,11 @@ const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
-const {getCursorForQuery} = require('./getCursorForQuery');
-const {readResourcesFromCursor} = require('./readResourcesFromCursor');
+const {getCursorForQueryAsync} = require('./getCursorForQuery');
+const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
+const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 
 
 /**
@@ -52,7 +53,16 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
 
-    let {base_version, query, columns} = constructQuery(user, scope, args, resourceName);
+    /**
+     * @type {boolean}
+     */
+    const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
+
+    let {
+        base_version,
+        query,
+        columns
+    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}
@@ -96,11 +106,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
-        const __ret = await getCursorForQuery(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName);
+        const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
+            maxMongoTimeMS, user, mongoCollectionName, false, useAccessIndex);
         columns = __ret.columns;
-        options = __ret.options;
-        query = __ret.query;
+        // options = __ret.options;
+        // query = __ret.query;
         let originalQuery = __ret.originalQuery;
         let originalOptions = __ret.originalOptions;
         const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
@@ -110,21 +120,32 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         let cursorBatchSize = __ret.cursorBatchSize;
         let cursor = __ret.cursor;
 
+        /**
+         * @type {number}
+         */
+        const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
-            resources = await readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName);
+            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, batchObjectCount,
+                useAccessIndex
+            );
 
             if (resources.length > 0) {
                 if (resourceName !== 'AuditEvent') {
-                    // log access to audit logs
-                    await logAuditEntry(
-                        requestInfo,
-                        base_version,
-                        resourceName,
-                        'read',
-                        args,
-                        resources.map((r) => r['id'])
-                    );
+                    try {
+                        // log access to audit logs
+                        await logAuditEntry(
+                            requestInfo,
+                            base_version,
+                            resourceName,
+                            'read',
+                            args,
+                            resources.map((r) => r['id'])
+                        );
+                    } catch (e) {
+                        await logErrorToSlackAsync(`Error writing AuditEvent fo resource ${resourceName}`, e);
+                    }
                 }
             }
         }
@@ -164,6 +185,10 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
             return resources;
         }
     } catch (e) {
-        throw new MongoError(e.message, e, mongoCollectionName, query, options);
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
 };

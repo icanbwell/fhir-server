@@ -2,7 +2,7 @@
  * @typedef Meta
  * @type {object}
  * @property {string} versionId - an ID.
- * @property {string} lastUpdated
+ * @property {Date} lastUpdated
  * @property {string} source
  * @property {{system: string, code: string, display: string}[]} tag
  */
@@ -11,7 +11,9 @@
  * @typedef Resource
  * @type {object}
  * @property {string} id - an ID.
+ * @property {Meta} meta
  * @property {string} resourceType
+ * @property {Object} _access
  */
 
 // from https://www.hl7.org/fhir/operationoutcome.html
@@ -21,3 +23,16 @@
  * @property {string} resourceType
  * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
  */
+
+
+/**
+ * @typedef SearchParameterDefinition
+ * @type {object}
+ * @property {string | null} field
+ * @property {string[] | null} fields
+ * @property {string | null} fieldFilter
+ * @property {string | null} description
+ * @property {string | null} type
+ * @property {string[] | null} target
+ */
+

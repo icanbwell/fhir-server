@@ -334,7 +334,7 @@ let getDateFromNum = function (days) {
 //can't handle prefixes yet!
 //Also doesn't work foe when things are stored in different time zones in the .json files (with the + or -)
 //  UNLESS, the search parameter is teh exact same as what is stored.  So, if something is stored as 2016-06-03T05:00-03:00, then the search parameter must be 2016-06-03T05:00-03:00
-//It's important to make sure formatting is right, dont forget a leading 0 when dealing with single digit times.
+//It's important to make sure formatting is right, don't forget a leading 0 when dealing with single digit times.
 let dateQueryBuilder = function (date, type, path) {
     // prettier-ignore
     // noinspection RegExpSingleCharAlternation

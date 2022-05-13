@@ -1,6 +1,7 @@
 const {getAccessCodesFromScopes} = require('../security/scopes');
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
+const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 
 /**
  * returns security tags to filter by based on the scope
@@ -33,22 +34,49 @@ const getSecurityTagsFromScope = (user, scope) => {
 
 /**
  * returns the passed query by adding a check for security tgs
+ * @param {string} collection_name
  * @param {string[]} securityTags
  * @param {Object} query
+ * @param {boolean} useAccessIndex
  * @return {Object}
  */
-const getQueryWithSecurityTags = (securityTags, query) => {
+const getQueryWithSecurityTags = (collection_name, securityTags, query, useAccessIndex = false) => {
     if (securityTags && securityTags.length > 0) {
-        const securityTagQuery = {
-            'meta.security': {
-                '$elemMatch': {
-                    'system': 'https://www.icanbwell.com/access',
-                    'code': {
-                        '$in': securityTags
+        let securityTagQuery;
+        // special handling for large collections for performance
+        if (useAccessIndex && resourceHasAccessIndex(collection_name)) {
+            if (securityTags.length === 1) {
+                securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
+            } else {
+                securityTagQuery = {
+                    $or: securityTags.map(s => {
+                            return {[`_access.${s}`]: 1};
+                        }
+                    )
+                };
+            }
+        } else if (securityTags.length === 1) {
+            securityTagQuery = {
+                'meta.security': {
+                    '$elemMatch': {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': securityTags[0]
                     }
                 }
-            }
-        };
+            };
+        } else {
+            securityTagQuery = {
+                'meta.security': {
+                    '$elemMatch': {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': {
+                            '$in': securityTags
+                        }
+                    }
+                }
+            };
+        }
+
         // if there is already an $and statement then just add to it
         if (query.$and) {
             query.$and.push(

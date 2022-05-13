@@ -1,6 +1,8 @@
 const {pipeline} = require('stream/promises');
-const {prepareResource} = require('../common/resourcePreparer');
+const {Transform} = require('stream');
 const {logError} = require('../common/logging');
+const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
+const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 
 /**
@@ -11,9 +13,14 @@ const {logError} = require('../common/logging');
  * @param {Object?} args
  * @param {Function} Resource
  * @param {string} resourceName
+ * @param {number} batchObjectCount
+ * @param {boolean} useAccessIndex
  * @returns {Promise<Resource[]>}
  */
-async function readResourcesFromCursor(cursor, user, scope, args, Resource, resourceName) {
+async function readResourcesFromCursorAsync(cursor, user, scope,
+                                            args, Resource, resourceName,
+                                            batchObjectCount,
+                                            useAccessIndex) {
     /**
      * resources to return
      * @type {Resource[]}
@@ -26,53 +33,38 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
      * https://mongodb.github.io/node-mongodb-native/4.5/interfaces/CursorStreamOptions.html
      * @type {Readable}
      */
-    // We do not use the Mongo stream since we can create our own stream below with more control
-    // const cursorStream = cursor.stream();
+        // We do not use the Mongo stream since we can create our own stream below with more control
+        // const cursorStream = cursor.stream();
+
+    const ac = new AbortController();
 
     try {
         // https://mongodb.github.io/node-mongodb-native/4.5/classes/FindCursor.html
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
+
+        const readableMongoStream = createReadableMongoStream(cursor);
+        readableMongoStream.on('close', () => {
+            ac.abort();
+        });
+
         await pipeline(
-            // cursorStream,
-            async function* () {
-                // let chunk_number = 0;
-                while (await cursor.hasNext()) {
-                    // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
-                    // chunk_number += 1;
-                    // console.log(`read: chunk:${chunk_number}`);
-                    /**
-                     * element
-                     * @type {Resource}
-                     */
-                    yield await cursor.next();
-                }
-            },
-            async function* (source) {
-                // let chunk_number = 0;
-                for await (const chunk of source) {
-                    // chunk_number += 1;
-                    // console.log(`prepareResource: chunk:${chunk_number}`);
-                    yield await prepareResource(user, scope, args, Resource, chunk, resourceName);
-                }
-            },
+            readableMongoStream,
+            // new ObjectChunker(batchObjectCount),
+            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
             // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
-            async function (source) {
-                // let chunk_number = 0;
-                for await (const chunk of source) {
-                    // let item_number = 0;
-                    // chunk_number += 1;
-                    // console.log(`streamToArray: chunk:${chunk_number}`);
-                    for (const item1 of chunk) {
-                        // item_number += 1;
-                        // console.log(`streamToArray: chunk:${chunk_number}, item:${item_number}`);
-                        resources.push(item1);
-                    }
+            new Transform({
+                writableObjectMode: true,
+
+                transform(chunk, encoding, callback) {
+                    resources.push(chunk);
+                    callback();
                 }
-            }
+            }),
         );
     } catch (e) {
         logError(user, e);
+        ac.abort();
         throw e;
     }
     // logDebug(user, 'Done with loading resources');
@@ -81,5 +73,5 @@ async function readResourcesFromCursor(cursor, user, scope, args, Resource, reso
 
 
 module.exports = {
-    readResourcesFromCursor: readResourcesFromCursor
+    readResourcesFromCursorAsync: readResourcesFromCursorAsync
 };

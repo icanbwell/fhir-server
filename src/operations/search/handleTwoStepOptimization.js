@@ -8,7 +8,7 @@
  * @param {number} maxMongoTimeMS
  * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-async function handleTwoStepSearchOptimization(
+async function handleTwoStepSearchOptimizationAsync(
     options,
     originalQuery,
     query,
@@ -45,5 +45,5 @@ async function handleTwoStepSearchOptimization(
 }
 
 module.exports = {
-    handleTwoStepSearchOptimization: handleTwoStepSearchOptimization
+    handleTwoStepSearchOptimizationAsync: handleTwoStepSearchOptimizationAsync
 };
