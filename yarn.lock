@@ -1767,10 +1767,10 @@
   dependencies:
     "@opentelemetry/api" "^1.0.0"
 
-"@opentelemetry/api@^1.0.0", "@opentelemetry/api@^1.0.1", "@opentelemetry/api@^1.0.2", "@opentelemetry/api@^1.0.4", "@opentelemetry/api@>=1.0.0 <1.1.0", "@opentelemetry/api@>=1.0.0 <1.2.0":
-  "integrity" "sha512-BuJuXRSJNQ3QoKA6GWWDyuLpOUck+9hAXNMCnrloc1aWVoy6Xq6t9PUV08aBZ4Lutqq2LEHM486bpZqoViScog=="
-  "resolved" "https://registry.npmjs.org/@opentelemetry/api/-/api-1.0.4.tgz"
-  "version" "1.0.4"
+"@opentelemetry/api@^1.0.0", "@opentelemetry/api@^1.0.1", "@opentelemetry/api@^1.0.2", "@opentelemetry/api@^1.1.0", "@opentelemetry/api@>=1.0.0 <1.1.0", "@opentelemetry/api@>=1.0.0 <1.2.0":
+  "integrity" "sha512-hf+3bwuBwtXsugA2ULBc95qxrOqP2pOekLz34BJhcAKawt94vfeNyUKpYc0lZQ/3sCP6LqRa7UAdHA7i5UODzQ=="
+  "resolved" "https://registry.npmjs.org/@opentelemetry/api/-/api-1.1.0.tgz"
+  "version" "1.1.0"
 
 "@opentelemetry/auto-instrumentations-node@^0.28.0":
   "integrity" "sha512-bscA28V0Ns6kVEGR0zmeu/WGpj2IY1y6esNbee6h7lTqaWSEaWcMCAHDdN/oHuwFnILSVA0ML7duHXpxmTjDhA=="
@@ -3214,7 +3214,7 @@
   dependencies:
     "lru-cache" "^6.0.0"
 
-"apollo-server-core@^3.6.7", "apollo-server-core@^3.7.0":
+"apollo-server-core@^3.7.0":
   "integrity" "sha512-xUCDjrBzPVbttbh/HenuQdivco/dcXE2oIDYwCU6FU2RBXqxWFmuCl2Xe7VPA/5Frw/4snJDLCyVte9PA5edww=="
   "resolved" "https://registry.npmjs.org/apollo-server-core/-/apollo-server-core-3.7.0.tgz"
   "version" "3.7.0"
@@ -3254,7 +3254,7 @@
   "resolved" "https://registry.npmjs.org/apollo-server-errors/-/apollo-server-errors-3.3.1.tgz"
   "version" "3.3.1"
 
-"apollo-server-express@^3.6.7":
+"apollo-server-express@^3.7.0":
   "integrity" "sha512-176LSK7YBxwfleurtbfr5SYMheNNJSHrQa2h4QuosLqhfFJkfTpI2iBW56N737U47QfyueCOvkjNZVq86e3n2g=="
   "resolved" "https://registry.npmjs.org/apollo-server-express/-/apollo-server-express-3.7.0.tgz"
   "version" "3.7.0"
@@ -3545,10 +3545,10 @@
     "fastq" "^1.6.1"
     "queue-microtask" "^1.1.2"
 
-"aws-sdk@^2.1134.0":
-  "integrity" "sha512-CvIcPSDzKFn4LRmk6GcQZYWtCxD/FwbbC1yaslvmpOYP8CndCmdz1MHMOPy/QyUyrH2WnUrVTAP2WdWqq6oCjQ=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1134.0.tgz"
-  "version" "2.1134.0"
+"aws-sdk@^2.1136.0":
+  "integrity" "sha512-cuXPB1lNoiK/oNTAN+Bud2Pp8/PvY7erL2DYPVN2zsk2nh9e8VG3yldf6KcEO6mm4q/FgZc4X6Zq+fOyuBY/wA=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1136.0.tgz"
+  "version" "2.1136.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -10252,10 +10252,10 @@
   "resolved" "https://registry.npmjs.org/passport-strategy/-/passport-strategy-1.0.0.tgz"
   "version" "1.0.0"
 
-"passport@^0.5.0", "passport@^0.5.2":
-  "integrity" "sha512-w9n/Ot5I7orGD4y+7V3EFJCQEznE5RxHamUxcqLT2QoJY0f2JdN8GyHonYFvN0Vz+L6lUJfVhrk2aZz2LbuREw=="
-  "resolved" "https://registry.npmjs.org/passport/-/passport-0.5.2.tgz"
-  "version" "0.5.2"
+"passport@^0.5.0", "passport@^0.5.3":
+  "integrity" "sha512-gGc+70h4gGdBWNsR3FuV3byLDY6KBTJAIExGFXTpQaYfbbcHCBlRRKx7RBQSpqEqc5Hh2qVzRs7ssvSfOpkUEA=="
+  "resolved" "https://registry.npmjs.org/passport/-/passport-0.5.3.tgz"
+  "version" "0.5.3"
   dependencies:
     "passport-strategy" "1.x.x"
     "pause" "0.0.1"
@@ -12103,10 +12103,10 @@
     "source-map-resolve" "^0.5.0"
     "use" "^3.1.0"
 
-"snyk@^1.746.0", "snyk@^1.928.0":
-  "integrity" "sha512-5Surqm2iWk6sAC0i0JrBw4qPKBTW2YQ8f3s4YDuuLFUinEaDbit2DNqPgFESIRWUVWp7j+g1OT+K2KA7K3RM7Q=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.928.0.tgz"
-  "version" "1.928.0"
+"snyk@^1.746.0", "snyk@^1.931.0":
+  "integrity" "sha512-anaEdv5e7BugJeRWuT5tviW46ABmOoPb8+4Ijv+kjZvKa6zCIKL0i8kODKmOpOENGAs+2qrAJPI3dAEUPQiAdg=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.931.0.tgz"
+  "version" "1.931.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
@@ -12603,17 +12603,17 @@
     "unquote" "~1.1.1"
     "util.promisify" "~1.0.0"
 
-"swagger-ui-dist@>=4.1.3":
-  "integrity" "sha512-WvfPSfAAMlE/sKS6YkW47nX/hA7StmhYnAHc6wWCXNL0oclwLj6UXv0hQCkLnDgvebi0MEV40SJJpVjKUgH1IQ=="
-  "resolved" "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-4.1.3.tgz"
-  "version" "4.1.3"
+"swagger-ui-dist@>=4.11.0":
+  "integrity" "sha512-pf3kfSTYdF9mYFY2VnfJ51wnXlSVhEGdtymhpHzfbFw2jTbiEWgBoVz5EB9aW2EaJvUGTM1YHAXYZX7Jk4RdAQ=="
+  "resolved" "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-4.11.1.tgz"
+  "version" "4.11.1"
 
-"swagger-ui-express@^4.3.0":
-  "integrity" "sha512-jN46SEEe9EoXa3ZgZoKgnSF6z0w3tnM1yqhO4Y+Q4iZVc8JOQB960EZpIAz6rNROrDApVDwcMHR0mhlnc/5Omw=="
-  "resolved" "https://registry.npmjs.org/swagger-ui-express/-/swagger-ui-express-4.3.0.tgz"
-  "version" "4.3.0"
+"swagger-ui-express@^4.4.0":
+  "integrity" "sha512-1CzRkHG386VQMVZK406jcpgnW2a9A5A/NiAjKhsFTQqUBWRF+uGbXTU/mA7WSV3mTzyOQDvjBdWP/c2qd5lqKw=="
+  "resolved" "https://registry.npmjs.org/swagger-ui-express/-/swagger-ui-express-4.4.0.tgz"
+  "version" "4.4.0"
   dependencies:
-    "swagger-ui-dist" ">=4.1.3"
+    "swagger-ui-dist" ">=4.11.0"
 
 "symbol-observable@^1.0.4":
   "integrity" "sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ=="
