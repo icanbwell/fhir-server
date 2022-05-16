@@ -54,6 +54,30 @@ let atlasMongoConfig = {
     },
 };
 
+let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
+if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
+}
+// url-encode the url
+auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
+/**
+ * @name mongoConfig
+ * @summary Configurations for our Mongo instance
+ * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let auditEventMongoConfig = {
+    connection: auditEventMongoUrl,
+    db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
+    options: {
+        appName: 'fhir_audit_event',
+        // keepAlive: true,
+        // connectTimeoutMS: 60000,
+        // socketTimeoutMS: 60000,
+        retryReads: true,
+        // minPoolSize: 100,
+    },
+};
+
 // Set up whitelist
 let whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
 
@@ -141,5 +165,6 @@ if (env.AUTH_ENABLED === '1') {
 module.exports = {
     fhirServerConfig,
     mongoConfig,
-    atlasMongoConfig
+    atlasMongoConfig,
+    auditEventMongoConfig
 };
