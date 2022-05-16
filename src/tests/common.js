@@ -34,10 +34,10 @@ module.exports.commonBeforeEach = async () => {
      * because the application expect it as ENV vars.
      * The values are being created by the in-memory MongoDB
      */
-    process.env.MONGO_HOST = mongo.getUri();
+    process.env.MONGO_URL = mongo.getUri();
     // process.env.MONGO_DB = mongo.getdb.getDbName();
 
-    connection = await MongoClient.connect(process.env.MONGO_HOST, {
+    connection = await MongoClient.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
