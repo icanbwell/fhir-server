@@ -77,6 +77,9 @@ const connect = async function () {
 
         globals.set(AUDIT_EVENT_CLIENT, auditEventClient);
         globals.set(AUDIT_EVENT_CLIENT_DB, auditEventClient.db(auditEventMongoConfig.db_name));
+    } else {
+        globals.set(AUDIT_EVENT_CLIENT, client);
+        globals.set(AUDIT_EVENT_CLIENT_DB, client.db(mongoConfig.db_name));
     }
 };
 

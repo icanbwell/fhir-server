@@ -2,7 +2,7 @@
  * logs audit entries
  */
 const globals = require('../globals');
-const {CLIENT_DB} = require('../constants');
+const {AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
@@ -24,12 +24,11 @@ async function logAuditEntry(requestInfo, base_version, resourceType, operation,
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
     }
-    // noinspection JSValidateTypes
     /**
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = globals.get(CLIENT_DB);
+    let db = globals.get(AUDIT_EVENT_CLIENT_DB);
     const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
     /**
      * @type {string}

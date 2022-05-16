@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {
@@ -78,7 +78,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -166,7 +168,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                         ),
                         res, user, scope, args, Resource, resourceName, useAccessIndex, batchObjectCount);
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
+                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args,
+                        Resource, resourceName,
+                        useAccessIndex,
+                        fhirContentTypes.fhirJson,
                         batchObjectCount);
                 }
             }
@@ -226,5 +231,4 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         const stopTime1 = Date.now();
         throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
-}
-;
+};

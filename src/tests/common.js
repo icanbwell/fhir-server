@@ -2,7 +2,7 @@ const {MongoClient} = require('mongodb');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
 const globals = require('../globals');
-const {CLIENT, CLIENT_DB} = require('../constants');
+const {CLIENT, CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 
 const env = require('var');
 
@@ -45,6 +45,7 @@ module.exports.commonBeforeEach = async () => {
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
+    globals.set(AUDIT_EVENT_CLIENT_DB, db);
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
