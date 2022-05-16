@@ -12,7 +12,7 @@ const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const deepcopy = require('deepcopy');
 const deepEqual = require('fast-deep-equal');
@@ -516,11 +516,20 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
             logDebug(user, '--- body ----');
             logDebug(user, JSON.stringify(resource_to_merge));
 
-            // Grab an instance of our DB and collection
             /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            // Grab an instance of our DB and collection
+            // noinspection JSValidateTypes
+            /**
+             * mongo db connection
              * @type {import('mongodb').Db}
              */
-            let db = globals.get(CLIENT_DB);
+            let db = (resource_to_merge.resourceType === 'AuditEvent') ?
+                globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+                    globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
             /**
              * @type {import('mongodb').Collection}
              */

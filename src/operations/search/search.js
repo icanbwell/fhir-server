@@ -1,5 +1,5 @@
 const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {
@@ -75,7 +75,9 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */

@@ -1,13 +1,14 @@
 const {logRequest, logError} = require('../common/logging');
 const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntry} = require('../../utils/auditLogger');
+const {isTrue} = require('../../utils/isTrue');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -94,8 +95,20 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
         return {deleted: 0};
     }
 
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
     // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
+    // noinspection JSValidateTypes
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     let collection = db.collection(`${collection_name}_${base_version}`);
     // Delete our resource record
     let res;

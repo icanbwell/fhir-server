@@ -1,5 +1,5 @@
 const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
@@ -80,9 +80,8 @@ function handleSortQuery(args, columns, options) {
     /**
      * @type {string[]}
      */
-    const sort_properties_list = Array.isArray(args['_sort'])
-        ? args['_sort']
-        : args['_sort'].split(',');
+    const sort_properties_list = Array.isArray(args['_sort']) ?
+        args['_sort'] : args['_sort'].split(',');
     if (sort_properties_list.length > 0) {
         /**
          * @type {import('mongodb').Sort}
@@ -199,9 +198,9 @@ async function handleTwoStepSearchOptimization(
  * @return {{cursorBatchSize: number, cursorQuery}}
  */
 function setCursorBatchSize(args, cursorQuery) {
-    const cursorBatchSize = args['_cursorBatchSize']
-        ? parseInt(args['_cursorBatchSize'])
-        : parseInt(env.MONGO_BATCH_SIZE);
+    const cursorBatchSize = args['_cursorBatchSize'] ?
+        parseInt(args['_cursorBatchSize']) :
+        parseInt(env.MONGO_BATCH_SIZE);
     if (cursorBatchSize > 0) {
         cursorQuery = cursorQuery.batchSize(cursorBatchSize);
     }
@@ -512,8 +511,9 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB))
-        ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -597,8 +597,8 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
         const useTwoStepSearchOptimization =
             !args['_elements'] &&
             !args['id'] &&
-            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization'])
-            && !useAtlas;
+            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']) &&
+            !useAtlas;
         if (useTwoStepSearchOptimization) {
             const __ret = await handleTwoStepSearchOptimization(
                 options,
@@ -757,7 +757,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
             return resources;
         }
     } catch (e) {
-                /**
+        /**
          * @type {number}
          */
         const stopTime1 = Date.now();

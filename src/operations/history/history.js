@@ -3,25 +3,27 @@ const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require(
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {NotFoundError} = require('../../utils/httpErrors');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
  * does a FHIR History
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
+ * @param {string} resourceName
  * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.history = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.history = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, `${resource_name} >>> history`);
-    verifyHasValidScopes(resource_name, 'read', user, scope);
+    logRequest(user, `${resourceName} >>> history`);
+    verifyHasValidScopes(resourceName, 'read', user, scope);
 
     // Common search params
     let {base_version} = args;
@@ -33,11 +35,23 @@ module.exports.history = async (requestInfo, args, resource_name, collection_nam
     } else if (base_version === VERSIONS['1_0_2']) {
         query = buildDstu2SearchQuery(args);
     }
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
     // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
+    // noinspection JSValidateTypes
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+
     let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    let Resource = getResource(base_version, resource_name);
+    let Resource = getResource(base_version, resourceName);
 
     // Query our collection for this observation
     let cursor;

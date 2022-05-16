@@ -4,7 +4,7 @@ const {
 } = require('../security/scopes');
 const {isTrue} = require('../../utils/isTrue');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
@@ -15,11 +15,11 @@ const env = require('var');
  * Supports $graph
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
+ * @param {string} resourceName
  * @param {string} collection_name
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-module.exports.graph = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.graph = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
@@ -27,14 +27,13 @@ module.exports.graph = async (requestInfo, args, resource_name, collection_name)
     const body = requestInfo.body;
 
     if (
-        isTrue(args['_useOldGraph'])
-        || (isTrue(env.USE_OLD_GRAPH) && !isTrue(args['_useNewGraph']))
+        isTrue(args['_useOldGraph']) || (isTrue(env.USE_OLD_GRAPH) && !isTrue(args['_useNewGraph']))
     ) {
-        return oldGraph(args, user, scope, body, path, host, resource_name, collection_name);
+        return oldGraph(args, user, scope, body, path, host, resourceName, collection_name);
     }
 
-    logRequest(user, `${resource_name} >>> graph`);
-    verifyHasValidScopes(resource_name, 'read', user, scope);
+    logRequest(user, `${resourceName} >>> graph`);
+    verifyHasValidScopes(resourceName, 'read', user, scope);
 
     try {
         /**
@@ -53,11 +52,21 @@ module.exports.graph = async (requestInfo, args, resource_name, collection_name)
          * @type {boolean}
          */
         const hash_references = isTrue(args['_hash_references']);
-        // Grab an instance of our DB and collection
         /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        // Grab an instance of our DB and collection
+        // noinspection JSValidateTypes
+        /**
+         * mongo db connection
          * @type {import('mongodb').Db}
          */
-        let db = globals.get(CLIENT_DB);
+        let db = (resourceName === 'AuditEvent') ?
+            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+
         // get GraphDefinition from body
         const graphDefinitionRaw = body;
         logDebug(user, '--- validate schema of GraphDefinition ----');
@@ -75,7 +84,7 @@ module.exports.graph = async (requestInfo, args, resource_name, collection_name)
             db,
             collection_name,
             base_version,
-            resource_name,
+            resourceName,
             id,
             graphDefinitionRaw,
             contained,
@@ -87,7 +96,7 @@ module.exports.graph = async (requestInfo, args, resource_name, collection_name)
         // }
         return result;
     } catch (err) {
-        logError(user, `Error with ${resource_name}.graph: ${err} `);
+        logError(user, `Error with ${resourceName}.graph: ${err} `);
         throw new BadRequestError(err);
     }
 };
