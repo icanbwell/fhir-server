@@ -36,6 +36,9 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         // We do not use the Mongo stream since we can create our own stream below with more control
         // const cursorStream = cursor.stream();
 
+    /**
+     * @type {AbortController}
+     */
     const ac = new AbortController();
 
     try {

@@ -18,8 +18,8 @@ class ResourceIdTracker extends Transform {
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _transform(chunk, encoding, callback) {
