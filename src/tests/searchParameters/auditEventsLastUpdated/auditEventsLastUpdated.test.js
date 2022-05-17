@@ -9,7 +9,7 @@ const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json'
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles} = require("../../fhirAsserts");
+const {assertCompareBundles} = require('../../fhirAsserts');
 
 describe('AuditEventLastUpdatedTests', () => {
     beforeEach(async () => {
@@ -44,7 +44,7 @@ describe('AuditEventLastUpdatedTests', () => {
 
             // now check that we get the right record back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1')
+                .get('/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_debug=1&date=gt2021-06-01&_bundle=1&streamResponse=1')
                 .set(getHeaders())
                 .expect(200);
 
