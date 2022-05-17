@@ -2,6 +2,7 @@ const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const env = require('var');
 const {logDebug} = require('../common/logging');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 /**
  * creates a bundle from the given resources
@@ -103,7 +104,7 @@ function createBundle(
         const tag = [
             {
                 system: 'https://www.icanbwell.com/query',
-                display: JSON.stringify(originalQuery),
+                display: mongoQueryStringify(originalQuery),
             },
             {
                 system: 'https://www.icanbwell.com/queryCollection',
