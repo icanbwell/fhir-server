@@ -9,6 +9,7 @@ const {profiles} = require('./profiles');
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
     mongoUrl = mongoUrl.replace('mongodb://', `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
+    mongoUrl = mongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
 }
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
@@ -32,6 +33,7 @@ let mongoConfig = {
 
 let atlasMongoUrl = env.ATLAS_MONGO_URL;
 if (env.ATLAS_MONGO_USERNAME !== undefined) {
+    atlasMongoUrl = atlasMongoUrl.replace('mongodb://', `mongodb://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
     atlasMongoUrl = atlasMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
 }
 // url-encode the url
@@ -56,6 +58,7 @@ let atlasMongoConfig = {
 
 let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
 if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb://', `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
     auditEventMongoUrl = auditEventMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
 }
 // url-encode the url
