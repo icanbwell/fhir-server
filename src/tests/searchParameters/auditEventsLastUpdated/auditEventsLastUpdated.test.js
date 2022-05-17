@@ -9,6 +9,7 @@ const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json'
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {assertCompareBundles} = require("../../fhirAsserts");
 
 describe('AuditEventLastUpdatedTests', () => {
     beforeEach(async () => {
@@ -46,45 +47,8 @@ describe('AuditEventLastUpdatedTests', () => {
                 .get('/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response AuditEvent sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body['entry'].length).toBe(2);
-            delete body['timestamp'];
-            body.meta.tag.forEach(tag => {
-                if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
-                    delete tag['display'];
-                }
-            });
-            body.entry.forEach(element => {
-                delete element['resource']['meta']['lastUpdated'];
-            });
-            let expected = expectedAuditEventResource;
-            expected.meta.tag.forEach(tag => {
-                if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
-                    delete tag['display'];
-                }
-            });
-            expected.entry.forEach(element => {
-                delete element['resource']['meta']['lastUpdated'];
-                delete element['resource']['$schema'];
-            });
-            expect(body).toStrictEqual(expected);
 
-            // now check that we get the right record back
-            resp = await request
-                .get('/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-09-19&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response AuditEvent sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            body = resp.body;
-            expect(body['entry'].length).toBe(1);
-            // clear out the lastUpdated column since that changes
-
+            assertCompareBundles(resp.body, expectedAuditEventResource);
         });
     });
 });
