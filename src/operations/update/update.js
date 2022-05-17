@@ -11,7 +11,7 @@ const {validateResource} = require('../../utils/validator.util');
 const {getUuid} = require('../../utils/uid.util');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
@@ -20,21 +20,22 @@ const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
+const {isTrue} = require('../../utils/isTrue');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
+ * @param {string} resourceName
  * @param {string} collection_name
  */
-module.exports.update = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.update = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
     const body = requestInfo.body;
-    logRequest(user, `'${resource_name} >>> update`);
+    logRequest(user, `'${resourceName} >>> update`);
 
-    verifyHasValidScopes(resource_name, 'write', user, scope);
+    verifyHasValidScopes(resourceName, 'write', user, scope);
 
     // read the incoming resource from request body
     let resource_incoming_json = body;
@@ -47,7 +48,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         await sendToS3('logs',
-            resource_name,
+            resourceName,
             resource_incoming_json,
             currentDate,
             id,
@@ -56,21 +57,21 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
         logDebug(user, '--- validate schema ----');
-        const operationOutcome = validateResource(resource_incoming_json, resource_name, path);
+        const operationOutcome = validateResource(resource_incoming_json, resourceName, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             const uuid = getUuid(resource_incoming_json);
             operationOutcome.expression = [
-                resource_name + '/' + uuid
+                resourceName + '/' + uuid
             ];
             await sendToS3('validation_failures',
-                resource_name,
+                resourceName,
                 resource_incoming_json,
                 currentDate,
                 uuid,
                 'update');
             await sendToS3('validation_failures',
-                resource_name,
+                resourceName,
                 operationOutcome,
                 currentDate,
                 uuid,
@@ -81,8 +82,20 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
     }
 
     try {
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
         // Grab an instance of our DB and collection
-        let db = globals.get(CLIENT_DB);
+        // noinspection JSValidateTypes
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        let db = (resourceName === 'AuditEvent') ?
+            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
         /**
          * @type {import('mongodb').Collection}
          */
@@ -99,7 +112,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         /**
          * @type {function(?Object): Resource}
          */
-        let ResourceCreator = getResource(base_version, resource_name);
+        let ResourceCreator = getResource(base_version, resourceName);
 
         /**
          * @type {Resource}
@@ -159,7 +172,7 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
             if (env.LOG_ALL_SAVES) {
                 const currentDate = moment.utc().format('YYYY-MM-DD');
                 await sendToS3('logs',
-                    resource_name,
+                    resourceName,
                     patchContent,
                     currentDate,
                     id,
@@ -226,9 +239,9 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         // Insert our resource record to history but don't assign _id
         await history_collection.insertOne(history_resource);
 
-        if (resource_name !== 'AuditEvent') {
+        if (resourceName !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [resource_incoming['id']]);
+            await logAuditEntry(requestInfo, base_version, resourceName, 'update', args, [resource_incoming['id']]);
         }
 
         return {
@@ -238,10 +251,10 @@ module.exports.update = async (requestInfo, args, resource_name, collection_name
         };
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with updating resource ${resource_name}.update with id: ${id} `, e);
+        logError(`Error with updating resource ${resourceName}.update with id: ${id} `, e);
 
         await sendToS3('errors',
-            resource_name,
+            resourceName,
             resource_incoming_json,
             currentDate,
             id,

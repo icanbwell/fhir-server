@@ -1,35 +1,43 @@
 const {MongoClient} = require('mongodb');
 const globals = require('../globals');
-const {mongoConfig, atlasMongoConfig} = require('../config');
-const {CLIENT, CLIENT_DB, ATLAS_CLIENT, ATLAS_CLIENT_DB} = require('../constants');
+const {mongoConfig, atlasMongoConfig, auditEventMongoConfig} = require('../config');
+const {
+    CLIENT,
+    CLIENT_DB,
+    ATLAS_CLIENT,
+    ATLAS_CLIENT_DB,
+    AUDIT_EVENT_CLIENT,
+    AUDIT_EVENT_CLIENT_DB
+} = require('../constants');
 const {isTrue} = require('./isTrue');
 const env = require('var');
 
 /**
  * Creates a new connection
+ * @param {Object} mongoConfig1
  * @returns {Promise<import("mongodb").MongoClient>}
  */
-async function createClient() {
+async function createClient(mongoConfig1) {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-        mongoConfig.options.monitorCommands = true;
-        console.log(`Connecting to ${mongoConfig.connection}`);
+        mongoConfig1.options.monitorCommands = true;
+        console.log(`Connecting to ${mongoConfig1.connection}`);
     }
     // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = new MongoClient(mongoConfig.connection, mongoConfig.options);
+    const client = new MongoClient(mongoConfig1.connection, mongoConfig1.options);
 
     try {
         await client.connect();
     } catch (e) {
-        console.error(`Failed to connect to ${mongoConfig.connection}: ${e}`);
+        console.error(`Failed to connect to ${mongoConfig1.connection}: ${e}`);
         throw e;
     }
     try {
         await client.db('admin').command({ping: 1});
     } catch (e) {
-        console.error(`Failed to execute ping on ${mongoConfig.connection}: ${e}`);
+        console.error(`Failed to execute ping on ${mongoConfig1.connection}: ${e}`);
         throw e;
     }
     console.log('Successfully connected to AWS DocumentDB ');
@@ -49,59 +57,29 @@ async function createClient() {
     return client;
 }
 
-/**
- * Creates a new connection to Atlas
- * @returns {Promise<import("mongodb").MongoClient>}
- */
-async function createAtlasClient() {
-    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-        atlasMongoConfig.options.monitorCommands = true;
-    }
-    const atlasClient = new MongoClient(atlasMongoConfig.connection, atlasMongoConfig.options);
-
-    try {
-        await atlasClient.connect();
-    } catch (e) {
-        console.error(`Failed to connect to ${atlasMongoConfig.connection}: ${e}`);
-        throw e;
-    }
-    try {
-        await atlasClient.db('admin').command({ping: 1});
-    } catch (e) {
-        console.error(`Failed to execute ping on ${atlasMongoConfig.connection}: ${e}`);
-        throw e;
-    }
-    if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-        // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
-        atlasClient.on('commandStarted', event => {
-            console.log(`Atlas Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-        atlasClient.on('commandSucceeded', event => {
-            console.log(`Atlas Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-        atlasClient.on('commandFailed', event => {
-            console.log(`Atlas Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
-        });
-    }
-
-    console.log('Successfully connected to Atlas');
-    return atlasClient;
-}
-
 const connect = async function () {
     if (globals.get(CLIENT)) {
         return;
     }
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
 
     globals.set(CLIENT, client);
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
 
     if (env.ATLAS_MONGO_URL) {
-        const atlasClient = await createAtlasClient();
+        const atlasClient = await createClient(atlasMongoConfig);
 
         globals.set(ATLAS_CLIENT, atlasClient);
         globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
+    }
+    if (env.AUDIT_EVENT_MONGO_URL) {
+        const auditEventClient = await createClient(auditEventMongoConfig);
+
+        globals.set(AUDIT_EVENT_CLIENT, auditEventClient);
+        globals.set(AUDIT_EVENT_CLIENT_DB, auditEventClient.db(auditEventMongoConfig.db_name));
+    } else {
+        globals.set(AUDIT_EVENT_CLIENT, client);
+        globals.set(AUDIT_EVENT_CLIENT_DB, client.db(mongoConfig.db_name));
     }
 };
 

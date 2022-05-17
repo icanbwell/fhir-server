@@ -27,12 +27,22 @@ async function streamBundleFromCursorAsync(
     // eslint-disable-next-line no-unused-vars
     batchObjectCount
 ) {
+
+    /**
+     * @type {FhirBundleWriter}
+     */
     const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
+    /**
+     * @type {{id: *[]}}
+     */
     const tracker = {
         id: []
     };
 
+    /**
+     * @type {AbortController}
+     */
     const ac = new AbortController();
 
     try {

@@ -31,14 +31,26 @@ async function streamResourcesFromCursorAsync(
     // eslint-disable-next-line no-unused-vars
     batchObjectCount = 1) {
 
+    /**
+     * @type {boolean}
+     */
     const useJson = contentType !== fhirContentTypes.ndJson;
 
+    /**
+     * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
+     */
     const fhirWriter = useJson ? new FhirResourceWriter() : new FhirResourceNdJsonWriter();
 
+    /**
+     * @type {{id: *[]}}
+     */
     const tracker = {
         id: []
     };
 
+    /**
+     * @type {AbortController}
+     */
     const ac = new AbortController();
 
     try {

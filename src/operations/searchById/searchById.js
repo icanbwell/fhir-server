@@ -1,7 +1,7 @@
 const {logRequest, logDebug, logError} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -9,6 +9,8 @@ const pRetry = require('p-retry');
 const {logMessageToSlack} = require('../../utils/slack.logger');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
+const env = require('var');
+const {isTrue} = require('../../utils/isTrue');
 
 /**
  * does a FHIR Search By Id
@@ -35,14 +37,25 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
     logDebug(user, `base_version: ${base_version}`);
 
     // Search Result param
-
+    /**
+     * @type {Object}
+     */
     let query = {};
     query.id = id;
-    // TODO: Build query from Parameters
 
-    // TODO: Query database
-    // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    let db = (resource_name === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+
     let collection = db.collection(`${collection_name}_${base_version}`);
     let Resource = getResource(base_version, resource_name);
 

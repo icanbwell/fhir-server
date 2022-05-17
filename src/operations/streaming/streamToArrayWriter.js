@@ -18,8 +18,8 @@ class StreamToArrayWriter extends Writable {
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _write(chunk, encoding, callback) {
@@ -29,6 +29,10 @@ class StreamToArrayWriter extends Writable {
         callback();
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _final(callback) {
         this.push(this._buffer);
         callback();

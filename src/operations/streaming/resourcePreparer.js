@@ -36,6 +36,13 @@ class ResourcePreparerTransform extends Transform {
         this.useAccessIndex = useAccessIndex;
     }
 
+    /**
+     * transforms a chunk
+     * @param {Object} chunk
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _transform(chunk, encoding, callback) {
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
@@ -54,6 +61,10 @@ class ResourcePreparerTransform extends Transform {
 
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _flush(callback) {
         callback();
     }

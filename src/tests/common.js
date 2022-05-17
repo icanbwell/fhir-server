@@ -2,7 +2,7 @@ const {MongoClient} = require('mongodb');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
 const globals = require('../globals');
-const {CLIENT, CLIENT_DB} = require('../constants');
+const {CLIENT, CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 
 const env = require('var');
 
@@ -34,10 +34,10 @@ module.exports.commonBeforeEach = async () => {
      * because the application expect it as ENV vars.
      * The values are being created by the in-memory MongoDB
      */
-    process.env.MONGO_HOST = mongo.getUri();
+    process.env.MONGO_URL = mongo.getUri();
     // process.env.MONGO_DB = mongo.getdb.getDbName();
 
-    connection = await MongoClient.connect(process.env.MONGO_HOST, {
+    connection = await MongoClient.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
@@ -45,6 +45,7 @@ module.exports.commonBeforeEach = async () => {
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
+    globals.set(AUDIT_EVENT_CLIENT_DB, db);
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';

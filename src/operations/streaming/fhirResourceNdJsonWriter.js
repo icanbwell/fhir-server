@@ -11,8 +11,8 @@ class FhirResourceNdJsonWriter extends Transform {
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _transform(chunk, encoding, callback) {
@@ -21,6 +21,10 @@ class FhirResourceNdJsonWriter extends Transform {
         callback();
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _flush(callback) {
         // write ending json
         callback();

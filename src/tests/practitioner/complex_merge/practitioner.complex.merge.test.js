@@ -32,7 +32,6 @@ const expectedLocationResource = require('./fixtures/expected/expected_location.
 const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
 const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
 const expectedHealthcareServiceResource = require('./fixtures/expected/expected_healthcare_service.json');
-const async = require('async');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
@@ -48,410 +47,327 @@ describe('Practitioner Complex Merge Tests', () => {
 
     describe('Practitioner Merges', () => {
         test('Multiple calls to Practitioner merge properly', async () => {
-            await async.waterfall([
-                    (cb) => // first confirm there are no practitioners
-                        request
-                            .get('/4_0_0/Practitioner')
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                expect(resp.body.length).toBe(0);
-                                console.log('------- response 1 ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response 1 ------------');
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Practitioner/1679033641/$merge')
-                            .send(practitionerResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                console.log('------- response practitionerResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Location/UF3-UADM/$merge')
-                            .send(locationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                console.log('------- response 3 ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response 3  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/PractitionerRole/4657-3437/$merge')
-                            .send(practitionerRoleResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                console.log('------- response locationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/Organization/StanfordMedicalSchool/$merge')
-                            .send(practitionerMedicalSchoolResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practitionerMedicalSchoolResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/HealthcareService/$merge')
-                            .send(practitionerHealthcareServiceResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practitionerHealthcareServiceResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/Organization/AETNA/$merge')
-                            .send(insuranceOrganizationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insuranceOrganizationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/Location/AetnaElectChoice/$merge')
-                            .send(insurancePlanLocationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insurancePlanLocationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/InsurancePlan/AETNA-AetnaElectChoice/$merge')
-                            .send(insurancePlanResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insurancePlanResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/Practitioner/1679033641/$merge')
-                            .send(insurancePractitionerResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insurancePractitionerResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(false);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')
-                            .send(insurancePractitionerRoleResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insurancePractitionerRoleResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/Organization/MWHC/$merge')
-                            .send(insuranceProviderOrganizationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response insuranceProviderOrganizationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/PractitionerRole/1679033641/$merge')
-                            .send(schedulerPractitionerRoleResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response schedulerPractitionerRoleResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/HealthcareService/1679033641-MAX-MALX/$merge')
-                            .send(schedulerHealthcareServiceResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response schedulerHealthcareServiceResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }), (results, cb) =>
-                        request
-                            .post('/4_0_0/HealthcareService/MWHC_Department-207RE0101X/$merge')
-                            .send(practiceHealthcareServiceResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practiceHealthcareServiceResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Organization/MWHC/$merge')
-                            .send(practiceOrganizationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practiceOrganizationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
-                            .send(practiceParentOrganizationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practiceHealthcareServiceResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }),
-                    (results, cb) =>
-                        request
-                            .post('/4_0_0/Location/$merge')
-                            .send(practiceLocationResource)
-                            .set(getHeaders())
-                            .expect(200, (err, resp) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                console.log('------- response practiceLocationResource ------------');
-                                console.log(JSON.stringify(resp.body, null, 2));
-                                console.log('------- end response  ------------');
-                                expect(resp.body['created']).toBe(true);
-                                return cb(err, resp);
-                            }),
-                    (results, cb) => request
-                        .get('/4_0_0/Practitioner')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response Practitioner ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(1);
-                            delete body[0]['meta']['lastUpdated'];
-                            let expected = expectedPractitionerResource;
-                            delete expected[0]['meta']['lastUpdated'];
-                            delete expected[0]['$schema'];
-                            expected[0]['meta']['versionId'] = '2';
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                    (results, cb) => request
-                        .get('/4_0_0/PractitionerRole')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response PractitionerRole ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(3);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                            });
-                            let expected = expectedPractitionerRoleResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta']['lastUpdated'];
-                                }
-                                element['meta']['versionId'] = '1';
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
 
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                    (results, cb) => request
-                        .get('/4_0_0/Location')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response Location ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(3);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                            });
-                            let expected = expectedLocationResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta']['lastUpdated'];
-                                }
-                                element['meta']['versionId'] = '1';
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
+            expect(resp.body.length).toBe(0);
+            console.log('------- response 1 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 1 ------------');
 
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                    (results, cb) => request
-                        .get('/4_0_0/Organization')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response Organization ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(5);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta'];
-                            });
-                            let expected = expectedOrganizationResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta'];
-                                }
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
+            resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge')
+                .send(practitionerResource)
+                .set(getHeaders());
 
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                    (results, cb) => request
-                        .get('/4_0_0/InsurancePlan')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response InsurancePlan ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(1);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                            });
-                            let expected = expectedInsurancePlanResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta']['lastUpdated'];
-                                }
-                                element['meta']['versionId'] = '1';
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
+            console.log('------- response practitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
 
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                    (results, cb) => request
-                        .get('/4_0_0/HealthcareService')
-                        .set(getHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            console.log('------- response HealthcareService ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response  ------------');
-                            // clear out the lastUpdated column since that changes
-                            let body = resp.body;
-                            expect(body.length).toBe(3);
-                            delete body[0]['meta']['lastUpdated'];
-                            body.forEach(element => {
-                                delete element['meta']['lastUpdated'];
-                            });
-                            let expected = expectedHealthcareServiceResource;
-                            expected.forEach(element => {
-                                if ('meta' in element) {
-                                    delete element['meta']['lastUpdated'];
-                                }
-                                element['meta']['versionId'] = '1';
-                                if ('$schema' in element) {
-                                    delete element['$schema'];
-                                }
-                            });
+            resp = await request
+                .post('/4_0_0/Location/UF3-UADM/$merge')
+                .send(locationResource)
+                .set(getHeaders());
 
-                            expect(body).toStrictEqual(expected);
-                        }, cb),
-                ]);
+            console.log('------- response 3 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 3  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/PractitionerRole/4657-3437/$merge')
+                .send(practitionerRoleResource)
+                .set(getHeaders());
+
+            console.log('------- response locationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Organization/StanfordMedicalSchool/$merge')
+                .send(practitionerMedicalSchoolResource)
+                .set(getHeaders());
+
+            console.log('------- response practitionerMedicalSchoolResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/HealthcareService/$merge')
+                .send(practitionerHealthcareServiceResource)
+                .set(getHeaders());
+            console.log('------- response practitionerHealthcareServiceResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Organization/AETNA/$merge')
+                .send(insuranceOrganizationResource)
+                .set(getHeaders());
+
+            console.log('------- response insuranceOrganizationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Location/AetnaElectChoice/$merge')
+                .send(insurancePlanLocationResource)
+                .set(getHeaders());
+
+            console.log('------- response insurancePlanLocationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/InsurancePlan/AETNA-AetnaElectChoice/$merge')
+                .send(insurancePlanResource)
+                .set(getHeaders());
+
+            console.log('------- response insurancePlanResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge')
+                .send(insurancePractitionerResource)
+                .set(getHeaders());
+            console.log('------- response insurancePractitionerResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(false);
+
+            resp = await request
+                .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')
+                .send(insurancePractitionerRoleResource)
+                .set(getHeaders());
+
+            console.log('------- response insurancePractitionerRoleResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Organization/MWHC/$merge')
+                .send(insuranceProviderOrganizationResource)
+                .set(getHeaders());
+            console.log('------- response insuranceProviderOrganizationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/PractitionerRole/1679033641/$merge')
+                .send(schedulerPractitionerRoleResource)
+                .set(getHeaders());
+
+            console.log('------- response schedulerPractitionerRoleResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/HealthcareService/1679033641-MAX-MALX/$merge')
+                .send(schedulerHealthcareServiceResource)
+                .set(getHeaders());
+
+            console.log('------- response schedulerHealthcareServiceResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/HealthcareService/MWHC_Department-207RE0101X/$merge')
+                .send(practiceHealthcareServiceResource)
+                .set(getHeaders());
+
+            console.log('------- response practiceHealthcareServiceResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Organization/MWHC/$merge')
+                .send(practiceOrganizationResource)
+                .set(getHeaders());
+            console.log('------- response practiceOrganizationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
+                .send(practiceParentOrganizationResource)
+                .set(getHeaders());
+            console.log('------- response practiceHealthcareServiceResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .post('/4_0_0/Location/$merge')
+                .send(practiceLocationResource)
+                .set(getHeaders());
+            console.log('------- response practiceLocationResource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(true);
+
+            resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+            console.log('------- response Practitioner ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            expect(body.length).toBe(1);
+            delete body[0]['meta']['lastUpdated'];
+            let expected = expectedPractitionerResource;
+            delete expected[0]['meta']['lastUpdated'];
+            delete expected[0]['$schema'];
+            expected[0]['meta']['versionId'] = '2';
+            expect(body).toStrictEqual(expected);
+
+            resp = await request
+                .get('/4_0_0/PractitionerRole')
+                .set(getHeaders());
+            console.log('------- response PractitionerRole ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body;
+            expect(body.length).toBe(3);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            expected = expectedPractitionerRoleResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+                element['meta']['versionId'] = '1';
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+
+            expect(body).toStrictEqual(expected);
+
+            resp = await request
+                .get('/4_0_0/Location')
+                .set(getHeaders());
+
+            console.log('------- response Location ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body;
+            expect(body.length).toBe(3);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            expected = expectedLocationResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+                element['meta']['versionId'] = '1';
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+
+            expect(body).toStrictEqual(expected);
+
+            resp = await request
+                .get('/4_0_0/Organization')
+                .set(getHeaders());
+            console.log('------- response Organization ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body;
+            expect(body.length).toBe(5);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+                delete element['meta'];
+            });
+            expected = expectedOrganizationResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta'];
+                }
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+
+            expect(body).toStrictEqual(expected);
+
+            resp = await request
+                .get('/4_0_0/InsurancePlan')
+                .set(getHeaders());
+
+            console.log('------- response InsurancePlan ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body;
+            expect(body.length).toBe(1);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            expected = expectedInsurancePlanResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+                element['meta']['versionId'] = '1';
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+
+            expect(body).toStrictEqual(expected);
+
+            resp = await request
+                .get('/4_0_0/HealthcareService')
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response HealthcareService ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body;
+            expect(body.length).toBe(3);
+            delete body[0]['meta']['lastUpdated'];
+            body.forEach(element => {
+                delete element['meta']['lastUpdated'];
+            });
+            expected = expectedHealthcareServiceResource;
+            expected.forEach(element => {
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+                element['meta']['versionId'] = '1';
+                if ('$schema' in element) {
+                    delete element['$schema'];
+                }
+            });
+
+            expect(body).toStrictEqual(expected);
         });
     });
 });
