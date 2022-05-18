@@ -59,8 +59,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
 
     let {
+        /** @type {string} **/
         base_version,
+        /** @type {import('mongodb').Document}**/
         query,
+        /** @type {Set} **/
         columns
     } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
 
@@ -108,18 +111,46 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
+        /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
             maxMongoTimeMS, user, mongoCollectionName, false, useAccessIndex);
+        /**
+         * @type {Set}
+         */
         columns = __ret.columns;
         // options = __ret.options;
         // query = __ret.query;
+        /**
+         * @type {import('mongodb').Document[]}
+         */
         let originalQuery = __ret.originalQuery;
+        /**
+         * @type {import('mongodb').FindOneOptions[]}
+         */
         let originalOptions = __ret.originalOptions;
+        /**
+         * @type {boolean}
+         */
         const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
+        /**
+         * @type {Resource[]}
+         */
         let resources = __ret.resources;
+        /**
+         * @type {number | null}
+         */
         let total_count = __ret.total_count;
+        /**
+         * @type {string | null}
+         */
         let indexHint = __ret.indexHint;
+        /**
+         * @type {Number}
+         */
         let cursorBatchSize = __ret.cursorBatchSize;
+        /**
+         * @type {import('mongodb').FindCursor<import('mongodb').WithId<Document>>}
+         */
         let cursor = __ret.cursor;
 
         /**

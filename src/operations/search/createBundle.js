@@ -2,7 +2,7 @@ const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const env = require('var');
 const {logDebug} = require('../common/logging');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 
 /**
  * creates a bundle from the given resources
@@ -12,9 +12,9 @@ const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
  * @param {string} base_version
  * @param {number} total_count
  * @param {Object} args
- * @param {Object|Object[]} originalQuery
+ * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
  * @param {string} mongoCollectionName
- * @param {Object|Object[]} originalOptions
+ * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
  * @param {Set} columns
  * @param {number} stopTime
  * @param {number} startTime
@@ -104,7 +104,7 @@ function createBundle(
         const tag = [
             {
                 system: 'https://www.icanbwell.com/query',
-                display: mongoQueryStringify(originalQuery),
+                display: mongoQueryAndOptionsStringify(mongoCollectionName, originalQuery, originalOptions),
             },
             {
                 system: 'https://www.icanbwell.com/queryCollection',

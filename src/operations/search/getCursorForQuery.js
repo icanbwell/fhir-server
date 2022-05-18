@@ -14,6 +14,22 @@ const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
 
 /**
+ * @typedef GetCursorResult
+ * @type {object}
+ * @property {int | null} cursorBatchSize
+ * @property {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @property {string | null} indexHint
+ * @property {boolean} useTwoStepSearchOptimization
+ * @property {Set} columns
+ * @property {number | null} total_count
+ * @property {import('mongodb').Document} query
+ * @property {import('mongodb').FindOneOptions} options
+ * @property {Resource[]} resources
+ * @property {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+ * @property {import('mongodb').FindOneOptions|import('mongodb').FindOneOptions[]} originalOptions
+ */
+
+/**
  * Create the query and gets the cursor from mongo
  * @param {Object?} args
  * @param {Set} columns
@@ -27,7 +43,7 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {string} mongoCollectionName
  * @param {boolean} isStreaming
  * @param {boolean} useAccessIndex
- * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
+ * @returns {Promise<GetCursorResult>}
  */
 async function getCursorForQueryAsync(args, columns, resourceName, options,
                                  query, useAtlas, collection, maxMongoTimeMS,

@@ -1,9 +1,10 @@
+const assert = require('node:assert/strict');
 /**
  * converts a mongo query to string
- * @param {Object} obj
+ * @param {Object} query
  * @returns {string|undefined}
  */
-const mongoQueryStringify = (obj) => {
+const mongoQueryStringify = (query) => {
 
     const isArray = (value) => {
         return Array.isArray(value) && typeof value === 'object';
@@ -76,31 +77,31 @@ const mongoQueryStringify = (obj) => {
     };
 
 
-    if (ignoreDataTypes(obj)) {
+    if (ignoreDataTypes(query)) {
         return undefined;
     }
 
-    if (isDate(obj)) {
-        return `"${obj.toISOString()}"`;
+    if (isDate(query)) {
+        return `ISODate("${query.toISOString()}")`;
     }
 
-    if (nullDataTypes(obj)) {
+    if (nullDataTypes(query)) {
         return `${null}`;
     }
 
-    if (isSymbol(obj)) {
+    if (isSymbol(query)) {
         return undefined;
     }
 
 
-    if (restOfDataTypes(obj)) {
-        const passQuotes = isString(obj) ? '"' : '';
-        return `${passQuotes}${obj}${passQuotes}`;
+    if (restOfDataTypes(query)) {
+        const passQuotes = isString(query) ? '"' : '';
+        return `${passQuotes}${query}${passQuotes}`;
     }
 
-    if (isArray(obj)) {
+    if (isArray(query)) {
         let arrStr = '';
-        obj.forEach((eachValue) => {
+        query.forEach((eachValue) => {
             arrStr += arrayValuesNullTypes(eachValue) ? mongoQueryStringify(null) : mongoQueryStringify(eachValue);
             arrStr += ',';
         });
@@ -108,20 +109,76 @@ const mongoQueryStringify = (obj) => {
         return '[' + removeComma(arrStr) + ']';
     }
 
-    if (isObject(obj)) {
+    if (isObject(query)) {
 
         let objStr = '';
 
-        const objKeys = Object.keys(obj);
+        const objKeys = Object.keys(query);
 
         objKeys.forEach((eachKey) => {
-            const eachValue = obj[`${eachKey}`];
+            const eachValue = query[`${eachKey}`];
             objStr += (!ignoreDataTypes(eachValue)) ? `"${eachKey}":${mongoQueryStringify(eachValue)},` : '';
         });
         return '{' + removeComma(objStr) + '}';
     }
 };
 
+/**
+ * converts a mongo query to string
+ * @param {string} collectionName
+ * @param {import('mongodb').Document} query
+ * @param {import('mongodb').FindOneOptions} options
+ * @returns {string|undefined}
+ */
+const mongoQueryAndOptionsStringifySingleQuery = (
+    collectionName,
+    query,
+    options
+) => {
+    assert(!Array.isArray(query));
+    assert(!Array.isArray(options));
+    const queryText = mongoQueryStringify(query);
+    const projection = options.projection ? options.projection : {};
+    let result = `db.${collectionName}.find(${queryText}, ${mongoQueryStringify(projection)})`;
+    if (options.sort) {
+        result += `.sort(${mongoQueryStringify(options.sort)})`;
+    }
+    if (options.skip) {
+        result += `.skip(${options.skip})`;
+    }
+    if (options.limit) {
+        result += `.limit(${options.limit})`;
+    }
+    return result;
+};
+
+/**
+ * converts a mongo query to string
+ * @param {string} collectionName
+ * @param {import('mongodb').Document | import('mongodb').Document[]} query
+ * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} options
+ * @returns {string|undefined}
+ */
+const mongoQueryAndOptionsStringify = (
+    collectionName,
+    query,
+    options
+) => {
+    if (Array.isArray(query)) {
+        let result = '';
+        query.forEach((queryItem, index) => {
+            const optionsItem = options[`${index}`];
+            const queryText = mongoQueryAndOptionsStringifySingleQuery(collectionName, queryItem, optionsItem);
+            result += `${queryText} | `;
+        });
+        return result;
+    } else {
+        return mongoQueryAndOptionsStringifySingleQuery(collectionName, query, options);
+    }
+};
+
+
 module.exports = {
-    mongoQueryStringify: mongoQueryStringify
+    mongoQueryStringify: mongoQueryStringify,
+    mongoQueryAndOptionsStringify: mongoQueryAndOptionsStringify
 };
