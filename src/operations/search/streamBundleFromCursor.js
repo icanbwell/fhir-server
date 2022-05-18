@@ -21,7 +21,8 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
  * @returns {Promise<number>}
  */
 async function streamBundleFromCursorAsync(
-    cursor, url, fnBundle, res, user, scope,
+    cursor, url, fnBundle,
+    res, user, scope,
     args, Resource, resourceName,
     useAccessIndex,
     // eslint-disable-next-line no-unused-vars
