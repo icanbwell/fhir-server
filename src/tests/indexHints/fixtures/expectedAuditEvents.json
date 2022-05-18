@@ -434,20 +434,10 @@
       }
     }
   ],
-  "link": [
-    {
-      "relation": "self",
-      "url": "/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access%7Cfake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&_bundle=1"
-    },
-    {
-      "relation": "next",
-      "url": "/4_0_0/AuditEvent/?_security=https%3A%2F%2Fwww.icanbwell.com%2Faccess%7Cfake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_setIndexHint=1&_debug=1&_bundle=1&id%3Aabove=MixP-0001wx03abn1tez5"
-    }
-  ],
   "meta": {
     "tag": [
       {
-        "display": "{\"$and\":[{\"meta.lastUpdated\":{\"$gt\":\"2021-06-01T00:00:00.000Z\"}},{\"meta.lastUpdated\":{\"$lt\":\"2031-10-26T00:00:00.000Z\"}},{\"meta.security\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"fake\"}}}]}",
+        "display": "db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2031-10-26T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {}).sort({'id':1}).limit(10)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -455,11 +445,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{\"skip\":0,\"limit\":10,\"sort\":{\"id\":1}}",
+        "display": "{'skip':0,'limit':10,'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[\"meta.lastUpdated\",\"meta.security.system\",\"meta.security.code\",\"id\"]",
+        "display": "['meta.lastUpdated','meta.security.system','meta.security.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

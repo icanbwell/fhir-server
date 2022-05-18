@@ -82,7 +82,7 @@ const mongoQueryStringify = (query) => {
     }
 
     if (isDate(query)) {
-        return `ISODate("${query.toISOString()}")`;
+        return `ISODate('${query.toISOString()}')`;
     }
 
     if (nullDataTypes(query)) {
@@ -95,7 +95,7 @@ const mongoQueryStringify = (query) => {
 
 
     if (restOfDataTypes(query)) {
-        const passQuotes = isString(query) ? '"' : '';
+        const passQuotes = isString(query) ? "'" : '';
         return `${passQuotes}${query}${passQuotes}`;
     }
 
@@ -117,7 +117,7 @@ const mongoQueryStringify = (query) => {
 
         objKeys.forEach((eachKey) => {
             const eachValue = query[`${eachKey}`];
-            objStr += (!ignoreDataTypes(eachValue)) ? `"${eachKey}":${mongoQueryStringify(eachValue)},` : '';
+            objStr += (!ignoreDataTypes(eachValue)) ? `'${eachKey}':${mongoQueryStringify(eachValue)},` : '';
         });
         return '{' + removeComma(objStr) + '}';
     }
@@ -169,7 +169,7 @@ const mongoQueryAndOptionsStringify = (
         query.forEach((queryItem, index) => {
             const optionsItem = options[`${index}`];
             const queryText = mongoQueryAndOptionsStringifySingleQuery(collectionName, queryItem, optionsItem);
-            result += `${queryText} | `;
+            result += (index === 0) ? `${queryText} ` : ` | ${queryText}`;
         });
         return result;
     } else {
