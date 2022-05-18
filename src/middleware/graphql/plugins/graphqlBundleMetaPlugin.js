@@ -33,7 +33,9 @@ class BundleMetaApolloServerPlugin {
                     return;
                 }
                 for (const [, bundle] of Object.entries(data)) {
-                    bundle.meta = dataSource.getBundleMeta();
+                    if (bundle){
+                        bundle.meta = dataSource.getBundleMeta();
+                    }
                 }
                 // const stop = Date.now();
                 // const elapsed = stop - start;
