@@ -54,7 +54,7 @@ async function streamResourcesFromCursorAsync(
     const ac = new AbortController();
 
     try {
-        const readableMongoStream = createReadableMongoStream(cursor);
+        const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });

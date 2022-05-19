@@ -43,14 +43,18 @@ class MongoStreamReader extends Readable {
 /**
  * Async generator for reading from Mongo
  * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @param {AbortSignal} signal
  * @returns {AsyncGenerator<*, Resource, *>}
  */
-async function* readMongoStreamGenerator(cursor) {
+async function* readMongoStreamGenerator(cursor, signal) {
     // let chunk_number = 0;
     while (await cursor.hasNext()) {
         // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
         // chunk_number += 1;
         // console.log(`read: chunk:${chunk_number}`);
+        if (signal.aborted) {
+            return;
+        }
         /**
          * element
          * @type {Resource}
@@ -63,10 +67,11 @@ async function* readMongoStreamGenerator(cursor) {
 /**
  * Creates a readable mongo stream from cursor
  * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @param {AbortSignal} signal
  * @returns {import('stream').Readable}
  */
-const createReadableMongoStream = (cursor) => Readable.from(
-    readMongoStreamGenerator(cursor)
+const createReadableMongoStream = (cursor, signal) => Readable.from(
+    readMongoStreamGenerator(cursor, signal)
 );
 
 

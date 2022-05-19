@@ -46,7 +46,7 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-        const readableMongoStream = createReadableMongoStream(cursor);
+        const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });
