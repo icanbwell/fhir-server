@@ -9,7 +9,7 @@ const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 
 /**
  * Reads resources from Mongo cursor and writes to response
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
  * @param {string | null} scope
@@ -54,7 +54,7 @@ async function streamResourcesFromCursorAsync(
     const ac = new AbortController();
 
     try {
-        const readableMongoStream = createReadableMongoStream(cursor);
+        const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });

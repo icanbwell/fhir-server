@@ -7,7 +7,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 /**
  * Reads resources from Mongo cursor
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object?} args
@@ -46,7 +46,7 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-        const readableMongoStream = createReadableMongoStream(cursor);
+        const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });

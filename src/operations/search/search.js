@@ -15,6 +15,7 @@ const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -149,7 +150,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
-         * @type {import('mongodb').FindCursor<import('mongodb').WithId<Document>>}
+         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
          */
         let cursor = __ret.cursor;
 
@@ -159,7 +160,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
 
         if (cursor !== null) { // usually means the two-step optimization found no results
-            logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
+            logDebug(user,
+                mongoQueryAndOptionsStringify(collection_name, originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, batchObjectCount,
                 useAccessIndex
             );
