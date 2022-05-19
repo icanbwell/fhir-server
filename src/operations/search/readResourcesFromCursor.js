@@ -33,8 +33,8 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
      * https://mongodb.github.io/node-mongodb-native/4.5/interfaces/CursorStreamOptions.html
      * @type {Readable}
      */
-        // We do not use the Mongo stream since we can create our own stream below with more control
-        // const cursorStream = cursor.stream();
+    // We do not use the Mongo stream since we can create our own stream below with more control
+    // const cursorStream = cursor.stream();
 
     /**
      * @type {AbortController}
@@ -54,12 +54,16 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
+            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal),
             // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
             new Transform({
                 writableObjectMode: true,
 
                 transform(chunk, encoding, callback) {
+                    if (ac.signal.aborted) {
+                        callback();
+                        return;
+                    }
                     resources.push(chunk);
                     callback();
                 }

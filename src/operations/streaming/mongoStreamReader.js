@@ -1,4 +1,6 @@
 const {Readable} = require('stream');
+const env = require('var');
+const {isTrue} = require('../../utils/isTrue');
 
 // https://thenewstack.io/node-js-readable-streams-explained/
 // https://github.com/logdna/tail-file-node/blob/ee0389ba34cb2037de776541f800842bb98df6b3/lib/tail-file.js#L22
@@ -9,6 +11,9 @@ class MongoStreamReader extends Readable {
      **/
     constructor(cursor) {
         super({objectMode: true});
+        /**
+         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+         */
         this.cursor = cursor;
     }
 
@@ -54,6 +59,9 @@ async function* readMongoStreamGenerator(cursor, signal) {
         // console.log(`read: chunk:${chunk_number}`);
         if (signal.aborted) {
             return;
+        }
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('mongoStreamReader: read');
         }
         /**
          * element

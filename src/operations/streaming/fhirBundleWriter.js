@@ -6,18 +6,39 @@ class FhirBundleWriter extends Transform {
      * Streams the incoming data inside a FHIR Bundle
      * @param {function (string[], number): Resource} fnBundle
      * @param {string | null} url
+     * @param {AbortSignal} signal
      */
-    constructor(fnBundle, url) {
+    constructor(fnBundle, url, signal) {
         super({objectMode: true});
         /**
          * @type {function(string[], number): Resource}
          * @private
          */
         this._fnBundle = fnBundle;
+        /**
+         * @type {string|null}
+         * @private
+         */
+        /**
+         * @type {string|null}
+         * @private
+         */
         this._url = url;
+        /**
+         * @type {boolean}
+         * @private
+         */
         this._first = true;
         this.push('{"entry":[');
+        /**
+         * @type {string | null}
+         * @private
+         */
         this._lastid = null;
+        /**
+         * @type {AbortSignal}
+         */
+        this._signal = signal;
     }
 
     /**
@@ -28,6 +49,10 @@ class FhirBundleWriter extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
+        if (this._signal.aborted){
+            callback();
+            return;
+        }
         if (chunk !== null && chunk !== undefined) {
             const resourceJson = JSON.stringify(
                 {
@@ -72,7 +97,7 @@ class FhirBundleWriter extends Transform {
         const bundleJson = JSON.stringify(cleanObject);
 
         // write ending json
-        this.push('],' + bundleJson.substring(1)); // skip the first }
+        this.push('],' + bundleJson.substring(1)); // skip the first "}"
         callback();
     }
 }

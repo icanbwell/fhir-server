@@ -3,11 +3,21 @@ const {Transform} = require('stream');
 class FhirResourceWriter extends Transform {
     /**
      * Streams the incoming data as json
+     * @param {AbortSignal} signal
      */
-    constructor() {
+    constructor(signal) {
         super({objectMode: true});
+        /**
+         * @type {boolean}
+         * @private
+         */
         this._first = true;
         this.push('[');
+        /**
+         * @type {AbortSignal}
+         * @private
+         */
+        this._signal = signal;
     }
 
     /**
@@ -18,6 +28,10 @@ class FhirResourceWriter extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
+        if (this._signal.aborted){
+            callback();
+            return;
+        }
         if (chunk !== null && chunk !== undefined) {
             const resourceJson = JSON.stringify(chunk);
             if (this._first) {
@@ -37,6 +51,10 @@ class FhirResourceWriter extends Transform {
      * @private
      */
     _flush(callback) {
+        if (this._signal.aborted){
+            callback();
+            return;
+        }
         // write ending json
         this.push(']');
         callback();

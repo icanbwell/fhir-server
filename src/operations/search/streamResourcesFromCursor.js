@@ -6,7 +6,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logError} = require('../common/logging');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
-const {ResponseWriter} = require('../streaming/responseWriter');
+const {HttpResponseWriter} = require('../streaming/responseWriter');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -38,11 +38,6 @@ async function streamResourcesFromCursorAsync(
     const useJson = contentType !== fhirContentTypes.ndJson;
 
     /**
-     * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
-     */
-    const fhirWriter = useJson ? new FhirResourceWriter() : new FhirResourceNdJsonWriter();
-
-    /**
      * @type {{id: *[]}}
      */
     const tracker = {
@@ -54,24 +49,33 @@ async function streamResourcesFromCursorAsync(
      */
     const ac = new AbortController();
 
+    // if response is closed then abort the pipeline
+    res.on('close', () => {
+        ac.abort();
+    });
+    /**
+     * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
+     */
+    const fhirWriter = useJson ? new FhirResourceWriter(ac.signal) : new FhirResourceNdJsonWriter(ac.signal);
+
+    /**
+     * @type {HttpResponseWriter}
+     */
+    const responseWriter = new HttpResponseWriter(res, contentType, ac.signal);
+    /**
+     * @type {ResourcePreparerTransform}
+     */
+    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
+    /**
+     * @type {ResourceIdTracker}
+     */
+    const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
+
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });
-
-        /**
-         * @type {ResponseWriter}
-         */
-        const responseWriter = new ResponseWriter(res, contentType);
-        /**
-         * @type {ResourcePreparerTransform}
-         */
-        const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex);
-        /**
-         * @type {ResourceIdTracker}
-         */
-        const resourceIdTracker = new ResourceIdTracker(tracker);
 
         // now setup and run the pipeline
         await pipeline(

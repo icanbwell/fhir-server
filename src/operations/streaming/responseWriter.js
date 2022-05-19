@@ -1,11 +1,14 @@
 const {Writable} = require('stream');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 
-class ResponseWriter extends Writable {
+class HttpResponseWriter extends Writable {
     /**
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
+     * @param {AbortSignal} signal
      */
-    constructor(response, contentType) {
+    constructor(response, contentType, signal) {
         super({objectMode: true});
 
         /**
@@ -17,9 +20,17 @@ class ResponseWriter extends Writable {
          * @type {string}
          */
         this.contentType = contentType;
+
+        /**
+         * @type {AbortSignal}
+         */
+        this._signal = signal;
     }
 
     _construct(callback) {
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('HttpResponseWriter: _construct');
+        }
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('Content-Type', this.contentType);
@@ -29,13 +40,20 @@ class ResponseWriter extends Writable {
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {string | null} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _write(chunk, encoding, callback) {
+        if (this._signal.aborted) {
+            callback();
+            return;
+        }
         if (chunk !== null && chunk !== undefined) {
+            if (isTrue(env.LOG_STREAM_STEPS)) {
+                console.log(`HttpResponseWriter: _write ${JSON.parse(chunk)['id']}`);
+            }
             this.response.write(chunk, encoding, callback);
             callback();
         } else {
@@ -48,11 +66,14 @@ class ResponseWriter extends Writable {
      * @private
      */
     _final(callback) {
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('HttpResponseWriter: _flush');
+        }
         this.response.end();
         callback();
     }
 }
 
 module.exports = {
-    ResponseWriter: ResponseWriter
+    HttpResponseWriter: HttpResponseWriter
 };
