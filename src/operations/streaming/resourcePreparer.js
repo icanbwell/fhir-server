@@ -1,5 +1,7 @@
 const {Transform} = require('stream');
 const {prepareResourceAsync} = require('../common/resourcePreparer');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -10,8 +12,9 @@ class ResourcePreparerTransform extends Transform {
      * @param {function(?Object): Resource} Resource
      * @param {string} resourceName
      * @param {boolean} useAccessIndex
+     * @param {AbortSignal} signal
      */
-    constructor(user, scope, args, Resource, resourceName, useAccessIndex) {
+    constructor(user, scope, args, Resource, resourceName, useAccessIndex, signal) {
         super({objectMode: true});
         /**
          * @type {string|null}
@@ -33,7 +36,14 @@ class ResourcePreparerTransform extends Transform {
          * @type {string}
          */
         this.resourceName = resourceName;
+        /**
+         * @type {boolean}
+         */
         this.useAccessIndex = useAccessIndex;
+        /**
+         * @type {AbortSignal}
+         */
+        this._signal = signal;
     }
 
     /**
@@ -44,14 +54,24 @@ class ResourcePreparerTransform extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
+        if (this._signal.aborted) {
+            callback();
+            return;
+        }
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
         for (const chunk1 of chunks) {
             prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1, this.resourceName, this.useAccessIndex).then(
                 resources => {
+                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                        console.log('ResourcePreparerTransform: _transform');
+                    }
                     if (resources.length > 0) {
                         for (const resource of resources) {
                             if (resource) {
+                                if (isTrue(env.LOG_STREAM_STEPS)) {
+                                    console.log(`ResourcePreparerTransform: push ${resource['id']}`);
+                                }
                                 this.push(resource);
                             }
                         }
@@ -67,6 +87,9 @@ class ResourcePreparerTransform extends Transform {
      * @private
      */
     _flush(callback) {
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('ResourcePreparerTransform: _flush');
+        }
         callback();
     }
 }

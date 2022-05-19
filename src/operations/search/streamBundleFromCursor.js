@@ -4,6 +4,7 @@ const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {logError} = require('../common/logging');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
+const {HttpResponseWriter} = require('../streaming/responseWriter');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -30,9 +31,14 @@ async function streamBundleFromCursorAsync(
 ) {
 
     /**
+     * @type {AbortController}
+     */
+    const ac = new AbortController();
+
+    /**
      * @type {FhirBundleWriter}
      */
-    const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
+    const fhirBundleWriter = new FhirBundleWriter(fnBundle, url, ac.signal);
 
     /**
      * @type {{id: string[]}}
@@ -41,10 +47,18 @@ async function streamBundleFromCursorAsync(
         id: []
     };
 
+    // if response is closed then abort the pipeline
+    res.on('close', () => {
+        ac.abort();
+    });
+
     /**
-     * @type {AbortController}
+     * @type {HttpResponseWriter}
      */
-    const ac = new AbortController();
+    const responseWriter = new HttpResponseWriter(res, 'application/fhir+json', ac.signal);
+
+    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
+    const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
 
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
@@ -55,10 +69,10 @@ async function streamBundleFromCursorAsync(
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
-            new ResourceIdTracker(tracker),
+            resourcePreparerTransform,
+            resourceIdTracker,
             fhirBundleWriter,
-            res.type('application/fhir+json')
+            responseWriter
         );
     } catch (e) {
         logError(user, e);

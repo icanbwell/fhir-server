@@ -13,3 +13,4 @@ process.env.USE_TWO_STEP_SEARCH_OPTIMIZATION = '0';
 process.env.STREAM_RESPONSE = '0';
 // process.env.OLD_SEARCH = '1';
 process.env.COLLECTIONS_ACCESS_INDEX = 'AuditEvent_4_0_0';
+process.env.LOG_STREAM_STEPS = '1';
