@@ -51,7 +51,9 @@ class ResourcePreparerTransform extends Transform {
                 resources => {
                     if (resources.length > 0) {
                         for (const resource of resources) {
-                            this.push(resource);
+                            if (resource) {
+                                this.push(resource);
+                            }
                         }
                     }
                 }

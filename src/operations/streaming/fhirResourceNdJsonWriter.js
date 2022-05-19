@@ -16,8 +16,10 @@ class FhirResourceNdJsonWriter extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
-        const resourceJson = JSON.stringify(chunk);
-        this.push(resourceJson + '\n', encoding);
+        if (chunk !== null && chunk !== undefined) {
+            const resourceJson = JSON.stringify(chunk);
+            this.push(resourceJson + '\n', encoding);
+        }
         callback();
     }
 
@@ -26,7 +28,6 @@ class FhirResourceNdJsonWriter extends Transform {
      * @private
      */
     _flush(callback) {
-        // write ending json
         callback();
     }
 }

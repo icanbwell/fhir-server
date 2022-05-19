@@ -72,6 +72,7 @@ async function streamResourcesFromCursorAsync(
         ac.abort();
         throw e;
     }
+    // res.end();
     return tracker.id;
 }
 

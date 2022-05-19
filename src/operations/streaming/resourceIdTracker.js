@@ -23,10 +23,10 @@ class ResourceIdTracker extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
-        if (chunk !== null) {
+        if (chunk !== null && chunk !== undefined) {
             this._tracker.id.push(chunk['id']);
+            this.push(chunk, encoding);
         }
-        this.push(chunk, encoding);
         callback();
     }
 }

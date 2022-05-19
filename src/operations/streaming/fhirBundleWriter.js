@@ -28,20 +28,22 @@ class FhirBundleWriter extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
-        const resourceJson = JSON.stringify(
-            {
-                resource: chunk
+        if (chunk !== null && chunk !== undefined) {
+            const resourceJson = JSON.stringify(
+                {
+                    resource: chunk
+                }
+            );
+            if (this._first) {
+                // write the beginning json
+                this._first = false;
+                this.push(resourceJson, encoding);
+            } else {
+                // add comma at the beginning to make it legal json
+                this.push(',' + resourceJson, encoding);
             }
-        );
-        if (this._first) {
-            // write the beginning json
-            this._first = false;
-            this.push(resourceJson, encoding);
-        } else {
-            // add comma at the beginning to make it legal json
-            this.push(',' + resourceJson, encoding);
+            this._lastid = chunk['id'];
         }
-        this._lastid = chunk['id'];
         callback();
     }
 
