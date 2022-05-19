@@ -7,7 +7,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 /**
  * Reads resources from Mongo cursor and writes to response
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} url
  * @param {function (string | null, number): Resource} fnBundle
  * @param {import('http').ServerResponse} res
@@ -18,7 +18,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
  * @param {string} resourceName
  * @param {boolean} useAccessIndex
  * @param {number} batchObjectCount
- * @returns {Promise<number>}
+ * @returns {Promise<string[]>}
  */
 async function streamBundleFromCursorAsync(
     cursor, url, fnBundle,
@@ -35,7 +35,7 @@ async function streamBundleFromCursorAsync(
     const fhirBundleWriter = new FhirBundleWriter(fnBundle, url);
 
     /**
-     * @type {{id: *[]}}
+     * @type {{id: string[]}}
      */
     const tracker = {
         id: []

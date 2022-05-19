@@ -5,7 +5,7 @@ const {Readable} = require('stream');
 // https://2ality.com/2019/11/nodejs-streams-async-iteration.html
 class MongoStreamReader extends Readable {
     /**
-     * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+     * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
      **/
     constructor(cursor) {
         super({objectMode: true});
@@ -42,7 +42,7 @@ class MongoStreamReader extends Readable {
 
 /**
  * Async generator for reading from Mongo
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @returns {AsyncGenerator<*, Resource, *>}
  */
 async function* readMongoStreamGenerator(cursor) {
@@ -62,7 +62,7 @@ async function* readMongoStreamGenerator(cursor) {
 // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
 /**
  * Creates a readable mongo stream from cursor
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @returns {import('stream').Readable}
  */
 const createReadableMongoStream = (cursor) => Readable.from(

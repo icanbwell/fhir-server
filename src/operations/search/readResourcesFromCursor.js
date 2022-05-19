@@ -7,7 +7,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 /**
  * Reads resources from Mongo cursor
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object?} args
