@@ -51,6 +51,7 @@ async function streamResourcesFromCursorAsync(
 
     // if response is closed then abort the pipeline
     res.on('close', () => {
+        console.log('HTTP Response stream was closed');
         ac.abort();
     });
     /**
@@ -74,6 +75,7 @@ async function streamResourcesFromCursorAsync(
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
+            console.log('Mongo read stream was closed');
             ac.abort();
         });
 
