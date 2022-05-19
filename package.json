@@ -122,7 +122,7 @@
     "moment-timezone": "^0.5.34",
     "mongodb": "^4.6.0",
     "object-hash": "^2.2.0",
-    "p-retry": "<5",
+    "p-retry": "4.6.2",
     "passport": "^0.5.3",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.0",
