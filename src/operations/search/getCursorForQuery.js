@@ -152,13 +152,13 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
     // run the query and get the results
     // Now run the query to get a cursor we will enumerate next
     /**
+     * https://mongodb.github.io/node-mongodb-native/3.6/api/Cursor.html
      * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
      */
-    let cursorQuery = await collection
-        .find(query, options);
+    let cursorQuery = collection.find(query, options);
 
     if (isStreaming) {
-        cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
+        cursorQuery = cursorQuery.addCursorFlag('noCursorTimeout', true).maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
     } else {
         cursorQuery = cursorQuery.maxTimeMS(maxMongoTimeMS);
     }
