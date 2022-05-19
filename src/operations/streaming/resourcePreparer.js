@@ -55,8 +55,7 @@ class ResourcePreparerTransform extends Transform {
                         }
                     }
                 }
-            );
-            callback();
+            ).then(callback());
         }
 
     }
