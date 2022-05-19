@@ -6,6 +6,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logError} = require('../common/logging');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
+const {ResponseWriter} = require('../streaming/responseWriter');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -59,13 +60,28 @@ async function streamResourcesFromCursorAsync(
             ac.abort();
         });
 
+        /**
+         * @type {ResponseWriter}
+         */
+        const responseWriter = new ResponseWriter(res, contentType);
+        /**
+         * @type {ResourcePreparerTransform}
+         */
+        const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex);
+        /**
+         * @type {ResourceIdTracker}
+         */
+        const resourceIdTracker = new ResourceIdTracker(tracker);
+
+        // now setup and run the pipeline
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
-            new ResourceIdTracker(tracker),
+            resourcePreparerTransform,
+            resourceIdTracker,
             fhirWriter,
-            res.type(contentType)
+            responseWriter,
+            // res.type(contentType)
         );
     } catch (e) {
         logError(user, e);
