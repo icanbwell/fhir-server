@@ -234,10 +234,18 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
      */
     async function performMergeDbUpdate(resourceToMerge, doc, cleaned) {
         let id = resourceToMerge.id;
+
         /**
+         * @type {boolean}
+         */
+        const useAtlas = isTrue(env.USE_ATLAS);
+        /**
+         * mongo db connection
          * @type {import('mongodb').Db}
          */
-        let db = globals.get(CLIENT_DB);
+        let db = (resourceToMerge.resourceType === 'AuditEvent') ?
+            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
         /**
          * @type {import('mongodb').Collection}
          */
@@ -519,7 +527,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
             /**
              * @type {boolean}
              */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+            const useAtlas = (isTrue(env.USE_ATLAS));
 
             // Grab an instance of our DB and collection
             // noinspection JSValidateTypes
