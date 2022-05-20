@@ -3,34 +3,58 @@ const {Transform} = require('stream');
 class FhirResourceWriter extends Transform {
     /**
      * Streams the incoming data as json
+     * @param {AbortSignal} signal
      */
-    constructor() {
+    constructor(signal) {
         super({objectMode: true});
+        /**
+         * @type {boolean}
+         * @private
+         */
         this._first = true;
         this.push('[');
+        /**
+         * @type {AbortSignal}
+         * @private
+         */
+        this._signal = signal;
     }
 
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _transform(chunk, encoding, callback) {
-        const resourceJson = JSON.stringify(chunk);
-        if (this._first) {
-            // write the beginning json
-            this._first = false;
-            this.push(resourceJson, encoding);
-        } else {
-            // add comma at the beginning to make it legal json
-            this.push(',' + resourceJson, encoding);
+        if (this._signal.aborted){
+            callback();
+            return;
+        }
+        if (chunk !== null && chunk !== undefined) {
+            const resourceJson = JSON.stringify(chunk);
+            if (this._first) {
+                // write the beginning json
+                this._first = false;
+                this.push(resourceJson, encoding);
+            } else {
+                // add comma at the beginning to make it legal json
+                this.push(',' + resourceJson, encoding);
+            }
         }
         callback();
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _flush(callback) {
+        if (this._signal.aborted){
+            callback();
+            return;
+        }
         // write ending json
         this.push(']');
         callback();

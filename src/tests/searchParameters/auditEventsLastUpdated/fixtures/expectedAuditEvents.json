@@ -434,16 +434,6 @@
       }
     }
   ],
-  "link": [
-    {
-      "relation": "self",
-      "url": "/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access%7Cfake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1"
-    },
-    {
-      "relation": "next",
-      "url": "/4_0_0/AuditEvent/?_security=https%3A%2F%2Fwww.icanbwell.com%2Faccess%7Cfake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1&id%3Aabove=MixP-0001wx03abn1tez5"
-    }
-  ],
   "meta": {
     "tag": [
       {

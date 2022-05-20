@@ -9,6 +9,7 @@ from typing import Union, List, Dict, Any
 
 from fhir_xml_schema_parser import FhirXmlSchemaParser
 from search_parameters import search_parameter_queries
+from src.graphql.v2.generator.fhir_xml_schema_parser import FhirEntity
 
 
 def my_copytree(
@@ -103,7 +104,7 @@ def main() -> int:
         shutil.rmtree(value_sets_folder)
     os.mkdir(value_sets_folder)
 
-    fhir_entities = FhirXmlSchemaParser.generate_classes()
+    fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
 
     # generate schema.graphql
     with open(data_dir.joinpath("template.query.jinja2"), "r") as file:

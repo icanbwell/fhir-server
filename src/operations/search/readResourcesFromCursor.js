@@ -7,7 +7,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 /**
  * Reads resources from Mongo cursor
- * @param {import('mongodb').FindCursor<import('mongodb').WithId<Document>>} cursor
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object?} args
@@ -33,9 +33,12 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
      * https://mongodb.github.io/node-mongodb-native/4.5/interfaces/CursorStreamOptions.html
      * @type {Readable}
      */
-        // We do not use the Mongo stream since we can create our own stream below with more control
-        // const cursorStream = cursor.stream();
+    // We do not use the Mongo stream since we can create our own stream below with more control
+    // const cursorStream = cursor.stream();
 
+    /**
+     * @type {AbortController}
+     */
     const ac = new AbortController();
 
     try {
@@ -43,7 +46,7 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-        const readableMongoStream = createReadableMongoStream(cursor);
+        const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             ac.abort();
         });
@@ -51,12 +54,16 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
-            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex),
+            new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal),
             // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
             new Transform({
                 writableObjectMode: true,
 
                 transform(chunk, encoding, callback) {
+                    if (ac.signal.aborted) {
+                        callback();
+                        return;
+                    }
                     resources.push(chunk);
                     callback();
                 }

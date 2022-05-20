@@ -42,13 +42,19 @@ const {handleFixDates} = require('./routeHandlers/fixDates');
 
 const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+// middleware to parse cookies
 app.use(cookieParser());
 
+// middleware to parse user agent string
 app.use(useragent.express());
 
+// middleware for oAuth
 app.use(passport.initialize({}));
 
+// helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
 app.use(helmet());
+
+// prometheus tracks the metrics
 app.use(Prometheus.requestCounters);
 // noinspection JSCheckFunctionSignatures
 app.use(Prometheus.responseCounters);
@@ -92,6 +98,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options))
 
 app.use(express.static(path.join(__dirname, 'oauth')));
 
+// handles when the user is redirected by the OpenIDConnect/OAuth provider
 app.get('/authcallback', (req, res) => {
     res.redirect(
         `/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
@@ -112,6 +119,7 @@ app.get('/logout_action', (req, res) => {
     res.redirect(logoutUrl);
 });
 
+// render the home page
 app.get('/', (req, res) => {
     const home_options = {
         resources: resourceDefinitions,
@@ -153,6 +161,7 @@ app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/di
 // noinspection JSCheckFunctionSignatures
 passport.use('graphqlStrategy', strategy);
 
+// enable middleware for graphql
 if (isTrue(env.ENABLE_GRAPHQL)) {
     app.use(cors(fhirServerConfig.server.corsOptions));
     const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);

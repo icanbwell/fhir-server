@@ -9,6 +9,7 @@ const {profiles} = require('./profiles');
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
     mongoUrl = mongoUrl.replace('mongodb://', `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
+    mongoUrl = mongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
 }
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
@@ -32,6 +33,7 @@ let mongoConfig = {
 
 let atlasMongoUrl = env.ATLAS_MONGO_URL;
 if (env.ATLAS_MONGO_USERNAME !== undefined) {
+    atlasMongoUrl = atlasMongoUrl.replace('mongodb://', `mongodb://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
     atlasMongoUrl = atlasMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
 }
 // url-encode the url
@@ -46,6 +48,31 @@ let atlasMongoConfig = {
     db_name: String(env.MONGO_DB_NAME),
     options: {
         appName: 'fhir',
+        // keepAlive: true,
+        // connectTimeoutMS: 60000,
+        // socketTimeoutMS: 60000,
+        retryReads: true,
+        // minPoolSize: 100,
+    },
+};
+
+let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
+if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb://', `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
+    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
+}
+// url-encode the url
+auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
+/**
+ * @name mongoConfig
+ * @summary Configurations for our Mongo instance
+ * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let auditEventMongoConfig = {
+    connection: auditEventMongoUrl,
+    db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
+    options: {
+        appName: 'fhir_audit_event',
         // keepAlive: true,
         // connectTimeoutMS: 60000,
         // socketTimeoutMS: 60000,
@@ -141,5 +168,6 @@ if (env.AUTH_ENABLED === '1') {
 module.exports = {
     fhirServerConfig,
     mongoConfig,
-    atlasMongoConfig
+    atlasMongoConfig,
+    auditEventMongoConfig
 };

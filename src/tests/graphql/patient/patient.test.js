@@ -43,7 +43,6 @@ describe('GraphQL Patient Tests', () => {
 
     describe('GraphQL Patient', () => {
         test('GraphQL Patient properly', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
@@ -166,7 +165,6 @@ describe('GraphQL Patient Tests', () => {
             expect(body.data.patient).toStrictEqual(expected);
         });
         test('GraphQL Patient properly (unauthenticated)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
@@ -268,7 +266,6 @@ describe('GraphQL Patient Tests', () => {
                 .expect(401);
         });
         test('GraphQL Patient properly (missing user scopes)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
@@ -377,7 +374,6 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('GraphQL Patient properly (missing access scopes)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
@@ -488,7 +484,6 @@ describe('GraphQL Patient Tests', () => {
     });
     describe('GraphQL Update General Practitioner', () => {
         test('GraphQL Update General Practitioner for Patient', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
@@ -569,7 +564,6 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expectedUpdateGraphQlResponse);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
@@ -640,7 +634,6 @@ describe('GraphQL Patient Tests', () => {
                 .expect(401);
         });
         test('GraphQL Update General Practitioner for Patient (missing user scopes)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
@@ -717,7 +710,6 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expectedPractitionerMissingUserScopesResponse);
         });
         test('GraphQL Update General Practitioner for Patient (missing access scopes)', async () => {
-            jest.useFakeTimers('legacy');
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 

@@ -1,32 +1,47 @@
 const {logRequest, logError} = require('../common/logging');
 const {verifyHasValidScopes} = require('../security/scopes');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
+ * @param {string} resourceName
  * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.patch = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.patch = async (requestInfo, args, resourceName, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
     logRequest(user, 'Patient >>> patch');
-    verifyHasValidScopes(resource_name, 'write', user, scope);
+    verifyHasValidScopes(resourceName, 'write', user, scope);
 
     let {base_version, id, patchContent} = args;
 
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
     // Grab an instance of our DB and collection
-    let db = globals.get(CLIENT_DB);
+    // noinspection JSValidateTypes
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+
     let collection = db.collection(`${collection_name}_${base_version}`);
 
     // Get current record
@@ -35,7 +50,7 @@ module.exports.patch = async (requestInfo, args, resource_name, collection_name)
     try {
         data = await collection.findOne({id: id.toString()});
     } catch (e) {
-        logError(user, `Error with ${resource_name}.patch: ${e} `);
+        logError(user, `Error with ${resourceName}.patch: ${e} `);
         throw new BadRequestError(e);
     }
     if (!data) {
@@ -50,7 +65,7 @@ module.exports.patch = async (requestInfo, args, resource_name, collection_name)
     // Make the changes indicated in the patch
     let resource_incoming = applyPatch(data, patchContent).newDocument;
 
-    let Resource = getResource(base_version, resource_name);
+    let Resource = getResource(base_version, resourceName);
     let resource = new Resource(resource_incoming);
 
     if (data && data.meta) {
@@ -75,7 +90,7 @@ module.exports.patch = async (requestInfo, args, resource_name, collection_name)
     try {
         res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
-        logError(user, `Error with ${resource_name}.update: ${e}`);
+        logError(user, `Error with ${resourceName}.update: ${e}`);
         throw new BadRequestError(e);
     }
     // Save to history
@@ -86,7 +101,7 @@ module.exports.patch = async (requestInfo, args, resource_name, collection_name)
     try {
         await history_collection.insertOne(history_resource);
     } catch (e) {
-        logError(user, `Error with ${resource_name}History.create: ${e}`);
+        logError(user, `Error with ${resourceName}History.create: ${e}`);
         throw new BadRequestError(e);
     }
     return {

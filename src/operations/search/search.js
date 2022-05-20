@@ -1,5 +1,5 @@
 const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {
@@ -15,6 +15,7 @@ const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -59,8 +60,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
 
     let {
+        /** @type {string} **/
         base_version,
+        /** @type {import('mongodb').Document}**/
         query,
+        /** @type {Set} **/
         columns
     } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
 
@@ -75,7 +79,9 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    let db = (useAtlas && globals.has(ATLAS_CLIENT_DB)) ? globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    let db = (resourceName === 'AuditEvent') ?
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
     /**
      * @type {string}
      */
@@ -106,18 +112,46 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
     try {
+        /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
             maxMongoTimeMS, user, mongoCollectionName, false, useAccessIndex);
+        /**
+         * @type {Set}
+         */
         columns = __ret.columns;
         // options = __ret.options;
         // query = __ret.query;
+        /**
+         * @type {import('mongodb').Document[]}
+         */
         let originalQuery = __ret.originalQuery;
+        /**
+         * @type {import('mongodb').FindOneOptions[]}
+         */
         let originalOptions = __ret.originalOptions;
+        /**
+         * @type {boolean}
+         */
         const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
+        /**
+         * @type {Resource[]}
+         */
         let resources = __ret.resources;
+        /**
+         * @type {number | null}
+         */
         let total_count = __ret.total_count;
+        /**
+         * @type {string | null}
+         */
         let indexHint = __ret.indexHint;
+        /**
+         * @type {Number}
+         */
         let cursorBatchSize = __ret.cursorBatchSize;
+        /**
+         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+         */
         let cursor = __ret.cursor;
 
         /**
@@ -126,7 +160,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
 
         if (cursor !== null) { // usually means the two-step optimization found no results
-            logDebug(user, JSON.stringify(originalQuery) + ' , ' + originalOptions ? JSON.stringify(originalOptions) : null);
+            logDebug(user,
+                mongoQueryAndOptionsStringify(collection_name, originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceName, batchObjectCount,
                 useAccessIndex
             );

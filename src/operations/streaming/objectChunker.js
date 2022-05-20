@@ -11,6 +11,13 @@ class ObjectChunker extends Transform {
         this._chunkSize = chunkSize;
     }
 
+    /**
+     * transforms a chunk
+     * @param {Object} chunk
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _transform(chunk, encoding, callback) {
         if (this._buffer.length === this._chunkSize) {
             this.push(this._buffer);
@@ -20,6 +27,10 @@ class ObjectChunker extends Transform {
         callback();
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _flush(callback) {
         this.push(this._buffer);
         callback();

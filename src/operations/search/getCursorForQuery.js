@@ -1,9 +1,6 @@
 const env = require('var');
 const deepcopy = require('deepcopy');
 const {isTrue} = require('../../utils/isTrue');
-const pRetry = require('p-retry');
-const {logError} = require('../common/logging');
-const {logMessageToSlack} = require('../../utils/slack.logger');
 const {handleElementsQuery} = require('./handleElementsQuery');
 const {handleSortQuery} = require('./handleSortQuery');
 const {handleCountOption} = require('./handleCountOption');
@@ -12,6 +9,22 @@ const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimizat
 const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
+
+/**
+ * @typedef GetCursorResult
+ * @type {object}
+ * @property {int | null} cursorBatchSize
+ * @property {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @property {string | null} indexHint
+ * @property {boolean} useTwoStepSearchOptimization
+ * @property {Set} columns
+ * @property {number | null} total_count
+ * @property {import('mongodb').Document} query
+ * @property {import('mongodb').FindOneOptions} options
+ * @property {Resource[]} resources
+ * @property {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+ * @property {import('mongodb').FindOneOptions|import('mongodb').FindOneOptions[]} originalOptions
+ */
 
 /**
  * Create the query and gets the cursor from mongo
@@ -27,12 +40,12 @@ const {setIndexHint} = require('./setIndexHint');
  * @param {string} mongoCollectionName
  * @param {boolean} isStreaming
  * @param {boolean} useAccessIndex
- * @returns {Promise<{cursorBatchSize: (int|null), cursor: import('mongodb').FindCursor<import('mongodb').WithId<Document>>, indexHint: (string|null), useTwoStepSearchOptimization: boolean, columns: Set, total_count: number, query: Object, options: {sort}, resources: Resource[], originalQuery: (Object|Object[]), originalOptions: Object}>}
+ * @returns {Promise<GetCursorResult>}
  */
 async function getCursorForQueryAsync(args, columns, resourceName, options,
-                                 query, useAtlas, collection, maxMongoTimeMS,
-                                 user, mongoCollectionName,
-                                 isStreaming, useAccessIndex) {
+                                      query, useAtlas, collection, maxMongoTimeMS,
+                                      user, mongoCollectionName,
+                                      isStreaming, useAccessIndex) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
         const __ret = handleElementsQuery(args, columns, resourceName, options, useAccessIndex);
@@ -139,11 +152,17 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
     // run the query and get the results
     // Now run the query to get a cursor we will enumerate next
     /**
-     * @type {import('mongodb').FindCursor<import('mongodb').WithId<Document>>}
+     * https://mongodb.github.io/node-mongodb-native/3.6/api/Cursor.html
+     * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
      */
-    let cursorQuery = await collection
-        .find(query, options)
-        .maxTimeMS(maxMongoTimeMS);
+    let cursorQuery = collection.find(query, options);
+
+    if (isStreaming) {
+        cursorQuery = cursorQuery.addCursorFlag('noCursorTimeout', true).maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
+    } else {
+        cursorQuery = cursorQuery.maxTimeMS(maxMongoTimeMS);
+    }
+
 
     // avoid double sorting since Mongo gives you different results
     if (useTwoStepSearchOptimization && !options['sort']) {
@@ -164,18 +183,9 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
     /**
      * mongo db cursor
      * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
-     * @type {import('mongodb').FindCursor<import('mongodb').WithId<Document>>}
+     * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
      */
-    let cursor = await pRetry(async () => await cursorQuery, {
-        retries: 5,
-        onFailedAttempt: async (error) => {
-            let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${
-                error.attemptNumber
-            }: ${error.message}`;
-            logError(user, msg);
-            await logMessageToSlack(msg);
-        },
-    });
+    let cursor = cursorQuery;
 
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {

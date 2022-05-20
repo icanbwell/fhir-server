@@ -1,32 +1,49 @@
 const {Transform} = require('stream');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 
 class ResourceIdTracker extends Transform {
     /**
      * Tracks the ids of the objects flowing through the stream
      * @param  {{id: string[]}} tracker
+     * @param {AbortSignal} signal
      */
-    constructor(tracker) {
+    constructor(tracker, signal) {
         super({objectMode: true});
         /**
          * @type {{id: string[]}}
          * @private
          */
         this._tracker = tracker;
+        /**
+         * @type {*[]}
+         */
         this._tracker.id = [];
+        /**
+         * @type {AbortSignal}
+         */
+        this._signal = signal;
     }
 
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _transform(chunk, encoding, callback) {
-        if (chunk !== null) {
-            this._tracker.id.push(chunk['id']);
+        if (this._signal.aborted) {
+            callback();
+            return;
         }
-        this.push(chunk, encoding);
+        if (chunk !== null && chunk !== undefined) {
+            if (isTrue(env.LOG_STREAM_STEPS)) {
+                console.log(`ResourceIdTracker: _transform ${chunk['id']}`);
+            }
+            this._tracker.id.push(chunk['id']);
+            this.push(chunk, encoding);
+        }
         callback();
     }
 }

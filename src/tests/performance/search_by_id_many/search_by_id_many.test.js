@@ -17,7 +17,7 @@ describe('PractitionerReturnIdTests', () => {
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
-        test('search by 10,000 id works', async () => {
+        test('search by 2,000 id works', async () => {
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')
@@ -33,7 +33,7 @@ describe('PractitionerReturnIdTests', () => {
                 resourceType: 'Bundle',
                 entry: []
             };
-            const numberOfResources = 10000;
+            const numberOfResources = 2000;
             for (let i = 0; i < numberOfResources; i++) {
                 practitionerResource.id = initialId + '-' + i;
                 bundle.entry.push({

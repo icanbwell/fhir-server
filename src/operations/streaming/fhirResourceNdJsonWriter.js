@@ -1,28 +1,53 @@
 const {Transform} = require('stream');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 
 class FhirResourceNdJsonWriter extends Transform {
     /**
      * Streams the incoming data as json
+     *
+     * @param {AbortSignal} signal
      */
-    constructor() {
+    constructor(signal) {
         super({objectMode: true});
+
+        /**
+         * @type {AbortSignal}
+         * @private
+         */
+        this._signal = signal;
     }
 
     /**
      * transforms a chunk
      * @param {Object} chunk
-     * @param {BufferEncoding} encoding
-     * @param {CallableFunction} callback
+     * @param {import('stream').BufferEncoding} encoding
+     * @param {import('stream').TransformCallBack} callback
      * @private
      */
     _transform(chunk, encoding, callback) {
-        const resourceJson = JSON.stringify(chunk);
-        this.push(resourceJson + '\n', encoding);
+        if (this._signal.aborted) {
+            callback();
+            return;
+        }
+        if (chunk !== null && chunk !== undefined) {
+            if (isTrue(env.LOG_STREAM_STEPS)) {
+                console.log(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`);
+            }
+            const resourceJson = JSON.stringify(chunk);
+            this.push(resourceJson + '\n', encoding);
+        }
         callback();
     }
 
+    /**
+     * @param {import('stream').TransformCallBack} callback
+     * @private
+     */
     _flush(callback) {
-        // write ending json
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('FhirResourceNdJsonWriter: _flush');
+        }
         callback();
     }
 }

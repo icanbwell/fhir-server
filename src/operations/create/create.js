@@ -7,13 +7,14 @@ const sendToS3 = require('../../utils/aws-s3');
 const {validateResource} = require('../../utils/validator.util');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const globals = require('../../globals');
-const {CLIENT_DB} = require('../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
+const {isTrue} = require('../../utils/isTrue');
 
 /**
  * does a FHIR Create (POST)
@@ -78,12 +79,20 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
     }
 
     try {
-        // Grab an instance of our DB and collection (by version)
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        // Grab an instance of our DB and collection
+        // noinspection JSValidateTypes
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        let db = globals.get(CLIENT_DB);
+        let db = (resource_name === 'AuditEvent') ?
+            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
         /**
          * @type {import('mongodb').Collection}
          */

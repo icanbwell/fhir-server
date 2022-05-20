@@ -1,12 +1,18 @@
 /**
  * confirms that object was created
- * @param {Object} body
+ * @param {Object | [Object]} body
  */
 function assertMergeIsSuccessful(body) {
     console.log('------- response from adding observation2Resource ------------');
     console.log(JSON.stringify(body, null, 2));
     console.log('------- end response  ------------');
-    expect(body['created']).toBe(true);
+    if (Array.isArray(body)) {
+        for (const bodyItem of body) {
+            expect(bodyItem['created']).toBe(true);
+        }
+    } else {
+        expect(body['created']).toBe(true);
+    }
 }
 
 /**
@@ -81,7 +87,7 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
         if ('meta' in element['resource']) {
             delete element['resource']['meta']['lastUpdated'];
         }
-        element['resource']['meta']['versionId'] = '1';
+        // element['resource']['meta']['versionId'] = '1';
         if ('$schema' in element) {
             delete element['$schema'];
         }
