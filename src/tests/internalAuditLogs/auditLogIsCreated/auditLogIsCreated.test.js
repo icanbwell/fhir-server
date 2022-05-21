@@ -14,7 +14,7 @@ const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 const globals = require('../../../globals');
-const {CLIENT_DB} = require('../../../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const env = require('var');
 
 describe('InternalAuditLog Tests', () => {
@@ -40,10 +40,11 @@ describe('InternalAuditLog Tests', () => {
 
             // check that InternalAuditLog is created
             /**
-             * mongo db connection
+             * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            let db = globals.get(CLIENT_DB);
+            let fhirDb = globals.get(CLIENT_DB);
+            let auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
             const base_version = '4_0_0';
             const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             /**
@@ -54,7 +55,7 @@ describe('InternalAuditLog Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = db.collection(mongoCollectionName);
+            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
             expect(await internalAuditEventCollection.find({}).count()).toStrictEqual(0);
 
@@ -94,6 +95,8 @@ describe('InternalAuditLog Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
+
+            // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach(log => {
@@ -109,6 +112,9 @@ describe('InternalAuditLog Tests', () => {
                 delete log['recorded'];
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
+
+            // confirm no audit event log is created in the normal auditEventDb
+            expect((await fhirDb.collection(collection_name).find({}).toArray()).length).toStrictEqual(0);
 
             // try to merge the same item again. No audit event shuld be created
             resp = await request

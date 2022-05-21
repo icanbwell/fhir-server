@@ -42,10 +42,11 @@ module.exports.commonBeforeEach = async () => {
         useUnifiedTopology: true,
     });
     db = connection.db();
+    const auditEventDb = connection.db('audit_events');
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
-    globals.set(AUDIT_EVENT_CLIENT_DB, db);
+    globals.set(AUDIT_EVENT_CLIENT_DB, auditEventDb);
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
