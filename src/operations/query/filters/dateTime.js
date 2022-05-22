@@ -3,6 +3,10 @@ const { isColumnDateType } = require('../../common/isColumnDateType');
 const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
 const { fhirFilterTypes } = require('../customQueries');
 
+function isPeriodField(fieldString) {
+    return fieldString === 'period' || fieldString === 'effectivePeriod';
+}
+
 /**
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
@@ -22,29 +26,38 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
         // eslint-disable-next-line security/detect-object-injection
         const resourceSearch = searchParameterQueries[resourceName];
         const hasDateParam = resourceSearch[fhirFilterTypes.date];
-        const isDateSearchingPeriod = hasDateParam ? hasDateParam['field'] === 'period' : false;
-        if (isDateSearchingPeriod) {
-            and_segments.push({
-                ['period.start']: dateQueryBuilder(
+        const isDateSearchingPeriod = hasDateParam ? isPeriodField(hasDateParam['field']) : false;
+        const dateRangeSegments = (fieldName, appendArray) => {
+            const rangeArray = appendArray ? appendArray : [];
+            rangeArray.push({
+                [`${fieldName}.start`]: dateQueryBuilder(
                     `le${dateQueryItem.slice(2)}`,
                     propertyObj.type,
                     ''
                 ),
             });
-            and_segments.push({
-                ['period.end']: dateQueryBuilder(
+            rangeArray.push({
+                [`${fieldName}.end`]: dateQueryBuilder(
                     `ge${dateQueryItem.slice(2)}`,
                     propertyObj.type,
                     ''
                 ),
             });
+            if (!appendArray) {
+                return rangeArray;
+            }
+        };
+        if (isDateSearchingPeriod) {
+            dateRangeSegments('period', and_segments);
         } else if (propertyObj.fields) {
             // if there are multiple fields
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
-                    return {
-                        [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
-                    };
+                    return isPeriodField(f)
+                        ? { $and: dateRangeSegments('effectivePeriod', null) }
+                        : {
+                              [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                          };
                 }),
             });
         } else if (
