@@ -7,6 +7,7 @@ const {logError} = require('../common/logging');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
+
 // const {Transform} = require('stream');
 
 /**
@@ -54,6 +55,10 @@ async function streamResourcesFromCursorAsync(
     res.on('close', () => {
         console.log('HTTP Response stream was closed');
         ac.abort();
+    });
+
+    res.on('error', (err) => {
+        console.error(err);
     });
     /**
      * @type {FhirResourceWriter|FhirResourceNdJsonWriter}

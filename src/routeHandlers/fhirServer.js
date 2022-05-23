@@ -58,12 +58,15 @@ class MyFHIRServer extends FHIRServer.Server {
 
         }));
 
-        // this.app.use((req, res, next) => {
-        //     req.setTimeout(60 * 60 * 1000, () => {
-        //         console.log('Request timeout');
-        //     });
-        //     next();
-        // });
+        this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
+            req.setTimeout(60 * 60 * 1000, () => {
+                console.log('HTTP Request timeout');
+            });
+            req.on('close', () => {
+                console.log('HTTP Request stream was closed');
+            });
+            next();
+        });
 
         return this;
     }
