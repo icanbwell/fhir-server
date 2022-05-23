@@ -34,7 +34,7 @@ class HttpResponseWriter extends Writable {
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('Content-Type', this.contentType);
-        // this.response.setTimeout(60 * 60 * 1000, () => {console.log('Response timeout');});
+        this.response.setTimeout(60 * 60 * 1000, () => {console.log('Response timeout');});
         // this.response.flushHeaders();
         callback();
     }
