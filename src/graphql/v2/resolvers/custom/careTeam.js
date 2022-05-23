@@ -27,12 +27,11 @@ function mapManagingOrganization(organizations) {
     return result;
 }
 
-
-
 function mapCareTeam(team) {
     const careTeamMap = {
         resourceType: 'CareTeam',
         id: team.id,
+        meta: team.meta,
         implicitRules: team.implicitRules,
         language: team.language,
         text: team.text,
