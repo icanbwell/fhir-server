@@ -23,7 +23,7 @@ const main = async function () {
     // https://www.w3schools.com/nodejs/prop_server_timeout.asp
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
-    server.setTimeout(60 * 60 * 1000, () => {
+    server.setTimeout(10 * 60 * 1000, () => {
         console.log('Server timeout');
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
@@ -33,6 +33,18 @@ const main = async function () {
     // http server behave similarly to Node.js versions prior to 8.0.0, which did not have a keep-alive timeout.
     // Timeout in milliseconds. Default: 5000 (5 seconds).
     server.keepAliveTimeout = 0;
+
+    server.on('connection', function (socket) {
+        socket.setTimeout(10 * 60 * 1000);
+        socket.once('timeout', function () {
+            console.log('Socket timeout');
+            process.nextTick(socket.destroy);
+        });
+        socket.once('error', function (e) {
+            console.log('Socket error' + e);
+            process.nextTick(socket.destroy);
+        });
+    });
 
     const httpTerminator = createHttpTerminator({
         server,
