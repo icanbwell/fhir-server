@@ -20,7 +20,7 @@ const main = async function () {
     // https://www.w3schools.com/nodejs/prop_server_timeout.asp
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
-    server.timeout = 60 * 60 * 1000; // 60 minutes
+    server.setTimeout( 60 * 60 * 1000, () => {console.log('Server timeout')}); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
     // finished writing the last response, before a socket will be destroyed. If the server receives new data
     // before the keep-alive timeout has fired, it will reset the regular inactivity timeout, i.e., server.timeout.

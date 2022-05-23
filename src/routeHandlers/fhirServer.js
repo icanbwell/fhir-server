@@ -16,7 +16,7 @@ const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils
 const router = require('../middleware/fhir/router');
 
 class MyFHIRServer extends FHIRServer.Server {
-    constructor(config = {}, app) {
+    constructor(config = {}, app = null) {
         // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
         super(config, app);
     }
@@ -57,6 +57,12 @@ class MyFHIRServer extends FHIRServer.Server {
             limit: '50mb'
 
         }));
+
+        this.app.use((req,) => {
+            req.setTimeout(60 * 60 * 1000, () => {
+                console.log('Request timeout');
+            });
+        });
 
         return this;
     }
