@@ -38,11 +38,11 @@ const main = async function () {
         socket.setTimeout(10 * 60 * 1000);
         socket.once('timeout', function () {
             console.log('Socket timeout');
-            process.nextTick(socket.destroy);
+            // process.nextTick(socket.destroy);
         });
         socket.once('error', function (e) {
-            console.log('Socket error' + e);
-            process.nextTick(socket.destroy);
+            console.log('Socket error: ' + e);
+            // process.nextTick(socket.destroy);
         });
     });
 
