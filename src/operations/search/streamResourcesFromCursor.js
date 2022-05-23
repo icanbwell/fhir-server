@@ -7,6 +7,7 @@ const {logError} = require('../common/logging');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
+// const {Transform} = require('stream');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -72,6 +73,10 @@ async function streamResourcesFromCursorAsync(
      */
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
 
+    // function sleep(ms) {
+    //     return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
@@ -83,6 +88,12 @@ async function streamResourcesFromCursorAsync(
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
+            // new Transform({
+            //     objectMode: true,
+            //     transform(chunk, encoding, callback) {
+            //         sleep(60 * 1000).then(callback);
+            //     }
+            // }),
             resourcePreparerTransform,
             resourceIdTracker,
             fhirWriter,

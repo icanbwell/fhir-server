@@ -7,13 +7,16 @@ const {app} = require('./app');
 const {fhirServerConfig} = require('./config');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
 const {connect} = require('./utils/connect');
+const env = require('var');
 const logger = loggers.get('default');
 
 const main = async function () {
     await connect();
 
-    const server = app.listen(fhirServerConfig.server.port, () =>
-        logger.verbose('Server is up and running!')
+    const server = app.listen(fhirServerConfig.server.port, () => {
+            const image = env.DOCKER_IMAGE || '';
+            logger.verbose(`Server is up and running! Image: ${image}`);
+        }
     );
 
     // https://stackoverflow.com/questions/56606305/difference-between-keepalivetimeout-and-timeout
