@@ -110,7 +110,9 @@ async function streamResourcesFromCursorAsync(
         ac.abort();
         throw e;
     }
-    // res.end();
+    if (!res.writableEnded) {
+        res.end();
+    }
     return tracker.id;
 }
 
