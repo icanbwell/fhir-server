@@ -23,7 +23,7 @@ const main = async function () {
     // https://www.w3schools.com/nodejs/prop_server_timeout.asp
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
-    server.setTimeout(10 * 60 * 1000, (socket) => {
+    server.setTimeout(10 * 60 * 1000, (/*socket*/) => {
         console.log('Server timeout');
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
