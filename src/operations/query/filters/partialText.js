@@ -15,11 +15,20 @@ function filterByPartialText(args, queryParameter, and_segments, propertyObj, co
      */
     const textToSearchFor = args[`${queryParameter}:text`];
     and_segments.push(
-        partialTextQueryBuilder(
-            `${propertyObj.field}.text`,
-            textToSearchFor,
-            true
-        )
+        {
+            '$or': [
+                partialTextQueryBuilder(
+                    `${propertyObj.field}.text`,
+                    textToSearchFor,
+                    true
+                ),
+                partialTextQueryBuilder(
+                    `${propertyObj.field}.coding.display`,
+                    textToSearchFor,
+                    true
+                )
+            ]
+        }
     );
     columns.add(`${propertyObj.field}`);
 }
