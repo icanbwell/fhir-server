@@ -11,12 +11,10 @@ const {buildR4SearchQuery} = require('../query/r4');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug, logError} = require('../common/logging');
+const {logRequest, logDebug} = require('../common/logging');
 const {enrich} = require('../../enrich/enrich');
 const {findIndexForFields} = require('../../indexes/indexHinter');
 const {isTrue} = require('../../utils/isTrue');
-const pRetry = require('p-retry');
-const {logMessageToSlack} = require('../../utils/slack.logger');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
@@ -660,18 +658,9 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
             /**
              * mongo db cursor
              * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
-             * @type {Promise<Cursor<unknown>> | *}
+             * @type {Cursor<unknown> | *}
              */
-            let cursor = await pRetry(async () => await cursorQuery, {
-                retries: 5,
-                onFailedAttempt: async (error) => {
-                    let msg = `Search ${resourceName}/${JSON.stringify(args)} Retry Number: ${
-                        error.attemptNumber
-                    }: ${error.message}`;
-                    logError(user, msg);
-                    await logMessageToSlack(msg);
-                },
-            });
+            let cursor = cursorQuery;
 
             // find columns being queried and match them to an index
             if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {

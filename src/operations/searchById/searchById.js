@@ -5,8 +5,6 @@ const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../const
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const pRetry = require('p-retry');
-const {logMessageToSlack} = require('../../utils/slack.logger');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
 const env = require('var');
@@ -64,17 +62,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      */
     let resource;
     try {
-        resource = await pRetry(
-            async () => await collection.findOne({id: id.toString()}),
-            {
-                retries: 5,
-                onFailedAttempt: async error => {
-                    let msg = `Search By Id ${resource_name}/${id} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                    logError(user, msg);
-                    await logMessageToSlack(msg);
-                }
-            }
-        );
+        resource = await collection.findOne({id: id.toString()});
     } catch (e) {
         logError(user, `Error with ${resource_name}.searchById: {e}`);
         throw new BadRequestError(e);

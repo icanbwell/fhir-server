@@ -1,17 +1,26 @@
 /**
  * confirms that object was created
  * @param {Object | [Object]} body
+ * @param {boolean} expectCreate
  */
-function assertMergeIsSuccessful(body) {
+function assertMergeIsSuccessful(body, expectCreate = true) {
     console.log('------- response from adding observation2Resource ------------');
     console.log(JSON.stringify(body, null, 2));
     console.log('------- end response  ------------');
     if (Array.isArray(body)) {
         for (const bodyItem of body) {
-            expect(bodyItem['created']).toBe(true);
+            if (expectCreate) {
+                expect(bodyItem['created']).toBe(true);
+            } else {
+                expect(bodyItem['updated']).toBe(true);
+            }
         }
     } else {
-        expect(body['created']).toBe(true);
+        if (expectCreate) {
+            expect(body['created']).toBe(true);
+        } else {
+            expect(body['updated']).toBe(true);
+        }
     }
 }
 
