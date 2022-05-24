@@ -10,6 +10,7 @@ const {filterByMissing} = require('./filters/missing');
 const {filterByContains} = require('./filters/contains');
 const {filterByAboveAndBelow, filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
+const {filterByPartialText} = require('./filters/partialText');
 
 // /**
 //  * @type {import('winston').logger}
@@ -110,6 +111,8 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                     filterByAbove(and_segments, propertyObj, args, queryParameter, columns);
                 } else if (args[`${queryParameter}:below`]) {
                     filterByBelow(and_segments, propertyObj, args, queryParameter, columns);
+                } else if (args[`${queryParameter}:text`]) {
+                    filterByPartialText(args, queryParameter, and_segments, propertyObj, columns);
                 }
             }
         }

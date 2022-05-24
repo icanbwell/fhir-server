@@ -735,6 +735,26 @@ let compositeQueryBuilder = function (target, field1, field2) {
     }
 };
 
+
+/**
+ * @name partialTextQueryBuilder
+ * @param {string} field
+ * @param {string} partialText
+ * @param {boolean} ignoreCase
+ * @return {JSON} queryBuilder
+ */
+let partialTextQueryBuilder = function (field, partialText, ignoreCase) {
+    let queryBuilder = {};
+    if (ignoreCase) {
+        queryBuilder[`${field}`] = {$regex: new RegExp(`${partialText}`), '$options': 'i'};
+    } else {
+        queryBuilder[`${field}`] = {$regex: new RegExp(`${partialText}`)};
+    }
+
+    return queryBuilder;
+};
+
+
 /**
  * @todo build out all prefix functionality for number and quantity and add date queries
  */
@@ -748,5 +768,6 @@ module.exports = {
     quantityQueryBuilder,
     compositeQueryBuilder,
     dateQueryBuilder,
-    dateQueryBuilderNative
+    dateQueryBuilderNative,
+    partialTextQueryBuilder
 };
