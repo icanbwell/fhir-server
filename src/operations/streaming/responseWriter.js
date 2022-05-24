@@ -1,6 +1,7 @@
 const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {isNdJsonContentType} = require('../../utils/contentTypes');
 
 class HttpResponseWriter extends Writable {
     /**
@@ -55,14 +56,18 @@ class HttpResponseWriter extends Writable {
         }
         if (chunk !== null && chunk !== undefined) {
             if (isTrue(env.LOG_STREAM_STEPS)) {
-                try {
-                    /**
-                     * @type {Object}
-                     */
-                    const jsonObject = JSON.parse(chunk);
-                    console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
-                } catch (e) {
-                    console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                if (isNdJsonContentType([this.contentType])) {
+                    try {
+                        /**
+                         * @type {Object}
+                         */
+                        const jsonObject = JSON.parse(chunk);
+                        console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                    } catch (e) {
+                        console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                    }
+                } else {
+                    console.log(`HttpResponseWriter: _write ${chunk}`);
                 }
             }
             this.response.write(chunk, encoding, callback);
