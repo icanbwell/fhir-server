@@ -10,6 +10,8 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {Set} columns
  */
 function filterByPartialText(args, queryParameter, and_segments, propertyObj, columns) {
+    // implement the modifier for partial text search
+    // https://www.hl7.org/fhir/search.html#modifiers
     /**
      * @type {string}
      */
@@ -17,11 +19,13 @@ function filterByPartialText(args, queryParameter, and_segments, propertyObj, co
     and_segments.push(
         {
             '$or': [
+                // 1. search in text field
                 partialTextQueryBuilder(
                     `${propertyObj.field}.text`,
                     textToSearchFor,
                     true
                 ),
+                // 2. search in display field for every coding
                 partialTextQueryBuilder(
                     `${propertyObj.field}.coding.display`,
                     textToSearchFor,
