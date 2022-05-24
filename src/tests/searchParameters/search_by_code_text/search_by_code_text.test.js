@@ -4,6 +4,7 @@ const {app} = require('../../../app');
 // test file
 const medication1Resource = require('./fixtures/Medication/medication1.json');
 const medication2Resource = require('./fixtures/Medication/medication2.json');
+const medication3Resource = require('./fixtures/Medication/medication3.json');
 
 // expected
 const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
@@ -35,6 +36,13 @@ describe('Medication Tests', () => {
             resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication2Resource)
+                .set(getHeaders())
+                .expect(200);
+            assertMergeIsSuccessful(resp.body);
+
+            resp = await request
+                .post('/4_0_0/Medication/1/$merge?validate=true')
+                .send(medication3Resource)
                 .set(getHeaders())
                 .expect(200);
             assertMergeIsSuccessful(resp.body);
