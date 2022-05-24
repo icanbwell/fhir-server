@@ -10,9 +10,6 @@ const {
     getAccessCodesFromScopes
 } = require('../security/scopes');
 const env = require('var');
-const pRetry = require('p-retry');
-const {logError} = require('../common/logging');
-const {logMessageToSlack} = require('../../utils/slack.logger');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
@@ -293,19 +290,7 @@ async function get_forward_references(db, graphParameters, collectionName,
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    const cursor = await pRetry(
-        async () =>
-            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
-        {
-            retries: 5,
-            onFailedAttempt: async error => {
-                let msg = `get_related_resources ${collectionName} `
-                    + `${JSON.stringify(relatedReferenceIds)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(graphParameters.user, msg);
-                await logMessageToSlack(msg);
-            }
-        }
-    );
+    const cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
 
     while (await cursor.hasNext()) {
         const element = await cursor.next();
@@ -424,18 +409,7 @@ async function get_reverse_references(
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    const cursor = await pRetry(
-        async () =>
-            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
-        {
-            retries: 5,
-            onFailedAttempt: async error => {
-                let msg = `get_reverse_related_resources ${relatedResourceCollectionName} ${reverseFilterWithParentIds} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(graphParameters.user, msg);
-                await logMessageToSlack(msg);
-            }
-        }
-    );
+    const cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
 
     // find matching field name in searchParameter list.  We will use this to match up to parent
     /**
@@ -866,18 +840,7 @@ async function processMultipleIds(db, graphParameters, collection_name,
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    let cursor = await pRetry(
-        async () =>
-            await collection.find(query, options).maxTimeMS(maxMongoTimeMS),
-        {
-            retries: 5,
-            onFailedAttempt: async error => {
-                let msg = `Search ${resourceType}/$graph/${JSON.stringify(idList)} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                logError(graphParameters.user, msg);
-                await logMessageToSlack(msg);
-            }
-        }
-    );
+    let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
 
     /**
      * @type {{resource: Resource, fullUrl: string}[]}

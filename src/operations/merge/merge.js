@@ -23,8 +23,6 @@ const async = require('async');
 // const {check_fhir_mismatch} = require('../common/check_fhir_mismatch');
 const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const pRetry = require('p-retry');
-const {logMessageToSlack} = require('../../utils/slack.logger');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntry} = require('../../utils/auditLogger');
@@ -613,18 +611,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
      * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
      */
     async function merge_resource_with_retry(resource_to_merge) {
-        return pRetry(
-            async () =>
-                await merge_resource(resource_to_merge),
-            {
-                retries: 5,
-                onFailedAttempt: async error => {
-                    let msg = `Merge ${resource_name}/${resource_to_merge.id} Retry Number: ${error.attemptNumber}: ${error.message}`;
-                    logError(user, msg);
-                    await logMessageToSlack(msg);
-                }
-            }
-        );
+        return await merge_resource(resource_to_merge);
     }
 
     // if the incoming request is a bundle then unwrap the bundle
