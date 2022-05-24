@@ -5,11 +5,15 @@ const fhirContentTypes = {
     fhirJson: 'application/fhir+json'
 };
 
+/**
+ * @param {string[]} accepts
+ * @returns {boolean}
+ */
 const isNdJsonContentType = (accepts) => {
     return !!(accepts && (
-        accepts.includes(fhirContentTypes.ndJson)
-        || accepts.includes(fhirContentTypes.ndJson2)
-        || accepts.includes(fhirContentTypes.ndJson3)
+        accepts.includes(fhirContentTypes.ndJson) ||
+        accepts.includes(fhirContentTypes.ndJson2) ||
+        accepts.includes(fhirContentTypes.ndJson3)
     ));
 };
 
