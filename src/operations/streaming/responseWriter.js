@@ -34,7 +34,9 @@ class HttpResponseWriter extends Writable {
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('Content-Type', this.contentType);
-        this.response.setTimeout(60 * 60 * 1000, () => {console.log('Response timeout');});
+        this.response.setTimeout(60 * 60 * 1000, () => {
+            console.log('Response timeout');
+        });
         // this.response.flushHeaders();
         callback();
     }
@@ -53,7 +55,15 @@ class HttpResponseWriter extends Writable {
         }
         if (chunk !== null && chunk !== undefined) {
             if (isTrue(env.LOG_STREAM_STEPS)) {
-                console.log(`HttpResponseWriter: _write ${JSON.parse(chunk)['id']}`);
+                try {
+                    /**
+                     * @type {Object}
+                     */
+                    const jsonObject = JSON.parse(chunk);
+                    console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                } catch (e) {
+                    console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                }
             }
             this.response.write(chunk, encoding, callback);
             callback();
