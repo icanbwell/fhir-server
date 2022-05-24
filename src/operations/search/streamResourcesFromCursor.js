@@ -8,6 +8,8 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 
+// const {Transform} = require('stream');
+
 /**
  * Reads resources from Mongo cursor and writes to response
  * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
@@ -54,6 +56,10 @@ async function streamResourcesFromCursorAsync(
         console.log('HTTP Response stream was closed');
         ac.abort();
     });
+
+    res.on('error', (err) => {
+        console.error(err);
+    });
     /**
      * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
      */
@@ -72,6 +78,10 @@ async function streamResourcesFromCursorAsync(
      */
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
 
+    // function sleep(ms) {
+    //     return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
@@ -83,6 +93,12 @@ async function streamResourcesFromCursorAsync(
         await pipeline(
             readableMongoStream,
             // new ObjectChunker(batchObjectCount),
+            // new Transform({
+            //     objectMode: true,
+            //     transform(chunk, encoding, callback) {
+            //         sleep(60 * 1000).then(callback);
+            //     }
+            // }),
             resourcePreparerTransform,
             resourceIdTracker,
             fhirWriter,
@@ -94,7 +110,9 @@ async function streamResourcesFromCursorAsync(
         ac.abort();
         throw e;
     }
-    // res.end();
+    if (!res.writableEnded) {
+        res.end();
+    }
     return tracker.id;
 }
 

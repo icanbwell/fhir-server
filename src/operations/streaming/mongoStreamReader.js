@@ -52,22 +52,30 @@ class MongoStreamReader extends Readable {
  * @returns {AsyncGenerator<*, Resource, *>}
  */
 async function* readMongoStreamGenerator(cursor, signal) {
-    // let chunk_number = 0;
-    while (await cursor.hasNext()) {
-        // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
-        // chunk_number += 1;
-        // console.log(`read: chunk:${chunk_number}`);
-        if (signal.aborted) {
-            return;
+    try {
+        // let chunk_number = 0;
+        while (await cursor.hasNext()) {
+            // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
+            // chunk_number += 1;
+            // console.log(`read: chunk:${chunk_number}`);
+            if (signal.aborted) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    console.log('mongoStreamReader: aborted');
+                }
+                return;
+            }
+            if (isTrue(env.LOG_STREAM_STEPS)) {
+                console.log('mongoStreamReader: read');
+            }
+            /**
+             * element
+             * @type {Resource}
+             */
+            yield await cursor.next();
         }
-        if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('mongoStreamReader: read');
-        }
-        /**
-         * element
-         * @type {Resource}
-         */
-        yield await cursor.next();
+    } catch (e) {
+        console.log('mongoStreamReader: error' + e.toString());
+        throw e;
     }
 }
 
