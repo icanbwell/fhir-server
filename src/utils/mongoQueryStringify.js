@@ -76,6 +76,9 @@ const mongoQueryStringify = (query) => {
         return tempArr.join('');
     };
 
+    const isRegExp = (value) => {
+        return value instanceof RegExp;
+    };
 
     if (ignoreDataTypes(query)) {
         return undefined;
@@ -97,6 +100,10 @@ const mongoQueryStringify = (query) => {
     if (restOfDataTypes(query)) {
         const passQuotes = isString(query) ? "'" : '';
         return `${passQuotes}${query}${passQuotes}`;
+    }
+
+    if (isRegExp(query)) {
+        return `'${query.source}'`;
     }
 
     if (isArray(query)) {

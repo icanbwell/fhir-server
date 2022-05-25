@@ -50,7 +50,7 @@ describe('Medication Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
             resp = await request
-                .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE')
+                .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles(resp.body, expectedMedicationResources);

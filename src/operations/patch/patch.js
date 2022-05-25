@@ -83,11 +83,12 @@ module.exports.patch = async (requestInfo, args, resourceName, collection_name) 
 
     // Same as update from this point on
     let cleaned = removeNull(resource.toJSON());
-    let doc = Object.assign(cleaned, {_id: id});
+    let doc = cleaned;
 
     // Insert/update our resource record
     let res;
     try {
+        delete doc['_id'];
         res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
         logError(user, `Error with ${resourceName}.update: ${e}`);

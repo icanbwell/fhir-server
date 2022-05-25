@@ -191,8 +191,8 @@ module.exports.update = async (requestInfo, args, resourceName, collection_name)
             await preSaveAsync(resource_incoming);
 
             // Same as update from this point on
-            cleaned = removeNull(resource_incoming);
-            doc = Object.assign(cleaned, {_id: id});
+            cleaned = removeNull(resource_incoming.toJSON());
+            doc = cleaned;
             // check_fhir_mismatch(cleaned, patched_incoming_data);
         } else {
             // not found so insert
@@ -223,8 +223,10 @@ module.exports.update = async (requestInfo, args, resourceName, collection_name)
             await preSaveAsync(resource_incoming);
 
             cleaned = removeNull(resource_incoming.toJSON());
-            doc = Object.assign(cleaned, {_id: id});
+            doc = cleaned;
         }
+
+        delete doc['_id'];
 
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
