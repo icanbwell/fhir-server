@@ -4,7 +4,7 @@
       "resource": {
         "resourceType": "Practitioner",
         "meta": {
-          "versionId": "1",
+          "versionId": "2",
           "lastUpdated": "2021-01-14T23:42:00+00:00",
           "security": [
             {
@@ -42,7 +42,7 @@
             "value": "1679033641"
           }
         ],
-        "active": true,
+        "active": false,
         "name": [
           {
             "use": "usual",

@@ -83,7 +83,7 @@ module.exports.patch = async (requestInfo, args, resourceName, collection_name) 
 
     // Same as update from this point on
     let cleaned = removeNull(resource.toJSON());
-    let doc = Object.assign(cleaned, {_id: id});
+    let doc = cleaned;
 
     // Insert/update our resource record
     let res;

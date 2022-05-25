@@ -9,7 +9,7 @@ const expectedPractitionerResources = require('./fixtures/expected/expected_Prac
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {assertCompareBundles} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -25,11 +25,18 @@ describe('Practitioner Tests', () => {
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
-                .post('/4_0_0/Practitioner/1/$merge?validate=true')
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner1Resource)
+                .set(getHeaders())
+                .expect(201);
+
+            practitioner1Resource['active'] = false;
+
+            resp = await request
+                .put('/4_0_0/Practitioner/1679033641')
                 .send(practitioner1Resource)
                 .set(getHeaders())
                 .expect(200);
-            assertMergeIsSuccessful(resp.body);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
