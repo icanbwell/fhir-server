@@ -24,7 +24,7 @@ describe('Practitioner Tests', () => {
         test('update works', async () => {
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders())
@@ -32,7 +32,7 @@ describe('Practitioner Tests', () => {
 
             practitioner1Resource['active'] = false;
 
-            resp = await request
+            await request
                 .put('/4_0_0/Practitioner/1679033641')
                 .send(practitioner1Resource)
                 .set(getHeaders())
@@ -40,7 +40,7 @@ describe('Practitioner Tests', () => {
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
-            resp = await request
+            let resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
                 .expect(200);
