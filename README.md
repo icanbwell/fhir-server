@@ -34,7 +34,7 @@ For example:
 ## Merge functionality
 [Merge](merge.md)
 
-## Merge functionality
+## Streaming functionality
 [Streaming](streaming.md)
 
 ## Contributing
