@@ -1,3 +1,5 @@
+const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
+
 /**
  * This file implements a custom error for Mongo errors
  */
@@ -15,10 +17,9 @@ class MongoError extends Error {
     constructor(message, error, collection, query, elapsedTime, options = {},) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
-            message + ': ' + collection + ': ' +
-            JSON.stringify(query) +
-            ' , ' + JSON.stringify(options) +
-            ` , elapsedTime=${elapsedTimeInSecs} secs`
+            message + ': ' +
+            mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
+            `elapsedTime=${elapsedTimeInSecs} secs`
         );
         this.collection = collection;
         this.query = query;
