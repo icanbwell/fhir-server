@@ -20,7 +20,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
  */
 const htmlRenderer = (req, res, next) => {
     const parts = req.url.split(/[/?,&]+/);
-    if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0') {
+    if (parts && (parts.length > 2) && !parts.includes('raw=1') && parts[1] === '4_0_0') {
         const resourceName = parts[2];
         // If the request is from a browser for HTML then return HTML page instead of json
         if (shouldReturnHtml(req)) {
