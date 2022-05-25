@@ -226,6 +226,8 @@ module.exports.update = async (requestInfo, args, resourceName, collection_name)
             doc = Object.assign(cleaned, {_id: id});
         }
 
+        delete doc['_id'];
+
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
         const res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
