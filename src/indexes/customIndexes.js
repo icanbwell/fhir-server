@@ -66,35 +66,48 @@ module.exports = {
         ],
         'AuditEvent_4_0_0': [
             {
-                'helix_auditEvent_index_1': [
-                    'meta.lastUpdated',
-                    'id',
+                'helix_audit_event_security': [
                     'meta.security.system',
-                    'meta.security.code'
+                    'meta.security.code',
+                    'id',
+                    'meta.lastUpdated',
                 ],
-                'helix_auditEvent_index_recorded': [
+                'helix_auditEvent_security_access_medstar': [
+                    '_access.medstar',
+                    'id',
+                    'meta.lastUpdated',
+                ],
+                'helix_auditEvent_recorded_access_medstar': [
+                    '_access.medstar',
+                    'id',
                     'recorded',
-                    'id',
+                ],
+                'helix_auditEvent_recorded': [
                     'meta.security.system',
-                    'meta.security.code'
+                    'meta.security.code',
+                    'id',
+                    'recorded',
                 ],
-                'helix_auditEvent_index_type': [
-                    'meta.lastUpdated',
-                    'type.system',
-                    'type.code'
-                ],
-                'helix_auditEvent_index_who': [
-                    'meta.lastUpdated',
-                    'type.system',
-                    'type.code',
-                    'agent.who.reference'
-                ],
-                'helix_auditEvent_index_entity': [
-                    'meta.lastUpdated',
-                    'type.system',
-                    'type.code',
-                    'entity.what.reference'
-                ]
+                // 'helix_auditEvent_index_type': [
+                //     'type.system',
+                //     'type.code',
+                //     'id',
+                //     'meta.lastUpdated',
+                // ],
+                // 'helix_auditEvent_index_who': [
+                //     'type.system',
+                //     'type.code',
+                //     'agent.who.reference',
+                //     'id',
+                //     'meta.lastUpdated',
+                // ],
+                // 'helix_auditEvent_index_entity': [
+                //     'type.system',
+                //     'type.code',
+                //     'entity.what.reference',
+                //     'id',
+                //     'meta.lastUpdated',
+                // ]
             }
         ],
         'Observation_4_0_0': [

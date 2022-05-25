@@ -128,6 +128,11 @@ const resourceDefinitions = [
         description: 'The Library resource is a general-purpose container for knowledge asset definitions. It can be used to describe and expose existing knowledge assets such as logic libraries and information model descriptions, as well as to describe a collection of knowledge assets.',
         url: 'https://www.hl7.org/fhir/library.html'
     },
+    {
+        name: 'QuestionnaireResponse',
+        description: 'A structured set of questions and their answers. The questions are ordered and grouped into coherent subsets, corresponding to the structure of the grouping of the questionnaire being responded to.',
+        url: 'https://www.hl7.org/fhir/questionnaireresponse.html'
+    },
 ];
 
 module.exports = {

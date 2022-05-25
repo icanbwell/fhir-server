@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <%- include('../partials/resourceHeader', {res: res}); %>
+            <h4>Active</h4><%= res.active %>
+            <h4>Status</h4><%= res.status %>
+            <h4>Authored</h4><%= res.authored %>
+            <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
+            <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
+            <%- include('../partials/reference', {references: res.partOf, name: "Part Of"}); %>
+            <%- include('../partials/reference', {references: [res.encounter], name: "Encounter"}); %>
+            <%- include('../partials/reference', {references: [res.author], name: "Author"}); %>
+            <%- include('../partials/reference', {references: [res.source], name: "Source"}); %>
+            <div>
+                <h4>Item</h4>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">LinkId</th>
+                        <th scope="col">Text</th>
+                        <th scope="col">Answer</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% if (res.item) { %>
+                        <% res.item.forEach(function(item){ %>
+                            <tr>
+                                <td><%= item.linkId %></td>
+                                <td><%= item.text %></td>
+                                <td>
+                                    <% if (item.answer) { %>
+                                        <% item.answer.forEach(function(answer){ %>
+                                            <% if (answer) { %>
+                                                <% if (answer.valueBoolean) { %>
+                                                    <%= answer.valueBoolean %>
+                                                <% } else if (answer.valueDecimal) { %>
+                                                    <%= answer.valueDecimal %>
+                                                <% } else if (answer.valueInteger) { %>
+                                                    <%= answer.valueInteger %>
+                                                <% } else if (answer.valueDate) { %>
+                                                    <%= answer.valueDate %>
+                                                <% } else if (answer.valueDateTime) { %>
+                                                    <%= answer.valueDateTime %>
+                                                <% } else if (answer.valueTime) { %>
+                                                    <%= answer.valueTime %>
+                                                <% } else if (answer.valueString) { %>
+                                                    <%= answer.valueString %>
+                                                <% } else if (answer.valueUri) { %>
+                                                    <%= answer.valueUri %>
+                                                <% } %>
+                                            <% } %>
+                                        <% }) %>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <!-- prettier-ignore -->
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }) %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>
