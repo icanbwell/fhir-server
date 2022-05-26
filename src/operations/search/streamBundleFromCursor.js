@@ -83,6 +83,9 @@ async function streamBundleFromCursorAsync(
         ac.abort();
         throw e;
     }
+    if (!res.writableEnded) {
+        res.end();
+    }
     return tracker.id;
 }
 

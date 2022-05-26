@@ -60,25 +60,29 @@ class ResourcePreparerTransform extends Transform {
         }
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-        for (const chunk1 of chunks) {
-            prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1, this.resourceName, this.useAccessIndex).then(
-                resources => {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
-                        console.log('ResourcePreparerTransform: _transform');
-                    }
-                    if (resources.length > 0) {
-                        for (const resource of resources) {
-                            if (resource) {
-                                if (isTrue(env.LOG_STREAM_STEPS)) {
-                                    console.log(`ResourcePreparerTransform: push ${resource['id']}`);
+        Promise.all(
+            chunks.map(chunk1 =>
+                prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
+                    this.resourceName, this.useAccessIndex)
+                    .then(
+                        resources => {
+                            if (isTrue(env.LOG_STREAM_STEPS)) {
+                                console.log('ResourcePreparerTransform: _transform');
+                            }
+                            if (resources.length > 0) {
+                                for (const resource of resources) {
+                                    if (resource) {
+                                        if (isTrue(env.LOG_STREAM_STEPS)) {
+                                            console.log(`ResourcePreparerTransform: push ${resource['id']}`);
+                                        }
+                                        this.push(resource);
+                                    }
                                 }
-                                this.push(resource);
                             }
                         }
-                    }
-                }
-            ).then(callback());
-        }
+                    )
+            )
+        ).then(callback());
 
     }
 
