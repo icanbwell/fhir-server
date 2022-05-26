@@ -34,6 +34,9 @@ class ObjectChunker extends Transform {
 
         for (const chunk1 of chunks) {
             if (this._buffer.length === this._chunkSize) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    console.log('ObjectChunker: _transform: write buffer to output');
+                }
                 this.push(this._buffer);
                 this._buffer = [];
             }
@@ -48,7 +51,10 @@ class ObjectChunker extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('ResourcePreparerTransform: _flush');
+            console.log('ObjectChunker: _flush');
+        }
+        if (this._buffer.length > 0) {
+            this.push(this._buffer);
         }
         callback();
     }
