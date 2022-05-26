@@ -70,7 +70,7 @@ describe('search_by_source', () => {
                 console.log('------- response 3 ------------');
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response 3 ------------');
-                expect(resp.body.length).toBe(2);
+                expect(resp.body.length).toBe(3);
 
                 resp = await request
                     .get('/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://thedacare.org&_security=https://www.icanbwell.com/access|medstar')

@@ -60,30 +60,37 @@ class ResourcePreparerTransform extends Transform {
         }
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-        Promise.all(
-            chunks.map(chunk1 =>
-                prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
-                    this.resourceName, this.useAccessIndex)
-                    .then(
-                        resources => {
-                            if (isTrue(env.LOG_STREAM_STEPS)) {
-                                console.log('ResourcePreparerTransform: _transform');
-                            }
-                            if (resources.length > 0) {
-                                for (const resource of resources) {
-                                    if (resource) {
-                                        if (isTrue(env.LOG_STREAM_STEPS)) {
-                                            console.log(`ResourcePreparerTransform: push ${resource['id']}`);
-                                        }
-                                        this.push(resource);
-                                    }
+        const promises = chunks.map(chunk1 =>
+            this.processChunkAsync(chunk1)
+        );
+        Promise.all(promises).then(() => callback());
+    }
+
+    /**
+     * processes a chunk
+     * @param chunk1
+     * @returns {Promise<Resource[]>}
+     */
+    processChunkAsync(chunk1) {
+        return prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
+            this.resourceName, this.useAccessIndex)
+            .then(
+                resources => {
+                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                        console.log('ResourcePreparerTransform: _transform');
+                    }
+                    if (resources.length > 0) {
+                        for (const resource of resources) {
+                            if (resource) {
+                                if (isTrue(env.LOG_STREAM_STEPS)) {
+                                    console.log(`ResourcePreparerTransform: push ${resource['id']}`);
                                 }
+                                this.push(resource);
                             }
                         }
-                    )
-            )
-        ).then(callback());
-
+                    }
+                }
+            );
     }
 
     /**
