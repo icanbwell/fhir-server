@@ -40,7 +40,7 @@ async function createClient(mongoConfig1) {
         console.error(`Failed to execute ping on ${mongoConfig1.connection}: ${e}`);
         throw e;
     }
-    console.log('Successfully connected to AWS DocumentDB ');
+    console.log('Successfully connected to database ');
 
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/

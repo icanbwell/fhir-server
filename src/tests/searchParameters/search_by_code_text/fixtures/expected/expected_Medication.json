@@ -233,7 +233,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Medication_4_0_0.find({'$and':[{'$or':[{'code.text':{'$regex':'prednisoLONE','$options':'i'}},{'code.coding.display':{'$regex':'prednisoLONE','$options':'i'}}]}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Medication_4_0_0.find({'$and':[{'$or':[{'code.text':{'$regex':'prednisoLONE','$options':'i'}},{'code.coding.display':{'$regex':'prednisoLONE','$options':'i'}}]}]}, {}).sort({'id':1})",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -241,7 +241,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {

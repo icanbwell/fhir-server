@@ -7,9 +7,9 @@ const env = require('var');
  * @return {{cursorBatchSize: number, cursorQuery}}
  */
 function setCursorBatchSize(args, cursorQuery) {
-    const cursorBatchSize = args['_cursorBatchSize']
-        ? parseInt(args['_cursorBatchSize'])
-        : parseInt(env.MONGO_BATCH_SIZE);
+    const cursorBatchSize = args['_cursorBatchSize'] ?
+        parseInt(args['_cursorBatchSize']) :
+        parseInt(env.MONGO_BATCH_SIZE);
     if (cursorBatchSize > 0) {
         cursorQuery = cursorQuery.batchSize(cursorBatchSize);
     }
