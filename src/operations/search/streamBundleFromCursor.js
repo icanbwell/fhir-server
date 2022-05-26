@@ -5,6 +5,7 @@ const {logError} = require('../common/logging');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
+const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -60,15 +61,18 @@ async function streamBundleFromCursorAsync(
     const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
 
+    const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
+
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            ac.abort();
+            console.log('Mongo read stream was closed');
+            // ac.abort();
         });
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         await pipeline(
             readableMongoStream,
-            // new ObjectChunker(batchObjectCount),
+            objectChunker,
             resourcePreparerTransform,
             resourceIdTracker,
             fhirBundleWriter,
@@ -78,6 +82,9 @@ async function streamBundleFromCursorAsync(
         logError(user, e);
         ac.abort();
         throw e;
+    }
+    if (!res.writableEnded) {
+        res.end();
     }
     return tracker.id;
 }

@@ -1,14 +1,21 @@
 const {Transform} = require('stream');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
 
 class ObjectChunker extends Transform {
     /**
      * Batches up objects to chunkSize before writing them to output
      * @param {number} chunkSize
+     * @param {AbortSignal} signal
      */
-    constructor(chunkSize) {
+    constructor(chunkSize, signal) {
         super({objectMode: true});
         this._buffer = [];
         this._chunkSize = chunkSize;
+        /**
+         * @type {AbortSignal}
+         */
+        this._signal = signal;
     }
 
     /**
@@ -19,11 +26,22 @@ class ObjectChunker extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
-        if (this._buffer.length === this._chunkSize) {
-            this.push(this._buffer);
-            this._buffer = [];
+        if (this._signal.aborted) {
+            callback();
+            return;
         }
-        this._buffer.push(chunk);
+        const chunks = Array.isArray(chunk) ? chunk : [chunk];
+
+        for (const chunk1 of chunks) {
+            if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    console.log('ObjectChunker: _transform: write buffer to output');
+                }
+                this.push(this._buffer);
+                this._buffer = [];
+            }
+            this._buffer.push(chunk1);
+        }
         callback();
     }
 
@@ -32,7 +50,12 @@ class ObjectChunker extends Transform {
      * @private
      */
     _flush(callback) {
-        this.push(this._buffer);
+        if (isTrue(env.LOG_STREAM_STEPS)) {
+            console.log('ObjectChunker: _flush');
+        }
+        if (this._buffer.length > 0) {
+            this.push(this._buffer);
+        }
         callback();
     }
 }

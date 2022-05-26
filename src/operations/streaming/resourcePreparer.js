@@ -60,8 +60,21 @@ class ResourcePreparerTransform extends Transform {
         }
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-        for (const chunk1 of chunks) {
-            prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1, this.resourceName, this.useAccessIndex).then(
+        const promises = chunks.map(chunk1 =>
+            this.processChunkAsync(chunk1)
+        );
+        Promise.all(promises).then(() => callback());
+    }
+
+    /**
+     * processes a chunk
+     * @param chunk1
+     * @returns {Promise<Resource[]>}
+     */
+    processChunkAsync(chunk1) {
+        return prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
+            this.resourceName, this.useAccessIndex)
+            .then(
                 resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
                         console.log('ResourcePreparerTransform: _transform');
@@ -77,9 +90,7 @@ class ResourcePreparerTransform extends Transform {
                         }
                     }
                 }
-            ).then(callback());
-        }
-
+            );
     }
 
     /**

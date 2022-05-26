@@ -48,7 +48,8 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
 
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            ac.abort();
+            console.log('Mongo read stream was closed');
+            // ac.abort();
         });
 
         await pipeline(

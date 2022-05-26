@@ -7,6 +7,7 @@ const {logError} = require('../common/logging');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
+const {ObjectChunker} = require('../streaming/objectChunker');
 
 // const {Transform} = require('stream');
 
@@ -86,13 +87,15 @@ async function streamResourcesFromCursorAsync(
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
             console.log('Mongo read stream was closed');
-            ac.abort();
+            // ac.abort();
         });
+
+        const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
 
         // now setup and run the pipeline
         await pipeline(
             readableMongoStream,
-            // new ObjectChunker(batchObjectCount),
+            objectChunker,
             // new Transform({
             //     objectMode: true,
             //     transform(chunk, encoding, callback) {
