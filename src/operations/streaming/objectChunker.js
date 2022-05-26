@@ -33,7 +33,7 @@ class ObjectChunker extends Transform {
         const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
         for (const chunk1 of chunks) {
-            if (this._buffer.length === this._chunkSize) {
+            if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
                     console.log('ObjectChunker: _transform: write buffer to output');
                 }
