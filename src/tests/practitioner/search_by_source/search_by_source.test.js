@@ -22,14 +22,6 @@ describe('search_by_source', () => {
         await commonAfterEach();
     });
 
-    function sleep(milliseconds) {
-        const date = Date.now();
-        let currentDate = null;
-        do {
-            currentDate = Date.now();
-        } while (currentDate - date < milliseconds);
-    }
-
     describe('Practitioner Search By Source Tests', () => {
         test('search by source works', async () => {
 
@@ -78,6 +70,7 @@ describe('search_by_source', () => {
                 console.log('------- response 3 ------------');
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response 3 ------------');
+                expect(resp.body.length).toBe(2);
 
                 resp = await request
                     .get('/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://thedacare.org&_security=https://www.icanbwell.com/access|medstar')
