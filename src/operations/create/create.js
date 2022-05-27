@@ -12,7 +12,7 @@ const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 
@@ -153,7 +153,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
 
         if (resource_name !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document

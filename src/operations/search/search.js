@@ -8,7 +8,7 @@ const {
 const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
@@ -170,7 +170,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                 if (resourceName !== 'AuditEvent') {
                     try {
                         // log access to audit logs
-                        await logAuditEntry(
+                        await logAuditEntryAsync(
                             requestInfo,
                             base_version,
                             resourceName,
@@ -179,7 +179,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                             resources.map((r) => r['id'])
                         );
                     } catch (e) {
-                        await logErrorToSlackAsync(`Error writing AuditEvent fo resource ${resourceName}`, e);
+                        await logErrorToSlackAsync(`Error writing AuditEvent for resource ${resourceName}`, e);
                     }
                 }
             }

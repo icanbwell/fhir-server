@@ -16,7 +16,7 @@ const {enrich} = require('../../enrich/enrich');
 const {findIndexForFields} = require('../../indexes/indexHinter');
 const {isTrue} = require('../../utils/isTrue');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const deepcopy = require('deepcopy');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
@@ -706,7 +706,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
         if (resources.length > 0) {
             if (resourceName !== 'AuditEvent') {
                 // log access to audit logs
-                await logAuditEntry(
+                await logAuditEntryAsync(
                     requestInfo,
                     base_version,
                     resourceName,

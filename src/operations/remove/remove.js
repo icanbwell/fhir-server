@@ -7,7 +7,7 @@ const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
@@ -116,7 +116,7 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
         res = await collection.deleteMany(query);
 
         // log access to audit logs
-        await logAuditEntry(requestInfo, base_version, resourceName, 'delete', args, []);
+        await logAuditEntryAsync(requestInfo, base_version, resourceName, 'delete', args, []);
 
     } catch (e) {
         logError(user, `Error with ${resourceName}.remove`);
