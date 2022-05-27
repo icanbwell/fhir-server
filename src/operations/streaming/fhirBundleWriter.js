@@ -105,7 +105,7 @@ class FhirBundleWriter extends Transform {
             // write ending json
             this.push('],' + bundleJson.substring(1)); // skip the first "}"
         } catch (e) {
-            throw new AggregateError([e], 'ObjectChunker _flush: error');
+            throw new AggregateError([e], 'FhirBundleWriter _flush: error');
         }
         callback();
     }
