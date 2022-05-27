@@ -14,6 +14,7 @@ const {CLIENT_DB} = require('../../constants');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {buildR4SearchQuery} = require('../query/r4');
+const {escapeRegExp} = require('../../utils/regexEscaper');
 
 /**
  * Gets related resources
@@ -382,7 +383,7 @@ async function processReferences(parent_entity, linkReferences) {
     if (parent_entity) {
         for (const link_reference of uniqueReferences) {
             // eslint-disable-next-line security/detect-non-literal-regexp
-            let re = new RegExp('\\b' + link_reference + '\\b', 'g');
+            let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
             parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
         }
     }
