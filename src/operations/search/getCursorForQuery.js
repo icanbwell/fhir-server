@@ -158,7 +158,7 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
     let cursorQuery = collection.find(query, options);
 
     if (isStreaming) {
-        cursorQuery = cursorQuery.addCursorFlag('noCursorTimeout', true).maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
+        cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
     } else {
         cursorQuery = cursorQuery.maxTimeMS(maxMongoTimeMS);
     }
