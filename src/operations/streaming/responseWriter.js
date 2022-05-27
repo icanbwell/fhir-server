@@ -54,26 +54,31 @@ class HttpResponseWriter extends Writable {
             callback();
             return;
         }
-        if (chunk !== null && chunk !== undefined) {
-            if (isTrue(env.LOG_STREAM_STEPS)) {
-                if (isNdJsonContentType([this.contentType])) {
-                    try {
-                        /**
-                         * @type {Object}
-                         */
-                        const jsonObject = JSON.parse(chunk);
-                        console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
-                    } catch (e) {
-                        console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+        try {
+
+            if (chunk !== null && chunk !== undefined) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    if (isNdJsonContentType([this.contentType])) {
+                        try {
+                            /**
+                             * @type {Object}
+                             */
+                            const jsonObject = JSON.parse(chunk);
+                            console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                        } catch (e) {
+                            console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                        }
+                    } else {
+                        console.log(`HttpResponseWriter: _write ${chunk}`);
                     }
-                } else {
-                    console.log(`HttpResponseWriter: _write ${chunk}`);
                 }
+                this.response.write(chunk, encoding, callback);
+                callback();
+            } else {
+                callback();
             }
-            this.response.write(chunk, encoding, callback);
-            callback();
-        } else {
-            callback();
+        } catch (e) {
+            throw new AggregateError([e], 'HttpResponseWriter _transform: error');
         }
     }
 

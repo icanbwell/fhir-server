@@ -30,17 +30,21 @@ class ObjectChunker extends Transform {
             callback();
             return;
         }
-        const chunks = Array.isArray(chunk) ? chunk : [chunk];
+        try {
+            const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-        for (const chunk1 of chunks) {
-            if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log('ObjectChunker: _transform: write buffer to output');
+            for (const chunk1 of chunks) {
+                if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
+                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                        console.log('ObjectChunker: _transform: write buffer to output');
+                    }
+                    this.push(this._buffer);
+                    this._buffer = [];
                 }
-                this.push(this._buffer);
-                this._buffer = [];
+                this._buffer.push(chunk1);
             }
-            this._buffer.push(chunk1);
+        } catch (e) {
+            throw new AggregateError([e], 'ObjectChunker _transform: error');
         }
         callback();
     }
@@ -53,8 +57,12 @@ class ObjectChunker extends Transform {
         if (isTrue(env.LOG_STREAM_STEPS)) {
             console.log('ObjectChunker: _flush');
         }
-        if (this._buffer.length > 0) {
-            this.push(this._buffer);
+        try {
+            if (this._buffer.length > 0) {
+                this.push(this._buffer);
+            }
+        } catch (e) {
+            throw new AggregateError([e], 'ObjectChunker _flush: error');
         }
         callback();
     }

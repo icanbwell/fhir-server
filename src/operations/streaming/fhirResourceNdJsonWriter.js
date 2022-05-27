@@ -30,12 +30,16 @@ class FhirResourceNdJsonWriter extends Transform {
             callback();
             return;
         }
-        if (chunk !== null && chunk !== undefined) {
-            if (isTrue(env.LOG_STREAM_STEPS)) {
-                console.log(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`);
+        try {
+            if (chunk !== null && chunk !== undefined) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    console.log(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`);
+                }
+                const resourceJson = JSON.stringify(chunk);
+                this.push(resourceJson + '\n', encoding);
             }
-            const resourceJson = JSON.stringify(chunk);
-            this.push(resourceJson + '\n', encoding);
+        } catch (e) {
+            throw new AggregateError([e], 'FhirResourceNdJsonWriter _transform: error');
         }
         callback();
     }
