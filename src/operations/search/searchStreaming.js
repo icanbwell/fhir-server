@@ -17,6 +17,7 @@ const {constructQuery} = require('./constructQuery');
 const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
+const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 
 
 /**
@@ -214,15 +215,19 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
             }
             if (resourceIds.length > 0) {
                 if (resourceName !== 'AuditEvent') {
-                    // log access to audit logs
-                    await logAuditEntry(
-                        requestInfo,
-                        base_version,
-                        resourceName,
-                        'read',
-                        args,
-                        resourceIds
-                    );
+                    try {
+                        // log access to audit logs
+                        await logAuditEntry(
+                            requestInfo,
+                            base_version,
+                            resourceName,
+                            'read',
+                            args,
+                            resourceIds
+                        );
+                    } catch (e) {
+                        await logErrorToSlackAsync(`Error writing AuditEvent for resource ${resourceName}`, e);
+                    }
                 }
             }
         } else { // no records found

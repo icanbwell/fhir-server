@@ -98,8 +98,8 @@ async function logAuditEntry(requestInfo, base_version, resourceType, operation,
                 what: {
                     reference: `${resourceType}/${id}`
                 },
-                detail: index === 0
-                    ? Object.entries(args).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
+                detail: index === 0 ?
+                    Object.entries(args).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
                         return {
                             type: key,
                             valueString: value
@@ -115,7 +115,12 @@ async function logAuditEntry(requestInfo, base_version, resourceType, operation,
     let doc = removeNull(resource.toJSON());
     Object.assign(doc, {id: id});
 
-    await collection.insertOne(doc);
+    try {
+        await collection.insertOne(doc);
+    } catch (e) {
+        const documentContents = JSON.stringify(doc);
+        throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${documentContents}`);
+    }
 }
 
 module.exports = {
