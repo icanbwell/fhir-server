@@ -63,7 +63,7 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
     if (args['_count']) {
         const __ret = handleCountOption(args, options, isStreaming);
         options = __ret.options;
-    } else if (!isStreaming) {
+    } else {
         setDefaultLimit(args, options, isStreaming);
     }
 
