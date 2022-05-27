@@ -68,7 +68,7 @@ describe('PractitionerReturnIdTests', () => {
 
             // now check that we get the right record back
             resp = await request
-                .get('/4_0_0/Practitioner/?_streamResponse=1')
+                .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}`)
                 .set(getHeadersNdJson())
                 .expect(200);
             console.log('------- response Practitioner sorted ------------');
