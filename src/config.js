@@ -45,7 +45,7 @@ atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
  */
 let atlasMongoConfig = {
     connection: atlasMongoUrl,
-    db_name: String(env.MONGO_DB_NAME),
+    db_name: String(env.ATLAS_MONGO_DB_NAME),
     options: {
         appName: 'fhir',
         // keepAlive: true,
