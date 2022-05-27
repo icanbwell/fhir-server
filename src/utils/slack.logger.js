@@ -5,7 +5,12 @@
 const {WebClient} = require('@slack/web-api');
 const env = require('var');
 
-async function logMessageToSlack(message) {
+/**
+ * logs message to Slack
+ * @param {string} message
+ * @returns {Promise<void>}
+ */
+async function logMessageToSlackAsync(message) {
     if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
         const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
         const web = new WebClient(options.token);
@@ -19,7 +24,7 @@ async function logMessageToSlack(message) {
 }
 
 /**
- *
+ * logs error to Slack
  * @param {string} message
  * @param {Error} err
  * @returns {Promise<void>}
@@ -37,11 +42,21 @@ async function logErrorToSlackAsync(message, err) {
     }
 }
 
-
+/**
+ * Gets IP address of caller
+ * @param {import('http').IncomingMessage} req
+ * @returns {string | undefined}
+ */
 function getRemoteAddress(req) {
     return req.headers['X-Forwarded-For'] || req['x-real-ip'] || req.ip || req._remoteAddress || req.connection && req.connection.remoteAddress || undefined;
 }
 
+/**
+ * Creates a code block for sending to Slack
+ * @param {string} title
+ * @param {string | Object} code
+ * @returns {string}
+ */
 function createCodeBlock(title, code) {
     // if (_.isEmpty(code)) return '';
     code = typeof code === 'string' ? code.trim() : JSON.stringify(code, null, 2);
@@ -49,7 +64,15 @@ function createCodeBlock(title, code) {
     return '_' + title + '_' + tripleBackticks + code + tripleBackticks + '\n';
 }
 
-const logErrorAndRequestToSlack = async (token, channel, err, req) => {
+/**
+ * logs error and request to Slack
+ * @param {string} token
+ * @param {string} channel
+ * @param {Error} err
+ * @param {import('http').IncomingMessage} req
+ * @returns {Promise<void>}
+ */
+const logErrorAndRequestToSlackAsync = async (token, channel, err, req) => {
     const request = {
         method: req.method,
         url: req.url,
@@ -104,6 +127,9 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
             });
         }
     }
+    /**
+     * @type  {import('@slack/web-api').MessageAttachment}
+     */
     const attachment = {
         fallback: 'FHIR Server Error: ' + err.message,
         color: err.statusCode < 500 ? 'warning' : 'danger',
@@ -112,7 +138,7 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
         fields: fields,
         text: [
             {
-                title: 'Error:', code: err.message
+                title: 'Error:', code: err.toString()
             },
             {
                 title: 'Stack trace:', code: err.stack
@@ -145,7 +171,7 @@ const logErrorAndRequestToSlack = async (token, channel, err, req) => {
 };
 
 module.exports = {
-    logMessageToSlack,
+    logMessageToSlackAsync,
     logErrorToSlackAsync,
-    logErrorAndRequestToSlack
+    logErrorAndRequestToSlackAsync
 };

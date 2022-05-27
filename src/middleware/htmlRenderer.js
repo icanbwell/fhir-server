@@ -16,7 +16,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
  * middleware to render HTML
  * @param {import('http').IncomingMessage} req
  * @param {import('http').ServerResponse} res
- * @param {function : void} next
+ * @param {function() : void} next
  */
 const htmlRenderer = (req, res, next) => {
     const parts = req.url.split(/[/?,&]+/);
