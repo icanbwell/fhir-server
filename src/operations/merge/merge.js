@@ -25,7 +25,7 @@ const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const {preSaveAsync} = require('../common/preSave');
 
@@ -665,12 +665,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
             const updatedItems = returnVal.filter(r => r['updated'] === true);
             if (createdItems && createdItems.length > 0) {
                 if (resource_name !== 'AuditEvent') {
-                    await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
+                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
                 }
             }
             if (updatedItems && updatedItems.length > 0) {
                 if (resource_name !== 'AuditEvent') {
-                    await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
+                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
                 }
             }
         }
@@ -687,12 +687,12 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         if (returnVal) {
             if (returnVal['created'] === true) {
                 if (resource_name !== 'AuditEvent') {
-                    await logAuditEntry(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
+                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
                 }
             }
             if (returnVal['updated'] === true) {
                 if (resource_name !== 'AuditEvent') {
-                    await logAuditEntry(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
                 }
             }
         }

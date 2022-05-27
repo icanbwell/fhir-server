@@ -18,7 +18,7 @@ const {getMeta} = require('../common/getMeta');
 const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 /**
@@ -243,7 +243,7 @@ module.exports.update = async (requestInfo, args, resourceName, collection_name)
 
         if (resourceName !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resourceName, 'update', args, [resource_incoming['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceName, 'update', args, [resource_incoming['id']]);
         }
 
         return {

@@ -20,7 +20,7 @@ const {isTrue} = require('./isTrue');
  * @param {Object} args
  * @param {string[]} ids
  */
-async function logAuditEntry(requestInfo, base_version, resourceType, operation, args, ids) {
+async function logAuditEntryAsync(requestInfo, base_version, resourceType, operation, args, ids) {
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
     }
@@ -124,5 +124,5 @@ async function logAuditEntry(requestInfo, base_version, resourceType, operation,
 }
 
 module.exports = {
-    logAuditEntry: logAuditEntry
+    logAuditEntryAsync: logAuditEntryAsync
 };

@@ -6,7 +6,7 @@ const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 
@@ -82,7 +82,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
         resource = (await enrich([resource], resource_name))[0];
         if (resource_name !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntry(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
         }
         return new Resource(resource);
     } else {

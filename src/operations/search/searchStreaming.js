@@ -9,7 +9,7 @@ const {
 const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {logAuditEntry} = require('../../utils/auditLogger');
+const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {createBundle} = require('./createBundle');
@@ -217,7 +217,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                 if (resourceName !== 'AuditEvent') {
                     try {
                         // log access to audit logs
-                        await logAuditEntry(
+                        await logAuditEntryAsync(
                             requestInfo,
                             base_version,
                             resourceName,
