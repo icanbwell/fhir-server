@@ -5,7 +5,7 @@
 const async = require('async');
 const env = require('var');
 
-const {logMessageToSlack} = require('../utils/slack.logger');
+const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
 const {createClient, disconnectClient} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
@@ -30,7 +30,7 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
         if (!await db.collection(collection_name).indexExists(index_name)) {
             const message = 'Creating index ' + index_name + ' with columns: [' + properties_to_index.join(',') + ']' + ' in ' + collection_name;
             console.log(message);
-            await logMessageToSlack(message);
+            await logMessageToSlackAsync(message);
             const my_dict = {};
             for (const property_to_index of properties_to_index) {
                 my_dict[String(property_to_index)] = 1;
@@ -40,7 +40,7 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
         }
     } catch (e) {
         console.log('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
-        await logMessageToSlack('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
+        await logMessageToSlackAsync('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
     }
     return false;
 }

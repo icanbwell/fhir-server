@@ -14,6 +14,7 @@ const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
+const {escapeRegExp} = require('../../utils/regexEscaper');
 
 
 /**
@@ -742,7 +743,7 @@ async function convertToHashedReferences(parent_entity, linkReferences) {
          */
         for (const link_reference of uniqueReferences) {
             // eslint-disable-next-line security/detect-non-literal-regexp
-            let re = new RegExp('\\b' + link_reference + '\\b', 'g');
+            let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
             parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
         }
     }

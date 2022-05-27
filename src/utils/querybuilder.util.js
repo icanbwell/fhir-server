@@ -4,6 +4,7 @@
 
 
 const moment = require('moment-timezone');
+const {escapeRegExp} = require('./regexEscaper');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -14,7 +15,7 @@ let stringQueryBuilder = function (target) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     // eslint-disable-next-line security/detect-non-literal-regexp
-    return {$regex: new RegExp('^' + t2, 'i')};
+    return {$regex: new RegExp('^' + escapeRegExp(t2), 'i')};
 };
 
 /**
@@ -29,20 +30,29 @@ let addressQueryBuilder = function (target) {
     let totalSplit = target.split(/[\s,]+/);
     let ors = [];
     for (let index in totalSplit) {
+        /**
+         * @type {string}
+         */
+        const regExPattern = `${totalSplit[`${index}`]}`;
+        /**
+         * @type {RegExp}
+         */
+            // eslint-disable-next-line security/detect-non-literal-regexp
+        const regExpObject = new RegExp(escapeRegExp(regExPattern), 'i');
         ors.push({
             $or: [
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.line': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.line': {$regex: regExpObject}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.city': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.city': {$regex: regExpObject}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.district': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.district': {$regex: regExpObject}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.state': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.state': {$regex: regExpObject}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.postalCode': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.postalCode': {$regex: regExpObject}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'address.country': {$regex: new RegExp(`${totalSplit[`${index}`]}`, 'i')}},
+                {'address.country': {$regex: regExpObject}},
             ],
         });
     }
@@ -61,18 +71,23 @@ let nameQueryBuilder = function (target) {
     let ors = [];
 
     for (let i in split) {
+        /**
+         * @type {RegExp}
+         */
+            // eslint-disable-next-line security/detect-non-literal-regexp
+        const regExpObject = new RegExp(escapeRegExp(`${split[`${i}`]}`));
         ors.push({
             $or: [
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.text': {$regex: new RegExp(`${split[`${i}`]}`, 'i')}},
+                {'name.text': {$regex: regExpObject, '$options': 'i'}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.family': {$regex: new RegExp(`${split[`${i}`]}`, 'i')}},
+                {'name.family': {$regex: regExpObject, '$options': 'i'}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.given': {$regex: new RegExp(`${split[`${i}`]}`, 'i')}},
+                {'name.given': {$regex: regExpObject, '$options': 'i'}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.suffix': {$regex: new RegExp(`${split[`${i}`]}`, 'i')}},
+                {'name.suffix': {$regex: regExpObject, '$options': 'i'}},
                 // eslint-disable-next-line security/detect-non-literal-regexp
-                {'name.prefix': {$regex: new RegExp(`${split[`${i}`]}`, 'i')}},
+                {'name.prefix': {$regex: regExpObject, '$options': 'i'}},
             ],
         });
     }
@@ -188,7 +203,7 @@ let referenceQueryBuilder = function (target, field, exists_flag) {
     // target = id The type may be there so we need to check the end of the field for the id
     else {
         // eslint-disable-next-line security/detect-non-literal-regexp
-        queryBuilder[`${field}`] = {$regex: new RegExp(`${target}$`)};
+        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
     }
 
     return queryBuilder;
@@ -497,22 +512,21 @@ let dateQueryBuilder = function (date, type, path) {
                         }
                     }
                 }
+                const regexPattern = '^' +
+                    '(?:' +
+                    pArr[0] +
+                    ')|(?:' +
+                    pArr[1] +
+                    ')|(?:' +
+                    pArr[2] +
+                    ')|(?:' +
+                    pArr[3] +
+                    ')|(?:' +
+                    pArr[4] +
+                    ')';
                 let regPoss = {
                     // eslint-disable-next-line security/detect-non-literal-regexp
-                    $regex: new RegExp(
-                        '^' +
-                        '(?:' +
-                        pArr[0] +
-                        ')|(?:' +
-                        pArr[1] +
-                        ')|(?:' +
-                        pArr[2] +
-                        ')|(?:' +
-                        pArr[3] +
-                        ')|(?:' +
-                        pArr[4] +
-                        ')'
-                    ),
+                    $regex: new RegExp(escapeRegExp(regexPattern)),
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -540,9 +554,9 @@ let dateQueryBuilder = function (date, type, path) {
                             [pDT]: {
                                 // eslint-disable-next-line security/detect-non-literal-regexp
                                 $regex: new RegExp(
-                                    '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill,
-                                    'i'
-                                ),
+                                    escapeRegExp(
+                                        '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
+                                ), '$options': 'i',
                             },
                         },
                         {
@@ -564,9 +578,9 @@ let dateQueryBuilder = function (date, type, path) {
                 return {
                     // eslint-disable-next-line security/detect-non-literal-regexp
                     $regex: new RegExp(
-                        '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill,
-                        'i'
-                    ),
+                        escapeRegExp(
+                            '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
+                    ), '$options': 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
@@ -745,10 +759,15 @@ let compositeQueryBuilder = function (target, field1, field2) {
  */
 let partialTextQueryBuilder = function (field, partialText, ignoreCase) {
     let queryBuilder = {};
+    /**
+     * @type {RegExp}
+     */
+        // eslint-disable-next-line security/detect-non-literal-regexp
+    const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
-        queryBuilder[`${field}`] = {$regex: new RegExp(`${partialText}`), '$options': 'i'};
+        queryBuilder[`${field}`] = {$regex: regexObject, '$options': 'i'};
     } else {
-        queryBuilder[`${field}`] = {$regex: new RegExp(`${partialText}`)};
+        queryBuilder[`${field}`] = {$regex: regexObject};
     }
 
     return queryBuilder;

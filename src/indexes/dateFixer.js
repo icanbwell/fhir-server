@@ -1,5 +1,5 @@
 const async = require('async');
-const {logMessageToSlack} = require('../utils/slack.logger');
+const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {CLIENT_DB} = require('../constants');
 const moment = require('moment-timezone');
 // const {Db} = require('mongodb');
@@ -18,7 +18,7 @@ const {createClient, disconnectClient} = require('../utils/connect');
 const convertFieldToDate = async (collection_name, field, db, batchSize) => {
     let message = `Fixing ${field} in ${collection_name}`;
     console.log(message);
-    await logMessageToSlack(message);
+    await logMessageToSlackAsync(message);
 
     const collection = db.collection(collection_name);
     let convertedIds = 0;
@@ -61,7 +61,7 @@ const convertFieldToDate = async (collection_name, field, db, batchSize) => {
             if (convertedIds % progressBatchSize === 0) { // show progress every 1000 items
                 message = `Progress: Converted ${convertedIds} of ${field} in ${collection_name} to Date type`;
                 console.log(message);
-                await logMessageToSlack(message);
+                await logMessageToSlackAsync(message);
             }
         }
     }
@@ -71,7 +71,7 @@ const convertFieldToDate = async (collection_name, field, db, batchSize) => {
 
     message = `Finished converting ${field} in ${collection_name} to Date type.  Converted ${convertedIds} resources`;
     console.log(message);
-    await logMessageToSlack(message);
+    await logMessageToSlackAsync(message);
 };
 
 /**

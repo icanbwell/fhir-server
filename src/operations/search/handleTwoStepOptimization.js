@@ -32,7 +32,9 @@ async function handleTwoStepSearchOptimizationAsync(
         .toArray();
     if (idResults.length > 0) {
         // now get the documents for those ids.  We can clear all the other query parameters
-        query = {id: {$in: idResults.map((r) => r.id)}};
+        query = idResults.length === 1 ?
+            {id: idResults.map((r) => r.id)[0]} :
+            {id: {$in: idResults.map((r) => r.id)}};
         // query = getQueryWithSecurityTags(securityTags, query);
         options = {}; // reset options since we'll be looking by id
         originalQuery.push(query);

@@ -58,12 +58,16 @@ class ResourcePreparerTransform extends Transform {
             callback();
             return;
         }
-        const chunks = Array.isArray(chunk) ? chunk : [chunk];
+        try {
+            const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-        const promises = chunks.map(chunk1 =>
-            this.processChunkAsync(chunk1)
-        );
-        Promise.all(promises).then(() => callback());
+            const promises = chunks.map(chunk1 =>
+                this.processChunkAsync(chunk1)
+            );
+            Promise.all(promises).then(() => callback());
+        } catch (e) {
+            throw new AggregateError([e], 'ResourcePreparer _transform: error');
+        }
     }
 
     /**

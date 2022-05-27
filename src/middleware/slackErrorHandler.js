@@ -3,8 +3,16 @@
  */
 
 const env = require('var');
-const {logErrorAndRequestToSlack} = require('../utils/slack.logger');
+const {logErrorAndRequestToSlackAsync} = require('../utils/slack.logger');
 
+/**
+ * Middleware for logging errors to Slack
+ * @param err
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ * @param {function(*) : void} next
+ * @returns {Promise<void>}
+ */
 const slackErrorHandler = async (err, req, res, next) => {
     try {
         // console.log('env.SLACK_STATUS_CODES_TO_IGNORE', env.SLACK_STATUS_CODES_TO_IGNORE);
@@ -19,7 +27,7 @@ const slackErrorHandler = async (err, req, res, next) => {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
-            await logErrorAndRequestToSlack(options.token, options.channel, err, req);
+            await logErrorAndRequestToSlackAsync(options.token, options.channel, err, req);
         }
     } catch (e) {
         console.error(`Error sending slack message: ${e}`);

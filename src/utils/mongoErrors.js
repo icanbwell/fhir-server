@@ -4,7 +4,7 @@ const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
  * This file implements a custom error for Mongo errors
  */
 
-class MongoError extends Error {
+class MongoError extends AggregateError {
     /**
      * Creates an error for mongo
      * @param {string} message
@@ -17,6 +17,7 @@ class MongoError extends Error {
     constructor(message, error, collection, query, elapsedTime, options = {},) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
+            [error],
             message + ': ' +
             mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
             `elapsedTime=${elapsedTimeInSecs} secs`

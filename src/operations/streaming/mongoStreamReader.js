@@ -75,7 +75,7 @@ async function* readMongoStreamGenerator(cursor, signal) {
         }
     } catch (e) {
         console.log('mongoStreamReader: error' + e.toString());
-        throw e;
+        throw new AggregateError([e], 'mongoStreamReader: error');
     }
 }
 

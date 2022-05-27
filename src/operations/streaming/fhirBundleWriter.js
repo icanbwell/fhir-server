@@ -49,25 +49,30 @@ class FhirBundleWriter extends Transform {
      * @private
      */
     _transform(chunk, encoding, callback) {
-        if (this._signal.aborted){
+        if (this._signal.aborted) {
             callback();
             return;
         }
-        if (chunk !== null && chunk !== undefined) {
-            const resourceJson = JSON.stringify(
-                {
-                    resource: chunk
+        try {
+
+            if (chunk !== null && chunk !== undefined) {
+                const resourceJson = JSON.stringify(
+                    {
+                        resource: chunk
+                    }
+                );
+                if (this._first) {
+                    // write the beginning json
+                    this._first = false;
+                    this.push(resourceJson, encoding);
+                } else {
+                    // add comma at the beginning to make it legal json
+                    this.push(',' + resourceJson, encoding);
                 }
-            );
-            if (this._first) {
-                // write the beginning json
-                this._first = false;
-                this.push(resourceJson, encoding);
-            } else {
-                // add comma at the beginning to make it legal json
-                this.push(',' + resourceJson, encoding);
+                this._lastid = chunk['id'];
             }
-            this._lastid = chunk['id'];
+        } catch (e) {
+            throw new AggregateError([e], 'FhirBundleWriter _transform: error');
         }
         callback();
     }
@@ -77,27 +82,31 @@ class FhirBundleWriter extends Transform {
      * @private
      */
     _flush(callback) {
-        /**
-         * @type {number}
-         */
-        const stopTime = Date.now();
+        try {
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
 
-        /**
-         * @type {Resource}
-         */
-        const bundle = this._fnBundle(this._lastid, stopTime);
+            /**
+             * @type {Resource}
+             */
+            const bundle = this._fnBundle(this._lastid, stopTime);
 
-        /**
-         * @type {Object}
-         */
-        const cleanObject = removeNull(bundle.toJSON());
-        /**
-         * @type {string}
-         */
-        const bundleJson = JSON.stringify(cleanObject);
+            /**
+             * @type {Object}
+             */
+            const cleanObject = removeNull(bundle.toJSON());
+            /**
+             * @type {string}
+             */
+            const bundleJson = JSON.stringify(cleanObject);
 
-        // write ending json
-        this.push('],' + bundleJson.substring(1)); // skip the first "}"
+            // write ending json
+            this.push('],' + bundleJson.substring(1)); // skip the first "}"
+        } catch (e) {
+            throw new AggregateError([e], 'FhirBundleWriter _flush: error');
+        }
         callback();
     }
 }

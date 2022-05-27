@@ -37,12 +37,17 @@ class ResourceIdTracker extends Transform {
             callback();
             return;
         }
-        if (chunk !== null && chunk !== undefined) {
-            if (isTrue(env.LOG_STREAM_STEPS)) {
-                console.log(`ResourceIdTracker: _transform ${chunk['id']}`);
+        try {
+
+            if (chunk !== null && chunk !== undefined) {
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    console.log(`ResourceIdTracker: _transform ${chunk['id']}`);
+                }
+                this._tracker.id.push(chunk['id']);
+                this.push(chunk, encoding);
             }
-            this._tracker.id.push(chunk['id']);
-            this.push(chunk, encoding);
+        } catch (e) {
+            throw new AggregateError([e], 'ResourceIdTracker _transform: error');
         }
         callback();
     }

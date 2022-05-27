@@ -5,7 +5,7 @@
 // This runs in a separate process to index so the main thread is not blocked
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
-const {logMessageToSlack} = require('../utils/slack.logger');
+const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {fixLastUpdatedDatesInAllCollections} = require('../indexes/dateFixer');
 
 
@@ -21,17 +21,17 @@ process.on('message', async (params) => {
     try {
         if (message === 'Fix Dates') {
             const message1 = `Starting fixing dates in separate process for ${tableNamesCsv}`;
-            await logMessageToSlack(message1);
+            await logMessageToSlackAsync(message1);
             console.log(`===== ${message1} ======`);
             await fixLastUpdatedDatesInAllCollections(tableNamesCsv ? tableNamesCsv.split(',') : [], batchSize);
             const message2 = 'Finished fixing dates in separate process';
-            await logMessageToSlack(message2);
+            await logMessageToSlackAsync(message2);
             console.log(`===== ${message2} ======`);
         }
     } catch (e) {
         console.log('===== ERROR Indexing in separate process ======', e);
         console.log(JSON.stringify(e));
-        await logMessageToSlack(JSON.stringify(e));
+        await logMessageToSlackAsync(JSON.stringify(e));
     }
     //notify node, that we are done with this task
     process.disconnect();

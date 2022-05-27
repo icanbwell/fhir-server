@@ -4,6 +4,8 @@
  * @name {string} name
  * @returns {string}
  */
+const {escapeRegExp} = require('../../../utils/regexEscaper');
+
 function paramMatch(fields, name) {
     return fields.find((field) => field === name);
 }
@@ -21,7 +23,7 @@ function filterByContains(and_segments, propertyObj, queryParameter, args, colum
     and_segments.push({
         [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
             {
-                $regex: args[`${queryParameter}:contains`],
+                $regex: escapeRegExp(args[`${queryParameter}:contains`]),
                 $options: 'i',
             },
     });
