@@ -226,7 +226,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                             resourceIds
                         );
                     } catch (e) {
-                        await logErrorToSlackAsync(`Error writing AuditEvent for resource ${resourceName}`, e);
+                        await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceName}`, e);
                     }
                 }
             }

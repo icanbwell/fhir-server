@@ -179,7 +179,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                             resources.map((r) => r['id'])
                         );
                     } catch (e) {
-                        await logErrorToSlackAsync(`Error writing AuditEvent for resource ${resourceName}`, e);
+                        await logErrorToSlackAsync(`search: Error writing AuditEvent for resource ${resourceName}`, e);
                     }
                 }
             }
