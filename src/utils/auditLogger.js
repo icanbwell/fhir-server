@@ -32,10 +32,10 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType, opera
         cleanedArgs['id'] = '';
     }
     if (cleanedArgs['_id']) {
-        cleanedArgs['_id'] = '';
+        delete cleanedArgs['_id'];
     }
     if (cleanedArgs['_source']) {
-        cleanedArgs['_source'] = '';
+        delete cleanedArgs['_source'];
     }
     /**
      * mongo db connection
