@@ -10,6 +10,7 @@ const {getResource} = require('../operations/common/getResource');
 const {getUuid} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
+const deepcopy = require('deepcopy');
 
 /**
  * logs an entry for audit
@@ -23,6 +24,18 @@ const {isTrue} = require('./isTrue');
 async function logAuditEntryAsync(requestInfo, base_version, resourceType, operation, args, ids) {
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
+    }
+
+    const cleanedArgs = deepcopy(args);
+    // remove id and _id args since they are duplicated in the items retrieved
+    if (cleanedArgs['id']) {
+        cleanedArgs['id'] = '';
+    }
+    if (cleanedArgs['_id']) {
+        cleanedArgs['_id'] = '';
+    }
+    if (cleanedArgs['_source']) {
+        cleanedArgs['_source'] = '';
     }
     /**
      * mongo db connection
@@ -99,7 +112,7 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType, opera
                     reference: `${resourceType}/${id}`
                 },
                 detail: index === 0 ?
-                    Object.entries(args).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
+                    Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
                         return {
                             type: key,
                             valueString: value
