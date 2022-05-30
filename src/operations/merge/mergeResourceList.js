@@ -18,7 +18,7 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
  * @param {string} collection_name
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @returns {Promise<FlatArray<*[], 1>[]>}
+ * @returns {Promise<MergeResultEntry[]>}
  */
 async function mergeResourceList(resources_incoming, user,
                                  resource_name, scopes, path,
@@ -39,16 +39,16 @@ async function mergeResourceList(resources_incoming, user,
     // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
     //  may not finish adding to the db before the next item tries to merge
     /**
-     * @type {Object[]}
+     * @type {Resource[]}
      */
     const duplicate_id_resources = findDuplicateResources(resources_incoming);
     /**
-     * @type {Object[]}
+     * @type {Resource[]}
      */
     const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
     /**
-     * @type {Awaited<unknown>[]}
+     * @type {Awaited<MergeResultEntry[]>[]}
      */
     const result = await Promise.all([
         async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
@@ -57,11 +57,17 @@ async function mergeResourceList(resources_incoming, user,
             scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
     ]);
     /**
-     * @type {FlatArray<unknown[], 1>[]}
+     * @type {MergeResultEntry[]}
      */
     const returnVal = result.flat(1);
     if (returnVal && returnVal.length > 0) {
+        /**
+         * @type {MergeResultEntry[]}
+         */
         const createdItems = returnVal.filter(r => r['created'] === true);
+        /**
+         * @type {MergeResultEntry[]}
+         */
         const updatedItems = returnVal.filter(r => r['updated'] === true);
         if (createdItems && createdItems.length > 0) {
             if (resource_name !== 'AuditEvent') {

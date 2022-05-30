@@ -15,7 +15,7 @@ const {mergeResourceList} = require('./mergeResourceList');
  * @param {Object} args
  * @param {string} resourceName
  * @param {string} collectionName
- * @return {Resource | Resource[]}
+ * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
 module.exports.merge = async (requestInfo, args, resourceName, collectionName) => {
     /**
@@ -93,7 +93,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         );
     } else {
         /**
-         * @type {{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}, created: boolean, id: String, updated: boolean}}
+         * @type {MergeResultEntry}
          */
         const returnVal = await merge_resource_with_retry(resourcesIncoming, resourceName,
             scopes, user, path, currentDate, requestId, base_version, scope, collectionName);

@@ -23,7 +23,7 @@ const {mergeInsert} = require('./mergeInsert');
  * @param {string} baseVersion
  * @param scope
  * @param {string} collectionName
- * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
+ * @return {Promise<MergeResultEntry>}
  */
 async function merge_resource(resource_to_merge, resourceName,
                               scopes, user, path, currentDate,

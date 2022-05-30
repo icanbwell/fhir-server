@@ -14,7 +14,7 @@ const {merge_resource} = require('./mergeResource');
  * @param {string} baseVersion
  * @param {string} scope
  * @param {string} collectionName
- * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
+ * @return {Promise<MergeResultEntry>}
  */
 async function merge_resource_with_retry(resource_to_merge, resourceName,
                                          scopes, user, path, currentDate,
