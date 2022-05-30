@@ -82,8 +82,8 @@ function hasValidService(route = {}, profile = {}) {
 
 /**
  * @function loadController
- * @param {String} lowercaseKey - Profile key
- * @param {String} interaction - Interaction needed to perform
+ * @param {string} lowercaseKey - Profile key
+ * @param {string} interaction - Interaction needed to perform
  * @param {Object} service - Consumer provided service module
  * @return {Function} express middleware
  */
@@ -108,7 +108,7 @@ function loadController(lowercaseKey, interaction, service) {
  * @param {Object} app - Express application instance
  * @param {Object} config - Application config
  * @param {Object} profile - Profile configuration from end users
- * @param {String} key - Profile name the user has configured
+ * @param {string} key - Profile name the user has configured
  * @param {Array<Object>} parameters - Parameters allowed for this profile
  * @param {Object} corsDefaults - Default cors settings
  */
