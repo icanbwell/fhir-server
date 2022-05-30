@@ -25,7 +25,13 @@ const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
  * @param {string} requestId
  * @returns {Promise<{created: boolean, id: *, message: string, updated: boolean, resource_version}|{created: boolean, id: *, updated: *, resource_version}>}
  */
-async function mergeExistingAsync(resourceToMerge, data, baseVersion, user, scope, collectionName, currentDate, requestId) {
+async function mergeExistingAsync(resourceToMerge, data,
+                                  baseVersion, user, scope,
+                                  collectionName, currentDate,
+                                  requestId) {
+    /**
+     * @type {string}
+     */
     let id = resourceToMerge.id;
     // create a resource with incoming data
     /**
