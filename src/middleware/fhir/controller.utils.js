@@ -10,8 +10,8 @@ const controllers1 = require('@asymmetrik/node-fhir-server-core/dist/server/reso
 const genericController = require('./4_0_0/controllers/generic_controller');
 /**
  *
- * @param {String} version
- * @param {String} resourceName
+ * @param {string} version
+ * @param {string} resourceName
  */
 
 

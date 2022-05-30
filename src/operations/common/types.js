@@ -18,10 +18,20 @@
 
 // from https://www.hl7.org/fhir/operationoutcome.html
 /**
+ * @typedef OperationOutcomeIssue
+ * @type {object}
+ * @property {string} severity
+ * @property {string} code
+ * @property {{text: string}} details
+ * @property {string|null} diagnostics
+ * @property {string[]|null} expression
+ */
+
+/**
  * @typedef OperationOutcome
  * @type {object}
  * @property {string} resourceType
- * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
+ * @property {OperationOutcomeIssue[]} issue
  */
 
 
@@ -34,5 +44,15 @@
  * @property {string | null} description
  * @property {string | null} type
  * @property {string[] | null} target
+ */
+
+/**
+ * @typedef MergeResultEntry
+ * @type {object}
+ * @property {OperationOutcome|null} operationOutcome
+ * @property {OperationOutcomeIssue|null} issue
+ * @property {boolean} created
+ * @property {string} id
+ * @property {boolean} updated
  */
 

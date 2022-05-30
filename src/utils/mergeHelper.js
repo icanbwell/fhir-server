@@ -5,10 +5,9 @@ const deepmerge = require('deepmerge');
 /**
  * @type {{customMerge: (function(*): *)}}
  */
-    // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 const options = {
-        // eslint-disable-next-line no-unused-vars
         customMerge: (/*key*/) => {
+            // this requires a forward declaration since it uses recursion
             // eslint-disable-next-line no-use-before-define
             return mergeObjectOrArray;
         }
@@ -110,6 +109,12 @@ const mergeObjectOrArray = (oldItem, newItem) => {
     return deepmerge(oldItem, newItem, options);
 };
 
+/**
+ * merges two objects
+ * @param {Object} old1
+ * @param {Object} new1
+ * @returns {Object}
+ */
 const mergeObject = (old1, new1) => {
     return deepmerge(old1, new1, options);
 };

@@ -3,7 +3,7 @@ const path = require('path');
 /**
  * @function getContentType
  * @description Get the correct application type for the response
- * @param {String} version Version of resources we are working with
+ * @param {string} version Version of resources we are working with
  */
 function getContentType(version) {
     switch (version) {
