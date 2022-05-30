@@ -20,16 +20,19 @@ const options = {
  * @return {?Object | Object[]}
  */
 const mergeObjectOrArray = (oldItem, newItem) => {
-    if (deepEqual(oldItem, newItem)) {
-        return oldItem;
-    }
+    // if oldItem is null then use newItem
     if (oldItem === null) {
         return newItem;
     }
+    // if newItem is null then use oldItem
     if (newItem === null) {
         return oldItem;
     }
-    // handle array merging
+    // if both are deeply equal then use oldItem (doesn't really matter which one we use in this case)
+    if (deepEqual(oldItem, newItem)) {
+        return oldItem;
+    }
+    // if item is an array then handle merging items in the array
     if (Array.isArray(oldItem)) {
         /**
          * @type {Object[]}
