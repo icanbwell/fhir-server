@@ -28,17 +28,21 @@ const mergeObjectOrArray = (oldItem, newItem) => {
         if (oldItem.length > 0 && typeof oldItem[0] !== 'object') {
             return newItem;
         }
+
+        // find all items with -delete in their id
+        /**
+         * @type {string[]}
+         */
+        const idsOfItemsToDelete = newItem.filter(n => n.id.endsWith('-delete')).map(n => n.id.slice(0, -7));
+
+        newItem = newItem.filter(n => !n.id.endsWith('-delete'));
+        oldItem = oldItem.filter(o => !(idsOfItemsToDelete.includes(o.id)));
         /**
          * @type {? Object[]}
          */
         let result_array = null;
         // iterate through all the new array and find any items that are not present in old array
-        for (let i = 0; i < newItem.length; i++) {
-            /**
-             * @type {Object}
-             */
-            let my_item = newItem[`${i}`];
-
+        for (const /** * @type {Object} */ my_item of newItem) {
             if (my_item === null) {
                 continue;
             }

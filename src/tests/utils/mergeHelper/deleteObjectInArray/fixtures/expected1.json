@@ -1,0 +1,15 @@
+{
+  "address": [
+    {
+      "city": "City",
+      "id": "2",
+      "line": [
+        "Line A"
+      ],
+      "postalCode": "12345",
+      "state": "MD",
+      "type": "both",
+      "use": "home"
+    }
+  ]
+}
