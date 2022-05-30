@@ -26,7 +26,7 @@ const mergeObjectOrArray = (oldItem, newItem) => {
     if (oldItem === null) {
         return newItem;
     }
-    if (newItem === null){
+    if (newItem === null) {
         return oldItem;
     }
     // handle array merging
@@ -48,22 +48,24 @@ const mergeObjectOrArray = (oldItem, newItem) => {
         /**
          * @type {string[]}
          */
-        const idsOfItemsToDelete = newArray.filter(n => n.id.endsWith('-delete')).map(n => n.id.slice(0, -7));
+        const idsOfItemsToDelete = newArray
+            .filter(n => n.id !== null && n.id.endsWith('-delete'))
+            .map(n => n.id.slice(0, -7)); // get id without the -delete at the end
         // remove the "-delete" ids from newArray
-        newArray = newArray.filter(n => !n.id.endsWith('-delete'));
+        newArray = newArray.filter(n => (n.id === null || !n.id.endsWith('-delete')));
         // remove items with these ids from oldArray
-        oldArray = oldArray.filter(o => !(idsOfItemsToDelete.includes(o.id)));
+        oldArray = oldArray.filter(o => (o.id === null || !(idsOfItemsToDelete.includes(o.id))));
         /**
          * @type {? Object[]}
          */
-        let result_array = null;
+        let resultArray = null;
         // iterate through all the new array and find any items that are not present in old array
         for (const /** * @type {Object} */ newArrayItem of newArray) {
             if (newArrayItem === null) {
                 continue;
             }
 
-            // if newItem[i] does not match any item in oldArray then insert
+            // if newArray[i] does not match any item in oldArray then insert
             if (oldArray.every(oldArrayItem => deepEqual(oldArrayItem, newArrayItem) === false)) {
                 // if 'id' is present then use that to find matching elements
                 if (typeof newArrayItem === 'object' && 'id' in newArrayItem) {
@@ -75,12 +77,13 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                     if (matchingOldItemIndex > -1) {
                         // check if id column exists and is the same
                         //  then recurse down and merge that item
-                        if (result_array === null) {
-                            result_array = deepcopy(oldArray); // deep copy so we don't change the original object
+                        if (resultArray === null) {
+                            resultArray = deepcopy(oldArray); // deep copy so we don't change the original object
                         }
-                        result_array[`${matchingOldItemIndex}`] = deepmerge(
+                        // call deepmerge recursively to merge into items in this array
+                        resultArray[`${matchingOldItemIndex}`] = deepmerge(
                             oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
-                        continue;
+                        continue; // no need to continue and check sequence
                     }
                 }
                 // if 'sequence' is present then use that to find matching elements
@@ -88,7 +91,7 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                     /**
                      * @type {Object[]}
                      */
-                    result_array = [];
+                    resultArray = [];
                     // go through the list until you find a sequence number that is greater than the new
                     // item and then insert before it
                     /**
@@ -103,32 +106,32 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                         /**
                          * @type {Object}
                          */
-                        const element = oldArray[`${index}`];
+                        const oldArrayItem = oldArray[`${index}`];
                         // if item has not already been inserted then insert before the next sequence
-                        if (!insertedItem && (element['sequence'] > newArrayItem['sequence'])) {
-                            result_array.push(newArrayItem); // add the new item before
-                            result_array.push(element); // then add the old item
+                        if (!insertedItem && (oldArrayItem['sequence'] > newArrayItem['sequence'])) {
+                            resultArray.push(newArrayItem); // add the new item before
+                            resultArray.push(oldArrayItem); // then add the old item
                             insertedItem = true;
                         } else {
-                            result_array.push(element); // just add the old item
+                            resultArray.push(oldArrayItem); // just add the old item
                         }
                         index += 1;
                     }
                     if (!insertedItem) {
                         // if no sequence number greater than this was found then add at the end
-                        result_array.push(newArrayItem);
+                        resultArray.push(newArrayItem);
                     }
                 } else {
                     // no sequence property is set on this item so just insert at the end
-                    if (result_array === null) {
-                        result_array = deepcopy(oldArray); // deep copy so we don't change the original object
+                    if (resultArray === null) {
+                        resultArray = deepcopy(oldArray); // deep copy so we don't change the original object
                     }
-                    result_array.push(newArrayItem);
+                    resultArray.push(newArrayItem);
                 }
             }
         }
-        if (result_array !== null) {
-            return result_array;
+        if (resultArray !== null) {
+            return resultArray;
         } else {
             return oldArray;
         }
