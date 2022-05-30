@@ -3,6 +3,8 @@ const deepEqual = require('fast-deep-equal');
 const deepmerge = require('deepmerge');
 
 /**
+ * options passed to deepmerge so it calls our custom merge function
+ * https://github.com/TehShrike/deepmerge
  * @type {{customMerge: (function(*): *)}}
  */
 const options = {
@@ -19,7 +21,7 @@ const options = {
  * @param {Object} newArrayItem
  * @returns {Object[]}
  */
-function mergeArrayWithSequenceNumbers(oldArray, newArrayItem) {
+function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
     /**
      * @type {Object[]}
      */
@@ -57,6 +59,37 @@ function mergeArrayWithSequenceNumbers(oldArray, newArrayItem) {
 }
 
 /**
+ * merges an array using id properties
+ * @param {Object[]} oldArray
+ * @param {Object} newArrayItem
+ * @param {Object[] | null} resultArray
+ * @returns {{foundMatch: boolean, resultArray: Object[] | null}}
+ */
+function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
+    // find item in oldArray array that matches this one by id
+    /**
+     * @type {number}
+     */
+    const matchingOldItemIndex = oldArray.findIndex(x => x['id'] === newArrayItem['id']);
+    /**
+     * @type {boolean}
+     */
+    let foundMatch = false;
+    if (matchingOldItemIndex > -1) {
+        // check if id column exists and is the same
+        //  then recurse down and merge that item
+        if (resultArray === null) {
+            resultArray = deepcopy(oldArray); // deep copy so we don't change the original object
+        }
+        // call deepmerge recursively to merge into items in this array
+        resultArray[`${matchingOldItemIndex}`] = deepmerge(
+            oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
+        foundMatch = true;
+    }
+    return {foundMatch, resultArray};
+}
+
+/**
  * Merges two arrays and returns what the value of this array should be after merging
  * @param {Object[]} oldArray
  * @param {Object[]}newArray
@@ -85,7 +118,7 @@ function mergeArrays(oldArray, newArray) {
     let resultArray = null;
     // iterate through all the new array and find any items that are not present in old array
     for (const /** * @type {Object} */ newArrayItem of newArray) {
-        if (newArrayItem === null) {
+        if (newArrayItem === null) { // skip any null elements
             continue;
         }
 
@@ -93,26 +126,18 @@ function mergeArrays(oldArray, newArray) {
         if (oldArray.every(oldArrayItem => deepEqual(oldArrayItem, newArrayItem) === false)) {
             // if 'id' is present then use that to find matching elements
             if (typeof newArrayItem === 'object' && 'id' in newArrayItem) {
-                // find item in oldArray array that matches this one by id
                 /**
-                 * @type {number}
+                 * @type {{foundMatch: boolean, resultArray: (Object[]|null)}}
                  */
-                const matchingOldItemIndex = oldArray.findIndex(x => x['id'] === newArrayItem['id']);
-                if (matchingOldItemIndex > -1) {
-                    // check if id column exists and is the same
-                    //  then recurse down and merge that item
-                    if (resultArray === null) {
-                        resultArray = deepcopy(oldArray); // deep copy so we don't change the original object
-                    }
-                    // call deepmerge recursively to merge into items in this array
-                    resultArray[`${matchingOldItemIndex}`] = deepmerge(
-                        oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
-                    continue; // no need to continue and check sequence
+                const mergeArrayByIdResult = mergeArraysWithId(oldArray, newArrayItem, resultArray);
+                resultArray = mergeArrayByIdResult.resultArray;
+                if (mergeArrayByIdResult.foundMatch) {
+                    continue;
                 }
             }
             // if 'sequence' is present then use that to find matching elements
             if (typeof newArrayItem === 'object' && 'sequence' in newArrayItem) {
-                resultArray = mergeArrayWithSequenceNumbers(oldArray, newArrayItem);
+                resultArray = mergeArraysWithSequenceNumbers(oldArray, newArrayItem);
             } else {
                 // no sequence property is set on this item so just insert at the end
                 if (resultArray === null) {
@@ -158,13 +183,14 @@ const mergeObjectOrArray = (oldItem, newItem) => {
 };
 
 /**
- * merges two objects
- * @param {Object} old1
- * @param {Object} new1
+ * merges two objects recursively and returns the merged object
+ * @param {Object} oldObject
+ * @param {Object} newObject
  * @returns {Object}
  */
-const mergeObject = (old1, new1) => {
-    return deepmerge(old1, new1, options);
+const mergeObject = (oldObject, newObject) => {
+    // call deepmerge library to do the merge but pass in our options so it calls our custom merge function
+    return deepmerge(oldObject, newObject, options);
 };
 
 module.exports = {
