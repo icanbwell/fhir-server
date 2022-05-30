@@ -4,7 +4,7 @@
 
 const FHIRServer = require('@asymmetrik/node-fhir-server-core');
 const compression = require('compression');
-const bodyParser = require('body-parser');
+const express = require('express');
 const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
 const {slackErrorHandler} = require('../middleware/slackErrorHandler');
@@ -47,15 +47,14 @@ class MyFHIRServer extends FHIRServer.Server {
         );
 
         // Enable the body parser
-        this.app.use(bodyParser.urlencoded({
+        this.app.use(express.urlencoded({
             extended: true,
             limit: '50mb',
             parameterLimit: 50000
         }));
-        this.app.use(bodyParser.json({
-            type: ['application/fhir+json', 'application/json+fhir'],
-            limit: '50mb'
-
+        this.app.use(express.json({
+            type: ['application/fhir+json', 'application/json+fhir', 'application/json'],
+            limit: '50mb',
         }));
 
         this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {

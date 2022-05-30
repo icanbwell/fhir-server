@@ -214,7 +214,8 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
                 }
             }
             if (resourceIds.length > 0) {
-                if (resourceName !== 'AuditEvent') {
+                // don't write audit log for just looking up ids since no PHI is shown
+                if (resourceName !== 'AuditEvent' && args['_elements'] !== 'id') {
                     try {
                         // log access to audit logs
                         await logAuditEntryAsync(
