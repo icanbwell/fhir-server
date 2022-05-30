@@ -1,110 +1,15 @@
 {
-    "resourceType": "Patient",
-    "id": "000000463",
-    "meta": {
-        "versionId": "6",
-        "lastUpdated": "2021-08-29T18:27:21.000Z",
-        "source": "http://myhealth.org/patient",
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/access",
-                "code": "myhealth"
-            },
-            {
-                "system": "https://www.icanbwell.com/owner",
-                "code": "myhealth"
-            }
-        ]
-    },
-    "extension": [
-        {
-            "extension": [
-                {
-                    "url": "http://hl7.org/fhir/StructureDefinition/match-grade",
-                    "valueString": "certain"
-                }
-            ],
-            "url": "http://hl7.org/fhir/StructureDefinition/match-grade"
-        },
-        {
-            "extension": [
-                {
-                    "url": "opt_out_date",
-                    "valueString": "3/12/21"
-                },
-                {
-                    "url": "opt_out_source",
-                    "valueString": "opt-outs"
-                }
-            ],
-            "url": "https://raw.githubusercontent.com/icanbwell/helix.pipelines/main/StructureDefinition/vaccine_opt_out"
-        },
-        {
-            "extension": [
-                {
-                    "url": "opt_out_date",
-                    "valueString": "2021-03-12"
-                },
-                {
-                    "url": "opt_out_source",
-                    "valueString": "opt-outs"
-                }
-            ],
-            "url": "https://raw.githubusercontent.com/icanbwell/helix.pipelines/main/StructureDefinition/vaccine_opt_out"
-        }
-    ],
-    "identifier": [
-        {
-            "use": "usual",
-            "type": {
-                "coding": [
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        "code": "MR"
-                    }
-                ]
-            },
-            "system": "http://myhealth.org",
-            "value": "000000463"
-        }
-    ],
-    "active": true,
-    "name": [
-        {
-            "use": "usual",
-            "text": "FirstName LastName",
-            "family": "LastName",
-            "given": [
-                "FirstName",
-                "W"
-            ]
-        }
-    ],
-    "telecom": [
-        {
-            "system": "email",
-            "value": "email@gmail.com",
-            "use": "home"
-        },
-        {
-            "system": "phone",
-            "value": "+11234567890"
-        }
-    ],
-    "gender": "male",
-    "birthDate": "1900-01-01",
-    "deceasedBoolean": false,
-    "address": [
-        {
-            "use": "home",
-            "type": "both",
-            "line": [
-                "Line 1",
-                "Line 2"
-            ],
-            "city": "City",
-            "state": "MD",
-            "postalCode": "12345"
-        }
-    ]
+  "address": [
+    {
+      "use": "home",
+      "type": "both",
+      "line": [
+        "Line 1",
+        "Line 2"
+      ],
+      "city": "City",
+      "state": "MD",
+      "postalCode": "12345"
+    }
+  ]
 }

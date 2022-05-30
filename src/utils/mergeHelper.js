@@ -6,7 +6,7 @@ const deepmerge = require('deepmerge');
  * @type {{customMerge: (function(*): *)}}
  */
 const options = {
-        customMerge: (/*key*/) => {
+        customMerge: (key) => {
             // this requires a forward declaration since it uses recursion
             // eslint-disable-next-line no-use-before-define
             return mergeObjectOrArray;
@@ -14,6 +14,7 @@ const options = {
     };
 
 /**
+ * Merges objects or array of objects
  * @param {?Object | Object[]} oldItem
  * @param {?Object | Object[]} newItem
  * @return {?Object | Object[]}
@@ -40,6 +41,7 @@ const mergeObjectOrArray = (oldItem, newItem) => {
 
             // if newItem[i] does not match any item in oldItem then insert
             if (oldItem.every(a => deepEqual(a, my_item) === false)) {
+                // if 'id' is present then use that to find matching elements
                 if (typeof my_item === 'object' && 'id' in my_item) {
                     // find item in oldItem array that matches this one by id
                     /**
@@ -56,7 +58,7 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                         continue;
                     }
                 }
-                // insert based on sequence if present
+                // if 'sequence' is present then use that to find matching elements
                 if (typeof my_item === 'object' && 'sequence' in my_item) {
                     /**
                      * @type {Object[]}
