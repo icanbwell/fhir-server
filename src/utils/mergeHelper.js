@@ -23,51 +23,68 @@ const mergeObjectOrArray = (oldItem, newItem) => {
     if (deepEqual(oldItem, newItem)) {
         return oldItem;
     }
+    if (oldItem === null) {
+        return newItem;
+    }
+    if (newItem === null){
+        return oldItem;
+    }
+    // handle array merging
     if (Array.isArray(oldItem)) {
+        /**
+         * @type {Object[]}
+         */
+        let oldArray = oldItem;
+        /**
+         * @type {Object[]}
+         */
+        let newArray = newItem;
         // if this is an array of primitive types then just replace with new array
-        if (oldItem.length > 0 && typeof oldItem[0] !== 'object') {
-            return newItem;
+        if (oldArray.length > 0 && typeof oldArray[0] !== 'object' && newArray.length > 0) {
+            return newArray;
         }
 
         // find all items with -delete in their id
         /**
          * @type {string[]}
          */
-        const idsOfItemsToDelete = newItem.filter(n => n.id.endsWith('-delete')).map(n => n.id.slice(0, -7));
-
-        newItem = newItem.filter(n => !n.id.endsWith('-delete'));
-        oldItem = oldItem.filter(o => !(idsOfItemsToDelete.includes(o.id)));
+        const idsOfItemsToDelete = newArray.filter(n => n.id.endsWith('-delete')).map(n => n.id.slice(0, -7));
+        // remove the "-delete" ids from newArray
+        newArray = newArray.filter(n => !n.id.endsWith('-delete'));
+        // remove items with these ids from oldArray
+        oldArray = oldArray.filter(o => !(idsOfItemsToDelete.includes(o.id)));
         /**
          * @type {? Object[]}
          */
         let result_array = null;
         // iterate through all the new array and find any items that are not present in old array
-        for (const /** * @type {Object} */ my_item of newItem) {
-            if (my_item === null) {
+        for (const /** * @type {Object} */ newArrayItem of newArray) {
+            if (newArrayItem === null) {
                 continue;
             }
 
-            // if newItem[i] does not match any item in oldItem then insert
-            if (oldItem.every(a => deepEqual(a, my_item) === false)) {
+            // if newItem[i] does not match any item in oldArray then insert
+            if (oldArray.every(oldArrayItem => deepEqual(oldArrayItem, newArrayItem) === false)) {
                 // if 'id' is present then use that to find matching elements
-                if (typeof my_item === 'object' && 'id' in my_item) {
-                    // find item in oldItem array that matches this one by id
+                if (typeof newArrayItem === 'object' && 'id' in newArrayItem) {
+                    // find item in oldArray array that matches this one by id
                     /**
                      * @type {number}
                      */
-                    const matchingOldItemIndex = oldItem.findIndex(x => x['id'] === my_item['id']);
+                    const matchingOldItemIndex = oldArray.findIndex(x => x['id'] === newArrayItem['id']);
                     if (matchingOldItemIndex > -1) {
                         // check if id column exists and is the same
                         //  then recurse down and merge that item
                         if (result_array === null) {
-                            result_array = deepcopy(oldItem); // deep copy so we don't change the original object
+                            result_array = deepcopy(oldArray); // deep copy so we don't change the original object
                         }
-                        result_array[`${matchingOldItemIndex}`] = deepmerge(oldItem[`${matchingOldItemIndex}`], my_item, options);
+                        result_array[`${matchingOldItemIndex}`] = deepmerge(
+                            oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
                         continue;
                     }
                 }
                 // if 'sequence' is present then use that to find matching elements
-                if (typeof my_item === 'object' && 'sequence' in my_item) {
+                if (typeof newArrayItem === 'object' && 'sequence' in newArrayItem) {
                     /**
                      * @type {Object[]}
                      */
@@ -82,14 +99,14 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                      * @type {boolean}
                      */
                     let insertedItem = false;
-                    while (index < oldItem.length) {
+                    while (index < oldArray.length) {
                         /**
                          * @type {Object}
                          */
-                        const element = oldItem[`${index}`];
+                        const element = oldArray[`${index}`];
                         // if item has not already been inserted then insert before the next sequence
-                        if (!insertedItem && (element['sequence'] > my_item['sequence'])) {
-                            result_array.push(my_item); // add the new item before
+                        if (!insertedItem && (element['sequence'] > newArrayItem['sequence'])) {
+                            result_array.push(newArrayItem); // add the new item before
                             result_array.push(element); // then add the old item
                             insertedItem = true;
                         } else {
@@ -99,23 +116,24 @@ const mergeObjectOrArray = (oldItem, newItem) => {
                     }
                     if (!insertedItem) {
                         // if no sequence number greater than this was found then add at the end
-                        result_array.push(my_item);
+                        result_array.push(newArrayItem);
                     }
                 } else {
                     // no sequence property is set on this item so just insert at the end
                     if (result_array === null) {
-                        result_array = deepcopy(oldItem); // deep copy so we don't change the original object
+                        result_array = deepcopy(oldArray); // deep copy so we don't change the original object
                     }
-                    result_array.push(my_item);
+                    result_array.push(newArrayItem);
                 }
             }
         }
         if (result_array !== null) {
             return result_array;
         } else {
-            return oldItem;
+            return oldArray;
         }
     }
+    // if this is not an array then recurse down to merge
     return deepmerge(oldItem, newItem, options);
 };
 
