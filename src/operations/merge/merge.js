@@ -5,10 +5,9 @@ const {
 } = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
-const async = require('async');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const {merge_resource_with_retry} = require('./mergeResourceWithRetry');
+const {mergeResourceList} = require('./mergeResourceList');
 
 // noinspection JSValidateTypes
 /**
@@ -89,60 +88,10 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         resources_incoming = resources_incoming.entry.map(e => e.resource);
     }
     if (Array.isArray(resources_incoming)) {
-        /**
-         * @type {string[]}
-         */
-        const ids_of_resources = resources_incoming.map(r => r.id);
-        logRequest(user,
-            '==================' + resource_name + ': Merge received array ' +
-            ', len= ' + resources_incoming.length +
-            ' [' + ids_of_resources.toString() + '] ' +
-            '===================='
+        return await mergeResourceList(
+            resources_incoming, user, resource_name, scopes, path, currentDate,
+            requestId, base_version, scope, collection_name, requestInfo, args
         );
-        // find items without duplicates and run them in parallel
-        // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
-        //  may not finish adding to the db before the next item tries to merge
-        /**
-         * @type {Object[]}
-         */
-        const duplicate_id_resources = findDuplicateResources(resources_incoming);
-        /**
-         * @type {Object[]}
-         */
-        const non_duplicate_id_resources = findUniqueResources(resources_incoming);
-
-        /**
-         * @type {Awaited<unknown>[]}
-         */
-        const result = await Promise.all([
-            async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
-                scopes, user, path, currentDate, requestId, base_version, scope, collection_name)), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
-                scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
-        ]);
-        /**
-         * @type {FlatArray<unknown[], 1>[]}
-         */
-        const returnVal = result.flat(1);
-        if (returnVal && returnVal.length > 0) {
-            const createdItems = returnVal.filter(r => r['created'] === true);
-            const updatedItems = returnVal.filter(r => r['updated'] === true);
-            if (createdItems && createdItems.length > 0) {
-                if (resource_name !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
-                }
-            }
-            if (updatedItems && updatedItems.length > 0) {
-                if (resource_name !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
-                }
-            }
-        }
-
-        logDebug(user, '--- Merge array result ----');
-        logDebug(user, JSON.stringify(returnVal));
-        logDebug(user, '-----------------');
-        return returnVal;
     } else {
         /**
          * @type {{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}, created: boolean, id: String, updated: boolean}}
