@@ -1,4 +1,4 @@
-const {merge_resource} = require('./mergeResource');
+const {mergeResourceAsync} = require('./mergeResource');
 
 /**
  * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
@@ -16,14 +16,14 @@ const {merge_resource} = require('./mergeResource');
  * @param {string} collectionName
  * @return {Promise<MergeResultEntry>}
  */
-async function merge_resource_with_retry(resource_to_merge, resourceName,
-                                         scopes, user, path, currentDate,
-                                         requestId, baseVersion, scope, collectionName) {
-    return await merge_resource(resource_to_merge, resourceName,
+async function mergeResourceWithRetryAsync(resource_to_merge, resourceName,
+                                           scopes, user, path, currentDate,
+                                           requestId, baseVersion, scope, collectionName) {
+    return await mergeResourceAsync(resource_to_merge, resourceName,
         scopes, user, path, currentDate,
         requestId, baseVersion, scope, collectionName);
 }
 
 module.exports = {
-    merge_resource_with_retry
+    mergeResourceWithRetryAsync: mergeResourceWithRetryAsync
 };

@@ -16,7 +16,7 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * @param {string | null} path
  * @param {string} currentDate
  */
-async function preMergeChecks(resourceToMerge, resourceName, scopes, user, path, currentDate) {
+async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, path, currentDate) {
     /**
      * @type {string} id
      */
@@ -150,5 +150,5 @@ async function preMergeChecks(resourceToMerge, resourceName, scopes, user, path,
 }
 
 module.exports = {
-    preMergeChecks
+    preMergeChecksAsync
 };

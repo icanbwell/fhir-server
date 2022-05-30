@@ -2,14 +2,14 @@
 // returns an OperationOutcome
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
-const {preMergeChecks} = require('./preMergeChecks');
+const {preMergeChecksAsync} = require('./preMergeChecks');
 const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const {mergeExisting} = require('./mergeExisting');
-const {mergeInsert} = require('./mergeInsert');
+const {mergeExistingAsync} = require('./mergeExisting');
+const {mergeInsertAsync} = require('./mergeInsert');
 
 /**
  * Merges a single resource
@@ -25,9 +25,9 @@ const {mergeInsert} = require('./mergeInsert');
  * @param {string} collectionName
  * @return {Promise<MergeResultEntry>}
  */
-async function merge_resource(resource_to_merge, resourceName,
-                              scopes, user, path, currentDate,
-                              requestId, baseVersion, scope, collectionName) {
+async function mergeResourceAsync(resource_to_merge, resourceName,
+                                  scopes, user, path, currentDate,
+                                  requestId, baseVersion, scope, collectionName) {
     /**
      * @type {string}
      */
@@ -46,7 +46,7 @@ async function merge_resource(resource_to_merge, resourceName,
             'merge_' + requestId);
     }
 
-    const preMergeCheckFailures = await preMergeChecks(resource_to_merge, resourceName, scopes, user, path, currentDate);
+    const preMergeCheckFailures = await preMergeChecksAsync(resource_to_merge, resourceName, scopes, user, path, currentDate);
     if (preMergeCheckFailures) {
         return preMergeCheckFailures;
     }
@@ -92,10 +92,10 @@ async function merge_resource(resource_to_merge, resourceName,
         // check if resource was found in database or not
         // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
-            res = await mergeExisting(
+            res = await mergeExistingAsync(
                 resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId);
         } else {
-            res = await mergeInsert(resource_to_merge, baseVersion, collectionName, user);
+            res = await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user);
         }
 
         return res;
@@ -140,5 +140,5 @@ async function merge_resource(resource_to_merge, resourceName,
 }
 
 module.exports = {
-    merge_resource
+    mergeResourceAsync
 };

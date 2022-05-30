@@ -6,8 +6,8 @@ const {
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {merge_resource_with_retry} = require('./mergeResourceWithRetry');
-const {mergeResourceList} = require('./mergeResourceList');
+const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
+const {mergeResourceListAsync} = require('./mergeResourceList');
 
 /**
  * does a FHIR Merge
@@ -87,7 +87,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
     }
     if (Array.isArray(resourcesIncoming)) {
-        return await mergeResourceList(
+        return await mergeResourceListAsync(
             resourcesIncoming, user, resourceName, scopes, path, currentDate,
             requestId, base_version, scope, collectionName, requestInfo, args
         );
@@ -95,7 +95,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         /**
          * @type {MergeResultEntry}
          */
-        const returnVal = await merge_resource_with_retry(resourcesIncoming, resourceName,
+        const returnVal = await mergeResourceWithRetryAsync(resourcesIncoming, resourceName,
             scopes, user, path, currentDate, requestId, base_version, scope, collectionName);
         if (returnVal) {
             if (returnVal['created'] === true) {

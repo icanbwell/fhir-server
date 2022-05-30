@@ -11,7 +11,7 @@ const {ForbiddenError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
-const {performMergeDbUpdate} = require('./performMergeDbUpdate');
+const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
 
 /**
  * resource to merge
@@ -25,7 +25,7 @@ const {performMergeDbUpdate} = require('./performMergeDbUpdate');
  * @param {string} requestId
  * @returns {Promise<{created: boolean, id: *, message: string, updated: boolean, resource_version}|{created: boolean, id: *, updated: *, resource_version}>}
  */
-async function mergeExisting(resourceToMerge, data, baseVersion, user, scope, collectionName, currentDate, requestId) {
+async function mergeExistingAsync(resourceToMerge, data, baseVersion, user, scope, collectionName, currentDate, requestId) {
     let id = resourceToMerge.id;
     // create a resource with incoming data
     /**
@@ -175,9 +175,9 @@ async function mergeExisting(resourceToMerge, data, baseVersion, user, scope, co
             id,
             'merge_' + meta.versionId + '_' + requestId);
     }
-    return await performMergeDbUpdate(resourceToMerge, doc, cleaned, baseVersion, collectionName);
+    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName);
 }
 
 module.exports = {
-    mergeExisting
+    mergeExistingAsync
 };

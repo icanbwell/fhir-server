@@ -1,7 +1,7 @@
 const {logRequest, logDebug} = require('../common/logging');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const async = require('async');
-const {merge_resource_with_retry} = require('./mergeResourceWithRetry');
+const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 
 /**
@@ -20,11 +20,11 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
  * @param {Object} args
  * @returns {Promise<MergeResultEntry[]>}
  */
-async function mergeResourceList(resources_incoming, user,
-                                 resource_name, scopes, path,
-                                 currentDate, requestId, base_version,
-                                 scope, collection_name, requestInfo,
-                                 args) {
+async function mergeResourceListAsync(resources_incoming, user,
+                                      resource_name, scopes, path,
+                                      currentDate, requestId, base_version,
+                                      scope, collection_name, requestInfo,
+                                      args) {
     /**
      * @type {string[]}
      */
@@ -51,9 +51,9 @@ async function mergeResourceList(resources_incoming, user,
      * @type {Awaited<MergeResultEntry[]>[]}
      */
     const result = await Promise.all([
-        async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
+        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
             scopes, user, path, currentDate, requestId, base_version, scope, collection_name)), // run in parallel
-        async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
+        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
             scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
     ]);
     /**
@@ -89,5 +89,5 @@ async function mergeResourceList(resources_incoming, user,
 
 
 module.exports = {
-    mergeResourceList
+    mergeResourceListAsync
 };

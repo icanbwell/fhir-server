@@ -14,7 +14,7 @@ const {preSaveAsync} = require('../common/preSave');
  * @param {string} collectionName
  * @returns {Promise<{created: boolean, id: *, updated: any, resource_version}>}
  */
-async function performMergeDbUpdate(resourceToMerge, doc, cleaned, baseVersion, collectionName) {
+async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName) {
     let id = resourceToMerge.id;
 
     /**
@@ -69,5 +69,5 @@ async function performMergeDbUpdate(resourceToMerge, doc, cleaned, baseVersion, 
 }
 
 module.exports = {
-    performMergeDbUpdate
+    performMergeDbUpdateAsync
 };

@@ -5,7 +5,7 @@ const {BadRequestError} = require('../../utils/httpErrors');
 const {getMeta} = require('../common/getMeta');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
-const {performMergeDbUpdate} = require('./performMergeDbUpdate');
+const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
 
 /**
  * merge insert
@@ -15,7 +15,7 @@ const {performMergeDbUpdate} = require('./performMergeDbUpdate');
  * @param {string | null} user
  * @returns {Promise<{created: boolean, id: *, updated: *, resource_version}>}
  */
-async function mergeInsert(resourceToMerge, baseVersion, collectionName, user) {
+async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName, user) {
     let id = resourceToMerge.id;
     // not found so insert
     logDebug(user,
@@ -51,9 +51,9 @@ async function mergeInsert(resourceToMerge, baseVersion, collectionName, user) {
     const cleaned = removeNull(resourceToMerge);
     const doc = Object.assign(cleaned, {_id: id});
 
-    return await performMergeDbUpdate(resourceToMerge, doc, cleaned, baseVersion, collectionName);
+    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName);
 }
 
 module.exports = {
-    mergeInsert
+    mergeInsertAsync
 };
