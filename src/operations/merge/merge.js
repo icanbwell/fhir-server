@@ -13,11 +13,11 @@ const {mergeResourceList} = require('./mergeResourceList');
  * does a FHIR Merge
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceName
+ * @param {string} collectionName
  * @return {Resource | Resource[]}
  */
-module.exports.merge = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.merge = async (requestInfo, args, resourceName, collectionName) => {
     /**
      * @type {string|null}
      */
@@ -37,20 +37,20 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     /**
      * @type {string}
      */
-    logRequest(user, `'${resource_name} >>> merge` + ' scopes:' + scope);
+    logRequest(user, `'${resourceName} >>> merge` + ' scopes:' + scope);
 
     /**
      * @type {string[]}
      */
     const scopes = parseScopes(scope);
 
-    verifyHasValidScopes(resource_name, 'write', user, scope);
+    verifyHasValidScopes(resourceName, 'write', user, scope);
 
     // read the incoming resource from request body
     /**
      * @type {Object[]}
      */
-    let resources_incoming = body;
+    let resourcesIncoming = body;
     logDebug(user, JSON.stringify(args));
     /**
      * @type {string}
@@ -72,40 +72,40 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     const currentDate = moment.utc().format('YYYY-MM-DD');
 
     logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resources_incoming));
+    logDebug(user, JSON.stringify(resourcesIncoming));
     logDebug(user, '-----------------');
 
 
     // if the incoming request is a bundle then unwrap the bundle
-    if ((!(Array.isArray(resources_incoming))) && resources_incoming['resourceType'] === 'Bundle') {
+    if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
         logDebug(user, '--- validate schema of Bundle ----');
-        const operationOutcome = validateResource(resources_incoming, 'Bundle', path);
+        const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             return operationOutcome;
         }
         // unwrap the resources
-        resources_incoming = resources_incoming.entry.map(e => e.resource);
+        resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
     }
-    if (Array.isArray(resources_incoming)) {
+    if (Array.isArray(resourcesIncoming)) {
         return await mergeResourceList(
-            resources_incoming, user, resource_name, scopes, path, currentDate,
-            requestId, base_version, scope, collection_name, requestInfo, args
+            resourcesIncoming, user, resourceName, scopes, path, currentDate,
+            requestId, base_version, scope, collectionName, requestInfo, args
         );
     } else {
         /**
          * @type {{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}, created: boolean, id: String, updated: boolean}}
          */
-        const returnVal = await merge_resource_with_retry(resources_incoming, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name);
+        const returnVal = await merge_resource_with_retry(resourcesIncoming, resourceName,
+            scopes, user, path, currentDate, requestId, base_version, scope, collectionName);
         if (returnVal) {
             if (returnVal['created'] === true) {
-                if (resource_name !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, [returnVal['id']]);
+                if (resourceName !== 'AuditEvent') {
+                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'create', args, [returnVal['id']]);
                 }
             }
             if (returnVal['updated'] === true) {
-                if (resource_name !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resource_name, 'update', args, [returnVal['id']]);
+                if (resourceName !== 'AuditEvent') {
+                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'update', args, [returnVal['id']]);
                 }
             }
         }
