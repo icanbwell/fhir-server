@@ -9,7 +9,6 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {merge_resource_with_retry} = require('./mergeResourceWithRetry');
 const {mergeResourceList} = require('./mergeResourceList');
 
-// noinspection JSValidateTypes
 /**
  * does a FHIR Merge
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -96,7 +95,8 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         /**
          * @type {{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}, created: boolean, id: String, updated: boolean}}
          */
-        const returnVal = await merge_resource_with_retry(resources_incoming);
+        const returnVal = await merge_resource_with_retry(resources_incoming, resource_name,
+            scopes, user, path, currentDate, requestId, base_version, scope, collection_name);
         if (returnVal) {
             if (returnVal['created'] === true) {
                 if (resource_name !== 'AuditEvent') {
