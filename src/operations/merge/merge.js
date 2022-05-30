@@ -28,6 +28,7 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const {preSaveAsync} = require('../common/preSave');
 const {preMergeChecks} = require('./preMergeChecks');
+const {performMergeDbUpdate} = require('./performMergeDbUpdate');
 
 // noinspection JSValidateTypes
 /**
@@ -96,67 +97,6 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     logDebug(user, JSON.stringify(resources_incoming));
     logDebug(user, '-----------------');
 
-
-    /**
-     * performs the db update
-     * @param {Object} resourceToMerge
-     * @param {Object} doc
-     * @param {Object} cleaned
-     * @returns {Promise<{created: boolean, id: *, updated: any, resource_version}>}
-     */
-    async function performMergeDbUpdate(resourceToMerge, doc, cleaned) {
-        let id = resourceToMerge.id;
-
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = isTrue(env.USE_ATLAS);
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        let db = (resourceToMerge.resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, `${resourceToMerge.resourceType}_${base_version}`);
-
-        await preSaveAsync(doc);
-
-        delete doc['_id'];
-
-        // Insert/update our resource record
-        // When using the $set operator, only the specified fields are updated
-        /**
-         * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
-         */
-        let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-
-        // save to history
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let history_collection = await getOrCreateCollection(db, `${collection_name}_${base_version}_History`);
-        /**
-         * @type {import('mongodb').Document}
-         */
-        let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-        /**
-         * @type {boolean}
-         */
-        const created_entity = res.lastErrorObject && !res.lastErrorObject.updatedExisting;
-        // Insert our resource record to history but don't assign _id
-        delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
-        await history_collection.insertOne(history_resource);
-        return {
-            id: id,
-            created: created_entity,
-            updated: res.lastErrorObject.updatedExisting,
-            resource_version: doc.meta.versionId
-        };
-    }
 
     /**
      * resource to merge
@@ -314,7 +254,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
                 id,
                 'merge_' + meta.versionId + '_' + requestId);
         }
-        return await performMergeDbUpdate(resourceToMerge, doc, cleaned);
+        return await performMergeDbUpdate(resourceToMerge, doc, cleaned, base_version, collection_name);
     }
 
     /**
@@ -358,7 +298,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
         const cleaned = removeNull(resourceToMerge);
         const doc = Object.assign(cleaned, {_id: id});
 
-        return await performMergeDbUpdate(resourceToMerge, doc, cleaned);
+        return await performMergeDbUpdate(resourceToMerge, doc, cleaned, base_version, collection_name);
     }
 
     // this function is called for each resource
