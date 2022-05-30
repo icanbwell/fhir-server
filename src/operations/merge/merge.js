@@ -1,8 +1,7 @@
 const {logRequest, logDebug} = require('../common/logging');
 const {
     parseScopes,
-    verifyHasValidScopes,
-    doesResourceHaveAccessTags
+    verifyHasValidScopes
 } = require('../security/scopes');
 const moment = require('moment-timezone');
 const {isTrue} = require('../../utils/isTrue');
@@ -11,18 +10,15 @@ const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const globals = require('../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {getMeta} = require('../common/getMeta');
 const async = require('async');
 // const {check_fhir_mismatch} = require('../common/check_fhir_mismatch');
 const {logError} = require('../common/logging');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const {preMergeChecks} = require('./preMergeChecks');
-const {performMergeDbUpdate} = require('./performMergeDbUpdate');
 const {mergeExisting} = require('./mergeExisting');
+const {mergeInsert} = require('./mergeInsert');
 
 // noinspection JSValidateTypes
 /**
@@ -90,50 +86,6 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     logDebug(user, '--- body ----');
     logDebug(user, JSON.stringify(resources_incoming));
     logDebug(user, '-----------------');
-
-    /**
-     * merge insert
-     * @param resourceToMerge
-     * @returns {Promise<{created: boolean, id: *, updated: *, resource_version}>}
-     */
-    async function mergeInsert(resourceToMerge) {
-        let id = resourceToMerge.id;
-        // not found so insert
-        logDebug(user,
-            resourceToMerge.resourceType +
-            ': merge new resource ' +
-            '[' + resourceToMerge.id + ']: ' +
-            JSON.stringify(resourceToMerge)
-        );
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!doesResourceHaveAccessTags(resourceToMerge)) {
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
-            }
-        }
-
-        if (!resourceToMerge.meta) {
-            // create the metadata
-            /**
-             * @type {function({Object}): Meta}
-             */
-            let Meta = getMeta(base_version);
-            resourceToMerge.meta = new Meta({
-                versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            });
-        } else {
-            resourceToMerge.meta.versionId = '1';
-            resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        }
-
-        // const cleaned = JSON.parse(JSON.stringify(resourceToMerge));
-        // let Resource = getResource(base_version, resourceToMerge.resourceType);
-        // const cleaned = new Resource(resourceToMerge).toJSON();
-        const cleaned = removeNull(resourceToMerge);
-        const doc = Object.assign(cleaned, {_id: id});
-
-        return await performMergeDbUpdate(resourceToMerge, doc, cleaned, base_version, collection_name);
-    }
 
     // this function is called for each resource
     // returns an OperationOutcome
@@ -210,7 +162,7 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
                 res = await mergeExisting(
                     resource_to_merge, data, base_version, user, scope, collection_name, currentDate, requestId);
             } else {
-                res = await mergeInsert(resource_to_merge);
+                res = await mergeInsert(resource_to_merge, base_version, collection_name, user);
             }
 
             return res;

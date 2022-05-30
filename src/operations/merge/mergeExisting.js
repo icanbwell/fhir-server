@@ -15,8 +15,8 @@ const {performMergeDbUpdate} = require('./performMergeDbUpdate');
 
 /**
  * resource to merge
- * @param resourceToMerge
- * @param data
+ * @param {Resource} resourceToMerge
+ * @param {Object} data
  * @param {string} baseVersion
  * @param {string|null} user
  * @param {string} scope
