@@ -7,14 +7,14 @@ const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 
 /**
- * check merge
+ * run any pre-checks before merge
  * @param {Resource} resourceToMerge
  * @param {string} resourceName
  * @returns {Promise<{operationOutcome: OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|{operationOutcome: {issue: [{severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}], resourceType: string}, issue: ({severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}|null), created: boolean, id: *, updated: boolean}|{operationOutcome: ?OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|boolean>}
- * @param scopes
- * @param user
- * @param path
- * @param currentDate
+ * @param {string[] | null} scopes
+ * @param {string | null} user
+ * @param {string | null} path
+ * @param {string} currentDate
  */
 async function preMergeChecks(resourceToMerge, resourceName, scopes, user, path, currentDate) {
     /**

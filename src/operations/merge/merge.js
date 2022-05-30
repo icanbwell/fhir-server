@@ -39,9 +39,21 @@ const {preMergeChecks} = require('./preMergeChecks');
  * @return {Resource | Resource[]}
  */
 module.exports.merge = async (requestInfo, args, resource_name, collection_name) => {
+    /**
+     * @type {string|null}
+     */
     const user = requestInfo.user;
+    /**
+     * @type {string}
+     */
     const scope = requestInfo.scope;
+    /**
+     * @type {string|null}
+     */
     const path = requestInfo.path;
+    /**
+     * @type {Object|Object[]|null}
+     */
     const body = requestInfo.body;
     /**
      * @type {string}
