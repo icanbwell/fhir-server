@@ -8,7 +8,7 @@ const {validateResource} = require('../../utils/validator.util');
 const async = require('async');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
-const {merge_resource} = require('./mergeResource');
+const {merge_resource_with_retry} = require('./mergeResourceWithRetry');
 
 // noinspection JSValidateTypes
 /**
@@ -77,18 +77,6 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
     logDebug(user, JSON.stringify(resources_incoming));
     logDebug(user, '-----------------');
 
-    /**
-     * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
-     *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
-     *  and then the other ones tries to insert too
-     * @param resource_to_merge
-     * @return {Promise<{operationOutcome: ?OperationOutcome, issue: {severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}, created: boolean, id: String, updated: boolean}>}
-     */
-    async function merge_resource_with_retry(resource_to_merge) {
-        return await merge_resource(resource_to_merge, resource_name,
-            scopes, user, path, currentDate,
-            requestId, base_version, scope, collection_name);
-    }
 
     // if the incoming request is a bundle then unwrap the bundle
     if ((!(Array.isArray(resources_incoming))) && resources_incoming['resourceType'] === 'Bundle') {
@@ -127,8 +115,10 @@ module.exports.merge = async (requestInfo, args, resource_name, collection_name)
          * @type {Awaited<unknown>[]}
          */
         const result = await Promise.all([
-            async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x)), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x)) // run in series
+            async.map(non_duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
+                scopes, user, path, currentDate, requestId, base_version, scope, collection_name)), // run in parallel
+            async.mapSeries(duplicate_id_resources, async x => await merge_resource_with_retry(x, resource_name,
+                scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
         ]);
         /**
          * @type {FlatArray<unknown[], 1>[]}
