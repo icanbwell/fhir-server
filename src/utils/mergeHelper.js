@@ -6,12 +6,12 @@ const deepmerge = require('deepmerge');
  * @type {{customMerge: (function(*): *)}}
  */
 const options = {
-        customMerge: (key) => {
-            // this requires a forward declaration since it uses recursion
-            // eslint-disable-next-line no-use-before-define
-            return mergeObjectOrArray;
-        }
-    };
+    customMerge: (/*key*/) => {
+        // this requires a forward declaration since it uses recursion
+        // eslint-disable-next-line no-use-before-define
+        return mergeObjectOrArray;
+    }
+};
 
 /**
  * Merges objects or array of objects
@@ -24,6 +24,10 @@ const mergeObjectOrArray = (oldItem, newItem) => {
         return oldItem;
     }
     if (Array.isArray(oldItem)) {
+        // if this is an array of primitive types then just replace with new array
+        if (oldItem.length > 0 && typeof oldItem[0] !== 'object') {
+            return newItem;
+        }
         /**
          * @type {? Object[]}
          */
