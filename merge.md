@@ -22,10 +22,12 @@ For each resource in the bundle, the FHIR server checks:
 2. If the data the client has sent is exactly the same as the data already in the FHIR server.  If yes, the FHIR server ignores the request.
 3. The FHIR server compares the resource the client has sent with the resource in the FHIR server and creates a patch containing any changes.  It then applies this patch.  Note that since a patch is created, the client can send ONLY the properties it wants to change and not the whole resource.
     * If the change is in an array property then:
+        * If array contains primitive types (e.g., string) then replace whole array with new array
         * FHIR server tries to find a match on the id of the item in the array.  If a match is found then the FHIR server updates that item in the array.
         * FHIR server tries to find a match on sequence of the item in the array.  If a match is found then the FHIR server updates that item in the array.
         * If no match is found then the FHIR server adds the item as a new item at the end of the array.
         * Note: If an item does not have id or sequence AND it does not match any existing item exactly then the FHIR server will create a new item. There is no way for it to know that you want to update an item vs add an item.  Hence we recommend using id or sequence on items in an array whenever possible to minimize the chance of duplications in array items.
+        * If new array contains one or more items that end in "-delete" then find those items in the old array and remove them.
 
     * Note this is done in a recursive manner so changes are detected in array any levels deep.
 

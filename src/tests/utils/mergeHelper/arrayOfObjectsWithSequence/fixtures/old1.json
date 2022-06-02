@@ -1,11 +1,12 @@
 {
   "address": [
     {
-      "id": "1",
+      "sequence": 2,
       "use": "home",
       "type": "both",
       "line": [
-        "Line A"
+        "Line 1",
+        "Line 2"
       ],
       "city": "City",
       "state": "MD",

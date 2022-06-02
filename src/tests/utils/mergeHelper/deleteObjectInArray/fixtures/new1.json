@@ -1,0 +1,26 @@
+{
+  "address": [
+    {
+      "id": "1-delete",
+      "use": "home",
+      "type": "both",
+      "line": [
+        "Line A"
+      ],
+      "city": "City",
+      "state": "MD",
+      "postalCode": "12345"
+    },
+    {
+      "id": "2",
+      "use": "home",
+      "type": "both",
+      "line": [
+        "Line A"
+      ],
+      "city": "City",
+      "state": "MD",
+      "postalCode": "12345"
+    }
+  ]
+}
