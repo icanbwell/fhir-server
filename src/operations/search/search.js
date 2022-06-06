@@ -16,7 +16,6 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {getQueryWithSecurityTags, getQueryWithPatientFilter} = require("../common/getSecurityTags");
 
 
 /**
@@ -47,6 +46,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * @type {string | null}
      */
     const url = requestInfo.originalUrl;
+    /**
+     * @type {string[] | null}
+     */
+    const patients = requestInfo.patients;
+
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
@@ -67,7 +71,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
+    } = constructQuery(user, scope, patients, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}

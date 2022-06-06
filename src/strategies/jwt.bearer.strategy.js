@@ -113,11 +113,19 @@ const verify = (jwt_payload, done) => {
         if (isUser) {
             context['isUser'] = isUser;
         }
+        const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'];
+        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
+
+        if (fhirPatientIds && fhirPatientIds.length > 0) {
+            context['fhirPatientIds'] = fhirPatientIds;
+        } else if (fhirPatientId) {
+            context['fhirPatientIds'] = [fhirPatientId];
+        }
         const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
         if (fhirPersonId) {
             context['fhirPersonId'] = fhirPersonId;
         }
-        return done(null, { id: client_id, isUser }, { scope, context, isUser, fhirPersonId });
+        return done(null, { id: client_id, isUser }, { scope, context });
     }
 
     return done(null, false);
@@ -135,7 +143,7 @@ class MyJwtStrategy extends JwtStrategy {
         const self = this;
         const token = self._jwtFromRequest(req);
         const resourceUrl = req.originalUrl;
-
+        console.log('!!!AUTHENTICATING!!!')
         if (
             !token &&
             req.accepts('text/html') &&

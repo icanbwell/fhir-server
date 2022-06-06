@@ -10,6 +10,8 @@ class RequestInfo {
      * @param {string | null} host
      * @param {Object | Object[] | null} body
      * @param {string | null} accept
+     * @param {string[] | null} patients
+     * @param {string | null} fhirPersonId
      */
     constructor(user,
                 scope,
@@ -19,7 +21,9 @@ class RequestInfo {
                 path,
                 host,
                 body,
-                accept) {
+                accept,
+                patients,
+                fhirPersonId) {
         /**
          * @type {string|null}
          */
@@ -56,6 +60,14 @@ class RequestInfo {
          * @type {string | null}
          */
         this.accept = accept;
+        /**
+         * @type {string[] | null}
+         */
+        this.patients = patients;
+        /**
+         * @type {string | null}
+         */
+        this.fhirPersonId = fhirPersonId;
     }
 }
 

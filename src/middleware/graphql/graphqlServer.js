@@ -51,6 +51,7 @@ const graphql = async () => {
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username)
                         || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
                         || req.user,
+                    patients: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
                     scope: req.authInfo && req.authInfo.scope,
                     remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
                     protocol: req.protocol,

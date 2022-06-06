@@ -49,6 +49,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
      * @type {string | null}
      */
     const url = requestInfo.originalUrl;
+    /**
+     * @type {string[] | null}
+     */
+    const patients = requestInfo.patients;
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
@@ -69,7 +73,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
+    } = constructQuery(user, scope, patients, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}
