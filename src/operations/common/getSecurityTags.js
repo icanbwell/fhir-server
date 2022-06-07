@@ -95,9 +95,9 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
     }
 
     // if there is already an $and statement then just add to it
-    query = appendAndQuery(query, securityTagQuery)
-    return query;
+    query = appendAndQuery(query, securityTagQuery);
   }
+    return query;
 };
 
 const getQueryWithPatientFilter = (patients, query, resource) => {
@@ -109,8 +109,8 @@ const getQueryWithPatientFilter = (patients, query, resource) => {
       [resource === 'Patient' ? 'id' : 'patient']: inQuery
     };
     query = appendAndQuery(query, patientsQuery);
-    return query;
   }
+  return query;
 };
 
 module.exports = {

@@ -143,7 +143,6 @@ class MyJwtStrategy extends JwtStrategy {
         const self = this;
         const token = self._jwtFromRequest(req);
         const resourceUrl = req.originalUrl;
-        console.log('!!!AUTHENTICATING!!!')
         if (
             !token &&
             req.accepts('text/html') &&

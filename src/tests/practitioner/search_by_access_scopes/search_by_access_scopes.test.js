@@ -27,7 +27,7 @@ describe('search_by_security_tag', () => {
     });
 
     describe('Practitioner Search By Security Tests', () => {
-        test('search by security tag works1', async () => {
+        test('search by security tag works', async () => {
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders(scope)).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -44,9 +44,8 @@ describe('search_by_security_tag', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-        });
-        test('search by security tag works2', async () => {
-            let resp = await request
+
+            resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders(scope))
@@ -56,9 +55,8 @@ describe('search_by_security_tag', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-        });
-        test('search by security tag works3', async () => {
-            let resp = await request
+
+            resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders(scope))
@@ -68,9 +66,8 @@ describe('search_by_security_tag', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-        });
-        test('search by security tag works4', async () => {
-            let resp = await request
+
+            resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource4)
                 .set(getHeaders(scope))
@@ -80,17 +77,17 @@ describe('search_by_security_tag', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-        });
-        test('search by security tag works5', async () => {
-            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders(scope)).expect(200);
+
+            resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders(scope))
+                .expect(200);
 
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
-        });
-        test('search by security tag works6', async () => {
-            try {
-                let resp = await request
+
+            resp = await request
                     .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
                     .set(getHeaders(scope))
                     .expect(200);
@@ -101,23 +98,19 @@ describe('search_by_security_tag', () => {
                 // clear out the lastUpdated column since that changes
                 let body = resp.body;
                 expect(body.length).toBe(2);
-                body.forEach((element) => {
+            body.forEach(element => {
                     delete element['meta']['lastUpdated'];
                 });
                 let expected = expectedPractitionerResource;
-                expected.forEach((element) => {
+            expected.forEach(element => {
                     delete element['meta']['lastUpdated'];
                     delete element['$schema'];
                 });
                 // expected[0]['meta'] = { 'versionId': '2' };
                 expect(body).toStrictEqual(expected);
-            } catch (err) {
-                console.log(err);
-            }
-        });
-        test('search by security tag works7', async () => {
+
             // make sure we can't access another security tag
-            let resp = await request
+            resp = await request
                 .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|l_and_f')
                 .set(getHeaders(scope))
                 .expect(200);
