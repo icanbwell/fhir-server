@@ -141,15 +141,9 @@ const getHasNext = (res) => {
     return res.resources.length === searchLimit;
 };
 
-const getLastUpdate = function (req, modifier) {
+const getLastUpdate = function (req, index) {
     const searchParams = getSearchParams(req);
-    let dateString = '';
-    Object.keys(searchParams).forEach((key) => {
-        if (key.includes('_lastUpdated') && key.includes(modifier)) {
-            dateString = searchParams[`${key}`];
-        }
-    });
-    return dateString;
+    return searchParams['_lastUpdated'] ? searchParams['_lastUpdated'].at(index) : '';
 };
 
 const zeroPad = (number) => {

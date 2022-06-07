@@ -41,15 +41,13 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (args['onset_date'] && !args['onset-date']) {
         args['onset-date'] = args['onset_date'];
     }
-    if (args['_lastUpdated:below']) {
-        const belowValue = args['_lastUpdated:below'];
-        args['_lastUpdated'] = `lt${belowValue}`;
-        delete args['_lastUpdated:below'];
-    }
-    if (args['_lastUpdated:above']) {
-        const aboveValue = args['_lastUpdated:above'];
-        args['_lastUpdated'] = `gt${aboveValue}`;
-        delete args['_lastUpdated:above'];
+    if (
+        args['_lastUpdated'] &&
+        Array.isArray(args['_lastUpdated']) &&
+        args['_lastUpdated'].length > 1
+    ) {
+        const lastUpdatedArray = args['_lastUpdated'];
+        args['_lastUpdated'] = [`gt${lastUpdatedArray.at(0)}`, `lt${lastUpdatedArray.at(1)}`];
     }
 
     // ---- end of backward compatibility mappings ---
