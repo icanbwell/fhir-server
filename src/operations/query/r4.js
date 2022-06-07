@@ -47,7 +47,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         args['_lastUpdated'].length > 1
     ) {
         const lastUpdatedArray = args['_lastUpdated'];
-        args['_lastUpdated'] = [`gt${lastUpdatedArray.at(0)}`, `lt${lastUpdatedArray.at(1)}`];
+        const gtValue = lastUpdatedArray.at(0);
+        const ltValue = lastUpdatedArray.at(1);
+        args['_lastUpdated'] = [
+            gtValue.indexOf('gt') > -1 ? gtValue : `gt${gtValue}`,
+            ltValue.indexOf('lt') > -1 ? ltValue : `lt${ltValue}`,
+        ];
     }
 
     // ---- end of backward compatibility mappings ---
