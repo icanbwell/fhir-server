@@ -49,9 +49,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         const lastUpdatedArray = args['_lastUpdated'];
         const gtValue = lastUpdatedArray.at(0);
         const ltValue = lastUpdatedArray.at(1);
+        const hasRange = gtValue.indexOf('gt') > -1 || gtValue.indexOf('lt') > -1;
         args['_lastUpdated'] = [
-            gtValue.indexOf('gt') > -1 ? gtValue : `gt${gtValue}`,
-            ltValue.indexOf('lt') > -1 ? ltValue : `lt${ltValue}`,
+            hasRange ? gtValue : `gt${gtValue}`,
+            hasRange ? ltValue : `lt${ltValue}`,
         ];
     }
 
