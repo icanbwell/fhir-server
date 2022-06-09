@@ -41,6 +41,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (args['onset_date'] && !args['onset-date']) {
         args['onset-date'] = args['onset_date'];
     }
+    // ---- end of backward compatibility mappings ---
+
+    // ---- start of range logic to args sent from the search form   ---
     if (
         args['_lastUpdated'] &&
         Array.isArray(args['_lastUpdated']) &&
@@ -49,14 +52,17 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         const lastUpdatedArray = args['_lastUpdated'];
         const gtValue = lastUpdatedArray.at(0);
         const ltValue = lastUpdatedArray.at(1);
-        const hasRange = gtValue.indexOf('gt') > -1 || gtValue.indexOf('lt') > -1;
-        args['_lastUpdated'] = [
-            hasRange ? gtValue : `gt${gtValue}`,
-            hasRange ? ltValue : `lt${ltValue}`,
-        ];
+        const hasRange = gtValue.at(0) === 'g';
+        const lastUpdatedValue = [];
+        if (gtValue.trim() !== '') {
+            lastUpdatedValue.push(hasRange ? gtValue : `gt${gtValue}`);
+        }
+        if (ltValue.trim() !== '') {
+            lastUpdatedValue.push(hasRange ? ltValue : `lt${ltValue}`);
+        }
+        args['_lastUpdated'] = lastUpdatedValue;
     }
-
-    // ---- end of backward compatibility mappings ---
+    // ---- end of range logic to args sent from the search form   ---
 
     /**
      * list of columns used in the query

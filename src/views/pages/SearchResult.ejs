@@ -15,7 +15,7 @@
                         <tr>
                             <% formData.forEach(function(field){%>
                             <th data-field="<%= field.sortField %>">
-                                <%= field.label %><i
+                                <%= field.columnHeader ? field.columnHeader : field.label %><i
                                     class="fa<%= searchUtils.sortIcon(field.sortField, body._sort) %>"
                                 ></i>
                             </th>
@@ -33,7 +33,14 @@
                         <% resources.forEach(function(res, index){%>
                         <tr class="row-click" data-identifier="<%=res.id%>">
                             <% formData.forEach(function(field){%>
-                            <td><%= searchUtils.fieldValue(res,field.name) %></td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if(field.columnHeader === 'Period'){ %>
+                                    <%= searchUtils.formatDate(res.period.start) %> to <%= searchUtils.formatDate(res.period.end) %>
+                                <% } else { %>
+                                    <%= searchUtils.fieldValue(res,field.name) %>
+                                <% } %>
+                            </td>
                             <%})%>
                             <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
                         </tr>

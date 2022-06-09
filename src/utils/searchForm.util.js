@@ -74,6 +74,18 @@ function getOrganizationForm(params) {
     return formElements;
 }
 
+function getEncounterForm(params) {
+    const formElements = [];
+    formElements.push({
+        columnHeader: 'Period',
+        label: 'Date',
+        name: 'date',
+        sortField: 'period',
+        value: params.date ? params.date : '',
+    });
+    return formElements;
+}
+
 const getFormData = (req, resourceName) => {
     const params = getModifierParams(req);
     let formData = [];
@@ -87,6 +99,9 @@ const getFormData = (req, resourceName) => {
             break;
         case 'Organization':
             formData = formData.concat(getOrganizationForm(params));
+            break;
+        case 'Encounter':
+            formData = formData.concat(getEncounterForm(params));
             break;
     }
 
