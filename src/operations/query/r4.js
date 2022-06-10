@@ -43,7 +43,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     }
     // ---- end of backward compatibility mappings ---
 
-    // ---- start of range logic to args sent from the search form   ---
+    // ---- start of add range logic to args sent from the search form   ---
     const lastUpdatedArray = args['_lastUpdated'];
     const newUpdatedArray = [];
     lastUpdatedArray.forEach((value, i) => {
@@ -56,7 +56,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (newUpdatedArray.length > 0) {
         args['_lastUpdated'] = newUpdatedArray;
     }
-    // ---- end of range logic to args sent from the search form   ---
+    // ---- end of add range logic to args sent from the search form   ---
 
     /**
      * list of columns used in the query
