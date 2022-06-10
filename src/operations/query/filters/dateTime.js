@@ -1,11 +1,5 @@
-const { dateQueryBuilder, dateQueryBuilderNative } = require('../../../utils/querybuilder.util');
-const { isColumnDateType } = require('../../common/isColumnDateType');
-const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
-const { fhirFilterTypes } = require('../customQueries');
-
-function isPeriodField(fieldString) {
-    return fieldString === 'period' || fieldString === 'effectivePeriod';
-}
+const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
+const {isColumnDateType} = require('../../common/isColumnDateType');
 
 /**
  * filters by date
@@ -22,49 +16,20 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
         queryParameterValue = [queryParameterValue];
     }
     for (const dateQueryItem of queryParameterValue) {
-        // prettier-ignore
-        // eslint-disable-next-line security/detect-object-injection
-        const resourceSearch = searchParameterQueries[resourceName];
-        const hasDateParam = resourceSearch[fhirFilterTypes.date];
-        const isDateSearchingPeriod = hasDateParam ? isPeriodField(hasDateParam['field']) : false;
-        const dateRangeSegments = (fieldName, appendArray) => {
-            const rangeArray = appendArray ? appendArray : [];
-            rangeArray.push({
-                [`${fieldName}.start`]: dateQueryBuilder(
-                    `le${dateQueryItem.slice(2)}`,
-                    propertyObj.type,
-                    ''
-                ),
-            });
-            rangeArray.push({
-                [`${fieldName}.end`]: dateQueryBuilder(
-                    `ge${dateQueryItem.slice(2)}`,
-                    propertyObj.type,
-                    ''
-                ),
-            });
-            if (!appendArray) {
-                return rangeArray;
-            }
-        };
-        if (isDateSearchingPeriod) {
-            dateRangeSegments('period', and_segments);
-        } else if (propertyObj.fields) {
-            // if there are multiple fields
+        if (propertyObj.fields) { // if there are multiple fields
             and_segments.push({
-                $or: propertyObj.fields.map((f) => {
-                    return isPeriodField(f)
-                        ? { $and: dateRangeSegments('effectivePeriod', null) }
-                        : {
-                              [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
-                          };
+                $or: propertyObj.fields.map(f => {
+                    return {
+                        [`${f}`]: dateQueryBuilder(
+                            dateQueryItem,
+                            propertyObj.type,
+                            ''
+                        ),
+                    };
                 }),
             });
-        } else if (
-            propertyObj.field === 'meta.lastUpdated' ||
-            isColumnDateType(resourceName, propertyObj.field)
-        ) {
-            // if this of native Date type
+        } else if (propertyObj.field === 'meta.lastUpdated' ||
+            isColumnDateType(resourceName, propertyObj.field)) { // if this of native Date type
             // this field stores the date as a native date, so we can do faster queries
             and_segments.push({
                 [`${propertyObj.field}`]: dateQueryBuilderNative(
@@ -73,10 +38,13 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
                     ''
                 ),
             });
-        } else {
-            // if this is date as a string
+        } else { // if this is date as a string
             and_segments.push({
-                [`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                [`${propertyObj.field}`]: dateQueryBuilder(
+                    dateQueryItem,
+                    propertyObj.type,
+                    ''
+                ),
             });
         }
     }
@@ -85,5 +53,5 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
 }
 
 module.exports = {
-    filterByDateTime: filterByDateTime,
+    filterByDateTime: filterByDateTime
 };

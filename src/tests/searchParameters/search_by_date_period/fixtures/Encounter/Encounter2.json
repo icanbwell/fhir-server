@@ -1,0 +1,120 @@
+{
+  "resourceType": "Encounter",
+  "id": "2",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-02-19T23:51:31.000Z",
+    "source": "https://thedacare.org",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "Thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "Thedacare"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "system": "xxxx",
+      "value": "1"
+    }
+  ],
+  "status": "finished",
+  "class": {
+    "system": "xxx",
+    "code": "2",
+    "display": "Preadmission"
+  },
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "xxxx",
+          "code": "5",
+          "display": "Day Surgery"
+        }
+      ],
+      "text": "Day Surgery"
+    },
+    {
+      "coding": [
+        {
+          "system": "xxxx",
+          "code": "3",
+          "display": "Hospital Encounter"
+        }
+      ],
+      "text": "Hospital Encounter"
+    }
+  ],
+  "subject": {
+    "reference": "xxxx",
+    "display": "Txxx"
+  },
+  "participant": [
+    {
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/v3/ParticipationType",
+              "code": "ADM",
+              "display": "admitter"
+            }
+          ],
+          "text": "admitter"
+        }
+      ],
+      "individual": {
+        "reference": "xxx",
+        "display": "xxxx"
+      }
+    },
+    {
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/v3/ParticipationType",
+              "code": "ATND",
+              "display": "attender"
+            }
+          ],
+          "text": "attender"
+        }
+      ],
+      "individual": {
+        "reference": "xxxx",
+        "display": "xxx"
+      }
+    }
+  ],
+  "period": {
+    "start": "2021-07-21T11:00:00.000Z",
+    "end": "2173-09-27T12:00:00.000Z"
+  },
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "428283002",
+          "display": "History of polyp of colon (situation)"
+        }
+      ],
+      "text": "Hx of colonic polyps"
+    }
+  ],
+  "location": [
+    {
+      "location": {
+        "reference": "xxx",
+        "display": "xxx"
+      }
+    }
+  ]
+}

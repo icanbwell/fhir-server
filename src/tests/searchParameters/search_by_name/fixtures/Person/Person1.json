@@ -1,0 +1,95 @@
+{
+    "resourceType": "Person",
+    "id": "1",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2022-03-03T14:45:41.000Z",
+        "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+        ],
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "https://www.icanbwell.com",
+                        "code": "FHIR_id",
+                        "display": "bWell FHIR id"
+                    }
+                ]
+            },
+            "system": "https://www.icanbwell.com",
+            "value": "bwell-03d456f13650460fb45d0e5b80137392"
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "https://www.icanbwell.com",
+                        "code": "user_id",
+                        "display": "bWell App user_id"
+                    }
+                ]
+            },
+            "system": "https://www.icanbwell.com",
+            "value": "xxxx"
+        },
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "https://www.icanbwell.com",
+                        "code": "member_id",
+                        "display": "bWell App member_id"
+                    }
+                ]
+            },
+            "system": "https://www.icanbwell.com",
+            "value": "xxx"
+        }
+    ],
+    "name": [
+        {
+            "use": "official",
+            "family": "Fake",
+            "given": [
+                "Name"
+            ]
+        }
+    ],
+    "telecom": [
+        {
+            "system": "phone",
+            "value": "xxxx",
+            "use": "home"
+        },
+        {
+            "system": "email",
+            "value": "testingproviders@gmail.com",
+            "use": "home"
+        }
+    ],
+    "gender": "female",
+    "birthDate": "1911-11-11",
+    "address": [
+        {
+            "line": [
+                "1234 fake street"
+            ],
+            "city": "fake",
+            "state": "TX",
+            "postalCode": "78728"
+        }
+    ]
+}

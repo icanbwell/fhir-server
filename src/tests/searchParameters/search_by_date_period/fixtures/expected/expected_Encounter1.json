@@ -1,0 +1,249 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "class": {
+          "code": "2",
+          "display": "Preadmission",
+          "system": "xxx"
+        },
+        "id": "1",
+        "identifier": [
+          {
+            "system": "xxxx",
+            "use": "usual",
+            "value": "1"
+          }
+        ],
+        "location": [
+          {
+            "location": {
+              "display": "xxx",
+              "reference": "xxx"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "Thedacare",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "Thedacare",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "https://thedacare.org",
+          "versionId": "1"
+        },
+        "participant": [
+          {
+            "individual": {
+              "display": "xxxx",
+              "reference": "xxx"
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "ADM",
+                    "display": "admitter",
+                    "system": "http://hl7.org/fhir/v3/ParticipationType"
+                  }
+                ],
+                "text": "admitter"
+              }
+            ]
+          },
+          {
+            "individual": {
+              "display": "xxx",
+              "reference": "xxxx"
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "ATND",
+                    "display": "attender",
+                    "system": "http://hl7.org/fhir/v3/ParticipationType"
+                  }
+                ],
+                "text": "attender"
+              }
+            ]
+          }
+        ],
+        "period": {
+          "end": "2173-09-27T12:00:00.000Z",
+          "start": "2021-07-21T11:00:00.000Z"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "code": "428283002",
+                "display": "History of polyp of colon (situation)",
+                "system": "http://snomed.info/sct"
+              }
+            ],
+            "text": "Hx of colonic polyps"
+          }
+        ],
+        "resourceType": "Encounter",
+        "status": "finished",
+        "subject": {
+          "display": "Txxx",
+          "reference": "xxxx"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "5",
+                "display": "Day Surgery",
+                "system": "xxxx"
+              }
+            ],
+            "text": "Day Surgery"
+          },
+          {
+            "coding": [
+              {
+                "code": "3",
+                "display": "Hospital Encounter",
+                "system": "xxxx"
+              }
+            ],
+            "text": "Hospital Encounter"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "class": {
+          "code": "2",
+          "display": "Preadmission",
+          "system": "xxx"
+        },
+        "id": "2",
+        "identifier": [
+          {
+            "system": "xxxx",
+            "use": "usual",
+            "value": "1"
+          }
+        ],
+        "location": [
+          {
+            "location": {
+              "display": "xxx",
+              "reference": "xxx"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "Thedacare",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "Thedacare",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "https://thedacare.org",
+          "versionId": "1"
+        },
+        "participant": [
+          {
+            "individual": {
+              "display": "xxxx",
+              "reference": "xxx"
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "ADM",
+                    "display": "admitter",
+                    "system": "http://hl7.org/fhir/v3/ParticipationType"
+                  }
+                ],
+                "text": "admitter"
+              }
+            ]
+          },
+          {
+            "individual": {
+              "display": "xxx",
+              "reference": "xxxx"
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "ATND",
+                    "display": "attender",
+                    "system": "http://hl7.org/fhir/v3/ParticipationType"
+                  }
+                ],
+                "text": "attender"
+              }
+            ]
+          }
+        ],
+        "period": {
+          "end": "2173-09-27T12:00:00.000Z",
+          "start": "2021-07-21T11:00:00.000Z"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "code": "428283002",
+                "display": "History of polyp of colon (situation)",
+                "system": "http://snomed.info/sct"
+              }
+            ],
+            "text": "Hx of colonic polyps"
+          }
+        ],
+        "resourceType": "Encounter",
+        "status": "finished",
+        "subject": {
+          "display": "Txxx",
+          "reference": "xxxx"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "5",
+                "display": "Day Surgery",
+                "system": "xxxx"
+              }
+            ],
+            "text": "Day Surgery"
+          },
+          {
+            "coding": [
+              {
+                "code": "3",
+                "display": "Hospital Encounter",
+                "system": "xxxx"
+              }
+            ],
+            "text": "Hospital Encounter"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
