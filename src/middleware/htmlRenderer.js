@@ -1,7 +1,7 @@
 /**
  * This middleware detects if the request is from a web browser user-agent and returns HTML rendered views
  */
-const {resourceDefinitions} = require('../utils/resourceDefinitions');
+const { resourceDefinitions } = require('../utils/resourceDefinitions');
 const {
     searchFormData,
     advSearchFormData,
@@ -10,7 +10,7 @@ const {
     limit,
     searchUtils,
 } = require('../utils/searchForm.util');
-const {shouldReturnHtml} = require('../utils/requestHelpers');
+const { shouldReturnHtml } = require('../utils/requestHelpers');
 
 /**
  * middleware to render HTML
@@ -20,7 +20,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
  */
 const htmlRenderer = (req, res, next) => {
     const parts = req.url.split(/[/?,&]+/);
-    if (parts && (parts.length > 2) && !parts.includes('raw=1') && parts[1] === '4_0_0') {
+    if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0') {
         const resourceName = parts[2];
         // If the request is from a browser for HTML then return HTML page instead of json
         if (shouldReturnHtml(req)) {
@@ -64,8 +64,8 @@ const htmlRenderer = (req, res, next) => {
                     advSearchFormData: advSearchFormData(req, resourceName),
                     resourceName: resourceName,
                     currentYear: new Date().getFullYear(),
-                    lastUpdateStart: lastUpdateStart(req, 'above'),
-                    lastUpdateEnd: lastUpdateEnd(req, 'below'),
+                    lastUpdateStart: lastUpdateStart(req, 0),
+                    lastUpdateEnd: lastUpdateEnd(req, 1),
                     limit: limit,
                     searchUtils: searchUtils,
                     searchMethod: req.method,

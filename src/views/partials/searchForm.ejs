@@ -65,7 +65,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
             <input
                 type="text"
                 class="form-control"
-                name="_lastUpdated:above"
+                name="_lastUpdated"
                 placeholder="YYYY-MM-DD"
                 aria-label="Start Date"
                 value="<%= lastUpdateStart %>"
@@ -75,7 +75,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
             <input
                 type="text"
                 class="form-control"
-                name="_lastUpdated:below"
+                name="_lastUpdated"
                 placeholder="YYYY-MM-DD"
                 aria-label="End Date"
                 value="<%= lastUpdateEnd %>"
@@ -83,7 +83,22 @@ const resourceName = hasResource ? resourceDefinition.name : '';
             />
         </div>
     </div>
-    <% for (var i = 0; i < formData.length; i++) { %>
+    <% for (var i = 0; i < formData.length; i++) { %> <% if(formData[i].name === 'date'){ %>
+    <div class="form-group">
+        <label for="<%= formData[i].name %>"><small><%= formData[i].label %></small></label>
+        <input
+            id="datePicker"
+            type="text"
+            class="form-control clear-allowed"
+            name="<%= formData[i].name %>"
+            value="<%= formData[i].value %>"
+            autocomplete="off"
+            placeholder="YYYY-MM-DD"
+            title="<%= formData[i].label %>"
+        />
+    </div>
+
+    <% } else { %>
     <div class="form-group form-group-clear">
         <label for="<%= formData[i].name %>" class="visually-hidden"
             ><%= formData[i].label %></label
@@ -102,6 +117,8 @@ const resourceName = hasResource ? resourceDefinition.name : '';
             class="fa fa-times clear-input <%= formData[i].value !== '' ? 'showInputClearLink' : '' %>"
         ></span>
     </div>
+    <% } %>
+
     <!-- prettier-ignore -->
     <% } %>
     <input type="hidden" name="identifier" />

@@ -1,16 +1,16 @@
-const {fhirFilterTypes} = require('./customQueries');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {filterById} = require('./filters/id');
-const {filterByString} = require('./filters/string');
-const {filterByUri} = require('./filters/uri');
-const {filterByDateTime} = require('./filters/dateTime');
-const {filterByToken} = require('./filters/token');
-const {filterByReference} = require('./filters/reference');
-const {filterByMissing} = require('./filters/missing');
-const {filterByContains} = require('./filters/contains');
-const {filterByAboveAndBelow, filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
-const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {filterByPartialText} = require('./filters/partialText');
+const { fhirFilterTypes } = require('./customQueries');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
+const { filterById } = require('./filters/id');
+const { filterByString } = require('./filters/string');
+const { filterByUri } = require('./filters/uri');
+const { filterByDateTime } = require('./filters/dateTime');
+const { filterByToken } = require('./filters/token');
+const { filterByReference } = require('./filters/reference');
+const { filterByMissing } = require('./filters/missing');
+const { filterByContains } = require('./filters/contains');
+const { filterByAboveAndBelow, filterByAbove, filterByBelow } = require('./filters/aboveAndBelow');
+const { convertGraphQLParameters } = require('./convertGraphQLParameters');
+const { filterByPartialText } = require('./filters/partialText');
 
 // /**
 //  * @type {import('winston').logger}
@@ -41,8 +41,24 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     if (args['onset_date'] && !args['onset-date']) {
         args['onset-date'] = args['onset_date'];
     }
-
     // ---- end of backward compatibility mappings ---
+
+    // ---- start of add range logic to args sent from the search form   ---
+    if (args['_lastUpdated'] && Array.isArray(args['_lastUpdated'])) {
+        const lastUpdatedArray = args['_lastUpdated'];
+        const newUpdatedArray = [];
+        lastUpdatedArray.forEach((value, i) => {
+            const currentPrefix = value.replace(/[^a-z]/gi, '');
+            const newPrefix = i === 0 ? 'gt' : 'lt';
+            if (currentPrefix.length === 0 && value !== '') {
+                newUpdatedArray.push(newPrefix + value);
+            }
+        });
+        if (newUpdatedArray.length > 0) {
+            args['_lastUpdated'] = newUpdatedArray;
+        }
+    }
+    // ---- end of add range logic to args sent from the search form   ---
 
     /**
      * list of columns used in the query
@@ -60,9 +76,10 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // add FHIR queries
     for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
         if (resourceType === resourceName || resourceType === 'Resource') {
-            for (const [ /** @type {string} **/ queryParameter,
-                /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj]
-                of Object.entries(resourceObj)) {
+            for (const [
+                /** @type {string} **/ queryParameter,
+                /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj,
+            ] of Object.entries(resourceObj)) {
                 /**
                  * @type {string | string[]}
                  */
@@ -90,13 +107,24 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         case fhirFilterTypes.date:
                         case fhirFilterTypes.period:
                         case fhirFilterTypes.instant:
-                            filterByDateTime(queryParameterValue, propertyObj, and_segments, resourceName, columns);
+                            filterByDateTime(
+                                queryParameterValue,
+                                propertyObj,
+                                and_segments,
+                                resourceName,
+                                columns
+                            );
                             break;
                         case fhirFilterTypes.token:
                             filterByToken(queryParameterValue, propertyObj, and_segments, columns);
                             break;
                         case fhirFilterTypes.reference:
-                            filterByReference(propertyObj, and_segments, queryParameterValue, columns);
+                            filterByReference(
+                                propertyObj,
+                                and_segments,
+                                queryParameterValue,
+                                columns
+                            );
                             break;
                         default:
                             throw new Error('Unknown type=' + propertyObj.type);
