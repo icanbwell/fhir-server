@@ -35,8 +35,10 @@
                             <% formData.forEach(function(field){%>
                             <td>
                                 <!-- prettier-ignore -->
-                                <% if(field.columnHeader === 'Period'){ %>
-                                    <%= searchUtils.formatDate(res.period.start) %> to <%= searchUtils.formatDate(res.period.end) %>
+                                <% if(field.columnHeader === 'Period' && res.period){ %>
+                                    <%= res.period.start ? searchUtils.formatDate(res.period.start) : '' %>
+                                    <%= res.period.start && res.period.end ? 'to' : '' %>
+                                    <%= res.period.end ? searchUtils.formatDate(res.period.end) : '' %>
                                 <% } else { %>
                                     <%= searchUtils.fieldValue(res,field.name) %>
                                 <% } %>

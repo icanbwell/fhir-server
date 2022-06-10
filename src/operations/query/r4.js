@@ -50,7 +50,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
         lastUpdatedArray.forEach((value, i) => {
             const currentPrefix = value.replace(/[^a-z]/gi, '');
             const newPrefix = i === 0 ? 'gt' : 'lt';
-            if (currentPrefix.length === 0) {
+            if (currentPrefix.length === 0 && value !== '') {
                 newUpdatedArray.push(newPrefix + value);
             }
         });
