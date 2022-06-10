@@ -12,6 +12,10 @@ module.exports.getRequestInfo = (context) => {
         context.originalUrl,
         context.path,
         context.host,
-        context.body
+        context.body,
+        context.accept,
+        // context.isUser,
+        context.patients,
+        context.fhirPersonId
     );
 };

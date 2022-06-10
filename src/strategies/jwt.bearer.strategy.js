@@ -64,6 +64,10 @@ const verify = (jwt_payload, done) => {
         /**
          * @type {string}
          */
+        let isUser = false;
+        if (jwt_payload['cognito:username']) {
+            isUser = true;
+        }
         const client_id = jwt_payload.client_id
             ? jwt_payload.client_id
             : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
@@ -81,7 +85,7 @@ const verify = (jwt_payload, done) => {
          */
         const username = jwt_payload.username
             ? jwt_payload.username
-            : jwt_payload[env.AUTH_CUSTOM_USERNAME];
+            : jwt_payload['cognito:username'];
 
         /**
          * @type {string}
@@ -106,8 +110,22 @@ const verify = (jwt_payload, done) => {
         if (subject) {
             context['subject'] = subject;
         }
+        if (isUser) {
+            context['isUser'] = isUser;
+        }
+        const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'];
+        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
 
-        return done(null, client_id, { scope, context });
+        if (fhirPatientIds && fhirPatientIds.length > 0) {
+            context['fhirPatientIds'] = fhirPatientIds;
+        } else if (fhirPatientId) {
+            context['fhirPatientIds'] = [fhirPatientId];
+        }
+        const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
+        if (fhirPersonId) {
+            context['fhirPersonId'] = fhirPersonId;
+        }
+        return done(null, { id: client_id, isUser }, { scope, context });
     }
 
     return done(null, false);
@@ -125,7 +143,6 @@ class MyJwtStrategy extends JwtStrategy {
         const self = this;
         const token = self._jwtFromRequest(req);
         const resourceUrl = req.originalUrl;
-
         if (
             !token &&
             req.accepts('text/html') &&
