@@ -44,23 +44,17 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     // ---- end of backward compatibility mappings ---
 
     // ---- start of range logic to args sent from the search form   ---
-    if (
-        args['_lastUpdated'] &&
-        Array.isArray(args['_lastUpdated']) &&
-        args['_lastUpdated'].length > 1
-    ) {
-        const lastUpdatedArray = args['_lastUpdated'];
-        const gtValue = lastUpdatedArray.at(0);
-        const ltValue = lastUpdatedArray.at(1);
-        const hasRange = gtValue.at(0) === 'g';
-        const lastUpdatedValue = [];
-        if (gtValue.trim() !== '') {
-            lastUpdatedValue.push(hasRange ? gtValue : `gt${gtValue}`);
+    const lastUpdatedArray = args['_lastUpdated'];
+    const newUpdatedArray = [];
+    lastUpdatedArray.forEach((value, i) => {
+        const currentPrefix = value.replace(/[^a-z]/gi, '');
+        const newPrefix = i === 0 ? 'gt' : 'lt';
+        if (currentPrefix.length === 0) {
+            newUpdatedArray.push(newPrefix + value);
         }
-        if (ltValue.trim() !== '') {
-            lastUpdatedValue.push(hasRange ? ltValue : `lt${ltValue}`);
-        }
-        args['_lastUpdated'] = lastUpdatedValue;
+    });
+    if (newUpdatedArray.length > 0) {
+        args['_lastUpdated'] = newUpdatedArray;
     }
     // ---- end of range logic to args sent from the search form   ---
 
