@@ -1,0 +1,582 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "1",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "singhal",
+            "given": [
+              "Test1"
+            ],
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "10",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "Test1",
+            "use": "official"
+          },
+          {
+            "family": "Test1",
+            "given": [
+              "singhal",
+              "Test2"
+            ],
+            "text": "Test1",
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "11",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "Test1",
+            "use": "official"
+          },
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "singhal",
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "2",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "singhal"
+            ],
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "4",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "singhal"
+            ],
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "6",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "singhal",
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "8",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "unitypoint",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Test1",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "Test1",
+            "use": "official"
+          },
+          {
+            "family": "singhal",
+            "given": [
+              "Test1",
+              "Test2"
+            ],
+            "text": "Test1",
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "yelena+stageuph200@icanbwell.com"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
