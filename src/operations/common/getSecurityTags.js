@@ -101,7 +101,7 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
 };
 
 const getQueryWithPatientFilter = (patients, query, resource) => {
-  if (patients) {
+  if (patients && patients.length > 1) {
     const inQuery = {
       '$in': patients
     };
