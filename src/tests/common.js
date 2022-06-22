@@ -114,6 +114,15 @@ const getTokenWithCustomClaims = module.exports.getTokenWithCustomClaims = (scop
     });
 };
 
+const getTokenWithCustomPayload = module.exports.getTokenWithCustomClaims = (payload) => {
+    return createToken(privateKey, '123', {
+        sub: 'john',
+        custom_client_id: 'my_custom_client_id',
+        ...payload
+    });
+};
+
+
 const getFullAccessTokenWithCustomClaims = module.exports.getFullAccessTokenWithCustomClaims = () => {
     return getTokenWithCustomClaims(
         'user/*.read user/*.write'
@@ -179,6 +188,15 @@ module.exports.getHeadersWithCustomToken = (scope) => {
         'Content-Type': 'application/fhir+json',
         'Accept': 'application/fhir+json',
         'Authorization': `Bearer ${scope ? getTokenWithCustomClaims(scope) : getFullAccessTokenWithCustomClaims()}`
+    };
+};
+
+module.exports.getHeadersWithCustomPayload = (payload) => {
+    console.log(getTokenWithCustomPayload(payload));
+    return {
+        'Content-Type': 'application/fhir+json',
+        'Accept': 'application/fhir+json',
+        'Authorization': `Bearer ${getTokenWithCustomPayload(payload)}`
     };
 };
 

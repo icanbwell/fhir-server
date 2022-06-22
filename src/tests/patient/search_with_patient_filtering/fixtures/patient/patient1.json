@@ -1,0 +1,31 @@
+{
+  "resourceType": "patient",
+  "id": "patient-123-a",
+  "birthDate": "2000-01-01",
+  "gender": "female",
+  "meta": {
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      }
+    ],
+    "source": "http://medstarhealth.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "TEST"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient"
+}

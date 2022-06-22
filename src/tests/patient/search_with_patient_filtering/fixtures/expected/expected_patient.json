@@ -1,0 +1,19 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "patient",
+        "id": "patient-123-a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "patient",
+        "id": "patient-123-b"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 2,
+  "type": "searchset"
+}
