@@ -12,7 +12,7 @@ function filterByString(queryParameterValue, and_segments, propertyObj, columns)
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
 
-        if (`${propertyObj.fields}`) {
+        if (propertyObj.fields) {
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
                     return {
@@ -35,7 +35,7 @@ function filterByString(queryParameterValue, and_segments, propertyObj, columns)
         // see if this is a comma separated list
         const value_list = queryParameterValue.split(',');
 
-        if(`${propertyObj.fields}`) {
+        if(propertyObj.fields) {
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
                     return {
@@ -54,7 +54,7 @@ function filterByString(queryParameterValue, and_segments, propertyObj, columns)
             });
             columns.add(`${propertyObj.field}`);
         }
-    } else if (`${propertyObj.fields}`) {
+    } else if (propertyObj.fields) {
         // single value is passed
         and_segments.push({
             $or: propertyObj.fields.map((f) => {
