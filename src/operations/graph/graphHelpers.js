@@ -319,10 +319,10 @@ async function get_forward_references(db, graphParameters, collectionName,
 
         if (matchingParentEntities.length === 0) {
             throw new Error(
-                `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}`
-                + ' in parent entities'
-                + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}`
-                + ` using property ${property}`
+                `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
+                ' in parent entities' +
+                ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                ` using property ${property}`
             );
         }
 
@@ -456,10 +456,10 @@ async function get_reverse_references(
 
         if (matchingParentEntities.length === 0) {
             throw new Error(
-                'Reverse Reference: No match found for parent entities'
-                + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}`
-                + ` using property ${fieldForSearchParameter}`
-                + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                'Reverse Reference: No match found for parent entities' +
+                ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                ` using property ${fieldForSearchParameter}` +
+                ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
             );
         }
 
@@ -640,9 +640,9 @@ async function processOneGraphLink(db, graphParameters,
                 verifyHasValidScopes(resourceType, 'read', graphParameters.user, graphParameters.scope);
                 if (!parentResourceType) {
                     throw new Error(
-                        'processOneGraphLink: No parent resource found for reverse references for parent entities:'
-                        + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}`
-                        + ` using target.params: ${target.params}`
+                        'processOneGraphLink: No parent resource found for reverse references for parent entities:' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using target.params: ${target.params}`
                     );
                 }
                 await get_reverse_references(
@@ -661,8 +661,8 @@ async function processOneGraphLink(db, graphParameters,
 
         // filter childEntries to find entries of same type as parentResource
         childEntries = childEntries.filter(c =>
-            (!target.type && !c.resource) // either there is no target type so choose non-resources
-            || (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
+            (!target.type && !c.resource) || // either there is no target type so choose non-resources
+            (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
         );
         if (childEntries && childEntries.length > 0) {
             /**
@@ -886,8 +886,8 @@ async function processMultipleIds(db, graphParameters, collection_name,
         /**
          * @type {ResourceEntityAndContained}
          */
-        const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id
-            && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+        const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id &&
+            e.entityResourceType === topLevelBundleEntry.resource.resourceType);
         /**
          * @type {[EntityAndContainedBase]}
          */
@@ -915,7 +915,11 @@ async function processMultipleIds(db, graphParameters, collection_name,
             .filter(r => r.resource !== undefined);
         if (contained) {
             if (relatedEntities.length > 0) {
-                topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+                const uniqueRelatedEntities = removeDuplicatesWithLambda(relatedEntities,
+                    (a, b) => a.resource.resourceType === b.resource.resourceType &&
+                        a.resource.id === b.resource.id
+                );
+                topLevelBundleEntry['resource']['contained'] = uniqueRelatedEntities.map(r => r.resource);
             }
         } else {
             entries = entries.concat(relatedEntities);
