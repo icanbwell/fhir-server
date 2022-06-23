@@ -1,16 +1,66 @@
 {
   "entry": [
     {
-      "resource": {
-        "resourceType": "patient",
-        "id": "patient-123-a"
-      }
+      "resourceType": "Patient",
+      "id": "patient-123-a",
+      "meta": {
+        "source": "http://medstarhealth.org/provider",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "medstar"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "medstar"
+          }
+        ]
+      },
+      "birthDate": "2000-01-01",
+      "gender": "female",
+      "name": [
+        {
+          "use": "usual",
+          "text": "t",
+          "family": "PATIENT1",
+          "given": [
+            "TEST"
+          ],
+          "prefix": [],
+          "suffix": []
+        }
+      ]
     },
     {
-      "resource": {
-        "resourceType": "patient",
-        "id": "patient-123-b"
-      }
+      "resourceType": "Patient",
+      "id": "patient-123-b",
+      "meta": {
+        "source": "http://medstarhealth.org/provider",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "medstar"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "medstar"
+          }
+        ]
+      },
+      "birthDate": "2000-01-01",
+      "gender": "female",
+      "name": [
+        {
+          "use": "usual",
+          "text": "t",
+          "family": "PATIENT1",
+          "given": [
+            "TEST"
+          ],
+          "prefix": [],
+          "suffix": []
+        }
+      ]
     }
   ],
   "resourceType": "Bundle",

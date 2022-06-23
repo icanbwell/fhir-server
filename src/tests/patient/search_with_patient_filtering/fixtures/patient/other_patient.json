@@ -1,5 +1,5 @@
 {
-  "resourceType": "patient",
+  "resourceType": "Patient",
   "id": "another-patient",
   "birthDate": "1990-01-01",
   "gender": "male",

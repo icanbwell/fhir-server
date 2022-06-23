@@ -6,12 +6,10 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 
-// expected
-const expectedpatientResources = require('./fixtures/expected/expected_patient.json');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload} = require('../../common');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+
 
 describe('patient Tests', () => {
   beforeEach(async () => {
@@ -24,6 +22,7 @@ describe('patient Tests', () => {
 
   describe('patient search_with_patient_filtering Tests', () => {
     test('search_with_patient_filtering works', async () => {
+
       const payload =
         {
           'custom:bwell_fhir_id': 'patient-123-a',
@@ -32,50 +31,57 @@ describe('patient Tests', () => {
           'username': 'fake@example.com',
         };
 
-      const other_payload =
-        {
-          'custom:bwell_fhir_id': 'other-patient',
-          'custom:bwell_fhir_ids': 'other-patient',
-          'scope': 'patient/*.read user/*.* access/*.*',
-          'username': 'fake@example.com',
-        };
+      let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+      expect(resp.body.length).toBe(0);
+      console.log('------- response 0 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 0 ------------');
+
       // ARRANGE
       // add the resources to FHIR server
-      console.log('XXXXXXXXXXXXXXXXXXXXX');
-      console.log('XXXXXXXXXXXXXXXXXXXXX');
-      console.log(patient1Resource);
-      let resp = await request
+      resp = await request
         .post('/4_0_0/patient/patient-123-a/$merge?validate=true')
         .send(patient1Resource)
         .set(getHeaders())
-        .set(getHeadersWithCustomPayload(payload))
         .expect(200);
-      assertMergeIsSuccessful(resp.body);
+
+      console.log('------- response 1 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 1 ------------');
 
       resp = await request
         .post('/4_0_0/patient/patient-123-b/$merge?validate=true')
         .send(patient2Resource)
         .set(getHeaders())
-        .set(getHeadersWithCustomPayload(payload))
         .expect(200);
-      assertMergeIsSuccessful(resp.body);
+
+      console.log('------- response 2 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 2 ------------');
 
       resp = await request
         .post('/4_0_0/patient/other-patient/$merge?validate=true')
         .send(otherPatientResource)
         .set(getHeaders())
-        .set(getHeadersWithCustomPayload(other_payload))
         .expect(200);
-      assertMergeIsSuccessful(resp.body);
 
+      console.log('------- response 2 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 2 ------------');
       // ACT & ASSERT
       // search by token system and code and make sure we get the right patient back
       resp = await request
-        .set(getHeaders())
-        .set(getHeadersWithCustomPayload(payload))
         .get('/4_0_0/patient/?_bundle=1')
+        .set(getHeadersWithCustomPayload(payload))
         .expect(200);
-      assertCompareBundles(resp.body, expectedpatientResources);
+
+      console.log('------- response from adding observation2Resource ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response  ------------');
+
+      expect(resp.body.entry.length).toBe(2);
+      expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
+      expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
     });
   });
 });
