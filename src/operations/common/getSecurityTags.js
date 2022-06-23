@@ -97,17 +97,28 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
     // if there is already an $and statement then just add to it
     query = appendAndQuery(query, securityTagQuery);
   }
-    return query;
+  return query;
 };
 
 const getQueryWithPatientFilter = (patients, query, resource) => {
   if (patients) {
     const inQuery = {
-      '$in': patients.map(p=>`Patient/${p}`)
+      '$in': resource === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
     };
-    const patientsQuery = {
-      [resource === 'Patient' ? 'id' : 'patient.reference']: inQuery
-    };
+    let patientsQuery;
+
+    switch(resource){
+      case 'Patient':
+        patientsQuery = {id:inQuery}
+        break;
+      case 'AllergyIntolerance':
+      case 'Immunization':
+        patientsQuery = {'patient.reference': inQuery}
+        break;
+      default:
+        patientsQuery = {'subject.reference': inQuery}
+    }
+
     query = appendAndQuery(query, patientsQuery);
   }
   return query;

@@ -10,6 +10,8 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
 const allergyResource = require('./fixtures/patient/allergy_intolerance.json');
 const allergy2Resource = require('./fixtures/patient/allergy_intolerance2.json');
+const conditionResource = require('./fixtures/patient/condition.json');
+const condition2Resource = require('./fixtures/patient/condition2.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 
 
@@ -183,10 +185,6 @@ describe('patient Tests', () => {
       console.log('------- end response 2 ------------');
 
 
-      console.log('------- response 2 ------------');
-      console.log(JSON.stringify(resp.body, null, 2));
-      console.log('------- end response 2 ------------');
-
       resp = await request
         .post('/4_0_0/patient/other-patient/$merge?validate=true')
         .send(otherPatientResource)
@@ -212,24 +210,45 @@ describe('patient Tests', () => {
         .send(allergy2Resource)
         .set(getHeaders())
         .expect(201);
+
+      resp = await request
+        .put('/4_0_0/Condition/patient-123-b-condition')
+        .send(conditionResource)
+        .set(getHeaders())
+        .expect(201);
+
+      console.log('------- response 2 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 2 ------------');
+
+      resp = await request
+        .put('/4_0_0/Condition/other-patient-condition')
+        .send(condition2Resource)
+        .set(getHeaders())
+        .expect(201);
+
+      console.log('------- response 2 ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response 2 ------------');
+
       // ACT & ASSERT
       // search by token system and code and make sure we get the right patient back
       // console.log(getHeadersWithCustomPayload(payload));
-      // resp = await request
-      //   .get('/4_0_0/patient/?_bundle=1')
-      //   .set(getHeadersWithCustomPayload(payload))
-      //   .expect(200);
-      //
-      // console.log('------- response from adding observation2Resource ------------');
-      // console.log(JSON.stringify(resp.body, null, 2));
-      // console.log('------- end response  ------------');
-      //
-      // expect(resp.body.entry.length).toBe(2);
-      // expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
-      // expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
+      resp = await request
+        .get('/4_0_0/patient/?_bundle=1')
+        .set(getHeadersWithCustomPayload(payload))
+        .expect(200);
 
-      // let header = getHeadersWithCustomPayload(payload2)
-      // console.log(header)
+      console.log('------- response from adding observation2Resource ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response  ------------');
+
+      expect(resp.body.entry.length).toBe(2);
+      expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
+      expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
+
+      let header = getHeadersWithCustomPayload(payload2)
+      console.log(header)
       resp = await request
         .get('/4_0_0/AllergyIntolerance/?_bundle=1')
         .set(getHeadersWithCustomPayload(payload))
@@ -241,6 +260,18 @@ describe('patient Tests', () => {
 
       expect(resp.body.entry.length).toBe(1);
       expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
+
+      resp = await request
+        .get('/4_0_0/Condition/?_bundle=1')
+        .set(getHeadersWithCustomPayload(payload))
+        .expect(200);
+
+      console.log('------- response from adding observation2Resource ------------');
+      console.log(JSON.stringify(resp.body, null, 2));
+      console.log('------- end response  ------------');
+
+      expect(resp.body.entry.length).toBe(1);
+      expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
 
     })
 
