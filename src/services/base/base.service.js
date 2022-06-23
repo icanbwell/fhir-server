@@ -39,7 +39,8 @@ function getRequestInfo(req) {
         req.path,
         req.hostname,
         req.body,
-        req.headers.accept
+        req.headers.accept,
+    req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds
     );
 }
 
