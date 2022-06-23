@@ -103,10 +103,10 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
 const getQueryWithPatientFilter = (patients, query, resource) => {
   if (patients) {
     const inQuery = {
-      '$in': patients
+      '$in': patients.map(p=>`Patient/${p}`)
     };
     const patientsQuery = {
-      [resource === 'Patient' ? 'id' : 'patient']: inQuery
+      [resource === 'Patient' ? 'id' : 'patient.reference']: inQuery
     };
     query = appendAndQuery(query, patientsQuery);
   }
