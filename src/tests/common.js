@@ -192,7 +192,6 @@ module.exports.getHeadersWithCustomToken = (scope) => {
 };
 
 module.exports.getHeadersWithCustomPayload = (payload) => {
-    console.log(getTokenWithCustomPayload(payload));
     return {
         'Content-Type': 'application/fhir+json',
         'Accept': 'application/fhir+json',

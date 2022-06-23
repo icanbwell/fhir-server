@@ -113,7 +113,6 @@ const verify = (jwt_payload, done) => {
         if (isUser) {
             context['isUser'] = isUser;
         }
-        console.log(jwt_payload);
         const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
         if (jwt_payload['custom:bwell_fhir_ids']) {
             const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'].split('|');
