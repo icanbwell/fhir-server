@@ -107,6 +107,10 @@ const getQueryWithPatientFilter = (patients, query, resource) => {
     };
     let patientsQuery;
 
+    /*
+    * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field
+    * like other Clinical Resources, filter on patient.reference. All other fields are filtered on subject.reference.
+    * */
     switch(resource){
       case 'Patient':
         patientsQuery = {id:inQuery}
