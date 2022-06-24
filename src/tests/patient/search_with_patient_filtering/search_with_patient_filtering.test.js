@@ -216,278 +216,265 @@ describe('patient Tests', () => {
     //
     // });
     //
-    // let patient_123_payload =
-    //   {
-    //     'cognito:username': 'patient-123@example.com',
-    //     'custom:bwell_fhir_id': 'patient-123-a',
-    //     'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-    //     'scope': 'patient/*.read user/*.* access/*.*',
-    //     'username': 'patient-123@example.com',
-    //   };
-    // let other_patient_payload =
-    //   {
-    //     'cognito:username': 'other-patient@example.com',
-    //     'custom:bwell_fhir_id': 'other-patient',
-    //     'custom:bwell_fhir_ids': 'other-patient',
-    //     'scope': 'patient/*.read user/*.* access/*.*',
-    //     'username': 'other-patient@example.com',
-    //   };
-    // let app_client_payload =
-    //   {
-    //     'scope': 'patient/*.read user/*.* access/*.*',
-    //     'username': 'Some App',
-    //   };
-    //
-    //
-    // describe('User security filtering', () => {
-    //
-    //   test('Only related patients are returned', async () => {
-    //     // ACT & ASSERT
-    //     // search by token system and code and make sure we get the right patient back
-    //     // console.log(getHeadersWithCustomPayload(payload));
-    //     resp = await request
-    //       .get('/4_0_0/patient/?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.entry.length).toBe(2);
-    //     expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
-    //     expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
-    //   });
-    //
-    //   test('A user can access their patient by id', async () => {
-    //     // Patient-123 should be able to access himself
-    //     resp = await request
-    //       .get('/4_0_0/patient/patient-123-a')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.id).toBe('patient-123-a');
-    //
-    //
-    //     resp = await request
-    //       .get('/4_0_0/patient/other-patient?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(other_patient_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.id).toBe('other-patient');
-    //   })
-    //
-    //
-    //   test('A user cannot access another patient by id', async () => {
-    //     // Make sure patient-123 access other-patient
-    //     resp = await request
-    //       .get('/4_0_0/Patient/other-patient')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(404);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.issue[0].code).toBe("not-found");
-    //   })
-    //
-    //   test('Resources are filtered by patient', async () => {
-    //     resp = await request
-    //       .get('/4_0_0/AllergyIntolerance/?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.entry.length).toBe(1);
-    //     expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
-    //
-    //     resp = await request
-    //       .get('/4_0_0/Condition/?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.entry.length).toBe(1);
-    //     expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
-    //   });
-    //
-    //   test('A user can access their patient-filtered resources by id', async () => {
-    //     // Make sure patient 123 can access a certain allergy
-    //     resp = await request
-    //       .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.id).toBe("patient-123-b-allergy-intolerance");
-    //   });
-    //
-    //
-    //   test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
-    //     resp = await request
-    //       .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(404);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.issue[0].code).toBe("not-found");
-    //   })
-    //   //Make sure patient 123 can only access his Conditions
-    //
-    //
-    //   test('A user can access their subject-filtered resources by id', async () => {
-    //     resp = await request
-    //       .get('/4_0_0/Condition/other-patient-condition')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(404);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.issue[0].code).toBe("not-found");
-    //   })
-    //
-    //   test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
-    //     resp = await request
-    //       .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
-    //       .set(getHeadersWithCustomPayload(patient_123_payload))
-    //       .expect(404);
-    //
-    //     console.log('------- response from adding observation2Resource ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.issue[0].code).toBe("not-found");
-    //   });
-    // })
-    //
-    //
-    // describe('App clients security filtering', () => {
-    //   //Make sure app clients can access all patients
-    //   test('App clients can access all id-filtered resources', async () => {
-    //     resp = await request
-    //       .get('/4_0_0/Patient/?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(app_client_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.entry.length).toBe(3);
-    //   })
-    //
-    //   test('App clients can access all patient-filtered resources', async () => {
-    //     //Make sure app clients can access all patient filtered resources
-    //     resp = await request
-    //       .get('/4_0_0/AllergyIntolerance/?_bundle=1')
-    //       .set(getHeadersWithCustomPayload(app_client_payload))
-    //       .expect(200);
-    //
-    //     console.log('------- response from getting patients ------------');
-    //     console.log(JSON.stringify(resp.body, null, 2));
-    //     console.log('------- end response  ------------');
-    //
-    //     expect(resp.body.entry.length).toBe(2);
-    //   })
-    //
-    //   test('App clients can access all subject-filtered resources', async () => {
+    let patient_123_payload =
+      {
+        'cognito:username': 'patient-123@example.com',
+        'custom:bwell_fhir_id': 'patient-123-a',
+        'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'patient-123@example.com',
+      };
+    let other_patient_payload =
+      {
+        'cognito:username': 'other-patient@example.com',
+        'custom:bwell_fhir_id': 'other-patient',
+        'custom:bwell_fhir_ids': 'other-patient',
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'other-patient@example.com',
+      };
+    let app_client_payload =
+      {
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'Some App',
+      };
 
 
-      test('GraphQL AllergyIntolerance properly', async () => {
-        // noinspection JSUnusedLocalSymbols
-        let payload =
-          {
-            'cognito:username': 'fake@example.com',
-            // 'custom:bwell_fhir_id': 'patient-123-a',
-            'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-            'scope': 'patient/*.read user/*.* access/*.*',
-            'username': 'fake@example.com',
-          };
+    describe('User security filtering', () => {
 
-        let headers = getCustomGraphQLHeaders(payload)
-        console.log(headers)
+      test('Only related patients are returned', async () => {
+        // ACT & ASSERT
+        // search by token system and code and make sure we get the right patient back
+        // console.log(getHeadersWithCustomPayload(payload));
+        resp = await request
+          .get('/4_0_0/patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(200);
 
-        const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
 
-        // resp = await request
-        //   .get('/4_0_0/Patient/?_bundle=1')
-        //   .set(getHeadersWithCustomPayload(app_client_payload))
-        //   .expect(200);
-        //
-        // console.log('------- response from getting patients ------------');
-        // console.log(JSON.stringify(resp.body, null, 2));
-        // console.log('------- end response  ------------');
-        //
-        // expect(resp.body.entry.length).toBe(2);
+        expect(resp.body.entry.length).toBe(2);
+        expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
+        expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
+      });
+
+      test('A user can access their patient by id', async () => {
+        // Patient-123 should be able to access himself
+        resp = await request
+          .get('/4_0_0/patient/patient-123-a')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.id).toBe('patient-123-a');
 
 
-        // let resp = await request
-        //   .get('/4_0_0/Condition/?_bundle=1')
-        //   .set(getHeadersWithCustomPayload(app_client_payload))
-        //   .expect(200);
-        //
-        // console.log('------- response from getting patients ------------');
-        // console.log(JSON.stringify(resp.body, null, 2));
-        // console.log('------- end response  ------------');
-        //
-        // expect(resp.body.entry.length).toBe(2);
-        //   })
+        resp = await request
+          .get('/4_0_0/patient/other-patient?_bundle=1')
+          .set(getHeadersWithCustomPayload(other_patient_payload))
+          .expect(200);
 
-        await async.waterfall([
-          (cb) => request
-            // .get('/graphql/?query=' + graphqlQueryText)
-            // .set(getHeaders())
-            .post('/graphqlv2')
-            .send({
-              'operationName': null,
-              'variables': {},
-              'query': graphqlQueryText
-            })
-            .set(headers)
-            .expect(200, cb)
-            .expect((resp) => {
-              // clear out the lastUpdated column since that changes
-              let body = resp.body;
-              console.log('------- response graphql ------------');
-              console.log(JSON.stringify(resp.body, null, 2));
-              console.log('------- end response graphql  ------------');
-              expect(body.data.allergyIntolerance.entry.length).toBe(1);
-              let expected = expectedAllergyIntoleranceBundleResource;
-              expected.forEach(element => {
-                if ('meta' in element) {
-                  delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                  delete element['$schema'];
-                }
-              });
-              expect(body.data.allergyIntolerance.entry).toStrictEqual(expected);
-            }, cb),
-        ]);
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.id).toBe('other-patient');
+      })
+
+
+      test('A user cannot access another patient by id', async () => {
+        // Make sure patient-123 access other-patient
+        resp = await request
+          .get('/4_0_0/Patient/other-patient')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(404);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.issue[0].code).toBe("not-found");
+      })
+
+      test('Resources are filtered by patient', async () => {
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(200);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
+
+        resp = await request
+          .get('/4_0_0/Condition/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(200);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
+      });
+
+      test('A user can access their patient-filtered resources by id', async () => {
+        // Make sure patient 123 can access a certain allergy
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(200);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.id).toBe("patient-123-b-allergy-intolerance");
+      });
+
+
+      test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(404);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.issue[0].code).toBe("not-found");
+      })
+      //Make sure patient 123 can only access his Conditions
+
+
+      test('A user can access their subject-filtered resources by id', async () => {
+        resp = await request
+          .get('/4_0_0/Condition/other-patient-condition')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(404);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.issue[0].code).toBe("not-found");
+      })
+
+      test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
+          .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(404);
+
+        console.log('------- response from adding observation2Resource ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.issue[0].code).toBe("not-found");
+      });
+    })
+
+
+    describe('App clients security filtering', () => {
+      //Make sure app clients can access all patients
+      test('App clients can access all id-filtered resources', async () => {
+        resp = await request
+          .get('/4_0_0/Patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(app_client_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(3);
+      })
+
+      test('App clients can access all patient-filtered resources', async () => {
+        //Make sure app clients can access all patient filtered resources
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/?_bundle=1')
+          .set(getHeadersWithCustomPayload(app_client_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(2);
+      })
+
+      test('App clients can access all subject-filtered resources', async () => {
+        let resp = await request
+          .get('/4_0_0/Condition/?_bundle=1')
+          .set(getHeadersWithCustomPayload(app_client_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(2);
+      })
+    })
+
+    test('GraphQL AllergyIntolerance properly', async () => {
+      // noinspection JSUnusedLocalSymbols
+      let payload =
+        {
+          'cognito:username': 'fake@example.com',
+          // 'custom:bwell_fhir_id': 'patient-123-a',
+          'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
+          'scope': 'patient/*.read user/*.* access/*.*',
+          'username': 'fake@example.com',
+        };
+
+      let headers = getCustomGraphQLHeaders(payload)
+      console.log(headers)
+
+      const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
+
+      await async.waterfall([
+        (cb) => request
+          // .get('/graphql/?query=' + graphqlQueryText)
+          // .set(getHeaders())
+          .post('/graphqlv2')
+          .send({
+            'operationName': null,
+            'variables': {},
+            'query': graphqlQueryText
+          })
+          .set(headers)
+          .expect(200, cb)
+          .expect((resp) => {
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            console.log('------- response graphql ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response graphql  ------------');
+            expect(body.data.allergyIntolerance.entry.length).toBe(1);
+            let expected = expectedAllergyIntoleranceBundleResource;
+            expected.forEach(element => {
+              if ('meta' in element) {
+                delete element['meta']['lastUpdated'];
+              }
+              // element['meta'] = {'versionId': '1'};
+              if ('$schema' in element) {
+                delete element['$schema'];
+              }
+            });
+            expect(body.data.allergyIntolerance.entry).toStrictEqual(expected);
+          }, cb),
+      ]);
       // });
     });
   });

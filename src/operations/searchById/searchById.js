@@ -67,9 +67,9 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      */
     let resource;
     query = {id: id.toString()}
-    // if (isUser && env.ENABLE_PATIENT_FILTERING) {
-    //     query = getQueryWithPatientFilter(patients, query, collection_name)
-    // }
+    if (isUser && env.ENABLE_PATIENT_FILTERING) {
+       query = getQueryWithPatientFilter(patients, query, collection_name)
+    }
     try {
         resource = await collection.findOne(query);
     } catch (e) {
