@@ -21,7 +21,7 @@ const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtu
 const request = supertest(app);
 const {
   commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload,
-  getCustomGraphQLHeaders, getToken, getHeadersFormUrlEncoded
+  getCustomGraphQLHeaders
 } = require('../../common');
 
 
@@ -245,7 +245,7 @@ describe('patient Tests', () => {
         // ACT & ASSERT
         // search by token system and code and make sure we get the right patient back
         // console.log(getHeadersWithCustomPayload(payload));
-        resp = await request
+        let resp = await request
           .get('/4_0_0/patient/?_bundle=1')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(200);
@@ -261,7 +261,7 @@ describe('patient Tests', () => {
 
       test('A user can access their patient by id', async () => {
         // Patient-123 should be able to access himself
-        resp = await request
+        let resp = await request
           .get('/4_0_0/patient/patient-123-a')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(200);
@@ -283,12 +283,12 @@ describe('patient Tests', () => {
         console.log('------- end response  ------------');
 
         expect(resp.body.id).toBe('other-patient');
-      })
+      });
 
 
       test('A user cannot access another patient by id', async () => {
         // Make sure patient-123 access other-patient
-        resp = await request
+        let resp = await request
           .get('/4_0_0/Patient/other-patient')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(404);
@@ -297,11 +297,11 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.issue[0].code).toBe("not-found");
-      })
+        expect(resp.body.issue[0].code).toBe('not-found');
+      });
 
       test('Resources are filtered by patient', async () => {
-        resp = await request
+        let resp = await request
           .get('/4_0_0/AllergyIntolerance/?_bundle=1')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(200);
@@ -328,7 +328,7 @@ describe('patient Tests', () => {
 
       test('A user can access their patient-filtered resources by id', async () => {
         // Make sure patient 123 can access a certain allergy
-        resp = await request
+        let resp = await request
           .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(200);
@@ -337,12 +337,12 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.id).toBe("patient-123-b-allergy-intolerance");
+        expect(resp.body.id).toBe('patient-123-b-allergy-intolerance');
       });
 
 
       test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
-        resp = await request
+        let resp = await request
           .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(404);
@@ -351,13 +351,13 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.issue[0].code).toBe("not-found");
-      })
+        expect(resp.body.issue[0].code).toBe('not-found');
+      });
       //Make sure patient 123 can only access his Conditions
 
 
       test('A user can access their subject-filtered resources by id', async () => {
-        resp = await request
+        let resp = await request
           .get('/4_0_0/Condition/other-patient-condition')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(404);
@@ -366,11 +366,11 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.issue[0].code).toBe("not-found");
-      })
+        expect(resp.body.issue[0].code).toBe('not-found');
+      });
 
       test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
-        resp = await request
+        let resp = await request
           .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
           .set(getHeadersWithCustomPayload(patient_123_payload))
           .expect(404);
@@ -379,15 +379,15 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.issue[0].code).toBe("not-found");
+        expect(resp.body.issue[0].code).toBe('not-found');
       });
-    })
+    });
 
 
     describe('App clients security filtering', () => {
       //Make sure app clients can access all patients
       test('App clients can access all id-filtered resources', async () => {
-        resp = await request
+        let resp = await request
           .get('/4_0_0/Patient/?_bundle=1')
           .set(getHeadersWithCustomPayload(app_client_payload))
           .expect(200);
@@ -397,11 +397,11 @@ describe('patient Tests', () => {
         console.log('------- end response  ------------');
 
         expect(resp.body.entry.length).toBe(3);
-      })
+      });
 
       test('App clients can access all patient-filtered resources', async () => {
         //Make sure app clients can access all patient filtered resources
-        resp = await request
+        let resp = await request
           .get('/4_0_0/AllergyIntolerance/?_bundle=1')
           .set(getHeadersWithCustomPayload(app_client_payload))
           .expect(200);
@@ -411,7 +411,7 @@ describe('patient Tests', () => {
         console.log('------- end response  ------------');
 
         expect(resp.body.entry.length).toBe(2);
-      })
+      });
 
       test('App clients can access all subject-filtered resources', async () => {
         let resp = await request
@@ -424,8 +424,8 @@ describe('patient Tests', () => {
         console.log('------- end response  ------------');
 
         expect(resp.body.entry.length).toBe(2);
-      })
-    })
+      });
+    });
 
     test('GraphQL AllergyIntolerance properly', async () => {
       // noinspection JSUnusedLocalSymbols
@@ -437,9 +437,6 @@ describe('patient Tests', () => {
           'scope': 'patient/*.read user/*.* access/*.*',
           'username': 'fake@example.com',
         };
-
-      let headers = getCustomGraphQLHeaders(payload)
-      console.log(headers)
 
       const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
 
@@ -453,7 +450,7 @@ describe('patient Tests', () => {
             'variables': {},
             'query': graphqlQueryText
           })
-          .set(headers)
+          .set(getCustomGraphQLHeaders(payload))
           .expect(200, cb)
           .expect((resp) => {
             // clear out the lastUpdated column since that changes

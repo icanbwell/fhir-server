@@ -1,4 +1,3 @@
-const {dateQueryBuilder} = require("../../../utils/querybuilder.util");
 
 /**
  * Filters by string
@@ -35,7 +34,7 @@ function filterByString(queryParameterValue, and_segments, propertyObj, columns)
         // see if this is a comma separated list
         const value_list = queryParameterValue.split(',');
 
-        if(propertyObj.fields) {
+        if (propertyObj.fields) {
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
                     return {

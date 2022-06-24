@@ -9,8 +9,7 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
-const {profiles} = require("../../profiles");
-const {getQueryWithPatientFilter} = require('../common/getSecurityTags')
+const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -66,9 +65,9 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      * @type {Promise<Resource> | *}
      */
     let resource;
-    query = {id: id.toString()}
+    query = {id: id.toString()};
     if (isUser && env.ENABLE_PATIENT_FILTERING) {
-       query = getQueryWithPatientFilter(patients, query, collection_name)
+       query = getQueryWithPatientFilter(patients, query, collection_name);
     }
     try {
         resource = await collection.findOne(query);
