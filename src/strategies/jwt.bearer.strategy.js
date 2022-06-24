@@ -112,22 +112,22 @@ const verify = (jwt_payload, done) => {
         }
         if (isUser) {
             context['isUser'] = isUser;
-        }
-        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
-        if (jwt_payload['custom:bwell_fhir_ids']) {
-            const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'].split('|');
-            if (fhirPatientIds && fhirPatientIds.length > 0) {
-                context['fhirPatientIds'] = fhirPatientIds;
-            } else if (fhirPatientId) {
-                context['fhirPatientIds'] = [fhirPatientId];
+            if (jwt_payload['custom:bwell_fhir_ids']) {
+                const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'].split('|');
+                if (fhirPatientIds && fhirPatientIds.length > 0) {
+                    context['fhirPatientIds'] = fhirPatientIds;
+                } else if (fhirPatientId) {
+                    context['fhirPatientIds'] = [fhirPatientId];
+                }
+            }
+            const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
+
+            const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
+            if (fhirPersonId) {
+                context['fhirPersonId'] = fhirPersonId;
             }
         }
 
-
-        const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
-        if (fhirPersonId) {
-            context['fhirPersonId'] = fhirPersonId;
-        }
         return done(null, { id: client_id, isUser }, { scope, context });
     }
 

@@ -9,7 +9,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
-
+const {profiles} = require("../../profiles");
+const {getQueryWithPatientFilter} = require('../common/getSecurityTags')
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -27,6 +28,9 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
 
     verifyHasValidScopes(resource_name, 'read', user, scope);
 
+    const patients = requestInfo.patients;
+    const isUser = requestInfo.isUser;
+
     // Common search params
     let {id} = args;
     let {base_version} = args;
@@ -40,6 +44,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      */
     let query = {};
     query.id = id;
+
 
     /**
      * @type {boolean}
@@ -61,8 +66,12 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      * @type {Promise<Resource> | *}
      */
     let resource;
+    query = {id: id.toString()}
+    // if (isUser && env.ENABLE_PATIENT_FILTERING) {
+    //     query = getQueryWithPatientFilter(patients, query, collection_name)
+    // }
     try {
-        resource = await collection.findOne({id: id.toString()});
+        resource = await collection.findOne(query);
     } catch (e) {
         logError(user, `Error with ${resource_name}.searchById: {e}`);
         throw new BadRequestError(e);
@@ -75,6 +84,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
         }
+
         // remove any nulls or empty objects or arrays
         resource = removeNull(resource);
 
@@ -84,6 +94,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
             // log access to audit logs
             await logAuditEntryAsync(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
         }
+
         return new Resource(resource);
     } else {
         throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);

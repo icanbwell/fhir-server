@@ -5,14 +5,17 @@ const {RequestInfo} = require('../../utils/requestInfo');
  */
 module.exports.getRequestInfo = (context) => {
     return new RequestInfo(
-        context.user,
-        context.scope,
-        context.remoteIpAddress,
-        context.protocol,
-        context.originalUrl,
-        context.path,
-        context.host,
-        context.body,
-        context.patients,
+      context.user,
+      context.scope,
+      context.remoteIpAddress,
+      context.protocol,
+      context.originalUrl,
+      context.path,
+      context.host,
+      context.body,
+      context.accept,
+      context.isUser,
+      context.patients,
+      context.fhirPersonId
     );
 };

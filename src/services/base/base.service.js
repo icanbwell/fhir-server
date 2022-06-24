@@ -40,7 +40,8 @@ function getRequestInfo(req) {
         req.hostname,
         req.body,
         req.headers.accept,
-    req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds
+        req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
+        req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds
     );
 }
 

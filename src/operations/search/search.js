@@ -51,6 +51,11 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      */
     const patients = requestInfo.patients;
 
+    /**
+     * @type {boolean | null}
+     */
+    const isUser = requestInfo.isUser;
+
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
@@ -71,7 +76,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, patients, args, resourceName, collection_name, useAccessIndex);
+    } = constructQuery(user, scope, isUser, patients, args, resourceName, collection_name, useAccessIndex);
 
     /**
      * @type {boolean}
