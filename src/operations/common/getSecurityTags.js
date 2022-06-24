@@ -2,7 +2,7 @@ const {getAccessCodesFromScopes} = require('../security/scopes');
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
-
+const {profiles} = require('../../profiles');
 /**
  * returns security tags to filter by based on the scope
  * @param {string} user
@@ -97,17 +97,25 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
     // if there is already an $and statement then just add to it
     query = appendAndQuery(query, securityTagQuery);
   }
-    return query;
+  return query;
 };
 
 const getQueryWithPatientFilter = (patients, query, resource) => {
   if (patients) {
     const inQuery = {
-      '$in': patients
+      '$in': resource === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
     };
-    const patientsQuery = {
-      [resource === 'Patient' ? 'id' : 'patient']: inQuery
-    };
+    let patientsQuery;
+
+    /*
+    * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field
+    * like other Clinical Resources, filter on patient.reference. All other fields are filtered on subject.reference.
+    * */
+    let profile = profiles[resource];
+    if (profile.filterByPerson) {
+      patientsQuery = {[profile.filterBy]: inQuery};
+    }
+
     query = appendAndQuery(query, patientsQuery);
   }
   return query;

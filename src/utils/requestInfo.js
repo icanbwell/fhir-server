@@ -10,6 +10,7 @@ class RequestInfo {
      * @param {string | null} host
      * @param {Object | Object[] | null} body
      * @param {string | null} accept
+     * @param {boolean | null} isUser
      * @param {string[] | null} patients
      * @param {string | null} fhirPersonId
      */
@@ -22,6 +23,7 @@ class RequestInfo {
                 host,
                 body,
                 accept,
+                isUser,
                 patients,
                 fhirPersonId) {
         /**
@@ -60,6 +62,10 @@ class RequestInfo {
          * @type {string | null}
          */
         this.accept = accept;
+        /**
+         * @type {boolean}
+         */
+        this.isUser = isUser;
         /**
          * @type {string[] | null}
          */

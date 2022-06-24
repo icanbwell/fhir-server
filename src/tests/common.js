@@ -169,6 +169,14 @@ module.exports.getGraphQLHeaders = (scope) => {
     };
 };
 
+module.exports.getCustomGraphQLHeaders = (payload) => {
+    return {
+        'Content-Type': 'application/json; charset=utf-8',
+        'accept': '*/*',
+        'Authorization': `Bearer ${payload ? getTokenWithCustomPayload(payload) : getFullAccessToken()}`
+    };
+};
+
 module.exports.getUnAuthenticatedGraphQLHeaders = () => {
     return {
         'Content-Type': 'application/json; charset=utf-8',

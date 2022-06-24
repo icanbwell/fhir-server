@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "another-patient",
+  "id": "other-patient",
   "birthDate": "1990-01-01",
   "gender": "male",
   "meta": {
