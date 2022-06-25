@@ -71,7 +71,7 @@
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/node-fhir-server-core": "^2.2.4",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@graphql-eslint/eslint-plugin": "^3.10.3",
+    "@graphql-eslint/eslint-plugin": "^3.10.4",
     "@graphql-tools/graphql-file-loader": "^7.3.14",
     "@graphql-tools/load": "^7.5.13",
     "@graphql-tools/load-files": "^6.5.3",
