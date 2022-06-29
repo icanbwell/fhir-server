@@ -19,6 +19,9 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
+    if (queryParameterValue.join('').trim() === '') {
+        return;
+    }
     for (const dateQueryItem of queryParameterValue) {
         // prettier-ignore
         // eslint-disable-next-line security/detect-object-injection
