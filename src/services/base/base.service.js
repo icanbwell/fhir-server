@@ -303,7 +303,8 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.expand = async (args, {req}, resource_name, collection_name) => {
+    const combined_args = get_all_args(req, args);
     return expand(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+      combined_args, resource_name, collection_name);
 };

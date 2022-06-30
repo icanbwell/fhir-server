@@ -8,6 +8,7 @@ const {enrich} = require('../../enrich/enrich');
 const {getExpandedValueSet} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const parameters = require('./parameters')
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -28,11 +29,11 @@ module.exports.expand = async (requestInfo, args, resource_name, collection_name
     verifyHasValidScopes(resource_name, 'read', user, scope);
 
     // Common search params
-    let {id} = args;
-    let {base_version} = args;
+    let {base_version, id, ...params} = args;
 
     logDebug(user, `id: ${id}`);
     logDebug(user, `base_version: ${base_version}`);
+    logDebug(user, `params: ${params}`);
 
     // Search Result param
 
@@ -75,7 +76,7 @@ module.exports.expand = async (requestInfo, args, resource_name, collection_name
         }
 
         // implement expand functionality
-        resource = await getExpandedValueSet(collection, resource);
+        resource = await getExpandedValueSet(collection, resource, params);
 
         // run any enrichment
         resource = (await enrich([resource], resource_name))[0];
