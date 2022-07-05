@@ -81,7 +81,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.29.0",
     "@opentelemetry/exporter-collector": "^0.25.0",
     "@opentelemetry/instrumentation-express": "^0.29.0",
-    "@opentelemetry/instrumentation-http": "^0.28.0",
+    "@opentelemetry/instrumentation-http": "^0.29.2",
     "@opentelemetry/instrumentation-mongodb": "^0.30.0",
     "@opentelemetry/metrics": "^0.24.0",
     "@opentelemetry/sdk-node": "^0.29.2",
