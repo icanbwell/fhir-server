@@ -9,6 +9,7 @@ const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
 const {createClient, disconnectClient} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
+const {mongoConfig} = require('../config');
 
 /**
  * creates a multi key index if it does not exist
@@ -96,7 +97,7 @@ async function indexAllCollections(tableName) {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -157,7 +158,7 @@ async function getIndexesInAllCollections() {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -191,7 +192,7 @@ async function deleteIndexesInAllCollections(tableName) {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}

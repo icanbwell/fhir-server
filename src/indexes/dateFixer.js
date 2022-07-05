@@ -2,10 +2,10 @@ const async = require('async');
 const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {CLIENT_DB} = require('../constants');
 const moment = require('moment-timezone');
-// const {Db} = require('mongodb');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {createClient, disconnectClient} = require('../utils/connect');
+const {mongoConfig} = require('../config');
 
 /**
  * converts the type of field in collection to Date
@@ -126,7 +126,7 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}

@@ -27,7 +27,7 @@ module.exports.handleStats = async (req, res) => {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient();
+    const client = await createClient(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
