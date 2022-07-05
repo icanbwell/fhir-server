@@ -84,7 +84,7 @@
     "@opentelemetry/instrumentation-http": "^0.28.0",
     "@opentelemetry/instrumentation-mongodb": "^0.30.0",
     "@opentelemetry/metrics": "^0.24.0",
-    "@opentelemetry/sdk-node": "^0.28.0",
+    "@opentelemetry/sdk-node": "^0.29.2",
     "@popperjs/core": "^2.11.5",
     "@sentry/node": "^6.19.7",
     "@slack/web-api": "^6.7.1",
