@@ -121,7 +121,7 @@
     "jwks-rsa": "^2.1.3",
     "moment": "^2.29.3",
     "moment-timezone": "^0.5.34",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.7.0",
     "object-hash": "^2.2.0, <3",
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
