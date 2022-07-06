@@ -16,6 +16,7 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
+const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers')
 
 
 /**
@@ -52,9 +53,15 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     const patients = requestInfo.patients;
 
     /**
+     * @type {string[] | null}
+     */
+    const fhirPersonId = requestInfo.fhirPersonId;
+
+    /**
      * @type {boolean | null}
      */
     const isUser = requestInfo.isUser;
+
 
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
@@ -69,15 +76,6 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      */
     const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
 
-    let {
-        /** @type {string} **/
-        base_version,
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, isUser, patients, args, resourceName, collection_name, useAccessIndex);
-
     /**
      * @type {boolean}
      */
@@ -89,8 +87,22 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * @type {import('mongodb').Db}
      */
     let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+      globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+        globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+
+    let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId)
+    const allPatients = patients.concat(members)
+
+    let {
+        /** @type {string} **/
+        base_version,
+        /** @type {import('mongodb').Document}**/
+        query,
+        /** @type {Set} **/
+        columns
+    } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex);
+
+
     /**
      * @type {string}
      */
@@ -104,6 +116,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceName);
+
 
     logDebug(user, '---- query ----');
     logDebug(user, JSON.stringify(query));

@@ -1,0 +1,38 @@
+{
+  "resourceType": "Person",
+  "id": "person-123-b",
+  "birthDate": "1990-01-01",
+  "gender": "male",
+  "meta": {
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      }
+    ],
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT2",
+      "given": [
+        "OTHER"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/Patient-123-b",
+        "type": "Patient"
+      },
+      "assurance": "level4"
+    }
+  ]
+}

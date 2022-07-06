@@ -7,12 +7,16 @@ const async = require('async');
 
 // test file
 const patient1Resource = require('./fixtures/patient/patient1.json');
+const person1Resource = require('./fixtures/patient/person.123a.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
+const person2Resource = require('./fixtures/patient/person.123b.json');
+const patientWithMemberId = require('./fixtures/patient/patient-with-member-id.json');
 const allergyResource = require('./fixtures/patient/allergy_intolerance.json');
 const allergy2Resource = require('./fixtures/patient/allergy_intolerance2.json');
 const conditionResource = require('./fixtures/patient/condition.json');
 const condition2Resource = require('./fixtures/patient/condition2.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
+const rootPersonResource = require('./fixtures/patient/person.root.json');
 const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
 
 const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
@@ -67,6 +71,47 @@ describe('patient Tests', () => {
     console.log('------- response 2 ------------');
     console.log(JSON.stringify(resp.body, null, 2));
     console.log('------- end response 2 ------------');
+
+    resp = await request
+      .post('/4_0_0/patient/member-id-patient/$merge?validate=true')
+      .send(patientWithMemberId)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
+      .post('/4_0_0/person/person-123-a/$merge?validate=true')
+      .send(person1Resource)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
+      .post('/4_0_0/person/person-123-b/$merge?validate=true')
+      .send(person2Resource)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
+      .post('/4_0_0/person/root-person/$merge?validate=true')
+      .send(rootPersonResource)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
 
     resp = await request
       .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
@@ -220,6 +265,7 @@ describe('patient Tests', () => {
       {
         'cognito:username': 'patient-123@example.com',
         'custom:bwell_fhir_id': 'patient-123-a',
+        'custom:bwell_fhir_person_id': 'root-person',
         'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
         'scope': 'patient/*.read user/*.* access/*.*',
         'username': 'patient-123@example.com',
@@ -232,6 +278,14 @@ describe('patient Tests', () => {
         'scope': 'patient/*.read user/*.* access/*.*',
         'username': 'other-patient@example.com',
       };
+    // Legacy payload represents a user that registered before FHIR person support was added
+    let patient_123_legacy_payload =
+      {
+        'cognito:username': 'patient-123@example.com',
+        'custom:bwell_fhir_id': 'patient-123-a',
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'patient-123@example.com',
+      };
     let app_client_payload =
       {
         'scope': 'patient/*.read user/*.* access/*.*',
@@ -240,6 +294,20 @@ describe('patient Tests', () => {
 
 
     describe('User security filtering', () => {
+
+      test('Legacy users can only access a single patient', async () => {
+        let resp = await request
+          .get('/4_0_0/patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_legacy_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
+      })
 
       test('Only related patients are returned', async () => {
         // ACT & ASSERT
