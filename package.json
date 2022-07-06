@@ -91,7 +91,7 @@
     "apollo-datasource": "^3.3.1",
     "apollo-server-core": "^3.9.0",
     "apollo-server-express": "^3.8.1",
-    "async": "^3.2.3",
+    "async": "^3.2.4",
     "async-mutex": "^0.3.2",
     "aws-sdk": "^2.1153.0",
     "body-parser": "^1.20.0",
