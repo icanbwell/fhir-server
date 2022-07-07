@@ -5,16 +5,16 @@
  * @param filter
  * @returns {*}
  */
-module.exports.filter = (valueSet, filter) => {
+module.exports.execute = (valueSet, filter) => {
   return valueSet.filter(code => {
-    let lcFilter = filter.toLowerCase()
-    if (code.code.toLowerCase().search(lcFilter) >= 0) {
-      return true
+    let lcFilter = filter.toLowerCase();
+    if (code.code && code.code.toLowerCase().search(lcFilter) >= 0) {
+      return true;
     }
-    if (code.display.toLowerCase().search(lcFilter) >= 0) {
-      return true
+    if (code.display && code.display.toLowerCase().search(lcFilter) >= 0) {
+      return true;
     }
-    return false
+    return false;
   });
 };
 
