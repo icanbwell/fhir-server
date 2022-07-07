@@ -74,7 +74,7 @@ const getValueSetConcepts = async (collection1, resource1, params) => {
         // noinspection UnnecessaryLocalVariableJS
         expandedValueSets = await async.flatMap(resource1.compose.include,
             async include => await getInclude(collection1, include, params)
-        )
+        );
     }
 
     // append expanded value sets to existing value sets

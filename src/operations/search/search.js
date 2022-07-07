@@ -16,7 +16,7 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers')
+const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers');
 
 
 /**
@@ -90,12 +90,13 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
       globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
         globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 
-    let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId)
-    const allPatients = patients.concat(members)
+    /** @type {string} **/
+    let {base_version} = args;
+
+    let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId);
+    const allPatients = patients.concat(members);
 
     let {
-        /** @type {string} **/
-        base_version,
         /** @type {import('mongodb').Document}**/
         query,
         /** @type {Set} **/

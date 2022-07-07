@@ -18,7 +18,7 @@ const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
-const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers')
+const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers');
 
 /**
  * does a FHIR Search
@@ -83,12 +83,13 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
       globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 
-  let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId)
-  const allPatients = patients.concat(members)
+  /** @type {string} **/
+  let {base_version} = args;
+
+  let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId);
+  const allPatients = patients.concat(members);
 
   let {
-    /** @type {string} **/
-    base_version,
     /** @type {import('mongodb').Document}**/
     query,
     /** @type {Set} **/

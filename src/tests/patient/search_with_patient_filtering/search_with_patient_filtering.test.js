@@ -307,7 +307,7 @@ describe('patient Tests', () => {
 
         expect(resp.body.entry.length).toBe(1);
         expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
-      })
+      });
 
       test('Only related patients are returned', async () => {
         // ACT & ASSERT
