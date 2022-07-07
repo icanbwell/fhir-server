@@ -16,8 +16,7 @@ const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers');
-
+const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
 
 /**
  * does a FHIR Search
@@ -35,32 +34,20 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
      * @type {number}
      */
     const startTime = Date.now();
-    /**
-     * @type {string | null}
-     */
-    const user = requestInfo.user;
-    /**
-     * @type {string | null}
-     */
-    const scope = requestInfo.scope;
-    /**
-     * @type {string | null}
-     */
-    const url = requestInfo.originalUrl;
-    /**
-     * @type {string[] | null}
-     */
-    const patients = requestInfo.patients;
-
-    /**
-     * @type {string[] | null}
-     */
-    const fhirPersonId = requestInfo.fhirPersonId;
-
-    /**
-     * @type {boolean | null}
-     */
-    const isUser = requestInfo.isUser;
+    const {
+        /** @type {string | null} */
+        user,
+        /** @type {string | null} */
+        scope,
+        /** @type {string | null} */
+        originalUrl: url,
+        /** @type {string[] | null} */
+        patients = [],
+        /** @type {string} */
+        fhirPersonId,
+        /** @type {boolean} */
+        isUser
+    } = requestInfo;
 
 
     logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
@@ -93,8 +80,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
     /** @type {string} **/
     let {base_version} = args;
 
-    let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId);
-    const allPatients = patients.concat(members);
+    const allPatients = patients.concat(await getLinkedPatients(db, base_version, isUser, fhirPersonId));
 
     let {
         /** @type {import('mongodb').Document}**/

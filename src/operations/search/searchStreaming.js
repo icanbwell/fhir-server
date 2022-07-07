@@ -18,7 +18,7 @@ const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
-const {getPatientIdsByPersonIdentifiers} = require('./getPatientIdsByPersonIdentifiers');
+const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
 
 /**
  * does a FHIR Search
@@ -37,24 +37,22 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
    * @type {number}
    */
   const startTime = Date.now();
-  /**
-   * @type {string | null}
-   */
-  const user = requestInfo.user;
-  /**
-   * @type {string | null}
-   */
-  const scope = requestInfo.scope;
-  /**
-   * @type {string | null}
-   */
-  const url = requestInfo.originalUrl;
-  /**
-   * @type {string[] | null}
-   */
-  const patients = requestInfo.patients;
-  const fhirPersonId = requestInfo.fhirPersonId;
-  const isUser = requestInfo.isUser;
+
+  const {
+    /** @type {string | null} */
+    user,
+    /** @type {string | null} */
+    scope,
+    /** @type {string | null} */
+    originalUrl: url,
+    /** @type {string[] | null} */
+    patients = [],
+    /** @type {string} */
+    fhirPersonId,
+    /** @type {boolean} */
+    isUser
+  } = requestInfo;
+
   logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
   // logRequest('user: ' + req.user);
   // logRequest('scope: ' + req.authInfo.scope);
@@ -86,8 +84,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
   /** @type {string} **/
   let {base_version} = args;
 
-  let members = getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId);
-  const allPatients = patients.concat(members);
+  const allPatients = patients.concat(await getLinkedPatients(db, base_version, isUser, fhirPersonId));
 
   let {
     /** @type {import('mongodb').Document}**/

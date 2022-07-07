@@ -13,8 +13,10 @@ const person2Resource = require('./fixtures/patient/person.123b.json');
 const patientWithMemberId = require('./fixtures/patient/patient-with-member-id.json');
 const allergyResource = require('./fixtures/patient/allergy_intolerance.json');
 const allergy2Resource = require('./fixtures/patient/allergy_intolerance2.json');
+const allergy3Resource = require('./fixtures/patient/allergy_intolerance3.json');
 const conditionResource = require('./fixtures/patient/condition.json');
 const condition2Resource = require('./fixtures/patient/condition2.json');
+const condition3Resource = require('./fixtures/patient/condition3.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 const rootPersonResource = require('./fixtures/patient/person.root.json');
 const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
@@ -124,6 +126,16 @@ describe('patient Tests', () => {
     console.log('------- end response 2 ------------');
 
     resp = await request
+      .put('/4_0_0/AllergyIntolerance/patient-123-c-allergy-intolerance')
+      .send(allergy3Resource)
+      .set(getHeaders())
+      .expect(201);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
       .put('/4_0_0/AllergyIntolerance/other-patient-allergy')
       .send(allergy2Resource)
       .set(getHeaders())
@@ -132,6 +144,16 @@ describe('patient Tests', () => {
     resp = await request
       .put('/4_0_0/Condition/patient-123-b-condition')
       .send(conditionResource)
+      .set(getHeaders())
+      .expect(201);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
+      .put('/4_0_0/Condition/patient-123-c-condition')
+      .send(condition3Resource)
       .set(getHeaders())
       .expect(201);
 
@@ -155,118 +177,25 @@ describe('patient Tests', () => {
   });
 
   describe('patient search_with_patient_filtering Tests', () => {
-    // test('search_with_patient_filtering works', async () => {
-    //
-    //   let payload =
-    //     {
-    //       'custom:bwell_fhir_id': 'patient-123-a',
-    //       'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-    //       'scope': 'patient/*.read user/*.* access/*.*',
-    //       'username': 'fake@example.com',
-    //     };
-    //   let payload2 =
-    //     {
-    //       'custom:bwell_fhir_id': 'patient-123-b',
-    //       'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-    //       'scope': 'patient/*.read user/*.* access/*.*',
-    //       'username': 'fake@example.com',
-    //     };
-    //
-    //   let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
-    //   expect(resp.body.length).toBe(0);
-    //   console.log('------- response 0 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 0 ------------');
-    //
-    //   // ARRANGE
-    //   // add the resources to FHIR server
-    //   resp = await request
-    //     .post('/4_0_0/patient/patient-123-a/$merge?validate=true')
-    //     .send(patient1Resource)
-    //     .set(getHeaders())
-    //     .expect(200);
-    //
-    //   console.log('------- response 1 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 1 ------------');
-    //
-    //   resp = await request
-    //     .post('/4_0_0/patient/patient-123-b/$merge?validate=true')
-    //     .send(patient2Resource)
-    //     .set(getHeaders())
-    //     .expect(200);
-    //
-    //   console.log('------- response 2 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 2 ------------');
-    //
-    //   resp = await request
-    //     .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
-    //     .send(allergyResource)
-    //     .set(getHeaders())
-    //     .expect(201);
-    //
-    //   console.log('------- response 2 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 2 ------------');
-    //
-    //   resp = await request
-    //     .put('/4_0_0/AllergyIntolerance/other-patient-allergy')
-    //     .send(allergy2Resource)
-    //     .set(getHeaders())
-    //     .expect(201);
-    //
-    //   console.log('------- response 2 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 2 ------------');
-    //
-    //   resp = await request
-    //     .post('/4_0_0/patient/other-patient/$merge?validate=true')
-    //     .send(otherPatientResource)
-    //     .set(getHeaders())
-    //     .expect(200);
-    //
-    //   console.log('------- response 2 ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response 2 ------------');
-    //   // ACT & ASSERT
-    //   // search by token system and code and make sure we get the right patient back
-    //   // console.log(getHeadersWithCustomPayload(payload));
-    //   resp = await request
-    //     .get('/4_0_0/patient/?_bundle=1')
-    //     .set(getHeadersWithCustomPayload(payload))
-    //     .expect(200);
-    //
-    //   console.log('------- response from adding observation2Resource ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response  ------------');
-    //
-    //   expect(resp.body.entry.length).toBe(2);
-    //   expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
-    //   expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
-    //
-    //   // let header = getHeadersWithCustomPayload(payload2)
-    //   // console.log(header)
-    //   resp = await request
-    //     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
-    //     .set(getHeadersWithCustomPayload(payload))
-    //     .expect(200);
-    //
-    //   console.log('------- response from adding observation2Resource ------------');
-    //   console.log(JSON.stringify(resp.body, null, 2));
-    //   console.log('------- end response  ------------');
-    //
-    //   expect(resp.body.entry.length).toBe(1);
-    //   expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
-    //
-    // });
-    //
     let patient_123_payload =
       {
         'cognito:username': 'patient-123@example.com',
         'custom:bwell_fhir_id': 'patient-123-a',
         'custom:bwell_fhir_person_id': 'root-person',
         'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'patient-123@example.com',
+      };
+    let only_fhir_person_payload =
+      {
+        'cognito:username': 'patient-123@example.com',
+        'custom:bwell_fhir_person_id': 'root-person',
+        'scope': 'patient/*.read user/*.* access/*.*',
+        'username': 'patient-123@example.com',
+      };
+    let no_ids_user_payload =
+      {
+        'cognito:username': 'patient-123@example.com',
         'scope': 'patient/*.read user/*.* access/*.*',
         'username': 'patient-123@example.com',
       };
@@ -309,7 +238,7 @@ describe('patient Tests', () => {
         expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
       });
 
-      test('Only related patients are returned', async () => {
+      test('Only linked patients are returned', async () => {
         // ACT & ASSERT
         // search by token system and code and make sure we get the right patient back
         // console.log(getHeadersWithCustomPayload(payload));
@@ -322,9 +251,54 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(2);
+        expect(resp.body.entry.length).toBe(3);
         expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
         expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
+        expect(resp.body.entry[2].resource.id).toBe('patient-123-c');
+      });
+
+      test('No resources are returned if user has no fhir ids', async () => {
+        // ACT & ASSERT
+        // search by token system and code and make sure we get the right patient back
+        // console.log(getHeadersWithCustomPayload(payload));
+        let resp = await request
+          .get('/4_0_0/patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(no_ids_user_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(0);
+
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/?_bundle=1')
+          .set(getHeadersWithCustomPayload(no_ids_user_payload))
+          .expect(200);
+
+        console.log('------- response from getting allergy intolerances ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(0);
+      });
+
+      test('Patients are filtered by platform member id', async () => {
+        // ACT & ASSERT
+        // search by token system and code and make sure we get the right patient back
+        // console.log(getHeadersWithCustomPayload(payload));
+        let resp = await request
+          .get('/4_0_0/patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(only_fhir_person_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry[0].resource.id).toBe('patient-123-c');
       });
 
       test('A user can access their patient by id', async () => {
@@ -353,12 +327,41 @@ describe('patient Tests', () => {
         expect(resp.body.id).toBe('other-patient');
       });
 
+      test('A user can access their patient by id (member id only)', async () => {
+        // Patient-123 should be able to access himself
+        let resp = await request
+          .get('/4_0_0/patient/patient-123-c')
+          .set(getHeadersWithCustomPayload(only_fhir_person_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.id).toBe('patient-123-c');
+
+      });
+
 
       test('A user cannot access another patient by id', async () => {
         // Make sure patient-123 access other-patient
         let resp = await request
           .get('/4_0_0/Patient/other-patient')
           .set(getHeadersWithCustomPayload(patient_123_payload))
+          .expect(404);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.issue[0].code).toBe('not-found');
+      });
+
+      test('A user cannot access another patient by id (member id)', async () => {
+        // Make sure patient-123 access other-patient
+        let resp = await request
+          .get('/4_0_0/Patient/other-patient')
+          .set(getHeadersWithCustomPayload(only_fhir_person_payload))
           .expect(404);
 
         console.log('------- response from getting patients ------------');
@@ -378,8 +381,9 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry.length).toBe(2);
         expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
+        expect(resp.body.entry[1].resource.id).toBe('patient-123-c-allergy-intolerance');
 
         resp = await request
           .get('/4_0_0/Condition/?_bundle=1')
@@ -390,8 +394,9 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(1);
+        expect(resp.body.entry.length).toBe(2);
         expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
+        expect(resp.body.entry[1].resource.id).toBe('patient-123-c-condition');
       });
 
       test('A user can access their patient-filtered resources by id', async () => {
@@ -464,7 +469,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(3);
+        expect(resp.body.entry.length).toBe(4);
       });
 
       test('App clients can access all patient-filtered resources', async () => {
@@ -478,7 +483,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(2);
+        expect(resp.body.entry.length).toBe(3);
       });
 
       test('App clients can access all subject-filtered resources', async () => {
@@ -491,11 +496,11 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(2);
+        expect(resp.body.entry.length).toBe(3);
       });
     });
 
-    test('GraphQL AllergyIntolerance properly', async () => {
+    test('Graphql security filtering', async () => {
       // noinspection JSUnusedLocalSymbols
       let payload =
         {
