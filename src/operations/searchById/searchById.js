@@ -10,7 +10,7 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
-const {getPatientIdsByPersonIdentifiers} = require("../search/getPatientIdsByPersonIdentifiers");
+const {getPatientIdsByPersonIdentifiers} = require('../search/getPatientIdsByPersonIdentifiers');
 
 /**
  * does a FHIR Search By Id
