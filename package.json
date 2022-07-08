@@ -119,7 +119,7 @@
     "immer": "^9.0.14",
     "joi": "^17.6.0",
     "jwks-rsa": "^2.1.3",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "mongodb": "^4.6.0",
     "object-hash": "^2.2.0, <3",
