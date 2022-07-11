@@ -10,6 +10,8 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
+const {getPatientIdsByPersonIdentifiers} = require('../search/getPatientIdsByPersonIdentifiers');
+
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -20,15 +22,23 @@ const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (requestInfo, args, resource_name, collection_name) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
+    const {
+        /** @type {string[]} */
+        patients = [],
+        /** @type {boolean} */
+        isUser,
+        /** @type {string} */
+        fhirPersonId,
+        /** @type {string | null} */
+        user,
+        /** @type {string | null} */
+        scope
+    } = requestInfo;
+
     logRequest(user, `${resource_name} >>> searchById`);
     logDebug(user, JSON.stringify(args));
 
     verifyHasValidScopes(resource_name, 'read', user, scope);
-
-    const patients = requestInfo.patients;
-    const isUser = requestInfo.isUser;
 
     // Common search params
     let {id} = args;
@@ -67,7 +77,8 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
     let resource;
     query = {id: id.toString()};
     if (isUser && env.ENABLE_PATIENT_FILTERING) {
-       query = getQueryWithPatientFilter(patients, query, collection_name);
+       const allPatients = patients.concat(await getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId));
+       query = getQueryWithPatientFilter(allPatients, query, collection_name);
     }
     try {
         resource = await collection.findOne(query);

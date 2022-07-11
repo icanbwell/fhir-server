@@ -117,11 +117,10 @@ const verify = (jwt_payload, done) => {
                 const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'].split('|');
                 if (fhirPatientIds && fhirPatientIds.length > 0) {
                     context['fhirPatientIds'] = fhirPatientIds;
-                } else if (fhirPatientId) {
-                    context['fhirPatientIds'] = [fhirPatientId];
                 }
-            }
-
+              } else if (fhirPatientId) {
+                context['fhirPatientIds'] = [fhirPatientId];
+              }
             const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
             if (fhirPersonId) {
                 context['fhirPersonId'] = fhirPersonId;

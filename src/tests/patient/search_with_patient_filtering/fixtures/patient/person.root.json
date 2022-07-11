@@ -1,0 +1,60 @@
+{
+  "resourceType": "Person",
+  "id": "root-person",
+  "birthDate": "1990-01-01",
+  "gender": "male",
+  "meta": {
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      }
+    ],
+    "versionId": "1"
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "member_id",
+            "display": "bWell App member_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "12345"
+    }
+  ],
+  "name": [
+    {
+      "family": "PATIENT2",
+      "given": [
+        "OTHER"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "reference": "Person/person-123-a",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "reference": "Person/person-123-b",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    }
+  ]
+}
