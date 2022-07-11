@@ -543,6 +543,7 @@ describe('patient Tests', () => {
               }
             });
             expect(body.data.allergyIntolerance.entry).toStrictEqual(expected);
+            expect(body.data.errors).toBeUndefined();
           }, cb),
       ]);
       // });
