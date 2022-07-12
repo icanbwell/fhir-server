@@ -17,7 +17,7 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
 function constructQuery(user, scope, isUser, patients, args, resourceName, collectionName,
-                        useAccessIndex, filter) {
+                        useAccessIndex, filter=true) {
     /**
      * @type {string[]}
      */

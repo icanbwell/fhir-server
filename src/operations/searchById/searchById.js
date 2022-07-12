@@ -21,7 +21,7 @@ const {getPatientIdsByPersonIdentifiers} = require('../search/getPatientIdsByPer
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchById = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.searchById = async (requestInfo, args, resource_name, collection_name, filter=true) => {
     const {
         /** @type {string[]} */
         patients = [],
@@ -76,7 +76,7 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
      */
     let resource;
     query = {id: id.toString()};
-    if (isUser && env.ENABLE_PATIENT_FILTERING) {
+    if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
        const allPatients = patients.concat(await getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId));
        query = getQueryWithPatientFilter(allPatients, query, collection_name);
     }
