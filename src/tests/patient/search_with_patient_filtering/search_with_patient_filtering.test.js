@@ -19,9 +19,13 @@ const condition2Resource = require('./fixtures/patient/condition2.json');
 const condition3Resource = require('./fixtures/patient/condition3.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 const rootPersonResource = require('./fixtures/patient/person.root.json');
+const desireePatientResource = require('./fixtures/patient/desiree.patient.json')
+const desireePersonResource = require('./fixtures/patient/desiree.root.person.json')
+const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.allergyIntolerance.json')
 const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
 
-const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
+// const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
+const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'), 'utf8');
 
 
 const request = supertest(app);
@@ -85,6 +89,28 @@ describe('patient Tests', () => {
     console.log('------- end response 2 ------------');
 
     resp = await request
+      .post('/4_0_0/patient/epic-sandbox-r4c-eAB3mDIBBcyUKviyzrxsnAw3/$merge?validate=true')
+      .send(desireePatientResource)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    console.log(resp.body)
+
+    resp = await request
+      .post('/4_0_0/Person/desiree-root-person/$merge')
+      .send(desireePersonResource)
+      .set(getHeaders())
+      .expect(200);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
       .post('/4_0_0/person/person-123-a/$merge?validate=true')
       .send(person1Resource)
       .set(getHeaders())
@@ -114,10 +140,24 @@ describe('patient Tests', () => {
     console.log(JSON.stringify(resp.body, null, 2));
     console.log('------- end response 2 ------------');
 
+    resp = await request
+      .get('/4_0_0/Person')
+      .set(getHeaders())
+      .expect(200);
 
     resp = await request
       .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
       .send(allergyResource)
+      .set(getHeaders())
+      .expect(201);
+
+    console.log('------- response 2 ------------');
+    console.log(JSON.stringify(resp.body, null, 2));
+    console.log('------- end response 2 ------------');
+
+    resp = await request
+      .put('/4_0_0/AllergyIntolerance/eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t')
+      .send(desireeAllergyIntoleranceResource)
       .set(getHeaders())
       .expect(201);
 
@@ -215,10 +255,27 @@ describe('patient Tests', () => {
         'scope': 'patient/*.read user/*.* access/*.*',
         'username': 'patient-123@example.com',
       };
+    let patient_123_legacy_bad_id_payload =
+      {
+        "custom:bwell_fhir_id": "-",
+        "cognito:username": "4c66b9b6-7bdc-4960-87f0-b2c25a348eb6",
+        "custom:scope": "patient/*.read user/*.* access/*.*",
+        'scope': 'patient/*.read user/*.* access/*.*',
+        "patient": "-",
+        "email": "test+devb2c@icanbwell.com"
+      };
     let app_client_payload =
       {
         'scope': 'patient/*.read user/*.* access/*.*',
         'username': 'Some App',
+      };
+    let desiree_payload =
+      {
+        "custom:bwell_fhir_person_id": "desiree-root-person",
+        "cognito:username": "4c66b9b6-7bdc-4960-87f0-b2c25a348eb6",
+        "custom:scope": "patient/*.read user/*.* access/*.*",
+        'scope': 'patient/*.read user/*.* access/*.*',
+        "email": "test+devb2c@icanbwell.com"
       };
 
 
@@ -275,6 +332,33 @@ describe('patient Tests', () => {
         resp = await request
           .get('/4_0_0/AllergyIntolerance/?_bundle=1')
           .set(getHeadersWithCustomPayload(no_ids_user_payload))
+          .expect(200);
+
+        console.log('------- response from getting allergy intolerances ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(0);
+      });
+
+      test('No resources are returned if user has a bad fhir id', async () => {
+        // ACT & ASSERT
+        // search by token system and code and make sure we get the right patient back
+        // console.log(getHeadersWithCustomPayload(payload));
+        let resp = await request
+          .get('/4_0_0/patient/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload))
+          .expect(200);
+
+        console.log('------- response from getting patients ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response  ------------');
+
+        expect(resp.body.entry.length).toBe(0);
+
+        resp = await request
+          .get('/4_0_0/AllergyIntolerance/?_bundle=1')
+          .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload  ))
           .expect(200);
 
         console.log('------- response from getting allergy intolerances ------------');
@@ -469,7 +553,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(4);
+        expect(resp.body.entry.length).toBe(5);
       });
 
       test('App clients can access all patient-filtered resources', async () => {
@@ -483,7 +567,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(3);
+        expect(resp.body.entry.length).toBe(4);
       });
 
       test('App clients can access all subject-filtered resources', async () => {
@@ -502,14 +586,7 @@ describe('patient Tests', () => {
 
     test('Graphql security filtering', async () => {
       // noinspection JSUnusedLocalSymbols
-      let payload =
-        {
-          'cognito:username': 'fake@example.com',
-          // 'custom:bwell_fhir_id': 'patient-123-a',
-          'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-          'scope': 'patient/*.read user/*.* access/*.*',
-          'username': 'fake@example.com',
-        };
+      let payload = desiree_payload
 
       const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
 
@@ -532,17 +609,9 @@ describe('patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response graphql  ------------');
             expect(body.data.allergyIntolerance.entry.length).toBe(1);
-            let expected = expectedAllergyIntoleranceBundleResource;
-            expected.forEach(element => {
-              if ('meta' in element) {
-                delete element['meta']['lastUpdated'];
-              }
-              // element['meta'] = {'versionId': '1'};
-              if ('$schema' in element) {
-                delete element['$schema'];
-              }
-            });
-            expect(body.data.allergyIntolerance.entry).toStrictEqual(expected);
+
+            expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
+            expect(body.data.allergyIntolerance.entry[0].resource.code.text).toBe('Not on File');
             expect(body.data.errors).toBeUndefined();
           }, cb),
       ]);
