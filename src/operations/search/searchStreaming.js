@@ -29,7 +29,7 @@ const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
  * @param {string} collection_name
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.searchStreaming = async (requestInfo, res, args, resourceName, collection_name) => {
+module.exports.searchStreaming = async (requestInfo, res, args, resourceName, collection_name, filter=true) => {
   if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
     return searchOld(requestInfo, args, resourceName, collection_name);
   }
@@ -91,7 +91,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName, co
     query,
     /** @type {Set} **/
     columns
-  } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex);
+  } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex, filter);
 
   /**
    * @type {string}
