@@ -553,7 +553,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response  ------------');
 
-        expect(resp.body.entry.length).toBe(4);
+        expect(resp.body.entry.length).toBe(5);
       });
 
       test('App clients can access all patient-filtered resources', async () => {
@@ -610,18 +610,8 @@ describe('patient Tests', () => {
             console.log('------- end response graphql  ------------');
             expect(body.data.allergyIntolerance.entry.length).toBe(1);
 
-            let expected = expectedAllergyIntoleranceBundleResource;
-            expected.forEach(element => {
-              if ('meta' in element) {
-                delete element['meta']['lastUpdated'];
-              }
-              // element['meta'] = {'versionId': '1'};
-              if ('$schema' in element) {
-                delete element['$schema'];
-              }
-            });
-            expect(body.data.allergyIntolerance.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
-            expect(body.data.allergyIntolerance.code.text).toBe('Not on File');
+            expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
+            expect(body.data.allergyIntolerance.entry[0].resource.code.text).toBe('Not on File');
             expect(body.data.errors).toBeUndefined();
           }, cb),
       ]);
