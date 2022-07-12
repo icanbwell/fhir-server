@@ -177,7 +177,8 @@ class FhirDataSource extends DataSource {
                             _debug: '1'
                         },
                         resourceType,
-                        resourceType
+                        resourceType,
+                        false
                     )
                 );
             }),

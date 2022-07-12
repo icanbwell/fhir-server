@@ -26,7 +26,7 @@ const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
  * @param {string} collection_name
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.search = async (requestInfo, args, resourceName, collection_name) => {
+module.exports.search = async (requestInfo, args, resourceName, collection_name, filter=true) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
         return searchOld(requestInfo, args, resourceName, collection_name);
     }
@@ -87,7 +87,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex);
+    } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex, filter);
 
 
     /**
@@ -206,7 +206,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            return createBundle(
+            const bundle = createBundle(
                 url,
                 last_id,
                 resources,
@@ -225,6 +225,7 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name)
                 user,
                 useAtlas
             );
+            return bundle;
         } else {
             return resources;
         }

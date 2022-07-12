@@ -17,7 +17,7 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
 function constructQuery(user, scope, isUser, patients, args, resourceName, collectionName,
-                        useAccessIndex) {
+                        useAccessIndex, filter) {
     /**
      * @type {string[]}
      */
@@ -49,7 +49,7 @@ function constructQuery(user, scope, isUser, patients, args, resourceName, colle
         throw e;
     }
     query = getQueryWithSecurityTags(collectionName, securityTags, query, useAccessIndex);
-    if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
+    if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
         query = getQueryWithPatientFilter(patients, query, resourceName);
     }
     return {base_version, query, columns};
