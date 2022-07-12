@@ -1,0 +1,228 @@
+{
+  "resourceType": "Patient",
+  "id": "epic-sandbox-r4c-eAB3mDIBBcyUKviyzrxsnAw3",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-07-12T02:44:06.000Z",
+    "source": "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/metadata",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "epic_sandbox_r4c"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "epic_sandbox_r4c"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "epic_sandbox_r4c"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "extension": [
+        {
+          "url": "ombCategory"
+        },
+        {
+          "url": "ombCategory"
+        },
+        {
+          "url": "text",
+          "valueString": "Black or African American, White"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+    },
+    {
+      "extension": [
+        {
+          "url": "text",
+          "valueString": "Unknown"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+    },
+    {
+      "url": "http://open.epic.com/FHIR/StructureDefinition/extension/legal-sex",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:1.2.840.114350.1.13.0.1.7.10.698084.130.657370.19999000",
+            "code": "female",
+            "display": "female"
+          }
+        ]
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+      "valueCode": "F"
+    }
+  ],
+  "identifier": [
+    {
+      "use": "usual",
+      "type": {
+        "text": "EPIC"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.5.737384.0",
+      "value": "E4008"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "EXTERNAL"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.2.698084",
+      "value": "Z6130"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "FHIR"
+      },
+      "system": "http://open.epic.com/FHIR/StructureDefinition/patient-dstu2-fhir-id",
+      "value": "TJxi4Rbf6Cp1aiFxX0ua9XXyVGa2a67Qhz2LcPzxdmAoB"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "FHIR STU3"
+      },
+      "system": "http://open.epic.com/FHIR/StructureDefinition/patient-fhir-id",
+      "value": "eAB3mDIBBcyUKviyzrxsnAw3"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "INTERNAL"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.2.698084",
+      "value": "     Z6130"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "EPI"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.5.737384.14",
+      "value": "203714"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "MYCHARTLOGIN"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.3.878082.110",
+      "value": "FHIRDESIREE"
+    },
+    {
+      "use": "usual",
+      "type": {
+        "text": "WPRINTERNAL"
+      },
+      "system": "urn:oid:1.2.840.114350.1.13.0.1.7.2.878082",
+      "value": "737"
+    },
+    {
+      "id": "bwell-member-id",
+      "system": "https://icanbwell.com/Bwell_Platform/member_id",
+      "value": "AYYrfts"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "text": "Desiree Caroline Powell",
+      "family": "Powell",
+      "given": [
+        "Desiree",
+        "Caroline"
+      ]
+    },
+    {
+      "use": "usual",
+      "text": "Desiree Caroline Powell",
+      "family": "Powell",
+      "given": [
+        "Desiree",
+        "Caroline"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "904-555-5555",
+      "use": "home"
+    },
+    {
+      "system": "phone",
+      "value": "608-555-5555",
+      "use": "mobile"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "2014-11-14",
+  "deceasedBoolean": false,
+  "address": [
+    {
+      "use": "old",
+      "line": [
+        "156 Kingston Drive"
+      ],
+      "city": "JACKSONVILLE",
+      "district": "DUVAL",
+      "state": "FL",
+      "postalCode": "32205",
+      "country": "US"
+    },
+    {
+      "use": "home",
+      "line": [
+        "156 Kingston Drive"
+      ],
+      "city": "JACKSONVILLE",
+      "district": "DUVAL",
+      "state": "FL",
+      "postalCode": "32205",
+      "country": "US",
+      "period": {
+        "start": "2019-05-24T00:00:00.000Z"
+      }
+    }
+  ],
+  "maritalStatus": {
+    "text": "Single"
+  },
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "urn:ietf:bcp:47",
+            "code": "en",
+            "display": "English"
+          }
+        ],
+        "text": "English"
+      },
+      "preferred": true
+    }
+  ],
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/eoScyX3bs1SY.2lMoHCGcVw3",
+      "type": "Practitioner",
+      "display": "Physician Pediatrics, MD"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/enRyWnSP963FYDpoks4NHOA3",
+    "display": "EHS Service Area"
+  }
+}

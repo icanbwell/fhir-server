@@ -60,6 +60,7 @@ const graphql = async () => {
                     host: req.hostname,
                     body: req.body,
                     isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
+                    fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
                 };
                 return {
                     req,
