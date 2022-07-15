@@ -1,4 +1,4 @@
-name: Docker to Dev AWS ECR
+name: Docker to Services AWS ECR
 
 on:
   workflow_dispatch:
