@@ -13,7 +13,7 @@ env:
 jobs:
   # See also https://docs.docker.com/docker-hub/builds/
   push:
-    runs-on: [self-hosted, services]
+    runs-on: [self-hosted, main]
 
     steps:
       - uses: actions/checkout@v2
