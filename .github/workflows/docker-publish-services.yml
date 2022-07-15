@@ -1,8 +1,7 @@
 name: Docker to Services AWS ECR
 
 on:
-  workflow_dispatch:
-    
+  workflow_dispatch: {}
   release:
     types: [created]
 
@@ -13,8 +12,7 @@ env:
 jobs:
   # See also https://docs.docker.com/docker-hub/builds/
   push:
-    runs-on: [self-hosted, main]
-
+    runs-on: [self-hosted, dev-ue1]
     steps:
       - uses: actions/checkout@v2
 
