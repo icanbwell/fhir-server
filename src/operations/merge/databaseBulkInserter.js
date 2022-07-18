@@ -8,9 +8,19 @@ class DatabaseBulkInserter {
         /**
          * This map stores an entry per collectionName where the value is a list of operations to perform
          * on that collection
-         * @type {Map<string, (import('mongodb').BulkWriteOperation<DefaultSchema>)[]>}
+         * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
         this.operationsByCollection = new Map();
+        /**
+         * list of ids inserted
+         * @type {Map<string, string[]>}
+         */
+        this.insertedIdsByCollection = new Map();
+        /**
+         * list of ids updated
+         * @type {Map<string, string[]>}
+         */
+        this.updatedIdsByCollection = new Map();
     }
 
     /**
@@ -22,6 +32,8 @@ class DatabaseBulkInserter {
         // If there is no entry for this collection then create one
         if (!(collection_name in this.operationsByCollection)) {
             this.operationsByCollection.set(`${collection_name}`, []);
+            this.insertedIdsByCollection.set(`${collection_name}`, []);
+            this.updatedIdsByCollection.set(`${collection_name}`, []);
         }
         // add this operation to the list of operations for this collection
         this.operationsByCollection.get(collection_name).push(operation);
@@ -41,6 +53,7 @@ class DatabaseBulkInserter {
                 }
             }
         );
+        this.insertedIdsByCollection.get(collection_name).push(doc['id']);
     }
 
     /**
@@ -61,6 +74,7 @@ class DatabaseBulkInserter {
                 }
             }
         );
+        this.updatedIdsByCollection.get(collection_name).push(doc['id']);
     }
 
     /**
@@ -77,7 +91,7 @@ class DatabaseBulkInserter {
         // iterate through each collection and issue a bulk operation
         for (const [
             /** @type {string} */collectionName,
-            /** @type (import('mongodb').BulkWriteOperation<DefaultSchema>)[] */ operations] of this.operationsByCollection.entries()) {
+            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations] of this.operationsByCollection.entries()) {
             /**
              * mongo db connection
              * @type {import('mongodb').Db}
@@ -90,10 +104,16 @@ class DatabaseBulkInserter {
              */
             let collection = await getOrCreateCollection(db, collectionName);
             // TODO: Handle failures in bulk operation
+            // for some reason the typing does
+            /**
+             * @type {import('mongodb').CollectionBulkWriteOptions}
+             */
+            const options = {ordered: false};
+            // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
             /**
              * @type {import('mongodb').BulkWriteOpResultObject}
              */
-            const result = await collection.bulkWrite(operations);
+            const result = await collection.bulkWrite(operations, options);
             resultByCollection.set(collectionName, result.result);
         }
         this.operationsByCollection.clear();
@@ -102,20 +122,46 @@ class DatabaseBulkInserter {
          * @type {MergeResultEntry[]}
          */
         const mergeResultEntries = [];
-        for (const [, result] of resultByCollection) {
-            for (const resultEntry of result.insertedIds) {
+        // for (const [, result] of resultByCollection) {
+        //     for (const resultEntry of result.insertedIds) {
+        //         mergeResultEntries.push(
+        //             {
+        //                 id: resultEntry,
+        //                 created: true
+        //             }
+        //         );
+        //     }
+        //     for (const resultEntry of result.upserted) {
+        //         mergeResultEntries.push(
+        //             {
+        //                 id: resultEntry,
+        //                 updated: true
+        //             }
+        //         );
+        //     }
+        // }
+        for (const [, ids] of this.insertedIdsByCollection) {
+            for (const id of ids) {
                 mergeResultEntries.push(
                     {
-                        id: resultEntry,
-                        created: true
+                        'id': id,
+                        created: true,
+                        updated: false,
+                        operationOutcome: null,
+                        issue: null
                     }
                 );
             }
-            for (const resultEntry of result.upserted) {
+        }
+        for (const [, ids] of this.updatedIdsByCollection) {
+            for (const id of ids) {
                 mergeResultEntries.push(
                     {
-                        id: resultEntry,
-                        updated: true
+                        'id': id,
+                        created: false,
+                        updated: true,
+                        operationOutcome: null,
+                        issue: null
                     }
                 );
             }
