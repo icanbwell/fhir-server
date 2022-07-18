@@ -2,6 +2,7 @@ const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/me
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
 
+// eslint-disable-next-line no-unused-vars
 const getPatientIdsByPersonIdentifiers = async (db, base_version, fhirPersonId, personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM, patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM) => {
     let result = [];
     if (fhirPersonId) {
