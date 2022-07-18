@@ -116,30 +116,11 @@ class DatabaseBulkInserter {
             const result = await collection.bulkWrite(operations, options);
             resultByCollection.set(collectionName, result.result);
         }
-        this.operationsByCollection.clear();
         /**
          * results
          * @type {MergeResultEntry[]}
          */
         const mergeResultEntries = [];
-        // for (const [, result] of resultByCollection) {
-        //     for (const resultEntry of result.insertedIds) {
-        //         mergeResultEntries.push(
-        //             {
-        //                 id: resultEntry,
-        //                 created: true
-        //             }
-        //         );
-        //     }
-        //     for (const resultEntry of result.upserted) {
-        //         mergeResultEntries.push(
-        //             {
-        //                 id: resultEntry,
-        //                 updated: true
-        //             }
-        //         );
-        //     }
-        // }
         for (const [, ids] of this.insertedIdsByCollection) {
             for (const id of ids) {
                 mergeResultEntries.push(
