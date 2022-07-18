@@ -1,16 +1,16 @@
-const {getResource} = require('../common/getResource');
-const {logDebug, logRequest} = require('../common/logging');
+const {getResource} = require('../../common/getResource');
+const {logDebug, logRequest} = require('../../common/logging');
 const deepcopy = require('deepcopy');
-const {preSaveAsync} = require('../common/preSave');
-const {removeNull} = require('../../utils/nullRemover');
+const {preSaveAsync} = require('../../common/preSave');
+const {removeNull} = require('../../../utils/nullRemover');
 const deepEqual = require('fast-deep-equal');
-const {mergeObject} = require('../../utils/mergeHelper');
+const {mergeObject} = require('../../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
-const {ForbiddenError} = require('../../utils/httpErrors');
+const {isAccessToResourceAllowedBySecurityTags} = require('../../security/scopes');
+const {ForbiddenError} = require('../../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
-const sendToS3 = require('../../utils/aws-s3');
+const sendToS3 = require('../../../utils/aws-s3');
 const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
 
 /**
@@ -23,14 +23,12 @@ const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
  * @param {string} collectionName
  * @param {string} currentDate
  * @param {string} requestId
- * @param {DatabaseBulkInserter} databaseBulkInserter
- * @returns {Promise<void>}
+ * @returns {Promise<{created: boolean, id: *, message: string, updated: boolean, resource_version}|{created: boolean, id: *, updated: *, resource_version}>}
  */
 async function mergeExistingAsync(resourceToMerge, data,
                                   baseVersion, user, scope,
                                   collectionName, currentDate,
-                                  requestId,
-                                  databaseBulkInserter) {
+                                  requestId) {
     /**
      * @type {string}
      */
@@ -183,7 +181,7 @@ async function mergeExistingAsync(resourceToMerge, data,
             id,
             'merge_' + meta.versionId + '_' + requestId);
     }
-    await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName, databaseBulkInserter);
+    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName);
 }
 
 module.exports = {

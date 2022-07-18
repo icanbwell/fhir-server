@@ -1,11 +1,11 @@
-const {logDebug} = require('../common/logging');
+const {logDebug} = require('../../common/logging');
 const env = require('var');
-const {doesResourceHaveAccessTags} = require('../security/scopes');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {getMeta} = require('../common/getMeta');
+const {doesResourceHaveAccessTags} = require('../../security/scopes');
+const {BadRequestError} = require('../../../utils/httpErrors');
+const {getMeta} = require('../../common/getMeta');
 const moment = require('moment-timezone');
-const {removeNull} = require('../../utils/nullRemover');
-const {performMergeDbInsertAsync} = require('./performMergeDbUpdate');
+const {removeNull} = require('../../../utils/nullRemover');
+const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
 
 /**
  * merge insert
@@ -13,11 +13,9 @@ const {performMergeDbInsertAsync} = require('./performMergeDbUpdate');
  * @param {string} baseVersion
  * @param {string} collectionName
  * @param {string | null} user
- * @param {DatabaseBulkInserter} databaseBulkInserter
- * @returns {Promise<void>}
+ * @returns {Promise<{created: boolean, id: *, updated: *, resource_version}>}
  */
-async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName,
-                                user, databaseBulkInserter) {
+async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName, user) {
     let id = resourceToMerge.id;
     // not found so insert
     logDebug(user,
@@ -53,7 +51,7 @@ async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName,
     const cleaned = removeNull(resourceToMerge);
     const doc = Object.assign(cleaned, {_id: id});
 
-    await performMergeDbInsertAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName, databaseBulkInserter);
+    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName);
 }
 
 module.exports = {

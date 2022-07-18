@@ -1,23 +1,31 @@
-const {getSecurityTagsFromScope, getQueryWithSecurityTags, getQueryWithPatientFilter} = require('../common/getSecurityTags');
+const {
+    getSecurityTagsFromScope,
+    getQueryWithSecurityTags,
+    getQueryWithPatientFilter
+} = require('../common/getSecurityTags');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+
 /**
  * constructs a mongo query
  * @param {string | null} user
  * @param {string | null} scope
+ * @param {boolean | null} isUser
  * @param {string[] | null} patients
  * @param {Object?} args
  * @param {string} resourceName
  * @param {string} collectionName
  * @param {boolean} useAccessIndex
+ * @param {boolean} filter
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
-function constructQuery(user, scope, isUser, patients, args, resourceName, collectionName,
-                        useAccessIndex, filter=true) {
+function constructQuery(user, scope, isUser, patients, args,
+                        resourceName, collectionName,
+                        useAccessIndex, filter = true) {
     /**
      * @type {string[]}
      */

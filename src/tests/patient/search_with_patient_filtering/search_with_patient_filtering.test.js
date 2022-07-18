@@ -19,10 +19,10 @@ const condition2Resource = require('./fixtures/patient/condition2.json');
 const condition3Resource = require('./fixtures/patient/condition3.json');
 const otherPatientResource = require('./fixtures/patient/other_patient.json');
 const rootPersonResource = require('./fixtures/patient/person.root.json');
-const desireePatientResource = require('./fixtures/patient/desiree.patient.json')
-const desireePersonResource = require('./fixtures/patient/desiree.root.person.json')
-const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.allergyIntolerance.json')
-const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
+const desireePatientResource = require('./fixtures/patient/desiree.patient.json');
+const desireePersonResource = require('./fixtures/patient/desiree.root.person.json');
+const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.allergyIntolerance.json');
+// const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
 
 // const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
 const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'), 'utf8');
@@ -98,7 +98,7 @@ describe('patient Tests', () => {
     console.log(JSON.stringify(resp.body, null, 2));
     console.log('------- end response 2 ------------');
 
-    console.log(resp.body)
+    console.log(resp.body);
 
     resp = await request
       .post('/4_0_0/Person/desiree-root-person/$merge')
@@ -257,12 +257,12 @@ describe('patient Tests', () => {
       };
     let patient_123_legacy_bad_id_payload =
       {
-        "custom:bwell_fhir_id": "-",
-        "cognito:username": "4c66b9b6-7bdc-4960-87f0-b2c25a348eb6",
-        "custom:scope": "patient/*.read user/*.* access/*.*",
+        'custom:bwell_fhir_id': '-',
+        'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
+        'custom:scope': 'patient/*.read user/*.* access/*.*',
         'scope': 'patient/*.read user/*.* access/*.*',
-        "patient": "-",
-        "email": "test+devb2c@icanbwell.com"
+        'patient': '-',
+        'email': 'test+devb2c@icanbwell.com'
       };
     let app_client_payload =
       {
@@ -271,11 +271,11 @@ describe('patient Tests', () => {
       };
     let desiree_payload =
       {
-        "custom:bwell_fhir_person_id": "desiree-root-person",
-        "cognito:username": "4c66b9b6-7bdc-4960-87f0-b2c25a348eb6",
-        "custom:scope": "patient/*.read user/*.* access/*.*",
+        'custom:bwell_fhir_person_id': 'desiree-root-person',
+        'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
+        'custom:scope': 'patient/*.read user/*.* access/*.*',
         'scope': 'patient/*.read user/*.* access/*.*',
-        "email": "test+devb2c@icanbwell.com"
+        'email': 'test+devb2c@icanbwell.com'
       };
 
 
@@ -358,7 +358,7 @@ describe('patient Tests', () => {
 
         resp = await request
           .get('/4_0_0/AllergyIntolerance/?_bundle=1')
-          .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload  ))
+          .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload ))
           .expect(200);
 
         console.log('------- response from getting allergy intolerances ------------');
@@ -586,7 +586,7 @@ describe('patient Tests', () => {
 
     test('Graphql security filtering', async () => {
       // noinspection JSUnusedLocalSymbols
-      let payload = desiree_payload
+      let payload = desiree_payload;
 
       const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
 

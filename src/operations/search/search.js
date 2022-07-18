@@ -24,9 +24,11 @@ const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
  * @param {Object} args
  * @param {string} resourceName
  * @param {string} collection_name
+ * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.search = async (requestInfo, args, resourceName, collection_name, filter=true) => {
+module.exports.search = async (requestInfo, args, resourceName, collection_name,
+                               filter = true) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
         return searchOld(requestInfo, args, resourceName, collection_name);
     }
@@ -74,8 +76,8 @@ module.exports.search = async (requestInfo, args, resourceName, collection_name,
      * @type {import('mongodb').Db}
      */
     let db = (resourceName === 'AuditEvent') ?
-      globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-        globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
+            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 
     /** @type {string} **/
     let {base_version} = args;

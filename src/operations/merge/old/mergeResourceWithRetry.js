@@ -14,19 +14,16 @@ const {mergeResourceAsync} = require('./mergeResource');
  * @param {string} baseVersion
  * @param {string} scope
  * @param {string} collectionName
- * @param {DatabaseBulkInserter} databaseBulkInserter
- * @return {Promise<void>}
+ * @return {Promise<MergeResultEntry>}
  */
 async function mergeResourceWithRetryAsync(resource_to_merge, resourceName,
                                            scopes, user, path, currentDate,
-                                           requestId, baseVersion, scope, collectionName,
-                                           databaseBulkInserter) {
-    await mergeResourceAsync(resource_to_merge, resourceName,
+                                           requestId, baseVersion, scope, collectionName) {
+    return await mergeResourceAsync(resource_to_merge, resourceName,
         scopes, user, path, currentDate,
-        requestId, baseVersion, scope, collectionName,
-        databaseBulkInserter);
+        requestId, baseVersion, scope, collectionName);
 }
 
 module.exports = {
-    mergeResourceWithRetryAsync
+    mergeResourceWithRetryAsync: mergeResourceWithRetryAsync
 };

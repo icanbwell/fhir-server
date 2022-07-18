@@ -1,13 +1,13 @@
 // this function is called for each resource
 // returns an OperationOutcome
 const env = require('var');
-const sendToS3 = require('../../utils/aws-s3');
-const {preMergeChecksAsync} = require('./preMergeChecks');
-const {logDebug, logError} = require('../common/logging');
-const {isTrue} = require('../../utils/isTrue');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
+const sendToS3 = require('../../../utils/aws-s3');
+const {preMergeChecksAsync} = require('../preMergeChecks');
+const {logDebug, logError} = require('../../common/logging');
+const {isTrue} = require('../../../utils/isTrue');
+const globals = require('../../../globals');
+const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../../constants');
+const {getOrCreateCollection} = require('../../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
 
@@ -23,13 +23,11 @@ const {mergeInsertAsync} = require('./mergeInsert');
  * @param {string} baseVersion
  * @param scope
  * @param {string} collectionName
- * @param {DatabaseBulkInserter} databaseBulkInserter
- * @return {Promise<void>}
+ * @return {Promise<MergeResultEntry>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
-                                  requestId, baseVersion, scope, collectionName,
-                                  databaseBulkInserter) {
+                                  requestId, baseVersion, scope, collectionName) {
     /**
      * @type {string}
      */
@@ -89,16 +87,18 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         logDebug('test?', JSON.stringify(data));
         logDebug('test?', '------- end data -------');
 
+        let res;
+
         // check if resource was found in database or not
         // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
-            await mergeExistingAsync(
-                resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId,
-                databaseBulkInserter);
+            res = await mergeExistingAsync(
+                resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId);
         } else {
-            await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user,
-                databaseBulkInserter);
+            res = await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user);
         }
+
+        return res;
     } catch (e) {
         logError(`Error with merging resource ${resource_to_merge.resourceType}.merge with id: ${id} `, e);
         const operationOutcome = {
