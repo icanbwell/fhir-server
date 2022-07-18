@@ -13,46 +13,17 @@ const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
 
 /**
- * logs an entry for audit
+ * Create an AuditEntry resource
  * @param {import('./requestInfo').RequestInfo} requestInfo
  * @param {string} resourceType
  * @param {string} base_version
  * @param {string} operation
- * @param {Object} args
+ * @param {Object} cleanedArgs
  * @param {string[]} ids
+ * @returns {Object}
  */
-async function logAuditEntryAsync(requestInfo, base_version, resourceType, operation, args, ids) {
-    if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
-        return;
-    }
-
-    const cleanedArgs = deepcopy(args);
-    // remove id and _id args since they are duplicated in the items retrieved
-    if (cleanedArgs['id']) {
-        cleanedArgs['id'] = '';
-    }
-    if (cleanedArgs['_id']) {
-        delete cleanedArgs['_id'];
-    }
-    if (cleanedArgs['_source']) {
-        delete cleanedArgs['_source'];
-    }
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = globals.get(AUDIT_EVENT_CLIENT_DB);
-    const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
-    /**
-     * @type {string}
-     */
-    const mongoCollectionName = `${collection_name}_${base_version}`;
-    /**
-     * mongo collection
-     * @type {import('mongodb').Collection}
-     */
-    let collection = db.collection(mongoCollectionName);
-
+function createAuditEntry(base_version, requestInfo, operation,
+                          ids, resourceType, cleanedArgs) {
     /**
      * @type {function({Object}): Meta}
      */
@@ -127,6 +98,51 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType, opera
 
     let doc = removeNull(resource.toJSON());
     Object.assign(doc, {id: id});
+    return doc;
+}
+
+/**
+ * logs an entry for audit
+ * @param {import('./requestInfo').RequestInfo} requestInfo
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {string} operation
+ * @param {Object} args
+ * @param {string[]} ids
+ */
+async function logAuditEntryAsync(requestInfo, base_version, resourceType,
+                                  operation, args, ids) {
+    if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
+        return;
+    }
+
+    const cleanedArgs = deepcopy(args);
+    // remove id and _id args since they are duplicated in the items retrieved
+    if (cleanedArgs['id']) {
+        cleanedArgs['id'] = '';
+    }
+    if (cleanedArgs['_id']) {
+        delete cleanedArgs['_id'];
+    }
+    if (cleanedArgs['_source']) {
+        delete cleanedArgs['_source'];
+    }
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    let db = globals.get(AUDIT_EVENT_CLIENT_DB);
+    const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
+    /**
+     * @type {string}
+     */
+    const mongoCollectionName = `${collection_name}_${base_version}`;
+    /**
+     * mongo collection
+     * @type {import('mongodb').Collection}
+     */
+    let collection = db.collection(mongoCollectionName);
+    let doc = createAuditEntry(base_version, requestInfo, operation, ids, resourceType, cleanedArgs);
 
     try {
         await collection.insertOne(doc);
@@ -137,5 +153,6 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType, opera
 }
 
 module.exports = {
-    logAuditEntryAsync: logAuditEntryAsync
+    logAuditEntryAsync,
+    createAuditEntry
 };
