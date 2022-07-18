@@ -45,7 +45,7 @@ class DatabaseBulkInserter {
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async insertOne(collection_name, doc) {
+    async insertOneAsync(collection_name, doc) {
         this.addOperationToCollection(collection_name,
             {
                 insertOne: {
@@ -63,7 +63,7 @@ class DatabaseBulkInserter {
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async replaceOne(collection_name, id, doc) {
+    async replaceOneAsync(collection_name, id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         this.addOperationToCollection(collection_name,
             {
@@ -82,7 +82,7 @@ class DatabaseBulkInserter {
      * @param {boolean?} useAtlas
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async execute(useAtlas) {
+    async executeAsync(useAtlas) {
         /**
          * stores result of bulk calls
          * @type {Map<string, import('mongodb').BulkWriteOpResultObject>}

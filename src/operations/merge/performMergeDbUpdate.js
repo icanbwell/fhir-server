@@ -26,7 +26,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.replaceOne(dbCollectionName, id.toString(), doc);
+    await databaseBulkInserter.replaceOneAsync(dbCollectionName, id.toString(), doc);
 
     // save to history
     const historyCollectionName = `${collectionName}_${baseVersion}_History`;
@@ -37,7 +37,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     // Insert our resource record to history but don't assign _id
     delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
     // await history_collection.insertOne(history_resource);
-    await databaseBulkInserter.insertOne(historyCollectionName, doc);
+    await databaseBulkInserter.insertOneAsync(historyCollectionName, doc);
 }
 
 /**
@@ -66,7 +66,7 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.insertOne(dbCollectionName, doc);
+    await databaseBulkInserter.insertOneAsync(dbCollectionName, doc);
 
     // save to history
     const historyCollectionName = `${collectionName}_${baseVersion}_History`;
@@ -77,7 +77,7 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
     // Insert our resource record to history but don't assign _id
     delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
     // await history_collection.insertOne(history_resource);
-    await databaseBulkInserter.insertOne(historyCollectionName, doc);
+    await databaseBulkInserter.insertOneAsync(historyCollectionName, doc);
 }
 
 module.exports = {

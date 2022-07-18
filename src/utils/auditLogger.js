@@ -137,7 +137,7 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType,
     let doc = createAuditEntry(base_version, requestInfo, operation, ids, resourceType, cleanedArgs);
 
     if (databaseBulkInserter) {
-        await databaseBulkInserter.insertOne(auditEventCollectionName, doc);
+        await databaseBulkInserter.insertOneAsync(auditEventCollectionName, doc);
     } else {
         /**
          * mongo db connection

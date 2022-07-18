@@ -113,7 +113,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * result
          * @type {MergeResultEntry[]}
          */
-        const result = await databaseBulkInserter.execute(useAtlas);
+        const result = await databaseBulkInserter.executeAsync(useAtlas);
         return result;
     } else {
         /**
@@ -126,7 +126,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * result
          * @type {MergeResultEntry[]}
          */
-        const result = await databaseBulkInserter.execute(useAtlas);
+        const result = await databaseBulkInserter.executeAsync(useAtlas);
         /**
          * result
          * @type {MergeResultEntry}
