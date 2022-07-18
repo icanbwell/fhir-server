@@ -109,9 +109,11 @@ function createAuditEntry(base_version, requestInfo, operation,
  * @param {string} operation
  * @param {Object} args
  * @param {string[]} ids
+ * @param {DatabaseBulkInserter} databaseBulkInserter
  */
 async function logAuditEntryAsync(requestInfo, base_version, resourceType,
-                                  operation, args, ids) {
+                                  operation, args, ids,
+                                  databaseBulkInserter = null) {
     if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
         return;
     }
@@ -128,31 +130,35 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType,
         delete cleanedArgs['_source'];
     }
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = globals.get(AUDIT_EVENT_CLIENT_DB);
-    const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
-    /**
      * @type {string}
      */
-    const mongoCollectionName = `${collection_name}_${base_version}`;
-    /**
-     * mongo collection
-     * @type {import('mongodb').Collection}
-     */
-    let collection = db.collection(mongoCollectionName);
+    const auditEventCollectionName = env.INTERNAL_AUDIT_TABLE || `AuditEvent_${base_version}`;
+
     let doc = createAuditEntry(base_version, requestInfo, operation, ids, resourceType, cleanedArgs);
 
-    try {
-        await collection.insertOne(doc);
-    } catch (e) {
-        const documentContents = JSON.stringify(doc);
-        throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${documentContents}`);
+    if (databaseBulkInserter) {
+        await databaseBulkInserter.insertOne(auditEventCollectionName, doc);
+    } else {
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        let db = globals.get(AUDIT_EVENT_CLIENT_DB);
+        /**
+         * mongo collection
+         * @type {import('mongodb').Collection}
+         */
+        let collection = db.collection(auditEventCollectionName);
+
+        try {
+            await collection.insertOne(doc);
+        } catch (e) {
+            const documentContents = JSON.stringify(doc);
+            throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${documentContents}`);
+        }
     }
 }
 
 module.exports = {
-    logAuditEntryAsync,
-    createAuditEntry
+    logAuditEntryAsync
 };
