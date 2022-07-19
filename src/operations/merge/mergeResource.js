@@ -56,6 +56,27 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         return preMergeCheckFailures;
     }
 
+    /**
+     * gets resources from list
+     * @param {string} resourceType1
+     * @param {string} id1
+     * @return {null|Object}
+     */
+    function getResourceFromExistingList(resourceType1, id1) {
+        // see if there is cache for this resourceType
+        const cacheEntry = getFirstElementOrNull(
+            existingResourcesByResourceType.filter(e => e.resourceType === resource_to_merge.resourceType)
+        );
+        if (cacheEntry) {
+            return getFirstElementOrNull(
+                cacheEntry.resources.filter(e => e.id === id1.toString())
+            );
+        } else {
+            return null;
+        }
+
+    }
+
     try {
         logDebug(user, '-----------------');
         logDebug(user, baseVersion);
@@ -86,9 +107,7 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          * @type {Object}
          */
         let data = existingResourcesByResourceType ?
-            getFirstElementOrNull(
-                existingResourcesByResourceType.filter(e => e.resourceType === resource_to_merge.resourceType && e.id === id.toString())
-            ) :
+            getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
             await collection.findOne({id: id.toString()});
 
         logDebug('test?', '------- data -------');

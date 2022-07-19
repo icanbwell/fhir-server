@@ -1,8 +1,7 @@
 const {groupByLambda} = require('../../utils/list.util');
 const async = require('async');
 const {
-    getHistoryCollectionNameForResourceType,
-    getDatabaseConnectionForCollection
+    getDatabaseConnectionForCollection, getCollectionNameForResourceType
 } = require('../common/resourceManager');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {getResource} = require('../common/getResource');
@@ -32,14 +31,14 @@ class DatabaseBulkLoader {
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {string} resourceType
-     * @param {string[]} idList
+     * @param {{resource:string, id: string}[]} resourceAndIdList
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesByIdAsync(base_version, useAtlas, resourceType, idList) {
+    async getResourcesByIdAsync(base_version, useAtlas, resourceType, resourceAndIdList) {
         /**
          * @type {string}
          */
-        const collectionName = getHistoryCollectionNameForResourceType(resourceType, base_version);
+        const collectionName = getCollectionNameForResourceType(resourceType, base_version);
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
@@ -50,17 +49,22 @@ class DatabaseBulkLoader {
          */
         let collection = await getOrCreateCollection(db, collectionName);
 
+        const query = {
+            id: {$in: resourceAndIdList.map(r => r.id)}
+        };
         /**
          * cursor
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
          */
         const cursor = collection.find(
-            {
-                id: idList
-            }
+            query
         );
 
-        return {resourceType, resources: await this.cursorToResourcesAsync(base_version, resourceType, cursor)};
+        /**
+         * @type {Resource[]}
+         */
+        const resources = await this.cursorToResourcesAsync(base_version, resourceType, cursor);
+        return {resourceType, resources: resources};
     }
 
     /**
@@ -73,9 +77,17 @@ class DatabaseBulkLoader {
     async cursorToResourcesAsync(base_version, resourceType, cursor) {
         const result = [];
         while (await cursor.hasNext()) {
-            result.push(
-                getResource(base_version, resourceType)(await cursor.next())
-            );
+            /**
+             * element
+             * @type {Object}
+             */
+            const document = await cursor.next();
+            /**
+             * @type {function(?Object): Resource}
+             */
+            const ResourceCreator = getResource(base_version, resourceType);
+            const resource = new ResourceCreator(document);
+            result.push(resource);
         }
         return result;
     }
