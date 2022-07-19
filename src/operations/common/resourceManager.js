@@ -7,7 +7,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
  * @param {string} base_version
  * @returns {string}
  */
-function getCollectionNameForResourceType(resourceType, base_version = '4_0_0') {
+function getCollectionNameForResourceType(resourceType, base_version) {
     return `${resourceType}_${base_version}`;
 }
 

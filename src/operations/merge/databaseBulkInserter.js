@@ -81,10 +81,11 @@ class DatabaseBulkInserter {
 
     /**
      * Executes all the operations in bulk
+     * @param {string} base_version
      * @param {boolean?} useAtlas
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync(useAtlas) {
+    async executeAsync( base_version, useAtlas) {
         /**
          * stores result of bulk calls
          * @type {Map<string, import('mongodb').BulkWriteOpResultObject>}
@@ -97,7 +98,7 @@ class DatabaseBulkInserter {
             /**
              * @type {string}
              */
-            const collectionName = getCollectionNameForResourceType(resourceType);
+            const collectionName = getCollectionNameForResourceType(resourceType, base_version);
             /**
              * mongo db connection
              * @type {import('mongodb').Db}

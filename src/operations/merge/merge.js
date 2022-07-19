@@ -112,7 +112,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * mergeResults
          * @type {MergeResultEntry[]}
          */
-        const mergeResults = await databaseBulkInserter.executeAsync(useAtlas);
+        const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
         await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
         return mergeResults;
     } else {
@@ -125,7 +125,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * result
          * @type {MergeResultEntry[]}
          */
-        const mergeResults = await databaseBulkInserter.executeAsync(useAtlas);
+        const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
         await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
         /**
          * result
