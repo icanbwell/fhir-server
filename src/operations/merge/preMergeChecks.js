@@ -5,7 +5,6 @@ const {logDebug} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
-const async = require('async');
 
 /**
  * run any pre-checks before merge
