@@ -1,37 +1,31 @@
 const {isTrue} = require('../../../utils/isTrue');
 const env = require('var');
-const globals = require('../../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../../constants');
-const {getOrCreateCollection} = require('../../../utils/mongoCollectionManager');
 const {preSaveAsync} = require('../../common/preSave');
+const {
+    getOrCreateCollectionForResourceTypeAsync,
+    getOrCreateHistoryCollectionForResourceTypeAsync
+} = require('../../common/resourceManager');
 
 /**
  * performs the db update
- * @param {Object} resourceToMerge
+ * @param {Resource} resourceToMerge
  * @param {Object} doc
  * @param {Object} cleaned
  * @param {string} baseVersion
- * @param {string} collectionName
  * @returns {Promise<{created: boolean, id: *, updated: any, resource_version}>}
  */
-async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName) {
+async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion) {
     let id = resourceToMerge.id;
 
     /**
      * @type {boolean}
      */
     const useAtlas = isTrue(env.USE_ATLAS);
+
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resourceToMerge.resourceType === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-    /**
-     * @type {import('mongodb').Collection}
-     */
-    let collection = await getOrCreateCollection(db, `${resourceToMerge.resourceType}_${baseVersion}`);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceToMerge.resourceType, baseVersion, useAtlas);
 
     await preSaveAsync(doc);
 
@@ -46,9 +40,9 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVers
 
     // save to history
     /**
-     * @type {import('mongodb').Collection}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let history_collection = await getOrCreateCollection(db, `${collectionName}_${baseVersion}_History`);
+    const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceToMerge.resourceType, baseVersion, useAtlas);
     /**
      * @type {import('mongodb').Document}
      */

@@ -2,27 +2,26 @@ const {logRequest, logError} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {getOrCreateHistoryCollectionForResourceTypeAsync} = require('../common/resourceManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
- * does a FHIR History By Id
+ * does a FHIR History By id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.historyById = async (requestInfo, args, resourceName, collection_name) => {
+module.exports.historyById = async (requestInfo, args, resourceType, collection_name) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, `${resourceName} >>> historyById`);
-    verifyHasValidScopes(resourceName, 'read', user, scope);
+    logRequest(user, `${resourceType} >>> historyById`);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
 
     let {base_version, id} = args;
     let query = {};
@@ -40,25 +39,19 @@ module.exports.historyById = async (requestInfo, args, resourceName, collection_
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
-    let history_collection = db.collection(`${collection_name}_${base_version}_History`);
-    let Resource = getResource(base_version, resourceName);
+    let Resource = getResource(base_version, resourceType);
 
     // Query our collection for this observation
     let cursor;
     try {
         cursor = await history_collection.find(query);
     } catch (e) {
-        logError(`Error with ${resourceName}.historyById: `, e);
+        logError(`Error with ${resourceType}.historyById: `, e);
         throw new BadRequestError(e);
     }
     const resources = [];

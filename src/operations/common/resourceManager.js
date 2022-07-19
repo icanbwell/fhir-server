@@ -40,7 +40,7 @@ function getDatabaseConnectionForCollection(collectionName, useAtlas) {
  * @param {string} resourceType
  * @param {string} base_version
  * @param {boolean} useAtlas
- * @return {Promise<Collection<import('mongodb').DefaultSchema>>}
+ * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
  */
 async function getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas) {
     /**
@@ -60,7 +60,7 @@ async function getOrCreateCollectionForResourceTypeAsync(resourceType, base_vers
  * @param {string} resourceType
  * @param {string} base_version
  * @param {boolean} useAtlas
- * @return {Promise<Collection<import('mongodb').DefaultSchema>>}
+ * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
  */
 async function getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas) {
     /**

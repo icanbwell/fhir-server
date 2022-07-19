@@ -20,14 +20,13 @@ const {performMergeDbUpdateAsync} = require('./performMergeDbUpdate');
  * @param {string} baseVersion
  * @param {string|null} user
  * @param {string} scope
- * @param {string} collectionName
  * @param {string} currentDate
  * @param {string} requestId
  * @returns {Promise<{created: boolean, id: *, message: string, updated: boolean, resource_version}|{created: boolean, id: *, updated: *, resource_version}>}
  */
 async function mergeExistingAsync(resourceToMerge, data,
                                   baseVersion, user, scope,
-                                  collectionName, currentDate,
+                                  currentDate,
                                   requestId) {
     /**
      * @type {string}
@@ -181,7 +180,7 @@ async function mergeExistingAsync(resourceToMerge, data,
             id,
             'merge_' + meta.versionId + '_' + requestId);
     }
-    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName);
+    return await performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion);
 }
 
 module.exports = {

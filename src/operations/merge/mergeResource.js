@@ -4,11 +4,9 @@ const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
 const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 
 /**
  * Merges a single resource
@@ -60,19 +58,10 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         const useAtlas = (isTrue(env.USE_ATLAS));
 
-        // Grab an instance of our DB and collection
-        // noinspection JSValidateTypes
         /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
          */
-        let db = (resource_to_merge.resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, `${resource_to_merge.resourceType}_${baseVersion}`);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resource_to_merge.resourceType, baseVersion, useAtlas);
 
         // Query our collection for this id
         /**

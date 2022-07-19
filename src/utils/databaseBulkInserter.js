@@ -235,6 +235,9 @@ class DatabaseBulkInserter {
      * @returns {Promise<{resourceType: string, mergeResult: import('mongodb').BulkWriteOpResultObject}>}
      */
     async performBulkForResourceType(resourceType, base_version, useAtlas, operations) {
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+         */
         const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         // TODO: Handle failures in bulk operation

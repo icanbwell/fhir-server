@@ -5,11 +5,9 @@ const sendToS3 = require('../../../utils/aws-s3');
 const {preMergeChecksAsync} = require('../preMergeChecks');
 const {logDebug, logError} = require('../../common/logging');
 const {isTrue} = require('../../../utils/isTrue');
-const globals = require('../../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../../constants');
-const {getOrCreateCollection} = require('../../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../../common/resourceManager');
 
 /**
  * Merges a single resource
@@ -22,12 +20,11 @@ const {mergeInsertAsync} = require('./mergeInsert');
  * @param {string} requestId
  * @param {string} baseVersion
  * @param scope
- * @param {string} collectionName
  * @return {Promise<MergeResultEntry>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
-                                  requestId, baseVersion, scope, collectionName) {
+                                  requestId, baseVersion, scope) {
     /**
      * @type {string}
      */
@@ -62,19 +59,13 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         const useAtlas = (isTrue(env.USE_ATLAS));
 
-        // Grab an instance of our DB and collection
-        // noinspection JSValidateTypes
         /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
          */
-        let db = (resource_to_merge.resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resource_to_merge.resourceType, baseVersion, useAtlas);
         /**
          * @type {import('mongodb').Collection}
          */
-        let collection = await getOrCreateCollection(db, `${resource_to_merge.resourceType}_${baseVersion}`);
 
         // Query our collection for this id
         /**
@@ -93,9 +84,9 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
             res = await mergeExistingAsync(
-                resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId);
+                resource_to_merge, data, baseVersion, user, scope, currentDate, requestId);
         } else {
-            res = await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user);
+            res = await mergeInsertAsync(resource_to_merge, baseVersion, user);
         }
 
         return res;

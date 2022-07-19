@@ -6,32 +6,32 @@ const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {validateResource} = require('../../utils/validator.util');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
+const {
+    getOrCreateCollectionForResourceTypeAsync,
+    getOrCreateHistoryCollectionForResourceTypeAsync
+} = require('../common/resourceManager');
 
 /**
  * does a FHIR Create (POST)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} path
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
-module.exports.create = async (requestInfo, args, path, resource_name, collection_name) => {
+module.exports.create = async (requestInfo, args, path, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const body = requestInfo.body;
 
-    logRequest(user, `${resource_name} >>> create`);
+    logRequest(user, `${resourceType} >>> create`);
 
-    verifyHasValidScopes(resource_name, 'write', user, scope);
+    verifyHasValidScopes(resourceType, 'write', user, scope);
 
     let resource_incoming = body;
 
@@ -45,7 +45,7 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         await sendToS3('logs',
-            resource_name,
+            resourceType,
             resource_incoming,
             currentDate,
             uuid,
@@ -55,14 +55,14 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
         logDebug(user, '--- validate schema ----');
-        const operationOutcome = validateResource(resource_incoming, resource_name, path);
+        const operationOutcome = validateResource(resource_incoming, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             operationOutcome.expression = [
-                resource_name + '/' + uuid
+                resourceType + '/' + uuid
             ];
             await sendToS3('validation_failures',
-                resource_name,
+                resourceType,
                 resource_incoming,
                 currentDate,
                 uuid,
@@ -84,25 +84,16 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        // Grab an instance of our DB and collection
-        // noinspection JSValidateTypes
         /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
          */
-        let db = (resource_name === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, `${collection_name}_${base_version}`);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         // Get current record
         /**
          * @type {function({Object}): Resource}
          */
-        let ResourceCreator = getResource(base_version, resource_name);
+        let ResourceCreator = getResource(base_version, resourceType);
         /**
          * @type {Resource}
          */
@@ -151,9 +142,9 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
         let doc = removeNull(resource.toJSON());
         Object.assign(doc, {id: id});
 
-        if (resource_name !== 'AuditEvent') {
+        if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, [resource['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'create', args, [resource['id']]);
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document
@@ -175,17 +166,20 @@ module.exports.create = async (requestInfo, args, path, resource_name, collectio
             throw new BadRequestError(e);
         }
         // Save the resource to history
-        let history_collection = await getOrCreateCollection(db, `${collection_name}_${base_version}_History`);
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+         */
+        let history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         // Insert our resource record to history but don't assign _id
         await history_collection.insertOne(history_doc);
         return {id: doc.id, resource_version: doc.meta.versionId};
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with creating resource ${resource_name} with id: ${uuid} `, e);
+        logError(`Error with creating resource ${resourceType} with id: ${uuid} `, e);
 
         await sendToS3('errors',
-            resource_name,
+            resourceType,
             resource_incoming,
             currentDate,
             uuid,

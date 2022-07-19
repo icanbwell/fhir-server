@@ -30,25 +30,25 @@ const {setIndexHint} = require('./setIndexHint');
  * Create the query and gets the cursor from mongo
  * @param {Object?} args
  * @param {Set} columns
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {Object} options
  * @param {import('mongodb').Document} query
  * @param {boolean} useAtlas
  * @param {import('mongodb').Collection} collection
  * @param {number} maxMongoTimeMS
  * @param {string | null} user
- * @param {string} mongoCollectionName
  * @param {boolean} isStreaming
  * @param {boolean} useAccessIndex
  * @returns {Promise<GetCursorResult>}
  */
-async function getCursorForQueryAsync(args, columns, resourceName, options,
-                                      query, useAtlas, collection, maxMongoTimeMS,
-                                      user, mongoCollectionName,
+async function getCursorForQueryAsync(args, columns, resourceType, options,
+                                      query, useAtlas,
+                                      collection, maxMongoTimeMS,
+                                      user,
                                       isStreaming, useAccessIndex) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
-        const __ret = handleElementsQuery(args, columns, resourceName, options, useAccessIndex);
+        const __ret = handleElementsQuery(args, columns, resourceType, options, useAccessIndex);
         columns = __ret.columns;
         options = __ret.options;
     }
@@ -189,7 +189,7 @@ async function getCursorForQueryAsync(args, columns, resourceName, options,
 
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
-        const __ret = setIndexHint(indexHint, mongoCollectionName, columns, cursor, user);
+        const __ret = setIndexHint(indexHint, collection.collectionName, columns, cursor, user);
         indexHint = __ret.indexHint;
         cursor = __ret.cursor;
     }

@@ -18,22 +18,23 @@ const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
-const {getLinkedPatients} = require('../security/getLinkedPatientsByPersonId');
+const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 
 /**
  * does a FHIR Search
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {import('http').ServerResponse} res
  * @param {Object} args
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {string} collection_name
  * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
+module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         collection_name, filter = true) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceName, collection_name);
+        return searchOld(requestInfo, args, resourceType, collection_name);
     }
     /**
      * @type {number}
@@ -55,10 +56,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
         isUser
     } = requestInfo;
 
-    logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
+    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceName, 'read', user, scope);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
     logRequest(user, '---- args ----');
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
@@ -73,41 +74,26 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-
     /** @type {string} **/
     let {base_version} = args;
 
-    const allPatients = patients.concat(await getLinkedPatients(db, base_version, isUser, fhirPersonId));
+    const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
     let {
         /** @type {import('mongodb').Document}**/
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceName, collection_name, useAccessIndex, filter);
+    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, collection_name, useAccessIndex, filter);
 
     /**
-     * @type {string}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    const mongoCollectionName = `${collection_name}_${base_version}`;
-    /**
-     * mongo collection
-     * @type {import('mongodb').Collection}
-     */
-    let collection = db.collection(mongoCollectionName);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
     /**
      * @type {function(?Object): Resource}
      */
-    let Resource = getResource(base_version, resourceName);
+    let Resource = getResource(base_version, resourceType);
 
     logDebug(user, '---- query ----');
     logDebug(user, JSON.stringify(query));
@@ -126,8 +112,8 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
 
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName, true, useAccessIndex);
+        const __ret = await getCursorForQueryAsync(args, columns, resourceType, options, query, useAtlas, collection,
+            maxMongoTimeMS, user, true, useAccessIndex);
         /**
          * @type {Set}
          */
@@ -188,7 +174,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
+                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceType,
                     useAccessIndex,
                     fhirContentTypes.ndJson, batchObjectCount);
             } else {
@@ -203,7 +189,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
                             total_count,
                             args,
                             originalQuery,
-                            mongoCollectionName,
+                            collection.collectionName,
                             originalOptions,
                             columns,
                             stopTime1,
@@ -214,29 +200,29 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
                             user,
                             useAtlas
                         ),
-                        res, user, scope, args, Resource, resourceName, useAccessIndex, batchObjectCount);
+                        res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
                 } else {
                     resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args,
-                        Resource, resourceName,
+                        Resource, resourceType,
                         useAccessIndex,
                         fhirContentTypes.fhirJson,
                         batchObjectCount);
                 }
             }
             if (resourceIds.length > 0) {
-                if (resourceName !== 'AuditEvent') {
+                if (resourceType !== 'AuditEvent') {
                     try {
                         // log access to audit logs
                         await logAuditEntryAsync(
                             requestInfo,
                             base_version,
-                            resourceName,
+                            resourceType,
                             'read',
                             args,
                             resourceIds
                         );
                     } catch (e) {
-                        await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceName}`, e);
+                        await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                     }
                 }
             }
@@ -259,7 +245,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
                         total_count,
                         args,
                         originalQuery,
-                        mongoCollectionName,
+                        collection.collectionName,
                         originalOptions,
                         columns,
                         stopTime,
@@ -281,6 +267,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceName,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
     }
 };
