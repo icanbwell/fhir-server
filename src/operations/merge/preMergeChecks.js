@@ -47,7 +47,8 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
             created: false,
             updated: false,
             issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-            operationOutcome: operationOutcome
+            operationOutcome: operationOutcome,
+            resourceType: resourceName
         };
     }
 
@@ -75,7 +76,8 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
                 created: false,
                 updated: false,
                 issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                operationOutcome: operationOutcome
+                operationOutcome: operationOutcome,
+                resourceType: resourceToMerge.resourceType
             };
         }
     }
@@ -114,7 +116,8 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
             created: false,
             updated: false,
             issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ? validationOperationOutcome.issue[0] : null,
-            operationOutcome: validationOperationOutcome
+            operationOutcome: validationOperationOutcome,
+            resourceType: resourceToMerge.resourceType
         };
     }
     logDebug(user, '-----------------');
@@ -142,7 +145,8 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
                 created: false,
                 updated: false,
                 issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                operationOutcome: accessTagOperationOutcome
+                operationOutcome: accessTagOperationOutcome,
+                resourceType: resourceToMerge.resourceType
             };
         }
     }

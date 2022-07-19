@@ -111,8 +111,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     /**
      * @type {Resource[]}
      */
-    const resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
-
+    let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
 
     /**
      * @type {MergeResultEntry[]|null}
@@ -125,7 +124,12 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      */
     const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
         return {resourceType: r.resourceType, id: r.id};
-    }).filter(r => mergePreCheckErrors.some(m => m.id === r.id && m.resourceType === r.resourceType));
+    }).filter(r => !mergePreCheckErrors.some(m => m.id === r.id && m.resourceType === r.resourceType));
+
+    // process only the resources that are valid
+    resourcesIncomingArray = resourcesIncomingArray.filter(
+        r => incomingResourceTypeAndIds.some(i => i.resourceType === r.resourceType && i.id === r.id)
+    );
 
     /**
      * @type {DatabaseBulkLoader}
@@ -136,6 +140,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         useAtlas,
         incomingResourceTypeAndIds
     );
+    // merge the resources
     await mergeResourceListAsync(
         resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
         requestId, base_version, scope, collectionName, requestInfo, args,
