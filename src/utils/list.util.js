@@ -109,11 +109,19 @@ const groupByLambda = function (sourceArray, fnKey) { // `sourceArray` is an arr
     }, {}); // {} is the initial value of the storage
 };
 
+/**
+ * Gets the first element in an array if exists else returns null
+ * @param {Object[]} sourceArray
+ * @return {Object | null}
+ */
+const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
+
 module.exports = {
     findDuplicates: findDuplicates,
     findDuplicateResources: findDuplicateResources,
     findUniques: findUniques,
     findUniqueResources: findUniqueResources,
     groupBy: groupBy,
-    groupByLambda: groupByLambda
+    groupByLambda: groupByLambda,
+    getFirstElementOrNull: getFirstElementOrNull
 };

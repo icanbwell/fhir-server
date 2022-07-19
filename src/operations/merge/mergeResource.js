@@ -10,6 +10,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
+const {getFirstElementOrNull} = require('../../utils/list.util');
 
 /**
  * Merges a single resource
@@ -24,12 +25,14 @@ const {mergeInsertAsync} = require('./mergeInsert');
  * @param scope
  * @param {string} collectionName
  * @param {DatabaseBulkInserter} databaseBulkInserter
+ * @param {{resources: Resource[], resourceType: string}[]} existingResourcesByResourceType
  * @return {Promise<void>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
                                   requestId, baseVersion, scope, collectionName,
-                                  databaseBulkInserter) {
+                                  databaseBulkInserter,
+                                  existingResourcesByResourceType) {
     /**
      * @type {string}
      */
@@ -82,7 +85,11 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         /**
          * @type {Object}
          */
-        let data = await collection.findOne({id: id.toString()});
+        let data = existingResourcesByResourceType ?
+            getFirstElementOrNull(
+                existingResourcesByResourceType.filter(e => e.resourceType === resource_to_merge.resourceType && e.id === id.toString())
+            ) :
+            await collection.findOne({id: id.toString()});
 
         logDebug('test?', '------- data -------');
         logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);

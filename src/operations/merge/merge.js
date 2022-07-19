@@ -115,7 +115,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         return {resourceType: r.resourceType, id: r.id};
     });
     /**
-     * @type {{documents: Resource[], resourceType: string}[]}
+     * @type {{resources: Resource[], resourceType: string}[]}
      */
     const existingResourcesByResourceType = await new DatabaseBulkLoader().getResourcesByResourceTypeAndIdAsync(
         base_version,
@@ -125,7 +125,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     await mergeResourceListAsync(
         resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
         requestId, base_version, scope, collectionName, requestInfo, args,
-        databaseBulkInserter
+        databaseBulkInserter, existingResourcesByResourceType
     );
     /**
      * mergeResults

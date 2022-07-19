@@ -13,7 +13,7 @@ class DatabaseBulkLoader {
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {{resourceType: string, id: string}[]} requestedResources
-     * @returns {Promise<{documents: Resource[], resourceType: string}[]>}
+     * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
     async getResourcesByResourceTypeAndIdAsync(base_version, useAtlas, requestedResources) {
         /**
@@ -33,7 +33,7 @@ class DatabaseBulkLoader {
      * @param {boolean} useAtlas
      * @param {string} resourceType
      * @param {string[]} idList
-     * @returns {Promise<{documents: Resource[], resourceType: string}>}
+     * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     async getResourcesByIdAsync(base_version, useAtlas, resourceType, idList) {
         /**
@@ -60,7 +60,7 @@ class DatabaseBulkLoader {
             }
         );
 
-        return {resourceType, documents: await this.cursorToResourcesAsync(base_version, resourceType, cursor)};
+        return {resourceType, resources: await this.cursorToResourcesAsync(base_version, resourceType, cursor)};
     }
 
     /**
