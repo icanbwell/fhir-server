@@ -1,5 +1,9 @@
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const {getCollectionNameForResourceType, getDatabaseConnectionForCollection, getHistoryCollectionNameForResourceType} = require('../common/resourceManager');
+const {
+    getCollectionNameForResourceType,
+    getDatabaseConnectionForCollection,
+    getHistoryCollectionNameForResourceType
+} = require('../common/resourceManager');
 
 class DatabaseBulkInserter {
     constructor() {
@@ -133,58 +137,15 @@ class DatabaseBulkInserter {
             /** @type {string} */resourceType,
             /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations]
             of this.operationsByResourceType.entries()) {
-            /**
-             * @type {string}
-             */
-            const collectionName = getCollectionNameForResourceType(resourceType, base_version);
-            /**
-             * mongo db connection
-             * @type {import('mongodb').Db}
-             */
-            const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
-            /**
-             * @type {import('mongodb').Collection}
-             */
-            let collection = await getOrCreateCollection(db, collectionName);
-            // TODO: Handle failures in bulk operation
-            // for some reason the typing does
-            /**
-             * @type {import('mongodb').CollectionBulkWriteOptions}
-             */
-            const options = {ordered: false};
-            // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
-            /**
-             * @type {import('mongodb').BulkWriteOpResultObject}
-             */
-            const result = await collection.bulkWrite(operations, options);
-            resultByResourceType.set(resourceType, result.result);
+            const result = await this.performBulkForResourceType(resourceType, base_version, useAtlas, operations);
+            resultByResourceType.set(result.resourceType, result.mergeResult);
         }
         // iterate through history of each resource type and issue a bulk operation
         for (const [
             /** @type {string} */resourceType,
             /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations]
             of this.historyOperationsByResourceType.entries()) {
-            /**
-             * @type {string}
-             */
-            const collectionName = getHistoryCollectionNameForResourceType(resourceType, base_version);
-            /**
-             * mongo db connection
-             * @type {import('mongodb').Db}
-             */
-            const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
-            /**
-             * @type {import('mongodb').Collection}
-             */
-            let collection = await getOrCreateCollection(db, collectionName);
-            // TODO: Handle failures in bulk operation
-            // for some reason the typing does
-            /**
-             * @type {import('mongodb').CollectionBulkWriteOptions}
-             */
-            const options = {ordered: false};
-            // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
-            await collection.bulkWrite(operations, options);
+            await this.performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations);
         }
         /**
          * results
@@ -220,6 +181,75 @@ class DatabaseBulkInserter {
             }
         }
         return mergeResultEntries;
+    }
+
+    /**
+     * Run bulk operations for history collection of resourceType
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @param {boolean} useAtlas
+     * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
+     * @returns {Promise<void>}
+     */
+    async performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations) {
+        /**
+         * @type {string}
+         */
+        const collectionName = getHistoryCollectionNameForResourceType(resourceType, base_version);
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+        /**
+         * @type {import('mongodb').Collection}
+         */
+        let collection = await getOrCreateCollection(db, collectionName);
+        // TODO: Handle failures in bulk operation
+        // for some reason the typing does
+        /**
+         * @type {import('mongodb').CollectionBulkWriteOptions}
+         */
+        const options = {ordered: false};
+        // lint gets confused by the two signatures of this method
+        // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
+        await collection.bulkWrite(operations, options);
+    }
+
+    /**
+     * Run bulk operations for collection of resourceType
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @param {boolean} useAtlas
+     * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
+     * @returns {Promise<{resourceType: string, mergeResult: import('mongodb').BulkWriteOpResultObject}>}
+     */
+    async performBulkForResourceType(resourceType, base_version, useAtlas, operations) {
+        /**
+         * @type {string}
+         */
+        const collectionName = getCollectionNameForResourceType(resourceType, base_version);
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+        /**
+         * @type {import('mongodb').Collection}
+         */
+        let collection = await getOrCreateCollection(db, collectionName);
+        // TODO: Handle failures in bulk operation
+        // for some reason the typing does
+        /**
+         * @type {import('mongodb').CollectionBulkWriteOptions}
+         */
+        const options = {ordered: false};
+        // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
+        /**
+         * @type {import('mongodb').BulkWriteOpResultObject}
+         */
+        const result = await collection.bulkWrite(operations, options);
+        return {resourceType: resourceType, mergeResult: result.result};
     }
 }
 
