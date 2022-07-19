@@ -8,6 +8,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
  * @returns {string}
  */
 function getCollectionNameForResourceType(resourceType, base_version) {
+    console.assert(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
     return `${resourceType}_${base_version}`;
 }
 

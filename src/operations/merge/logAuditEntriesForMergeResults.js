@@ -1,4 +1,5 @@
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
+const {groupByLambda} = require('../../utils/list.util');
 
 /**
  * logs audit entries for merge result entries
@@ -10,11 +11,15 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
  */
 async function logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults) {
     // group by resource name
-    const groupByResourceType = mergeResults.groupBy(mergeResult => {
+    /**
+     * merge results grouped by resourceType
+     * @type {Object}
+     */
+    const groupByResourceType = groupByLambda(mergeResults, mergeResult => {
         return mergeResult.resourceType;
     });
 
-    for (const [resourceType, mergeResultsForResourceType] of groupByResourceType) {
+    for (const [resourceType, mergeResultsForResourceType] of Object.entries(groupByResourceType)) {
         if (resourceType !== 'AuditEvent') { // we don't log queries on AuditEvent itself
             /**
              * @type {MergeResultEntry[]}

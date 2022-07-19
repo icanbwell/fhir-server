@@ -85,10 +85,11 @@ const groupBy = function (sourceArray, key) { // `sourceArray` is an array of ob
  */
 
 /**
+ * Groups an array using the provided lambda function to get the key
  * https://stackoverflow.com/questions/14446511/most-efficient-method-to-groupby-on-an-array-of-objects
  * @param {Object[]} sourceArray
  * @param {FnGroupCallback} fnKey
- * @return {*}
+ * @return {Object}
  */
 const groupByLambda = function (sourceArray, fnKey) { // `sourceArray` is an array of objects, `key` is the key (or property accessor) to group by
     // reduce runs this anonymous function on each element of `sourceArray` (the `item` parameter,
