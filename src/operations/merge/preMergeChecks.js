@@ -161,15 +161,29 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
  * @param {string | null} user
  * @param {string | null} path
  * @param {string} currentDate
- * @returns {Promise<MergeResultEntry[]|null>}
+ * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
  */
 async function preMergeChecksMultipleAsync(resourcesToMerge, scopes, user, path, currentDate) {
     /**
-     *
-     * @type {Promise<(MergeResultEntry|null)[]>}
+     * @type {MergeResultEntry[]}
      */
-    const result = await async.map(resourcesToMerge, async r => await preMergeChecksAsync(r, r.resourceType, scopes, user, path, currentDate));
-    return result.filter(r => r !== null);
+    const mergePreCheckErrors = [];
+    /**
+     * @type {Resource[]}
+     */
+    const validResources = [];
+    for (const /** @type {Resource} */ r of resourcesToMerge) {
+        /**
+         * @type {MergeResultEntry|null}
+         */
+        const mergeResult = await preMergeChecksAsync(r, r.resourceType, scopes, user, path, currentDate);
+        if (mergeResult) {
+            mergePreCheckErrors.push(mergeResult);
+        } else {
+            validResources.push(r);
+        }
+    }
+    return {mergePreCheckErrors, validResources};
 }
 
 module.exports = {

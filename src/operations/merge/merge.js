@@ -113,23 +113,21 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      */
     let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
 
-    /**
-     * @type {MergeResultEntry[]|null}
-     */
-    const mergePreCheckErrors = await preMergeChecksMultipleAsync(resourcesIncomingArray,
+    const {
+        /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
+        /** @type {Resource[]} */ validResources
+    } = await preMergeChecksMultipleAsync(resourcesIncomingArray,
         scopes, user, path, currentDate);
+
+    // process only the resources that are valid
+    resourcesIncomingArray = validResources;
 
     /**
      * @type {{id: string, resourceType: string}[]}
      */
     const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
         return {resourceType: r.resourceType, id: r.id};
-    }).filter(r => !mergePreCheckErrors.some(m => m.id === r.id && m.resourceType === r.resourceType));
-
-    // process only the resources that are valid
-    resourcesIncomingArray = resourcesIncomingArray.filter(
-        r => incomingResourceTypeAndIds.some(i => i.resourceType === r.resourceType && i.id === r.id)
-    );
+    });
 
     /**
      * @type {DatabaseBulkLoader}
