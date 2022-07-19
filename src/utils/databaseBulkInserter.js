@@ -1,9 +1,9 @@
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
+const {getOrCreateCollection} = require('./mongoCollectionManager');
 const {
     getCollectionNameForResourceType,
     getDatabaseConnectionForCollection,
     getHistoryCollectionNameForResourceType
-} = require('../common/resourceManager');
+} = require('../operations/common/resourceManager');
 const async = require('async');
 
 /**

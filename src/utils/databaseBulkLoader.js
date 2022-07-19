@@ -1,10 +1,10 @@
-const {groupByLambda, getFirstElementOrNull} = require('../../utils/list.util');
+const {groupByLambda, getFirstElementOrNull} = require('./list.util');
 const async = require('async');
 const {
     getDatabaseConnectionForCollection, getCollectionNameForResourceType
-} = require('../common/resourceManager');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const {getResource} = require('../common/getResource');
+} = require('../operations/common/resourceManager');
+const {getOrCreateCollection} = require('./mongoCollectionManager');
+const {getResource} = require('../operations/common/getResource');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
