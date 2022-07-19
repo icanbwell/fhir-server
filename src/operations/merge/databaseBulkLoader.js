@@ -87,7 +87,7 @@ class DatabaseBulkLoader {
              */
             const ResourceCreator = getResource(base_version, resourceType);
             const resource = new ResourceCreator(document);
-            result.push(resource);
+            result.push(resource.toJSON());
         }
         return result;
     }
