@@ -5,12 +5,13 @@ const {logDebug} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
+const async = require("async");
 
 /**
  * run any pre-checks before merge
  * @param {Resource} resourceToMerge
  * @param {string} resourceName
- * @returns {Promise<{operationOutcome: OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|{operationOutcome: {issue: [{severity: string, diagnostics: string, code: string, expression: string[], details: {text: string}}], resourceType: string}, issue: ({severity: string, diagnostics: string, code: string, expression: [string], details: {text: string}}|null), created: boolean, id: *, updated: boolean}|{operationOutcome: ?OperationOutcome, issue: (*|null), created: boolean, id: *, updated: boolean}|boolean>}
+ * @returns {Promise<MergeResultEntry|null>}
  * @param {string[] | null} scopes
  * @param {string | null} user
  * @param {string | null} path
@@ -146,9 +147,25 @@ async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, 
         }
     }
 
-    return false;
+    return null;
+}
+
+/**
+ * run any pre-checks before merge
+ * @param {Resource[]} resourcesToMerge
+ * @returns {Promise<MergeResultEntry[]|null>}
+ * @param {string[] | null} scopes
+ * @param {string | null} user
+ * @param {string | null} path
+ * @param {string} currentDate
+ */
+async function preMergeChecksMultipleAsync(resourcesToMerge, scopes, user, path, currentDate) {
+    const result = await async.map(resourcesToMerge, async r => await preMergeChecksAsync(r, r.resourceType, scopes, user, path, currentDate));
+    return result
+        .filter(r => r !== null);
 }
 
 module.exports = {
-    preMergeChecksAsync
+    preMergeChecksAsync,
+    preMergeChecksMultipleAsync
 };

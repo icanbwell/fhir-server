@@ -26,7 +26,7 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
  * @param {string} collectionName
  * @param {DatabaseBulkInserter} databaseBulkInserter
  * @param {{resources: Resource[], resourceType: string}[]} existingResourcesByResourceType
- * @return {Promise<void>}
+ * @return {Promise<MergeResultEntry|null>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
@@ -49,11 +49,6 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
             currentDate,
             id,
             'merge_' + requestId);
-    }
-
-    const preMergeCheckFailures = await preMergeChecksAsync(resource_to_merge, resourceName, scopes, user, path, currentDate);
-    if (preMergeCheckFailures) {
-        return preMergeCheckFailures;
     }
 
     /**

@@ -12,6 +12,7 @@ const env = require('var');
 const {mergeOld} = require('./old/mergeOld');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 const {DatabaseBulkLoader} = require('./databaseBulkLoader');
+const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 
 /**
  * does a FHIR Merge
@@ -111,6 +112,17 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      * @type {Resource[]}
      */
     const resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+
+    /**
+     * Do preCheck errors
+     * @type {Promise<MergeResultEntry[]|null>}
+     */
+    const mergePreCheckErrors = await preMergeChecksMultipleAsync(resourcesIncomingArray,
+        scopes, user, path, currentDate);
+
+    if (mergePreCheckErrors && (await mergePreCheckErrors).length > 0){
+        return mergePreCheckErrors;
+    }
     const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
         return {resourceType: r.resourceType, id: r.id};
     });
