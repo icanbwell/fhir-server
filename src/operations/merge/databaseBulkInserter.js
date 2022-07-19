@@ -4,6 +4,7 @@ const {
     getDatabaseConnectionForCollection,
     getHistoryCollectionNameForResourceType
 } = require('../common/resourceManager');
+const async = require('async');
 
 class DatabaseBulkInserter {
     constructor() {
@@ -127,26 +128,15 @@ class DatabaseBulkInserter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync(base_version, useAtlas) {
-        /**
-         * stores result of bulk calls
-         * @type {Map<string, import('mongodb').BulkWriteOpResultObject>}
-         */
-        const resultByResourceType = new Map();
-        // iterate through each resourceType and issue a bulk operation
-        for (const [
-            /** @type {string} */resourceType,
-            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations]
-            of this.operationsByResourceType.entries()) {
-            const result = await this.performBulkForResourceType(resourceType, base_version, useAtlas, operations);
-            resultByResourceType.set(result.resourceType, result.mergeResult);
-        }
-        // iterate through history of each resource type and issue a bulk operation
-        for (const [
-            /** @type {string} */resourceType,
-            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations]
-            of this.historyOperationsByResourceType.entries()) {
-            await this.performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations);
-        }
+        await Promise.all([
+            async.map(this.operationsByResourceType.entries(), async x => await this.performBulkForResourceTypeWithMapEntry(
+                x, base_version, useAtlas
+            )),
+            async.map(this.historyOperationsByResourceType.entries(), async x => await this.performBulkForResourceTypeHistoryWithMapEntry(
+                x, base_version, useAtlas
+            ))
+        ]);
+
         /**
          * results
          * @type {MergeResultEntry[]}
@@ -183,6 +173,14 @@ class DatabaseBulkInserter {
         return mergeResultEntries;
     }
 
+    async performBulkForResourceTypeHistoryWithMapEntry(mapEntry, base_version, useAtlas) {
+        const [
+            /** @type {string} */resourceType,
+            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations] = mapEntry;
+
+        return await this.performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations);
+    }
+
     /**
      * Run bulk operations for history collection of resourceType
      * @param {string} resourceType
@@ -214,6 +212,14 @@ class DatabaseBulkInserter {
         // lint gets confused by the two signatures of this method
         // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
         await collection.bulkWrite(operations, options);
+    }
+
+    async performBulkForResourceTypeWithMapEntry(mapEntry, base_version, useAtlas) {
+        const [
+            /** @type {string} */resourceType,
+            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations] = mapEntry;
+
+        return await this.performBulkForResourceType(resourceType, base_version, useAtlas, operations);
     }
 
     /**
