@@ -6,6 +6,9 @@ const {
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {getResource} = require('../common/getResource');
 
+/**
+ * This class loads data from Mongo into memory and allows updates to this cache
+ */
 class DatabaseBulkLoader {
     constructor() {
         /**
@@ -15,13 +18,13 @@ class DatabaseBulkLoader {
     }
 
     /**
-     * finds all documents with the specified resource type and ids
+     * Finds all documents with the specified resource type and ids
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {{resourceType: string, id: string}[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async getResourcesByResourceTypeAndIdAsync(base_version, useAtlas, requestedResources) {
+    async loadResourcesByResourceTypeAndIdAsync(base_version, useAtlas, requestedResources) {
         /**
          * merge results grouped by resourceType
          * @type {Object}
@@ -31,9 +34,14 @@ class DatabaseBulkLoader {
         });
 
         /**
+         * Load all specified resources in parallel
          * @type {{resources: Resource[], resourceType: string}[]}
          */
-        const result = await async.map(Object.entries(groupByResourceType), async x => await this.getResourcesByIdAsync(base_version, useAtlas, x[0], x[1]));
+        const result = await async.map(
+            Object.entries(groupByResourceType),
+            async x => await this.getResourcesByIdAsync(base_version, useAtlas, x[0], x[1])
+        );
+        // Now add them to our cache
         for (const {resourceType, resources} of result) {
             this.bulkCache.set(resourceType, resources);
         }
@@ -128,6 +136,7 @@ class DatabaseBulkLoader {
     }
 
     /**
+     * Adds a new resource to the cache
      * @param {Resource} resource
      */
     addResourceToExistingList(resource) {
@@ -144,6 +153,7 @@ class DatabaseBulkLoader {
     }
 
     /**
+     * Updates an existing resource in the cache
      * @param {Resource} resource
      */
     updateResourceInExistingList(resource) {

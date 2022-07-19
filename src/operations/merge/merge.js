@@ -133,7 +133,8 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      * @type {DatabaseBulkLoader}
      */
     const databaseBulkLoader = new DatabaseBulkLoader();
-    await databaseBulkLoader.getResourcesByResourceTypeAndIdAsync(
+    // Load the resources from the database
+    await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
         base_version,
         useAtlas,
         incomingResourceTypeAndIds
