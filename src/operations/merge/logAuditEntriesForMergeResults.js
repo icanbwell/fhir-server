@@ -10,7 +10,6 @@ const {groupByLambda} = require('../../utils/list.util');
  * @returns {Promise<void>}
  */
 async function logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults) {
-    // group by resource name
     /**
      * merge results grouped by resourceType
      * @type {Object}
