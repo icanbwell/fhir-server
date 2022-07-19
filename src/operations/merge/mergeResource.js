@@ -2,7 +2,6 @@
 // returns an OperationOutcome
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
-const {preMergeChecksAsync} = require('./preMergeChecks');
 const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const globals = require('../../globals');
