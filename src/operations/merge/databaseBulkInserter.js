@@ -245,11 +245,11 @@ class DatabaseBulkInserter {
          */
         let collection = await getOrCreateCollection(db, collectionName);
         // TODO: Handle failures in bulk operation
-        // for some reason the typing does
+        // preserve order so inserts come before updates
         /**
          * @type {import('mongodb').CollectionBulkWriteOptions}
          */
-        const options = {ordered: false};
+        const options = {ordered: true};
         // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
         /**
          * @type {import('mongodb').BulkWriteOpResultObject}
