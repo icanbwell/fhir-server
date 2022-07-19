@@ -113,19 +113,20 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      */
     const resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
 
+
     /**
-     * Do preCheck errors
-     * @type {Promise<MergeResultEntry[]|null>}
+     * @type {MergeResultEntry[]|null}
      */
     const mergePreCheckErrors = await preMergeChecksMultipleAsync(resourcesIncomingArray,
         scopes, user, path, currentDate);
 
-    if (mergePreCheckErrors && (await mergePreCheckErrors).length > 0) {
-        return mergePreCheckErrors;
-    }
+    /**
+     * @type {{id: string, resourceType: string}[]}
+     */
     const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
         return {resourceType: r.resourceType, id: r.id};
-    });
+    }).filter(r => mergePreCheckErrors.some(m => m.id === r.id && m.resourceType === r.resourceType));
+
     /**
      * @type {DatabaseBulkLoader}
      */
@@ -144,7 +145,11 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      * mergeResults
      * @type {MergeResultEntry[]}
      */
-    const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+    let mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+
+    // add in any pre-merge failures
+    mergeResults = mergeResults.concat(mergePreCheckErrors);
+
     // add in unchanged for ids that we did not merge
     const idsInMergeResults = mergeResults.map(r => {
         return {resourceType: r.resourceType, id: r.id};
