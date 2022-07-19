@@ -88,14 +88,12 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         logDebug('test?', '------- end data -------');
 
         // check if resource was found in database or not
-        // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
             databaseBulkLoader.updateResourceInExistingList(resource_to_merge);
             await mergeExistingAsync(
                 resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId,
                 databaseBulkInserter);
         } else {
-            // add resource to existing
             databaseBulkLoader.addResourceToExistingList(resource_to_merge);
             await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user,
                 databaseBulkInserter);
