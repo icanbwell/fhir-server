@@ -53,6 +53,7 @@
  * @property {OperationOutcomeIssue|null} issue
  * @property {boolean} created
  * @property {string} id
+ * @property {string} resourceType
  * @property {boolean} updated
  */
 

@@ -10,6 +10,7 @@ const {DatabaseBulkInserter} = require('./databaseBulkInserter');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {mergeOld} = require('./old/mergeOld');
+const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 
 /**
  * does a FHIR Merge
@@ -107,7 +108,13 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
             requestId, base_version, scope, collectionName, requestInfo, args,
             databaseBulkInserter
         );
-        return await databaseBulkInserter.executeAsync(useAtlas);
+        /**
+         * mergeResults
+         * @type {MergeResultEntry[]}
+         */
+        const mergeResults = await databaseBulkInserter.executeAsync(useAtlas);
+        await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
+        return mergeResults;
     } else {
         await mergeResourceListAsync(
             [resourcesIncoming], user, resourceName, scopes, path, currentDate,
@@ -118,12 +125,13 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * result
          * @type {MergeResultEntry[]}
          */
-        const result = await databaseBulkInserter.executeAsync(useAtlas);
+        const mergeResults = await databaseBulkInserter.executeAsync(useAtlas);
+        await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
         /**
          * result
          * @type {MergeResultEntry}
          */
-        const returnVal = result[0];
+        const returnVal = mergeResults[0];
         logDebug(user, '--- Merge result ----');
         logDebug(user, JSON.stringify(returnVal));
         logDebug(user, '-----------------');

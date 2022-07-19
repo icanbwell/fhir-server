@@ -1,71 +1,73 @@
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
+const {getCollectionNameForResourceType, getDatabaseConnectionForCollection} = require('../common/resourceManager');
 
 class DatabaseBulkInserter {
     constructor() {
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
-         * This map stores an entry per collectionName where the value is a list of operations to perform
-         * on that collection
+         * This map stores an entry per resourceType where the value is a list of operations to perform
+         * on that resourceType
+         * <resourceType, list of operations>
          * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
-        this.operationsByCollection = new Map();
+        this.operationsByResourceType = new Map();
         /**
          * list of ids inserted
+         * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.insertedIdsByCollection = new Map();
+        this.insertedIdsByResourceType = new Map();
         /**
          * list of ids updated
+         * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.updatedIdsByCollection = new Map();
+        this.updatedIdsByResourceType = new Map();
     }
 
     /**
      * Adds operation
-     * @param {string} collection_name
+     * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
      */
-    addOperationToCollection(collection_name, operation) {
+    addOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(collection_name in this.operationsByCollection)) {
-            this.operationsByCollection.set(`${collection_name}`, []);
-            this.insertedIdsByCollection.set(`${collection_name}`, []);
-            this.updatedIdsByCollection.set(`${collection_name}`, []);
+        if (!(resourceType in this.operationsByResourceType)) {
+            this.operationsByResourceType.set(`${resourceType}`, []);
+            this.insertedIdsByResourceType.set(`${resourceType}`, []);
+            this.updatedIdsByResourceType.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.operationsByCollection.get(collection_name).push(operation);
+        this.operationsByResourceType.get(resourceType).push(operation);
     }
 
     /**
      * Inserts item into collection
-     * @param {string} collection_name
+     * @param {string} resourceType
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync(collection_name, doc) {
-        this.addOperationToCollection(collection_name,
+    async insertOneAsync(resourceType, doc) {
+        this.addOperationForResourceType(resourceType,
             {
                 insertOne: {
                     document: doc
                 }
             }
         );
-        this.insertedIdsByCollection.get(collection_name).push(doc['id']);
+        this.insertedIdsByResourceType.get(resourceType).push(doc['id']);
     }
 
     /**
      * Replaces a document in Mongo with this one
-     * @param {string} collection_name
+     * @param {string} resourceType
      * @param {string} id
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async replaceOneAsync(collection_name, id, doc) {
+    async replaceOneAsync(resourceType, id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
-        this.addOperationToCollection(collection_name,
+        this.addOperationForResourceType(resourceType,
             {
                 replaceOne: {
                     filter: {id: id.toString()},
@@ -74,7 +76,7 @@ class DatabaseBulkInserter {
                 }
             }
         );
-        this.updatedIdsByCollection.get(collection_name).push(doc['id']);
+        this.updatedIdsByResourceType.get(resourceType).push(doc['id']);
     }
 
     /**
@@ -87,18 +89,20 @@ class DatabaseBulkInserter {
          * stores result of bulk calls
          * @type {Map<string, import('mongodb').BulkWriteOpResultObject>}
          */
-        const resultByCollection = new Map();
+        const resultByResourceType = new Map();
         // iterate through each collection and issue a bulk operation
         for (const [
-            /** @type {string} */collectionName,
-            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations] of this.operationsByCollection.entries()) {
+            /** @type {string} */resourceType,
+            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations] of this.operationsByResourceType.entries()) {
+            /**
+             * @type {string}
+             */
+            const collectionName = getCollectionNameForResourceType(resourceType);
             /**
              * mongo db connection
              * @type {import('mongodb').Db}
              */
-            let db = (collectionName === 'AuditEvent_4_0_0') ?
-                globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                    globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+            const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
             /**
              * @type {import('mongodb').Collection}
              */
@@ -114,14 +118,14 @@ class DatabaseBulkInserter {
              * @type {import('mongodb').BulkWriteOpResultObject}
              */
             const result = await collection.bulkWrite(operations, options);
-            resultByCollection.set(collectionName, result.result);
+            resultByResourceType.set(resourceType, result.result);
         }
         /**
          * results
          * @type {MergeResultEntry[]}
          */
         const mergeResultEntries = [];
-        for (const [, ids] of this.insertedIdsByCollection) {
+        for (const [resourceType, ids] of this.insertedIdsByResourceType) {
             for (const id of ids) {
                 mergeResultEntries.push(
                     {
@@ -129,12 +133,13 @@ class DatabaseBulkInserter {
                         created: true,
                         updated: false,
                         operationOutcome: null,
-                        issue: null
+                        issue: null,
+                        resourceType: resourceType
                     }
                 );
             }
         }
-        for (const [, ids] of this.updatedIdsByCollection) {
+        for (const [resourceType, ids] of this.updatedIdsByResourceType) {
             for (const id of ids) {
                 mergeResultEntries.push(
                     {
@@ -142,7 +147,8 @@ class DatabaseBulkInserter {
                         created: false,
                         updated: true,
                         operationOutcome: null,
-                        issue: null
+                        issue: null,
+                        resourceType: resourceType
                     }
                 );
             }
