@@ -120,7 +120,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     const mergePreCheckErrors = await preMergeChecksMultipleAsync(resourcesIncomingArray,
         scopes, user, path, currentDate);
 
-    if (mergePreCheckErrors && (await mergePreCheckErrors).length > 0){
+    if (mergePreCheckErrors && (await mergePreCheckErrors).length > 0) {
         return mergePreCheckErrors;
     }
     const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
@@ -144,6 +144,23 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      * @type {MergeResultEntry[]}
      */
     const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+    // add in unchanged for ids that we did not merge
+    const idsInMergeResults = mergeResults.map(r => {
+        return {resourceType: r.resourceType, id: r.id};
+    });
+    for (const {resourceType, id} of incomingResourceTypeAndIds) {
+        // if this resourceType,id is not in the merge results then add it as an unchanged entry
+        if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+            mergeResults.push({
+                id: id,
+                resourceType: resourceType,
+                created: false,
+                updated: false,
+                issue: null,
+                operationOutcome: null
+            });
+        }
+    }
     await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
 
     logDebug(user, '--- Merge result ----');
