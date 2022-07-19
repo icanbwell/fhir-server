@@ -44,7 +44,7 @@ class DatabaseBulkInserter {
      */
     addOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(resourceType in this.operationsByResourceType)) {
+        if (!(this.operationsByResourceType.has(resourceType))) {
             this.operationsByResourceType.set(`${resourceType}`, []);
             this.insertedIdsByResourceType.set(`${resourceType}`, []);
             this.updatedIdsByResourceType.set(`${resourceType}`, []);
@@ -60,7 +60,7 @@ class DatabaseBulkInserter {
      */
     addHistoryOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(resourceType in this.historyOperationsByResourceType)) {
+        if (!(this.historyOperationsByResourceType.has(resourceType))) {
             this.historyOperationsByResourceType.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
