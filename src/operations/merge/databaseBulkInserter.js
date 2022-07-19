@@ -204,7 +204,7 @@ class DatabaseBulkInserter {
          */
         let collection = await getOrCreateCollection(db, collectionName);
         // TODO: Handle failures in bulk operation
-        // for some reason the typing does
+        // no need to preserve order for history entries since each is an insert
         /**
          * @type {import('mongodb').CollectionBulkWriteOptions}
          */
