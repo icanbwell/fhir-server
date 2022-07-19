@@ -12,6 +12,16 @@ function getCollectionNameForResourceType(resourceType, base_version) {
 }
 
 /**
+ * returns the collection name for resourceType
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @returns {string}
+ */
+function getHistoryCollectionNameForResourceType(resourceType, base_version) {
+    return `${resourceType}_${base_version}_History`;
+}
+
+/**
  * Gets the database connection for the given collection
  * @param {string} collectionName
  * @param {boolean?} useAtlas
@@ -25,5 +35,6 @@ function getDatabaseConnectionForCollection(collectionName, useAtlas) {
 
 module.exports = {
     getCollectionNameForResourceType,
+    getHistoryCollectionNameForResourceType,
     getDatabaseConnectionForCollection
 };

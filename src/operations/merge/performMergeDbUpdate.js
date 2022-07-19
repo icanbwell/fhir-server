@@ -15,7 +15,6 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
                                          databaseBulkInserter) {
     let id = resourceToMerge.id;
 
-    const dbCollectionName = `${resourceToMerge.resourceType}_${baseVersion}`;
     await preSaveAsync(doc);
 
     delete doc['_id'];
@@ -26,10 +25,8 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.replaceOneAsync(dbCollectionName, id.toString(), doc);
+    await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
 
-    // save to history
-    const historyCollectionName = `${collectionName}_${baseVersion}_History`;
     /**
      * @type {import('mongodb').Document}
      */
@@ -37,7 +34,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     // Insert our resource record to history but don't assign _id
     delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
     // await history_collection.insertOne(history_resource);
-    await databaseBulkInserter.insertOneAsync(historyCollectionName, doc);
+    await databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
 }
 
 /**
@@ -55,7 +52,6 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
                                          databaseBulkInserter) {
     let id = resourceToMerge.id;
 
-    const dbCollectionName = `${resourceToMerge.resourceType}_${baseVersion}`;
     await preSaveAsync(doc);
 
     delete doc['_id'];
@@ -66,10 +62,8 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.insertOneAsync(dbCollectionName, doc);
+    await databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
 
-    // save to history
-    const historyCollectionName = `${collectionName}_${baseVersion}_History`;
     /**
      * @type {import('mongodb').Document}
      */
@@ -77,7 +71,7 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
     // Insert our resource record to history but don't assign _id
     delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
     // await history_collection.insertOne(history_resource);
-    await databaseBulkInserter.insertOneAsync(historyCollectionName, doc);
+    await databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
 }
 
 module.exports = {
