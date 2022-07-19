@@ -155,7 +155,7 @@ class DatabaseBulkLoader {
             // remove the resource with same id
             const index = cacheEntryResources.findIndex(c => c.id === resource.id);
             if (index > -1) {
-                cacheEntryResources = cacheEntryResources.splice(index, 1);
+                cacheEntryResources = cacheEntryResources.splice(index - 1, 1);
                 cacheEntryResources.push(resource);
                 this.bulkCache.set(resource.resourceType, cacheEntryResources);
             }
