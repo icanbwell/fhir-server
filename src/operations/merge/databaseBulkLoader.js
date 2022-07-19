@@ -1,4 +1,4 @@
-const {groupByLambda} = require('../../utils/list.util');
+const {groupByLambda, getFirstElementOrNull} = require('../../utils/list.util');
 const async = require('async');
 const {
     getDatabaseConnectionForCollection, getCollectionNameForResourceType
@@ -7,6 +7,13 @@ const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {getResource} = require('../common/getResource');
 
 class DatabaseBulkLoader {
+    constructor() {
+        /**
+         * @type {Map<string, Resource[]>}
+         */
+        this.bulkCache = new Map();
+    }
+
     /**
      * finds all documents with the specified resource type and ids
      * @param {string} base_version
@@ -23,7 +30,14 @@ class DatabaseBulkLoader {
             return requestedResource.resourceType;
         });
 
-        return async.map(Object.entries(groupByResourceType), async x => await this.getResourcesByIdAsync(base_version, useAtlas, x[0], x[1]));
+        /**
+         * @type {{resources: Resource[], resourceType: string}[]}
+         */
+        const result = await async.map(Object.entries(groupByResourceType), async x => await this.getResourcesByIdAsync(base_version, useAtlas, x[0], x[1]));
+        for (const {resourceType, resources} of result) {
+            this.bulkCache.set(resourceType, resources);
+        }
+        return result;
     }
 
     /**
@@ -90,6 +104,64 @@ class DatabaseBulkLoader {
             result.push(resource.toJSON());
         }
         return result;
+    }
+
+    /**
+     * gets resources from list
+     * @param {string} resourceType
+     * @param {string} id
+     * @return {null|Resource}
+     */
+    getResourceFromExistingList(resourceType, id) {
+        // see if there is cache for this resourceType
+        /**
+         * @type {Resource[]}
+         */
+        const cacheEntryResources = this.bulkCache.get(resourceType);
+        if (cacheEntryResources) {
+            return getFirstElementOrNull(
+                cacheEntryResources.filter(e => e.id === id.toString())
+            );
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param {Resource} resource
+     */
+    addResourceToExistingList(resource) {
+        /**
+         * @type {Resource[]}
+         */
+        const cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        if (cacheEntryResources) {
+            cacheEntryResources.push(resource);
+            this.bulkCache.set(resource.resourceType, cacheEntryResources);
+        } else {
+            this.bulkCache.set(resource.resourceType, [resource]);
+        }
+    }
+
+    /**
+     * @param {Resource} resource
+     */
+    updateResourceInExistingList(resource) {
+        /**
+         * @type {Resource[]}
+         */
+        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        if (cacheEntryResources) {
+            // remove the resource with same id
+            const index = cacheEntryResources.findIndex(c => c.id === resource.id);
+            if (index > -1) {
+                cacheEntryResources = cacheEntryResources.splice(index, 1);
+                cacheEntryResources.push(resource);
+                this.bulkCache.set(resource.resourceType, cacheEntryResources);
+            }
+        } else {
+            this.bulkCache.set(resource.resourceType, [resource]);
+        }
     }
 }
 

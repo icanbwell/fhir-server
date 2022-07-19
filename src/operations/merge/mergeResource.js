@@ -9,7 +9,6 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
-const {getFirstElementOrNull} = require('../../utils/list.util');
 
 /**
  * Merges a single resource
@@ -24,14 +23,14 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
  * @param scope
  * @param {string} collectionName
  * @param {DatabaseBulkInserter} databaseBulkInserter
- * @param {{resources: Resource[], resourceType: string}[]} existingResourcesByResourceType
+ * @param {DatabaseBulkLoader} databaseBulkLoader
  * @return {Promise<MergeResultEntry|null>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
                                   requestId, baseVersion, scope, collectionName,
                                   databaseBulkInserter,
-                                  existingResourcesByResourceType) {
+                                  databaseBulkLoader) {
     /**
      * @type {string}
      */
@@ -48,27 +47,6 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
             currentDate,
             id,
             'merge_' + requestId);
-    }
-
-    /**
-     * gets resources from list
-     * @param {string} resourceType1
-     * @param {string} id1
-     * @return {null|Object}
-     */
-    function getResourceFromExistingList(resourceType1, id1) {
-        // see if there is cache for this resourceType
-        const cacheEntry = getFirstElementOrNull(
-            existingResourcesByResourceType.filter(e => e.resourceType === resource_to_merge.resourceType)
-        );
-        if (cacheEntry) {
-            return getFirstElementOrNull(
-                cacheEntry.resources.filter(e => e.id === id1.toString())
-            );
-        } else {
-            return null;
-        }
-
     }
 
     try {
@@ -100,8 +78,8 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         /**
          * @type {Object}
          */
-        let data = existingResourcesByResourceType ?
-            getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
+        let data = databaseBulkLoader ?
+            databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
             await collection.findOne({id: id.toString()});
 
         logDebug('test?', '------- data -------');
@@ -112,10 +90,13 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         // check if resource was found in database or not
         // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
+            databaseBulkLoader.updateResourceInExistingList(resource_to_merge);
             await mergeExistingAsync(
                 resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId,
                 databaseBulkInserter);
         } else {
+            // add resource to existing
+            databaseBulkLoader.addResourceToExistingList(resource_to_merge);
             await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user,
                 databaseBulkInserter);
         }

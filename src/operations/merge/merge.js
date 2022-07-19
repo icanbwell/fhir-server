@@ -127,9 +127,10 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         return {resourceType: r.resourceType, id: r.id};
     });
     /**
-     * @type {{resources: Resource[], resourceType: string}[]}
+     * @type {DatabaseBulkLoader}
      */
-    const existingResourcesByResourceType = await new DatabaseBulkLoader().getResourcesByResourceTypeAndIdAsync(
+    const databaseBulkLoader = new DatabaseBulkLoader();
+    await databaseBulkLoader.getResourcesByResourceTypeAndIdAsync(
         base_version,
         useAtlas,
         incomingResourceTypeAndIds
@@ -137,7 +138,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     await mergeResourceListAsync(
         resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
         requestId, base_version, scope, collectionName, requestInfo, args,
-        databaseBulkInserter, existingResourcesByResourceType
+        databaseBulkInserter, databaseBulkLoader
     );
     /**
      * mergeResults

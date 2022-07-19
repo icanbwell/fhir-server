@@ -18,7 +18,7 @@ const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {DatabaseBulkInserter} databaseBulkInserter
- * @param {{resources: Resource[], resourceType: string}[]} existingResourcesByResourceType
+ * @param {DatabaseBulkLoader} databaseBulkLoader
  * @returns {Promise<MergeResultEntry[]>}
  */
 async function mergeResourceListAsync(resources_incoming, user,
@@ -27,7 +27,7 @@ async function mergeResourceListAsync(resources_incoming, user,
                                       scope, collection_name, requestInfo,
                                       args,
                                       databaseBulkInserter,
-                                      existingResourcesByResourceType) {
+                                      databaseBulkLoader) {
     /**
      * @type {string[]}
      */
@@ -53,11 +53,10 @@ async function mergeResourceListAsync(resources_incoming, user,
     await Promise.all([
         async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
             scopes, user, path, currentDate, requestId, base_version, scope, collection_name, databaseBulkInserter,
-            existingResourcesByResourceType)), // run in parallel
+            databaseBulkLoader)), // run in parallel
         async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
             scopes, user, path, currentDate, requestId, base_version, scope, collection_name, databaseBulkInserter,
-            null)) // run in series
-        // don't use existingResourcesByResourceType since duplicate id entries will be a problem
+            databaseBulkLoader)) // run in series
     ]);
 }
 
