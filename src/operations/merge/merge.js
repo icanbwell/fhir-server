@@ -5,8 +5,6 @@ const {
 } = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
 const {mergeResourceListAsync} = require('./mergeResourceList');
 const {DatabaseBulkInserter} = require('./databaseBulkInserter');
 const {isTrue} = require('../../utils/isTrue');
@@ -55,7 +53,7 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
 
     // read the incoming resource from request body
     /**
-     * @type {Object[]}
+     * @type {Resource|Resource[]}
      */
     let resourcesIncoming = body;
     logDebug(user, JSON.stringify(args));
@@ -109,19 +107,13 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
             requestId, base_version, scope, collectionName, requestInfo, args,
             databaseBulkInserter
         );
-        /**
-         * result
-         * @type {MergeResultEntry[]}
-         */
-        const result = await databaseBulkInserter.executeAsync(useAtlas);
-        return result;
+        return await databaseBulkInserter.executeAsync(useAtlas);
     } else {
-        /**
-         * @type {MergeResultEntry}
-         */
-        await mergeResourceWithRetryAsync(resourcesIncoming, resourceName,
-            scopes, user, path, currentDate, requestId, base_version, scope, collectionName,
-            databaseBulkInserter);
+        await mergeResourceListAsync(
+            [resourcesIncoming], user, resourceName, scopes, path, currentDate,
+            requestId, base_version, scope, collectionName, requestInfo, args,
+            databaseBulkInserter
+        );
         /**
          * result
          * @type {MergeResultEntry[]}
@@ -132,18 +124,6 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
          * @type {MergeResultEntry}
          */
         const returnVal = result[0];
-        if (returnVal) {
-            if (returnVal['created'] === true) {
-                if (resourceName !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'create', args, [returnVal['id']]);
-                }
-            }
-            if (returnVal['updated'] === true) {
-                if (resourceName !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'update', args, [returnVal['id']]);
-                }
-            }
-        }
         logDebug(user, '--- Merge result ----');
         logDebug(user, JSON.stringify(returnVal));
         logDebug(user, '-----------------');
