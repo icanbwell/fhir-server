@@ -1,8 +1,6 @@
-const {getOrCreateCollection} = require('./mongoCollectionManager');
 const {
-    getCollectionNameForResourceType,
-    getDatabaseConnectionForCollection,
-    getHistoryCollectionNameForResourceType
+    getOrCreateCollectionForResourceTypeAsync,
+    getOrCreateHistoryCollectionForResourceTypeAsync
 } = require('../operations/common/resourceManager');
 const async = require('async');
 
@@ -201,19 +199,7 @@ class DatabaseBulkInserter {
      * @returns {Promise<void>}
      */
     async performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations) {
-        /**
-         * @type {string}
-         */
-        const collectionName = getHistoryCollectionNameForResourceType(resourceType, base_version);
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, collectionName);
+        const collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
         // TODO: Handle failures in bulk operation
         // no need to preserve order for history entries since each is an insert
         /**
@@ -249,19 +235,8 @@ class DatabaseBulkInserter {
      * @returns {Promise<{resourceType: string, mergeResult: import('mongodb').BulkWriteOpResultObject}>}
      */
     async performBulkForResourceType(resourceType, base_version, useAtlas, operations) {
-        /**
-         * @type {string}
-         */
-        const collectionName = getCollectionNameForResourceType(resourceType, base_version);
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, collectionName);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
+
         // TODO: Handle failures in bulk operation
         // preserve order so inserts come before updates
         /**

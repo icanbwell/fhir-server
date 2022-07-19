@@ -1,5 +1,6 @@
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
+const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 
 /**
  * returns the collection name for resourceType
@@ -34,8 +35,50 @@ function getDatabaseConnectionForCollection(collectionName, useAtlas) {
             globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 }
 
+/**
+ * Gets the Mongo collection for this resourceType.  If collection does not exist then it is created
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {boolean} useAtlas
+ * @return {Promise<Collection<import('mongodb').DefaultSchema>>}
+ */
+async function getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas) {
+    /**
+     * @type {string}
+     */
+    const collectionName = getCollectionNameForResourceType(resourceType, base_version);
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+    return await getOrCreateCollection(db, collectionName);
+}
+
+/**
+ * Gets the Mongo history collection for this resourceType.  If collection does not exist then it is created
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {boolean} useAtlas
+ * @return {Promise<Collection<import('mongodb').DefaultSchema>>}
+ */
+async function getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas) {
+    /**
+     * @type {string}
+     */
+    const collectionName = getHistoryCollectionNameForResourceType(resourceType, base_version);
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+    return await getOrCreateCollection(db, collectionName);
+}
+
 module.exports = {
     getCollectionNameForResourceType,
     getHistoryCollectionNameForResourceType,
-    getDatabaseConnectionForCollection
+    getDatabaseConnectionForCollection,
+    getOrCreateCollectionForResourceTypeAsync,
+    getOrCreateHistoryCollectionForResourceTypeAsync
 };

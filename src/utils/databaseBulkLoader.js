@@ -1,9 +1,8 @@
 const {groupByLambda, getFirstElementOrNull} = require('./list.util');
 const async = require('async');
 const {
-    getDatabaseConnectionForCollection, getCollectionNameForResourceType
+    getOrCreateCollectionForResourceTypeAsync
 } = require('../operations/common/resourceManager');
-const {getOrCreateCollection} = require('./mongoCollectionManager');
 const {getResource} = require('../operations/common/getResource');
 
 /**
@@ -57,19 +56,7 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     async getResourcesByIdAsync(base_version, useAtlas, resourceType, resourceAndIdList) {
-        /**
-         * @type {string}
-         */
-        const collectionName = getCollectionNameForResourceType(resourceType, base_version);
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, collectionName);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         const query = {
             id: {$in: resourceAndIdList.map(r => r.id)}
