@@ -11,7 +11,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {mergeOld} = require('./old/mergeOld');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
-const {DatabaseBulkLoader} = require("./databaseBulkLoader");
+const {DatabaseBulkLoader} = require('./databaseBulkLoader');
 
 /**
  * does a FHIR Merge
@@ -102,57 +102,41 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
      * @type {boolean}
      */
     const useAtlas = isTrue(env.USE_ATLAS);
-    // If we are passed an array then merge all items in array
-    if (Array.isArray(resourcesIncoming)) {
-        const incomingResourceTypeAndIds = resourcesIncoming.map(r => {
-            return {resourceType: r.resourceType, id: r.id};
-        });
-        const existingResourcesByResourceType = await new DatabaseBulkLoader().getResourcesByResourceTypeAndIdAsync(
-            base_version,
-            useAtlas,
-            incomingResourceTypeAndIds
-        );
-        await mergeResourceListAsync(
-            resourcesIncoming, user, resourceName, scopes, path, currentDate,
-            requestId, base_version, scope, collectionName, requestInfo, args,
-            databaseBulkInserter
-        );
-        /**
-         * mergeResults
-         * @type {MergeResultEntry[]}
-         */
-        const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
-        await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
-        return mergeResults;
-    } else {
-        const resourcesIncomingArray = [resourcesIncoming];
-        const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
-            return {resourceType: r.resourceType, id: r.id};
-        });
-        const existingResourcesByResourceType = await new DatabaseBulkLoader().getResourcesByResourceTypeAndIdAsync(
-            base_version,
-            useAtlas,
-            incomingResourceTypeAndIds
-        );
-        await mergeResourceListAsync(
-            resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
-            requestId, base_version, scope, collectionName, requestInfo, args,
-            databaseBulkInserter
-        );
-        /**
-         * result
-         * @type {MergeResultEntry[]}
-         */
-        const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
-        await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
-        /**
-         * result
-         * @type {MergeResultEntry}
-         */
-        const returnVal = mergeResults[0];
-        logDebug(user, '--- Merge result ----');
-        logDebug(user, JSON.stringify(returnVal));
-        logDebug(user, '-----------------');
-        return returnVal;
-    }
+    /**
+     * @type {boolean}
+     */
+    const wasIncomingAList = Array.isArray(resourcesIncoming);
+
+    /**
+     * @type {Resource[]}
+     */
+    const resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+    const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
+        return {resourceType: r.resourceType, id: r.id};
+    });
+    /**
+     * @type {{documents: Resource[], resourceType: string}[]}
+     */
+    const existingResourcesByResourceType = await new DatabaseBulkLoader().getResourcesByResourceTypeAndIdAsync(
+        base_version,
+        useAtlas,
+        incomingResourceTypeAndIds
+    );
+    await mergeResourceListAsync(
+        resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
+        requestId, base_version, scope, collectionName, requestInfo, args,
+        databaseBulkInserter
+    );
+    /**
+     * mergeResults
+     * @type {MergeResultEntry[]}
+     */
+    const mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+    await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
+
+    logDebug(user, '--- Merge result ----');
+    logDebug(user, JSON.stringify(mergeResults));
+    logDebug(user, '-----------------');
+
+    return wasIncomingAList ? mergeResults : mergeResults[0];
 };

@@ -5,6 +5,7 @@ const {
     getDatabaseConnectionForCollection
 } = require('../common/resourceManager');
 const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
+const {getResource} = require('../common/getResource');
 
 class DatabaseBulkLoader {
     /**
@@ -12,7 +13,7 @@ class DatabaseBulkLoader {
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {{resourceType: string, id: string}[]} requestedResources
-     * @returns {Promise<{documents: import('mongodb').DefaultSchema[], resourceType: string}[]>}
+     * @returns {Promise<{documents: Resource[], resourceType: string}[]>}
      */
     async getResourcesByResourceTypeAndIdAsync(base_version, useAtlas, requestedResources) {
         /**
@@ -32,7 +33,7 @@ class DatabaseBulkLoader {
      * @param {boolean} useAtlas
      * @param {string} resourceType
      * @param {string[]} idList
-     * @returns {Promise<{documents: import('mongodb').DefaultSchema[], resourceType: string}>}
+     * @returns {Promise<{documents: Resource[], resourceType: string}>}
      */
     async getResourcesByIdAsync(base_version, useAtlas, resourceType, idList) {
         /**
@@ -59,7 +60,24 @@ class DatabaseBulkLoader {
             }
         );
 
-        return {resourceType, documents: await cursor.toArray()};
+        return {resourceType, documents: await this.cursorToResourcesAsync(base_version, resourceType, cursor)};
+    }
+
+    /**
+     *
+     * @param {string} base_version
+     * @param {string} resourceType
+     * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>} cursor
+     * @returns {Promise<Resource[]>}
+     */
+    async cursorToResourcesAsync(base_version, resourceType, cursor) {
+        const result = [];
+        while (await cursor.hasNext()) {
+            result.push(
+                getResource(base_version, resourceType)(await cursor.next())
+            );
+        }
+        return result;
     }
 }
 
