@@ -16,7 +16,8 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * @param {string} currentDate
  * @returns {Promise<MergeResultEntry|null>}
  */
-async function preMergeChecksAsync(resourceToMerge, resourceName, scopes, user, path, currentDate) {
+async function preMergeChecksAsync(resourceToMerge, resourceName,
+                                   scopes, user, path, currentDate) {
     /**
      * @type {string} id
      */

@@ -6,13 +6,13 @@ const {
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
 const {mergeResourceListAsync} = require('./mergeResourceList');
-const {DatabaseBulkInserter} = require('./databaseBulkInserter');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {mergeOld} = require('./old/mergeOld');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
-const {DatabaseBulkLoader} = require('./databaseBulkLoader');
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
+const {DatabaseBulkInserter} = require('../../utils/databaseBulkInserter');
+const {DatabaseBulkLoader} = require('../../utils/databaseBulkLoader');
 
 /**
  * does a FHIR Merge
