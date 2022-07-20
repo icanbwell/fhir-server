@@ -3,6 +3,29 @@ from pathlib import Path
 import shutil
 
 
+def get_filter(resource_type) -> str:
+    resources_to_filter_by_person = {
+        "AllergyIntolerance": 'patient.reference',
+        "CarePlan": 'subject.reference',
+        "CareTeam": 'subject.reference',
+        "Condition": 'subject.reference',
+        "Encounter": 'subject.reference',
+        "ExplanationOfBenefit": 'subject.reference',
+        "Immunization": 'patient.reference',
+        "MedicationRequest": 'subject.reference',
+        'MedicationStatement': 'subject.reference',
+        "Observation": 'subject.reference',
+        "Patient": "id",
+        "Procedure": 'subject.reference',
+    }
+    if resource_type in resources_to_filter_by_person.keys():
+        return f"""
+      filterByPerson: true,
+      filterBy: '{resources_to_filter_by_person[resource_type]}',"""
+    else:
+        return ""
+
+
 def main() -> int:
     resources = ['Account', 'ActivityDefinition', 'AdverseEvent', 'AllergyIntolerance', 'Appointment',
                  'AppointmentResponse', 'AuditEvent', 'Basic', 'Binary', 'BodyStructure',
@@ -102,6 +125,8 @@ module.exports.expand = async (args, {{ req, res }}) =>
 
 
 """
+            new_line_char = '\n'
+            back_space_char = ''
             # 3. add config.js entry
             with open(resource_file_name, "w+") as file:
                 print(f"Writing file: {resource_file_name}")
@@ -110,7 +135,7 @@ module.exports.expand = async (args, {{ req, res }}) =>
             config_entries.append(f"""
     {resourceType}: {{
       service: './src/services/{resourceType.lower()}/{resourceType.lower()}.service.js',
-      versions: [VERSIONS['4_0_0']],
+      versions: [VERSIONS['4_0_0']],{get_filter(resourceType)}
       operation: [
         {{
           name: 'everything',

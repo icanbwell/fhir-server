@@ -215,5 +215,5 @@ async function getCursorForQueryAsync(args, columns, resourceType, options,
 }
 
 module.exports = {
-    getCursorForQueryAsync: getCursorForQueryAsync
+    getCursorForQueryAsync
 };

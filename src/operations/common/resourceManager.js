@@ -26,12 +26,12 @@ function getHistoryCollectionNameForResourceType(resourceType, base_version) {
 
 /**
  * Gets the database connection for the given collection
- * @param {string} collectionName
+ * @param {string} resourceType
  * @param {boolean?} useAtlas
  * @returns {import('mongodb').Db}
  */
-function getDatabaseConnectionForResourceType(collectionName, useAtlas) {
-    return (collectionName === 'AuditEvent') ?
+function getDatabaseConnectionForResourceType(resourceType, useAtlas) {
+    return (resourceType === 'AuditEvent') ?
         globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
             globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 }

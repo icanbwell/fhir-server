@@ -8,10 +8,10 @@ const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
  * @param {Object} args
  * @param {function(?Object): Resource} Resource
  * @param {Resource} element
- * @param {string} resourceName
+ * @param {string} resourceType
  * @return {Resource}
  */
-function selectSpecificElements(args, Resource, element, resourceName) {
+function selectSpecificElements(args, Resource, element, resourceType) {
     /**
      * @type {string}
      */
@@ -33,7 +33,7 @@ function selectSpecificElements(args, Resource, element, resourceName) {
         }
     }
     // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-    if (resourceName === 'Library') {
+    if (resourceType === 'Library') {
         element_to_return['id'] = element['id'];
         element_to_return['url'] = element['url'];
     }
@@ -47,14 +47,15 @@ function selectSpecificElements(args, Resource, element, resourceName) {
  * @param {Object} args
  * @param {function(?Object): Resource} Resource
  * @param {Resource} element
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {boolean} useAccessIndex
  * @returns {Promise<Resource[]>}
  */
-async function prepareResourceAsync(user, scope, args, Resource, element, resourceName, useAccessIndex) {
+async function prepareResourceAsync(user, scope, args,
+                                    Resource, element, resourceType, useAccessIndex) {
     let resources = [];
     if (args['_elements']) {
-        if (!useAccessIndex || !resourceHasAccessIndex(resourceName)) {
+        if (!useAccessIndex || !resourceHasAccessIndex(resourceType)) {
             // if the whole resource is returned then we have security tags to check again to be double sure
             if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
                 return [];
@@ -65,7 +66,7 @@ async function prepareResourceAsync(user, scope, args, Resource, element, resour
             args,
             Resource,
             element,
-            resourceName
+            resourceType
         );
         resources.push(element_to_return);
     } else {
@@ -84,7 +85,7 @@ async function prepareResourceAsync(user, scope, args, Resource, element, resour
         /**
          * @type {Resource[]}
          */
-        const enrichedResources = await enrich([cleanResource], resourceName);
+        const enrichedResources = await enrich([cleanResource], resourceType);
         resources = resources.concat(enrichedResources);
     }
     return resources;
