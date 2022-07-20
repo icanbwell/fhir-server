@@ -92,7 +92,6 @@ module.exports = {
                 const result = await merge(
                     requestInfo,
                     {...args, base_version: '4_0_0'},
-                    'CareTeam',
                     'CareTeam'
                 );
                 if (result !== undefined && result[0].operationOutcome !== undefined) {

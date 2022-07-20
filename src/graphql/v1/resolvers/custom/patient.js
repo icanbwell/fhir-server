@@ -119,7 +119,6 @@ module.exports = {
                         requestInfo,
                         {...args, base_version: '4_0_0',
                         id: args.patientId},
-                        'Patient',
                         'Patient'
                     );
                 } else {
@@ -147,7 +146,6 @@ module.exports = {
                 const result = await merge(
                     requestInfo,
                     {...args, base_version: '4_0_0'},
-                    'Patient',
                     'Patient'
                 );
                 if (result !== undefined && result[0].operationOutcome !== undefined) {
