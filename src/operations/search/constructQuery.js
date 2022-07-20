@@ -17,14 +17,14 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @param {boolean | null} isUser
  * @param {string[] | null} patients
  * @param {Object?} args
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {string} collectionName
  * @param {boolean} useAccessIndex
  * @param {boolean} filter
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
 function constructQuery(user, scope, isUser, patients, args,
-                        resourceName, collectionName,
+                        resourceType, collectionName,
                         useAccessIndex, filter = true) {
     /**
      * @type {string[]}
@@ -51,14 +51,14 @@ function constructQuery(user, scope, isUser, patients, args,
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({query, columns} = buildR4SearchQuery(resourceName, args));
+            ({query, columns} = buildR4SearchQuery(resourceType, args));
         }
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(collectionName, securityTags, query, useAccessIndex);
+    query = getQueryWithSecurityTags(resourceType, securityTags, query, useAccessIndex);
     if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-        query = getQueryWithPatientFilter(patients, query, resourceName);
+        query = getQueryWithPatientFilter(patients, query, resourceType);
     }
     return {base_version, query, columns};
 }

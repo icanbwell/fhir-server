@@ -51,17 +51,17 @@ const appendAndQuery = (query, andQuery) => {
 
 /**
  * returns the passed query by adding a check for security tgs
- * @param {string} collection_name
+ * @param {string} resourceType
  * @param {string[]} securityTags
  * @param {Object} query
  * @param {boolean} useAccessIndex
  * @return {Object}
  */
-const getQueryWithSecurityTags = (collection_name, securityTags, query, useAccessIndex = false) => {
+const getQueryWithSecurityTags = (resourceType, securityTags, query, useAccessIndex = false) => {
   if (securityTags && securityTags.length > 0) {
     let securityTagQuery;
     // special handling for large collections for performance
-    if (useAccessIndex && resourceHasAccessIndex(collection_name)) {
+    if (useAccessIndex && resourceHasAccessIndex(resourceType)) {
       if (securityTags.length === 1) {
         securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
       } else {
@@ -100,6 +100,13 @@ const getQueryWithSecurityTags = (collection_name, securityTags, query, useAcces
   return query;
 };
 
+/**
+ * Gets Patient Filter Query
+ * @param patients
+ * @param query
+ * @param resource
+ * @return {{$and}|*|{$and: [*,*]}}
+ */
 const getQueryWithPatientFilter = (patients, query, resource) => {
   if (patients) {
     const inQuery = {
