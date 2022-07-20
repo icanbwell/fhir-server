@@ -11,7 +11,7 @@
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
-    "test": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jest",
+    "test": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint && npm run test:jest",
     "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
     "test:lint": "eslint \"src/**/*.js\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
