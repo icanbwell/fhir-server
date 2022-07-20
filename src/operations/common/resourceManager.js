@@ -20,6 +20,7 @@ function getCollectionNameForResourceType(resourceType, base_version) {
  * @returns {string}
  */
 function getHistoryCollectionNameForResourceType(resourceType, base_version) {
+    console.assert(!resourceType.endsWith('_History'), `resourceType ${resourceType} has an invalid postfix`);
     return `${resourceType}_${base_version}_History`;
 }
 
@@ -29,8 +30,8 @@ function getHistoryCollectionNameForResourceType(resourceType, base_version) {
  * @param {boolean?} useAtlas
  * @returns {import('mongodb').Db}
  */
-function getDatabaseConnectionForCollection(collectionName, useAtlas) {
-    return (collectionName === 'AuditEvent_4_0_0') ?
+function getDatabaseConnectionForResourceType(collectionName, useAtlas) {
+    return (collectionName === 'AuditEvent') ?
         globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
             globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
 }
@@ -51,7 +52,7 @@ async function getOrCreateCollectionForResourceTypeAsync(resourceType, base_vers
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+    const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
     return await getOrCreateCollection(db, collectionName);
 }
 
@@ -71,14 +72,14 @@ async function getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, ba
      * mongo db connection
      * @type {import('mongodb').Db}
      */
-    const db = getDatabaseConnectionForCollection(collectionName, useAtlas);
+    const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
     return await getOrCreateCollection(db, collectionName);
 }
 
 module.exports = {
     getCollectionNameForResourceType,
     getHistoryCollectionNameForResourceType,
-    getDatabaseConnectionForCollection,
+    getDatabaseConnectionForResourceType,
     getOrCreateCollectionForResourceTypeAsync,
     getOrCreateHistoryCollectionForResourceTypeAsync
 };
