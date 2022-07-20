@@ -21,10 +21,8 @@ tableHeaders.forEach((th) => {
 function sortByField(fieldName) {
     const sortElement = document.querySelector('input[name=_sort]');
     sortElement.value =
-        sortElement.value === fieldName
-            ? `-${fieldName}`
-            : sortElement.value === `-${fieldName}`
-            ? ''
-            : fieldName;
+        sortElement.value === fieldName ?
+            `-${fieldName}` :
+            sortElement.value === `-${fieldName}` ? '' : fieldName;
     submitSearchForm();
 }

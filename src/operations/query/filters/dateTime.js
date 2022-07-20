@@ -1,5 +1,5 @@
-const { dateQueryBuilder, dateQueryBuilderNative } = require('../../../utils/querybuilder.util');
-const { isColumnDateType } = require('../../common/isColumnDateType');
+const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
+const {isColumnDateType} = require('../../common/isColumnDateType');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -53,11 +53,11 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
             // if there are multiple fields
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
-                    return isPeriodField(f)
-                        ? { $and: dateRangeSegments('effectivePeriod') }
-                        : {
-                              [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
-                          };
+                    return isPeriodField(f) ?
+                        {$and: dateRangeSegments('effectivePeriod')} :
+                        {
+                            [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                        };
                 }),
             });
         } else if (

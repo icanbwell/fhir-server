@@ -95,7 +95,7 @@ module.exports = {
                     'CareTeam',
                     'CareTeam'
                 );
-                if (result !== undefined && !result[0].operationOutcome === undefined) {
+                if (result !== undefined && result[0].operationOutcome !== undefined) {
                     throw new Error(`Unable to update care team data for ${args.patientId}`);
                 }
                 return patientToChange;

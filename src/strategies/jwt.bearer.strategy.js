@@ -6,10 +6,10 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const { logRequest, logDebug } = require('../operations/common/logging');
-const { isTrue } = require('../utils/isTrue');
+const {logRequest, logDebug} = require('../operations/common/logging');
+const {isTrue} = require('../utils/isTrue');
 const async = require('async');
-const { request } = require('../utils/request');
+const {request} = require('../utils/request');
 
 /**
  * Retrieve jwks for URL
@@ -43,11 +43,7 @@ const getExternalJwks = async () => {
             extJwksUrls,
             async (extJwksUrl) => await getExternalJwksByUrl(extJwksUrl.trim())
         );
-        /**
-         * @type {import('jwks-rsa').JSONWebKey[]}
-         */
-        const keys = keysArray.flat(2);
-        return keys;
+        return keysArray.flat(2);
     }
 
     return [];
@@ -62,15 +58,13 @@ const getExternalJwks = async () => {
 const verify = (jwt_payload, done) => {
     if (jwt_payload) {
         /**
-         * @type {string}
+         * @type {boolean}
          */
         let isUser = false;
         if (jwt_payload['cognito:username']) {
             isUser = true;
         }
-        const client_id = jwt_payload.client_id
-            ? jwt_payload.client_id
-            : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
+        const client_id = jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
         /**
          * @type {string}
          */
@@ -83,16 +77,12 @@ const verify = (jwt_payload, done) => {
         /**
          * @type {string}
          */
-        const username = jwt_payload.username
-            ? jwt_payload.username
-            : jwt_payload['cognito:username'];
+        const username = jwt_payload.username ? jwt_payload.username : jwt_payload['cognito:username'];
 
         /**
          * @type {string}
          */
-        const subject = jwt_payload.subject
-            ? jwt_payload.subject
-            : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
+        const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
         if (groups.length > 0) {
             scope = scope + ' ' + groups.join(' ');
@@ -118,16 +108,16 @@ const verify = (jwt_payload, done) => {
                 if (fhirPatientIds && fhirPatientIds.length > 0) {
                     context['fhirPatientIds'] = fhirPatientIds;
                 }
-              } else if (fhirPatientId) {
+            } else if (fhirPatientId) {
                 context['fhirPatientIds'] = [fhirPatientId];
-              }
+            }
             const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
             if (fhirPersonId) {
                 context['fhirPersonId'] = fhirPersonId;
             }
         }
 
-        return done(null, { id: client_id, isUser }, { scope, context });
+        return done(null, {id: client_id, isUser}, {scope, context});
     }
 
     return done(null, false);

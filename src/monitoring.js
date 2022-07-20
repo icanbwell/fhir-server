@@ -1,6 +1,6 @@
-/* monitoring.js */
-'use strict';
-
+/**
+ * monitoring.js
+ */
 const {MeterProvider, ConsoleMetricExporter} = require('@opentelemetry/metrics');
 
 const meter = new MeterProvider({
