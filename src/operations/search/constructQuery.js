@@ -18,13 +18,12 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  * @param {string[] | null} patients
  * @param {Object?} args
  * @param {string} resourceType
- * @param {string} collectionName
  * @param {boolean} useAccessIndex
  * @param {boolean} filter
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
 function constructQuery(user, scope, isUser, patients, args,
-                        resourceType, collectionName,
+                        resourceType,
                         useAccessIndex, filter = true) {
     /**
      * @type {string[]}
@@ -65,5 +64,5 @@ function constructQuery(user, scope, isUser, patients, args,
 
 
 module.exports = {
-    constructQuery: constructQuery
+    constructQuery
 };

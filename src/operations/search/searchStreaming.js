@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {
@@ -27,14 +24,13 @@ const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceM
  * @param {import('http').ServerResponse} res
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
-                                        collection_name, filter = true) => {
+                                        filter = true) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceType, collection_name);
+        return searchOld(requestInfo, args, resourceType);
     }
     /**
      * @type {number}
@@ -84,7 +80,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, collection_name, useAccessIndex, filter);
+    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
 
     /**
      * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}

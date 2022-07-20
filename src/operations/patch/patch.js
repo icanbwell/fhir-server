@@ -17,10 +17,9 @@ const {
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.patch = async (requestInfo, args, resourceType, collection_name) => {
+module.exports.patch = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 

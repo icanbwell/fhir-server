@@ -16,13 +16,12 @@ const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceM
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  * @param {boolean} filter
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (requestInfo, args, resourceType,
-                                   collection_name, filter = true) => {
+                                   filter = true) => {
     const {
         /** @type {string[]} */
         patients = [],
@@ -75,7 +74,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
     query = {id: id.toString()};
     if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
         const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
-        query = getQueryWithPatientFilter(allPatients, query, collection_name);
+        query = getQueryWithPatientFilter(allPatients, query, resourceType);
     }
     try {
         resource = await collection.findOne(query);

@@ -11,10 +11,9 @@ const {getOrCreateHistoryCollectionForResourceTypeAsync} = require('../common/re
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchByVersionId = async (requestInfo, args, resourceType, collection_name) => {
+module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     logRequest(user, `${resourceType} >>> searchByVersionId`);

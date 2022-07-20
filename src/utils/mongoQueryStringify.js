@@ -186,6 +186,6 @@ const mongoQueryAndOptionsStringify = (
 
 
 module.exports = {
-    mongoQueryStringify: mongoQueryStringify,
-    mongoQueryAndOptionsStringify: mongoQueryAndOptionsStringify
+    mongoQueryStringify,
+    mongoQueryAndOptionsStringify
 };

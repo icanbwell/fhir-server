@@ -102,15 +102,15 @@ const getQueryWithSecurityTags = (resourceType, securityTags, query, useAccessIn
 
 /**
  * Gets Patient Filter Query
- * @param patients
+ * @param {string[] | null} patients
  * @param query
- * @param resource
+ * @param {string} resourceType
  * @return {{$and}|*|{$and: [*,*]}}
  */
-const getQueryWithPatientFilter = (patients, query, resource) => {
+const getQueryWithPatientFilter = (patients, query, resourceType) => {
   if (patients) {
     const inQuery = {
-      '$in': resource === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
+      '$in': resourceType === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
     };
     let patientsQuery;
 
@@ -118,7 +118,7 @@ const getQueryWithPatientFilter = (patients, query, resource) => {
     * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field
     * like other Clinical Resources, filter on patient.reference. All other fields are filtered on subject.reference.
     * */
-    let profile = profiles[`${resource}`];
+    let profile = profiles[`${resourceType}`];
     if (profile.filterByPerson) {
       patientsQuery = {[profile.filterBy]: inQuery};
     }

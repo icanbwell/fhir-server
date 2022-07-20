@@ -15,21 +15,20 @@ const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {getOrCreateCollectionForResourceTypeAsync, getCollectionNameForResourceType} = require('../common/resourceManager');
 
 /**
  * does a FHIR Search
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.search = async (requestInfo, args, resourceType, collection_name,
+module.exports.search = async (requestInfo, args, resourceType,
                                filter = true) => {
     if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceType, collection_name);
+        return searchOld(requestInfo, args, resourceType);
     }
     /**
      * @type {number}
@@ -79,7 +78,7 @@ module.exports.search = async (requestInfo, args, resourceType, collection_name,
         query,
         /** @type {Set} **/
         columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, collection_name, useAccessIndex, filter);
+    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
 
 
     /**
@@ -158,7 +157,7 @@ module.exports.search = async (requestInfo, args, resourceType, collection_name,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
-                mongoQueryAndOptionsStringify(collection_name, originalQuery, originalOptions));
+                mongoQueryAndOptionsStringify(getCollectionNameForResourceType(resourceType, base_version), originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );
