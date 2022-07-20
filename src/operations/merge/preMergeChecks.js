@@ -5,6 +5,7 @@ const {logDebug} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
+const deepcopy = require('deepcopy');
 
 /**
  * run any pre-checks before merge
@@ -84,10 +85,18 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
 
     //----- validate schema ----
     logDebug(user, '--- validate schema ----');
+
+    // The FHIR validator wants meta.lastUpdated to be string instead of data
+    // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
+    const resourceToValidate = deepcopy(resourceToMerge);
+    if (resourceToValidate.meta && resourceToValidate.meta.lastUpdated ) {
+        // noinspection JSValidateTypes
+        resourceToValidate.meta.lastUpdated = new Date(resourceToValidate.meta.lastUpdated).toISOString();
+    }
     /**
      * @type {OperationOutcome | null}
      */
-    const validationOperationOutcome = validateResource(resourceToMerge, resourceToMerge.resourceType, path);
+    const validationOperationOutcome = validateResource(resourceToValidate, resourceToValidate.resourceType, path);
     if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
         validationOperationOutcome['expression'] = [
             resourceToMerge.resourceType + '/' + id
