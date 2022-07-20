@@ -14,10 +14,9 @@ const env = require('var');
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
- * @param {string} collection_name
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-module.exports.graph = async (requestInfo, args, resourceType, collection_name) => {
+module.exports.graph = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
@@ -27,7 +26,7 @@ module.exports.graph = async (requestInfo, args, resourceType, collection_name) 
     if (
         isTrue(args['_useOldGraph']) || (isTrue(env.USE_OLD_GRAPH) && !isTrue(args['_useNewGraph']))
     ) {
-        return oldGraph(args, user, scope, body, path, host, resourceType, collection_name);
+        return oldGraph(args, user, scope, body, path, host, resourceType, resourceType);
     }
 
     logRequest(user, `${resourceType} >>> graph`);

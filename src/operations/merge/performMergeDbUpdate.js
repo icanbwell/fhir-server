@@ -6,12 +6,11 @@ const {preSaveAsync} = require('../common/preSave');
  * @param {Object} doc
  * @param {Object} cleaned
  * @param {string} baseVersion
- * @param {string} collectionName
  * @param {DatabaseBulkInserter} databaseBulkInserter
  * @returns {Promise<void>}
  */
 async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
-                                         baseVersion, collectionName,
+                                         baseVersion,
                                          databaseBulkInserter) {
     let id = resourceToMerge.id;
 
@@ -43,12 +42,11 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
  * @param {Object} doc
  * @param {Object} cleaned
  * @param {string} baseVersion
- * @param {string} collectionName
  * @param {DatabaseBulkInserter} databaseBulkInserter
  * @returns {Promise<void>}
  */
 async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
-                                         baseVersion, collectionName,
+                                         baseVersion,
                                          databaseBulkInserter) {
     let id = resourceToMerge.id;
 

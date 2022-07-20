@@ -7,17 +7,16 @@ const {BadRequestError} = require('../../utils/httpErrors');
 const {graph} = require('../graph/graph');
 /**
  * does a FHIR $everything
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {import('../../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
-module.exports.everything = async (requestInfo, args, resource_name,
-                                   collection_name) => {
+module.exports.everything = async (requestInfo, args, resourceType
+                                   ) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    logRequest(user, `${resource_name} >>> everything`);
-    verifyHasValidScopes(resource_name, 'read', user, scope);
+    logRequest(user, `${resourceType} >>> everything`);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
 
     try {
         let {id} = args;
@@ -27,21 +26,21 @@ module.exports.everything = async (requestInfo, args, resource_name,
         let query = {};
         query.id = id;
         // Grab an instance of our DB and collection
-        if (collection_name === 'Practitioner') {
+        if (resourceType === 'Practitioner') {
             requestInfo.body = practitionerEverythingGraph;
-            return await graph(requestInfo, args, resource_name, collection_name);
-        } else if (collection_name === 'Organization') {
+            return await graph(requestInfo, args, resourceType, resourceType);
+        } else if (resourceType === 'Organization') {
             requestInfo.body = organizationEverythingGraph;
-            return await graph(requestInfo, args, resource_name, collection_name);
-        } else if (collection_name === 'Slot') {
+            return await graph(requestInfo, args, resourceType, resourceType);
+        } else if (resourceType === 'Slot') {
             requestInfo.body = slotEverythingGraph;
-            return await graph(requestInfo, args, resource_name, collection_name);
+            return await graph(requestInfo, args, resourceType, resourceType);
         } else {
             // noinspection ExceptionCaughtLocallyJS
-            throw new Error('$everything is not supported for resource: ' + collection_name);
+            throw new Error('$everything is not supported for resource: ' + resourceType);
         }
     } catch (err) {
-        logError(user, `Error with ${resource_name}.everything: ${err} `);
+        logError(user, `Error with ${resourceType}.everything: ${err} `);
         throw new BadRequestError(err);
     }
 };

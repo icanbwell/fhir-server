@@ -11,12 +11,11 @@ const {performMergeDbInsertAsync} = require('./performMergeDbUpdate');
  * merge insert
  * @param {Resource} resourceToMerge
  * @param {string} baseVersion
- * @param {string} collectionName
  * @param {string | null} user
  * @param {DatabaseBulkInserter} databaseBulkInserter
  * @returns {Promise<void>}
  */
-async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName,
+async function mergeInsertAsync(resourceToMerge, baseVersion,
                                 user, databaseBulkInserter) {
     let id = resourceToMerge.id;
     // not found so insert
@@ -53,7 +52,7 @@ async function mergeInsertAsync(resourceToMerge, baseVersion, collectionName,
     const cleaned = removeNull(resourceToMerge);
     const doc = Object.assign(cleaned, {_id: id});
 
-    await performMergeDbInsertAsync(resourceToMerge, doc, cleaned, baseVersion, collectionName, databaseBulkInserter);
+    await performMergeDbInsertAsync(resourceToMerge, doc, cleaned, baseVersion, databaseBulkInserter);
 }
 
 module.exports = {

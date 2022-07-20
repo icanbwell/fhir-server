@@ -7,14 +7,13 @@ const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
  * merges a list of resources
  * @param {Resource[]} resources_incoming
  * @param {string|null} user
- * @param {string} resource_name
+ * @param {string} resourceType
  * @param {string[]|null} scopes
  * @param {string} path
  * @param {string} currentDate
  * @param {string} requestId
  * @param {string} base_version
  * @param {string} scope
- * @param {string} collection_name
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {DatabaseBulkInserter} databaseBulkInserter
@@ -22,9 +21,9 @@ const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
  * @returns {Promise<MergeResultEntry[]>}
  */
 async function mergeResourceListAsync(resources_incoming, user,
-                                      resource_name, scopes, path,
+                                      resourceType, scopes, path,
                                       currentDate, requestId, base_version,
-                                      scope, collection_name, requestInfo,
+                                      scope, requestInfo,
                                       args,
                                       databaseBulkInserter,
                                       databaseBulkLoader) {
@@ -33,7 +32,7 @@ async function mergeResourceListAsync(resources_incoming, user,
      */
     const ids_of_resources = resources_incoming.map(r => r.id);
     logRequest(user,
-        '==================' + resource_name + ': Merge received array ' +
+        '==================' + resourceType + ': Merge received array ' +
         ', len= ' + resources_incoming.length +
         ' [' + ids_of_resources.toString() + '] ' +
         '===================='
@@ -51,11 +50,11 @@ async function mergeResourceListAsync(resources_incoming, user,
     const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
     await Promise.all([
-        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name, databaseBulkInserter,
+        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+            scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
             databaseBulkLoader)), // run in parallel
-        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name, databaseBulkInserter,
+        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+            scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
             databaseBulkLoader)) // run in series
     ]);
 }

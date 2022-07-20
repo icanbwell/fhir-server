@@ -18,15 +18,14 @@ const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceM
  * @param {string} currentDate
  * @param {string} requestId
  * @param {string} baseVersion
- * @param scope
- * @param {string} collectionName
+ * @param {string | null} scope
  * @param {DatabaseBulkInserter} databaseBulkInserter
  * @param {DatabaseBulkLoader} databaseBulkLoader
  * @return {Promise<MergeResultEntry|null>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
-                                  requestId, baseVersion, scope, collectionName,
+                                  requestId, baseVersion, scope,
                                   databaseBulkInserter,
                                   databaseBulkLoader) {
     /**
@@ -80,11 +79,11 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
         if (data && data.meta) {
             databaseBulkLoader.updateResourceInExistingList(resource_to_merge);
             await mergeExistingAsync(
-                resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId,
+                resource_to_merge, data, baseVersion, user, scope, currentDate, requestId,
                 databaseBulkInserter);
         } else {
             databaseBulkLoader.addResourceToExistingList(resource_to_merge);
-            await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user,
+            await mergeInsertAsync(resource_to_merge, baseVersion, user,
                 databaseBulkInserter);
         }
     } catch (e) {

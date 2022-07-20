@@ -18,13 +18,12 @@ const {DatabaseBulkLoader} = require('../../utils/databaseBulkLoader');
  * does a FHIR Merge
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resourceName
- * @param {string} collectionName
+ * @param {string} resourceType
  * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
-module.exports.merge = async (requestInfo, args, resourceName, collectionName) => {
+module.exports.merge = async (requestInfo, args, resourceType) => {
     if (isTrue(env.OLD_MERGE) || isTrue(args['_useOldMerge'])) {
-        return mergeOld(requestInfo, args, resourceName, collectionName);
+        return mergeOld(requestInfo, args, resourceType, resourceType);
     }
     /**
      * @type {string|null}
@@ -45,14 +44,14 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     /**
      * @type {string}
      */
-    logRequest(user, `'${resourceName} >>> merge` + ' scopes:' + scope);
+    logRequest(user, `'${resourceType} >>> merge` + ' scopes:' + scope);
 
     /**
      * @type {string[]}
      */
     const scopes = parseScopes(scope);
 
-    verifyHasValidScopes(resourceName, 'write', user, scope);
+    verifyHasValidScopes(resourceType, 'write', user, scope);
 
     // read the incoming resource from request body
     /**
@@ -141,8 +140,8 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     );
     // merge the resources
     await mergeResourceListAsync(
-        resourcesIncomingArray, user, resourceName, scopes, path, currentDate,
-        requestId, base_version, scope, collectionName, requestInfo, args,
+        resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
+        requestId, base_version, scope, requestInfo, args,
         databaseBulkInserter, databaseBulkLoader
     );
     /**
@@ -158,12 +157,12 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     const idsInMergeResults = mergeResults.map(r => {
         return {resourceType: r.resourceType, id: r.id};
     });
-    for (const {resourceType, id} of incomingResourceTypeAndIds) {
+    for (const {resourceType_, id_} of incomingResourceTypeAndIds) {
         // if this resourceType,id is not in the merge results then add it as an unchanged entry
-        if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+        if (idsInMergeResults.filter(i => i.id === id_ && i.resourceType === resourceType_).length === 0) {
             mergeResults.push({
-                id: id,
-                resourceType: resourceType,
+                id: id_,
+                resourceType: resourceType_,
                 created: false,
                 updated: false,
                 issue: null,
