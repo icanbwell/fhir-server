@@ -15,6 +15,33 @@ const {DatabaseBulkInserter} = require('../../utils/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../utils/databaseBulkLoader');
 
 /**
+ * Add successful merges
+ * @param {{id: string, resourceType: string}[]} incomingResourceTypeAndIds
+ * @param {{id: string, resourceType: string}[]} idsInMergeResults
+ * @return {MergeResultEntry[]}
+ */
+function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults) {
+    /**
+     * @type {MergeResultEntry[]}
+     */
+    const mergeResults = [];
+    for (const {resourceType, id} of incomingResourceTypeAndIds) {
+        // if this resourceType,id is not in the merge results then add it as an unchanged entry
+        if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+            mergeResults.push({
+                id: id,
+                resourceType: resourceType,
+                created: false,
+                updated: false,
+                issue: null,
+                operationOutcome: null
+            });
+        }
+    }
+    return mergeResults;
+}
+
+/**
  * does a FHIR Merge
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
@@ -157,19 +184,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
     const idsInMergeResults = mergeResults.map(r => {
         return {resourceType: r.resourceType, id: r.id};
     });
-    for (const {resourceType_, id_} of incomingResourceTypeAndIds) {
-        // if this resourceType,id is not in the merge results then add it as an unchanged entry
-        if (idsInMergeResults.filter(i => i.id === id_ && i.resourceType === resourceType_).length === 0) {
-            mergeResults.push({
-                id: id_,
-                resourceType: resourceType_,
-                created: false,
-                updated: false,
-                issue: null,
-                operationOutcome: null
-            });
-        }
-    }
+    mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
     await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
 
     logDebug(user, '--- Merge result ----');
