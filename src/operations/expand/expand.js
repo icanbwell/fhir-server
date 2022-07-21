@@ -1,31 +1,29 @@
 const {logRequest, logDebug, logError} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {getExpandedValueSet} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.expand = async (requestInfo, args, resource_name, collection_name) => {
+module.exports.expand = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
     logRequest(user, `${requestInfo.originalUrl}`);
-    logRequest(user, `${resource_name} >>> expand`);
+    logRequest(user, `${resourceType} >>> expand`);
     logDebug(user, JSON.stringify(args));
 
-    verifyHasValidScopes(resource_name, 'read', user, scope);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
 
     // Common search params
     let {id} = args;
@@ -43,18 +41,12 @@ module.exports.expand = async (requestInfo, args, resource_name, collection_name
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resource_name === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    let Resource = getResource(base_version, resource_name);
+    let Resource = getResource(base_version, resourceType);
 
     /**
      * @type {Resource}
@@ -63,7 +55,7 @@ module.exports.expand = async (requestInfo, args, resource_name, collection_name
     try {
         resource = await collection.findOne({id: id.toString()});
     } catch (e) {
-        logError(`Error with ${resource_name}.expand: `, e);
+        logError(`Error with ${resourceType}.expand: `, e);
         throw new BadRequestError(e);
     }
 
@@ -78,12 +70,12 @@ module.exports.expand = async (requestInfo, args, resource_name, collection_name
         resource = await getExpandedValueSet(collection, resource);
 
         // run any enrichment
-        resource = (await enrich([resource], resource_name))[0];
+        resource = (await enrich([resource], resourceType))[0];
 
         const result = new Resource(resource);
-        logRequest(user, `Returning ${resource_name}.expand: ${JSON.stringify(result)}`);
+        logRequest(user, `Returning ${resourceType}.expand: ${JSON.stringify(result)}`);
         return result;
     } else {
-        throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);
+        throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
     }
 };

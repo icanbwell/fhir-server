@@ -14,8 +14,8 @@ describe('graphHelper Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
         let db = globals.get(CLIENT_DB);
-        let collection_name = 'Practitioner';
-        let collection = db.collection(`${collection_name}_${base_version}`);
+        const resourceType = 'Practitioner';
+        const collection = db.collection(`${resourceType}_${base_version}`);
 
         await collection.insertOne({_id: '1', id: '1', resourceType: 'Practitioner'});
         // const doc = await collection.findOne({id: '1'});
@@ -30,22 +30,24 @@ describe('graphHelper Tests', () => {
         'user/*.read access/*.*',
         null,
         'https',
-        null,
+        '',
         null,
         'host',
+        null,
+        null,
+        null,
+        null,
         null
     );
 
     describe('graphHelper Tests', () => {
         test('graphHelper single Practitioner works', async () => {
-            let db = globals.get(CLIENT_DB);
-            let collection_name = 'Practitioner';
+            const resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphSimpleReverseDefinition,
                 false,
@@ -69,17 +71,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
-            let db = globals.get(CLIENT_DB);
-            let collection_name = 'Practitioner';
-            let collection = db.collection(`${collection_name}_${base_version}`);
+            const db = globals.get(CLIENT_DB);
+            const resourceType = 'Practitioner';
+            const collection = db.collection(`${resourceType}_${base_version}`);
 
             await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1', '2'],
                 graphSimpleReverseDefinition,
                 false,
@@ -110,20 +111,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
-            let collection = db.collection(`${resourceType}_${base_version}`);
+            const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
                 {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphSimpleReverseDefinition,
                 false,
@@ -157,20 +157,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
-            let collection = db.collection(`${resourceType}_${base_version}`);
+            const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
                 {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphDefinition,
                 false,
@@ -204,20 +203,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
-            let collection = db.collection(`${resourceType}_${base_version}`);
+            const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
                 {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphSimpleReverseDefinition,
                 true,
@@ -250,20 +248,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
-            let collection = db.collection(`${resourceType}_${base_version}`);
+            const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
                 {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphDefinition,
                 true,
@@ -296,7 +293,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -320,13 +317,12 @@ describe('graphHelper Tests', () => {
                 {_id: '100', id: '100', resourceType: resourceType}
             );
 
-            let collection_name = 'PractitionerRole';
+            resourceType = 'PractitionerRole';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['10'],
                 graphSimpleForwardDefinition,
                 false,
@@ -363,20 +359,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'PractitionerRole';
-            let collection = db.collection(`${resourceType}_${base_version}`);
+            const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne(
                 {_id: '10', id: '10', resourceType: resourceType, practitioner: {reference: 'Practitioner/1'}}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphSimpleReverseDefinition,
                 true,
@@ -409,7 +404,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -433,13 +428,12 @@ describe('graphHelper Tests', () => {
                 {_id: '100', id: '100', resourceType: resourceType}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1'],
                 graphDefinition,
                 false,
@@ -483,7 +477,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
@@ -527,13 +521,12 @@ describe('graphHelper Tests', () => {
                 {_id: '200', id: '200', resourceType: resourceType}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1', '2'],
                 graphDefinition,
                 false,
@@ -604,7 +597,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
@@ -648,13 +641,12 @@ describe('graphHelper Tests', () => {
                 {_id: '200', id: '200', resourceType: resourceType}
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1', '2'],
                 graphDefinition,
                 true,
@@ -717,7 +709,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -772,13 +764,12 @@ describe('graphHelper Tests', () => {
                 }
             );
 
-            let collection_name = 'PractitionerRole';
+            resourceType = 'PractitionerRole';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['10'],
                 graphSimpleWithExtensionDefinition,
                 false,
@@ -842,7 +833,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
@@ -935,13 +926,12 @@ describe('graphHelper Tests', () => {
                 }
             );
 
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1', '2'],
                 graphWithExtensionDefinition,
                 false,
@@ -1058,7 +1048,7 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
-            let db = globals.get(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
@@ -1150,13 +1140,12 @@ describe('graphHelper Tests', () => {
                     resourceType: resourceType
                 }
             );
-            let collection_name = 'Practitioner';
+            resourceType = 'Practitioner';
             const result = await processGraph(
                 requestInfo,
-                db,
-                collection_name,
                 base_version,
-                collection_name,
+                false,
+                resourceType,
                 ['1', '2'],
                 graphWithExtensionDefinition,
                 true,

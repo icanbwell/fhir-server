@@ -29,9 +29,9 @@ function getRequestInfo(req) {
     logDebug(req.user, req.originalUrl);
 
     return new RequestInfo(
-        (req.authInfo && req.authInfo.context && req.authInfo.context.username)
-        || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
-        || req.user,
+        (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
+        (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
+        req.user,
         req.authInfo && req.authInfo.scope,
         req.headers['X-Forwarded-For'] || req.connection.remoteAddress,
         req.protocol,
@@ -50,11 +50,10 @@ function getRequestInfo(req) {
  * does a FHIR Search
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Resource[] | Resource} array of resources
  */
-module.exports.search = async (args, {req}, resource_name, collection_name) => {
+module.exports.search = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -65,7 +64,7 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
     }
     return search(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
@@ -73,11 +72,10 @@ module.exports.search = async (args, {req}, resource_name, collection_name) => {
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
  * @param {import('http').ServerResponse} res
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Resource[] | Resource} array of resources
  */
-module.exports.searchStreaming = async (args, {req, res}, resource_name, collection_name) => {
+module.exports.searchStreaming = async (args, {req, res}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -89,31 +87,29 @@ module.exports.searchStreaming = async (args, {req, res}, resource_name, collect
     return searchStreaming(
         getRequestInfo(req),
         res,
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR Search By Id
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchById = async (args, {req}, resource_name, collection_name) => {
+module.exports.searchById = async (args, {req}, resourceType) => {
     return searchById(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };
 
 /**
  * does a FHIR Create (POST)
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
-module.exports.create = async (args, {req}, resource_name, collection_name) => {
+module.exports.create = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -126,17 +122,16 @@ module.exports.create = async (args, {req}, resource_name, collection_name) => {
 
     return create(
         getRequestInfo(req),
-        combined_args, path, resource_name, collection_name);
+        combined_args, path, resourceType);
 };
 
 /**
  * does a FHIR Update (PUT)
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
-module.exports.update = async (args, {req}, resource_name, collection_name) => {
+module.exports.update = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -145,18 +140,17 @@ module.exports.update = async (args, {req}, resource_name, collection_name) => {
 
     return update(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR Merge
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Resource | Resource[]}
  */
-module.exports.merge = async (args, {req}, resource_name, collection_name) => {
+module.exports.merge = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -165,17 +159,16 @@ module.exports.merge = async (args, {req}, resource_name, collection_name) => {
 
     return merge(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR $everything
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
-module.exports.everything = async (args, {req}, resource_name, collection_name) => {
+module.exports.everything = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -184,18 +177,17 @@ module.exports.everything = async (args, {req}, resource_name, collection_name) 
 
     return everything(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR Remove (DELETE)
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.remove = async (args, {req}, resource_name, collection_name) => {
+module.exports.remove = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -204,86 +196,81 @@ module.exports.remove = async (args, {req}, resource_name, collection_name) => {
 
     return remove(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR Search By Version
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchByVersionId = async (args, {req}, resource_name, collection_name) => {
+module.exports.searchByVersionId = async (args, {req}, resourceType) => {
     return searchByVersionId(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };
 
 /**
  * does a FHIR History
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.history = async (args, {req}, resource_name, collection_name) => {
+module.exports.history = async (args, {req}, resourceType) => {
     return history(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };
 
 /**
- * does a FHIR History By Id
+ * does a FHIR History By id
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.historyById = async (args, {req}, resource_name, collection_name) => {
+module.exports.historyById = async (args, {req}, resourceType) => {
     return historyById(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };
 
 /**
  * does a FHIR Patch
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.patch = async (args, {req}, resource_name, collection_name) => {
+module.exports.patch = async (args, {req}, resourceType) => {
     return patch(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };
 
 /**
  * does a FHIR Validate
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
+ * @param {string} resourceType
  */
-module.exports.validate = async (args, {req}, resource_name) => {
+module.exports.validate = async (args, {req}, resourceType) => {
     return validate(
         getRequestInfo(req),
-        args, resource_name);
+        args, resourceType);
 };
 
 /**
  * Supports $graph
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-module.exports.graph = async (args, {req}, resource_name, collection_name) => {
+module.exports.graph = async (args, {req}, resourceType) => {
     /**
      * combined args
      * @type {string[]}
@@ -292,19 +279,18 @@ module.exports.graph = async (args, {req}, resource_name, collection_name) => {
 
     return graph(
         getRequestInfo(req),
-        combined_args, resource_name, collection_name);
+        combined_args, resourceType);
 };
 
 /**
  * does a FHIR Search By Id
  * @param {string[]} args
  * @param {import('http').IncomingMessage} req
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.expand = async (args, {req}, resource_name, collection_name) => {
+module.exports.expand = async (args, {req}, resourceType) => {
     return expand(
         getRequestInfo(req),
-        args, resource_name, collection_name);
+        args, resourceType);
 };

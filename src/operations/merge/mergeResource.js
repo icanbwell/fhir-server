@@ -2,14 +2,11 @@
 // returns an OperationOutcome
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
-const {preMergeChecksAsync} = require('./preMergeChecks');
 const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 
 /**
  * Merges a single resource
@@ -21,13 +18,16 @@ const {mergeInsertAsync} = require('./mergeInsert');
  * @param {string} currentDate
  * @param {string} requestId
  * @param {string} baseVersion
- * @param scope
- * @param {string} collectionName
- * @return {Promise<MergeResultEntry>}
+ * @param {string | null} scope
+ * @param {DatabaseBulkInserter} databaseBulkInserter
+ * @param {DatabaseBulkLoader} databaseBulkLoader
+ * @return {Promise<MergeResultEntry|null>}
  */
 async function mergeResourceAsync(resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
-                                  requestId, baseVersion, scope, collectionName) {
+                                  requestId, baseVersion, scope,
+                                  databaseBulkInserter,
+                                  databaseBulkLoader) {
     /**
      * @type {string}
      */
@@ -46,11 +46,6 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
             'merge_' + requestId);
     }
 
-    const preMergeCheckFailures = await preMergeChecksAsync(resource_to_merge, resourceName, scopes, user, path, currentDate);
-    if (preMergeCheckFailures) {
-        return preMergeCheckFailures;
-    }
-
     try {
         logDebug(user, '-----------------');
         logDebug(user, baseVersion);
@@ -62,43 +57,35 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         const useAtlas = (isTrue(env.USE_ATLAS));
 
-        // Grab an instance of our DB and collection
-        // noinspection JSValidateTypes
         /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
          */
-        let db = (resource_to_merge.resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        let collection = await getOrCreateCollection(db, `${resource_to_merge.resourceType}_${baseVersion}`);
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resource_to_merge.resourceType, baseVersion, useAtlas);
 
         // Query our collection for this id
         /**
          * @type {Object}
          */
-        let data = await collection.findOne({id: id.toString()});
+        let data = databaseBulkLoader ?
+            databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
+            await collection.findOne({id: id.toString()});
 
         logDebug('test?', '------- data -------');
         logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);
         logDebug('test?', JSON.stringify(data));
         logDebug('test?', '------- end data -------');
 
-        let res;
-
         // check if resource was found in database or not
-        // noinspection JSUnusedLocalSymbols
         if (data && data.meta) {
-            res = await mergeExistingAsync(
-                resource_to_merge, data, baseVersion, user, scope, collectionName, currentDate, requestId);
+            databaseBulkLoader.updateResourceInExistingList(resource_to_merge);
+            await mergeExistingAsync(
+                resource_to_merge, data, baseVersion, user, scope, currentDate, requestId,
+                databaseBulkInserter);
         } else {
-            res = await mergeInsertAsync(resource_to_merge, baseVersion, collectionName, user);
+            databaseBulkLoader.addResourceToExistingList(resource_to_merge);
+            await mergeInsertAsync(resource_to_merge, baseVersion, user,
+                databaseBulkInserter);
         }
-
-        return res;
     } catch (e) {
         logError(`Error with merging resource ${resource_to_merge.resourceType}.merge with id: ${id} `, e);
         const operationOutcome = {

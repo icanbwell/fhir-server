@@ -13,13 +13,11 @@ const dateRangePicker = new DateRangePicker(dateRangeElement, {
 });
 
 const dateElement = document.getElementById('datePicker');
-const datePicker = dateElement
-    ? new Datepicker(dateElement, {
-          autohide: true,
-          format: 'yyyy-mm-dd',
-          clearBtn: true,
-      })
-    : null;
+const datePicker = dateElement ? new Datepicker(dateElement, {
+    autohide: true,
+    format: 'yyyy-mm-dd',
+    clearBtn: true,
+}) : null;
 
 function advSearch(event) {
     if (event) {

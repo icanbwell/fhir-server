@@ -12,9 +12,7 @@ function handleSortQuery(args, columns, options) {
     /**
      * @type {string[]}
      */
-    const sort_properties_list = Array.isArray(args['_sort'])
-        ? args['_sort']
-        : args['_sort'].split(',');
+    const sort_properties_list = Array.isArray(args['_sort']) ? args['_sort'] : args['_sort'].split(',');
     if (sort_properties_list.length > 0) {
         /**
          * @type {import('mongodb').Sort}

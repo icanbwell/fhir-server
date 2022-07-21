@@ -1,36 +1,38 @@
-const {logRequest, logDebug} = require('../common/logging');
+const {logRequest} = require('../common/logging');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const async = require('async');
 const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 
 /**
  * merges a list of resources
  * @param {Resource[]} resources_incoming
  * @param {string|null} user
- * @param {string} resource_name
+ * @param {string} resourceType
  * @param {string[]|null} scopes
  * @param {string} path
  * @param {string} currentDate
  * @param {string} requestId
  * @param {string} base_version
  * @param {string} scope
- * @param {string} collection_name
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
+ * @param {DatabaseBulkInserter} databaseBulkInserter
+ * @param {DatabaseBulkLoader} databaseBulkLoader
  * @returns {Promise<MergeResultEntry[]>}
  */
 async function mergeResourceListAsync(resources_incoming, user,
-                                      resource_name, scopes, path,
+                                      resourceType, scopes, path,
                                       currentDate, requestId, base_version,
-                                      scope, collection_name, requestInfo,
-                                      args) {
+                                      scope, requestInfo,
+                                      args,
+                                      databaseBulkInserter,
+                                      databaseBulkLoader) {
     /**
      * @type {string[]}
      */
     const ids_of_resources = resources_incoming.map(r => r.id);
     logRequest(user,
-        '==================' + resource_name + ': Merge received array ' +
+        '==================' + resourceType + ': Merge received array ' +
         ', len= ' + resources_incoming.length +
         ' [' + ids_of_resources.toString() + '] ' +
         '===================='
@@ -47,46 +49,15 @@ async function mergeResourceListAsync(resources_incoming, user,
      */
     const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
-    /**
-     * @type {Awaited<MergeResultEntry[]>[]}
-     */
-    const result = await Promise.all([
-        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name)), // run in parallel
-        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
+    await Promise.all([
+        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+            scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
+            databaseBulkLoader)), // run in parallel
+        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+            scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
+            databaseBulkLoader)) // run in series
     ]);
-    /**
-     * @type {MergeResultEntry[]}
-     */
-    const returnVal = result.flat(1);
-    if (returnVal && returnVal.length > 0) {
-        /**
-         * @type {MergeResultEntry[]}
-         */
-        const createdItems = returnVal.filter(r => r['created'] === true);
-        /**
-         * @type {MergeResultEntry[]}
-         */
-        const updatedItems = returnVal.filter(r => r['updated'] === true);
-        if (createdItems && createdItems.length > 0) {
-            if (resource_name !== 'AuditEvent') {
-                await logAuditEntryAsync(requestInfo, base_version, resource_name, 'create', args, createdItems.map(r => r['id']));
-            }
-        }
-        if (updatedItems && updatedItems.length > 0) {
-            if (resource_name !== 'AuditEvent') {
-                await logAuditEntryAsync(requestInfo, base_version, resource_name, 'update', args, updatedItems.map(r => r['id']));
-            }
-        }
-    }
-
-    logDebug(user, '--- Merge array result ----');
-    logDebug(user, JSON.stringify(returnVal));
-    logDebug(user, '-----------------');
-    return returnVal;
 }
-
 
 module.exports = {
     mergeResourceListAsync

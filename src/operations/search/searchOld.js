@@ -1,5 +1,3 @@
-const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {MongoError} = require('../../utils/mongoErrors');
@@ -21,6 +19,7 @@ const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/
 const deepcopy = require('deepcopy');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const {limit} = require('../../utils/searchForm.util');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 
 /**
  * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
@@ -438,11 +437,10 @@ function createBundle(
  * does a FHIR Search
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resourceName
- * @param {string} collection_name
+ * @param {string} resourceType
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.searchOld = async (requestInfo, args, resourceName, collection_name) => {
+module.exports.searchOld = async (requestInfo, args, resourceType) => {
     /**
      * @type {number}
      */
@@ -459,10 +457,10 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
      * @type {string | null}
      */
     const url = requestInfo.originalUrl;
-    logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
+    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceName, 'read', user, scope);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
     logRequest(user, '---- args ----');
     logRequest(user, JSON.stringify(args));
     logRequest(user, '--------');
@@ -491,40 +489,26 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({query, columns} = buildR4SearchQuery(resourceName, args));
+            ({query, columns} = buildR4SearchQuery(resourceType, args));
         }
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(collection_name, securityTags, query);
+    query = getQueryWithSecurityTags(resourceType, securityTags, query);
 
     /**
      * @type {boolean}
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-    /**
-     * @type {string}
-     */
-    const mongoCollectionName = `${collection_name}_${base_version}`;
-    /**
-     * mongo collection
-     * @type {import('mongodb').Collection}
-     */
-    let collection = db.collection(mongoCollectionName);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
     /**
      * @type {function(?Object): Resource}
      */
-    let Resource = getResource(base_version, resourceName);
+    let Resource = getResource(base_version, resourceType);
 
     logDebug(user, '---- query ----');
     logDebug(user, JSON.stringify(query));
@@ -544,7 +528,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
     try {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
         if (args['_elements']) {
-            const __ret = handleElementsQuery(args, columns, resourceName, options);
+            const __ret = handleElementsQuery(args, columns, resourceType, options);
             columns = __ret.columns;
             options = __ret.options;
         }
@@ -664,7 +648,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
 
             // find columns being queried and match them to an index
             if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
-                const __ret = setIndexHint(indexHint, mongoCollectionName, columns, cursor, user);
+                const __ret = setIndexHint(indexHint, collection.collectionName, columns, cursor, user);
                 indexHint = __ret.indexHint;
                 cursor = __ret.cursor;
             }
@@ -688,7 +672,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
                         args,
                         Resource,
                         element,
-                        resourceName
+                        resourceType
                     );
 
                     resources.push(element_to_return);
@@ -701,15 +685,15 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
         resources = resources.map((r) => removeNull(r.toJSON()));
 
         // run any enrichment
-        resources = await enrich(resources, resourceName);
+        resources = await enrich(resources, resourceType);
 
         if (resources.length > 0) {
-            if (resourceName !== 'AuditEvent') {
+            if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
                 await logAuditEntryAsync(
                     requestInfo,
                     base_version,
-                    resourceName,
+                    resourceType,
                     'read',
                     args,
                     resources.map((r) => r['id'])
@@ -731,7 +715,7 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
                 total_count,
                 args,
                 originalQuery,
-                mongoCollectionName,
+                collection.collectionName,
                 originalOptions,
                 columns,
                 stopTime,
@@ -750,6 +734,6 @@ module.exports.searchOld = async (requestInfo, args, resourceName, collection_na
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
     }
 };

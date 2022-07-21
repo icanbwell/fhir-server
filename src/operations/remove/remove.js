@@ -1,7 +1,5 @@
 const {logRequest, logError} = require('../common/logging');
 const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -9,20 +7,20 @@ const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resourceName
- * @param {string} collection_name
+ * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.remove = async (requestInfo, args, resourceName, collection_name) => {
+module.exports.remove = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, `${resourceName} >>> remove`);
+    logRequest(user, `${resourceType} >>> remove`);
 
     if (args['id'] === '0') {
         delete args['id'];
@@ -47,7 +45,7 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
             securityTags = accessCodes;
         }
     }
-    verifyHasValidScopes(resourceName, 'write', user, scope);
+    verifyHasValidScopes(resourceType, 'write', user, scope);
 
     let {base_version} = args;
     /**
@@ -62,7 +60,7 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({query} = buildR4SearchQuery(resourceName, args));
+            ({query} = buildR4SearchQuery(resourceType, args));
         }
     } catch (e) {
         throw e;
@@ -100,26 +98,21 @@ module.exports.remove = async (requestInfo, args, resourceName, collection_name)
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-    let collection = db.collection(`${collection_name}_${base_version}`);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
+
     // Delete our resource record
     let res;
     try {
         res = await collection.deleteMany(query);
 
         // log access to audit logs
-        await logAuditEntryAsync(requestInfo, base_version, resourceName, 'delete', args, []);
+        await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
 
     } catch (e) {
-        logError(user, `Error with ${resourceName}.remove`);
+        logError(user, `Error with ${resourceType}.remove`);
         throw new NotAllowedError(e.message);
     }
 

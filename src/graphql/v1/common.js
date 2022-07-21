@@ -57,7 +57,6 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
         return await searchById(
             getRequestInfo(context),
             {base_version: '4_0_0', id: idOfReference},
-            typeOfReference,
             typeOfReference
         );
     } catch (e) {
@@ -99,7 +98,6 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
                         id: idOfReference,
                         _bundle: '1',
                     },
-                    typeOfReference,
                     typeOfReference
                 )
             );
@@ -134,7 +132,6 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
                 _bundle: '1',
                 ...args
             },
-            resourceType,
             resourceType
         )
     );

@@ -1,23 +1,30 @@
-const {getSecurityTagsFromScope, getQueryWithSecurityTags, getQueryWithPatientFilter} = require('../common/getSecurityTags');
+const {
+    getSecurityTagsFromScope,
+    getQueryWithSecurityTags,
+    getQueryWithPatientFilter
+} = require('../common/getSecurityTags');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+
 /**
  * constructs a mongo query
  * @param {string | null} user
  * @param {string | null} scope
+ * @param {boolean | null} isUser
  * @param {string[] | null} patients
  * @param {Object?} args
- * @param {string} resourceName
- * @param {string} collectionName
+ * @param {string} resourceType
  * @param {boolean} useAccessIndex
+ * @param {boolean} filter
  * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
  */
-function constructQuery(user, scope, isUser, patients, args, resourceName, collectionName,
-                        useAccessIndex, filter=true) {
+function constructQuery(user, scope, isUser, patients, args,
+                        resourceType,
+                        useAccessIndex, filter = true) {
     /**
      * @type {string[]}
      */
@@ -43,19 +50,19 @@ function constructQuery(user, scope, isUser, patients, args, resourceName, colle
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         } else {
-            ({query, columns} = buildR4SearchQuery(resourceName, args));
+            ({query, columns} = buildR4SearchQuery(resourceType, args));
         }
     } catch (e) {
         throw e;
     }
-    query = getQueryWithSecurityTags(collectionName, securityTags, query, useAccessIndex);
+    query = getQueryWithSecurityTags(resourceType, securityTags, query, useAccessIndex);
     if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-        query = getQueryWithPatientFilter(patients, query, resourceName);
+        query = getQueryWithPatientFilter(patients, query, resourceType);
     }
     return {base_version, query, columns};
 }
 
 
 module.exports = {
-    constructQuery: constructQuery
+    constructQuery
 };

@@ -104,8 +104,7 @@ tests_graphql:
 .PHONY:lint
 lint:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm run test:lint && \
-	npm run test:ejslint
+	npm run lint
 
 .PHONY:generate
 generate:

@@ -238,9 +238,7 @@ async function processGraphLinks(db, base_version, user, scope, host, parent_ent
                         let parentEntityResources = parentEntity;
                         if (parentEntityResources) {
                             parentEntityResources = (
-                                Array.isArray(parentEntityResources)
-                                    ? parentEntityResources
-                                    : [parentEntityResources]
+                                Array.isArray(parentEntityResources) ? parentEntityResources : [parentEntityResources]
                             );
                         }
                         /**
@@ -275,9 +273,9 @@ async function processGraphLinks(db, base_version, user, scope, host, parent_ent
                         }
                         if (parentEntityResources) {
                             if (filterProperty) {
-                                parentEntityResources = (Array.isArray(parentEntityResources)
-                                    ? parentEntityResources
-                                    : [parentEntityResources])
+                                parentEntityResources = (Array.isArray(parentEntityResources) ?
+                                    parentEntityResources :
+                                    [parentEntityResources])
                                     .filter(e => e[`${filterProperty}`] === filterValue);
                             }
                             if (link.target && link.target.length > 0 && link.target[0].link) {

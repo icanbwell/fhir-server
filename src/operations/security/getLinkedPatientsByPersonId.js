@@ -1,14 +1,23 @@
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {getPatientIdsByPersonIdentifiers} = require('../search/getPatientIdsByPersonIdentifiers');
+const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
 
-const getLinkedPatients = async (db, base_version, isUser, fhirPersonId) => {
+
+/**
+ * Gets linked patients
+ * @param {string} base_version
+ * @param {boolean} useAtlas
+ * @param {boolean | null} isUser
+ * @param {string} fhirPersonId
+ * @return {Promise<string[]>}
+ */
+const getLinkedPatientsAsync = async (base_version, useAtlas, isUser, fhirPersonId) => {
   if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
-    return getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId);
+    return getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId);
   }
   return [];
 };
 
 module.exports = {
-  getLinkedPatients
+  getLinkedPatientsAsync
 };

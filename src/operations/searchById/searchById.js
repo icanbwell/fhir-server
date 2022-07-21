@@ -1,7 +1,5 @@
 const {logRequest, logDebug, logError} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -10,18 +8,20 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
-const {getPatientIdsByPersonIdentifiers} = require('../search/getPatientIdsByPersonIdentifiers');
+const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
+const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
 
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
- * @param {string} collection_name
+ * @param {string} resourceType
+ * @param {boolean} filter
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchById = async (requestInfo, args, resource_name, collection_name, filter=true) => {
+module.exports.searchById = async (requestInfo, args, resourceType,
+                                   filter = true) => {
     const {
         /** @type {string[]} */
         patients = [],
@@ -35,10 +35,10 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
         scope
     } = requestInfo;
 
-    logRequest(user, `${resource_name} >>> searchById`);
+    logRequest(user, `${resourceType} >>> searchById`);
     logDebug(user, JSON.stringify(args));
 
-    verifyHasValidScopes(resource_name, 'read', user, scope);
+    verifyHasValidScopes(resourceType, 'read', user, scope);
 
     // Common search params
     let {id} = args;
@@ -61,15 +61,11 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
     /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
+     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
      */
-    let db = (resource_name === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    let Resource = getResource(base_version, resource_name);
+    let Resource = getResource(base_version, resourceType);
 
     /**
      * @type {Promise<Resource> | *}
@@ -77,13 +73,13 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
     let resource;
     query = {id: id.toString()};
     if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-       const allPatients = patients.concat(await getPatientIdsByPersonIdentifiers(db, base_version, fhirPersonId));
-       query = getQueryWithPatientFilter(allPatients, query, collection_name);
+        const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
+        query = getQueryWithPatientFilter(allPatients, query, resourceType);
     }
     try {
         resource = await collection.findOne(query);
     } catch (e) {
-        logError(user, `Error with ${resource_name}.searchById: {e}`);
+        logError(user, `Error with ${resourceType}.searchById: {e}`);
         throw new BadRequestError(e);
     }
 
@@ -99,14 +95,14 @@ module.exports.searchById = async (requestInfo, args, resource_name, collection_
         resource = removeNull(resource);
 
         // run any enrichment
-        resource = (await enrich([resource], resource_name))[0];
-        if (resource_name !== 'AuditEvent') {
+        resource = (await enrich([resource], resourceType))[0];
+        if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
         }
 
         return new Resource(resource);
     } else {
-        throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);
+        throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
     }
 };

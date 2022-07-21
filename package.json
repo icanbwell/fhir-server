@@ -11,10 +11,12 @@
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
-    "test": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jest",
+    "test": "NODE_ENV=test npm run lint && npm run test:jest",
+    "lint": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint",
     "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
     "test:lint": "eslint \"src/**/*.js\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
+    "test:jshint": "jshint \"src/\"",
     "test:jest": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=12328 node --max-old-space-size=12328 --expose-gc ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit .",
     "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
     "test:specific": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
@@ -28,6 +30,7 @@
     "fix_lint": "eslint --fix \"src/**/*.js\""
   },
   "pre-commit": [
+    "lint"
   ],
   "jest": {
     "verbose": false,
@@ -146,6 +149,7 @@
     "jest": "^28.1.0",
     "jest-failure-reporter": "^1.0.1",
     "jose": "<3",
+    "jshint": "^2.13.5",
     "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^8.6.0",
     "mongodb-memory-server-core": "^8.6.0",

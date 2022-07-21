@@ -5,14 +5,14 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * does a FHIR Validate
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resource_name
+ * @param {string} resourceType
  */
-module.exports.validate = async (requestInfo, args, resource_name) => {
+module.exports.validate = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const path = requestInfo.path;
     const body = requestInfo.body;
 
-    logRequest(user, `${resource_name} >>> validate`);
+    logRequest(user, `${resourceType} >>> validate`);
 
     // no auth check needed to call validate
 
@@ -21,7 +21,7 @@ module.exports.validate = async (requestInfo, args, resource_name) => {
     // eslint-disable-next-line no-unused-vars
     // let {base_version} = args;
 
-    const operationOutcome = validateResource(resource_incoming, resource_name, path);
+    const operationOutcome = validateResource(resource_incoming, resourceType, path);
     if (operationOutcome && operationOutcome.statusCode === 400) {
         return operationOutcome;
     }
@@ -37,7 +37,7 @@ module.exports.validate = async (requestInfo, args, resource_name) => {
                         text: 'Resource is missing a security access tag with system: https://www.icanbwell.com/access'
                     },
                     expression: [
-                        resource_name
+                        resourceType
                     ]
                 }
             ]
@@ -53,7 +53,7 @@ module.exports.validate = async (requestInfo, args, resource_name) => {
                     text: 'OK'
                 },
                 expression: [
-                    resource_name
+                    resourceType
                 ]
             }
         ]

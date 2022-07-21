@@ -177,7 +177,6 @@ class FhirDataSource extends DataSource {
                             _debug: '1'
                         },
                         resourceType,
-                        resourceType,
                         false
                     )
                 );
@@ -240,8 +239,8 @@ class FhirDataSource extends DataSource {
             if (e.name === 'NotFound') {
                 logWarn(
                     context.user,
-                    `findResourceByReference: Resource ${resourceType}/${id} not found`
-                    + ` for parent:${parent.resourceType}/${parent.id} `
+                    `findResourceByReference: Resource ${resourceType}/${id} not found` +
+                    ` for parent:${parent.resourceType}/${parent.id} `
                 );
                 return null;
             } else {
@@ -290,7 +289,6 @@ class FhirDataSource extends DataSource {
                     ...args,
                     _debug: '1'
                 },
-                resourceType,
                 resourceType
             )
         );
@@ -315,7 +313,6 @@ class FhirDataSource extends DataSource {
                 ...args,
                 _debug: '1'
             },
-            resourceType,
             resourceType
         );
         if (bundle.meta) {

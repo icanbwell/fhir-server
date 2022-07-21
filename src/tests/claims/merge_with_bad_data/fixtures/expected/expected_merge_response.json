@@ -1,5 +1,21 @@
 [
   {
+    "created": true,
+    "id": "WPS-Claim-230916613369",
+    "issue": null,
+    "operationOutcome": null,
+    "resourceType": "ExplanationOfBenefit",
+    "updated": false
+  },
+  {
+    "created": false,
+    "id": "WPS-Claim-230916613369",
+    "issue": null,
+    "operationOutcome": null,
+    "resourceType": "ExplanationOfBenefit",
+    "updated": true
+  },
+  {
     "created": false,
     "id": "WPS-Claim-429017018331",
     "issue": {
@@ -29,6 +45,7 @@
       ],
       "resourceType": "OperationOutcome"
     },
+    "resourceType": "ExplanationOfBenefit",
     "updated": false
   },
   {
@@ -67,18 +84,7 @@
       ],
       "resourceType": "OperationOutcome"
     },
+    "resourceType": "ExplanationOfBenefit",
     "updated": false
-  },
-  {
-    "created": true,
-    "id": "WPS-Claim-230916613369",
-    "resource_version": "1",
-    "updated": false
-  },
-  {
-    "created": false,
-    "id": "WPS-Claim-230916613369",
-    "resource_version": "2",
-    "updated": true
   }
 ]

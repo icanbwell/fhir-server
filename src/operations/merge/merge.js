@@ -5,19 +5,53 @@ const {
 } = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
 const {mergeResourceListAsync} = require('./mergeResourceList');
+const {isTrue} = require('../../utils/isTrue');
+const env = require('var');
+const {mergeOld} = require('./old/mergeOld');
+const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
+const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
+const {DatabaseBulkInserter} = require('../../utils/databaseBulkInserter');
+const {DatabaseBulkLoader} = require('../../utils/databaseBulkLoader');
+
+/**
+ * Add successful merges
+ * @param {{id: string, resourceType: string}[]} incomingResourceTypeAndIds
+ * @param {{id: string, resourceType: string}[]} idsInMergeResults
+ * @return {MergeResultEntry[]}
+ */
+function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults) {
+    /**
+     * @type {MergeResultEntry[]}
+     */
+    const mergeResults = [];
+    for (const {resourceType, id} of incomingResourceTypeAndIds) {
+        // if this resourceType,id is not in the merge results then add it as an unchanged entry
+        if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+            mergeResults.push({
+                id: id,
+                resourceType: resourceType,
+                created: false,
+                updated: false,
+                issue: null,
+                operationOutcome: null
+            });
+        }
+    }
+    return mergeResults;
+}
 
 /**
  * does a FHIR Merge
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string} resourceName
- * @param {string} collectionName
+ * @param {string} resourceType
  * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
-module.exports.merge = async (requestInfo, args, resourceName, collectionName) => {
+module.exports.merge = async (requestInfo, args, resourceType) => {
+    if (isTrue(env.OLD_MERGE) || isTrue(args['_useOldMerge'])) {
+        return mergeOld(requestInfo, args, resourceType, resourceType);
+    }
     /**
      * @type {string|null}
      */
@@ -37,18 +71,18 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
     /**
      * @type {string}
      */
-    logRequest(user, `'${resourceName} >>> merge` + ' scopes:' + scope);
+    logRequest(user, `'${resourceType} >>> merge` + ' scopes:' + scope);
 
     /**
      * @type {string[]}
      */
     const scopes = parseScopes(scope);
 
-    verifyHasValidScopes(resourceName, 'write', user, scope);
+    verifyHasValidScopes(resourceType, 'write', user, scope);
 
     // read the incoming resource from request body
     /**
-     * @type {Object[]}
+     * @type {Resource|Resource[]}
      */
     let resourcesIncoming = body;
     logDebug(user, JSON.stringify(args));
@@ -86,32 +120,76 @@ module.exports.merge = async (requestInfo, args, resourceName, collectionName) =
         // unwrap the resources
         resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
     }
-    if (Array.isArray(resourcesIncoming)) {
-        return await mergeResourceListAsync(
-            resourcesIncoming, user, resourceName, scopes, path, currentDate,
-            requestId, base_version, scope, collectionName, requestInfo, args
-        );
-    } else {
-        /**
-         * @type {MergeResultEntry}
-         */
-        const returnVal = await mergeResourceWithRetryAsync(resourcesIncoming, resourceName,
-            scopes, user, path, currentDate, requestId, base_version, scope, collectionName);
-        if (returnVal) {
-            if (returnVal['created'] === true) {
-                if (resourceName !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'create', args, [returnVal['id']]);
-                }
-            }
-            if (returnVal['updated'] === true) {
-                if (resourceName !== 'AuditEvent') {
-                    await logAuditEntryAsync(requestInfo, base_version, resourceName, 'update', args, [returnVal['id']]);
-                }
-            }
-        }
-        logDebug(user, '--- Merge result ----');
-        logDebug(user, JSON.stringify(returnVal));
-        logDebug(user, '-----------------');
-        return returnVal;
-    }
+
+    /**
+     * @type {DatabaseBulkInserter}
+     */
+    const databaseBulkInserter = new DatabaseBulkInserter();
+    /**
+     * @type {boolean}
+     */
+    const useAtlas = isTrue(env.USE_ATLAS);
+    /**
+     * @type {boolean}
+     */
+    const wasIncomingAList = Array.isArray(resourcesIncoming);
+
+    /**
+     * @type {Resource[]}
+     */
+    let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+
+    const {
+        /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
+        /** @type {Resource[]} */ validResources
+    } = await preMergeChecksMultipleAsync(resourcesIncomingArray,
+        scopes, user, path, currentDate);
+
+    // process only the resources that are valid
+    resourcesIncomingArray = validResources;
+
+    /**
+     * @type {{id: string, resourceType: string}[]}
+     */
+    const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
+        return {resourceType: r.resourceType, id: r.id};
+    });
+
+    /**
+     * @type {DatabaseBulkLoader}
+     */
+    const databaseBulkLoader = new DatabaseBulkLoader();
+    // Load the resources from the database
+    await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
+        base_version,
+        useAtlas,
+        incomingResourceTypeAndIds
+    );
+    // merge the resources
+    await mergeResourceListAsync(
+        resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
+        requestId, base_version, scope, requestInfo, args,
+        databaseBulkInserter, databaseBulkLoader
+    );
+    /**
+     * mergeResults
+     * @type {MergeResultEntry[]}
+     */
+    let mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+
+    // add in any pre-merge failures
+    mergeResults = mergeResults.concat(mergePreCheckErrors);
+
+    // add in unchanged for ids that we did not merge
+    const idsInMergeResults = mergeResults.map(r => {
+        return {resourceType: r.resourceType, id: r.id};
+    });
+    mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
+    await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
+
+    logDebug(user, '--- Merge result ----');
+    logDebug(user, JSON.stringify(mergeResults));
+    logDebug(user, '-----------------');
+
+    return wasIncomingAList ? mergeResults : mergeResults[0];
 };

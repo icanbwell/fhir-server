@@ -17,7 +17,6 @@ const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPl
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 
 
-
 const graphql = async () => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
@@ -48,9 +47,9 @@ const graphql = async () => {
             ],
             context: async ({req, res}) => {
                 const requestInfo = {
-                    user: (req.authInfo && req.authInfo.context && req.authInfo.context.username)
-                        || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
-                        || req.user,
+                    user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
+                        (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
+                        req.user,
                     patients: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
                     scope: req.authInfo && req.authInfo.scope,
                     remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,

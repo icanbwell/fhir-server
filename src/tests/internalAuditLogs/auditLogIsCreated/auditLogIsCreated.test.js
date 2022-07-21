@@ -116,7 +116,7 @@ describe('InternalAuditLog Tests', () => {
             // confirm no audit event log is created in the normal auditEventDb
             expect((await fhirDb.collection(collection_name).find({}).toArray()).length).toStrictEqual(0);
 
-            // try to merge the same item again. No audit event shuld be created
+            // try to merge the same item again. No audit event should be created
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
