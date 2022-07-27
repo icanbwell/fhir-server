@@ -96,7 +96,7 @@ module.exports.mergeOld = async (requestInfo, args, resourceName, collectionName
          * @type {MergeResultEntry}
          */
         const returnVal = await mergeResourceWithRetryAsync(resourcesIncoming, resourceName,
-            scopes, user, path, currentDate, requestId, base_version, scope, collectionName);
+            scopes, user, path, currentDate, requestId, base_version, scope);
         if (returnVal) {
             if (returnVal['created'] === true) {
                 if (resourceName !== 'AuditEvent') {

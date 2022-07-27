@@ -16,7 +16,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
 
     await preSaveAsync(doc);
 
-    delete doc['_id'];
+    // delete doc['_id'];
 
     // Insert/update our resource record
     // When using the $set operator, only the specified fields are updated

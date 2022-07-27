@@ -124,7 +124,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
     /**
      * @type {DatabaseBulkInserter}
      */
-    const databaseBulkInserter = new DatabaseBulkInserter();
+    const databaseBulkInserter = new DatabaseBulkInserter(requestId, currentDate);
     /**
      * @type {boolean}
      */

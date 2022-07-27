@@ -52,9 +52,9 @@ async function mergeResourceListAsync(resources_incoming, user,
      */
     const result = await Promise.all([
         async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name)), // run in parallel
+            scopes, user, path, currentDate, requestId, base_version, scope)), // run in parallel
         async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resource_name,
-            scopes, user, path, currentDate, requestId, base_version, scope, collection_name)) // run in series
+            scopes, user, path, currentDate, requestId, base_version, scope)) // run in series
     ]);
     /**
      * @type {MergeResultEntry[]}

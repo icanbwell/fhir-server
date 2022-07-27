@@ -24,6 +24,7 @@ const graphql = async () => {
             typeDefs: typeDefs,
             resolvers: resolvers,
             introspection: true,
+            cache: 'bounded',
             plugins: [
                 // request.credentials is set so we receive cookies
                 // https://github.com/graphql/graphql-playground#settings
