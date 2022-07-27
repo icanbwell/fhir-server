@@ -53,7 +53,7 @@ services:
         test: ["CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1"]
 
   mongo:
-    image: mongo:4.4.14
+    image: mongo:5.0.9
     ports:
       - '27017:27017'
     environment:

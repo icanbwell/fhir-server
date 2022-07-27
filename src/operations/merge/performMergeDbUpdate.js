@@ -16,7 +16,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
 
     await preSaveAsync(doc);
 
-    delete doc['_id'];
+    // delete doc['_id'];
 
     // Insert/update our resource record
     // When using the $set operator, only the specified fields are updated
@@ -24,7 +24,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
+    await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, doc['_id'], doc);
 
     /**
      * @type {import('mongodb').Document}

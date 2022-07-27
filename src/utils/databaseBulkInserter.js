@@ -3,12 +3,37 @@ const {
     getOrCreateHistoryCollectionForResourceTypeAsync
 } = require('../operations/common/resourceManager');
 const async = require('async');
+const env = require('var');
+const sendToS3 = require('./aws-s3');
+const {getFirstElementOrNull} = require('./list.util');
+
+/**
+ * @typedef BulkResultEntry
+ * @type {object}
+ * @property {string} resourceType
+ * @property {import('mongodb').BulkWriteOpResultObject|null} mergeResult
+ * @property {Error|null} error
+ */
+
 
 /**
  * This class accepts inserts and updates and when execute() is called it sends them to Mongo in bulk
  */
 class DatabaseBulkInserter {
-    constructor() {
+    /**
+     * Constructor
+     * @param {string} requestId
+     * @param {string} currentDate
+     */
+    constructor(requestId, currentDate) {
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
+        /**
+         * @type {string}
+         */
+        this.currentDate = currentDate;
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -104,16 +129,16 @@ class DatabaseBulkInserter {
     /**
      * Replaces a document in Mongo with this one
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} _id
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async replaceOneAsync(resourceType, id, doc) {
+    async replaceOneAsync(resourceType, _id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         this.addOperationForResourceType(resourceType,
             {
                 replaceOne: {
-                    filter: {id: id.toString()},
+                    filter: {_id: _id},
                     // upsert: true,
                     replacement: doc
                 }
@@ -130,14 +155,24 @@ class DatabaseBulkInserter {
      */
     async executeAsync(base_version, useAtlas) {
         // run both the operations on the main tables and the history tables in parallel
-        await Promise.all([
-            async.map(this.operationsByResourceType.entries(), async x => await this.performBulkForResourceTypeWithMapEntry(
+        /**
+         * @type {BulkResultEntry[]}
+         */
+        const resourceResult = await async.map(
+            this.operationsByResourceType.entries(),
+            async x => await this.performBulkForResourceTypeWithMapEntry(
                 x, base_version, useAtlas
-            )),
-            async.map(this.historyOperationsByResourceType.entries(), async x => await this.performBulkForResourceTypeHistoryWithMapEntry(
+            ));
+        /**
+         * @type {BulkResultEntry[]}
+         */
+            // For now, we are ignoring errors saving history
+        // eslint-disable-next-line no-unused-vars
+        const resourceHistoryResult = await async.map(
+            this.historyOperationsByResourceType.entries(),
+            async x => await this.performBulkForResourceTypeHistoryWithMapEntry(
                 x, base_version, useAtlas
-            ))
-        ]);
+            ));
 
         /**
          * results
@@ -145,31 +180,75 @@ class DatabaseBulkInserter {
          */
         const mergeResultEntries = [];
         for (const [resourceType, ids] of this.insertedIdsByResourceType) {
-            for (const id of ids) {
-                mergeResultEntries.push(
-                    {
-                        'id': id,
-                        created: true,
-                        updated: false,
-                        operationOutcome: null,
-                        issue: null,
-                        resourceType: resourceType
-                    }
-                );
+            /**
+             * @type {BulkResultEntry|null}
+             */
+            const mergeResultForResourceType = getFirstElementOrNull(resourceResult.filter(r => r.resourceType === resourceType));
+            if (mergeResultForResourceType) {
+                for (const id of ids) {
+                    /**
+                     * @type {OperationOutcomeIssue[]|null}
+                     */
+                    const issue = mergeResultForResourceType.error ?
+                        [
+                            {
+                                severity: 'error',
+                                code: 'invalid',
+                                details: {text: mergeResultForResourceType.error.text},
+                                diagnostics: JSON.stringify(mergeResultForResourceType.error),
+                                expression: [
+                                    resourceType + '/' + id
+                                ]
+                            }
+                        ] :
+                        null;
+                    mergeResultEntries.push(
+                        {
+                            'id': id,
+                            created: !mergeResultForResourceType.error,
+                            updated: false,
+                            operationOutcome: null,
+                            issue: issue,
+                            resourceType: resourceType
+                        }
+                    );
+                }
             }
         }
         for (const [resourceType, ids] of this.updatedIdsByResourceType) {
-            for (const id of ids) {
-                mergeResultEntries.push(
-                    {
-                        'id': id,
-                        created: false,
-                        updated: true,
-                        operationOutcome: null,
-                        issue: null,
-                        resourceType: resourceType
-                    }
-                );
+            /**
+             * @type {BulkResultEntry|null}
+             */
+            const mergeResultForResourceType = getFirstElementOrNull(resourceResult.filter(r => r.resourceType === resourceType));
+            if (mergeResultForResourceType) {
+                for (const id of ids) {
+                                        /**
+                     * @type {OperationOutcomeIssue[]|null}
+                     */
+                    const issue = mergeResultForResourceType.error ?
+                        [
+                            {
+                                severity: 'error',
+                                code: 'invalid',
+                                details: {text: mergeResultForResourceType.error.text},
+                                diagnostics: JSON.stringify(mergeResultForResourceType.error),
+                                expression: [
+                                    resourceType + '/' + id
+                                ]
+                            }
+                        ] :
+                        null;
+                    mergeResultEntries.push(
+                        {
+                            'id': id,
+                            created: false,
+                            updated: !mergeResultForResourceType.error,
+                            operationOutcome: null,
+                            issue: issue,
+                            resourceType: resourceType
+                        }
+                    );
+                }
             }
         }
         return mergeResultEntries;
@@ -180,7 +259,7 @@ class DatabaseBulkInserter {
      * @param {[string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]]} mapEntry
      * @param {string} base_version
      * @param {boolean} useAtlas
-     * @return {Promise<void>}
+     * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeHistoryWithMapEntry(mapEntry, base_version, useAtlas) {
         const [
@@ -196,7 +275,7 @@ class DatabaseBulkInserter {
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
-     * @returns {Promise<void>}
+     * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations) {
         const collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
@@ -206,9 +285,14 @@ class DatabaseBulkInserter {
          * @type {import('mongodb').CollectionBulkWriteOptions}
          */
         const options = {ordered: false};
-        // lint gets confused by the two signatures of this method
-        // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
-        await collection.bulkWrite(operations, options);
+        try {
+            // lint gets confused by the two signatures of this method
+            // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
+            const result = await collection.bulkWrite(operations, options);
+            return {resourceType: resourceType, mergeResult: result.result, error: null};
+        } catch (e) {
+            return {resourceType: resourceType, mergeResult: null, error: e};
+        }
     }
 
     /**
@@ -216,7 +300,7 @@ class DatabaseBulkInserter {
      * @param {[string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]]} mapEntry
      * @param base_version
      * @param useAtlas
-     * @return {Promise<{resourceType: string, mergeResult: import('mongodb').BulkWriteOpResultObject}>}
+     * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntry(mapEntry, base_version, useAtlas) {
         const [
@@ -232,7 +316,7 @@ class DatabaseBulkInserter {
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
-     * @returns {Promise<{resourceType: string, mergeResult: import('mongodb').BulkWriteOpResultObject}>}
+     * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceType(resourceType, base_version, useAtlas, operations) {
         /**
@@ -246,12 +330,24 @@ class DatabaseBulkInserter {
          * @type {import('mongodb').CollectionBulkWriteOptions}
          */
         const options = {ordered: true};
-        // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
-        /**
-         * @type {import('mongodb').BulkWriteOpResultObject}
-         */
-        const result = await collection.bulkWrite(operations, options);
-        return {resourceType: resourceType, mergeResult: result.result};
+        if (env.LOG_ALL_MERGES) {
+            await sendToS3('bulk_inserter',
+                resourceType,
+                operations,
+                this.currentDate,
+                this.requestId,
+                'merge');
+        }
+        try {
+            // noinspection JSValidateTypes,JSVoidFunctionReturnValueUsed,JSCheckFunctionSignatures
+            /**
+             * @type {import('mongodb').BulkWriteOpResultObject}
+             */
+            const result = await collection.bulkWrite(operations, options);
+            return {resourceType: resourceType, mergeResult: result.result, error: null};
+        } catch (e) {
+            return {resourceType: resourceType, mergeResult: null, error: e};
+        }
     }
 }
 

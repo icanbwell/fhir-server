@@ -13,17 +13,16 @@ const {mergeResourceAsync} = require('./mergeResource');
  * @param {string} requestId
  * @param {string} baseVersion
  * @param {string} scope
- * @param {string} collectionName
  * @return {Promise<MergeResultEntry>}
  */
 async function mergeResourceWithRetryAsync(resource_to_merge, resourceName,
                                            scopes, user, path, currentDate,
-                                           requestId, baseVersion, scope, collectionName) {
+                                           requestId, baseVersion, scope) {
     return await mergeResourceAsync(resource_to_merge, resourceName,
         scopes, user, path, currentDate,
-        requestId, baseVersion, scope, collectionName);
+        requestId, baseVersion, scope);
 }
 
 module.exports = {
-    mergeResourceWithRetryAsync: mergeResourceWithRetryAsync
+    mergeResourceWithRetryAsync
 };
