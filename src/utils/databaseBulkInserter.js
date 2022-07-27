@@ -6,6 +6,7 @@ const async = require('async');
 const env = require('var');
 const sendToS3 = require('./aws-s3');
 const {getFirstElementOrNull} = require('./list.util');
+const {logErrorToSlackAsync} = require('./slack.logger');
 
 /**
  * @typedef BulkResultEntry
@@ -129,16 +130,16 @@ class DatabaseBulkInserter {
     /**
      * Replaces a document in Mongo with this one
      * @param {string} resourceType
-     * @param {string} _id
+     * @param {string} id
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async replaceOneAsync(resourceType, _id, doc) {
+    async replaceOneAsync(resourceType, id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         this.addOperationForResourceType(resourceType,
             {
                 replaceOne: {
-                    filter: {_id: _id},
+                    filter: {id: id.toString()},
                     // upsert: true,
                     replacement: doc
                 }
@@ -158,22 +159,36 @@ class DatabaseBulkInserter {
         /**
          * @type {BulkResultEntry[]}
          */
-        const resourceResult = await async.map(
+        const resultsByResourceType = await async.map(
             this.operationsByResourceType.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntry(
                 x, base_version, useAtlas
             ));
-        /**
-         * @type {BulkResultEntry[]}
-         */
-            // For now, we are ignoring errors saving history
-        // eslint-disable-next-line no-unused-vars
-        const resourceHistoryResult = await async.map(
+
+        // TODO: For now, we are ignoring errors saving history
+        await async.map(
             this.historyOperationsByResourceType.entries(),
             async x => await this.performBulkForResourceTypeHistoryWithMapEntry(
                 x, base_version, useAtlas
             ));
 
+        // If there are any errors, send them to Slack notification
+        if (resultsByResourceType.some(r => r.error)) {
+            /**
+             * @type {BulkResultEntry[]}
+             */
+            const erroredMerges = resultsByResourceType.filter(r => r.error);
+            for (const erroredMerge of erroredMerges) {
+                /**
+                 * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+                 */
+                const operationsForResourceType = this.operationsByResourceType.get(erroredMerge.resourceType);
+                await logErrorToSlackAsync(
+                    `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations: ${JSON.stringify(operationsForResourceType)}`,
+                    erroredMerge.error
+                );
+            }
+        }
         /**
          * results
          * @type {MergeResultEntry[]}
@@ -183,7 +198,7 @@ class DatabaseBulkInserter {
             /**
              * @type {BulkResultEntry|null}
              */
-            const mergeResultForResourceType = getFirstElementOrNull(resourceResult.filter(r => r.resourceType === resourceType));
+            const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
             if (mergeResultForResourceType) {
                 for (const id of ids) {
                     /**
@@ -219,10 +234,10 @@ class DatabaseBulkInserter {
             /**
              * @type {BulkResultEntry|null}
              */
-            const mergeResultForResourceType = getFirstElementOrNull(resourceResult.filter(r => r.resourceType === resourceType));
+            const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
             if (mergeResultForResourceType) {
                 for (const id of ids) {
-                                        /**
+                    /**
                      * @type {OperationOutcomeIssue[]|null}
                      */
                     const issue = mergeResultForResourceType.error ?
@@ -279,7 +294,6 @@ class DatabaseBulkInserter {
      */
     async performBulkForResourceTypeHistory(resourceType, base_version, useAtlas, operations) {
         const collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-        // TODO: Handle failures in bulk operation
         // no need to preserve order for history entries since each is an insert
         /**
          * @type {import('mongodb').CollectionBulkWriteOptions}
@@ -324,7 +338,6 @@ class DatabaseBulkInserter {
          */
         const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
-        // TODO: Handle failures in bulk operation
         // preserve order so inserts come before updates
         /**
          * @type {import('mongodb').CollectionBulkWriteOptions}

@@ -24,7 +24,7 @@ async function performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
     //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
     //  */
     //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-    await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, doc['_id'], doc);
+    await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
 
     /**
      * @type {import('mongodb').Document}
