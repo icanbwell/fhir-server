@@ -200,32 +200,30 @@ class DatabaseBulkInserter {
              */
             const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
             if (mergeResultForResourceType) {
+                const diagnostics = JSON.stringify(mergeResultForResourceType.error);
                 for (const id of ids) {
                     /**
-                     * @type {OperationOutcomeIssue[]|null}
+                     * @type {MergeResultEntry}
                      */
-                    const issue = mergeResultForResourceType.error ?
-                        [
-                            {
-                                severity: 'error',
-                                code: 'invalid',
-                                details: {text: mergeResultForResourceType.error.text},
-                                diagnostics: JSON.stringify(mergeResultForResourceType.error),
-                                expression: [
-                                    resourceType + '/' + id
-                                ]
-                            }
-                        ] :
-                        null;
+                    const mergeResultEntry = {
+                        'id': id,
+                        created: !mergeResultForResourceType.error,
+                        updated: false,
+                        resourceType: resourceType
+                    };
+                    if (mergeResultForResourceType.error) {
+                        mergeResultEntry.issue = {
+                            severity: 'error',
+                            code: 'exception',
+                            details: {text: mergeResultForResourceType.error.message},
+                            diagnostics: diagnostics,
+                            expression: [
+                                resourceType + '/' + id
+                            ]
+                        };
+                    }
                     mergeResultEntries.push(
-                        {
-                            'id': id,
-                            created: !mergeResultForResourceType.error,
-                            updated: false,
-                            operationOutcome: null,
-                            issue: issue,
-                            resourceType: resourceType
-                        }
+                        mergeResultEntry
                     );
                 }
             }
@@ -236,32 +234,30 @@ class DatabaseBulkInserter {
              */
             const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
             if (mergeResultForResourceType) {
+                const diagnostics = JSON.stringify(mergeResultForResourceType.error);
                 for (const id of ids) {
                     /**
-                     * @type {OperationOutcomeIssue[]|null}
+                     * @type {MergeResultEntry}
                      */
-                    const issue = mergeResultForResourceType.error ?
-                        [
-                            {
-                                severity: 'error',
-                                code: 'invalid',
-                                details: {text: mergeResultForResourceType.error.text},
-                                diagnostics: JSON.stringify(mergeResultForResourceType.error),
-                                expression: [
-                                    resourceType + '/' + id
-                                ]
-                            }
-                        ] :
-                        null;
+                    const mergeResultEntry = {
+                        'id': id,
+                        created: false,
+                        updated: !mergeResultForResourceType.error,
+                        resourceType: resourceType
+                    };
+                    if (mergeResultForResourceType.error) {
+                        mergeResultEntry.issue = {
+                            severity: 'error',
+                            code: 'exception',
+                            details: {text: mergeResultForResourceType.error.message},
+                            diagnostics: diagnostics,
+                            expression: [
+                                resourceType + '/' + id
+                            ]
+                        };
+                    }
                     mergeResultEntries.push(
-                        {
-                            'id': id,
-                            created: false,
-                            updated: !mergeResultForResourceType.error,
-                            operationOutcome: null,
-                            issue: issue,
-                            resourceType: resourceType
-                        }
+                        mergeResultEntry
                     );
                 }
             }
