@@ -2,24 +2,18 @@
   {
     "created": true,
     "id": "WPS-Claim-230916613369",
-    "issue": null,
-    "operationOutcome": null,
     "resourceType": "ExplanationOfBenefit",
     "updated": false
   },
   {
     "created": true,
     "id": "WPS-Claim-429017018331",
-    "issue": null,
-    "operationOutcome": null,
     "resourceType": "ExplanationOfBenefit",
     "updated": false
   },
   {
     "created": true,
     "id": "00100000000",
-    "issue": null,
-    "operationOutcome": null,
     "resourceType": "Patient",
     "updated": false
   }

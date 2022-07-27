@@ -34,8 +34,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             console.log('------- response patient1Resource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
