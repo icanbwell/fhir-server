@@ -28,14 +28,16 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
     for (const {resourceType, id} of incomingResourceTypeAndIds) {
         // if this resourceType,id is not in the merge results then add it as an unchanged entry
         if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
-            mergeResults.push({
+            /**
+             * @type {MergeResultEntry}
+             */
+            const mergeResultItem = {
                 id: id,
                 resourceType: resourceType,
                 created: false,
                 updated: false,
-                issue: null,
-                operationOutcome: null
-            });
+            };
+            mergeResults.push(mergeResultItem);
         }
     }
     return mergeResults;
