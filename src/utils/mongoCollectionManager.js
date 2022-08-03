@@ -23,8 +23,7 @@ async function getOrCreateCollection(db, collection_name) {
             const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
             if (!collectionExists) {
                 await db.createCollection(collection_name);
-                // force creation of collection if not exists (in case some other machine created it in the middle)
-                // await db.collection(collection_name).findOne({});
+                // and index it
                 await indexCollection(collection_name, db);
             }
         });

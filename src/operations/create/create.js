@@ -84,11 +84,6 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
         // Get current record
         /**
          * @type {function({Object}): Resource}
@@ -98,7 +93,12 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
          * @type {Resource}
          */
         const resource = new ResourceCreator(resource_incoming);
-        // noinspection JSUnresolvedFunction
+
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+         */
+        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas, resource);
+
         logDebug(user, `resource: ${resource.toJSON()}`);
 
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {

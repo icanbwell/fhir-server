@@ -9,9 +9,9 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {
-    getOrCreateCollectionForResourceTypeAsync,
     getOrCreateHistoryCollectionForResourceTypeAsync
 } = require('../common/resourceManager');
+const {findOneByResourceTypeAsync, findOneAndUpdateByResourceTypeAsync} = require('../../utils/databaseQueryManager');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -33,16 +33,11 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     // Get current record
     // Query our collection for this observation
     let data;
     try {
-        data = await collection.findOne({id: id.toString()});
+        data = await findOneByResourceTypeAsync(resourceType, base_version, useAtlas, {id: id.toString()});
     } catch (e) {
         logError(user, `Error with ${resourceType}.patch: ${e} `);
         throw new BadRequestError(e);
@@ -83,7 +78,8 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     let res;
     try {
         delete doc['_id'];
-        res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
+        res = await findOneAndUpdateByResourceTypeAsync(resourceType, base_version, useAtlas,
+            {id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
         logError(user, `Error with ${resourceType}.update: ${e}`);
         throw new BadRequestError(e);

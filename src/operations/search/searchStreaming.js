@@ -16,7 +16,7 @@ const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {getCollectionNamesForQueryForResourceType} = require('../common/resourceManager');
 
 /**
  * does a FHIR Search
@@ -83,10 +83,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
     } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
 
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-    /**
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
@@ -106,9 +102,14 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
+    /**
+     * @type {string}
+     */
+    const collectionName = getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(args, columns, resourceType, options, query, useAtlas, collection,
+        const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
+            args, columns, options, query,
             maxMongoTimeMS, user, true, useAccessIndex);
         /**
          * @type {Set}
@@ -145,7 +146,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+         * @type {DatabasePartitionedCursor}
          */
         let cursor = __ret.cursor;
 
@@ -185,7 +186,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                             total_count,
                             args,
                             originalQuery,
-                            collection.collectionName,
+                            collectionName,
                             originalOptions,
                             columns,
                             stopTime1,
@@ -241,7 +242,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         total_count,
                         args,
                         originalQuery,
-                        collection.collectionName,
+                        collectionName,
                         originalOptions,
                         columns,
                         stopTime,
@@ -263,6 +264,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };
