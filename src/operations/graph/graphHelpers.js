@@ -292,8 +292,8 @@ async function get_forward_references(graphParameters, resourceType,
      * mongo db cursor
      * @type {Promise< DatabasePartitionedCursor> | *}
      */
-    const cursor = await DatabaseQueryManager.findByResourceTypeAsync(
-        resourceType, graphParameters.base_version, graphParameters.useAtlas, query, options)
+    const cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, graphParameters.useAtlas)
+        .findByResourceTypeAsync(query, options)
         .maxTimeMS(maxMongoTimeMS);
 
     while (await cursor.hasNext()) {
@@ -404,9 +404,9 @@ async function get_reverse_references(
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    const cursor = await DatabaseQueryManager.findByResourceTypeAsync(
-        relatedResourceType, graphParameters.base_version,
-        graphParameters.useAtlas, query, options)
+    const cursor = await new DatabaseQueryManager(relatedResourceType, graphParameters.base_version,
+        graphParameters.useAtlas)
+        .findByResourceTypeAsync(query, options)
         .maxTimeMS(maxMongoTimeMS);
 
     // find matching field name in searchParameter list.  We will use this to match up to parent
@@ -829,8 +829,8 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
      * mongo db cursor
      * @type {DatabasePartitionedCursor}
      */
-    let cursor = await DatabaseQueryManager.findByResourceTypeAsync(
-        resourceType, graphParameters.base_version, useAtlas, query, options)
+    let cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, useAtlas)
+        .findByResourceTypeAsync(query, options)
         .maxTimeMS(maxMongoTimeMS);
 
     /**

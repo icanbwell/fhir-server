@@ -5,19 +5,41 @@ const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
 class DatabaseQueryManager {
     /**
-     * Finds one resource by looking in multiple partitions of a resource type
+     *
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
+     */
+    constructor(resourceType, base_version, useAtlas) {
+        /**
+         * @type {string}
+         * @private
+         */
+        this._resourceType = resourceType;
+        /**
+         * @type {string}
+         * @private
+         */
+        this._base_version = base_version;
+        /**
+         * @type {boolean}
+         * @private
+         */
+        this._useAtlas = useAtlas;
+    }
+
+    /**
+     * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param { WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {Promise<Resource|any>}
      */
-    static async findOneByResourceTypeAsync(resourceType, base_version, useAtlas, filter, options = null) {
+    async findOneByResourceTypeAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
             /**
              * @type { Promise<Resource|null>}
@@ -32,21 +54,17 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param {import('mongodb').UpdateQuery<import('mongodb').DefaultSchema> | any} update
      * @param {import('mongodb').FindOneAndUpdateOption<import('mongodb').DefaultSchema> | null} options
      * @return {Promise<Resource|any>}
      */
-    static async findOneAndUpdateByResourceTypeAsync(resourceType, base_version,
-                                        useAtlas, filter, update,
-                                        options = null) {
+    async findOneAndUpdateByResourceTypeAsync(filter, update, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
             await collection.findOneAndUpdate(filter, update, options);
         }
@@ -55,20 +73,16 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param {import('mongodb').CommonOptions | null} options
      * @return {Promise<void>}
      */
-    static async deleteManyByResourceTypeAsync(resourceType, base_version,
-                                  useAtlas, filter,
-                                  options = null) {
+    async deleteManyByResourceTypeAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
             await collection.deleteMany(filter, options);
         }
@@ -76,19 +90,16 @@ class DatabaseQueryManager {
 
     /**
      * Returns a DatabasePartitionedCursor by executing the query
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {DatabasePartitionedCursor}
      */
-    static async findByResourceTypeAsync(resourceType, base_version,
-                            useAtlas, filter, options = null) {
+    async findByResourceTypeAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          */
@@ -105,18 +116,16 @@ class DatabaseQueryManager {
 
     /**
      * Gets estimated count
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>|null} filter
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    static async estimatedDocumentCountByResourceTypeAsync(resourceType, base_version, useAtlas, filter, options) {
+    async estimatedDocumentCountByResourceTypeAsync(filter, options) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
             /**
@@ -130,18 +139,16 @@ class DatabaseQueryManager {
 
     /**
      * Gets estimated count
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>|null} filter
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    static async exactDocumentCountByResourceTypeAsync(resourceType, base_version, useAtlas, filter, options) {
+    async exactDocumentCountByResourceTypeAsync(filter, options) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas);
+        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas);
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
             /**

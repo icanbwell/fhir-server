@@ -63,8 +63,8 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         let data = databaseBulkLoader ?
             databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
-            await DatabaseQueryManager.findOneByResourceTypeAsync(resource_to_merge.resourceType, baseVersion,
-                useAtlas, {id: id.toString()});
+            await new DatabaseQueryManager(resource_to_merge.resourceType, baseVersion, useAtlas)
+                .findOneByResourceTypeAsync({id: id.toString()});
 
         logDebug('test?', '------- data -------');
         logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);

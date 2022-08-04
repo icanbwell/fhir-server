@@ -13,8 +13,8 @@ const {DatabaseQueryManager} = require('./databaseQueryManager');
  * @return {Promise<{system, code, display, version: string}[]>}
  */
 const getContentsOfValueSet = async (resourceType, base_version, useAtlas, valueSetUrl) => {
-    const valueSet = await DatabaseQueryManager.findOneByResourceTypeAsync(resourceType, base_version, useAtlas,
-        {url: valueSetUrl.toString()});
+    const valueSet = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        .findOneByResourceTypeAsync({url: valueSetUrl.toString()});
     return await module.exports.getValueSetConcepts(resourceType, base_version, useAtlas, valueSet);
 };
 

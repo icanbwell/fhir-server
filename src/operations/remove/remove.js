@@ -101,7 +101,8 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
     // Delete our resource record
     let res;
     try {
-        res = await DatabaseQueryManager.deleteManyByResourceTypeAsync(resourceType, base_version, useAtlas, query);
+        res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .deleteManyByResourceTypeAsync(query);
 
         // log access to audit logs
         await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);

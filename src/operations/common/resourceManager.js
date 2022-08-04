@@ -127,8 +127,6 @@ async function getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, ba
 
 module.exports = {
     getCollectionNameForResourceType,
-    getHistoryCollectionNameForResourceType,
-    getDatabaseConnectionForResourceType,
     getOrCreateCollectionForResourceTypeAsync,
     getOrCreateCollectionsForQueryForResourceTypeAsync,
     getOrCreateHistoryCollectionForResourceTypeAsync,

@@ -31,9 +31,8 @@ async function handleTwoStepSearchOptimizationAsync(
     originalOptions = [options];
     const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
-    let idResults = await DatabaseQueryManager.findByResourceTypeAsync(
-        resourceType, base_version, useAtlas,
-        query, options)
+    let idResults = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        .findByResourceTypeAsync(query, options)
         .sort(sortOption)
         .maxTimeMS(maxMongoTimeMS)
         .toArray();
