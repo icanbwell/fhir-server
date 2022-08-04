@@ -31,8 +31,15 @@ async function handleTwoStepSearchOptimizationAsync(
     originalOptions = [options];
     const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
-    let idResults = (await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-        .findAsync(query, options))
+    /**
+     * @type {DatabasePartitionedCursor}
+     */
+    const cursor = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        .findAsync(query, options);
+    /**
+     * @type {import('mongodb').DefaultSchema[]}
+     */
+    let idResults = await cursor
         .sort(sortOption)
         .maxTimeMS(maxMongoTimeMS)
         .toArray();
