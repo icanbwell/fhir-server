@@ -10,7 +10,7 @@
  * @param {number} maxMongoTimeMS
  * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-const {findByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 
 async function handleTwoStepSearchOptimizationAsync(
     resourceType,
@@ -31,7 +31,7 @@ async function handleTwoStepSearchOptimizationAsync(
     originalOptions = [options];
     const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
-    let idResults = await findByResourceTypeAsync(
+    let idResults = await DatabaseQueryManager.findByResourceTypeAsync(
         resourceType, base_version, useAtlas,
         query, options)
         .sort(sortOption)

@@ -9,7 +9,7 @@ const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimizat
 const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
-const {findByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 const {getCollectionNamesForQueryForResourceType} = require('../common/resourceManager');
 
 /**
@@ -160,7 +160,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     /**
      * @type {DatabasePartitionedCursor}
      */
-    let cursorQuery = findByResourceTypeAsync(resourceType, base_version, useAtlas, query, options);
+    let cursorQuery = DatabaseQueryManager.findByResourceTypeAsync(resourceType, base_version, useAtlas, query, options);
 
     if (isStreaming) {
         cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour

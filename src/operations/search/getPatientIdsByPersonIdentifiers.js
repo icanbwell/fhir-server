@@ -1,4 +1,5 @@
-const {findOneByResourceTypeAsync, findByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -24,7 +25,8 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
         /**
          * @type {Resource | null}
          */
-        let person = await findOneByResourceTypeAsync('Person', base_version, useAtlas, {id: fhirPersonId});
+        let person = await DatabaseQueryManager.findOneByResourceTypeAsync('Person', base_version, useAtlas,
+            {id: fhirPersonId});
         // Finds Patients by platform member ids and returns an array with the found patient ids
         if (person.identifier && person.identifier.length > 0) {
             let memberId = person.identifier.filter(identifier => {
@@ -36,7 +38,7 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await findByResourceTypeAsync('Patient', base_version, useAtlas,
+            let cursor = await DatabaseQueryManager.findByResourceTypeAsync('Patient', base_version, useAtlas,
                 {identifier: {$elemMatch: {'system': patientSystem, 'value': {$in: memberId.map(id => id.value)}}}},
             );
             cursor = cursor.project(idProjection);

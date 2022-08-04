@@ -6,7 +6,7 @@ const {enrich} = require('../../enrich/enrich');
 const {getExpandedValueSet} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {findOneByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -48,7 +48,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
      */
     let resource;
     try {
-        resource = await findOneByResourceTypeAsync(resourceType, base_version, useAtlas, {id: id.toString()});
+        resource = await DatabaseQueryManager.findOneByResourceTypeAsync(resourceType, base_version, useAtlas, {id: id.toString()});
     } catch (e) {
         logError(`Error with ${resourceType}.expand: `, e);
         throw new BadRequestError(e);

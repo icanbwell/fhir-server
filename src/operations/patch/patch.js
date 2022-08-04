@@ -11,7 +11,7 @@ const env = require('var');
 const {
     getOrCreateHistoryCollectionForResourceTypeAsync
 } = require('../common/resourceManager');
-const {findOneByResourceTypeAsync, findOneAndUpdateByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -37,7 +37,8 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     // Query our collection for this observation
     let data;
     try {
-        data = await findOneByResourceTypeAsync(resourceType, base_version, useAtlas, {id: id.toString()});
+        data = await DatabaseQueryManager.findOneByResourceTypeAsync(resourceType, base_version, useAtlas,
+            {id: id.toString()});
     } catch (e) {
         logError(user, `Error with ${resourceType}.patch: ${e} `);
         throw new BadRequestError(e);
@@ -78,7 +79,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     let res;
     try {
         delete doc['_id'];
-        res = await findOneAndUpdateByResourceTypeAsync(resourceType, base_version, useAtlas,
+        res = await DatabaseQueryManager.findOneAndUpdateByResourceTypeAsync(resourceType, base_version, useAtlas,
             {id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
         logError(user, `Error with ${resourceType}.update: ${e}`);

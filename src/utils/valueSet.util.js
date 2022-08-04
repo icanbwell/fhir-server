@@ -1,5 +1,5 @@
 const async = require('async');
-const {findOneByResourceTypeAsync} = require('./databaseQueryManager');
+const {DatabaseQueryManager} = require('./databaseQueryManager');
 /**
  * This file implements helpers for expanding value sets
  */
@@ -13,7 +13,8 @@ const {findOneByResourceTypeAsync} = require('./databaseQueryManager');
  * @return {Promise<{system, code, display, version: string}[]>}
  */
 const getContentsOfValueSet = async (resourceType, base_version, useAtlas, valueSetUrl) => {
-    const valueSet = await findOneByResourceTypeAsync(resourceType, base_version, useAtlas, {url: valueSetUrl.toString()});
+    const valueSet = await DatabaseQueryManager.findOneByResourceTypeAsync(resourceType, base_version, useAtlas,
+        {url: valueSetUrl.toString()});
     return await module.exports.getValueSetConcepts(resourceType, base_version, useAtlas, valueSet);
 };
 

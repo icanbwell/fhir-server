@@ -6,7 +6,7 @@ const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
-const {findOneByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 
 /**
  * Merges a single resource
@@ -63,7 +63,8 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         let data = databaseBulkLoader ?
             databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
-            await findOneByResourceTypeAsync(resource_to_merge.resourceType, baseVersion, useAtlas, {id: id.toString()});
+            await DatabaseQueryManager.findOneByResourceTypeAsync(resource_to_merge.resourceType, baseVersion,
+                useAtlas, {id: id.toString()});
 
         logDebug('test?', '------- data -------');
         logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);

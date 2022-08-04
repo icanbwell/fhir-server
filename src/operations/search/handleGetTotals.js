@@ -1,4 +1,4 @@
-const {estimatedDocumentCountByResourceType, exactDocumentCountByResourceType} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 
 /**
  * handle request to return totals for the query
@@ -15,9 +15,9 @@ async function handleGetTotalsAsync(resourceType, base_version, useAtlas, args, 
     // if _total is passed then calculate the total count for matching records also
     // don't use the options since they set a limit and skip
     if (args['_total'] === 'estimate') {
-        return await estimatedDocumentCountByResourceType(resourceType, base_version, useAtlas, query, {maxTimeMS: maxMongoTimeMS});
+        return await DatabaseQueryManager.estimatedDocumentCountByResourceTypeAsync(resourceType, base_version, useAtlas, query, {maxTimeMS: maxMongoTimeMS});
     } else {
-        return await exactDocumentCountByResourceType(resourceType, base_version, useAtlas, query, {maxTimeMS: maxMongoTimeMS});
+        return await DatabaseQueryManager.exactDocumentCountByResourceTypeAsync(resourceType, base_version, useAtlas, query, {maxTimeMS: maxMongoTimeMS});
     }
 }
 

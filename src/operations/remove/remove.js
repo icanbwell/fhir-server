@@ -7,7 +7,7 @@ const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
-const {deleteManyByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -101,7 +101,7 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
     // Delete our resource record
     let res;
     try {
-        res = await deleteManyByResourceTypeAsync(resourceType, base_version, useAtlas, query);
+        res = await DatabaseQueryManager.deleteManyByResourceTypeAsync(resourceType, base_version, useAtlas, query);
 
         // log access to audit logs
         await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);

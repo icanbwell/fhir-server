@@ -15,7 +15,7 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {findByResourceTypeAsync} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 
 
 /**
@@ -292,7 +292,7 @@ async function get_forward_references(graphParameters, resourceType,
      * mongo db cursor
      * @type {Promise< DatabasePartitionedCursor> | *}
      */
-    const cursor = await findByResourceTypeAsync(
+    const cursor = await DatabaseQueryManager.findByResourceTypeAsync(
         resourceType, graphParameters.base_version, graphParameters.useAtlas, query, options)
         .maxTimeMS(maxMongoTimeMS);
 
@@ -404,7 +404,7 @@ async function get_reverse_references(
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    const cursor = await findByResourceTypeAsync(
+    const cursor = await DatabaseQueryManager.findByResourceTypeAsync(
         relatedResourceType, graphParameters.base_version,
         graphParameters.useAtlas, query, options)
         .maxTimeMS(maxMongoTimeMS);
@@ -829,7 +829,7 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
      * mongo db cursor
      * @type {DatabasePartitionedCursor}
      */
-    let cursor = await findByResourceTypeAsync(
+    let cursor = await DatabaseQueryManager.findByResourceTypeAsync(
         resourceType, graphParameters.base_version, useAtlas, query, options)
         .maxTimeMS(maxMongoTimeMS);
 
