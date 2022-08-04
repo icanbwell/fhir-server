@@ -8,7 +8,6 @@ const {validateResource} = require('../../utils/validator.util');
 const {mergeResourceListAsync} = require('./mergeResourceList');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {mergeOld} = require('./old/mergeOld');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../utils/databaseBulkInserter');
@@ -51,9 +50,6 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
  * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
 module.exports.merge = async (requestInfo, args, resourceType) => {
-    if (isTrue(env.OLD_MERGE) || isTrue(args['_useOldMerge'])) {
-        return mergeOld(requestInfo, args, resourceType, resourceType);
-    }
     /**
      * @type {string|null}
      */
