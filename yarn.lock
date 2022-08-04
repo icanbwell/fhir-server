@@ -5980,6 +5980,11 @@
   optionalDependencies:
     "source-map" "~0.6.1"
 
+"eslint-plugin-nodejs@^0.0.1":
+  "integrity" "sha512-292PBBbub5aYJnRYeCHlff7VZpSKwmljEmaPiwnxm2icuHqt0+KG3gJwcE+3mt9B4XwdpuKPdlFt6cMDhQ4blg=="
+  "resolved" "https://registry.npmjs.org/eslint-plugin-nodejs/-/eslint-plugin-nodejs-0.0.1.tgz"
+  "version" "0.0.1"
+
 "eslint-plugin-security@^1.5.0":
   "integrity" "sha512-hAFVwLZ/UeXrlyVD2TDarv/x00CoFVpaY0IUZhKjPjiFxqkuQVixsK4f2rxngeQOqSxi6OUjzJM/jMwKEVjJ8g=="
   "resolved" "https://registry.npmjs.org/eslint-plugin-security/-/eslint-plugin-security-1.5.0.tgz"

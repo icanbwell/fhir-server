@@ -7,7 +7,6 @@ const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {searchOld} = require('./searchOld');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
@@ -29,9 +28,6 @@ const {getCollectionNamesForQueryForResourceType} = require('../common/resourceM
  */
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         filter = true) => {
-    if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceType);
-    }
     /**
      * @type {number}
      */
