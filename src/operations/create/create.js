@@ -161,7 +161,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
         // Save the resource to history
 
         // Insert our resource record to history but don't assign _id
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOne(history_doc);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
         return {id: doc.id, resource_version: doc.meta.versionId};
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');

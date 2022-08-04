@@ -98,7 +98,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
 
     // Insert our resource record to history but don't assign _id
     try {
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOne(history_resource);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
     } catch (e) {
         logError(user, `Error with ${resourceType}History.create: ${e}`);
         throw new BadRequestError(e);

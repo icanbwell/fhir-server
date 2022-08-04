@@ -233,7 +233,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
         // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
         // Insert our resource record to history but don't assign _id
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOne(history_resource);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
