@@ -221,6 +221,9 @@ module.exports.update = async (requestInfo, args, resourceType) => {
 
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
+        /**
+         * @type {FindOneAndUpdateResult|null}
+         */
         const res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
@@ -242,7 +245,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
 
         return {
             id: id,
-            created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
+            created: res.created,
             resource_version: doc.meta.versionId,
         };
     } catch (e) {

@@ -26,7 +26,7 @@ const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.al
 
 // const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
 const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'), 'utf8');
-
+const {describe, beforeAll, afterAll, expect} = require('@jest/globals');
 
 const request = supertest(app);
 const {
@@ -148,8 +148,7 @@ describe('patient Tests', () => {
     resp = await request
       .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
       .send(allergyResource)
-      .set(getHeaders())
-      .expect(201);
+      .set(getHeaders());
 
     console.log('------- response 2 ------------');
     console.log(JSON.stringify(resp.body, null, 2));

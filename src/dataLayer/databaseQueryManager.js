@@ -3,6 +3,14 @@ const {
 } = require('../operations/common/resourceManager');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
+/**
+ * @typedef FindOneAndUpdateResult
+ * @type {object}
+ * @property {boolean|null} created
+ * @property {Error|null} error
+ */
+
+
 class DatabaseQueryManager {
     /**
      *
@@ -57,7 +65,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param {import('mongodb').UpdateQuery<import('mongodb').DefaultSchema> | any} update
      * @param {import('mongodb').FindOneAndUpdateOption<import('mongodb').DefaultSchema> | null} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<FindOneAndUpdateResult | null>}
      */
     async findOneAndUpdateAsync(filter, update, options = null) {
         /**
@@ -66,7 +74,16 @@ class DatabaseQueryManager {
         const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-            await collection.findOneAndUpdate(filter, update, options);
+            /**
+             * @type {FindAndModifyWriteOpResultObject<import('mongodb').DefaultSchema>}
+             */
+            const result = await collection.findOneAndUpdate(filter, update, options);
+            if (result.ok) {
+                return {
+                    error: result.lastErrorObject,
+                    created: result.lastErrorObject && !result.lastErrorObject.updatedExisting
+                };
+            }
         }
         return null;
     }
