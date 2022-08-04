@@ -12,8 +12,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseUpdateManager} = require('../../utils/databaseUpdateManager');
-const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
+const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 
 /**
  * does a FHIR Create (POST)

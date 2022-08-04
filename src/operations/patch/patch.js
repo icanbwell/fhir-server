@@ -8,8 +8,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
-const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

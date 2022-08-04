@@ -1,4 +1,4 @@
-const {groupByLambda, getFirstElementOrNull} = require('./list.util');
+const {groupByLambda, getFirstElementOrNull} = require('../utils/list.util');
 const async = require('async');
 const {getResource} = require('../operations/common/getResource');
 const {DatabaseQueryManager} = require('./databaseQueryManager');

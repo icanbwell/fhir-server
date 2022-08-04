@@ -1,5 +1,5 @@
 const async = require('async');
-const {DatabaseQueryManager} = require('./databaseQueryManager');
+const {DatabaseQueryManager} = require('../dataLayer/databaseQueryManager');
 /**
  * This file implements helpers for expanding value sets
  */

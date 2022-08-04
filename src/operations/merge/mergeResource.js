@@ -6,7 +6,7 @@ const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 /**
  * Merges a single resource

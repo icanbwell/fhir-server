@@ -1,4 +1,4 @@
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 /**
  * handle request to return totals for the query

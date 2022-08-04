@@ -9,7 +9,7 @@ const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 /**
  * does a FHIR Search By Id

@@ -6,7 +6,7 @@ const {getResource} = require('../common/getResource');
 const {NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**

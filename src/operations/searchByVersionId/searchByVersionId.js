@@ -5,7 +5,7 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 /**
  * does a FHIR Search By Version
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

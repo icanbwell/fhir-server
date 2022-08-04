@@ -6,7 +6,7 @@ const {enrich} = require('../../enrich/enrich');
 const {getExpandedValueSet} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

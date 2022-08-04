@@ -18,8 +18,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
-const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

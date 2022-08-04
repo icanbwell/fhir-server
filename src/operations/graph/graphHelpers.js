@@ -15,7 +15,7 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 
 /**

@@ -9,7 +9,7 @@ const {getUuid} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
-const {DatabaseUpdateManager} = require('./databaseUpdateManager');
+const {DatabaseUpdateManager} = require('../dataLayer/databaseUpdateManager');
 
 /**
  * Create an AuditEntry resource

@@ -10,8 +10,8 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
-const {DatabaseBulkInserter} = require('../../utils/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('../../utils/databaseBulkLoader');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 
 /**
  * Add successful merges

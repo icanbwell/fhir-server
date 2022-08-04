@@ -10,7 +10,7 @@
  * @param {number} maxMongoTimeMS
  * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 async function handleTwoStepSearchOptimizationAsync(
     resourceType,

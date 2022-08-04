@@ -9,7 +9,7 @@ const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimizat
 const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
-const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {getCollectionNamesForQueryForResourceType} = require('../common/resourceManager');
 
 /**

@@ -4,9 +4,9 @@ const {
 } = require('../operations/common/resourceManager');
 const async = require('async');
 const env = require('var');
-const sendToS3 = require('./aws-s3');
-const {getFirstElementOrNull} = require('./list.util');
-const {logErrorToSlackAsync} = require('./slack.logger');
+const sendToS3 = require('../utils/aws-s3');
+const {getFirstElementOrNull} = require('../utils/list.util');
+const {logErrorToSlackAsync} = require('../utils/slack.logger');
 
 /**
  * @typedef BulkResultEntry
