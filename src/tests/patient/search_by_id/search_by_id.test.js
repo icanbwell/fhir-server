@@ -9,6 +9,7 @@ const expectedSinglePatientResource = require('./fixtures/expected/expected_sing
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -23,8 +24,7 @@ describe('PractitionerReturnIdTests', () => {
         test('search by single id works', async () => {
             let resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');

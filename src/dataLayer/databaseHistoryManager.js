@@ -50,7 +50,7 @@ class DatabaseHistoryManager {
          */
         const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
+        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type { Promise<Resource|null>}
              */

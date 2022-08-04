@@ -2,7 +2,6 @@
 // from https://github.com/auth0/node-jwks-rsa/blob/master/src/wrappers/request.js
 const http = require('http');
 const https = require('https');
-const urlUtil = require('url');
 
 module.exports.request = (options) => {
     if (options.fetcher) {
@@ -10,12 +9,11 @@ module.exports.request = (options) => {
     }
 
     return new Promise((resolve, reject) => {
-        const {
-            hostname,
-            path,
-            port,
-            protocol
-        } = urlUtil.parse(options.uri);
+        const url = new URL(options.uri);
+        const hostname = url.hostname;
+        const path = url.pathname;
+        const port = url.port;
+        const protocol = url.protocol;
 
         const requestOptions = {
             hostname,

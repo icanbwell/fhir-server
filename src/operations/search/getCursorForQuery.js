@@ -160,7 +160,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     /**
      * @type {DatabasePartitionedCursor}
      */
-    let cursorQuery = new DatabaseQueryManager(resourceType, base_version, useAtlas)
+    let cursorQuery = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
         .findAsync(query, options);
 
     if (isStreaming) {
