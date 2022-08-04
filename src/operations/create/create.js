@@ -12,10 +12,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {
-    getOrCreateCollectionForResourceTypeAsync,
-    getOrCreateHistoryCollectionForResourceTypeAsync
-} = require('../common/resourceManager');
+const {DatabaseUpdateManager} = require('../../utils/databaseUpdateManager');
+const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
 
 /**
  * does a FHIR Create (POST)
@@ -94,11 +92,6 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
          */
         const resource = new ResourceCreator(resource_incoming);
 
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas, resource);
-
         logDebug(user, `resource: ${resource.toJSON()}`);
 
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
@@ -160,19 +153,15 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         // Insert our resource record
         try {
-            await collection.insertOne(doc);
+            await new DatabaseUpdateManager(resourceType, base_version, useAtlas).insertOne(doc);
         } catch (e) {
             // noinspection ExceptionCaughtLocallyJS
             throw new BadRequestError(e);
         }
         // Save the resource to history
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        let history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         // Insert our resource record to history but don't assign _id
-        await history_collection.insertOne(history_doc);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOne(history_doc);
         return {id: doc.id, resource_version: doc.meta.versionId};
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');

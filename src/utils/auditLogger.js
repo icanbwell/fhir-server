@@ -1,8 +1,6 @@
 /**
  * logs audit entries
  */
-const globals = require('../globals');
-const {AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const env = require('var');
 const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
@@ -11,6 +9,7 @@ const {getUuid} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
+const {DatabaseUpdateManager} = require('./databaseUpdateManager');
 
 /**
  * Create an AuditEntry resource
@@ -139,19 +138,8 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType,
     if (databaseBulkInserter) {
         await databaseBulkInserter.insertOneAsync(auditEventCollectionName, doc);
     } else {
-        /**
-         * mongo db connection
-         * @type {import('mongodb').Db}
-         */
-        let db = globals.get(AUDIT_EVENT_CLIENT_DB);
-        /**
-         * mongo collection
-         * @type {import('mongodb').Collection}
-         */
-        let collection = db.collection(auditEventCollectionName);
-
         try {
-            await collection.insertOne(doc);
+            await new DatabaseUpdateManager('AuditEvent', base_version, false).insertOne(doc);
         } catch (e) {
             const documentContents = JSON.stringify(doc);
             throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${documentContents}`);

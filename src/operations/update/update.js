@@ -18,10 +18,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {
-    getOrCreateHistoryCollectionForResourceTypeAsync
-} = require('../common/resourceManager');
 const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
+const {DatabaseHistoryManager} = require('../../utils/databaseHistoryManager');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -105,7 +103,13 @@ module.exports.update = async (requestInfo, args, resourceType) => {
          * @type {Resource}
          */
         let resource_incoming = new ResourceCreator(resource_incoming_json);
+        /**
+         * @type {Resource|null}
+         */
         let cleaned;
+        /**
+         * @type {Resource|null}
+         */
         let doc;
 
         // check if resource was found in database or not
@@ -220,17 +224,16 @@ module.exports.update = async (requestInfo, args, resourceType) => {
         const res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
 
         // let history_resource = Object.assign(cleaned, {id: id});
+        /**
+         * @type {Resource}
+         */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
         // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
         // Insert our resource record to history but don't assign _id
-        await history_collection.insertOne(history_resource);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOne(history_resource);
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
