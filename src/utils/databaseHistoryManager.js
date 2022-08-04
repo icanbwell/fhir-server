@@ -1,6 +1,5 @@
 const {
-    getOrCreateCollectionForResourceTypeAsync,
-    getOrCreateCollectionsForQueryForResourceTypeAsync
+    getOrCreateCollectionsForQueryForResourceTypeAsync, getOrCreateHistoryCollectionForResourceTypeAsync
 } = require('../operations/common/resourceManager');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
@@ -34,7 +33,8 @@ class DatabaseHistoryManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await getOrCreateCollectionForResourceTypeAsync(this._resourceType, this._base_version, this._useAtlas, doc);
+        const collection = await getOrCreateHistoryCollectionForResourceTypeAsync(
+            this._resourceType, this._base_version, this._useAtlas, doc);
         await collection.insertOne(doc);
     }
 

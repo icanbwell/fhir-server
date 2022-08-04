@@ -153,7 +153,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         // Insert our resource record
         try {
-            await new DatabaseUpdateManager(resourceType, base_version, useAtlas).insertOne(doc);
+            await new DatabaseUpdateManager(resourceType, base_version, useAtlas).insertOneAsync(doc);
         } catch (e) {
             // noinspection ExceptionCaughtLocallyJS
             throw new BadRequestError(e);

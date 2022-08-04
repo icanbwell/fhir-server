@@ -139,7 +139,7 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType,
         await databaseBulkInserter.insertOneAsync(auditEventCollectionName, doc);
     } else {
         try {
-            await new DatabaseUpdateManager('AuditEvent', base_version, false).insertOne(doc);
+            await new DatabaseUpdateManager('AuditEvent', base_version, false).insertOneAsync(doc);
         } catch (e) {
             const documentContents = JSON.stringify(doc);
             throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${documentContents}`);

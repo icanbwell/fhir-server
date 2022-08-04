@@ -29,7 +29,7 @@ class DatabaseUpdateManager {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async insertOne(doc) {
+    async insertOneAsync(doc) {
         const collection = await getOrCreateCollectionForResourceTypeAsync(this._resourceType, this._base_version, this._useAtlas, doc);
         await collection.insertOne(doc);
     }
