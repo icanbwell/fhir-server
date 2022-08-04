@@ -31,7 +31,7 @@ class DatabaseQueryManager {
     /**
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
-     * @param { WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
+     * @param {import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {Promise<Resource|any>}
      */
     async findOneAsync(filter, options = null) {

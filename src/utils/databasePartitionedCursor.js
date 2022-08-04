@@ -8,18 +8,6 @@ class DatabasePartitionedCursor {
          * @private
          */
         this._cursors = cursors;
-
-        /**
-         * @type {number | null}
-         * @private
-         */
-        this._maxTimeMS = null;
-
-        /**
-         * @type { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>}
-         * @private
-         */
-        this._projection = null;
     }
 
     /**
@@ -27,7 +15,9 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     maxTimeMS(milliSecs) {
-        this._maxTimeMS = milliSecs;
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].maxTimeMS(milliSecs);
+        }
         return this;
     }
 
@@ -50,7 +40,9 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     project(projection) {
-        this._projection = projection;
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].project(projection);
+        }
         return this;
     }
 
@@ -59,16 +51,24 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     map(mapping) {
-        this._mapping = mapping;
-        // this._cursors[0].map(mapping);
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].map(mapping);
+        }
         return this;
     }
 
     /**
-     * @return {Promise<any[]>}
+     * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
-        return [];
+        /**
+         * @type {import('mongodb').DefaultSchema[]}
+         */
+        let result = [];
+        for (const cursor of this._cursors) {
+            result = result.concat(cursor.toArray());
+        }
+        return result;
     }
 
     /**
@@ -76,8 +76,9 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     sort(sortOption) {
-        this._sortOption = sortOption;
-        // this._cursors[0].sort(sortOption);
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].sort(sortOption);
+        }
         return this;
     }
 
@@ -85,8 +86,10 @@ class DatabasePartitionedCursor {
      * @param {number} size
      * @return {DatabasePartitionedCursor}
      */
-    batchSize(size){
-        this._batchSize = size;
+    batchSize(size) {
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].batchSize(size);
+        }
         return this;
     }
 
@@ -95,11 +98,12 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     hint(indexHint) {
-        this._indexHint = indexHint;
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].hint(indexHint);
+        }
         return this;
     }
 }
-
 
 module.exports = {
     DatabasePartitionedCursor
