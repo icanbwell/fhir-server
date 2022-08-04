@@ -18,7 +18,10 @@ const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {getOrCreateCollectionForResourceTypeAsync, getOrCreateHistoryCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {
+    getOrCreateHistoryCollectionForResourceTypeAsync
+} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -84,18 +87,14 @@ module.exports.update = async (requestInfo, args, resourceType) => {
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
         // Get current record
         // Query our collection for this observation
         // noinspection JSUnresolvedVariable
         /**
          * @type {Resource | null}
          */
-        let data = await collection.findOne({id: id.toString()});
+        let data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .findOneByResourceTypeAsync({id: id.toString()});
         // create a resource with incoming data
         /**
          * @type {function(?Object): Resource}
@@ -218,7 +217,8 @@ module.exports.update = async (requestInfo, args, resourceType) => {
 
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
-        const res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
+        const res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .findOneAndUpdateByResourceTypeAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}

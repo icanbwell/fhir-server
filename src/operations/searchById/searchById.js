@@ -9,7 +9,7 @@ const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../utils/databaseQueryManager');
 
 /**
  * does a FHIR Search By Id
@@ -60,11 +60,6 @@ module.exports.searchById = async (requestInfo, args, resourceType,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     let Resource = getResource(base_version, resourceType);
 
     /**
@@ -77,7 +72,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         query = getQueryWithPatientFilter(allPatients, query, resourceType);
     }
     try {
-        resource = await collection.findOne(query);
+        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneByResourceTypeAsync(query);
     } catch (e) {
         logError(user, `Error with ${resourceType}.searchById: {e}`);
         throw new BadRequestError(e);
