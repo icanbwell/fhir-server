@@ -34,7 +34,7 @@ class DatabaseQueryManager {
      * @param { WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {Promise<Resource|any>}
      */
-    async findOneByResourceTypeAsync(filter, options = null) {
+    async findOneAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -59,7 +59,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').FindOneAndUpdateOption<import('mongodb').DefaultSchema> | null} options
      * @return {Promise<Resource|any>}
      */
-    async findOneAndUpdateByResourceTypeAsync(filter, update, options = null) {
+    async findOneAndUpdateAsync(filter, update, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -77,7 +77,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').CommonOptions | null} options
      * @return {Promise<void>}
      */
-    async deleteManyByResourceTypeAsync(filter, options = null) {
+    async deleteManyAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -94,7 +94,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {DatabasePartitionedCursor}
      */
-    async findByResourceTypeAsync(filter, options = null) {
+    async findAsync(filter, options = null) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -120,7 +120,7 @@ class DatabaseQueryManager {
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    async estimatedDocumentCountByResourceTypeAsync(filter, options) {
+    async estimatedDocumentCountAsync(filter, options) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -143,7 +143,7 @@ class DatabaseQueryManager {
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    async exactDocumentCountByResourceTypeAsync(filter, options) {
+    async exactDocumentCountAsync(filter, options) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */

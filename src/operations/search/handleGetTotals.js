@@ -16,10 +16,10 @@ async function handleGetTotalsAsync(resourceType, base_version, useAtlas, args, 
     // don't use the options since they set a limit and skip
     if (args['_total'] === 'estimate') {
         return await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .estimatedDocumentCountByResourceTypeAsync(query, {maxTimeMS: maxMongoTimeMS});
+            .estimatedDocumentCountAsync(query, {maxTimeMS: maxMongoTimeMS});
     } else {
         return await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .exactDocumentCountByResourceTypeAsync(query, {maxTimeMS: maxMongoTimeMS});
+            .exactDocumentCountAsync(query, {maxTimeMS: maxMongoTimeMS});
     }
 }
 

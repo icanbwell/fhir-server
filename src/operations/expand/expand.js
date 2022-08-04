@@ -49,7 +49,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
     let resource;
     try {
         resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneByResourceTypeAsync({id: id.toString()});
+            .findOneAsync({id: id.toString()});
     } catch (e) {
         logError(`Error with ${resourceType}.expand: `, e);
         throw new BadRequestError(e);

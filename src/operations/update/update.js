@@ -94,7 +94,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
          * @type {Resource | null}
          */
         let data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneByResourceTypeAsync({id: id.toString()});
+            .findOneAsync({id: id.toString()});
         // create a resource with incoming data
         /**
          * @type {function(?Object): Resource}
@@ -218,7 +218,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
         const res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneAndUpdateByResourceTypeAsync({id: id}, {$set: doc}, {upsert: true});
+            .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}

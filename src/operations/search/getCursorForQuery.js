@@ -161,7 +161,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
      * @type {DatabasePartitionedCursor}
      */
     let cursorQuery = new DatabaseQueryManager(resourceType, base_version, useAtlas)
-        .findByResourceTypeAsync(query, options);
+        .findAsync(query, options);
 
     if (isStreaming) {
         cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour

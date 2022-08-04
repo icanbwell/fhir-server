@@ -38,7 +38,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     let data;
     try {
         data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneByResourceTypeAsync({id: id.toString()});
+            .findOneAsync({id: id.toString()});
     } catch (e) {
         logError(user, `Error with ${resourceType}.patch: ${e} `);
         throw new BadRequestError(e);
@@ -80,7 +80,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     try {
         delete doc['_id'];
         res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneAndUpdateByResourceTypeAsync({id: id}, {$set: doc}, {upsert: true});
+            .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
         logError(user, `Error with ${resourceType}.update: ${e}`);
         throw new BadRequestError(e);

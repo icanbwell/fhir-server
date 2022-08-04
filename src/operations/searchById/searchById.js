@@ -72,7 +72,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         query = getQueryWithPatientFilter(allPatients, query, resourceType);
     }
     try {
-        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneByResourceTypeAsync(query);
+        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
     } catch (e) {
         logError(user, `Error with ${resourceType}.searchById: {e}`);
         throw new BadRequestError(e);

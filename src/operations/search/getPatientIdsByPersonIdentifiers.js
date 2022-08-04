@@ -26,7 +26,7 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
          * @type {Resource | null}
          */
         let person = await new DatabaseQueryManager('Person', base_version, useAtlas)
-            .findOneByResourceTypeAsync({id: fhirPersonId});
+            .findOneAsync({id: fhirPersonId});
         // Finds Patients by platform member ids and returns an array with the found patient ids
         if (person.identifier && person.identifier.length > 0) {
             let memberId = person.identifier.filter(identifier => {
@@ -39,7 +39,7 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
              * @type {DatabasePartitionedCursor}
              */
             let cursor = await new DatabaseQueryManager('Patient', base_version, useAtlas)
-                .findByResourceTypeAsync(
+                .findAsync(
                     {identifier: {$elemMatch: {'system': patientSystem, 'value': {$in: memberId.map(id => id.value)}}}},
             );
             cursor = cursor.project(idProjection);

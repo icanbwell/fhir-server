@@ -102,7 +102,7 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
     let res;
     try {
         res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .deleteManyByResourceTypeAsync(query);
+            .deleteManyAsync(query);
 
         // log access to audit logs
         await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
