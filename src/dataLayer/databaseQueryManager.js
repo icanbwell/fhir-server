@@ -10,6 +10,13 @@ const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
  * @property {Error|null} error
  */
 
+/**
+ * @typedef DeleteManyResult
+ * @type {object}
+ * @property {number|null} deletedCount
+ * @property {Error|null} error
+ */
+
 
 class DatabaseQueryManager {
     /**
@@ -92,7 +99,7 @@ class DatabaseQueryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
      * @param {import('mongodb').CommonOptions | null} options
-     * @return {Promise<void>}
+     * @return {Promise<DeleteManyResult>}
      */
     async deleteManyAsync(filter, options = null) {
         /**
@@ -100,9 +107,16 @@ class DatabaseQueryManager {
          */
         const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
+        let deletedCount = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-            await collection.deleteMany(filter, options);
+            /**
+             * @type {import('mongodb').DeleteWriteOpResultObject}
+             */
+            const result = await collection.deleteMany(filter, options);
+            deletedCount += result.deletedCount;
+
         }
+        return {deletedCount: deletedCount, error: null};
     }
 
     /**

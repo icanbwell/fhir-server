@@ -101,6 +101,9 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
     // Delete our resource record
     let res;
     try {
+        /**
+         * @type {DeleteManyResult}
+         */
         res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .deleteManyAsync(query);
 
