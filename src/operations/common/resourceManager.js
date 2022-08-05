@@ -51,6 +51,17 @@ function getHistoryCollectionNameForResourceType(resourceType, base_version, res
 }
 
 /**
+ * returns the collection name for resourceType
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @returns {string[]}
+ */
+function getHistoryCollectionNamesForQueryForResourceType(resourceType, base_version) {
+    console.assert(!resourceType.endsWith('_History'), `resourceType ${resourceType} has an invalid postfix`);
+    return [`${resourceType}_${base_version}_History`];
+}
+
+/**
  * Gets the database connection for the given collection
  * @param {string} resourceType
  * @param {boolean?} useAtlas
@@ -60,6 +71,22 @@ function getDatabaseConnectionForResourceType(resourceType, useAtlas) {
     return (resourceType === 'AuditEvent') ?
         globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
             globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+}
+
+/**
+ *
+ * @param {string} resourceType
+ * @param {boolean|null} useAtlas
+ * @param {string} collectionName
+ * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
+ */
+async function getOrCreateCollectionForCollectionNameAsync(resourceType, useAtlas, collectionName) {
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
+    return await getOrCreateCollection(db, collectionName);
 }
 
 /**
@@ -75,12 +102,7 @@ async function getOrCreateCollectionForResourceTypeAsync(resourceType, base_vers
      * @type {string}
      */
     const collectionName = getCollectionNameForResourceType(resourceType, base_version, resource);
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
-    return await getOrCreateCollection(db, collectionName);
+    return await getOrCreateCollectionForCollectionNameAsync(resourceType, useAtlas, collectionName);
 }
 
 /**
@@ -95,6 +117,26 @@ async function getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, 
      * @type {string[]}
      */
     const collectionNames = getCollectionNamesForQueryForResourceType(resourceType, base_version);
+    /**
+     * mongo db connection
+     * @type {import('mongodb').Db}
+     */
+    const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
+    return async.map(collectionNames, async collectionName => await getOrCreateCollection(db, collectionName));
+}
+
+/**
+ * Gets the Mongo collection for this resourceType.  If collection does not exist then it is created
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {boolean} useAtlas
+ * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
+ */
+async function getOrCreateHistoryCollectionsForQueryForResourceTypeAsync(resourceType, base_version, useAtlas) {
+    /**
+     * @type {string[]}
+     */
+    const collectionNames = getHistoryCollectionNamesForQueryForResourceType(resourceType, base_version);
     /**
      * mongo db connection
      * @type {import('mongodb').Db}
@@ -130,5 +172,9 @@ module.exports = {
     getOrCreateCollectionForResourceTypeAsync,
     getOrCreateCollectionsForQueryForResourceTypeAsync,
     getOrCreateHistoryCollectionForResourceTypeAsync,
-    getCollectionNamesForQueryForResourceType
+    getCollectionNamesForQueryForResourceType,
+    getHistoryCollectionNamesForQueryForResourceType,
+    getOrCreateHistoryCollectionsForQueryForResourceTypeAsync,
+    getOrCreateCollectionForCollectionNameAsync,
+    getHistoryCollectionNameForResourceType
 };
