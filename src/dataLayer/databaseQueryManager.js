@@ -139,7 +139,7 @@ class DatabaseQueryManager {
             /**
              * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
              */
-            const cursor = await collection.find(filter, options);
+            const cursor = collection.find(filter, options);
             cursors.push(cursor);
         }
         return new DatabasePartitionedCursor(cursors);

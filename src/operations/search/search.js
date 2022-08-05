@@ -15,7 +15,6 @@ const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {
-    getCollectionNameForResourceType,
     getCollectionNamesForQueryForResourceType
 } = require('../common/resourceManager');
 
@@ -156,7 +155,8 @@ module.exports.search = async (requestInfo, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
-                mongoQueryAndOptionsStringify(getCollectionNameForResourceType(resourceType, base_version), originalQuery, originalOptions));
+                mongoQueryAndOptionsStringify(
+                    getCollectionNamesForQueryForResourceType(resourceType, base_version)[0], originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );

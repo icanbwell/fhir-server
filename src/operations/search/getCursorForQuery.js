@@ -1,3 +1,4 @@
+'use strict';
 const env = require('var');
 const deepcopy = require('deepcopy');
 const {isTrue} = require('../../utils/isTrue');
@@ -103,7 +104,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     const useTwoStepSearchOptimization =
         !args['_elements'] &&
         !args['id'] &&
-        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || isTrue(args['_useTwoStepOptimization']));
     if (useTwoStepSearchOptimization) {
         const __ret = await handleTwoStepSearchOptimizationAsync(
             resourceType,
