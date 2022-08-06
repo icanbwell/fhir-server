@@ -59,7 +59,7 @@ const getInclude = async (resourceType, base_version, useAtlas, include) => {
         const version = include.version;
         // get all the concepts
         concepts = await async.map(include.concept,
-            async concept => createConcept(system, version, concept.code, concept.display)
+            concept => createConcept(system, version, concept.code, concept.display)
         );
     }
     return concepts;

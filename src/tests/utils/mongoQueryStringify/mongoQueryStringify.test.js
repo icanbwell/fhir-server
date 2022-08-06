@@ -1,5 +1,6 @@
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const {mongoQueryStringify, mongoQueryAndOptionsStringify} = require('../../../utils/mongoQueryStringify');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('mongoQueryStringify Tests', () => {
     beforeEach(async () => {
@@ -11,7 +12,7 @@ describe('mongoQueryStringify Tests', () => {
     });
 
     describe('Patient mongoQueryStringify Tests', () => {
-        test('mongoQueryStringify works for single query', async () => {
+        test('mongoQueryStringify works for single query', () => {
             const query = {
                 '$and': [
                     {
@@ -39,7 +40,7 @@ describe('mongoQueryStringify Tests', () => {
             console.log(result);
             expect(result).toStrictEqual("{'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}");
         });
-        test('mongoQueryStringify works for multiple queries', async () => {
+        test('mongoQueryStringify works for multiple queries', () => {
             const query = [
                 {
                     '$and': [
@@ -93,7 +94,7 @@ describe('mongoQueryStringify Tests', () => {
         });
     });
     describe('Patient mongoQueryAndOptionsStringify Tests', () => {
-        test('mongoQueryAndOptionsStringify works for single query', async () => {
+        test('mongoQueryAndOptionsStringify works for single query', () => {
             const query = {
                 '$and': [
                     {
@@ -122,7 +123,7 @@ describe('mongoQueryStringify Tests', () => {
             console.log(result);
             expect(result).toStrictEqual("db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {'id':1,'meta.lastUpdated':1}).sort({'id':1}).skip(10).limit(20)");
         });
-        test('mongoQueryAndOptionsStringify works for multiple queries', async () => {
+        test('mongoQueryAndOptionsStringify works for multiple queries', () => {
             const query = [
                 {
                     '$and': [

@@ -119,7 +119,8 @@
       "never"
     ],
     "no-process-exit": "off",
+//    "require-await": "error",
     "security/detect-non-literal-fs-filename": "off",
-    "node/no-unpublished-require": "off"
+    "node/no-unpublished-require": "off",
   }
 }

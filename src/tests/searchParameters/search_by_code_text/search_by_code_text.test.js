@@ -12,6 +12,7 @@ const expectedMedicationResources = require('./fixtures/expected/expected_Medica
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 
 describe('Medication Tests', () => {
     beforeEach(async () => {

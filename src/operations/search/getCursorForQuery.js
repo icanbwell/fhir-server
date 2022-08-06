@@ -104,8 +104,8 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     const useTwoStepSearchOptimization =
         !args['_elements'] &&
         !args['id'] &&
-        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || isTrue(args['_useTwoStepOptimization']));
-    if (useTwoStepSearchOptimization) {
+        (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+    if (isTrue(useTwoStepSearchOptimization)) {
         const __ret = await handleTwoStepSearchOptimizationAsync(
             resourceType,
             base_version,
