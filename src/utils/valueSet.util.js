@@ -1,3 +1,4 @@
+'use strict';
 const async = require('async');
 const {DatabaseQueryManager} = require('../dataLayer/databaseQueryManager');
 /**
@@ -12,10 +13,10 @@ const {DatabaseQueryManager} = require('../dataLayer/databaseQueryManager');
  * @param {string} valueSetUrl
  * @return {Promise<{system, code, display, version: string}[]>}
  */
-const getContentsOfValueSet = async (resourceType, base_version, useAtlas, valueSetUrl) => {
+const getContentsOfValueSetAsync = async (resourceType, base_version, useAtlas, valueSetUrl) => {
     const valueSet = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
         .findOneAsync({url: valueSetUrl.toString()});
-    return await module.exports.getValueSetConcepts(resourceType, base_version, useAtlas, valueSet);
+    return await module.exports.getValueSetConceptsAsync(resourceType, base_version, useAtlas, valueSet);
 };
 
 /**
@@ -43,7 +44,7 @@ const createConcept = (system, version, code, display) => {
  * @param {{valueSet:string[],system:string,version:string,concept:{code:string,display:string}[] }} include
  * @return {Promise<{system, code, display, version: string}[]>}
  */
-const getInclude = async (resourceType, base_version, useAtlas, include) => {
+const getIncludeAsync = async (resourceType, base_version, useAtlas, include) => {
     /**
      * @type {{system, code, display, version: string}[]}
      */
@@ -51,14 +52,14 @@ const getInclude = async (resourceType, base_version, useAtlas, include) => {
     // include can either be a system, concept[] or a valueSet url
     if (include.valueSet) {
         concepts = await async.flatMap(include.valueSet,
-            async valueSet => await getContentsOfValueSet(resourceType, base_version, useAtlas, valueSet)
+            async valueSet => await getContentsOfValueSetAsync(resourceType, base_version, useAtlas, valueSet)
         );
     }
     if (include.system) {
         const system = include.system;
         const version = include.version;
         // get all the concepts
-        concepts = await async.map(include.concept,
+        concepts = include.concept.map(
             concept => createConcept(system, version, concept.code, concept.display)
         );
     }
@@ -73,7 +74,7 @@ const getInclude = async (resourceType, base_version, useAtlas, include) => {
  * @param {Resource} resource1
  * @return {Promise<{system, code, display, version: string}[]>}
  */
-const getValueSetConcepts = async (resourceType, base_version, useAtlas, resource1) => {
+const getValueSetConceptsAsync = async (resourceType, base_version, useAtlas, resource1) => {
     /**
      * @type {{system, code, display, version: string}[]}
      */
@@ -81,7 +82,7 @@ const getValueSetConcepts = async (resourceType, base_version, useAtlas, resourc
     if (resource1.compose && resource1.compose.include) {
         // noinspection UnnecessaryLocalVariableJS
         expandedValueSets = await async.flatMap(resource1.compose.include,
-            async include => await getInclude(resourceType, base_version, useAtlas, include)
+            async include => await getIncludeAsync(resourceType, base_version, useAtlas, include)
         );
     }
 
@@ -94,18 +95,18 @@ const getValueSetConcepts = async (resourceType, base_version, useAtlas, resourc
 };
 
 /**
- * Expands the value set as a new expansion field and removes the compose field
+ * Expands the value set as a new expansion field and removes the 'compose' field
  * @param {string} resourceType
  * @param {string} base_version
  * @param {boolean|null} useAtlas
  * @param {Resource} resource1
  * @return {Resource}
  */
-const getExpandedValueSet = async (resourceType, base_version, useAtlas, resource1) => {
+const getExpandedValueSetAsync = async (resourceType, base_version, useAtlas, resource1) => {
     /**
      * @type {{system, code, display, version: string}[]}
      */
-    let concepts = await getValueSetConcepts(resourceType, base_version, useAtlas, resource1);
+    let concepts = await getValueSetConceptsAsync(resourceType, base_version, useAtlas, resource1);
     resource1['expansion'] = {
         contains: concepts,
         'offset': 0,
@@ -117,6 +118,6 @@ const getExpandedValueSet = async (resourceType, base_version, useAtlas, resourc
 };
 
 module.exports = {
-    getExpandedValueSet,
-    getValueSetConcepts
+    getExpandedValueSetAsync,
+    getValueSetConceptsAsync
 };

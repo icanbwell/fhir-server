@@ -3,7 +3,7 @@ const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require(
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {getExpandedValueSet} = require('../../utils/valueSet.util');
+const {getExpandedValueSetAsync} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
@@ -63,7 +63,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         }
 
         // implement expand functionality
-        resource = await getExpandedValueSet(resourceType, base_version, useAtlas, resource);
+        resource = await getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
 
         // run any enrichment
         resource = (await enrich([resource], resourceType))[0];
