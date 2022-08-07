@@ -4,7 +4,7 @@
 
 const env = require('var');
 const async = require('async');
-const {disconnectClient, createClient} = require('../utils/connect');
+const {disconnectClientAsync, createClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 
@@ -17,7 +17,7 @@ module.exports.handleClean = async (req, res) => {
         /**
          * @type {import("mongodb").MongoClient}
          */
-        const client = await createClient(mongoConfig);
+        const client = await createClientAsync(mongoConfig);
         try {
             /**
              * @type {import('mongodb').Db}
@@ -55,7 +55,7 @@ module.exports.handleClean = async (req, res) => {
                 async collection_name => await db.collection(collection_name).deleteMany({})
             );
         } finally {
-            await disconnectClient(client);
+            await disconnectClientAsync(client);
         }
     } else {
         res.status(403).json();

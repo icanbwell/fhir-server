@@ -6,7 +6,7 @@
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
-const {indexCollection} = require('../indexes/index.util');
+const {indexCollectionAsync} = require('../indexes/index.util');
 const {isTrue} = require('./isTrue');
 const env = require('var');
 
@@ -16,7 +16,7 @@ const env = require('var');
  * @param {string} collection_name
  * @return {Promise<import('mongodb').Collection>}
  */
-async function getOrCreateCollection(db, collection_name) {
+async function getOrCreateCollectionAsync(db, collection_name) {
     if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         await mutex.runExclusive(async () => {
@@ -24,7 +24,7 @@ async function getOrCreateCollection(db, collection_name) {
             if (!collectionExists) {
                 await db.createCollection(collection_name);
                 // and index it
-                await indexCollection(collection_name, db);
+                await indexCollectionAsync(collection_name, db);
             }
         });
     }
@@ -32,5 +32,5 @@ async function getOrCreateCollection(db, collection_name) {
 }
 
 module.exports = {
-    getOrCreateCollection
+    getOrCreateCollectionAsync
 };

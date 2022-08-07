@@ -1,6 +1,6 @@
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollection} = require('../../utils/mongoCollectionManager');
+const {getOrCreateCollectionAsync} = require('../../utils/mongoCollectionManager');
 const async = require('async');
 
 
@@ -86,7 +86,7 @@ async function getOrCreateCollectionForCollectionNameAsync(resourceType, useAtla
      * @type {import('mongodb').Db}
      */
     const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
-    return await getOrCreateCollection(db, collectionName);
+    return await getOrCreateCollectionAsync(db, collectionName);
 }
 
 /**
@@ -122,7 +122,7 @@ async function getOrCreateCollectionsForQueryForResourceTypeAsync(resourceType, 
      * @type {import('mongodb').Db}
      */
     const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
-    return async.map(collectionNames, async collectionName => await getOrCreateCollection(db, collectionName));
+    return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
 }
 
 /**
@@ -142,7 +142,7 @@ async function getOrCreateHistoryCollectionsForQueryForResourceTypeAsync(resourc
      * @type {import('mongodb').Db}
      */
     const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
-    return async.map(collectionNames, async collectionName => await getOrCreateCollection(db, collectionName));
+    return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
 }
 
 /**
@@ -163,7 +163,7 @@ async function getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, ba
      * @type {import('mongodb').Db}
      */
     const db = getDatabaseConnectionForResourceType(resourceType, useAtlas);
-    return await getOrCreateCollection(db, collectionName);
+    return await getOrCreateCollectionAsync(db, collectionName);
 }
 
 

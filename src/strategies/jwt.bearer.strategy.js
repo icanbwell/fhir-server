@@ -16,7 +16,7 @@ const {request} = require('../utils/request');
  * @param {string} jwksUrl
  * @returns {Promise<{keys:{alg:string, kid: string, n: string}[]}>}
  */
-const getExternalJwksByUrl = async (jwksUrl) => {
+const getExternalJwksByUrlAsync = async (jwksUrl) => {
     const res = await request({
         uri: jwksUrl,
     });
@@ -28,7 +28,7 @@ const getExternalJwksByUrl = async (jwksUrl) => {
  * Retrieve jwks from external IDPs
  * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
-const getExternalJwks = async () => {
+const getExternalJwksAsync = async () => {
     if (env.EXTERNAL_AUTH_JWKS_URLS.length > 0) {
         /**
          * @type {string[]}
@@ -41,7 +41,7 @@ const getExternalJwks = async () => {
          */
         const keysArray = await async.map(
             extJwksUrls,
-            async (extJwksUrl) => await getExternalJwksByUrl(extJwksUrl.trim())
+            async (extJwksUrl) => await getExternalJwksByUrlAsync(extJwksUrl.trim())
         );
         return keysArray.flat(2);
     }
@@ -192,7 +192,7 @@ module.exports.strategy = new MyJwtStrategy(
              * @return {Promise<import('jwks-rsa').JSONWebKey[]>}
              */
             getKeysInterceptor: async () => {
-                return await getExternalJwks();
+                return await getExternalJwksAsync();
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
