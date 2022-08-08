@@ -3,9 +3,12 @@ const {
 } = require('../operations/common/resourceManager');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
+/**
+ * This class provides access to _History collections
+ */
 class DatabaseHistoryManager {
     /**
-     *
+     * Constructor
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
@@ -29,6 +32,7 @@ class DatabaseHistoryManager {
     }
 
     /**
+     * Inserts a single resource
      * @param {Resource} doc
      * @return {Promise<void>}
      */

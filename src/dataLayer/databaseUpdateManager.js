@@ -1,8 +1,11 @@
 const {getOrCreateCollectionForResourceTypeAsync} = require('../operations/common/resourceManager');
 
+/**
+ * This class manages inserts and updates to the database
+ */
 class DatabaseUpdateManager {
     /**
-     *
+     * Constructor
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
@@ -26,6 +29,7 @@ class DatabaseUpdateManager {
     }
 
     /**
+     * Inserts a resource into the database
      * @param {Resource} doc
      * @return {Promise<void>}
      */

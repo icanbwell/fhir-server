@@ -18,9 +18,13 @@ const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
  */
 
 
+/**
+ * This class manages access to the database by finding the appropriate partitioned collection to use for the
+ * provided resourceType
+ */
 class DatabaseQueryManager {
     /**
-     *
+     * Constructor
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
@@ -169,7 +173,7 @@ class DatabaseQueryManager {
     }
 
     /**
-     * Gets estimated count
+     * Gets exact count
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>|null} filter
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
