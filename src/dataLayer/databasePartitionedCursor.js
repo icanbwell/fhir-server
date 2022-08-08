@@ -1,5 +1,9 @@
+/**
+ * This class provides a cursor that can span multiple partitioned collections
+ */
 class DatabasePartitionedCursor {
     /**
+     * Constructor
      * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]} cursors
      */
     constructor(cursors) {
@@ -11,6 +15,7 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * Set a maxTimeMS on the cursor query, allowing for hard timeout limits on queries
      * @param {number} milliSecs
      * @return {DatabasePartitionedCursor}
      */
@@ -22,20 +27,39 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * Check if there is any document still available in any of the cursors
      * @return {Promise<boolean>}
      */
     async hasNext() {
-        return await this._cursors[0].hasNext();
+        while (this._cursors.length > 0) {
+            // check if the first cursor has next.  If not, remove that cursor from the list
+            const result = await this._cursors[0].hasNext();
+            if (result) {
+                return result;
+            }
+            this._cursors.shift();
+        }
+        return false; // ran out of data in all the cursors
     }
 
     /**
-     * @return {Promise<Resource>}
+     * Get the next available document from the cursors, returns null if no more documents are available
+     * @return {Promise<Resource|null>}
      */
     async next() {
-        return await this._cursors[0].next();
+        while (this._cursors.length > 0) {
+            // check if the first cursor has next.  If not, remove that cursor from the list
+            const result = await this._cursors[0].next();
+            if (result !== null) {
+                return result;
+            }
+            this._cursors.shift();
+        }
+        return null;
     }
 
     /**
+     * Sets a field projection for the query
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabasePartitionedCursor}
      */
@@ -47,7 +71,8 @@ class DatabasePartitionedCursor {
     }
 
     /**
-     * @param mapping
+     * Map all documents using the provided function
+     * @param {function({Object}): Object} mapping
      * @return {DatabasePartitionedCursor}
      */
     map(mapping) {
@@ -58,6 +83,10 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * Returns an array of documents.
+     * The caller is responsible for making sure that there is enough memory to store the results.
+     * Note that the array only contains partial results when this cursor had been previously accessed.
+     * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
@@ -72,17 +101,20 @@ class DatabasePartitionedCursor {
     }
 
     /**
-     * @param {string | Array<[string, number]> | import('mongodb').SortOptionObject<import('mongodb').DefaultSchema>} sortOption
+     * Sets the sort order of the cursor query
+     * @param {string | [string, number][] | import('mongodb').SortOptionObject<import('mongodb').DefaultSchema>} sortOption
      * @return {DatabasePartitionedCursor}
      */
     sort(sortOption) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].sort(sortOption);
+            // noinspection JSCheckFunctionSignatures
+            this._cursors[`${index}`] = this._cursors[`${index}`].sort(sortOption, 1);
         }
         return this;
     }
 
     /**
+     * Set the batch size for the cursor. The number of documents to return per batch.
      * @param {number} size
      * @return {DatabasePartitionedCursor}
      */
@@ -94,6 +126,7 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * Set the cursor hint
      * @param {string|null} indexHint
      * @return {DatabasePartitionedCursor}
      */
