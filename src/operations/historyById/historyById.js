@@ -59,5 +59,5 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
     if (resources.length === 0) {
         throw new NotFoundError();
     }
-    return (resources);
+    return resources;
 };

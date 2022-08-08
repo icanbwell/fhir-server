@@ -76,7 +76,7 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateHistoryCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
