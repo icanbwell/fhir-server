@@ -4,15 +4,6 @@ const {getOrCreateCollectionAsync} = require('../../utils/mongoCollectionManager
 const async = require('async');
 
 
-// /**
-//  * Returns whether this resource is partitioned
-//  * @param resourceType
-//  * @return {boolean}
-//  */
-// function isResourcePartitioned(resourceType) {
-//     return resourceType === 'AuditEvent';
-// }
-
 /**
  * This class returns collections that contain the requested resourceType
  */
