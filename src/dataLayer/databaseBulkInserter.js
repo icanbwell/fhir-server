@@ -1,8 +1,5 @@
 'use strict';
-const {
-    getCollectionNameForResourceType, getOrCreateCollectionForCollectionNameAsync,
-    getHistoryCollectionNameForResourceType
-} = require('../operations/common/resourceManager');
+const {ResourceManager} = require('../operations/common/resourceManager');
 const async = require('async');
 const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
@@ -311,8 +308,8 @@ class DatabaseBulkInserter {
              * @type {string}
              */
             const collectionName = useHistoryCollection ?
-                getHistoryCollectionNameForResourceType(resourceType, base_version, resource) :
-                getCollectionNameForResourceType(resourceType, base_version, resource);
+                new ResourceManager().getHistoryCollectionNameForResourceType(resourceType, base_version, resource) :
+                new ResourceManager().getCollectionNameForResourceType(resourceType, base_version, resource);
             if (!(operationsByCollectionNames.has(collectionName))) {
                 operationsByCollectionNames.set(`${collectionName}`, []);
             }
@@ -346,7 +343,7 @@ class DatabaseBulkInserter {
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                  */
-                const collection = await getOrCreateCollectionForCollectionNameAsync(resourceType, useAtlas, collectionName);
+                const collection = await new ResourceManager().getOrCreateCollectionForCollectionNameAsync(resourceType, useAtlas, collectionName);
                 /**
                  * @type {import('mongodb').BulkWriteOpResultObject}
                  */

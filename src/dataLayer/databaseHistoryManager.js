@@ -1,5 +1,5 @@
 const {
-    getOrCreateCollectionsForQueryForResourceTypeAsync, getOrCreateHistoryCollectionForResourceTypeAsync
+    ResourceManager
 } = require('../operations/common/resourceManager');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
@@ -37,7 +37,7 @@ class DatabaseHistoryManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await getOrCreateHistoryCollectionForResourceTypeAsync(
+        const collection = await new ResourceManager().getOrCreateHistoryCollectionForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas, doc);
         await collection.insertOne(doc);
     }
@@ -52,7 +52,7 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -76,7 +76,7 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}

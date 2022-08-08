@@ -11,7 +11,7 @@ const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {getCollectionNamesForQueryForResourceType} = require('../common/resourceManager');
+const {ResourceManager} = require('../common/resourceManager');
 
 /**
  * @typedef GetCursorResult
@@ -194,7 +194,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
         // TODO: handle index hints for multiple collections
-        const collectionNamesForQueryForResourceType = getCollectionNamesForQueryForResourceType(resourceType, base_version);
+        const collectionNamesForQueryForResourceType = new ResourceManager().getCollectionNamesForQueryForResourceType(resourceType, base_version);
         const __ret = setIndexHint(indexHint, collectionNamesForQueryForResourceType[0], columns, cursor, user);
         indexHint = __ret.indexHint;
         cursor = __ret.cursor;

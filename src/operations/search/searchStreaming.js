@@ -15,7 +15,7 @@ const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {getCollectionNamesForQueryForResourceType} = require('../common/resourceManager');
+const {ResourceManager} = require('../common/resourceManager');
 
 /**
  * does a FHIR Search
@@ -101,7 +101,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
     /**
      * @type {string}
      */
-    const collectionName = getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
+    const collectionName = new ResourceManager().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
