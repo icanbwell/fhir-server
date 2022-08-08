@@ -33,7 +33,7 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for resourceType
+     * returns the collection name for this resource
      * @param {Resource} resource
      * @returns {string}
      */
@@ -44,7 +44,7 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for resourceType
+     * returns all the collection names for resourceType
      * @returns {string[]}
      */
     getCollectionNamesForQuery() {
@@ -53,7 +53,7 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for resourceType
+     * returns the first collection name for resourceType.   Use for debugging only
      * @returns {string}
      */
     getFirstCollectionNameForQuery() {
@@ -62,7 +62,7 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for resourceType
+     * returns the history collection name for the given resource
      * @param {Resource} resource
      * @returns {string}
      */
@@ -73,7 +73,7 @@ class ResourceLocator {
     }
 
     /**
-     * returns the collection name for resourceType
+     * returns all the collection names for resourceType
      * @returns {string[]}
      */
     getHistoryCollectionNamesForQuery() {
@@ -106,7 +106,7 @@ class ResourceLocator {
     }
 
     /**
-     * Gets the Mongo collection for this resourceType.  If collection does not exist then it is created
+     * Gets the collection for this resource.  If collection does not exist then it is created
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
@@ -119,7 +119,7 @@ class ResourceLocator {
     }
 
     /**
-     * Gets the Mongo collection for this resourceType.  If collection does not exist then it is created
+     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
     async getOrCreateCollectionsForQueryAsync() {
@@ -136,7 +136,7 @@ class ResourceLocator {
     }
 
     /**
-     * Gets the Mongo collection for this resourceType.  If collection does not exist then it is created
+     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
     async getOrCreateHistoryCollectionsForQueryAsync() {
@@ -153,7 +153,7 @@ class ResourceLocator {
     }
 
     /**
-     * Gets the Mongo history collection for this resourceType.  If collection does not exist then it is created
+     * Gets the history collection for this resource.  If collection does not exist then it is created.
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
