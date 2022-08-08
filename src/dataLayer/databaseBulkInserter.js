@@ -308,8 +308,8 @@ class DatabaseBulkInserter {
              * @type {string}
              */
             const collectionName = useHistoryCollection ?
-                new ResourceLocator().getHistoryCollectionNameForResourceType(resourceType, base_version, resource) :
-                new ResourceLocator().getCollectionNameForResourceType(resourceType, base_version, resource);
+                new ResourceLocator(resourceType, base_version, useAtlas).getHistoryCollectionName(resource) :
+                new ResourceLocator(resourceType, base_version, useAtlas).getCollectionName(resource);
             if (!(operationsByCollectionNames.has(collectionName))) {
                 operationsByCollectionNames.set(`${collectionName}`, []);
             }
@@ -343,7 +343,8 @@ class DatabaseBulkInserter {
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                  */
-                const collection = await new ResourceLocator().getOrCreateCollectionForCollectionNameAsync(resourceType, useAtlas, collectionName);
+                const collection = await new ResourceLocator(resourceType, base_version, useAtlas)
+                    .getOrCreateCollectionAsync(collectionName);
                 /**
                  * @type {import('mongodb').BulkWriteOpResultObject}
                  */

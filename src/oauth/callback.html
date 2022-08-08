@@ -43,7 +43,7 @@
         }).then(function (res) {
             const accessToken = res.data.access_token;
             var jwt = parseJwt(accessToken);
-            
+
             setCookie(
                 "jwt",
                 accessToken,
@@ -79,6 +79,6 @@
         }).join(''));
 
         return JSON.parse(jsonPayload);
-    };
+    }
 </script>
 </html>

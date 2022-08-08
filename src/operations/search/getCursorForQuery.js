@@ -194,7 +194,8 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
         // TODO: handle index hints for multiple collections
-        const collectionNamesForQueryForResourceType = new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version);
+        const collectionNamesForQueryForResourceType = new ResourceLocator(resourceType, base_version, useAtlas)
+            .getCollectionNamesForQuery();
         const __ret = setIndexHint(indexHint, collectionNamesForQueryForResourceType[0], columns, cursor, user);
         indexHint = __ret.indexHint;
         cursor = __ret.cursor;

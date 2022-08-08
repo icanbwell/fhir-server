@@ -41,12 +41,12 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
+            expect(resp.status).toBe(200);
             expect(resp.body['created']).toBe(true);
 
             resp = await request

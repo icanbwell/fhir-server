@@ -101,7 +101,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
     /**
      * @type {string}
      */
-    const collectionName = new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
+    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0];
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,

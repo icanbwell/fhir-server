@@ -34,7 +34,8 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator().getOrCreateCollectionForResourceTypeAsync(this._resourceType, this._base_version, this._useAtlas, doc);
+        const collection = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionForResourceAsync(doc);
         await collection.insertOne(doc);
     }
 }

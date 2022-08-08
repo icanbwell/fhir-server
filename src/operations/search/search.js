@@ -100,7 +100,7 @@ module.exports.search = async (requestInfo, args, resourceType,
     /**
      * @type {string}
      */
-    const collectionName = new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
+    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0];
 
     try {
         /** @type {GetCursorResult} **/
@@ -154,7 +154,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
                 mongoQueryAndOptionsStringify(
-                    new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0], originalQuery, originalOptions));
+                    new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0], originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );

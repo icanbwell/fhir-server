@@ -57,8 +57,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type { Promise<Resource|null>}
@@ -82,8 +82,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type {FindAndModifyWriteOpResultObject<import('mongodb').DefaultSchema>}
@@ -109,8 +109,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         let deletedCount = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -133,8 +133,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          */
@@ -159,8 +159,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -182,8 +182,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
-            this._resourceType, this._base_version, this._useAtlas);
+        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+            .getOrCreateCollectionsForQueryAsync();
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
