@@ -141,13 +141,15 @@ describe('patient Tests', () => {
         console.log('------- end response 2 ------------');
 
         resp = await request
-            .get('/4_0_0/Person')
+            .get('/4_0_0/Person?_bundle=1')
             .set(getHeaders())
             .expect(200);
 
         console.log('------- response 2 ------------');
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response 2 ------------');
+
+        expect(resp.body.entry.length).toBe(4);
 
         resp = await request
             .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
@@ -183,6 +185,10 @@ describe('patient Tests', () => {
             .send(allergy2Resource)
             .set(getHeaders())
             .expect(201);
+
+        console.log('------- response 2 ------------');
+        console.log(JSON.stringify(resp.body, null, 2));
+        console.log('------- end response 2 ------------');
 
         resp = await request
             .put('/4_0_0/Condition/patient-123-b-condition')
@@ -302,6 +308,16 @@ describe('patient Tests', () => {
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
                 // console.log(getHeadersWithCustomPayload(payload));
+                //
+                // let resp1 = await request
+                //     .get('/4_0_0/patient/?_bundle=1')
+                //     .set(getHeaders())
+                //     .expect(200);
+                //
+                // console.log('------- response from getting patients ------------');
+                // console.log(JSON.stringify(resp1.body, null, 2));
+                // console.log('------- end response  ------------');
+
                 let resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload))

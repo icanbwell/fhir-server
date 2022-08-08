@@ -66,7 +66,7 @@ class DatabasePartitionedCursor {
          */
         let result = [];
         for (const cursor of this._cursors) {
-            result = result.concat(cursor.toArray());
+            result = result.concat(await cursor.toArray());
         }
         return result;
     }

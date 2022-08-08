@@ -13,7 +13,7 @@ const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIds
  */
 const getLinkedPatientsAsync = async (base_version, useAtlas, isUser, fhirPersonId) => {
   if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
-    return getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId);
+    return await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId);
   }
   return [];
 };
