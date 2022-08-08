@@ -11,7 +11,7 @@ class ResourceLocator {
     /**
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean} useAtlas
+     * @param {boolean|null} useAtlas
      */
     constructor(resourceType, base_version, useAtlas) {
         console.assert(this._resourceType);
@@ -26,7 +26,7 @@ class ResourceLocator {
          */
         this._base_version = base_version;
         /**
-         * @type {boolean}
+         * @type {boolean|null}
          * @private
          */
         this._useAtlas = useAtlas;
