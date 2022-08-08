@@ -97,11 +97,6 @@ module.exports.search = async (requestInfo, args, resourceType,
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
-    /**
-     * @type {string}
-     */
-    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0];
-
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
@@ -154,7 +149,8 @@ module.exports.search = async (requestInfo, args, resourceType,
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
                 mongoQueryAndOptionsStringify(
-                    new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0], originalQuery, originalOptions));
+                    new ResourceLocator(resourceType, base_version, useAtlas)
+                        .getFirstCollectionNameForQuery(), originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );
@@ -185,6 +181,11 @@ module.exports.search = async (requestInfo, args, resourceType,
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+
+            /**
+             * @type {string}
+             */
+            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
             /**
              * id of last resource in the list
              * @type {?string}
@@ -217,6 +218,10 @@ module.exports.search = async (requestInfo, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
+        /**
+         * @type {string}
+         */
+        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
         throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };

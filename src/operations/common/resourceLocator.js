@@ -43,7 +43,6 @@ class ResourceLocator {
         return `${this._resourceType}_${this._base_version}`;
     }
 
-
     /**
      * returns the collection name for resourceType
      * @returns {string[]}
@@ -51,6 +50,15 @@ class ResourceLocator {
     getCollectionNamesForQuery() {
         console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}`];
+    }
+
+    /**
+     * returns the collection name for resourceType
+     * @returns {string}
+     */
+    getFirstCollectionNameForQuery() {
+        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        return [`${this._resourceType}_${this._base_version}`][0];
     }
 
     /**

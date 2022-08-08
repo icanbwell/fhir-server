@@ -98,10 +98,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
-    /**
-     * @type {string}
-     */
-    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getCollectionNamesForQuery()[0];
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
@@ -173,6 +169,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
+                    /**
+                     * @type {string}
+                     */
+                    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
+                        .getFirstCollectionNameForQuery();
                     resourceIds = await streamBundleFromCursorAsync(cursor, url,
                         (last_id, stopTime1) => createBundle(
                             url,
@@ -228,6 +229,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                 // return empty bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
                     /**
+                     * @type {string}
+                     */
+                    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
+                        .getFirstCollectionNameForQuery();
+                    /**
                      * @type {Resource}
                      */
                     const bundle = createBundle(
@@ -260,6 +266,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
+        /**
+         * @type {string}
+         */
+        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
+            .getFirstCollectionNameForQuery();
         throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };
