@@ -1,6 +1,6 @@
 const {
-    ResourceManager
-} = require('../operations/common/resourceManager');
+    ResourceLocator
+} = require('../operations/common/resourceLocator');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 
 /**
@@ -57,7 +57,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -82,7 +82,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -109,7 +109,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         let deletedCount = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
@@ -133,7 +133,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
@@ -159,7 +159,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
@@ -182,7 +182,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceManager().getOrCreateCollectionsForQueryForResourceTypeAsync(
+        const collections = await new ResourceLocator().getOrCreateCollectionsForQueryForResourceTypeAsync(
             this._resourceType, this._base_version, this._useAtlas);
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {

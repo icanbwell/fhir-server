@@ -14,7 +14,7 @@ const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {ResourceManager} = require('../common/resourceManager');
+const {ResourceLocator} = require('../common/resourceLocator');
 
 /**
  * does a FHIR Search
@@ -100,7 +100,7 @@ module.exports.search = async (requestInfo, args, resourceType,
     /**
      * @type {string}
      */
-    const collectionName = new ResourceManager().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
+    const collectionName = new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0];
 
     try {
         /** @type {GetCursorResult} **/
@@ -154,7 +154,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
                 mongoQueryAndOptionsStringify(
-                    new ResourceManager().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0], originalQuery, originalOptions));
+                    new ResourceLocator().getCollectionNamesForQueryForResourceType(resourceType, base_version)[0], originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );

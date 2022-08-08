@@ -1,4 +1,4 @@
-const {ResourceManager} = require('../operations/common/resourceManager');
+const {ResourceLocator} = require('../operations/common/resourceLocator');
 
 /**
  * This class manages inserts and updates to the database
@@ -34,7 +34,7 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceManager().getOrCreateCollectionForResourceTypeAsync(this._resourceType, this._base_version, this._useAtlas, doc);
+        const collection = await new ResourceLocator().getOrCreateCollectionForResourceTypeAsync(this._resourceType, this._base_version, this._useAtlas, doc);
         await collection.insertOne(doc);
     }
 }

@@ -13,7 +13,10 @@ const async = require('async');
 //     return resourceType === 'AuditEvent';
 // }
 
-class ResourceManager {
+/**
+ * This class returns collections that contain the requested resourceType
+ */
+class ResourceLocator {
 
     /**
      * returns the collection name for resourceType
@@ -172,5 +175,5 @@ class ResourceManager {
 
 
 module.exports = {
-    ResourceManager
+    ResourceLocator
 };
