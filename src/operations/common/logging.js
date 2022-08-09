@@ -3,6 +3,8 @@ const env = require('var');
  * @type {import('winston').logger}
  */
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
+
+const fhirLogger = require('../../utils/fhirLogger').FhirLogger.getLogger();
 /**
  * Always logs regardless of env.IS_PRODUCTION
  * @param {string} user
@@ -10,6 +12,11 @@ const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
  */
 module.exports.logRequest = (user, msg) => {
     logger.info(user + ': ' + msg);
+    try {
+        fhirLogger.info({transport: 'elasticsearch', user: user, message: msg});
+    } catch (e) {
+        console.error(e);
+    }
 };
 
 /**

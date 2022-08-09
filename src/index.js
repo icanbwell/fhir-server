@@ -64,7 +64,7 @@ const main = async function () {
     });
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
-    process.on('SIGINT', async function onSigterm() {
+    process.on('SIGINT', async function onSigInt() {
         logger.info('Beginning shutdown of server for SIGINT');
         try {
             await httpTerminator.terminate();
@@ -78,5 +78,5 @@ const main = async function () {
 };
 
 main().catch(reason => {
-    console.error(reason);
+    console.error(`Top level error: ${reason}`);
 });
