@@ -55,11 +55,12 @@ module.exports.logWarn = (user, msg) => {
  * @param {number|null} stopTime
  * @param {string} message
  * @param {string} action
+ * @param {Error|null} error
  */
 module.exports.logOperation = (requestInfo, args,
                                scope, resourceType,
                                startTime, stopTime,
-                               message, action) => {
+                               message, action, error) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -80,6 +81,7 @@ module.exports.logOperation = (requestInfo, args,
             valuePositiveInt: elapsedSeconds
         });
     }
+    // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
     fhirLogger.info(
         {
             id: requestInfo.requestId,
@@ -92,8 +94,8 @@ module.exports.logOperation = (requestInfo, args,
                 end: new Date(stopTime).toISOString(),
             },
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-            outcomeDesc: 'Success',
+            outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
+            outcomeDesc: error ? 'Error' : 'Success',
             agent: [
                 {
                     altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
@@ -114,7 +116,7 @@ module.exports.logOperation = (requestInfo, args,
                     detail: detail
                 }
             ],
-            message: message
+            message: error ? JSON.stringify(error) : message
         }
     );
 };
