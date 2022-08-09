@@ -16,6 +16,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
+const moment = require('moment-timezone');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger.getLogger();
 
 /**
@@ -50,15 +51,26 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         requestId
     } = requestInfo;
 
+    const detail = Object.entries(args).map(([k, v]) => {
+            return {
+                type: k,
+                valueString: String(v)
+            };
+        }
+    );
     fhirLogger.info(
         {
             id: requestInfo.requestId,
             type: {
-                code: 'searchStreaming'
+                code: 'fhirServer'
             },
+            action: 'searchStreaming',
+            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+            outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
+            outcomeDesc: 'Success',
             agent: [
                 {
-                    name: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
+                    altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress
                     },
@@ -73,13 +85,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             entity: [
                 {
                     name: resourceType,
-                    detail: Object.entries(args).map((k, v) => {
-                            return {
-                                type: k,
-                                valueString: v
-                            };
-                        }
-                    )
+                    detail: detail
                 }
             ],
             // operation: 'searchStreaming',
