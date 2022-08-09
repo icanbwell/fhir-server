@@ -19,10 +19,10 @@ class MongoError extends AggregateError {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
-            `[${requestId}]` +
+            (requestId ? `[${requestId}]` : '') +
             message + ': ' +
             mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
-            `elapsedTime=${elapsedTimeInSecs} secs`
+            ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.collection = collection;
         this.requestId = requestId;
@@ -60,10 +60,10 @@ class MongoMergeError extends AggregateError {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
-            `[${requestId}]` +
+            (requestId ? `[${requestId}]` : '') +
             message + ': ' +
             JSON.stringify(query) + ' , ' + JSON.stringify(options) +
-            `elapsedTime=${elapsedTimeInSecs} secs`
+            ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.resourceType = resourceType;
         this.query = query;

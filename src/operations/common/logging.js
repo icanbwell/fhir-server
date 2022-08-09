@@ -67,7 +67,7 @@ module.exports.logOperation = (requestInfo, args,
     let detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
-                valueString: String(v)
+                valueString: JSON.stringify(v)
             };
         }
     );

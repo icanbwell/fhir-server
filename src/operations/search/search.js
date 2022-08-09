@@ -4,7 +4,7 @@ const {
     verifyHasValidScopes,
 } = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -46,14 +46,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         requestId
     } = requestInfo;
 
-
-    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resourceType, 'read', user, scope);
-    logRequest(user, '---- args ----');
-    logRequest(user, JSON.stringify(args));
-    logRequest(user, '--------');
 
     /**
      * @type {boolean}
