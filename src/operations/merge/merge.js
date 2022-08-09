@@ -12,7 +12,6 @@ const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResul
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {MongoMergeError} = require('../../utils/mongoErrors');
 
 /**
  * Add successful merges
@@ -200,7 +199,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          */
         const stopTime1 = Date.now();
         logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'merge', e);
-        throw new MongoMergeError(requestId, e.message, e, resourceType, {}, (stopTime1 - startTime), {});
+        throw e;
     } finally {
         /**
          * @type {number}
