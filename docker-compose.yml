@@ -42,6 +42,10 @@ services:
       RETURN_BUNDLE: "1"
       USE_TWO_STEP_SEARCH_OPTIMIZATION: "1"
       STREAM_RESPONSE: "1"
+      ENABLE_ELASTIC_SEARCH_LOGGING: "1"
+      ELASTIC_SEARCH_LOG_URL: "https://elasticsearch:9200/"
+      ELASTIC_SEARCH_LOG_USERNAME: "admin"
+      ELASTIC_SEARCH_LOG_PASSWORD: "admin"
     ports:
       - '3000:3000'
     volumes:

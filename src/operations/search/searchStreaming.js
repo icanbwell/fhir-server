@@ -4,7 +4,7 @@ const {
     verifyHasValidScopes,
 } = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
+const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {searchOld} = require('./searchOld');
@@ -17,6 +17,8 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {generateUUID} = require('../../utils/uid.util');
+const fhirLogger = require('../../utils/fhirLogger').FhirLogger.getLogger();
 
 /**
  * does a FHIR Search
@@ -52,13 +54,26 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         isUser
     } = requestInfo;
 
-    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
+    // Assign a random number to this request
+    /**
+     * @type {string}
+     */
+    const requestId = generateUUID();
+
+    fhirLogger.info(
+        {
+            user: user,
+            requestId: requestId,
+            operation: 'searchStreaming',
+            resourceType: resourceType,
+            scope: scope,
+            args: args,
+            message: 'start'
+        }
+    );
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resourceType, 'read', user, scope);
-    logRequest(user, '---- args ----');
-    logRequest(user, JSON.stringify(args));
-    logRequest(user, '--------');
 
     /**
      * @type {boolean}

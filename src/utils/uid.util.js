@@ -3,6 +3,8 @@
  */
 
 const hash = require('object-hash');
+const crypto = require('crypto');
+
 /**
  * Return a random int, used by `utils.getUid()`.
  *
@@ -16,10 +18,7 @@ function getRandomInt(min, max) {
 }
 
 /**
- * Validates the date(s) and return the object containing the prefix and date.
- *
- * Prefix may contain 'ge, le, lt, gt'.
- *
+ * Generates a unique guid of specified length
  * @param {number} length
  */
 let getUid = function (length) {
@@ -45,7 +44,15 @@ const getUuid = (obj) => {
   return hash(obj);
 };
 
+/**
+ * Generates a UUID
+ * @return {string}
+ */
+const generateUUID = () => crypto.randomUUID();
+
+
 module.exports = {
   getUid,
   getUuid,
+  generateUUID
 };
