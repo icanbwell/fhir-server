@@ -116,16 +116,13 @@ module.exports.create = function create(service) {
  * @return Promise
  */
 module.exports.update = function update(service) {
-    let options = {
-        type: 'Practitioner'
-    };
     return async (req, res, next) => {
         try {
             const json = await service.update(req.sanitized_args, {
                 req,
                 res
             });
-            handler.update(req, res, json, options);
+            handler.update(req, res, json, {});
         } catch (e) {
             next(e);
         }
@@ -157,16 +154,13 @@ module.exports.remove = function remove(service) {
  * @return Promise
  */
 module.exports.patch = function patch(service) {
-    let options = {
-        type: 'Practitioner'
-    };
     return async (req, res, next) => {
         try {
             const json = await service.patch(req.sanitized_args, {
                 req,
                 res
             });
-            handler.update(req, res, json, options);
+            handler.update(req, res, json, {});
         } catch (e) {
             next(e);
         }

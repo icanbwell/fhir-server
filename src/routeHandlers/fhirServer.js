@@ -100,7 +100,9 @@ class MyFHIRServer extends FHIRServer.Server {
                 isValidVersion(base) ? base : VERSIONS['4_0_1'],
                 'operationoutcome'
             );
-
+            if (req.id) {
+                res.setHeader('X-Request-ID', String(req.id));
+            }
             // If there is an error and it is an OperationOutcome
             if (err && err.resourceType === OperationOutcome.resourceType) {
                 const status = err.statusCode || 500;
@@ -156,7 +158,9 @@ class MyFHIRServer extends FHIRServer.Server {
                     },
                 ],
             });
-
+            if (req.id) {
+                res.setHeader('X-Request-ID', String(req.id));
+            }
             logger.error(error);
             res.status(error.statusCode).json(error);
         });
