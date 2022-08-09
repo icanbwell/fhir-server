@@ -48,7 +48,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         isUser
     } = requestInfo;
 
-    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
+    logRequest(user, resourceType + ' >>> searchStreaming' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resourceType, 'read', user, scope);
@@ -98,6 +98,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
+    /**
+     * @type {ResourceLocator}
+     */
+    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
@@ -172,8 +176,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                     /**
                      * @type {string}
                      */
-                    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
-                        .getFirstCollectionNameForQuery();
+                    const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                     resourceIds = await streamBundleFromCursorAsync(cursor, url,
                         (last_id, stopTime1) => createBundle(
                             url,
@@ -231,8 +234,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                     /**
                      * @type {string}
                      */
-                    const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
-                        .getFirstCollectionNameForQuery();
+                    const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                     /**
                      * @type {Resource}
                      */
@@ -269,8 +271,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         /**
          * @type {string}
          */
-        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas)
-            .getFirstCollectionNameForQuery();
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };
