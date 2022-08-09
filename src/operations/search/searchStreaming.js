@@ -52,12 +52,39 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
     fhirLogger.info(
         {
-            user: user,
-            requestId: requestId,
-            operation: 'searchStreaming',
-            resourceType: resourceType,
-            scope: scope,
-            args: args,
+            id: requestInfo.requestId,
+            type: {
+                code: 'searchStreaming'
+            },
+            agent: [
+                {
+                    name: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
+                    network: {
+                        address: requestInfo.remoteIpAddress
+                    },
+                    policy: [
+                        scope
+                    ]
+                }
+            ],
+            source: {
+                site: requestInfo.originalUrl
+            },
+            entity: [
+                {
+                    name: resourceType,
+                    detail: Object.entries(args).map((k, v) => {
+                            return {
+                                type: k,
+                                valueString: v
+                            };
+                        }
+                    )
+                }
+            ],
+            // operation: 'searchStreaming',
+            // resourceType: resourceType,
+            // args: args,
             message: 'start'
         }
     );
