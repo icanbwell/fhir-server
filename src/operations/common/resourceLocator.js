@@ -2,7 +2,7 @@ const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {getOrCreateCollectionAsync} = require('../../utils/mongoCollectionManager');
 const async = require('async');
-
+const assert = require('node:assert/strict');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -14,7 +14,8 @@ class ResourceLocator {
      * @param {boolean|null} useAtlas
      */
     constructor(resourceType, base_version, useAtlas) {
-        console.assert(this._resourceType);
+        assert(resourceType, 'resourceType is not passed to ResourceLocator constructor');
+        assert(base_version, 'base_version is not passed to ResourceLocator constructor');
         /**
          * @type {string}
          * @private
