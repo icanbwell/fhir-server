@@ -24,6 +24,8 @@ const {
     getGraphQLHeaders
 } = require('../../common');
 
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
