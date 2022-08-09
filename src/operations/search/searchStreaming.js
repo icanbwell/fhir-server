@@ -4,7 +4,7 @@ const {
     verifyHasValidScopes,
 } = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logDebug} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -16,8 +16,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
-const moment = require('moment-timezone');
-const fhirLogger = require('../../utils/fhirLogger').FhirLogger.getLogger();
+
 
 /**
  * does a FHIR Search
@@ -51,51 +50,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         requestId
     } = requestInfo;
 
-    const detail = Object.entries(args).map(([k, v]) => {
-            return {
-                type: k,
-                valueString: String(v)
-            };
-        }
-    );
-    fhirLogger.info(
-        {
-            id: requestInfo.requestId,
-            type: {
-                code: 'fhirServer'
-            },
-            action: 'searchStreaming',
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-            outcomeDesc: 'Success',
-            agent: [
-                {
-                    altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
-                    network: {
-                        address: requestInfo.remoteIpAddress
-                    },
-                    policy: [
-                        scope
-                    ]
-                }
-            ],
-            source: {
-                site: requestInfo.originalUrl
-            },
-            entity: [
-                {
-                    name: resourceType,
-                    detail: detail
-                }
-            ],
-            // operation: 'searchStreaming',
-            // resourceType: resourceType,
-            // args: args,
-            message: 'start'
-        }
-    );
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
     /**
@@ -124,10 +78,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
-
-    logDebug(user, '---- query ----');
-    logDebug(user, JSON.stringify(query));
-    logDebug(user, '--------');
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -322,5 +272,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
+    } finally {
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'start');
     }
 };
