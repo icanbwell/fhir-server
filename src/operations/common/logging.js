@@ -57,14 +57,20 @@ module.exports.logWarn = (user, msg) => {
  * @param {string} action
  * @param {Error|null} error
  */
-module.exports.logOperation = (requestInfo, args,
-                               scope, resourceType,
-                               startTime, stopTime,
-                               message, action, error = null) => {
+module.exports.logOperation = (
+    requestInfo,
+    args,
+    scope,
+    resourceType,
+    startTime,
+    stopTime,
+    message,
+    action,
+    error = null) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    let detail = Object.entries(args).map(([k, v]) => {
+    const detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
                 valueString: JSON.stringify(v)
@@ -79,6 +85,12 @@ module.exports.logOperation = (requestInfo, args,
         detail.push({
             type: 'duration',
             valuePositiveInt: elapsedSeconds
+        });
+    }
+    if (requestInfo.body) {
+        detail.push({
+            type: 'body',
+            valueString: JSON.stringify(requestInfo.body)
         });
     }
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html

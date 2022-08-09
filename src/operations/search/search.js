@@ -43,6 +43,9 @@ module.exports.search = async (requestInfo, args, resourceType,
         fhirPersonId,
         /** @type {boolean} */
         isUser,
+        /**
+         * @type {string}
+         */
         requestId
     } = requestInfo;
 
