@@ -54,6 +54,7 @@ const graphql = async () => {
                     patients: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
                     scope: req.authInfo && req.authInfo.scope,
                     remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    requestId: req.id,
                     protocol: req.protocol,
                     originalUrl: req.originalUrl,
                     path: req.path,

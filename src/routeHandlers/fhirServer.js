@@ -14,6 +14,7 @@ const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-co
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
 const router = require('../middleware/fhir/router');
+const {generateUUID} = require('../utils/uid.util');
 
 class MyFHIRServer extends FHIRServer.Server {
     constructor(config = {}, app = null) {
@@ -58,13 +59,9 @@ class MyFHIRServer extends FHIRServer.Server {
 
         }));
 
+        // generate a unique ID for each request.  Use X-REQUEST-ID in header if sent.
         this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
-            req.setTimeout(60 * 60 * 1000, () => {
-                console.log('HTTP Request timeout');
-            });
-            req.on('close', () => {
-                console.log('HTTP Request stream was closed');
-            });
+            req.id = req.headers['X-REQUEST-ID'] || generateUUID();
             next();
         });
 

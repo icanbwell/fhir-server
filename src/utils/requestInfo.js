@@ -6,6 +6,7 @@ class RequestInfo {
      * @param {string} protocol
      * @param {string} originalUrl
      * @param {string | null} remoteIpAddress
+     * @param {string|null} requestId
      * @param {string | null} path
      * @param {string | null} host
      * @param {Object | Object[] | null} body
@@ -17,6 +18,7 @@ class RequestInfo {
     constructor(user,
                 scope,
                 remoteIpAddress,
+                requestId,
                 protocol,
                 originalUrl,
                 path,
@@ -38,6 +40,10 @@ class RequestInfo {
          * @type {string|null}
          */
         this.remoteIpAddress = remoteIpAddress;
+        /**
+         * @type {string|null}
+         */
+        this.requestId = requestId;
         /**
          * @type {string}
          */
@@ -78,5 +84,5 @@ class RequestInfo {
 }
 
 module.exports = {
-    RequestInfo: RequestInfo
+    RequestInfo
 };

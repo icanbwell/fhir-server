@@ -17,7 +17,6 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
-const {generateUUID} = require('../../utils/uid.util');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger.getLogger();
 
 /**
@@ -51,14 +50,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         /** @type {string} */
         fhirPersonId,
         /** @type {boolean} */
-        isUser
+        isUser,
+        requestId
     } = requestInfo;
-
-    // Assign a random number to this request
-    /**
-     * @type {string}
-     */
-    const requestId = generateUUID();
 
     fhirLogger.info(
         {

@@ -29,6 +29,7 @@ describe('graphHelper Tests', () => {
         'user',
         'user/*.read access/*.*',
         null,
+        '1',
         'https',
         '',
         null,

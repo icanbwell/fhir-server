@@ -34,6 +34,7 @@ function getRequestInfo(req) {
         req.user,
         req.authInfo && req.authInfo.scope,
         req.headers['X-Forwarded-For'] || req.connection.remoteAddress,
+        req.id,
         req.protocol,
         req.originalUrl,
         req.path,
