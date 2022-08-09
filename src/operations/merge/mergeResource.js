@@ -6,7 +6,7 @@ const {logDebug, logError} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mergeExistingAsync} = require('./mergeExisting');
 const {mergeInsertAsync} = require('./mergeInsert');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 /**
  * Merges a single resource
@@ -57,18 +57,14 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         const useAtlas = (isTrue(env.USE_ATLAS));
 
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-         */
-        const collection = await getOrCreateCollectionForResourceTypeAsync(resource_to_merge.resourceType, baseVersion, useAtlas);
-
         // Query our collection for this id
         /**
          * @type {Object}
          */
         let data = databaseBulkLoader ?
             databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
-            await collection.findOne({id: id.toString()});
+            await new DatabaseQueryManager(resource_to_merge.resourceType, baseVersion, useAtlas)
+                .findOneAsync({id: id.toString()});
 
         logDebug('test?', '------- data -------');
         logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);

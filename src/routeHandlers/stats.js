@@ -5,7 +5,7 @@
 const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
-const {createClient, disconnectClient} = require('../utils/connect');
+const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 
 module.exports.handleStats = async (req, res) => {
@@ -17,7 +17,7 @@ module.exports.handleStats = async (req, res) => {
      * @param {import('mongodb').Db} db
      * @return {Promise<{name, count: *}>}
      */
-    async function getStatsForCollection(collection_name, db) {
+    async function getStatsForCollectionAsync(collection_name, db) {
         console.log(collection_name);
         const count = await db.collection(collection_name).estimatedDocumentCount();
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
@@ -27,7 +27,7 @@ module.exports.handleStats = async (req, res) => {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -46,7 +46,7 @@ module.exports.handleStats = async (req, res) => {
         console.info('Collection_names:' + collection_names);
         const collection_stats = await async.map(
             collection_names,
-            async collection_name => await getStatsForCollection(collection_name, db)
+            async collection_name => await getStatsForCollectionAsync(collection_name, db)
         );
         res.status(200).json({
             success: true,
@@ -55,6 +55,6 @@ module.exports.handleStats = async (req, res) => {
             collections: collection_stats
         });
     } finally {
-        await disconnectClient(client);
+        await disconnectClientAsync(client);
     }
 };

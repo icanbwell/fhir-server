@@ -7,7 +7,6 @@ const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {searchOld} = require('./searchOld');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
@@ -16,7 +15,7 @@ const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {ResourceLocator} = require('../common/resourceLocator');
 
 /**
  * does a FHIR Search
@@ -29,9 +28,6 @@ const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceM
  */
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         filter = true) => {
-    if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceType);
-    }
     /**
      * @type {number}
      */
@@ -52,7 +48,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         isUser
     } = requestInfo;
 
-    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
+    logRequest(user, resourceType + ' >>> searchStreaming' + ' scope:' + scope);
     // logRequest('user: ' + req.user);
     // logRequest('scope: ' + req.authInfo.scope);
     verifyHasValidScopes(resourceType, 'read', user, scope);
@@ -83,10 +79,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
     } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
 
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-    /**
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
@@ -106,9 +98,14 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
 
+    /**
+     * @type {ResourceLocator}
+     */
+    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(args, columns, resourceType, options, query, useAtlas, collection,
+        const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
+            args, columns, options, query,
             maxMongoTimeMS, user, true, useAccessIndex);
         /**
          * @type {Set}
@@ -145,7 +142,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+         * @type {DatabasePartitionedCursor}
          */
         let cursor = __ret.cursor;
 
@@ -176,6 +173,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
+                    /**
+                     * @type {string}
+                     */
+                    const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                     resourceIds = await streamBundleFromCursorAsync(cursor, url,
                         (last_id, stopTime1) => createBundle(
                             url,
@@ -185,7 +186,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                             total_count,
                             args,
                             originalQuery,
-                            collection.collectionName,
+                            collectionName,
                             originalOptions,
                             columns,
                             stopTime1,
@@ -231,6 +232,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                 // return empty bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
                     /**
+                     * @type {string}
+                     */
+                    const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+                    /**
                      * @type {Resource}
                      */
                     const bundle = createBundle(
@@ -241,7 +246,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         total_count,
                         args,
                         originalQuery,
-                        collection.collectionName,
+                        collectionName,
                         originalOptions,
                         columns,
                         stopTime,
@@ -263,6 +268,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        /**
+         * @type {string}
+         */
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+        throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };

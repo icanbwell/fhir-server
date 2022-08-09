@@ -9,7 +9,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
  * Reads resources from Mongo cursor and writes to response
- * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @param {DatabasePartitionedCursor} cursor
  * @param {string | null} url
  * @param {function (string | null, number): Resource} fnBundle
  * @param {import('http').ServerResponse} res
@@ -91,5 +91,5 @@ async function streamBundleFromCursorAsync(
 
 
 module.exports = {
-    streamBundleFromCursorAsync: streamBundleFromCursorAsync
+    streamBundleFromCursorAsync
 };

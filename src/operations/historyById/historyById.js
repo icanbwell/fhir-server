@@ -6,7 +6,7 @@ const {getResource} = require('../common/getResource');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {getOrCreateHistoryCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR History By id
@@ -38,17 +38,12 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     let Resource = getResource(base_version, resourceType);
 
     // Query our collection for this observation
     let cursor;
     try {
-        cursor = await history_collection.find(query);
+        cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
     } catch (e) {
         logError(`Error with ${resourceType}.historyById: `, e);
         throw new BadRequestError(e);
@@ -64,5 +59,5 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
     if (resources.length === 0) {
         throw new NotFoundError();
     }
-    return (resources);
+    return resources;
 };

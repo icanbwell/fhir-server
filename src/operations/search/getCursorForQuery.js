@@ -1,3 +1,4 @@
+'use strict';
 const env = require('var');
 const deepcopy = require('deepcopy');
 const {isTrue} = require('../../utils/isTrue');
@@ -9,12 +10,14 @@ const {handleTwoStepSearchOptimizationAsync} = require('./handleTwoStepOptimizat
 const {setCursorBatchSize} = require('./setCursorBatchSize');
 const {handleGetTotalsAsync} = require('./handleGetTotals');
 const {setIndexHint} = require('./setIndexHint');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {ResourceLocator} = require('../common/resourceLocator');
 
 /**
  * @typedef GetCursorResult
  * @type {object}
  * @property {int | null} cursorBatchSize
- * @property {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @property {DatabasePartitionedCursor} cursor
  * @property {string | null} indexHint
  * @property {boolean} useTwoStepSearchOptimization
  * @property {Set} columns
@@ -28,22 +31,24 @@ const {setIndexHint} = require('./setIndexHint');
 
 /**
  * Create the query and gets the cursor from mongo
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {boolean|null} useAtlas
  * @param {Object?} args
  * @param {Set} columns
- * @param {string} resourceType
  * @param {Object} options
  * @param {import('mongodb').Document} query
  * @param {boolean} useAtlas
- * @param {import('mongodb').Collection} collection
  * @param {number} maxMongoTimeMS
  * @param {string | null} user
  * @param {boolean} isStreaming
  * @param {boolean} useAccessIndex
  * @returns {Promise<GetCursorResult>}
  */
-async function getCursorForQueryAsync(args, columns, resourceType, options,
-                                      query, useAtlas,
-                                      collection, maxMongoTimeMS,
+async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
+                                      args, columns, options,
+                                      query,
+                                      maxMongoTimeMS,
                                       user,
                                       isStreaming, useAccessIndex) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -100,13 +105,15 @@ async function getCursorForQueryAsync(args, columns, resourceType, options,
         !args['_elements'] &&
         !args['id'] &&
         (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
-    if (useTwoStepSearchOptimization) {
+    if (isTrue(useTwoStepSearchOptimization)) {
         const __ret = await handleTwoStepSearchOptimizationAsync(
+            resourceType,
+            base_version,
+            useAtlas,
             options,
             originalQuery,
             query,
             originalOptions,
-            collection,
             maxMongoTimeMS
         );
         options = __ret.options;
@@ -152,17 +159,16 @@ async function getCursorForQueryAsync(args, columns, resourceType, options,
     // run the query and get the results
     // Now run the query to get a cursor we will enumerate next
     /**
-     * https://mongodb.github.io/node-mongodb-native/3.6/api/Cursor.html
-     * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+     * @type {DatabasePartitionedCursor}
      */
-    let cursorQuery = collection.find(query, options);
+    let cursorQuery = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        .findAsync(query, options);
 
     if (isStreaming) {
         cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
     } else {
         cursorQuery = cursorQuery.maxTimeMS(maxMongoTimeMS);
     }
-
 
     // avoid double sorting since Mongo gives you different results
     if (useTwoStepSearchOptimization && !options['sort']) {
@@ -181,22 +187,23 @@ async function getCursorForQueryAsync(args, columns, resourceType, options,
         cursorQuery = __ret.cursorQuery;
     }
     /**
-     * mongo db cursor
-     * https://github.com/mongodb/node-mongodb-native/blob/HEAD/etc/notes/errors.md
-     * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+     * @type {DatabasePartitionedCursor}
      */
     let cursor = cursorQuery;
 
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
-        const __ret = setIndexHint(indexHint, collection.collectionName, columns, cursor, user);
+        // TODO: handle index hints for multiple collections
+        const collectionNamesForQueryForResourceType = new ResourceLocator(resourceType, base_version, useAtlas)
+            .getCollectionNamesForQuery();
+        const __ret = setIndexHint(indexHint, collectionNamesForQueryForResourceType[0], columns, cursor, user);
         indexHint = __ret.indexHint;
         cursor = __ret.cursor;
     }
 
     // if _total is specified then ask mongo for the total else set total to 0
     if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
-        total_count = await handleGetTotalsAsync(args, collection, query, maxMongoTimeMS);
+        total_count = await handleGetTotalsAsync(resourceType, base_version, useAtlas, args, query, maxMongoTimeMS);
     }
 
     return {

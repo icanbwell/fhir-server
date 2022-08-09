@@ -6,7 +6,6 @@ const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
-const {oldGraph} = require('./oldgraph');
 const env = require('var');
 
 /**
@@ -20,14 +19,8 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
-    const host = requestInfo.host;
+    // const host = requestInfo.host;
     const body = requestInfo.body;
-
-    if (
-        isTrue(args['_useOldGraph']) || (isTrue(env.USE_OLD_GRAPH) && !isTrue(args['_useNewGraph']))
-    ) {
-        return oldGraph(args, user, scope, body, path, host, resourceType, resourceType);
-    }
 
     logRequest(user, `${resourceType} >>> graph`);
     verifyHasValidScopes(resourceType, 'read', user, scope);

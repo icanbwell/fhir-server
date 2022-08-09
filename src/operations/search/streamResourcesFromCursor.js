@@ -13,7 +13,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
  * Reads resources from Mongo cursor and writes to response
- * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @param {DatabasePartitionedCursor} cursor
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
  * @param {string | null} scope
@@ -121,5 +121,5 @@ async function streamResourcesFromCursorAsync(
 
 
 module.exports = {
-    streamResourcesFromCursorAsync: streamResourcesFromCursorAsync
+    streamResourcesFromCursorAsync
 };

@@ -7,7 +7,7 @@ const env = require('var');
 
 const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
-const {createClient, disconnectClient} = require('../utils/connect');
+const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 
@@ -52,7 +52,7 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
  * @param {import('mongodb').Db} db
  * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
  */
-async function indexCollection(collection_name, db) {
+async function indexCollectionAsync(collection_name, db) {
     console.log('Processing collection', collection_name);
     // check if index exists
     let createdIndex = false;
@@ -93,11 +93,11 @@ async function indexCollection(collection_name, db) {
  * @param {string?} tableName
  * @return {Promise<*>}
  */
-async function indexAllCollections(tableName) {
+async function indexAllCollectionsAsync(tableName) {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -118,10 +118,10 @@ async function indexAllCollections(tableName) {
         // now add indices on id column for every collection
         return async.map(
             collection_names,
-            async collection_name => await indexCollection(collection_name, db)
+            async collection_name => await indexCollectionAsync(collection_name, db)
         );
     } finally {
-        await disconnectClient(client);
+        await disconnectClientAsync(client);
     }
 }
 
@@ -131,7 +131,7 @@ async function indexAllCollections(tableName) {
  * @param {import('mongodb').Db} db
  * @return {Promise<{indexes: *, name}>}
  */
-async function getIndexesInCollection(collection_name, db) {
+async function getIndexesInCollectionAsync(collection_name, db) {
     // check if index exists
     const indexes = await db.collection(collection_name).indexes();
     return {
@@ -146,7 +146,7 @@ async function getIndexesInCollection(collection_name, db) {
  * @param {import('mongodb').Db} db
  * @return {Promise<{indexes: *, name}>}
  */
-async function deleteIndexesInCollection(collection_name, db) {
+async function deleteIndexesInCollectionAsync(collection_name, db) {
     await db.collection(collection_name).dropIndexes();
 }
 
@@ -154,11 +154,11 @@ async function deleteIndexesInCollection(collection_name, db) {
  * Gets indexes on all the collections
  * @return {Promise<*>}
  */
-async function getIndexesInAllCollections() {
+async function getIndexesInAllCollectionsAsync() {
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -175,10 +175,10 @@ async function getIndexesInAllCollections() {
         // now add indices on id column for every collection
         return await async.map(
             collection_names,
-            async collection_name => await getIndexesInCollection(collection_name, db)
+            async collection_name => await getIndexesInCollectionAsync(collection_name, db)
         );
     } finally {
-        await disconnectClient(client);
+        await disconnectClientAsync(client);
     }
 }
 
@@ -187,12 +187,12 @@ async function getIndexesInAllCollections() {
  * @param {string?} tableName
  * @return {Promise<*>}
  */
-async function deleteIndexesInAllCollections(tableName) {
+async function deleteIndexesInAllCollectionsAsync(tableName) {
     console.log('starting deleteIndexesInAllCollections');
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -212,18 +212,18 @@ async function deleteIndexesInAllCollections(tableName) {
 
         for await (const collection_name of collection_names) {
             console.log('Deleting all indexes in ' + collection_name);
-            await deleteIndexesInCollection(collection_name, db);
+            await deleteIndexesInCollectionAsync(collection_name, db);
         }
 
         console.log('Finished deleteIndexesInAllCollections');
     } finally {
-        await disconnectClient(client);
+        await disconnectClientAsync(client);
     }
 }
 
 module.exports = {
-    indexAllCollections,
-    indexCollection,
-    getIndexesInAllCollections,
-    deleteIndexesInAllCollections
+    indexAllCollectionsAsync,
+    indexCollectionAsync,
+    getIndexesInAllCollectionsAsync,
+    deleteIndexesInAllCollectionsAsync
 };

@@ -19,6 +19,7 @@ const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 const {findDuplicateResources} = require('../../../utils/list.util');
 const {assertCompareBundles} = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -84,8 +85,7 @@ describe('Practitioner Graph Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(graphDefinitionResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             console.log('------- response Practitioner 1679033641 $graph ------------');
             console.log(JSON.stringify(resp.body, null, 2));

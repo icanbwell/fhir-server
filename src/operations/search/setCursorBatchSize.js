@@ -3,8 +3,8 @@ const env = require('var');
 /**
  * sets cursor batch size based on args or environment variables
  * @param {Object} args
- * @param {Cursor<unknown> | *} cursorQuery
- * @return {{cursorBatchSize: number, cursorQuery}}
+ * @param {DatabasePartitionedCursor} cursorQuery
+ * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
  */
 function setCursorBatchSize(args, cursorQuery) {
     const cursorBatchSize = args['_cursorBatchSize'] ?
@@ -18,5 +18,5 @@ function setCursorBatchSize(args, cursorQuery) {
 
 
 module.exports = {
-    setCursorBatchSize: setCursorBatchSize
+    setCursorBatchSize
 };

@@ -7,7 +7,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 
 /**
  * Reads resources from Mongo cursor
- * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
+ * @param {DatabasePartitionedCursor} cursor
  * @param {string | null} user
  * @param {string | null} scope
  * @param {Object?} args
@@ -81,5 +81,5 @@ async function readResourcesFromCursorAsync(cursor, user, scope,
 
 
 module.exports = {
-    readResourcesFromCursorAsync: readResourcesFromCursorAsync
+    readResourcesFromCursorAsync
 };

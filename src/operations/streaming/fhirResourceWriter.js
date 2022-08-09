@@ -67,5 +67,5 @@ class FhirResourceWriter extends Transform {
 }
 
 module.exports = {
-    FhirResourceWriter: FhirResourceWriter
+    FhirResourceWriter
 };
