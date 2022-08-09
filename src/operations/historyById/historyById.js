@@ -1,4 +1,4 @@
-const {logRequest, logError} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
@@ -16,10 +16,13 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, `${resourceType} >>> historyById`);
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
     let {base_version, id} = args;
@@ -45,7 +48,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
     try {
         cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
     } catch (e) {
-        logError(`Error with ${resourceType}.historyById: `, e);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'historyById', e);
         throw new BadRequestError(e);
     }
     const resources = [];
@@ -57,7 +60,10 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
         }
     }
     if (resources.length === 0) {
-        throw new NotFoundError();
+        const notFoundError = new NotFoundError();
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'historyById', notFoundError);
+        throw notFoundError;
     }
+    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'historyById');
     return resources;
 };

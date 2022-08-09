@@ -1,4 +1,4 @@
-const {logRequest, logError} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
@@ -17,10 +17,12 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-
-    logRequest(user, `${resourceType} >>> remove`);
 
     if (args['id'] === '0') {
         delete args['id'];
@@ -36,7 +38,9 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
         // fail if there are no access codes
         if (accessCodes.length === 0) {
             let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-            throw new ForbiddenError(errorMessage);
+            const forbiddenError = new ForbiddenError(errorMessage);
+            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'remove', forbiddenError);
+            throw forbiddenError;
         }
         // see if we have the * access code
         else if (accessCodes.includes('*')) {
@@ -86,8 +90,6 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
         );
     }
 
-    logRequest(user, `Deleting ${JSON.stringify(query)}`);
-
     if (Object.keys(query).length === 0) {
         // don't delete everything
         return {deleted: 0};
@@ -111,9 +113,10 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
         await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
 
     } catch (e) {
-        logError(user, `Error with ${resourceType}.remove`);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'remove', e);
         throw new NotAllowedError(e.message);
     }
 
+    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'remove');
     return {deleted: res.deletedCount};
 };

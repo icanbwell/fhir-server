@@ -1,4 +1,4 @@
-const {logRequest} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
@@ -14,9 +14,13 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    logRequest(user, `${resourceType} >>> searchByVersionId`);
+
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
     let {base_version, id, version_id} = args;
@@ -39,12 +43,15 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
 
     if (resource) {
         if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-            throw new ForbiddenError(
+            const forbiddenError = new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
+            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchByVersionId', forbiddenError);
+            throw forbiddenError;
         }
         // run any enrichment
         resource = (await enrich([resource], resourceType))[0];
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'searchByVersionId');
         return (new Resource(resource));
     } else {
         throw new NotFoundError();

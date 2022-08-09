@@ -266,13 +266,13 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
+        logOperation(requestInfo, args, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
     } catch (e) {
         /**
          * @type {number}
          */
         const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
+        logOperation(requestInfo, args, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
         /**
          * @type {string}
          */

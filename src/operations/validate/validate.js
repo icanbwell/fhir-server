@@ -1,4 +1,4 @@
-const {logRequest} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 /**
@@ -8,21 +8,22 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * @param {string} resourceType
  */
 module.exports.validate = async (requestInfo, args, resourceType) => {
-    const user = requestInfo.user;
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const path = requestInfo.path;
-    const body = requestInfo.body;
-
-    logRequest(user, `${resourceType} >>> validate`);
 
     // no auth check needed to call validate
 
-    let resource_incoming = body;
+    let resource_incoming = requestInfo.body;
 
     // eslint-disable-next-line no-unused-vars
     // let {base_version} = args;
 
     const operationOutcome = validateResource(resource_incoming, resourceType, path);
     if (operationOutcome && operationOutcome.statusCode === 400) {
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'validate');
         return operationOutcome;
     }
 
@@ -43,6 +44,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
             ]
         };
     }
+    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'validate');
     return {
         resourceType: 'OperationOutcome',
         issue: [

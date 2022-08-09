@@ -91,7 +91,6 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          * @type {Resource|Resource[]}
          */
         let resourcesIncoming = body;
-        logDebug(user, JSON.stringify(args));
         /**
          * @type {string}
          */
@@ -106,14 +105,8 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        logDebug(user, '--- body ----');
-        logDebug(user, JSON.stringify(resourcesIncoming));
-        logDebug(user, '-----------------');
-
-
         // if the incoming request is a bundle then unwrap the bundle
         if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
-            logDebug(user, '--- validate schema of Bundle ----');
             const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 return operationOutcome;
@@ -192,19 +185,10 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         logDebug(user, JSON.stringify(mergeResults));
         logDebug(user, '-----------------');
 
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'merge');
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'merge', e);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'merge', e);
         throw e;
-    } finally {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'merge');
     }
 };

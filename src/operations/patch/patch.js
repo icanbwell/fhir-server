@@ -1,4 +1,4 @@
-const {logRequest, logError} = require('../common/logging');
+const {logError, logOperation} = require('../common/logging');
 const {verifyHasValidScopes} = require('../security/scopes');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
@@ -18,10 +18,13 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, 'Patient >>> patch');
     verifyHasValidScopes(resourceType, 'write', user, scope);
 
     let {base_version, id, patchContent} = args;
@@ -38,7 +41,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
         data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
     } catch (e) {
-        logError(user, `Error with ${resourceType}.patch: ${e} `);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
         throw new BadRequestError(e);
     }
     if (!data) {
@@ -48,7 +51,9 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     let errors = validate(patchContent, data);
     if (errors && Object.keys(errors).length > 0) {
         logError(user, 'Error with patch contents');
-        throw new BadRequestError(errors[0]);
+        const badRequestError = new BadRequestError(errors[0]);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', badRequestError);
+        throw badRequestError;
     }
     // Make the changes indicated in the patch
     let resource_incoming = applyPatch(data, patchContent).newDocument;
@@ -64,7 +69,9 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         resource.meta = meta;
     } else {
-        throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
+        const badRequestError1 = new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', badRequestError1);
+        throw badRequestError1;
     }
 
     await preSaveAsync(resource);
@@ -86,7 +93,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
         res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
-        logError(user, `Error with ${resourceType}.update: ${e}`);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
         throw new BadRequestError(e);
     }
     // Save to history
@@ -100,9 +107,10 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     try {
         await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
     } catch (e) {
-        logError(user, `Error with ${resourceType}History.create: ${e}`);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
         throw new BadRequestError(e);
     }
+    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'patch');
     return {
         id: doc.id,
         created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,

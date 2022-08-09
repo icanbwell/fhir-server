@@ -1,4 +1,4 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {
     verifyHasValidScopes
 } = require('../security/scopes');
@@ -16,13 +16,16 @@ const env = require('var');
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
     // const host = requestInfo.host;
     const body = requestInfo.body;
 
-    logRequest(user, `${resourceType} >>> graph`);
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
     try {
@@ -30,8 +33,6 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
          * @type {string}
          */
         let {base_version, id} = args;
-
-        logRequest(user, `id=${id}`);
 
         id = id.split(',');
         /**
@@ -49,7 +50,6 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
 
         // get GraphDefinition from body
         const graphDefinitionRaw = body;
-        logDebug(user, '--- validate schema of GraphDefinition ----');
         const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             logDebug(user, 'GraphDefinition schema failed validation');
@@ -73,9 +73,10 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
         //     return operationOutcomeResult;
         // }
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'graph');
         return result;
     } catch (err) {
-        logError(user, `Error with ${resourceType}.graph: ${err} `);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'graph', err);
         throw new BadRequestError(err);
     }
 };

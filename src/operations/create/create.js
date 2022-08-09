@@ -1,4 +1,4 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {verifyHasValidScopes, doesResourceHaveAccessTags} = require('../security/scopes');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
@@ -23,11 +23,13 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  * @param {string} resourceType
  */
 module.exports.create = async (requestInfo, args, path, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const body = requestInfo.body;
-
-    logRequest(user, `${resourceType} >>> create`);
 
     verifyHasValidScopes(resourceType, 'write', user, scope);
 
@@ -35,9 +37,6 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
     let {base_version} = args;
 
-    logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resource_incoming));
-    logDebug(user, '-----------------');
     const uuid = resource_incoming.id || getUuid(resource_incoming);
 
     if (env.LOG_ALL_SAVES) {
@@ -52,7 +51,6 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
     }
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
-        logDebug(user, '--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -71,9 +69,10 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
                 currentDate,
                 uuid,
                 'create_failure');
-            throw new NotValidatedError(operationOutcome);
+            const notValidatedError = new NotValidatedError(operationOutcome);
+            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'create', notValidatedError);
+            throw notValidatedError;
         }
-        logDebug(user, '-----------------');
     }
 
     try {
@@ -162,17 +161,17 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         // Insert our resource record to history but don't assign _id
         await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'create');
         return {id: doc.id, resource_version: doc.meta.versionId};
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with creating resource ${resourceType} with id: ${uuid} `, e);
-
         await sendToS3('errors',
             resourceType,
             resource_incoming,
             currentDate,
             uuid,
             'create');
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'create', e);
         throw e;
     }
 };

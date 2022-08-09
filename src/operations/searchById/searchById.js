@@ -1,4 +1,4 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
@@ -22,6 +22,10 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (requestInfo, args, resourceType,
                                    filter = true) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const {
         /** @type {string[]} */
         patients = [],
@@ -35,17 +39,11 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         scope
     } = requestInfo;
 
-    logRequest(user, `${resourceType} >>> searchById`);
-    logDebug(user, JSON.stringify(args));
-
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
     // Common search params
     let {id} = args;
     let {base_version} = args;
-
-    logDebug(user, `id: ${id}`);
-    logDebug(user, `base_version: ${base_version}`);
 
     // Search Result param
     /**
@@ -74,7 +72,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
     try {
         resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
     } catch (e) {
-        logError(user, `Error with ${resourceType}.searchById: {e}`);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchById', e);
         throw new BadRequestError(e);
     }
 
@@ -95,9 +93,11 @@ module.exports.searchById = async (requestInfo, args, resourceType,
             // log access to audit logs
             await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
         }
-
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'searchById');
         return new Resource(resource);
     } else {
-        throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        const notFoundError = new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchById', notFoundError);
+        throw notFoundError;
     }
 };

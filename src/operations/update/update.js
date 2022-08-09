@@ -1,4 +1,4 @@
-const {logRequest, logDebug} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {
     verifyHasValidScopes,
     isAccessToResourceAllowedBySecurityTags,
@@ -27,21 +27,20 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  * @param {string} resourceType
  */
 module.exports.update = async (requestInfo, args, resourceType) => {
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
     const path = requestInfo.path;
     const body = requestInfo.body;
-    logRequest(user, `'${resourceType} >>> update`);
 
     verifyHasValidScopes(resourceType, 'write', user, scope);
 
     // read the incoming resource from request body
     let resource_incoming_json = body;
     let {base_version, id} = args;
-    logDebug(user, base_version);
-    logDebug(user, id);
-    logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resource_incoming_json));
 
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -54,7 +53,6 @@ module.exports.update = async (requestInfo, args, resourceType) => {
     }
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
-        logDebug(user, '--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming_json, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -76,7 +74,6 @@ module.exports.update = async (requestInfo, args, resourceType) => {
                 'update_failure');
             throw new NotValidatedError(operationOutcome);
         }
-        logDebug(user, '-----------------');
     }
 
     try {
@@ -243,6 +240,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             await logAuditEntryAsync(requestInfo, base_version, resourceType, 'update', args, [resource_incoming['id']]);
         }
 
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'update');
         return {
             id: id,
             created: res.created,
@@ -258,6 +256,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             currentDate,
             id,
             'update');
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'update', e);
         throw e;
     }
 };

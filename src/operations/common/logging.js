@@ -49,7 +49,6 @@ module.exports.logWarn = (user, msg) => {
  * Logs a FHIR operation
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
- * @param {string | null} scope
  * @param {string} resourceType
  * @param {number|null} startTime
  * @param {number|null} stopTime
@@ -60,7 +59,6 @@ module.exports.logWarn = (user, msg) => {
 module.exports.logOperation = (
     requestInfo,
     args,
-    scope,
     resourceType,
     startTime,
     stopTime,
@@ -81,10 +79,10 @@ module.exports.logOperation = (
         /**
          * @type {number}
          */
-        const elapsedSeconds = stopTime - startTime;
+        const elapsedMilliSeconds = stopTime - startTime;
         detail.push({
             type: 'duration',
-            valuePositiveInt: elapsedSeconds
+            valuePositiveInt: elapsedMilliSeconds
         });
     }
     if (requestInfo.body) {
@@ -115,7 +113,7 @@ module.exports.logOperation = (
                         address: requestInfo.remoteIpAddress
                     },
                     policy: [
-                        scope
+                        requestInfo.scope
                     ]
                 }
             ],

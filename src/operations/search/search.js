@@ -188,7 +188,7 @@ module.exports.search = async (requestInfo, args, resourceType,
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            return createBundle(
+            const bundle = createBundle(
                 url,
                 last_id,
                 resources,
@@ -207,25 +207,18 @@ module.exports.search = async (requestInfo, args, resourceType,
                 user,
                 useAtlas
             );
+            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
+            return bundle;
         } else {
+            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
             return resources;
         }
     } catch (e) {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
+        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchStreaming', e);
         /**
          * @type {string}
          */
         const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-        throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
-    } finally {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'search');
+        throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
     }
 };
