@@ -4,7 +4,7 @@ const {
     verifyHasValidScopes,
 } = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
+const {logRequest, logDebug, logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -219,10 +219,17 @@ module.exports.search = async (requestInfo, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
         /**
          * @type {string}
          */
         const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
+    } finally {
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'search');
     }
 };

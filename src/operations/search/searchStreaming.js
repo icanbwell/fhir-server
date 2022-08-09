@@ -267,6 +267,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
         /**
          * @type {string}
          */
@@ -277,6 +278,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'start', 'searchStreaming');
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
     }
 };

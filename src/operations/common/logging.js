@@ -60,7 +60,7 @@ module.exports.logWarn = (user, msg) => {
 module.exports.logOperation = (requestInfo, args,
                                scope, resourceType,
                                startTime, stopTime,
-                               message, action, error) => {
+                               message, action, error = null) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
