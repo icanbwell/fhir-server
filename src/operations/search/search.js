@@ -7,7 +7,6 @@ const {getResource} = require('../common/getResource');
 const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {searchOld} = require('./searchOld');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
@@ -15,7 +14,7 @@ const {constructQuery} = require('./constructQuery');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {getOrCreateCollectionForResourceTypeAsync, getCollectionNameForResourceType} = require('../common/resourceManager');
+const {ResourceLocator} = require('../common/resourceLocator');
 
 /**
  * does a FHIR Search
@@ -27,9 +26,6 @@ const {getOrCreateCollectionForResourceTypeAsync, getCollectionNameForResourceTy
  */
 module.exports.search = async (requestInfo, args, resourceType,
                                filter = true) => {
-    if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceType);
-    }
     /**
      * @type {number}
      */
@@ -81,12 +77,6 @@ module.exports.search = async (requestInfo, args, resourceType,
         columns
     } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
 
-
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     /**
      * @type {function(?Object): Resource}
      */
@@ -110,7 +100,8 @@ module.exports.search = async (requestInfo, args, resourceType,
 
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(args, columns, resourceType, options, query, useAtlas, collection,
+        const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
+            args, columns, options, query,
             maxMongoTimeMS, user, false, useAccessIndex);
         /**
          * @type {Set}
@@ -147,7 +138,7 @@ module.exports.search = async (requestInfo, args, resourceType,
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
+         * @type {DatabasePartitionedCursor}
          */
         let cursor = __ret.cursor;
 
@@ -158,7 +149,9 @@ module.exports.search = async (requestInfo, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
-                mongoQueryAndOptionsStringify(getCollectionNameForResourceType(resourceType, base_version), originalQuery, originalOptions));
+                mongoQueryAndOptionsStringify(
+                    new ResourceLocator(resourceType, base_version, useAtlas)
+                        .getFirstCollectionNameForQuery(), originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );
@@ -189,6 +182,11 @@ module.exports.search = async (requestInfo, args, resourceType,
 
         // if env.RETURN_BUNDLE is set then return as a Bundle
         if (env.RETURN_BUNDLE || args['_bundle']) {
+
+            /**
+             * @type {string}
+             */
+            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
             /**
              * id of last resource in the list
              * @type {?string}
@@ -202,7 +200,7 @@ module.exports.search = async (requestInfo, args, resourceType,
                 total_count,
                 args,
                 originalQuery,
-                collection.collectionName,
+                collectionName,
                 originalOptions,
                 columns,
                 stopTime,
@@ -221,6 +219,10 @@ module.exports.search = async (requestInfo, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(requestId, e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        /**
+         * @type {string}
+         */
+        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+        throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
     }
 };

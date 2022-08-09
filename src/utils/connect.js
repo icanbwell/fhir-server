@@ -17,7 +17,7 @@ const env = require('var');
  * @param {Object} mongoConfig1
  * @returns {Promise<import("mongodb").MongoClient>}
  */
-async function createClient(mongoConfig1) {
+async function createClientAsync(mongoConfig1) {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         mongoConfig1.options.monitorCommands = true;
         console.log(`Connecting to ${mongoConfig1.connection}`);
@@ -57,23 +57,23 @@ async function createClient(mongoConfig1) {
     return client;
 }
 
-const connect = async function () {
+const connectAsync = async function () {
     if (globals.get(CLIENT)) {
         return;
     }
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
 
     globals.set(CLIENT, client);
     globals.set(CLIENT_DB, client.db(mongoConfig.db_name));
 
     if (env.ATLAS_MONGO_URL) {
-        const atlasClient = await createClient(atlasMongoConfig);
+        const atlasClient = await createClientAsync(atlasMongoConfig);
 
         globals.set(ATLAS_CLIENT, atlasClient);
         globals.set(ATLAS_CLIENT_DB, atlasClient.db(atlasMongoConfig.db_name));
     }
     if (env.AUDIT_EVENT_MONGO_URL) {
-        const auditEventClient = await createClient(auditEventMongoConfig);
+        const auditEventClient = await createClientAsync(auditEventMongoConfig);
 
         globals.set(AUDIT_EVENT_CLIENT, auditEventClient);
         globals.set(AUDIT_EVENT_CLIENT_DB, auditEventClient.db(auditEventMongoConfig.db_name));
@@ -88,7 +88,7 @@ const connect = async function () {
  * @param client
  * @returns {Promise<void>}
  */
-const disconnectClient = async function (client) {
+const disconnectClientAsync = async function (client) {
     if (client) {
         await client.close();
     }
@@ -98,16 +98,16 @@ const disconnectClient = async function (client) {
  * disconnects all global connections
  * @returns {Promise<void>}
  */
-const disconnect = async function () {
+const disconnectAsync = async function () {
     const awsClient = globals.get(CLIENT);
-    await disconnectClient(awsClient);
+    await disconnectClientAsync(awsClient);
     const atlasClient = globals.get(ATLAS_CLIENT);
-    await disconnectClient(atlasClient);
+    await disconnectClientAsync(atlasClient);
 };
 
 module.exports = {
-    createClient: createClient,
-    connect: connect,
-    disconnectClient: disconnectClient,
-    disconnect: disconnect,
+    createClientAsync,
+    connectAsync,
+    disconnectClientAsync,
+    disconnectAsync,
 };

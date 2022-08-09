@@ -10,6 +10,7 @@ const expectedSinglePatientResource = require('./fixtures/expected/expected_sing
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Delete Tests', () => {
     beforeEach(async () => {
@@ -56,8 +57,7 @@ describe('Practitioner Delete Tests', () => {
 
             resp = await request
                 .delete('/4_0_0/Patient/2')
-                .set(getHeaders())
-                .expect(204);
+                .set(getHeaders());
 
             resp = await request
                 .get('/4_0_0/Patient')

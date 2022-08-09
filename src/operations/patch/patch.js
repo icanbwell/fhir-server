@@ -8,10 +8,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {
-    getOrCreateCollectionForResourceTypeAsync,
-    getOrCreateHistoryCollectionForResourceTypeAsync
-} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -33,16 +31,12 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     // Get current record
     // Query our collection for this observation
     let data;
     try {
-        data = await collection.findOne({id: id.toString()});
+        data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .findOneAsync({id: id.toString()});
     } catch (e) {
         logError(user, `Error with ${resourceType}.patch: ${e} `);
         throw new BadRequestError(e);
@@ -76,28 +70,35 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     await preSaveAsync(resource);
 
     // Same as update from this point on
+    /**
+     * @type {Resource}
+     */
     let cleaned = removeNull(resource.toJSON());
+    /**
+     * @type {Resource}
+     */
     let doc = cleaned;
 
     // Insert/update our resource record
     let res;
     try {
         delete doc['_id'];
-        res = await collection.findOneAndUpdate({id: id}, {$set: doc}, {upsert: true});
+        res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
     } catch (e) {
         logError(user, `Error with ${resourceType}.update: ${e}`);
         throw new BadRequestError(e);
     }
     // Save to history
+
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+     * @type {Resource}
      */
-    const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
     let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
 
     // Insert our resource record to history but don't assign _id
     try {
-        await history_collection.insertOne(history_resource);
+        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
     } catch (e) {
         logError(user, `Error with ${resourceType}History.create: ${e}`);
         throw new BadRequestError(e);

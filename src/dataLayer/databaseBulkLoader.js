@@ -1,9 +1,7 @@
-const {groupByLambda, getFirstElementOrNull} = require('./list.util');
+const {groupByLambda, getFirstElementOrNull} = require('../utils/list.util');
 const async = require('async');
-const {
-    getOrCreateCollectionForResourceTypeAsync
-} = require('../operations/common/resourceManager');
 const {getResource} = require('../operations/common/getResource');
+const {DatabaseQueryManager} = require('./databaseQueryManager');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -56,16 +54,14 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     async getResourcesByIdAsync(base_version, useAtlas, resourceType, resourceAndIdList) {
-        const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
         const query = {
             id: {$in: resourceAndIdList.map(r => r.id)}
         };
         /**
          * cursor
-         * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
+         * @type {DatabasePartitionedCursor}
          */
-        const cursor = collection.find(
+        const cursor = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findAsync(
             query
         );
 
@@ -80,7 +76,7 @@ class DatabaseBulkLoader {
      *
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>} cursor
+     * @param {DatabasePartitionedCursor} cursor
      * @returns {Promise<Resource[]>}
      */
     async cursorToResourcesAsync(base_version, resourceType, cursor) {

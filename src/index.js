@@ -6,12 +6,12 @@ const {createHttpTerminator} = require('http-terminator');
 const {app} = require('./app');
 const {fhirServerConfig} = require('./config');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
-const {connect} = require('./utils/connect');
+const {connectAsync} = require('./utils/connect');
 const env = require('var');
 const logger = loggers.get('default');
 
 const main = async function () {
-    await connect();
+    await connectAsync();
 
     const server = app.listen(fhirServerConfig.server.port, () => {
             const image = env.DOCKER_IMAGE || '';

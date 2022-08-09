@@ -2,7 +2,7 @@ const input = require('./fixtures/input.json');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
-const {getOrCreateCollection} = require('../../../utils/mongoCollectionManager');
+const {getOrCreateCollectionAsync} = require('../../../utils/mongoCollectionManager');
 const {getSchemaOfMongoDocument} = require('../../../utils/mongoSchemaHelper');
 const {fixLastUpdatedDatesInAllCollectionsInDatabase} = require('../../../indexes/dateFixer');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
@@ -26,7 +26,7 @@ describe('dateFixer Tests', () => {
             /**
              * @type {import('mongodb').Collection}
              */
-            let collection = await getOrCreateCollection(db, collectionName);
+            let collection = await getOrCreateCollectionAsync(db, collectionName);
             Object.assign(input, {id: input.id});
             await collection.insertOne(input);
             let element = await collection.findOne({});

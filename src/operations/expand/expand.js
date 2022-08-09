@@ -3,10 +3,10 @@ const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require(
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {getExpandedValueSet} = require('../../utils/valueSet.util');
+const {getExpandedValueSetAsync} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -41,11 +41,6 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     let Resource = getResource(base_version, resourceType);
 
     /**
@@ -53,7 +48,8 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
      */
     let resource;
     try {
-        resource = await collection.findOne({id: id.toString()});
+        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .findOneAsync({id: id.toString()});
     } catch (e) {
         logError(`Error with ${resourceType}.expand: `, e);
         throw new BadRequestError(e);
@@ -67,7 +63,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         }
 
         // implement expand functionality
-        resource = await getExpandedValueSet(collection, resource);
+        resource = await getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
 
         // run any enrichment
         resource = (await enrich([resource], resourceType))[0];

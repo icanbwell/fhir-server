@@ -6,9 +6,9 @@ const {logDebug} = require('../common/logging');
  * @param {string|null} indexHint
  * @param {string} mongoCollectionName
  * @param {Set} columns
- * @param {Promise<Cursor<unknown>> | *} cursor
+ * @param {DatabasePartitionedCursor} cursor
  * @param {string | null} user
- * @return {{cursor: Promise<Cursor<unknown>> | *, indexHint: (string|null)}}
+ * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
  */
 function setIndexHint(indexHint, mongoCollectionName, columns, cursor, user) {
     indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
@@ -23,5 +23,5 @@ function setIndexHint(indexHint, mongoCollectionName, columns, cursor, user) {
 }
 
 module.exports = {
-    setIndexHint: setIndexHint
+    setIndexHint
 };

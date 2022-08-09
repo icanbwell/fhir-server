@@ -5,7 +5,7 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {getOrCreateHistoryCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 /**
  * does a FHIR Search By Version
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -28,16 +28,11 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const history_collection = await getOrCreateHistoryCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     // Query our collection for this observation
     let resource;
     try {
-        resource = await history_collection.findOne(
-            {id: id.toString(), 'meta.versionId': `${version_id}`});
+        resource = await new DatabaseHistoryManager(resourceType, base_version, useAtlas)
+            .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
     } catch (e) {
         throw new BadRequestError(e);
     }

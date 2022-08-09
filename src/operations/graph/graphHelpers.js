@@ -15,7 +15,7 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 
 /**
@@ -243,10 +243,6 @@ async function get_forward_references(graphParameters, resourceType,
         return; // nothing to do
     }
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, graphParameters.base_version, graphParameters.useAtlas);
-    /**
      * @type {function(?Object): Resource}
      */
     const RelatedResource = getResource(graphParameters.base_version, resourceType);
@@ -294,9 +290,12 @@ async function get_forward_references(graphParameters, resourceType,
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
     /**
      * mongo db cursor
-     * @type {Promise<Cursor<Document>> | *}
+     * @type {DatabasePartitionedCursor}
      */
-    const cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+    let cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, graphParameters.useAtlas)
+        .findAsync(query, options);
+
+    cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
     while (await cursor.hasNext()) {
         const element = await cursor.next();
@@ -375,11 +374,6 @@ async function get_reverse_references(
         `${parentResourceType}/${parentIdList.toString()}`
     );
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(relatedResourceType, graphParameters.base_version, graphParameters.useAtlas);
-
-    /**
      * @type {function(?Object): Resource}
      */
     const RelatedResource = getResource(graphParameters.base_version, relatedResourceType);
@@ -408,13 +402,12 @@ async function get_reverse_references(
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
     /**
-     * @type {import('mongodb').Cursor}
-     */
-    /**
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    const cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+    let cursor = await new DatabaseQueryManager(relatedResourceType, graphParameters.base_version,
+        graphParameters.useAtlas).findAsync(query, options);
+    cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
     // find matching field name in searchParameter list.  We will use this to match up to parent
     /**
@@ -803,10 +796,6 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
                                   contained, hash_references,
                                   idList) {
     /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, graphParameters.base_version, useAtlas);
-    /**
      * @type {function(?Object): Resource}
      */
     const StartResource = getResource(graphParameters.base_version, resourceType);
@@ -835,12 +824,14 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
      * @type {number}
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-    // Now run the query to get a cursor we will enumerate next
+
     /**
      * mongo db cursor
-     * @type {Promise<Cursor<Document>> | *}
+     * @type {DatabasePartitionedCursor}
      */
-    let cursor = await collection.find(query, options).maxTimeMS(maxMongoTimeMS);
+    let cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, useAtlas)
+        .findAsync(query, options);
+    cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
     /**
      * @type {{resource: Resource, fullUrl: string}[]}

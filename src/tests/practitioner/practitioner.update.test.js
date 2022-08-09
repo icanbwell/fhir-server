@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const supertest = require('supertest');
 
 const {app} = require('../../app');
@@ -8,6 +7,7 @@ const async = require('async');
 
 const request = supertest(app);
 const {commonBeforeEach, commonAfterEach, getHeaders} = require('../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {

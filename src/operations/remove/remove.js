@@ -7,7 +7,7 @@ const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
-const {getOrCreateCollectionForResourceTypeAsync} = require('../common/resourceManager');
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -98,15 +98,14 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /**
-     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-     */
-    const collection = await getOrCreateCollectionForResourceTypeAsync(resourceType, base_version, useAtlas);
-
     // Delete our resource record
     let res;
     try {
-        res = await collection.deleteMany(query);
+        /**
+         * @type {DeleteManyResult}
+         */
+        res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            .deleteManyAsync(query);
 
         // log access to audit logs
         await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);

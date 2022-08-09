@@ -5,7 +5,7 @@
 // This runs in a separate process to index so the main thread is not blocked
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
-const {indexAllCollections, deleteIndexesInAllCollections} = require('../indexes/index.util');
+const {indexAllCollectionsAsync, deleteIndexesInAllCollectionsAsync} = require('../indexes/index.util');
 const {logMessageToSlackAsync} = require('../utils/slack.logger');
 
 
@@ -21,7 +21,7 @@ process.on('message', async (params) => {
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
             await logMessageToSlackAsync('Starting indexing in separate process');
-            const collection_stats = await indexAllCollections(tableName);
+            const collection_stats = await indexAllCollectionsAsync(tableName);
             await logMessageToSlackAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
@@ -29,11 +29,11 @@ process.on('message', async (params) => {
         } else if (message === 'Rebuild Index') {
             console.log('==== Starting deleting indexes in separate process ====');
             await logMessageToSlackAsync('Starting deleting indexes in separate process');
-            await deleteIndexesInAllCollections(tableName);
+            await deleteIndexesInAllCollectionsAsync(tableName);
             await logMessageToSlackAsync('Finished deleting index in separate process');
             console.log('===== Finished deleting index in separate process ======');
             await logMessageToSlackAsync('Starting indexing in separate process');
-            const collection_stats = await indexAllCollections(tableName);
+            const collection_stats = await indexAllCollectionsAsync(tableName);
             await logMessageToSlackAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');

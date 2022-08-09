@@ -4,7 +4,7 @@ const {CLIENT_DB} = require('../constants');
 const moment = require('moment-timezone');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {createClient, disconnectClient} = require('../utils/connect');
+const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {mongoConfig} = require('../config');
 
 /**
@@ -126,7 +126,7 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
     /**
      * @type {import("mongodb").MongoClient}
      */
-    const client = await createClient(mongoConfig);
+    const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
@@ -134,7 +134,7 @@ const fixLastUpdatedDatesInAllCollections = async (collectionNamesToInclude, bat
         const db = client.db(CLIENT_DB);
         await fixLastUpdatedDatesInAllCollectionsInDatabase(db, collectionNamesToInclude, batchSize);
     } finally {
-        await disconnectClient(client);
+        await disconnectClientAsync(client);
     }
 };
 

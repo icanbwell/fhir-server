@@ -1,19 +1,25 @@
 /**
  * implements a two-step optimization by first retrieving ids and then requesting the data for those ids
+ * @param {string} resourceType
+ * @param {string} base_version
+ * @param {boolean|null} useAtlas
  * @param {Object} options
  * @param {Object|Object[]} originalQuery
  * @param {Object} query
  * @param {Object} originalOptions
- * @param {import('mongodb').Collection} collection
  * @param {number} maxMongoTimeMS
  * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+
 async function handleTwoStepSearchOptimizationAsync(
+    resourceType,
+    base_version,
+    useAtlas,
     options,
     originalQuery,
     query,
     originalOptions,
-    collection,
     maxMongoTimeMS
 ) {
     // first get just the ids
@@ -25,8 +31,15 @@ async function handleTwoStepSearchOptimizationAsync(
     originalOptions = [options];
     const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
-    let idResults = await collection
-        .find(query, options)
+    /**
+     * @type {DatabasePartitionedCursor}
+     */
+    const cursor = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        .findAsync(query, options);
+    /**
+     * @type {import('mongodb').DefaultSchema[]}
+     */
+    let idResults = await cursor
         .sort(sortOption)
         .maxTimeMS(maxMongoTimeMS)
         .toArray();
@@ -47,5 +60,5 @@ async function handleTwoStepSearchOptimizationAsync(
 }
 
 module.exports = {
-    handleTwoStepSearchOptimizationAsync: handleTwoStepSearchOptimizationAsync
+    handleTwoStepSearchOptimizationAsync
 };
