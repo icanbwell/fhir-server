@@ -54,11 +54,12 @@ module.exports.logWarn = (user, msg) => {
  * @param {number|null} startTime
  * @param {number|null} stopTime
  * @param {string} message
+ * @param {string} action
  */
 module.exports.logOperation = (requestInfo, args,
                                scope, resourceType,
                                startTime, stopTime,
-                               message) => {
+                               message, action) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -85,7 +86,7 @@ module.exports.logOperation = (requestInfo, args,
             type: {
                 code: 'fhirServer'
             },
-            action: 'searchStreaming',
+            action: action,
             period: {
                 start: new Date(startTime).toISOString(),
                 end: new Date(stopTime).toISOString(),
