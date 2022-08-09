@@ -128,7 +128,7 @@ module.exports.logOperation = (
                     detail: detail
                 }
             ],
-            message: error ? JSON.stringify(error) : message
+            message: error ? `${message}: ${JSON.stringify(error)}` : message
         }
     );
 };

@@ -262,6 +262,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                 }
             }
         }
+        /**
+         * @type {number}
+         */
+        const stopTime1 = Date.now();
+        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
     } catch (e) {
         /**
          * @type {number}
@@ -273,11 +278,5 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
-    } finally {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, scope, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
     }
 };
