@@ -179,13 +179,18 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceType,
+                resourceIds = await streamResourcesFromCursorAsync(
+                    requestId,
+                    cursor, res, user, scope, args, Resource, resourceType,
                     useAccessIndex,
                     fhirContentTypes.ndJson, batchObjectCount);
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
-                    resourceIds = await streamBundleFromCursorAsync(cursor, url,
+                    resourceIds = await streamBundleFromCursorAsync(
+                        requestId,
+                        cursor,
+                        url,
                         (last_id, stopTime1) => createBundle(
                             url,
                             last_id,
@@ -207,7 +212,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         ),
                         res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args,
+                    resourceIds = await streamResourcesFromCursorAsync(
+                        requestId,
+                        cursor, res, user, scope, args,
                         Resource, resourceType,
                         useAccessIndex,
                         fhirContentTypes.fhirJson,
@@ -272,6 +279,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(requestId, e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
     }
 };

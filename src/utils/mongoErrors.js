@@ -7,6 +7,7 @@ const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
 class MongoError extends AggregateError {
     /**
      * Creates an error for mongo
+     * @param {string} requestId
      * @param {string} message
      * @param {Error} error
      * @param {string} collection
@@ -14,15 +15,17 @@ class MongoError extends AggregateError {
      * @param {*} options
      * @param {number} elapsedTime
      */
-    constructor(message, error, collection, query, elapsedTime, options = {},) {
+    constructor(requestId, message, error, collection, query, elapsedTime, options = {},) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
+            [requestId] +
             message + ': ' +
             mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
             `elapsedTime=${elapsedTimeInSecs} secs`
         );
         this.collection = collection;
+        this.requestId = requestId;
         this.query = query;
         this.options = options;
         this.elapsedTimeInSecs = elapsedTimeInSecs;

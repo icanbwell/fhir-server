@@ -70,6 +70,11 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
      * @type {Object|Object[]|null}
      */
     const body = requestInfo.body;
+    // Assign a random number to this batch request
+    /**
+     * @type {string}
+     */
+    const requestId = requestInfo.requestId;
     /**
      * @type {string}
      */
@@ -97,11 +102,6 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
     // logDebug(req);
     // logDebug('-----------------');
 
-    // Assign a random number to this batch request
-    /**
-     * @type {string}
-     */
-    const requestId = Math.random().toString(36).substring(0, 5);
     /**
      * @type {string}
      */

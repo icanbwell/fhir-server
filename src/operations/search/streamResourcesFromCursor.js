@@ -13,6 +13,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
  * Reads resources from Mongo cursor and writes to response
+ * @param {string} requestId
  * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
@@ -26,6 +27,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
  * @returns {Promise<string[]>} ids of resources streamed
  */
 async function streamResourcesFromCursorAsync(
+    requestId,
     cursor, res, user, scope,
     args,
     Resource,
@@ -69,7 +71,7 @@ async function streamResourcesFromCursorAsync(
     /**
      * @type {HttpResponseWriter}
      */
-    const responseWriter = new HttpResponseWriter(res, contentType, ac.signal);
+    const responseWriter = new HttpResponseWriter(requestId, res, contentType, ac.signal);
     /**
      * @type {ResourcePreparerTransform}
      */

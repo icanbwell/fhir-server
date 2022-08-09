@@ -5,11 +5,12 @@ const {isNdJsonContentType} = require('../../utils/contentTypes');
 
 class HttpResponseWriter extends Writable {
     /**
+     * @param {string} requestId
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
      * @param {AbortSignal} signal
      */
-    constructor(response, contentType, signal) {
+    constructor(requestId, response, contentType, signal) {
         super({objectMode: true});
 
         /**
@@ -26,6 +27,10 @@ class HttpResponseWriter extends Writable {
          * @type {AbortSignal}
          */
         this._signal = signal;
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
     }
 
     _construct(callback) {
@@ -34,6 +39,7 @@ class HttpResponseWriter extends Writable {
         }
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
+        this.response.setHeader('X-Request-ID', this.requestId);
         this.response.setHeader('Content-Type', this.contentType);
         this.response.setTimeout(60 * 60 * 1000, () => {
             console.log('Response timeout');

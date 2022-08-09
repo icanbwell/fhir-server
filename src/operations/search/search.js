@@ -46,7 +46,8 @@ module.exports.search = async (requestInfo, args, resourceType,
         /** @type {string} */
         fhirPersonId,
         /** @type {boolean} */
-        isUser
+        isUser,
+        requestId
     } = requestInfo;
 
 
@@ -220,6 +221,6 @@ module.exports.search = async (requestInfo, args, resourceType,
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(requestId, e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
     }
 };

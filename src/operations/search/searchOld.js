@@ -734,6 +734,6 @@ module.exports.searchOld = async (requestInfo, args, resourceType) => {
          * @type {number}
          */
         const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError('1', e.message, e, collection.collectionName, query, (stopTime1 - startTime), options);
     }
 };

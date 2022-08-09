@@ -9,6 +9,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 
 /**
  * Reads resources from Mongo cursor and writes to response
+ * @param {string} requestId
  * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} url
  * @param {function (string | null, number): Resource} fnBundle
@@ -23,6 +24,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
  * @returns {Promise<string[]>}
  */
 async function streamBundleFromCursorAsync(
+    requestId,
     cursor, url, fnBundle,
     res, user, scope,
     args, Resource, resourceName,
@@ -56,7 +58,7 @@ async function streamBundleFromCursorAsync(
     /**
      * @type {HttpResponseWriter}
      */
-    const responseWriter = new HttpResponseWriter(res, 'application/fhir+json', ac.signal);
+    const responseWriter = new HttpResponseWriter(requestId, res, 'application/fhir+json', ac.signal);
 
     const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
