@@ -46,6 +46,7 @@ services:
       ELASTIC_SEARCH_LOG_URL: "https://elasticsearch:9200/"
       ELASTIC_SEARCH_LOG_USERNAME: "admin"
       ELASTIC_SEARCH_LOG_PASSWORD: "admin"
+      ELASTIC_SEARCH_LOG_PREFIX: "fhir-logs"
     ports:
       - '3000:3000'
     volumes:

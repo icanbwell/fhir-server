@@ -55,6 +55,7 @@ module.exports.logWarn = (user, msg) => {
  * @property {string} message
  * @property {string} action
  * @property {Error|undefined} error
+ * @property {string|undefined} query
  */
 
 /**
@@ -70,7 +71,8 @@ module.exports.logOperation = (options) => {
         stopTime = Date.now(),
         message,
         action,
-        error
+        error,
+        query
     } = options;
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
@@ -96,6 +98,12 @@ module.exports.logOperation = (options) => {
         detail.push({
             type: 'body',
             valueString: JSON.stringify(requestInfo.body)
+        });
+    }
+    if (query) {
+        detail.push({
+            type: 'query',
+            valueString: JSON.stringify(query)
         });
     }
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html

@@ -17,6 +17,7 @@ const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -273,15 +274,24 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                 }
             }
         }
+        /**
+         * @type {string}
+         */
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         logOperation({
             requestInfo,
             args,
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: currentOperationName
+            action: currentOperationName,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
         });
     } catch (e) {
+        /**
+         * @type {string}
+         */
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         logOperation({
             requestInfo,
             args,
@@ -289,12 +299,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             startTime,
             message: 'operationFailed',
             action: currentOperationName,
-            error: e
+            error: e,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
         });
-        /**
-         * @type {string}
-         */
-        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
     } finally {
         timer({action: currentOperationName, resourceType});

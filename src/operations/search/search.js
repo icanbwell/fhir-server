@@ -219,21 +219,31 @@ module.exports.search = async (requestInfo, args, resourceType,
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: currentOperationName
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify(collectionName, query, options)
             });
             return bundle;
         } else {
+            /**
+             * @type {string}
+             */
+            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
             logOperation({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: currentOperationName
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify(collectionName, query, options)
             });
             return resources;
         }
     } catch (e) {
+        /**
+         * @type {string}
+         */
+        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
         logOperation({
             requestInfo,
             args,
@@ -241,12 +251,9 @@ module.exports.search = async (requestInfo, args, resourceType,
             startTime,
             message: 'operationCompleted',
             action: currentOperationName,
-            error: e
+            error: e,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
         });
-        /**
-         * @type {string}
-         */
-        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
     } finally {
         timer({action: currentOperationName, resourceType});

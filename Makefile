@@ -27,7 +27,7 @@ up:
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_fhir_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
 	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
-	echo "Elastic Search: [https://localhost:9200/logs-*/_search] (admin:admin)" && \
+	echo "Elastic Search: [https://localhost:9200/fhir-logs-*/_search] (admin:admin)" && \
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Prometheus: http://localhost:9090 && \

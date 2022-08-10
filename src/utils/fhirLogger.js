@@ -68,7 +68,8 @@ class FhirLogger {
              */
             const esTransportOpts = {
                 level: 'info',
-                client: client
+                client: client,
+                indexPrefix: env.ELASTIC_SEARCH_LOG_PREFIX ? String(env.ELASTIC_SEARCH_LOG_PREFIX).toLowerCase() : 'logs'
             };
 
             /**
