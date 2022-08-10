@@ -30,6 +30,8 @@ up:
 	echo "Elastic Search: [https://localhost:9200/logs-*/_search] (admin:admin)" && \
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo Prometheus: http://localhost:9090 && \
+	echo Grafana: http://localhost:3010 && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline

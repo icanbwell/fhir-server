@@ -86,8 +86,8 @@ services:
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - network.host=0.0.0.0 # required if not using the demo security configuration
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-#      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
-#      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
+      #      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
+      #      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
       - "discovery.type=single-node" # disables bootstrap checks that are enabled when network.host is set to a non-loopback address
     ulimits:
       memlock:
@@ -119,12 +119,40 @@ services:
     environment:
       - OPENSEARCH_URL=https://elasticsearch:9200
       - OPENSEARCH_HOSTS=https://elasticsearch:9200
-#      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
+    #      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
     healthcheck:
       test: [ "CMD-SHELL", "curl --silent --fail localhost:5601/login || exit 1" ]
+
+  prometheus:
+    # Following https://github.com/StackAbuse/node-prometheus-grafana
+    image: prom/prometheus:v2.20.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    expose:
+      - 9090
+
+  grafana:
+      image: grafana/grafana:7.1.5
+      container_name: grafana
+      volumes:
+        - grafana_data:/var/lib/grafana
+        - ./grafana/provisioning:/etc/grafana/provisioning
+      environment:
+        - GF_AUTH_DISABLE_LOGIN_FORM=true
+        - GF_AUTH_ANONYMOUS_ENABLED=true
+        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      ports:
+        - "3010:3000"
+      expose:
+        - 3000
 
 volumes:
   mongo_data:
   es_data:
   es_cert:
-
+  prometheus_data: { }
+  grafana_data: { }
