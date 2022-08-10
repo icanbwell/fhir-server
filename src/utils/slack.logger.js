@@ -73,13 +73,14 @@ function createCodeBlock(title, code) {
  * @returns {Promise<void>}
  */
 const logErrorAndRequestToSlackAsync = async (token, channel, err, req) => {
+    const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
     const request = {
         method: req.method,
         url: req.url,
         headers: req.headers,
         query: req.query,
         body: req.body || {},
-        user: req.user
+        user: user
     };
     const fields = [
         {
@@ -94,7 +95,7 @@ const logErrorAndRequestToSlackAsync = async (token, channel, err, req) => {
         },
         {
             title: 'User',
-            value: req.user,
+            value: user,
             short: true
         },
         {

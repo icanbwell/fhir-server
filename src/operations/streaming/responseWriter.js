@@ -35,7 +35,7 @@ class HttpResponseWriter extends Writable {
 
     _construct(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('HttpResponseWriter: _construct');
+            console.log(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');

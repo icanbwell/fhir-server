@@ -14,7 +14,6 @@ const {validate} = require('../../operations/validate/validate');
 const {graph} = require('../../operations/graph/graph');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {RequestInfo} = require('../../utils/requestInfo');
-const {logDebug} = require('../../operations/common/logging');
 const {searchStreaming} = require('../../operations/search/searchStreaming');
 
 
@@ -26,8 +25,6 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 });
 
 function getRequestInfo(req) {
-    logDebug(req.user, req.originalUrl);
-
     const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
         ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
