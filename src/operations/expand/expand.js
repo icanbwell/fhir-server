@@ -49,7 +49,15 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'expand', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'expand',
+            error: e
+        });
         throw new BadRequestError(e);
     }
 
@@ -58,7 +66,15 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
             const forbiddenError = new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'expand', forbiddenError);
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: 'expand',
+                error: forbiddenError
+            });
 
             throw forbiddenError;
         }
@@ -70,7 +86,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = (await enrich([resource], resourceType))[0];
 
         const result = new Resource(resource);
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'expand');
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'expand'});
         return result;
     } else {
         throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

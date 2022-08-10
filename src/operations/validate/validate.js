@@ -23,7 +23,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
 
     const operationOutcome = validateResource(resource_incoming, resourceType, path);
     if (operationOutcome && operationOutcome.statusCode === 400) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'validate');
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'validate'});
         return operationOutcome;
     }
 
@@ -44,7 +44,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
             ]
         };
     }
-    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'validate');
+    logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'validate'});
     return {
         resourceType: 'OperationOutcome',
         issue: [

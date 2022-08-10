@@ -262,21 +262,28 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                 }
             }
         }
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, resourceType, startTime, stopTime1, 'operationCompleted', 'searchStreaming');
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: 'searchStreaming'
+        });
     } catch (e) {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        logOperation(requestInfo, args, resourceType, startTime, stopTime1, 'operationFailed', 'searchStreaming', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'searchStreaming',
+            error: e
+        });
         /**
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        throw new MongoError(requestId, e.message, e, collectionName, query, (stopTime1 - startTime), options);
+        throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
     }
 };

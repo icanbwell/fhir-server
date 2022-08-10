@@ -78,13 +78,14 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
     /**
      * @type {string}
      */
+    verifyHasValidScopes(resourceType, 'write', user, scope);
+
     try {
         /**
          * @type {string[]}
          */
         const scopes = parseScopes(scope);
 
-        verifyHasValidScopes(resourceType, 'write', user, scope);
 
         // read the incoming resource from request body
         /**
@@ -185,10 +186,18 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         logDebug(user, JSON.stringify(mergeResults));
         logDebug(user, '-----------------');
 
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'merge');
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'merge'});
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'merge', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'merge',
+            error: e
+        });
         throw e;
     }
 };

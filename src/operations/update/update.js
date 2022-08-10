@@ -13,7 +13,6 @@ const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../util
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {logError} = require('../common/logging');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
@@ -151,6 +150,14 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             // see if there are any changes
             if (patchContent.length === 0) {
                 logDebug(user, 'No changes detected in updated resource');
+                logOperation({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    message: 'operationCompleted',
+                    action: 'update'
+                });
                 return {
                     id: id,
                     created: false,
@@ -240,7 +247,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             await logAuditEntryAsync(requestInfo, base_version, resourceType, 'update', args, [resource_incoming['id']]);
         }
 
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'update');
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'update'});
         return {
             id: id,
             created: res.created,
@@ -248,15 +255,13 @@ module.exports.update = async (requestInfo, args, resourceType) => {
         };
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with updating resource ${resourceType}.update with id: ${id} `, e);
-
         await sendToS3('errors',
             resourceType,
             resource_incoming_json,
             currentDate,
             id,
             'update');
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'update', e);
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationFailed', action: 'update', e});
         throw e;
     }
 };

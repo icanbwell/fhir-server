@@ -46,25 +46,32 @@ module.exports.logWarn = (user, msg) => {
 };
 
 /**
- * Logs a FHIR operation
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- * @param {number|null} startTime
- * @param {number|null} stopTime
- * @param {string} message
- * @param {string} action
- * @param {Error|null} error
+ * @typedef LogOperationParameters
+ * @type {object}
+ * @property {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @property {Object} args
+ * @property {string} resourceType
+ * @property {number|null} startTime
+ * @property {string} message
+ * @property {string} action
+ * @property {Error|undefined} error
  */
-module.exports.logOperation = (
-    requestInfo,
-    args,
-    resourceType,
-    startTime,
-    stopTime,
-    message,
-    action,
-    error = null) => {
+
+/**
+ * Logs a FHIR operation
+ * @param {LogOperationParameters} options
+ */
+module.exports.logOperation = (options) => {
+    const {
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        stopTime = Date.now(),
+        message,
+        action,
+        error
+    } = options;
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */

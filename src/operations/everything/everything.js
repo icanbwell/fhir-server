@@ -1,4 +1,4 @@
-const {logError, logOperation} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes} = require('../security/scopes');
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
@@ -29,25 +29,53 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
         if (resourceType === 'Practitioner') {
             requestInfo.body = practitionerEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: 'everything'
+            });
             return result;
         } else if (resourceType === 'Organization') {
             requestInfo.body = organizationEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: 'everything'
+            });
             return result;
         } else if (resourceType === 'Slot') {
             requestInfo.body = slotEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'everything');
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: 'everything'
+            });
             return result;
         } else {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('$everything is not supported for resource: ' + resourceType);
         }
     } catch (err) {
-        logError(user, `Error with ${resourceType}.everything: ${err} `);
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'everything', err);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'everything',
+            error: err
+        });
         throw new BadRequestError(err);
     }
 };

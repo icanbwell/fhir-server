@@ -70,7 +70,15 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
                 uuid,
                 'create_failure');
             const notValidatedError = new NotValidatedError(operationOutcome);
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'create', notValidatedError);
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: 'create',
+                error: notValidatedError
+            });
             throw notValidatedError;
         }
     }
@@ -161,9 +169,16 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         // Insert our resource record to history but don't assign _id
         await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'create');
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: 'create'
+        });
         return {id: doc.id, resource_version: doc.meta.versionId};
-    } catch (e) {
+    } catch (/** @type {Error} */ e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         await sendToS3('errors',
             resourceType,
@@ -171,7 +186,15 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
             currentDate,
             uuid,
             'create');
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'create', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'create',
+            error: e
+        });
         throw e;
     }
 };

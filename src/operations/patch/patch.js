@@ -1,4 +1,6 @@
-const {logError, logOperation} = require('../common/logging');
+// noinspection ExceptionCaughtLocallyJS
+
+const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes} = require('../security/scopes');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
@@ -10,6 +12,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+// noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -24,96 +27,101 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
     const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-
     verifyHasValidScopes(resourceType, 'write', user, scope);
 
-    let {base_version, id, patchContent} = args;
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    // Get current record
-    // Query our collection for this observation
-    let data;
     try {
-        data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneAsync({id: id.toString()});
+
+        let {base_version, id, patchContent} = args;
+
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        // Get current record
+        // Query our collection for this observation
+        let data;
+        try {
+            data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+                .findOneAsync({id: id.toString()});
+        } catch (e) {
+            throw new BadRequestError(e);
+        }
+        if (!data) {
+            throw new NotFoundError();
+        }
+        // Validate the patch
+        let errors = validate(patchContent, data);
+        if (errors && Object.keys(errors).length > 0) {
+            throw new BadRequestError(errors[0]);
+        }
+        // Make the changes indicated in the patch
+        let resource_incoming = applyPatch(data, patchContent).newDocument;
+
+        let Resource = getResource(base_version, resourceType);
+        let resource = new Resource(resource_incoming);
+
+        if (data && data.meta) {
+            let foundResource = new Resource(data);
+            let meta = foundResource.meta;
+            // noinspection JSUnresolvedVariable
+            meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
+            meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            resource.meta = meta;
+        } else {
+            throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
+        }
+
+        await preSaveAsync(resource);
+
+        // Same as update from this point on
+        /**
+         * @type {Resource}
+         */
+        let cleaned = removeNull(resource.toJSON());
+        /**
+         * @type {Resource}
+         */
+        let doc = cleaned;
+
+        // Insert/update our resource record
+        let res;
+        try {
+            delete doc['_id'];
+            res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+                .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
+        } catch (e) {
+            throw new BadRequestError(e);
+        }
+        // Save to history
+
+        /**
+         * @type {Resource}
+         */
+        let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
+
+        // Insert our resource record to history but don't assign _id
+        try {
+            await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
+        } catch (e) {
+            throw new BadRequestError(e);
+        }
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'patch'});
+        return {
+            id: doc.id,
+            created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
+            resource_version: doc.meta.versionId,
+        };
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
-        throw new BadRequestError(e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'patch',
+            error: e
+        });
+        throw e;
     }
-    if (!data) {
-        throw new NotFoundError();
-    }
-    // Validate the patch
-    let errors = validate(patchContent, data);
-    if (errors && Object.keys(errors).length > 0) {
-        logError(user, 'Error with patch contents');
-        const badRequestError = new BadRequestError(errors[0]);
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', badRequestError);
-        throw badRequestError;
-    }
-    // Make the changes indicated in the patch
-    let resource_incoming = applyPatch(data, patchContent).newDocument;
-
-    let Resource = getResource(base_version, resourceType);
-    let resource = new Resource(resource_incoming);
-
-    if (data && data.meta) {
-        let foundResource = new Resource(data);
-        let meta = foundResource.meta;
-        // noinspection JSUnresolvedVariable
-        meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        resource.meta = meta;
-    } else {
-        const badRequestError1 = new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', badRequestError1);
-        throw badRequestError1;
-    }
-
-    await preSaveAsync(resource);
-
-    // Same as update from this point on
-    /**
-     * @type {Resource}
-     */
-    let cleaned = removeNull(resource.toJSON());
-    /**
-     * @type {Resource}
-     */
-    let doc = cleaned;
-
-    // Insert/update our resource record
-    let res;
-    try {
-        delete doc['_id'];
-        res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
-    } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
-        throw new BadRequestError(e);
-    }
-    // Save to history
-
-    /**
-     * @type {Resource}
-     */
-    let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-
-    // Insert our resource record to history but don't assign _id
-    try {
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
-    } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'patch', e);
-        throw new BadRequestError(e);
-    }
-    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'patch');
-    return {
-        id: doc.id,
-        created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
-        resource_version: doc.meta.versionId,
-    };
 };

@@ -73,10 +73,18 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
         //     return operationOutcomeResult;
         // }
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'graph');
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'graph'});
         return result;
     } catch (err) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'graph', err);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'graph',
+            error: err
+        });
         throw new BadRequestError(err);
     }
 };

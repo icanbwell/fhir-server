@@ -51,7 +51,15 @@ module.exports.history = async (requestInfo, args, resourceType) => {
     try {
         cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'history', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'history',
+            error: e
+        });
         throw new NotFoundError(e.message);
     }
     const resources = [];
@@ -65,6 +73,6 @@ module.exports.history = async (requestInfo, args, resourceType) => {
     if (resources.length === 0) {
         throw new NotFoundError();
     }
-    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'history');
+    logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'history'});
     return resources;
 };

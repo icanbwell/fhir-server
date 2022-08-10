@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
@@ -41,63 +43,81 @@ module.exports.searchById = async (requestInfo, args, resourceType,
 
     verifyHasValidScopes(resourceType, 'read', user, scope);
 
-    // Common search params
-    let {id} = args;
-    let {base_version} = args;
-
-    // Search Result param
-    /**
-     * @type {Object}
-     */
-    let query = {};
-    query.id = id;
-
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    let Resource = getResource(base_version, resourceType);
-
-    /**
-     * @type {Promise<Resource> | *}
-     */
-    let resource;
-    query = {id: id.toString()};
-    if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-        const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
-        query = getQueryWithPatientFilter(allPatients, query, resourceType);
-    }
     try {
-        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
+
+        // Common search params
+        let {id} = args;
+        let {base_version} = args;
+
+        // Search Result param
+        /**
+         * @type {Object}
+         */
+        let query = {};
+        query.id = id;
+
+
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        let Resource = getResource(base_version, resourceType);
+
+        /**
+         * @type {Promise<Resource> | *}
+         */
+        let resource;
+        query = {id: id.toString()};
+        if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
+            const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
+            query = getQueryWithPatientFilter(allPatients, query, resourceType);
+        }
+        try {
+            resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
+        } catch (e) {
+            throw new BadRequestError(e);
+        }
+
+
+        if (resource) {
+            if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                throw new ForbiddenError(
+                    'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                    resource.resourceType + ' with id ' + id);
+            }
+
+            // remove any nulls or empty objects or arrays
+            resource = removeNull(resource);
+
+            // run any enrichment
+            resource = (await enrich([resource], resourceType))[0];
+            if (resourceType !== 'AuditEvent') {
+                // log access to audit logs
+                await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
+            }
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: 'searchById'
+            });
+            return new Resource(resource);
+        } else {
+            throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        }
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchById', e);
-        throw new BadRequestError(e);
-    }
-
-
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-            throw new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-        }
-
-        // remove any nulls or empty objects or arrays
-        resource = removeNull(resource);
-
-        // run any enrichment
-        resource = (await enrich([resource], resourceType))[0];
-        if (resourceType !== 'AuditEvent') {
-            // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
-        }
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'searchById');
-        return new Resource(resource);
-    } else {
-        const notFoundError = new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchById', notFoundError);
-        throw notFoundError;
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'searchById',
+            error: e
+        });
+        throw e;
     }
 };

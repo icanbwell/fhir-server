@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 const {logOperation} = require('../common/logging');
 const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -43,27 +45,46 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
 
     let Resource = getResource(base_version, resourceType);
 
-    // Query our collection for this observation
-    let cursor;
     try {
-        cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
-    } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'historyById', e);
-        throw new BadRequestError(e);
-    }
-    const resources = [];
-    while (await cursor.hasNext()) {
-        const element = await cursor.next();
-        const resource = new Resource(element);
-        if (isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
-            resources.push(resource);
+        /**
+         * @type {DatabasePartitionedCursor}
+         */
+        let cursor;
+        try {
+            cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
+        } catch (e) {
+            throw new BadRequestError(e);
         }
+        const resources = [];
+        while (await cursor.hasNext()) {
+            const element = await cursor.next();
+            const resource = new Resource(element);
+            if (isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+                resources.push(resource);
+            }
+        }
+        if (resources.length === 0) {
+            throw new NotFoundError();
+        }
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: 'historyById'
+        });
+        return resources;
+    } catch (e) {
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: 'historyById',
+            error: e
+        });
+        throw e;
     }
-    if (resources.length === 0) {
-        const notFoundError = new NotFoundError();
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'historyById', notFoundError);
-        throw notFoundError;
-    }
-    logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'historyById');
-    return resources;
 };

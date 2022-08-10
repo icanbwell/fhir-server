@@ -207,14 +207,22 @@ module.exports.search = async (requestInfo, args, resourceType,
                 user,
                 useAtlas
             );
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
+            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'search'});
             return bundle;
         } else {
-            logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationCompleted', 'search');
+            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'search'});
             return resources;
         }
     } catch (e) {
-        logOperation(requestInfo, args, resourceType, startTime, Date.now(), 'operationFailed', 'searchStreaming', e);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: 'search',
+            error: e
+        });
         /**
          * @type {string}
          */
