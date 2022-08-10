@@ -12,6 +12,7 @@ const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResul
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
+const {fhirRequestTimer, validationsFailed} = require('../../utils/prometheus.utils');
 
 /**
  * Add successful merges
@@ -51,6 +52,8 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
  */
 module.exports.merge = async (requestInfo, args, resourceType) => {
     const currentOperationName = 'merge';
+    // Start the FHIR request timer, saving a reference to the returned method
+    const timer = fhirRequestTimer.startTimer();
     /**
      * @type {number}
      */
@@ -115,6 +118,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
             const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
+                validationsFailed.inc({action: currentOperationName, resourceType}, 1);
                 return operationOutcome;
             }
             // unwrap the resources
@@ -191,7 +195,14 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         logDebug(user, JSON.stringify(mergeResults));
         logDebug(user, '-----------------');
 
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
         logOperation({
@@ -204,5 +215,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
             error: e
         });
         throw e;
+    } finally {
+        timer({action: currentOperationName, resourceType});
     }
 };

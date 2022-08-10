@@ -16,6 +16,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
+const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 
 
 /**
@@ -30,6 +31,8 @@ const {ResourceLocator} = require('../common/resourceLocator');
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         filter = true) => {
     const currentOperationName = 'searchStreaming';
+    // Start the FHIR request timer, saving a reference to the returned method
+    const timer = fhirRequestTimer.startTimer();
     /**
      * @type {number}
      */
@@ -293,5 +296,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
+    } finally {
+        timer({action: currentOperationName, resourceType});
     }
 };

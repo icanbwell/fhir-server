@@ -5,7 +5,7 @@
 const client = require('prom-client');
 const Register = require('prom-client').register;
 const Counter = require('prom-client').Counter;
-// const Histogram = require('prom-client').Histogram;
+const Histogram = require('prom-client').Histogram;
 const Summary = require('prom-client').Summary;
 const responseTime = require('response-time');
 /**
@@ -39,7 +39,7 @@ module.exports.pathsTaken = pathsTaken;
 const validationsFailed = new Counter({
     name: 'validationsFailed',
     help: 'validationsFailed',
-    labelNames: ['validationsFailed'],
+    labelNames: ['action', 'resourceType']
 });
 
 module.exports.validationsFailed = validationsFailed;
@@ -54,6 +54,16 @@ const responses = new Summary({
 });
 
 module.exports.responses = responses;
+
+// Create a custom histogram metric
+const fhirRequestTimer = new Histogram({
+    name: 'fhir_request_duration_seconds',
+    help: 'Duration of FHIR requests in seconds',
+    labelNames: ['action', 'resourceType'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.fhirRequestTimer = fhirRequestTimer;
 
 /**
  * This function will start the collection of metrics and should be called from within in the main js file

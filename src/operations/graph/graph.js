@@ -7,6 +7,7 @@ const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
 const env = require('var');
+const {validationsFailed} = require('../../utils/prometheus.utils');
 
 /**
  * Supports $graph
@@ -57,6 +58,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         const graphDefinitionRaw = body;
         const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            validationsFailed.inc({action: currentOperationName, resourceType}, 1);
             logDebug(user, 'GraphDefinition schema failed validation');
             return operationOutcome;
         }

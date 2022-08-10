@@ -31,7 +31,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {*} resourceBody - payload of req.body
  * @param {string} resourceName - name of resource in url
  * @param {string} path - req.path from express
- * @returns {*} Response<null|OperationOutcome> - either null if no errors or response to send client.
+ * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
 function validateResource(resourceBody, resourceName, path) {
     if (resourceBody.resourceType !== resourceName) {

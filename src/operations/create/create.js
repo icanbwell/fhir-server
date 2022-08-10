@@ -14,6 +14,7 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {validationsFailed} = require('../../utils/prometheus.utils');
 
 /**
  * does a FHIR Create (POST)
@@ -59,6 +60,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
     if (env.VALIDATE_SCHEMA || args['_validate']) {
         const operationOutcome = validateResource(resource_incoming, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            validationsFailed.inc({action: currentOperationName, resourceType}, 1);
             const currentDate = moment.utc().format('YYYY-MM-DD');
             operationOutcome.expression = [
                 resourceType + '/' + uuid
