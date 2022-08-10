@@ -80,7 +80,7 @@ module.exports.logOperation = (options) => {
     const detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
-                valueString: JSON.stringify(v)
+                valueString: (typeof v === 'string') ? v : JSON.stringify(v)
             };
         }
     );
@@ -97,13 +97,13 @@ module.exports.logOperation = (options) => {
     if (requestInfo.body) {
         detail.push({
             type: 'body',
-            valueString: JSON.stringify(requestInfo.body)
+            valueString: (typeof requestInfo.body === 'string') ? requestInfo.body : JSON.stringify(requestInfo.body)
         });
     }
     if (query) {
         detail.push({
             type: 'query',
-            valueString: JSON.stringify(query)
+            valueString: query
         });
     }
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
