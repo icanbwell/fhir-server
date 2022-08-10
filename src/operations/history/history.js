@@ -1,5 +1,5 @@
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
+const {isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const {getResource} = require('../common/getResource');
@@ -7,6 +7,7 @@ const {NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**

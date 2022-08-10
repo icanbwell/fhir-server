@@ -28,10 +28,11 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 function getRequestInfo(req) {
     logDebug(req.user, req.originalUrl);
 
-    return new RequestInfo(
-        (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
+    const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-        req.user,
+        ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
+    return new RequestInfo(
+        user,
         req.authInfo && req.authInfo.scope,
         req.headers['X-Forwarded-For'] || req.connection.remoteAddress,
         req.id,

@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
+const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {getResource} = require('../common/getResource');
@@ -9,6 +9,7 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR History By id

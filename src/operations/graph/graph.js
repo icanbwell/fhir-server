@@ -1,13 +1,11 @@
 const {logDebug, logOperation} = require('../common/logging');
-const {
-    verifyHasValidScopes
-} = require('../security/scopes');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * Supports $graph

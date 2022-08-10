@@ -5,7 +5,6 @@ const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const assert = require('assert');
 const {
-    verifyHasValidScopes,
     doesResourceHaveAnyAccessCodeFromThisList, getAccessCodesFromScopes
 } = require('../security/scopes');
 const env = require('var');
@@ -15,6 +14,7 @@ const {getFieldNameForSearchParameter} = require('../../searchParameters/searchP
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 
 /**

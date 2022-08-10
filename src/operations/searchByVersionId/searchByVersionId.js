@@ -1,13 +1,14 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
+const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 /**
  * does a FHIR Search By Version
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

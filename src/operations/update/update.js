@@ -1,6 +1,5 @@
 const {logDebug, logOperation} = require('../common/logging');
 const {
-    verifyHasValidScopes,
     isAccessToResourceAllowedBySecurityTags,
     doesResourceHaveAccessTags
 } = require('../security/scopes');
@@ -20,6 +19,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo

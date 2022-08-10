@@ -1,10 +1,10 @@
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes} = require('../security/scopes');
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {graph} = require('../graph/graph');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 /**
  * does a FHIR $everything
  * @param {import('../../../utils/requestInfo').RequestInfo} requestInfo

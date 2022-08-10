@@ -1,8 +1,5 @@
 const {logDebug, logOperation} = require('../common/logging');
-const {
-    parseScopes,
-    verifyHasValidScopes
-} = require('../security/scopes');
+const {parseScopes} = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
 const {mergeResourceListAsync} = require('./mergeResourceList');
@@ -13,6 +10,7 @@ const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * Add successful merges

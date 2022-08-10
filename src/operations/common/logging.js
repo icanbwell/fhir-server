@@ -1,5 +1,6 @@
 const env = require('var');
 const moment = require('moment-timezone');
+const {getAccessCodesFromScopes} = require('../security/scopes');
 /**
  * @type {import('winston').logger}
  */
@@ -106,6 +107,14 @@ module.exports.logOperation = (options) => {
             valueString: query
         });
     }
+    /**
+     * @type {string[]}
+     */
+    const accessCodes = getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+    /**
+     * @type {string|null}
+     */
+    const firstAccessCode = accessCodes.length > 0 ? (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) : null;
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
     fhirLogger.info(
         {
@@ -123,6 +132,9 @@ module.exports.logOperation = (options) => {
             outcomeDesc: error ? 'Error' : 'Success',
             agent: [
                 {
+                    type: {
+                        text: firstAccessCode
+                    },
                     altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress

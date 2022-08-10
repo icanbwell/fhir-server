@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
+const {getAccessCodesFromScopes} = require('../security/scopes');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -10,6 +10,7 @@ const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -124,7 +125,14 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
             throw new NotAllowedError(e.message);
         }
 
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return {deleted: res.deletedCount};
     } catch (e) {
         logOperation({

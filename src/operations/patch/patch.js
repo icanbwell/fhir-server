@@ -1,7 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {logOperation} = require('../common/logging');
-const {verifyHasValidScopes} = require('../security/scopes');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
@@ -12,6 +11,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch

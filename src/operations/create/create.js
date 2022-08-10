@@ -1,5 +1,5 @@
 const {logDebug, logOperation} = require('../common/logging');
-const {verifyHasValidScopes, doesResourceHaveAccessTags} = require('../security/scopes');
+const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -15,6 +15,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Create (POST)

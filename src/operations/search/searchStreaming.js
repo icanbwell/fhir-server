@@ -1,8 +1,5 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {
-    verifyHasValidScopes,
-} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
@@ -18,6 +15,7 @@ const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonI
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 
 /**
