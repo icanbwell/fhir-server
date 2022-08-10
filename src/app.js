@@ -58,6 +58,7 @@ app.use(helmet());
 app.use(Prometheus.requestCounters);
 // noinspection JSCheckFunctionSignatures
 app.use(Prometheus.responseCounters);
+app.use(Prometheus.httpRequestTimer);
 Prometheus.injectMetricsRoute(app);
 Prometheus.startCollection();
 

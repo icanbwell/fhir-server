@@ -49,10 +49,11 @@ class FhirLogger {
             // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/basic-config.html
             let node = env.ELASTIC_SEARCH_LOG_URL;
             assert(node, 'ELASTIC_SEARCH_LOG_URL environment variable is not defined but ENABLE_ELASTIC_SEARCH_LOGGING is set');
+            console.log(`Logging to ${node}`);
             if (env.ELASTIC_SEARCH_LOG_USERNAME !== undefined && env.ELASTIC_SEARCH_LOG_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.ELASTIC_SEARCH_LOG_USERNAME}:${env.ELASTIC_SEARCH_LOG_PASSWORD}@`);
             }
-            console.log(`Logging to ${node}`);
+
             /**
              * @type {Client}
              */

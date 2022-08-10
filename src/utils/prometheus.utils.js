@@ -77,6 +77,17 @@ const fhirRequestTimer = new Histogram({
 
 module.exports.fhirRequestTimer = fhirRequestTimer;
 
+
+// Create a histogram metric
+const httpRequestDurationMicroseconds = new Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds',
+    labelNames: ['method', 'route', 'code'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.httpRequestDurationMicroseconds = httpRequestDurationMicroseconds;
+
 /**
  * This function will start the collection of metrics and should be called from within in the main js file
  */
@@ -113,6 +124,17 @@ const responseCounters = responseTime(function (req, res, time) {
 });
 
 module.exports.responseCounters = responseCounters;
+
+const httpRequestTimer = responseTime(function (
+    /** @type {import('http').IncomingMessage} */req,
+    /** @type {import('http').ServerResponse} */ res,
+    time) {
+    if (req.url !== '/metrics') {
+        httpRequestDurationMicroseconds.labels(req.method, req.path, res.statusCode).observe(time);
+    }
+});
+
+module.exports.httpRequestTimer = httpRequestTimer;
 
 /**
  * In order to have Prometheus get the data from this app a specific URL is registered
