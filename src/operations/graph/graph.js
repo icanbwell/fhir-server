@@ -16,17 +16,22 @@ const env = require('var');
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'graph';
+
     /**
      * @type {number}
      */
     const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    const path = requestInfo.path;
-    // const host = requestInfo.host;
-    const body = requestInfo.body;
+    const {user, path, body} = requestInfo;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
         /**
@@ -73,7 +78,14 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
         //     return operationOutcomeResult;
         // }
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'graph'});
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return result;
     } catch (err) {
         logOperation({
@@ -82,7 +94,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'graph',
+            action: currentOperationName,
             error: err
         });
         throw new BadRequestError(err);

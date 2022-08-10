@@ -12,13 +12,19 @@ const {graph} = require('../graph/graph');
  * @param {string} resourceType
  */
 module.exports.everything = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'everything';
     /**
      * @type {number}
      */
     const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
         let {id} = args;
@@ -35,7 +41,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: 'everything'
+                action: currentOperationName
             });
             return result;
         } else if (resourceType === 'Organization') {
@@ -47,7 +53,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: 'everything'
+                action: currentOperationName
             });
             return result;
         } else if (resourceType === 'Slot') {
@@ -59,7 +65,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: 'everything'
+                action: currentOperationName
             });
             return result;
         } else {
@@ -73,7 +79,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'everything',
+            action: currentOperationName,
             error: err
         });
         throw new BadRequestError(err);

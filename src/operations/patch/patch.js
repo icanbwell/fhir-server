@@ -21,13 +21,20 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'patch';
     /**
      * @type {number}
      */
     const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
 
@@ -106,7 +113,14 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
         } catch (e) {
             throw new BadRequestError(e);
         }
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'patch'});
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return {
             id: doc.id,
             created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
@@ -119,7 +133,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'patch',
+            action: currentOperationName,
             error: e
         });
         throw e;

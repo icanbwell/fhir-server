@@ -16,6 +16,7 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.expand = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'expand';
     /**
      * @type {number}
      */
@@ -24,7 +25,14 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     // Common search params
     let {id} = args;
@@ -55,7 +63,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'expand',
+            action: currentOperationName,
             error: e
         });
         throw new BadRequestError(e);
@@ -72,7 +80,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
                 resourceType,
                 startTime,
                 message: 'operationFailed',
-                action: 'expand',
+                action: currentOperationName,
                 error: forbiddenError
             });
 
@@ -86,7 +94,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = (await enrich([resource], resourceType))[0];
 
         const result = new Resource(resource);
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'expand'});
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return result;
     } else {
         throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

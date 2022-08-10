@@ -50,6 +50,7 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
  * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
 module.exports.merge = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'merge';
     /**
      * @type {number}
      */
@@ -75,10 +76,14 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
      * @type {string}
      */
     const requestId = requestInfo.requestId;
-    /**
-     * @type {string}
-     */
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'write'
+    });
 
     try {
         /**
@@ -186,7 +191,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         logDebug(user, JSON.stringify(mergeResults));
         logDebug(user, '-----------------');
 
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'merge'});
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
         logOperation({
@@ -195,7 +200,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'merge',
+            action: currentOperationName,
             error: e
         });
         throw e;

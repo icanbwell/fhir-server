@@ -26,6 +26,7 @@ const {ResourceLocator} = require('../common/resourceLocator');
  */
 module.exports.search = async (requestInfo, args, resourceType,
                                filter = true) => {
+    const currentOperationName = 'search';
     /**
      * @type {number}
      */
@@ -49,7 +50,14 @@ module.exports.search = async (requestInfo, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     /**
      * @type {boolean}
@@ -77,11 +85,6 @@ module.exports.search = async (requestInfo, args, resourceType,
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
-
-
-    logDebug(user, '---- query ----');
-    logDebug(user, JSON.stringify(query));
-    logDebug(user, '--------');
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -207,10 +210,10 @@ module.exports.search = async (requestInfo, args, resourceType,
                 user,
                 useAtlas
             );
-            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'search'});
+            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
             return bundle;
         } else {
-            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'search'});
+            logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
             return resources;
         }
     } catch (e) {
@@ -220,7 +223,7 @@ module.exports.search = async (requestInfo, args, resourceType,
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: 'search',
+            action: currentOperationName,
             error: e
         });
         /**

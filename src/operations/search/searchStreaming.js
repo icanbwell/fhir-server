@@ -29,6 +29,7 @@ const {ResourceLocator} = require('../common/resourceLocator');
  */
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         filter = true) => {
+    const currentOperationName = 'searchStreaming';
     /**
      * @type {number}
      */
@@ -50,7 +51,14 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     /**
      * @type {boolean}
@@ -268,7 +276,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: 'searchStreaming'
+            action: currentOperationName
         });
     } catch (e) {
         logOperation({
@@ -277,7 +285,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'searchStreaming',
+            action: currentOperationName,
             error: e
         });
         /**

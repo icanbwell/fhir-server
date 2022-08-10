@@ -1,5 +1,5 @@
 /**
- * @description TAKEN FROM: https://community.tibco.com/wiki/monitoring-your-nodejs-apps-prometheus
+ * @description TAKEN FROM: https://stackabuse.com/nodejs-application-monitoring-with-prometheus-and-grafana/
  * The other prometheus libraries for express returned errors on Buffers.
  */
 const client = require('prom-client');

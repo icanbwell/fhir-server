@@ -19,6 +19,7 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'remove';
     /**
      * @type {number}
      */
@@ -48,7 +49,14 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
             securityTags = accessCodes;
         }
     }
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'write'
+    });
 
     try {
         let {base_version} = args;
@@ -116,7 +124,7 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
             throw new NotAllowedError(e.message);
         }
 
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'remove'});
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return {deleted: res.deletedCount};
     } catch (e) {
         logOperation({
@@ -125,7 +133,7 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'remove',
+            action: currentOperationName,
             error: e
         });
         throw e;

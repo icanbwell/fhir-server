@@ -26,16 +26,22 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  * @param {string} resourceType
  */
 module.exports.update = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'update';
+
     /**
      * @type {number}
      */
     const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    const path = requestInfo.path;
-    const body = requestInfo.body;
+    const {user, scope, path, body} = requestInfo;
 
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     // read the incoming resource from request body
     let resource_incoming_json = body;
@@ -48,7 +54,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             resource_incoming_json,
             currentDate,
             id,
-            'update');
+            currentOperationName);
     }
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
@@ -64,7 +70,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
                 resource_incoming_json,
                 currentDate,
                 uuid,
-                'update');
+                currentOperationName);
             await sendToS3('validation_failures',
                 resourceType,
                 operationOutcome,
@@ -156,7 +162,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
                     resourceType,
                     startTime,
                     message: 'operationCompleted',
-                    action: 'update'
+                    action: currentOperationName
                 });
                 return {
                     id: id,
@@ -244,10 +250,17 @@ module.exports.update = async (requestInfo, args, resourceType) => {
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'update', args, [resource_incoming['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource_incoming['id']]);
         }
 
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: 'update'});
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return {
             id: id,
             created: res.created,
@@ -260,8 +273,16 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             resource_incoming_json,
             currentDate,
             id,
-            'update');
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationFailed', action: 'update', e});
+            currentOperationName);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            e
+        });
         throw e;
     }
 };

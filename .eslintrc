@@ -122,5 +122,6 @@
 //    "require-await": "error",
     "security/detect-non-literal-fs-filename": "off",
     "node/no-unpublished-require": "off",
+    "no-undef": "error"
   }
 }

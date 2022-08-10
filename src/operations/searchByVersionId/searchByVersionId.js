@@ -16,13 +16,22 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'searchByVersionId';
     /**
      * @type {number}
      */
     const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
 
@@ -58,7 +67,7 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: 'searchByVersionId'
+                action: currentOperationName
             });
             return (new Resource(resource));
         } else {
@@ -71,7 +80,7 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'searchByVersionId',
+            action: currentOperationName,
             error: e
         });
         throw e;

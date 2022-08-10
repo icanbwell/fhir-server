@@ -24,6 +24,7 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (requestInfo, args, resourceType,
                                    filter = true) => {
+    const currentOperationName = 'searchById';
     /**
      * @type {number}
      */
@@ -41,7 +42,14 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         scope
     } = requestInfo;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
 
@@ -102,7 +110,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
                 resourceType,
                 startTime,
                 message: 'operationCompleted',
-                action: 'searchById'
+                action: currentOperationName
             });
             return new Resource(resource);
         } else {
@@ -115,7 +123,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'searchById',
+            action: currentOperationName,
             error: e
         });
         throw e;

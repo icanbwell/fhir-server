@@ -18,6 +18,7 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'historyById';
     /**
      * @type {number}
      */
@@ -25,7 +26,14 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     let {base_version, id} = args;
     let query = {};
@@ -72,7 +80,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: 'historyById'
+            action: currentOperationName
         });
         return resources;
     } catch (e) {
@@ -82,7 +90,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationFailed',
-            action: 'historyById',
+            action: currentOperationName,
             error: e
         });
         throw e;
