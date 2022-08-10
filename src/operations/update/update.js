@@ -255,19 +255,21 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource_incoming['id']]);
         }
 
+        const result = {
+            id: id,
+            created: res.created,
+            resource_version: doc.meta.versionId,
+        };
         logOperation({
             requestInfo,
             args,
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: currentOperationName
+            action: currentOperationName,
+            result: JSON.stringify(result)
         });
-        return {
-            id: id,
-            created: res.created,
-            resource_version: doc.meta.versionId,
-        };
+        return result;
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         await sendToS3('errors',

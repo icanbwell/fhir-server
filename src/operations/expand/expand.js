@@ -95,7 +95,11 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = (await enrich([resource], resourceType))[0];
 
         const result = new Resource(resource);
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+        logOperation({
+            requestInfo, args, resourceType, startTime,
+            message: 'operationCompleted', action: currentOperationName,
+            result: JSON.stringify(result)
+        });
         return result;
     } else {
         throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

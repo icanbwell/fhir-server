@@ -57,6 +57,7 @@ module.exports.logWarn = (user, msg) => {
  * @property {string} action
  * @property {Error|undefined} error
  * @property {string|undefined} query
+ * @property {string|undefined} result
  */
 
 /**
@@ -73,7 +74,8 @@ module.exports.logOperation = (options) => {
         message,
         action,
         error,
-        query
+        query,
+        result
     } = options;
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
@@ -105,6 +107,12 @@ module.exports.logOperation = (options) => {
         detail.push({
             type: 'query',
             valueString: query
+        });
+    }
+    if (result) {
+        detail.push({
+            type: 'result',
+            valueString: result
         });
     }
     /**

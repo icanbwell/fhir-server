@@ -199,7 +199,8 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
             resourceType,
             startTime,
             message: 'operationCompleted',
-            action: currentOperationName
+            action: currentOperationName,
+            result: JSON.stringify(mergeResults)
         });
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
