@@ -29,7 +29,8 @@ up:
 	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
 	echo "Elastic Search: [https://localhost:9200/logs-*/_search] (admin:admin)" && \
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
-	echo FHIR server: http://localhost:3000/
+	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline
 up-offline:
