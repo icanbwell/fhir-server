@@ -19,7 +19,7 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
-const {validationsFailed} = require('../../utils/prometheus.utils');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -61,7 +61,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
     if (env.VALIDATE_SCHEMA || args['_validate']) {
         const operationOutcome = validateResource(resource_incoming_json, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
-            validationsFailed.inc({action: currentOperationName, resourceType}, 1);
+            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
             const currentDate = moment.utc().format('YYYY-MM-DD');
             const uuid = getUuid(resource_incoming_json);
             operationOutcome.expression = [

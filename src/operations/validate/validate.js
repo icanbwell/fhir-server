@@ -1,7 +1,7 @@
 const {logOperation} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
-const {validationsFailed} = require('../../utils/prometheus.utils');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 /**
  * does a FHIR Validate
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -22,7 +22,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
     const operationOutcome = validateResource(resource_incoming, resourceType, path);
     const currentOperationName = 'validate';
     if (operationOutcome && operationOutcome.statusCode === 400) {
-        validationsFailed.inc({action: currentOperationName, resourceType}, 1);
+        validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
         logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return operationOutcome;
     }

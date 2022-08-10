@@ -6,7 +6,7 @@ const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const deepcopy = require('deepcopy');
-const {validationsFailed} = require('../../utils/prometheus.utils');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 
 /**
  * run any pre-checks before merge
@@ -99,7 +99,7 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
      */
     const validationOperationOutcome = validateResource(resourceToValidate, resourceToValidate.resourceType, path);
     if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-        validationsFailed.inc({action: 'merge', resourceType: resourceToValidate.resourceType}, 1);
+        validationsFailedCounter.inc({action: 'merge', resourceType: resourceToValidate.resourceType}, 1);
         validationOperationOutcome['expression'] = [
             resourceToMerge.resourceType + '/' + id
         ];

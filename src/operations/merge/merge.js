@@ -12,7 +12,7 @@ const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResul
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {fhirRequestTimer, validationsFailed} = require('../../utils/prometheus.utils');
+const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 
 /**
  * Add successful merges
@@ -118,7 +118,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
             const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
-                validationsFailed.inc({action: currentOperationName, resourceType}, 1);
+                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 return operationOutcome;
             }
             // unwrap the resources

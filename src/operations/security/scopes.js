@@ -2,6 +2,7 @@ const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {logOperation} = require('../common/logging');
+const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
 /**
  * converts a space separated list of scopes into an array of scopes
  * @param {string} scope
@@ -47,6 +48,7 @@ const verifyHasValidScopes = (options) => {
             }
             let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
             const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
+            authorizationFailedCounter.inc({action: action, resourceType: resourceType});
             logOperation({
                 requestInfo,
                 args,
@@ -60,6 +62,7 @@ const verifyHasValidScopes = (options) => {
         } else {
             let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
             const forbiddenError1 = new ForbiddenError(errorMessage);
+            authorizationFailedCounter.inc({action: action, resourceType: resourceType});
             logOperation({
                 requestInfo,
                 args,

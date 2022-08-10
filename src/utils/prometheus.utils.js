@@ -36,13 +36,25 @@ module.exports.pathsTaken = pathsTaken;
  * A Prometheus counter that counts the invocations with different paths
  * e.g. /foo and /bar will be counted as 2 different paths
  */
-const validationsFailed = new Counter({
+const validationsFailedCounter = new Counter({
     name: 'validationsFailed',
     help: 'validationsFailed',
     labelNames: ['action', 'resourceType']
 });
 
-module.exports.validationsFailed = validationsFailed;
+module.exports.validationsFailedCounter = validationsFailedCounter;
+
+/**
+ * A Prometheus counter that counts the invocations with different paths
+ * e.g. /foo and /bar will be counted as 2 different paths
+ */
+const authorizationFailedCounter = new Counter({
+    name: 'authorizationFailed',
+    help: 'authorizationFailed',
+    labelNames: ['action', 'resourceType']
+});
+
+module.exports.authorizationFailedCounter = authorizationFailedCounter;
 
 /**
  * A Prometheus summary to record the HTTP method, path, response code and response time
@@ -95,7 +107,7 @@ const responseCounters = responseTime(function (req, res, time) {
         responses.labels(req.method, req.path, res.statusCode).observe(time);
         // console.info('res.StatusCode=' + res.statusCode);
         if (res.statusCode === 404) {
-            validationsFailed.inc(1);
+            validationsFailedCounter.inc(1);
         }
     }
 });
