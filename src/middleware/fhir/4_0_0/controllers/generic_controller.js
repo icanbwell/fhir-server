@@ -25,7 +25,10 @@ const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
  * @return Promise<Any>
  */
 module.exports.search = function search(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             /**
              * @type {boolean}
@@ -57,7 +60,10 @@ module.exports.search = function search(service) {
  * @return Promise
  */
 module.exports.searchById = function searchById(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const resource = await service.searchById(req.sanitized_args, {
                 req,
@@ -76,7 +82,10 @@ module.exports.searchById = function searchById(service) {
  * @return Promise
  */
 module.exports.searchByVersionId = function searchByVersionId(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const resource = await service.searchByVersionId(req.sanitized_args, {
                 req,
@@ -95,7 +104,10 @@ module.exports.searchByVersionId = function searchByVersionId(service) {
  * @return Promise
  */
 module.exports.create = function create(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const json = await service.create(req.sanitized_args, {
                 req,
@@ -114,7 +126,10 @@ module.exports.create = function create(service) {
  * @return Promise
  */
 module.exports.merge = function merge(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const json = await service.merge(req.sanitized_args, {
                 req,
@@ -133,7 +148,10 @@ module.exports.merge = function merge(service) {
  * @return Promise
  */
 module.exports.update = function update(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const json = await service.update(req.sanitized_args, {
                 req,
@@ -152,7 +170,10 @@ module.exports.update = function update(service) {
  * @return Promise
  */
 module.exports.remove = function remove(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const json = await service.remove(req.sanitized_args, {
                 req,
@@ -171,7 +192,10 @@ module.exports.remove = function remove(service) {
  * @return Promise
  */
 module.exports.patch = function patch(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const json = await service.patch(req.sanitized_args, {
                 req,
@@ -190,7 +214,10 @@ module.exports.patch = function patch(service) {
  * @return Promise
  */
 module.exports.history = function history(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const bundle = await service.history(req.sanitized_args, {
                 req,
@@ -209,7 +236,10 @@ module.exports.history = function history(service) {
  * @return Promise
  */
 module.exports.historyById = function historyById(service) {
-    return async (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         try {
             const bundle = await service.historyById(req.sanitized_args, {
                 req,

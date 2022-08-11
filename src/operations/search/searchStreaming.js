@@ -234,6 +234,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             }
         } else { // no records found
             if (useNdJson) {
+                if (requestId) {
+                    res.setHeader('X-Request-ID', String(requestId));
+                }
                 // empty response
                 res.type(fhirContentTypes.ndJson);
                 res.status(200).end();
@@ -266,8 +269,14 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         user,
                         useAtlas
                     );
+                    if (requestId) {
+                        res.setHeader('X-Request-ID', String(requestId));
+                    }
                     res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                 } else {
+                    if (requestId) {
+                        res.setHeader('X-Request-ID', String(requestId));
+                    }
                     res.type(fhirContentTypes.fhirJson).json([]);
                 }
             }

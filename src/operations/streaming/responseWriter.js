@@ -49,7 +49,7 @@ class HttpResponseWriter extends Writable {
         this.response.setTimeout(60 * 60 * 1000, () => {
             logger.warn('Response timeout');
         });
-        // this.response.flushHeaders();
+        this.response.flushHeaders();
         callback();
     }
 
