@@ -4,6 +4,7 @@
 const {createHttpTerminator} = require('http-terminator');
 
 const {app} = require('./app');
+const os = require('os');
 const {fhirServerConfig} = require('./config');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
 const {connectAsync} = require('./utils/connect');
@@ -15,7 +16,7 @@ const main = async function () {
 
     const server = app.listen(fhirServerConfig.server.port, () => {
             const image = env.DOCKER_IMAGE || '';
-            logger.verbose(`Server is up and running! Image: ${image}`);
+            logger.verbose(`Server is up and running! host: ${os.hostname()} Image: ${image}`);
         }
     );
 

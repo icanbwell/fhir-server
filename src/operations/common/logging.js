@@ -5,7 +5,7 @@ const {getAccessCodesFromScopes} = require('../security/scopes');
  * @type {import('winston').logger}
  */
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
-
+const os = require('os');
 const fhirSecureLogger = require('../../utils/fhirLogger').FhirLogger.getSecureLogger();
 const fhirInSecureLogger = require('../../utils/fhirLogger').FhirLogger.getInSecureLogger();
 
@@ -88,6 +88,14 @@ module.exports.logOperation = (options) => {
             };
         }
     );
+    if (os.hostname()) {
+        const hostname = os.hostname();
+        detail.push({
+            type: 'host',
+            valueString: String(hostname)
+        });
+    }
+
     if (startTime && stopTime) {
         /**
          * @type {number}
@@ -131,9 +139,7 @@ module.exports.logOperation = (options) => {
                     network: {
                         address: requestInfo.remoteIpAddress
                     },
-                    policy: [
-                        requestInfo.scope
-                    ]
+                    policy: requestInfo.scope.split(' ')
                 }
             ],
             source: {
