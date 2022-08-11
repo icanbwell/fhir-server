@@ -28,7 +28,7 @@ services:
       REDIRECT_TO_LOGIN: 1
       SLACK_STATUS_CODES_TO_IGNORE: "401,404"
       MAX_INDEX_NAME_LENGTH: 65
-      ENV: foo
+      ENV: local
       MONGO_TIMEOUT: 30000
       LOGLEVEL: "INFO"
       ENABLE_GRAPHQL: 1
