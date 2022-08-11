@@ -4,6 +4,7 @@ const {ElasticsearchTransport} = require('winston-elasticsearch');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
+const {getElasticSearchParameterAsync} = require('./aws-ssm');
 
 let fhirLoggerInstance;
 
@@ -77,7 +78,6 @@ class FhirLogger {
             transports: []
         });
 
-
         if (isTrue(env.LOG_ELASTIC_SEARCH_ENABLE)) {
             // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/basic-config.html
             let node = env.LOG_ELASTIC_SEARCH_URL;
@@ -85,6 +85,9 @@ class FhirLogger {
             console.info(`Logging to ${node}`);
             if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
+            } else {
+                const {username, password} = getElasticSearchParameterAsync(env.ENV);
+                node = node.replace('https://', `https://${username}:${password}@`);
             }
 
             /**
@@ -93,7 +96,7 @@ class FhirLogger {
             const client = new Client({
                 node: node,
                 ssl: {
-                    rejectUnauthorized: false // env.IS_PRODUCTION // skip cert verification on local
+                    rejectUnauthorized: env.NODE_ENV !== 'development' // skip cert verification on local
                 }
             });
             /**
@@ -102,7 +105,9 @@ class FhirLogger {
             const esTransportOpts = {
                 level: 'info',
                 client: client,
-                indexPrefix: env.LOG_ELASTIC_SEARCH_PREFIX ? String(env.LOG_ELASTIC_SEARCH_PREFIX).toLowerCase() : 'logs'
+                indexPrefix: env.LOG_ELASTIC_SEARCH_PREFIX ?
+                    String(env.LOG_ELASTIC_SEARCH_PREFIX).toLowerCase() :
+                    'logs'
             };
 
             /**
