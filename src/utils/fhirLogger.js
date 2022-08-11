@@ -78,13 +78,13 @@ class FhirLogger {
         });
 
 
-        if (isTrue(env['ENABLE_ELASTIC_SEARCH_LOGGING'])) {
+        if (isTrue(env.LOG_ELASTIC_SEARCH_ENABLE)) {
             // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/basic-config.html
-            let node = env.ELASTIC_SEARCH_LOG_URL;
-            assert(node, 'ELASTIC_SEARCH_LOG_URL environment variable is not defined but ENABLE_ELASTIC_SEARCH_LOGGING is set');
+            let node = env.LOG_ELASTIC_SEARCH_URL;
+            assert(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
             console.info(`Logging to ${node}`);
-            if (env.ELASTIC_SEARCH_LOG_USERNAME !== undefined && env.ELASTIC_SEARCH_LOG_PASSWORD !== undefined) {
-                node = node.replace('https://', `https://${env.ELASTIC_SEARCH_LOG_USERNAME}:${env.ELASTIC_SEARCH_LOG_PASSWORD}@`);
+            if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
+                node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             }
 
             /**
@@ -102,7 +102,7 @@ class FhirLogger {
             const esTransportOpts = {
                 level: 'info',
                 client: client,
-                indexPrefix: env.ELASTIC_SEARCH_LOG_PREFIX ? String(env.ELASTIC_SEARCH_LOG_PREFIX).toLowerCase() : 'logs'
+                indexPrefix: env.LOG_ELASTIC_SEARCH_PREFIX ? String(env.LOG_ELASTIC_SEARCH_PREFIX).toLowerCase() : 'logs'
             };
 
             /**

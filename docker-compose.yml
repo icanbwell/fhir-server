@@ -42,11 +42,11 @@ services:
       RETURN_BUNDLE: "1"
       USE_TWO_STEP_SEARCH_OPTIMIZATION: "1"
       STREAM_RESPONSE: "1"
-      ENABLE_ELASTIC_SEARCH_LOGGING: "1"
-      ELASTIC_SEARCH_LOG_URL: "https://elasticsearch:9200/"
-      ELASTIC_SEARCH_LOG_USERNAME: "admin"
-      ELASTIC_SEARCH_LOG_PASSWORD: "admin"
-      ELASTIC_SEARCH_LOG_PREFIX: "fhir-logs"
+      LOG_ELASTIC_SEARCH_ENABLE: "1"
+      LOG_ELASTIC_SEARCH_URL: "https://elasticsearch:9200/"
+      LOG_ELASTIC_SEARCH_USERNAME: "admin"
+      LOG_ELASTIC_SEARCH_PASSWORD: "admin"
+      LOG_ELASTIC_SEARCH_PREFIX: "fhir-logs"
       LOG_STREAM_STEPS: "0"
     ports:
       - '3000:3000'
