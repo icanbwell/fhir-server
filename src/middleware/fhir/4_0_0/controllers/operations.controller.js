@@ -13,7 +13,10 @@ module.exports.operationsPost = function operationsPost(
     let {
         serviceModule: service
     } = profile;
-    return (req, res, next) => {
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
         let {
             base_version,
             id
@@ -24,9 +27,15 @@ module.exports.operationsPost = function operationsPost(
             base_version,
             resource: resource_body
         };
-        service[name](args, {
-            req
-        }, deprecatedLogger).then(results => handler.read(req, res, results)).catch(next);
+
+        try {
+            const results = await service[`${name}`](args, {
+                req
+            }, deprecatedLogger);
+            handler.read(req, res, results);
+        } catch (e) {
+            next(e);
+        }
     };
 };
 /**
@@ -34,17 +43,27 @@ module.exports.operationsPost = function operationsPost(
  */
 
 
-module.exports.operationsGet = function operationsGet({
-                                                          profile,
-                                                          name,
-                                                          logger: deprecatedLogger
-                                                      }) {
+module.exports.operationsGet = function operationsGet(
+    {
+        profile,
+        name,
+        logger: deprecatedLogger
+    }) {
     let {
         serviceModule: service
     } = profile;
-    return (req, res, next) => {
-        service[name](req.sanitized_args, {
-            req
-        }, deprecatedLogger).then(results => handler.read(req, res, results)).catch(next);
+    return async (
+        /** @type {import('http').IncomingMessage}*/req,
+        /** @type {import('http').ServerResponse}*/res,
+        /** @type {function() : void}*/next) => {
+        try {
+            const results = await
+                service[`${name}`](req.sanitized_args, {
+                    req
+                }, deprecatedLogger);
+            handler.read(req, res, results);
+        } catch (e) {
+            next(e);
+        }
     };
 };
