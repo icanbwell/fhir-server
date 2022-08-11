@@ -20,7 +20,9 @@ const slackErrorHandler = async (err, req, res, next) => {
          * status codes to ignore
          * @type {number[]}
          */
-        const statusCodeToIgnore = env.SLACK_STATUS_CODES_TO_IGNORE ? env.SLACK_STATUS_CODES_TO_IGNORE.split(',').map(x => parseInt(x)) : [401, 404];
+        const statusCodeToIgnore = env.SLACK_STATUS_CODES_TO_IGNORE ?
+            env.SLACK_STATUS_CODES_TO_IGNORE.split(',').map(x => parseInt(x)) :
+            [200, 401, 404];
         // console.log('slackErrorHandler', err);
         if (!statusCodeToIgnore.includes(err.statusCode)) {
             console.log('slackErrorHandler logging', err);
