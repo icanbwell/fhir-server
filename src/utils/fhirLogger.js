@@ -120,7 +120,12 @@ class FhirLogger {
                 console.error('Error in elasticsearchTransport caught', error);
             });
         } else {
-            logger.add(NullTransport);
+            /**'
+             * @type {import('winston-transport').Transport}
+             */
+            const nullTransport = new NullTransport();
+            // noinspection JSCheckFunctionSignatures
+            logger.add(nullTransport);
         }
 
         // Compulsory error handling
