@@ -23,7 +23,7 @@ module.exports.logRequest = (user, msg) => {
  * @param {*} msg
  */
 module.exports.logDebug = (user, msg) => {
-    if (!env.IS_PRODUCTION || (env.LOGLEVEL === 'DEBUG')) {
+    if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
         logger.info(user + ': ' + msg);
     }
 };

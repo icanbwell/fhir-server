@@ -35,8 +35,6 @@ async function streamBundleFromCursorAsync(
     batchObjectCount
 ) {
     assert(requestId);
-    console.log(`streamBundleFromCursorAsync: ${this.requestId}`);
-
     /**
      * @type {AbortController}
      */
@@ -72,7 +70,7 @@ async function streamBundleFromCursorAsync(
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            console.log('Mongo read stream was closed');
+            // console.log('Mongo read stream was closed');
             // ac.abort();
         });
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators

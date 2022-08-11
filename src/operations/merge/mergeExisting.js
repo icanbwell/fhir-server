@@ -1,5 +1,5 @@
 const {getResource} = require('../common/getResource');
-const {logDebug, logRequest} = require('../common/logging');
+const {logDebug} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const {preSaveAsync} = require('../common/preSave');
 const {removeNull} = require('../../utils/nullRemover');
@@ -122,7 +122,7 @@ async function mergeExistingAsync(resourceToMerge, data,
             'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
             foundResource.resourceType + ' with id ' + id);
     }
-    logRequest(user, `${resourceToMerge.resourceType} >>> merging ${id}`);
+    logDebug(user, `${resourceToMerge.resourceType} >>> merging ${id}`);
     // now apply the patches to the found resource
     // noinspection JSCheckFunctionSignatures
     /**

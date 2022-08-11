@@ -1,7 +1,6 @@
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {logDebug} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
@@ -85,8 +84,6 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
     }
 
     //----- validate schema ----
-    logDebug(user, '--- validate schema ----');
-
     // The FHIR validator wants meta.lastUpdated to be string instead of data
     // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
     const resourceToValidate = deepcopy(resourceToMerge);
@@ -131,7 +128,6 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
             resourceType: resourceToMerge.resourceType
         };
     }
-    logDebug(user, '-----------------');
 
     if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
         if (!doesResourceHaveAccessTags(resourceToMerge)) {

@@ -47,7 +47,7 @@ services:
       ELASTIC_SEARCH_LOG_USERNAME: "admin"
       ELASTIC_SEARCH_LOG_PASSWORD: "admin"
       ELASTIC_SEARCH_LOG_PREFIX: "fhir-logs"
-      LOG_STREAM_STEPS: "1"
+      LOG_STREAM_STEPS: "0"
     ports:
       - '3000:3000'
     volumes:

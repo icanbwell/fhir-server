@@ -89,7 +89,7 @@ async function streamResourcesFromCursorAsync(
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            console.log('Mongo read stream was closed');
+            // console.log('Mongo read stream was closed');
             // ac.abort();
         });
 

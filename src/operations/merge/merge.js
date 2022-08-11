@@ -1,4 +1,4 @@
-const {logDebug, logOperation} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {parseScopes} = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
@@ -103,10 +103,6 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          */
         let {base_version} = args;
 
-        // logDebug('--- request ----');
-        // logDebug(req);
-        // logDebug('-----------------');
-
         /**
          * @type {string}
          */
@@ -188,10 +184,6 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         });
         mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
         await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
-
-        logDebug(user, '--- Merge result ----');
-        logDebug(user, JSON.stringify(mergeResults));
-        logDebug(user, '-----------------');
 
         logOperation({
             requestInfo,
