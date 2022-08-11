@@ -78,7 +78,7 @@ init:
 .PHONY:update
 update:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm install --global yarn && \
+	npm install --location=global yarn && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
