@@ -6,10 +6,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logRequest, logDebug} = require('../operations/common/logging');
+const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const {request} = require('../utils/request');
+const fhirLogger = require('../utils/fhirLogger').FhirLogger.getLogger();
 
 /**
  * Retrieve jwks for URL
@@ -88,8 +89,8 @@ const verify = (jwt_payload, done) => {
             scope = scope + ' ' + groups.join(' ');
         }
 
-        logRequest(
-            username,
+        fhirLogger.info(
+            username || client_id,
             'Verified client_id: ' + client_id + ' username=' + username + ' scope: ' + scope
         );
 
