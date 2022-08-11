@@ -120,7 +120,7 @@ module.exports.logOperation = (options) => {
     const logEntry = {
         id: requestInfo.requestId,
         type: {
-            code: 'fhirServer'
+            code: 'operation'
         },
         action: action,
         period: {
@@ -210,7 +210,7 @@ module.exports.logSystemEvent = (event, message, args, error = null) => {
     const logEntry = {
         id: generateUUID(),
         type: {
-            code: 'fhirServer'
+            code: 'system'
         },
         action: event,
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
