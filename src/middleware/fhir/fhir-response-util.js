@@ -1,4 +1,5 @@
 const path = require('path');
+// const assert = require('node:assert/strict');
 
 /**
  * @function getContentType
@@ -20,21 +21,26 @@ function getContentType(version) {
 /**
  * @function read
  * @description Used when you are returning a Bundle of resources
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} json - json to send to client
  */
 function read(req, res, json) {
     let fhirVersion = req.params.base_version;
     res.type(getContentType(fhirVersion));
+
+    // assert(req.id);
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     res.status(200).json(json);
 }
 
 /**
  * @function readOne
  * @description Used when you are returning a single resource of any type
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} resource - resource to send to client
  */
 function readOne(req, res, resource) {
@@ -46,7 +52,9 @@ function readOne(req, res, resource) {
     }
 
     res.type(getContentType(fhirVersion));
-
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     if (!resource) {
         res.sendStatus(404);
     } else {
@@ -57,8 +65,8 @@ function readOne(req, res, resource) {
 /**
  * @function create
  * @description Used when you are creating a single resource of any type
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} json - json to send to client
  * @param {Object} options - Any additional options necessary to generate response
  */
@@ -78,7 +86,9 @@ function create(req, res, json, options) {
         res.set('Content-Location', `${baseUrl}/${pathname}`);
         res.set('ETag', json.resource_version);
     }
-
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     res.set('Location', location);
     res.status(201).end();
 }
@@ -86,8 +96,8 @@ function create(req, res, json, options) {
 /**
  * @function update
  * @description Used when you are updating a single resource of any type
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} json - json to send to client
  * @param {Object} options - Any additional options necessary to generate response
  */
@@ -103,43 +113,49 @@ function update(req, res, json, options) {
         res.set('Content-Location', `${baseUrl}/${pathname}`);
         res.set('ETag', json.resource_version);
     }
-
     res.set('Last-Modified', date.toISOString());
     res.type(getContentType(fhirVersion));
     res.set('Location', location);
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     res.status(status).end();
 }
 
 /**
  * @function remove
  * @description Used when you are deleting a single resource of any type
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} json - json to send to client
  */
 function remove(req, res, json) {
     if (json && json.deleted) {
         res.set('ETag', json.deleted);
     }
-
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     res.status(204).end();
 }
 
 /**
  * @function history
  * @description Used when you are querying the history of a resource of any type
- * @param {Express.req} req - Express request object
- * @param {Express.res} res - Express response object
+ * @param {import('http').IncomingMessage} req - Express request object
+ * @param {import('http').ServerResponse} res - Express response object
  * @param {Object} json - json to send to client
  */
 function history(req, res, json) {
     let version = req.params.base_version;
     res.type(getContentType(version));
+    if (req.id) {
+        res.setHeader('X-Request-ID', String(req.id));
+    }
     res.status(200).json(json);
 }
 
 module.exports = {
-    getContentType,
     read,
     readOne,
     create,

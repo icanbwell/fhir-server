@@ -7,6 +7,7 @@ const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
 class MongoError extends AggregateError {
     /**
      * Creates an error for mongo
+     * @param {string} requestId
      * @param {string} message
      * @param {Error} error
      * @param {string} collection
@@ -14,15 +15,17 @@ class MongoError extends AggregateError {
      * @param {*} options
      * @param {number} elapsedTime
      */
-    constructor(message, error, collection, query, elapsedTime, options = {},) {
+    constructor(requestId, message, error, collection, query, elapsedTime, options = {},) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
+            (requestId ? `[${requestId}]` : '') +
             message + ': ' +
             mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
-            `elapsedTime=${elapsedTimeInSecs} secs`
+            ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.collection = collection;
+        this.requestId = requestId;
         this.query = query;
         this.options = options;
         this.elapsedTimeInSecs = elapsedTimeInSecs;
@@ -44,7 +47,8 @@ class MongoError extends AggregateError {
 
 class MongoMergeError extends AggregateError {
     /**
-     * Creates an error for mongo
+     * Creates an error for mongo merge
+     * @param {string} requestId
      * @param {string} message
      * @param {Error} error
      * @param {string} resourceType
@@ -52,16 +56,18 @@ class MongoMergeError extends AggregateError {
      * @param {*} options
      * @param {number} elapsedTime
      */
-    constructor(message, error, resourceType, query, elapsedTime, options = {},) {
+    constructor(requestId, message, error, resourceType, query, elapsedTime, options = {},) {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
+            (requestId ? `[${requestId}]` : '') +
             message + ': ' +
             JSON.stringify(query) + ' , ' + JSON.stringify(options) +
-            `elapsedTime=${elapsedTimeInSecs} secs`
+            ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.resourceType = resourceType;
         this.query = query;
+        this.requestId = requestId;
         this.options = options;
         this.elapsedTimeInSecs = elapsedTimeInSecs;
         for (const [key, value] of Object.entries(options)) {

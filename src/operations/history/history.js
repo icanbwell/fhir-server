@@ -1,5 +1,5 @@
-const {logRequest} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
+const {logOperation} = require('../common/logging');
+const {isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const {getResource} = require('../common/getResource');
@@ -7,6 +7,7 @@ const {NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
@@ -17,11 +18,22 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'history';
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    logRequest(user, `${resourceType} >>> history`);
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     // Common search params
     let {base_version} = args;
@@ -48,6 +60,15 @@ module.exports.history = async (requestInfo, args, resourceType) => {
     try {
         cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
     } catch (e) {
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
         throw new NotFoundError(e.message);
     }
     const resources = [];
@@ -61,5 +82,6 @@ module.exports.history = async (requestInfo, args, resourceType) => {
     if (resources.length === 0) {
         throw new NotFoundError();
     }
-    return (resources);
+    logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+    return resources;
 };

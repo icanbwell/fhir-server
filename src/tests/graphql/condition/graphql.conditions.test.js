@@ -24,6 +24,8 @@ const {
     getGraphQLHeaders
 } = require('../../common');
 
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -108,6 +110,7 @@ describe('GraphQL Condition Tests', () => {
                         console.log('------- response graphql ------------');
                         console.log(JSON.stringify(resp.body, null, 2));
                         console.log('------- end response graphql  ------------');
+                        expect(body.errors).toBeUndefined();
                         expect(body.data.condition.length).toBe(10);
                         let expected = expectedConditionBundleResource;
                         expected.forEach(element => {

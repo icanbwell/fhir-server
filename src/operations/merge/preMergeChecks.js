@@ -1,11 +1,11 @@
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {logDebug} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const sendToS3 = require('../../utils/aws-s3');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const deepcopy = require('deepcopy');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 
 /**
  * run any pre-checks before merge
@@ -84,12 +84,10 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
     }
 
     //----- validate schema ----
-    logDebug(user, '--- validate schema ----');
-
     // The FHIR validator wants meta.lastUpdated to be string instead of data
     // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
     const resourceToValidate = deepcopy(resourceToMerge);
-    if (resourceToValidate.meta && resourceToValidate.meta.lastUpdated ) {
+    if (resourceToValidate.meta && resourceToValidate.meta.lastUpdated) {
         // noinspection JSValidateTypes
         resourceToValidate.meta.lastUpdated = new Date(resourceToValidate.meta.lastUpdated).toISOString();
     }
@@ -98,6 +96,7 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
      */
     const validationOperationOutcome = validateResource(resourceToValidate, resourceToValidate.resourceType, path);
     if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
+        validationsFailedCounter.inc({action: 'merge', resourceType: resourceToValidate.resourceType}, 1);
         validationOperationOutcome['expression'] = [
             resourceToMerge.resourceType + '/' + id
         ];
@@ -129,7 +128,6 @@ async function preMergeChecksAsync(resourceToMerge, resourceName,
             resourceType: resourceToMerge.resourceType
         };
     }
-    logDebug(user, '-----------------');
 
     if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
         if (!doesResourceHaveAccessTags(resourceToMerge)) {

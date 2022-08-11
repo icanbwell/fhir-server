@@ -1,5 +1,3 @@
-const {logDebug} = require('./logging');
-
 /**
  * combines args with args from request
  * @param {import('http').IncomingMessage} req
@@ -29,8 +27,5 @@ module.exports.get_all_args = (req, args) => {
      * @type {string[]}
      */
     const combined_args = Object.assign({}, args, sanitized_args, query_param_args);
-    logDebug(req.user, '---- combined_args ----');
-    logDebug(req.user, JSON.stringify(combined_args));
-    logDebug(req.user, '--------');
     return combined_args;
 };

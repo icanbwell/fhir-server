@@ -1,5 +1,7 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
+// noinspection ExceptionCaughtLocallyJS
+
+const {logOperation} = require('../common/logging');
+const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -10,6 +12,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search By Id
@@ -22,6 +25,11 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (requestInfo, args, resourceType,
                                    filter = true) => {
+    const currentOperationName = 'searchById';
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const {
         /** @type {string[]} */
         patients = [],
@@ -35,69 +43,90 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         scope
     } = requestInfo;
 
-    logRequest(user, `${resourceType} >>> searchById`);
-    logDebug(user, JSON.stringify(args));
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
-    verifyHasValidScopes(resourceType, 'read', user, scope);
-
-    // Common search params
-    let {id} = args;
-    let {base_version} = args;
-
-    logDebug(user, `id: ${id}`);
-    logDebug(user, `base_version: ${base_version}`);
-
-    // Search Result param
-    /**
-     * @type {Object}
-     */
-    let query = {};
-    query.id = id;
-
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    let Resource = getResource(base_version, resourceType);
-
-    /**
-     * @type {Promise<Resource> | *}
-     */
-    let resource;
-    query = {id: id.toString()};
-    if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-        const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
-        query = getQueryWithPatientFilter(allPatients, query, resourceType);
-    }
     try {
-        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
+
+        // Common search params
+        let {id} = args;
+        let {base_version} = args;
+
+        // Search Result param
+        /**
+         * @type {Object}
+         */
+        let query = {};
+        query.id = id;
+
+
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        let Resource = getResource(base_version, resourceType);
+
+        /**
+         * @type {Promise<Resource> | *}
+         */
+        let resource;
+        query = {id: id.toString()};
+        if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
+            const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
+            query = getQueryWithPatientFilter(allPatients, query, resourceType);
+        }
+        try {
+            resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
+        } catch (e) {
+            throw new BadRequestError(e);
+        }
+
+
+        if (resource) {
+            if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                throw new ForbiddenError(
+                    'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                    resource.resourceType + ' with id ' + id);
+            }
+
+            // remove any nulls or empty objects or arrays
+            resource = removeNull(resource);
+
+            // run any enrichment
+            resource = (await enrich([resource], resourceType))[0];
+            if (resourceType !== 'AuditEvent') {
+                // log access to audit logs
+                await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
+            }
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName
+            });
+            return new Resource(resource);
+        } else {
+            throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        }
     } catch (e) {
-        logError(user, `Error with ${resourceType}.searchById: {e}`);
-        throw new BadRequestError(e);
-    }
-
-
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-            throw new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-        }
-
-        // remove any nulls or empty objects or arrays
-        resource = removeNull(resource);
-
-        // run any enrichment
-        resource = (await enrich([resource], resourceType))[0];
-        if (resourceType !== 'AuditEvent') {
-            // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
-        }
-
-        return new Resource(resource);
-    } else {
-        throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
+        throw e;
     }
 };

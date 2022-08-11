@@ -1,6 +1,7 @@
 const env = require('var');
-const scopeChecker = require('@asymmetrik/sof-scope-checker');
+const assert = require('node:assert/strict');
 const {ForbiddenError} = require('../../utils/httpErrors');
+
 /**
  * converts a space separated list of scopes into an array of scopes
  * @param {string} scope
@@ -14,45 +15,15 @@ const parseScopes = (scope) => {
 };
 
 /**
- * Throws an error if no scope is valid for this request
- * @param {string} name
- * @param {string} action
- * @param {string} user
- * @param {?string} scope
- */
-const verifyHasValidScopes = (name, action, user, scope) => {
-    if (env.AUTH_ENABLED === '1') {
-        // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-        if (scope) {
-            /**
-             * @type {string[]}
-             */
-            let scopes = parseScopes(scope);
-            let {error, success} = scopeChecker(name, action, scopes);
-
-            if (success) {
-                return;
-            }
-            let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + name + '.' + action + ']';
-            console.info(errorMessage);
-            throw new ForbiddenError(error.message + ': ' + errorMessage);
-        } else {
-            let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + name + '.' + action + ']';
-            console.info(errorMessage);
-            throw new ForbiddenError(errorMessage);
-        }
-    }
-};
-
-/**
  * Returns all the access codes present in scopes
  * @param {string} action
  * @param {string} user
- * @param {?string} scope
- * @return {string[]}
+ * @param {string|null} scope
+ * @return {string[]} security tags allowed by scopes
  */
 const getAccessCodesFromScopes = (action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
+        assert(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
          * @type {string[]}
@@ -72,16 +43,9 @@ const getAccessCodesFromScopes = (action, user, scope) => {
                  * @type {string}
                  */
                 const inner_scope = scope1.replace('access/', '');
-                /**
-                 * @type {[string]}
-                 */
-                const innerScopes = inner_scope.split('.');
-                if (innerScopes && innerScopes.length > 0) {
-                    /**
-                     * @type {string}
-                     */
-                    const access_code = innerScopes[0];
-                    access_codes.push(access_code);
+                const [securityTag, accessType] = inner_scope.split('.');
+                if (accessType === '*' || accessType === action) {
+                    access_codes.push(securityTag);
                 }
             }
         }
@@ -176,7 +140,6 @@ const doesResourceHaveAccessTags = (resource) => {
 module.exports = {
     isAccessToResourceAllowedBySecurityTags,
     doesResourceHaveAccessTags,
-    verifyHasValidScopes,
     getAccessCodesFromScopes,
     doesResourceHaveAnyAccessCodeFromThisList,
     parseScopes

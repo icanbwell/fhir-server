@@ -1,10 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {
-    verifyHasValidScopes,
-} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -16,6 +13,10 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
+const {fhirRequestTimer} = require('../../utils/prometheus.utils');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
+
 
 /**
  * does a FHIR Search
@@ -28,6 +29,9 @@ const {ResourceLocator} = require('../common/resourceLocator');
  */
 module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                                         filter = true) => {
+    const currentOperationName = 'searchStreaming';
+    // Start the FHIR request timer, saving a reference to the returned method
+    const timer = fhirRequestTimer.startTimer();
     /**
      * @type {number}
      */
@@ -45,16 +49,18 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         /** @type {string} */
         fhirPersonId,
         /** @type {boolean} */
-        isUser
+        isUser,
+        requestId
     } = requestInfo;
 
-    logRequest(user, resourceType + ' >>> searchStreaming' + ' scope:' + scope);
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceType, 'read', user, scope);
-    logRequest(user, '---- args ----');
-    logRequest(user, JSON.stringify(args));
-    logRequest(user, '--------');
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     /**
      * @type {boolean}
@@ -82,10 +88,6 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
-
-    logDebug(user, '---- query ----');
-    logDebug(user, JSON.stringify(query));
-    logDebug(user, '--------');
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -167,7 +169,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceType,
+                resourceIds = await streamResourcesFromCursorAsync(
+                    requestId,
+                    cursor, res, user, scope, args, Resource, resourceType,
                     useAccessIndex,
                     fhirContentTypes.ndJson, batchObjectCount);
             } else {
@@ -177,7 +181,10 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @type {string}
                      */
                     const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-                    resourceIds = await streamBundleFromCursorAsync(cursor, url,
+                    resourceIds = await streamBundleFromCursorAsync(
+                        requestId,
+                        cursor,
+                        url,
                         (last_id, stopTime1) => createBundle(
                             url,
                             last_id,
@@ -199,7 +206,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         ),
                         res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args,
+                    resourceIds = await streamResourcesFromCursorAsync(
+                        requestId,
+                        cursor, res, user, scope, args,
                         Resource, resourceType,
                         useAccessIndex,
                         fhirContentTypes.fhirJson,
@@ -225,6 +234,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             }
         } else { // no records found
             if (useNdJson) {
+                if (requestId) {
+                    res.setHeader('X-Request-ID', String(requestId));
+                }
                 // empty response
                 res.type(fhirContentTypes.ndJson);
                 res.status(200).end();
@@ -257,21 +269,48 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                         user,
                         useAtlas
                     );
+                    if (requestId) {
+                        res.setHeader('X-Request-ID', String(requestId));
+                    }
                     res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                 } else {
+                    if (requestId) {
+                        res.setHeader('X-Request-ID', String(requestId));
+                    }
                     res.type(fhirContentTypes.fhirJson).json([]);
                 }
             }
         }
-    } catch (e) {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
         /**
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
+        });
+    } catch (e) {
+        /**
+         * @type {string}
+         */
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
+        });
+        throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
+    } finally {
+        timer({action: currentOperationName, resourceType});
     }
 };

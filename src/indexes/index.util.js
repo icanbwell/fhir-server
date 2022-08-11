@@ -10,6 +10,7 @@ const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
+const {logSystemEvent} = require('../operations/common/logging');
 
 /**
  * creates a multi key index if it does not exist
@@ -27,10 +28,11 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
     let mex_index_name_length = (env.MAX_INDEX_NAME_LENGTH ? parseInt(env.MAX_INDEX_NAME_LENGTH) : 63);
     mex_index_name_length = Math.min(mex_index_name_length, mex_fully_qualified_index_name_length);
     index_name = index_name.slice(0, mex_index_name_length - 1) || (properties_to_index.join('_1_') + '_1').slice(0, mex_index_name_length - 1);
+    const columns = properties_to_index.join(',');
     try {
         if (!await db.collection(collection_name).indexExists(index_name)) {
-            const message = 'Creating index ' + index_name + ' with columns: [' + properties_to_index.join(',') + ']' + ' in ' + collection_name;
-            console.log(message);
+            const message = 'Creating index ' + index_name + ' with columns: [' + columns + ']' + ' in ' + collection_name;
+            logSystemEvent('CREATEINDEX', message, {index: index_name, columns: columns, collection: collection_name});
             await logMessageToSlackAsync(message);
             const my_dict = {};
             for (const property_to_index of properties_to_index) {
@@ -40,8 +42,10 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
             return true;
         }
     } catch (e) {
-        console.log('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
-        await logMessageToSlackAsync('Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e));
+        const message1 = 'Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e);
+        logSystemEvent('CREATEINDEX', message1, {index: index_name, columns: columns, collection: collection_name},
+            JSON.stringify(e));
+        await logMessageToSlackAsync(message1);
     }
     return false;
 }
@@ -53,14 +57,12 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
  * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
  */
 async function indexCollectionAsync(collection_name, db) {
-    console.log('Processing collection', collection_name);
     // check if index exists
     let createdIndex = false;
 
     // now add custom indices
     for (const [collection, indexesArray] of Object.entries(customIndexes)) {
         if (collection === '*') {
-            console.log('Creating Standard Indexes: ', collection_name);
             for (const indexDefinition of indexesArray) {
                 for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
                     createdIndex = await create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
@@ -71,7 +73,6 @@ async function indexCollectionAsync(collection_name, db) {
 
     for (const [collection, indexesArray] of Object.entries(customIndexes)) {
         if (collection === collection_name) {
-            console.log('Creating Custom Indexes: ', collection_name);
             for (const indexDefinition of indexesArray) {
                 for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
                     createdIndex = await create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
@@ -95,7 +96,7 @@ async function indexCollectionAsync(collection_name, db) {
  */
 async function indexAllCollectionsAsync(tableName) {
     /**
-     * @type {import("mongodb").MongoClient}
+     * @type {import('mongodb').MongoClient}
      */
     const client = await createClientAsync(mongoConfig);
     try {
@@ -156,7 +157,7 @@ async function deleteIndexesInCollectionAsync(collection_name, db) {
  */
 async function getIndexesInAllCollectionsAsync() {
     /**
-     * @type {import("mongodb").MongoClient}
+     * @type {import('mongodb').MongoClient}
      */
     const client = await createClientAsync(mongoConfig);
     try {
@@ -188,9 +189,8 @@ async function getIndexesInAllCollectionsAsync() {
  * @return {Promise<*>}
  */
 async function deleteIndexesInAllCollectionsAsync(tableName) {
-    console.log('starting deleteIndexesInAllCollections');
     /**
-     * @type {import("mongodb").MongoClient}
+     * @type {import('mongodb').MongoClient}
      */
     const client = await createClientAsync(mongoConfig);
     try {

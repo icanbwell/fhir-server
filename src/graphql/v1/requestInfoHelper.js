@@ -8,6 +8,7 @@ module.exports.getRequestInfo = (context) => {
       context.user,
       context.scope,
       context.remoteIpAddress,
+      context.requestId,
       context.protocol,
       context.originalUrl,
       context.path,

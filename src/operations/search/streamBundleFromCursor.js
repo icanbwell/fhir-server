@@ -6,10 +6,13 @@ const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ObjectChunker} = require('../streaming/objectChunker');
+const assert = require('node:assert/strict');
 
 /**
  * Reads resources from Mongo cursor and writes to response
  * @param {DatabasePartitionedCursor} cursor
+ * @param {string} requestId
+ * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
  * @param {string | null} url
  * @param {function (string | null, number): Resource} fnBundle
  * @param {import('http').ServerResponse} res
@@ -23,6 +26,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
  * @returns {Promise<string[]>}
  */
 async function streamBundleFromCursorAsync(
+    requestId,
     cursor, url, fnBundle,
     res, user, scope,
     args, Resource, resourceName,
@@ -30,7 +34,7 @@ async function streamBundleFromCursorAsync(
     // eslint-disable-next-line no-unused-vars
     batchObjectCount
 ) {
-
+    assert(requestId);
     /**
      * @type {AbortController}
      */
@@ -56,7 +60,7 @@ async function streamBundleFromCursorAsync(
     /**
      * @type {HttpResponseWriter}
      */
-    const responseWriter = new HttpResponseWriter(res, 'application/fhir+json', ac.signal);
+    const responseWriter = new HttpResponseWriter(requestId, res, 'application/fhir+json', ac.signal);
 
     const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
@@ -66,7 +70,7 @@ async function streamBundleFromCursorAsync(
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            console.log('Mongo read stream was closed');
+            // console.log('Mongo read stream was closed');
             // ac.abort();
         });
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators

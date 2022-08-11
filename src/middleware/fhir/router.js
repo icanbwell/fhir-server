@@ -32,7 +32,7 @@ const {VERSIONS, INTERACTIONS} = require('@asymmetrik/node-fhir-server-core').co
 
 const deprecate = require('@asymmetrik/node-fhir-server-core/dist/server/utils/deprecation.notice');
 
-const operationsController = require('@asymmetrik/node-fhir-server-core/dist/server/operations/operations.controller');
+const operationsController = require('./4_0_0/controllers/operations.controller');
 
 const {
     container

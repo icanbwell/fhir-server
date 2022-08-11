@@ -1,6 +1,7 @@
-const {logRequest} = require('../common/logging');
+const {logOperation} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 /**
  * does a FHIR Validate
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -8,21 +9,21 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
  * @param {string} resourceType
  */
 module.exports.validate = async (requestInfo, args, resourceType) => {
-    const user = requestInfo.user;
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const path = requestInfo.path;
-    const body = requestInfo.body;
-
-    logRequest(user, `${resourceType} >>> validate`);
 
     // no auth check needed to call validate
 
-    let resource_incoming = body;
-
-    // eslint-disable-next-line no-unused-vars
-    // let {base_version} = args;
+    let resource_incoming = requestInfo.body;
 
     const operationOutcome = validateResource(resource_incoming, resourceType, path);
+    const currentOperationName = 'validate';
     if (operationOutcome && operationOutcome.statusCode === 400) {
+        validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return operationOutcome;
     }
 
@@ -43,6 +44,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
             ]
         };
     }
+    logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
     return {
         resourceType: 'OperationOutcome',
         issue: [

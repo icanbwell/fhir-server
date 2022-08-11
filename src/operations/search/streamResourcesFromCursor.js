@@ -8,12 +8,12 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ObjectChunker} = require('../streaming/objectChunker');
-
-// const {Transform} = require('stream');
+const assert = require('node:assert/strict');
 
 /**
  * Reads resources from Mongo cursor and writes to response
  * @param {DatabasePartitionedCursor} cursor
+ * @param {string} requestId
  * @param {import('http').ServerResponse} res
  * @param {string | null} user
  * @param {string | null} scope
@@ -26,6 +26,7 @@ const {ObjectChunker} = require('../streaming/objectChunker');
  * @returns {Promise<string[]>} ids of resources streamed
  */
 async function streamResourcesFromCursorAsync(
+    requestId,
     cursor, res, user, scope,
     args,
     Resource,
@@ -35,6 +36,8 @@ async function streamResourcesFromCursorAsync(
     // eslint-disable-next-line no-unused-vars
     batchObjectCount = 1) {
 
+    assert(requestId);
+    console.log(`streamResourcesFromCursorAsync: ${this.requestId}`);
     /**
      * @type {boolean}
      */
@@ -69,7 +72,7 @@ async function streamResourcesFromCursorAsync(
     /**
      * @type {HttpResponseWriter}
      */
-    const responseWriter = new HttpResponseWriter(res, contentType, ac.signal);
+    const responseWriter = new HttpResponseWriter(requestId, res, contentType, ac.signal);
     /**
      * @type {ResourcePreparerTransform}
      */
@@ -86,7 +89,7 @@ async function streamResourcesFromCursorAsync(
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
         readableMongoStream.on('close', () => {
-            console.log('Mongo read stream was closed');
+            // console.log('Mongo read stream was closed');
             // ac.abort();
         });
 

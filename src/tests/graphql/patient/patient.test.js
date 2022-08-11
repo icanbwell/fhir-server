@@ -31,6 +31,7 @@ const {
     getHeaders,
     getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders
 } = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {

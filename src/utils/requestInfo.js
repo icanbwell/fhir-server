@@ -1,3 +1,5 @@
+const assert = require('node:assert/strict');
+
 class RequestInfo {
     /**
      * class that holds request info
@@ -6,6 +8,7 @@ class RequestInfo {
      * @param {string} protocol
      * @param {string} originalUrl
      * @param {string | null} remoteIpAddress
+     * @param {string|null} requestId
      * @param {string | null} path
      * @param {string | null} host
      * @param {Object | Object[] | null} body
@@ -17,6 +20,7 @@ class RequestInfo {
     constructor(user,
                 scope,
                 remoteIpAddress,
+                requestId,
                 protocol,
                 originalUrl,
                 path,
@@ -26,6 +30,7 @@ class RequestInfo {
                 isUser,
                 patients,
                 fhirPersonId) {
+        assert(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         /**
          * @type {string|null}
          */
@@ -38,6 +43,10 @@ class RequestInfo {
          * @type {string|null}
          */
         this.remoteIpAddress = remoteIpAddress;
+        /**
+         * @type {string|null}
+         */
+        this.requestId = requestId;
         /**
          * @type {string}
          */
@@ -78,5 +87,5 @@ class RequestInfo {
 }
 
 module.exports = {
-    RequestInfo: RequestInfo
+    RequestInfo
 };

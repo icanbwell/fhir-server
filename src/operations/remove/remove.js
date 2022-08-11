@@ -1,5 +1,7 @@
-const {logRequest, logError} = require('../common/logging');
-const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
+// noinspection ExceptionCaughtLocallyJS
+
+const {logOperation} = require('../common/logging');
+const {getAccessCodesFromScopes} = require('../security/scopes');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -8,6 +10,7 @@ const {buildR4SearchQuery} = require('../query/r4');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -17,15 +20,17 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (requestInfo, args, resourceType) => {
+    const currentOperationName = 'remove';
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
     const user = requestInfo.user;
     const scope = requestInfo.scope;
-
-    logRequest(user, `${resourceType} >>> remove`);
 
     if (args['id'] === '0') {
         delete args['id'];
     }
-
     /**
      * @type {string[]}
      */
@@ -45,75 +50,100 @@ module.exports.remove = async (requestInfo, args, resourceType) => {
             securityTags = accessCodes;
         }
     }
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'write'
+    });
 
-    let {base_version} = args;
-    /**
-     * @type {import('mongodb').Document}
-     */
-    let query = {};
-
-    // eslint-disable-next-line no-useless-catch
     try {
-        if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
-        } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
-        } else {
-            ({query} = buildR4SearchQuery(resourceType, args));
-        }
-    } catch (e) {
-        throw e;
-    }
+        let {base_version} = args;
+        /**
+         * @type {import('mongodb').Document}
+         */
+        let query = {};
 
-    // add in $and statements for security tags
-    if (securityTags && securityTags.length > 0) {
-        // add as a separate $and statement
-        if (query.$and === undefined) {
-            query.$and = [];
+        // eslint-disable-next-line no-useless-catch
+        try {
+            if (base_version === VERSIONS['3_0_1']) {
+                query = buildStu3SearchQuery(args);
+            } else if (base_version === VERSIONS['1_0_2']) {
+                query = buildDstu2SearchQuery(args);
+            } else {
+                ({query} = buildR4SearchQuery(resourceType, args));
+            }
+        } catch (e) {
+            throw e;
         }
-        query.$and.push(
-            {
-                'meta.security': {
-                    '$elemMatch': {
-                        'system': 'https://www.icanbwell.com/access',
-                        'code': {
-                            '$in': securityTags
+
+        // add in $and statements for security tags
+        if (securityTags && securityTags.length > 0) {
+            // add as a separate $and statement
+            if (query.$and === undefined) {
+                query.$and = [];
+            }
+            query.$and.push(
+                {
+                    'meta.security': {
+                        '$elemMatch': {
+                            'system': 'https://www.icanbwell.com/access',
+                            'code': {
+                                '$in': securityTags
+                            }
                         }
                     }
                 }
-            }
-        );
-    }
+            );
+        }
 
-    logRequest(user, `Deleting ${JSON.stringify(query)}`);
+        if (Object.keys(query).length === 0) {
+            // don't delete everything
+            return {deleted: 0};
+        }
 
-    if (Object.keys(query).length === 0) {
-        // don't delete everything
-        return {deleted: 0};
-    }
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    // Delete our resource record
-    let res;
-    try {
         /**
-         * @type {DeleteManyResult}
+         * @type {boolean}
          */
-        res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .deleteManyAsync(query);
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        // log access to audit logs
-        await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+        // Delete our resource record
+        let res;
+        try {
+            /**
+             * @type {DeleteManyResult}
+             */
+            res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+                .deleteManyAsync(query);
 
+            // log access to audit logs
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+
+        } catch (e) {
+            throw new NotAllowedError(e.message);
+        }
+
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
+        return {deleted: res.deletedCount};
     } catch (e) {
-        logError(user, `Error with ${resourceType}.remove`);
-        throw new NotAllowedError(e.message);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
+        throw e;
     }
-
-    return {deleted: res.deletedCount};
 };

@@ -14,6 +14,7 @@ const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-co
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
 const router = require('../middleware/fhir/router');
+const {generateUUID} = require('../utils/uid.util');
 
 class MyFHIRServer extends FHIRServer.Server {
     constructor(config = {}, app = null) {
@@ -58,13 +59,9 @@ class MyFHIRServer extends FHIRServer.Server {
 
         }));
 
+        // generate a unique ID for each request.  Use X-REQUEST-ID in header if sent.
         this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
-            req.setTimeout(60 * 60 * 1000, () => {
-                console.log('HTTP Request timeout');
-            });
-            req.on('close', () => {
-                console.log('HTTP Request stream was closed');
-            });
+            req.id = req.headers['X-REQUEST-ID'] || generateUUID();
             next();
         });
 
@@ -103,7 +100,9 @@ class MyFHIRServer extends FHIRServer.Server {
                 isValidVersion(base) ? base : VERSIONS['4_0_1'],
                 'operationoutcome'
             );
-
+            if (req.id) {
+                res.setHeader('X-Request-ID', String(req.id));
+            }
             // If there is an error and it is an OperationOutcome
             if (err && err.resourceType === OperationOutcome.resourceType) {
                 const status = err.statusCode || 500;
@@ -159,7 +158,9 @@ class MyFHIRServer extends FHIRServer.Server {
                     },
                 ],
             });
-
+            if (req.id) {
+                res.setHeader('X-Request-ID', String(req.id));
+            }
             logger.error(error);
             res.status(error.statusCode).json(error);
         });

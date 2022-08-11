@@ -1,5 +1,5 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
-const {verifyHasValidScopes, doesResourceHaveAccessTags} = require('../security/scopes');
+const {logDebug, logOperation} = require('../common/logging');
+const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -14,6 +14,8 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Create (POST)
@@ -23,21 +25,26 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  * @param {string} resourceType
  */
 module.exports.create = async (requestInfo, args, path, resourceType) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    const body = requestInfo.body;
+    const currentOperationName = 'create';
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
+    const {user, body} = requestInfo;
 
-    logRequest(user, `${resourceType} >>> create`);
-
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'write'
+    });
 
     let resource_incoming = body;
 
     let {base_version} = args;
 
-    logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resource_incoming));
-    logDebug(user, '-----------------');
     const uuid = resource_incoming.id || getUuid(resource_incoming);
 
     if (env.LOG_ALL_SAVES) {
@@ -47,14 +54,14 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
             resource_incoming,
             currentDate,
             uuid,
-            'create'
+            currentOperationName
         );
     }
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
-        logDebug(user, '--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
             const currentDate = moment.utc().format('YYYY-MM-DD');
             operationOutcome.expression = [
                 resourceType + '/' + uuid
@@ -64,16 +71,25 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
                 resource_incoming,
                 currentDate,
                 uuid,
-                'create');
+                currentOperationName);
             await sendToS3('validation_failures',
                 'OperationOutcome',
                 operationOutcome,
                 currentDate,
                 uuid,
                 'create_failure');
-            throw new NotValidatedError(operationOutcome);
+            const notValidatedError = new NotValidatedError(operationOutcome);
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: currentOperationName,
+                error: notValidatedError
+            });
+            throw notValidatedError;
         }
-        logDebug(user, '-----------------');
     }
 
     try {
@@ -137,7 +153,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'create', args, [resource['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document
@@ -162,17 +178,34 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
 
         // Insert our resource record to history but don't assign _id
         await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
-        return {id: doc.id, resource_version: doc.meta.versionId};
-    } catch (e) {
+        const result = {id: doc.id, resource_version: doc.meta.versionId};
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName,
+            result: JSON.stringify(result)
+        });
+        return result;
+    } catch (/** @type {Error} */ e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with creating resource ${resourceType} with id: ${uuid} `, e);
-
         await sendToS3('errors',
             resourceType,
             resource_incoming,
             currentDate,
             uuid,
-            'create');
+            currentOperationName);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
         throw e;
     }
 };

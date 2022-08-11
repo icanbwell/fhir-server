@@ -1,12 +1,11 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
-const {
-    verifyHasValidScopes
-} = require('../security/scopes');
+const {logDebug, logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {processGraph} = require('./graphHelpers');
 const env = require('var');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * Supports $graph
@@ -16,22 +15,28 @@ const env = require('var');
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (requestInfo, args, resourceType) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    const path = requestInfo.path;
-    // const host = requestInfo.host;
-    const body = requestInfo.body;
+    const currentOperationName = 'graph';
 
-    logRequest(user, `${resourceType} >>> graph`);
-    verifyHasValidScopes(resourceType, 'read', user, scope);
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
+    const {user, path, body} = requestInfo;
+
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     try {
         /**
          * @type {string}
          */
         let {base_version, id} = args;
-
-        logRequest(user, `id=${id}`);
 
         id = id.split(',');
         /**
@@ -49,9 +54,9 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
 
         // get GraphDefinition from body
         const graphDefinitionRaw = body;
-        logDebug(user, '--- validate schema of GraphDefinition ----');
         const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
             logDebug(user, 'GraphDefinition schema failed validation');
             return operationOutcome;
         }
@@ -73,9 +78,25 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
         //     return operationOutcomeResult;
         // }
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName
+        });
         return result;
     } catch (err) {
-        logError(user, `Error with ${resourceType}.graph: ${err} `);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: err
+        });
         throw new BadRequestError(err);
     }
 };

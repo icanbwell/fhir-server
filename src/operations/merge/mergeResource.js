@@ -47,11 +47,6 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
     }
 
     try {
-        logDebug(user, '-----------------');
-        logDebug(user, baseVersion);
-        logDebug(user, '--- body ----');
-        logDebug(user, JSON.stringify(resource_to_merge));
-
         /**
          * @type {boolean}
          */

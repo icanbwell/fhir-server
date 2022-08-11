@@ -20,11 +20,19 @@ up:
 	echo "\nwaiting for Mongo server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_mongo_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_mongo_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_mongo_1 =========\n" && exit 1; fi
+	echo "waiting for ElasticSearch server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "failed" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "healthy" ]; then printf "ERROR: Container did not start. Run docker logs elasticsearch\n" && exit 1; fi  && \
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_fhir_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
+	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
+	echo "Elastic Search: https://localhost:9200/fhir-logs-*/_search (admin:admin)" && \
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
-	echo FHIR server: http://localhost:3000/
+	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo Prometheus: http://localhost:9090 && \
+	echo Grafana: http://localhost:3010 && \
+	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline
 up-offline:
@@ -44,6 +52,9 @@ clean: down
 	docker image rm imranq2/node-fhir-server-mongo -f
 	docker image rm node-fhir-server-mongo_fhir -f
 	docker volume rm fhir-dev_mongo_data -f
+ifneq ($(shell docker volume ls | grep "fhir-dev"| awk '{print $$2}'),)
+	docker volume ls | grep "fhir-dev" | awk '{print $$2}' | xargs docker volume rm
+endif
 
 .PHONY:init
 init:

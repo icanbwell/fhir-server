@@ -1,10 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {
-    verifyHasValidScopes,
-} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -15,6 +12,8 @@ const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
+const {fhirRequestTimer} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search
@@ -26,6 +25,9 @@ const {ResourceLocator} = require('../common/resourceLocator');
  */
 module.exports.search = async (requestInfo, args, resourceType,
                                filter = true) => {
+    const currentOperationName = 'search';
+    // Start the FHIR request timer, saving a reference to the returned method
+    const timer = fhirRequestTimer.startTimer();
     /**
      * @type {number}
      */
@@ -42,17 +44,21 @@ module.exports.search = async (requestInfo, args, resourceType,
         /** @type {string} */
         fhirPersonId,
         /** @type {boolean} */
-        isUser
+        isUser,
+        /**
+         * @type {string}
+         */
+        requestId
     } = requestInfo;
 
-
-    logRequest(user, resourceType + ' >>> search' + ' scope:' + scope);
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceType, 'read', user, scope);
-    logRequest(user, '---- args ----');
-    logRequest(user, JSON.stringify(args));
-    logRequest(user, '--------');
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     /**
      * @type {boolean}
@@ -80,11 +86,6 @@ module.exports.search = async (requestInfo, args, resourceType,
      * @type {function(?Object): Resource}
      */
     let Resource = getResource(base_version, resourceType);
-
-
-    logDebug(user, '---- query ----');
-    logDebug(user, JSON.stringify(query));
-    logDebug(user, '--------');
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -191,7 +192,7 @@ module.exports.search = async (requestInfo, args, resourceType,
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            return createBundle(
+            const bundle = createBundle(
                 url,
                 last_id,
                 resources,
@@ -210,18 +211,49 @@ module.exports.search = async (requestInfo, args, resourceType,
                 user,
                 useAtlas
             );
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify(collectionName, query, options)
+            });
+            return bundle;
         } else {
+            /**
+             * @type {string}
+             */
+            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+            logOperation({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName,
+                query: mongoQueryAndOptionsStringify(collectionName, query, options)
+            });
             return resources;
         }
     } catch (e) {
         /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        /**
          * @type {string}
          */
         const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-        throw new MongoError(e.message, e, collectionName, query, (stopTime1 - startTime), options);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName,
+            error: e,
+            query: mongoQueryAndOptionsStringify(collectionName, query, options)
+        });
+        throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
+    } finally {
+        timer({action: currentOperationName, resourceType});
     }
 };

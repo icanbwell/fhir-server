@@ -1,4 +1,4 @@
-const {logRequest} = require('../common/logging');
+const {logDebug} = require('../common/logging');
 const {findDuplicateResources, findUniqueResources} = require('../../utils/list.util');
 const async = require('async');
 const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
@@ -31,7 +31,7 @@ async function mergeResourceListAsync(resources_incoming, user,
      * @type {string[]}
      */
     const ids_of_resources = resources_incoming.map(r => r.id);
-    logRequest(user,
+    logDebug(user,
         '==================' + resourceType + ': Merge received array ' +
         ', len= ' + resources_incoming.length +
         ' [' + ids_of_resources.toString() + '] ' +

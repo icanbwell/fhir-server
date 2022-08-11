@@ -1,6 +1,5 @@
-const {logRequest, logDebug} = require('../common/logging');
+const {logDebug, logOperation} = require('../common/logging');
 const {
-    verifyHasValidScopes,
     isAccessToResourceAllowedBySecurityTags,
     doesResourceHaveAccessTags
 } = require('../security/scopes');
@@ -13,13 +12,14 @@ const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../util
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {logError} = require('../common/logging');
 const {removeNull} = require('../../utils/nullRemover');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
+const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -27,21 +27,26 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
  * @param {string} resourceType
  */
 module.exports.update = async (requestInfo, args, resourceType) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    const path = requestInfo.path;
-    const body = requestInfo.body;
-    logRequest(user, `'${resourceType} >>> update`);
+    const currentOperationName = 'update';
 
-    verifyHasValidScopes(resourceType, 'write', user, scope);
+    /**
+     * @type {number}
+     */
+    const startTime = Date.now();
+    const {user, scope, path, body} = requestInfo;
+
+    verifyHasValidScopes({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action: currentOperationName,
+        accessRequested: 'read'
+    });
 
     // read the incoming resource from request body
     let resource_incoming_json = body;
     let {base_version, id} = args;
-    logDebug(user, base_version);
-    logDebug(user, id);
-    logDebug(user, '--- body ----');
-    logDebug(user, JSON.stringify(resource_incoming_json));
 
     if (env.LOG_ALL_SAVES) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -50,13 +55,13 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             resource_incoming_json,
             currentDate,
             id,
-            'update');
+            currentOperationName);
     }
 
     if (env.VALIDATE_SCHEMA || args['_validate']) {
-        logDebug(user, '--- validate schema ----');
         const operationOutcome = validateResource(resource_incoming_json, resourceType, path);
         if (operationOutcome && operationOutcome.statusCode === 400) {
+            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
             const currentDate = moment.utc().format('YYYY-MM-DD');
             const uuid = getUuid(resource_incoming_json);
             operationOutcome.expression = [
@@ -67,7 +72,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
                 resource_incoming_json,
                 currentDate,
                 uuid,
-                'update');
+                currentOperationName);
             await sendToS3('validation_failures',
                 resourceType,
                 operationOutcome,
@@ -76,7 +81,6 @@ module.exports.update = async (requestInfo, args, resourceType) => {
                 'update_failure');
             throw new NotValidatedError(operationOutcome);
         }
-        logDebug(user, '-----------------');
     }
 
     try {
@@ -154,6 +158,14 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             // see if there are any changes
             if (patchContent.length === 0) {
                 logDebug(user, 'No changes detected in updated resource');
+                logOperation({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    message: 'operationCompleted',
+                    action: currentOperationName
+                });
                 return {
                     id: id,
                     created: false,
@@ -240,24 +252,41 @@ module.exports.update = async (requestInfo, args, resourceType) => {
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'update', args, [resource_incoming['id']]);
+            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource_incoming['id']]);
         }
 
-        return {
+        const result = {
             id: id,
             created: res.created,
             resource_version: doc.meta.versionId,
         };
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationCompleted',
+            action: currentOperationName,
+            result: JSON.stringify(result)
+        });
+        return result;
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        logError(`Error with updating resource ${resourceType}.update with id: ${id} `, e);
-
         await sendToS3('errors',
             resourceType,
             resource_incoming_json,
             currentDate,
             id,
-            'update');
+            currentOperationName);
+        logOperation({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            e
+        });
         throw e;
     }
 };

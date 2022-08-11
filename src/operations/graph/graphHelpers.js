@@ -5,9 +5,7 @@ const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const assert = require('assert');
 const {
-    verifyHasValidScopes,
-    doesResourceHaveAnyAccessCodeFromThisList,
-    getAccessCodesFromScopes
+    doesResourceHaveAnyAccessCodeFromThisList, getAccessCodesFromScopes
 } = require('../security/scopes');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -16,6 +14,7 @@ const {getFieldNameForSearchParameter} = require('../../searchParameters/searchP
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+const {verifyHasValidScopes} = require('../security/scopesValidator');
 
 
 /**
@@ -102,58 +101,14 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
 }
 
 /**
- * This class has request related parameters
- */
-class GraphParameters {
-    /**
-     * @param {string} base_version
-     * @param {string[]} accessCodes
-     * @param {string} user
-     * @param {string} scope
-     * @param {string} host
-     * @param {string} protocol
-     * @param {boolean} useAtlas
-     */
-    constructor(base_version, protocol, host, user, scope, accessCodes, useAtlas) {
-        /**
-         * @type {string}
-         */
-        this.base_version = base_version;
-        /**
-         * @type {string}
-         */
-        this.protocol = protocol;
-        /**
-         * @type {string}
-         */
-        this.host = host;
-        /**
-         * @type {string}
-         */
-        this.user = user;
-        /**
-         * @type {string}
-         */
-        this.scope = scope;
-        /**
-         * @type {string[]}
-         */
-        this.accessCodes = accessCodes;
-        /**
-         * @type {boolean}
-         */
-        this.useAtlas = useAtlas;
-    }
-}
-
-/**
  * generates a full url for an entity
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} base_version
  * @param {Resource} parentEntity
  * @return {string}
  */
-function getFullUrlForResource(graphParameters, parentEntity) {
-    return `${graphParameters.protocol}://${graphParameters.host}/${graphParameters.base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
+function getFullUrlForResource(requestInfo, base_version, parentEntity) {
+    return `${requestInfo.protocol}://${requestInfo.host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
 }
 
 /**
@@ -229,14 +184,17 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
 
 /**
  * Gets related resources and adds them to containedEntries in parentEntities
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} base_version
  * @param {string} resourceType
  * @param {EntityAndContainedBase[]} parentEntities
  * @param {string} property
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
- * @param {*} filterValue (Optional) match filterProperty to this value
+ * @param {*|null} filterValue (Optional) match filterProperty to this value
  */
-async function get_forward_references(graphParameters, resourceType,
+async function get_forward_references(requestInfo,
+                                      base_version,
+                                      resourceType,
                                       parentEntities, property,
                                       filterProperty, filterValue) {
     if (!parentEntities || parentEntities.length === 0) {
@@ -245,7 +203,7 @@ async function get_forward_references(graphParameters, resourceType,
     /**
      * @type {function(?Object): Resource}
      */
-    const RelatedResource = getResource(graphParameters.base_version, resourceType);
+    const RelatedResource = getResource(base_version, resourceType);
 
     // get values of this property from all the entities
     const relatedReferences = parentEntities.flatMap(p =>
@@ -254,6 +212,7 @@ async function get_forward_references(graphParameters, resourceType,
             .filter(r => r !== undefined)
     );
     // select just the ids from those reference properties
+    // noinspection JSCheckFunctionSignatures
     let relatedReferenceIds = relatedReferences
         .filter(r => r.includes('/'))
         .filter(r => r.split('/')[0] === resourceType) // resourceType matches the one we're looking for
@@ -271,7 +230,7 @@ async function get_forward_references(graphParameters, resourceType,
     /**
      * @type {string[]}
      */
-    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
     /**
      * @type {Object}
      */
@@ -292,7 +251,7 @@ async function get_forward_references(graphParameters, resourceType,
      * mongo db cursor
      * @type {DatabasePartitionedCursor}
      */
-    let cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, graphParameters.useAtlas)
+    let cursor = await new DatabaseQueryManager(resourceType, base_version, requestInfo.useAtlas)
         .findAsync(query, options);
 
     cursor = cursor.maxTimeMS(maxMongoTimeMS);
@@ -305,7 +264,7 @@ async function get_forward_references(graphParameters, resourceType,
         const relatedEntityAndContained = new ResourceEntityAndContained(
             relatedResource.id,
             relatedResource.resourceType,
-            getFullUrlForResource(graphParameters, relatedResource),
+            getFullUrlForResource(requestInfo, base_version, relatedResource),
             true,
             relatedResource,
             []
@@ -349,7 +308,8 @@ function parseQueryStringIntoArgs(queryString) {
 
 /**
  * Gets related resources using reverse link and add them to containedEntries in parentEntities
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} base_version
  * @param {string} parentResourceType
  * @param {string} relatedResourceType
  * @param {EntityAndContainedBase[]}  parentEntities parent entities
@@ -358,7 +318,9 @@ function parseQueryStringIntoArgs(queryString) {
  * @param {string} reverse_filter Do a reverse link from child to parent using this property
  */
 async function get_reverse_references(
-    graphParameters, parentResourceType,
+    requestInfo,
+    base_version,
+    parentResourceType,
     relatedResourceType, parentEntities,
     filterProperty, filterValue, reverse_filter) {
     if (!(reverse_filter)) {
@@ -376,7 +338,7 @@ async function get_reverse_references(
     /**
      * @type {function(?Object): Resource}
      */
-    const RelatedResource = getResource(graphParameters.base_version, relatedResourceType);
+    const RelatedResource = getResource(base_version, relatedResourceType);
 
     /**
      * @type {Object}
@@ -388,7 +350,7 @@ async function get_reverse_references(
     /**
      * @type {string[]}
      */
-    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
     query = getQueryWithSecurityTags(relatedResourceType, securityTags, query);
 
     const options = {};
@@ -405,8 +367,8 @@ async function get_reverse_references(
      * mongo db cursor
      * @type {Promise<Cursor<Document>> | *}
      */
-    let cursor = await new DatabaseQueryManager(relatedResourceType, graphParameters.base_version,
-        graphParameters.useAtlas).findAsync(query, options);
+    let cursor = await new DatabaseQueryManager(relatedResourceType, base_version,
+        requestInfo.useAtlas).findAsync(query, options);
     cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
     // find matching field name in searchParameter list.  We will use this to match up to parent
@@ -433,7 +395,7 @@ async function get_reverse_references(
         const resourceEntityAndContained = new ResourceEntityAndContained(
             relatedResourcePropertyCurrent.id,
             relatedResourcePropertyCurrent.resourceType,
-            getFullUrlForResource(graphParameters, relatedResourcePropertyCurrent),
+            getFullUrlForResource(requestInfo, base_version, relatedResourcePropertyCurrent),
             true,
             removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
             []
@@ -555,12 +517,14 @@ function getFilterFromPropertyPath(property) {
 
 /**
  * processes a single graph link
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} base_version
  * @param {string | null} parentResourceType
  * @param {{path: string, params: string, target: {type: string}[]}} link
  * @param {[EntityAndContainedBase]} parentEntities
  */
-async function processOneGraphLink(graphParameters,
+async function processOneGraphLink(requestInfo,
+                                   base_version,
                                    parentResourceType,
                                    link,
                                    parentEntities) {
@@ -595,9 +559,18 @@ async function processOneGraphLink(graphParameters,
             );
             // if this is a reference then get related resources
             if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) {
-                verifyHasValidScopes(resourceType, 'read', graphParameters.user, graphParameters.scope);
+                verifyHasValidScopes({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
+
                 await get_forward_references(
-                    graphParameters,
+                    requestInfo,
+                    base_version,
                     resourceType,
                     parentEntities,
                     property,
@@ -629,10 +602,14 @@ async function processOneGraphLink(graphParameters,
         } else if (target.params) { // reverse link
             if (target.type) { // if caller has requested this entity or just wants a nested entity
                 // reverse link
-                /**
-                 * @type {string}
-                 */
-                verifyHasValidScopes(resourceType, 'read', graphParameters.user, graphParameters.scope);
+                verifyHasValidScopes({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
                 if (!parentResourceType) {
                     throw new Error(
                         'processOneGraphLink: No parent resource found for reverse references for parent entities:' +
@@ -641,7 +618,8 @@ async function processOneGraphLink(graphParameters,
                     );
                 }
                 await get_reverse_references(
-                    graphParameters,
+                    requestInfo,
+                    base_version,
                     parentResourceType,
                     resourceType,
                     parentEntities,
@@ -676,7 +654,8 @@ async function processOneGraphLink(graphParameters,
                 for (const childLink of childLinks) {
                     // now recurse and process the next link in GraphDefinition
                     await processOneGraphLink(
-                        graphParameters,
+                        requestInfo,
+                        base_version,
                         childResourceType,
                         childLink,
                         childEntries
@@ -689,20 +668,22 @@ async function processOneGraphLink(graphParameters,
 
 /**
  * processes a list of graph links
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} base_version
  * @param {string} parentResourceType
  * @param {[Resource]} parentEntities
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
  * @return {Promise<[ResourceEntityAndContained]>}
  */
-async function processGraphLinks(graphParameters,
+async function processGraphLinks(requestInfo,
+                                 base_version,
                                  parentResourceType,
                                  parentEntities, linkItems) {
     /**
      * @type {[ResourceEntityAndContained]}
      */
     const resultEntities = parentEntities.map(e => new ResourceEntityAndContained(e.id, e.resourceType,
-        getFullUrlForResource(graphParameters, e), true, e, []));
+        getFullUrlForResource(requestInfo, base_version, e), true, e, []));
     /**
      * @type {{path:string, params: string,target:[{type: string}]}}
      */
@@ -713,7 +694,7 @@ async function processGraphLinks(graphParameters,
         /**
          * @type {ResourceEntityAndContained[]}
          */
-        await processOneGraphLink(graphParameters, parentResourceType, link, resultEntities);
+        await processOneGraphLink(requestInfo, base_version, parentResourceType, link, resultEntities);
     }
     return resultEntities;
 }
@@ -783,7 +764,7 @@ const removeDuplicatesWithLambda = (array, fnCompare) => {
  * processing multiple ids
  * @param {string} base_version
  * @param {boolean} useAtlas
- * @param {GraphParameters} graphParameters
+ * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {string} resourceType
  * @param {Resource} graphDefinition
  * @param {boolean} contained
@@ -791,14 +772,14 @@ const removeDuplicatesWithLambda = (array, fnCompare) => {
  * @param {string[]} idList
  * @return {Promise<{resource: Resource, fullUrl: string}[]>}
  */
-async function processMultipleIds(base_version, useAtlas, graphParameters,
+async function processMultipleIds(base_version, useAtlas, requestInfo,
                                   resourceType, graphDefinition,
                                   contained, hash_references,
                                   idList) {
     /**
      * @type {function(?Object): Resource}
      */
-    const StartResource = getResource(graphParameters.base_version, resourceType);
+    const StartResource = getResource(base_version, resourceType);
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
@@ -811,7 +792,7 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
     /**
      * @type {string[]}
      */
-    let securityTags = getSecurityTagsFromScope(graphParameters.user, graphParameters.scope);
+    let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
     query = getQueryWithSecurityTags(resourceType, securityTags, query);
 
     const options = {};
@@ -829,7 +810,7 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
      * mongo db cursor
      * @type {DatabasePartitionedCursor}
      */
-    let cursor = await new DatabaseQueryManager(resourceType, graphParameters.base_version, useAtlas)
+    let cursor = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
         .findAsync(query, options);
     cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
@@ -841,7 +822,7 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
     while (await cursor.hasNext()) {
         /**
          * element
-         * @type {Resource}
+         * @type {Resource|null}
          */
         const element = await cursor.next();
         // first add this object
@@ -853,7 +834,7 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
          * @type {{resource: Resource, fullUrl: string}}
          */
         let current_entity = {
-            'fullUrl': getFullUrlForResource(graphParameters, startResource),
+            'fullUrl': getFullUrlForResource(requestInfo, base_version, startResource),
             'resource': removeNull(startResource.toJSON())
         };
         entries = entries.concat([current_entity]);
@@ -867,7 +848,8 @@ async function processMultipleIds(base_version, useAtlas, graphParameters,
     /**
      * @type {[ResourceEntityAndContained]}
      */
-    const allRelatedEntries = await processGraphLinks(graphParameters,
+    const allRelatedEntries = await processGraphLinks(requestInfo,
+        base_version,
         resourceType,
         topLevelBundleEntries.map(e => e.resource), linkItems);
 
@@ -947,18 +929,18 @@ async function processGraph(
         id = [id];
     }
 
-    const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
-        requestInfo.user, requestInfo.scope,
-        getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope),
-        useAtlas
-    );
+    // const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
+    //     requestInfo.user, requestInfo.scope,
+    //     getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope),
+    //     useAtlas
+    // );
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
     const entries = await processMultipleIds(
         base_version,
         useAtlas,
-        graphParameters,
+        requestInfo,
         resourceType, graphDefinition, contained, hash_references, id);
 
     // remove duplicate resources
@@ -967,9 +949,11 @@ async function processGraph(
      */
     let uniqueEntries = removeDuplicatesWithLambda(entries,
         (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+
+    const accessCodes = getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
     uniqueEntries = uniqueEntries.filter(
         e => doesResourceHaveAnyAccessCodeFromThisList(
-            graphParameters.accessCodes, graphParameters.user, graphParameters.scope, e.resource
+            accessCodes, requestInfo.user, requestInfo.scope, e.resource
         )
     );
     // create a bundle

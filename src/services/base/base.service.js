@@ -14,7 +14,6 @@ const {validate} = require('../../operations/validate/validate');
 const {graph} = require('../../operations/graph/graph');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {RequestInfo} = require('../../utils/requestInfo');
-const {logDebug} = require('../../operations/common/logging');
 const {searchStreaming} = require('../../operations/search/searchStreaming');
 
 
@@ -26,14 +25,14 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 });
 
 function getRequestInfo(req) {
-    logDebug(req.user, req.originalUrl);
-
-    return new RequestInfo(
-        (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
+    const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-        req.user,
+        ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
+    return new RequestInfo(
+        user,
         req.authInfo && req.authInfo.scope,
         req.headers['X-Forwarded-For'] || req.connection.remoteAddress,
+        req.id,
         req.protocol,
         req.originalUrl,
         req.path,
