@@ -80,9 +80,10 @@ module.exports.logOperation = (options) => {
         result
     } = options;
     /**
+     * resource can have PHI so we strip it out for insecure logger
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    const detail = Object.entries(args).map(([k, v]) => {
+    const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
             return {
                 type: k,
                 valueString: (typeof v === 'string') ? v : JSON.stringify(v)

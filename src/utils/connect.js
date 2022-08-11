@@ -21,7 +21,7 @@ const {logSystemEvent} = require('../operations/common/logging');
 async function createClientAsync(mongoConfig1) {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         mongoConfig1.options.monitorCommands = true;
-        logSystemEvent('DBCONNECT', `Connecting to ${mongoConfig1.connection}`, {});
+        logSystemEvent('DBCONNECT', `Connecting to ${mongoConfig1.connection}`, {db: mongoConfig1.db_name});
     }
     // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/
     /**
