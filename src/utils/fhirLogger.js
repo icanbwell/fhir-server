@@ -1,6 +1,7 @@
 const env = require('var');
 const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
+const {NullTransport} = require('winston-null');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
@@ -118,6 +119,8 @@ class FhirLogger {
             elasticsearchTransport.on('error', (error) => {
                 console.error('Error in elasticsearchTransport caught', error);
             });
+        } else {
+            logger.add(NullTransport);
         }
 
         // Compulsory error handling
