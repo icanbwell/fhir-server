@@ -13711,9 +13711,9 @@
     "through" "^2.3.8"
 
 "undici@^5.1.0", "undici@^5.1.1":
-  "integrity" "sha512-MEvryPLf18HvlCbLSzCW0U00IMftKGI5udnjrQbC5D4P0Hodwffhv+iGfWuJwg16Y/TK11ZFK8i+BPVW2z/eAw=="
-  "resolved" "https://registry.npmjs.org/undici/-/undici-5.5.1.tgz"
-  "version" "5.5.1"
+  "integrity" "sha512-3KLq3pXMS0Y4IELV045fTxqz04Nk9Ms7yfBBHum3yxsTR4XNn+ZCaUbf/mWitgYDAhsplQ0B1G4S5D345lMO3A=="
+  "resolved" "https://registry.npmjs.org/undici/-/undici-5.8.2.tgz"
+  "version" "5.8.2"
 
 "unicode-byte-truncate@^1.0.0":
   "integrity" "sha512-GQgHk6DodEoKddKQdjnv7xKS9G09XCfHWX0R4RKht+EbUMSiVEmtWHGFO8HUm+6NvWik3E2/DG4MxTitOLL64A=="
