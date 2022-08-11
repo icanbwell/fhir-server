@@ -10,7 +10,7 @@ const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const {request} = require('../utils/request');
-const fhirLogger = require('../utils/fhirLogger').FhirLogger.getLogger();
+const fhirLogger = require('../utils/fhirLogger').FhirLogger.getSecureLogger();
 
 /**
  * Retrieve jwks for URL

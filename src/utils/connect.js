@@ -11,7 +11,7 @@ const {
 } = require('../constants');
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const fhirLogger = require('../utils/fhirLogger').FhirLogger.getLogger();
+const fhirLogger = require('../utils/fhirLogger').FhirLogger.getInSecureLogger();
 
 /**
  * Creates a new connection

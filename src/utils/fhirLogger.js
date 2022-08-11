@@ -15,33 +15,66 @@ class FhirLogger {
      * Constructor
      */
     constructor() {
+        this._secureLogger = null;
+        this._inSecureLogger = null;
     }
 
-    static getLogger() {
+    /**
+     * Gets the secure logger (creates it if it does not exist yet)
+     * @return {Logger}
+     */
+    static getSecureLogger() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
-        return fhirLoggerInstance.getOrCreateLogger();
+        return fhirLoggerInstance.getOrCreateSecureLogger();
     }
 
-    getOrCreateLogger() {
-        if (!this._logger) {
-            this._logger = this.createLogger();
+    /**
+     * Gets the In Secure logger (creates it if it does not exist yet)
+     * @return {Logger}
+     */
+    static getInSecureLogger() {
+        if (!fhirLoggerInstance) {
+            fhirLoggerInstance = new FhirLogger();
+        }
+        return fhirLoggerInstance.getOrCreateInSecureLogger();
+    }
+
+    /**
+     * Gets or creates a secure logger
+     * @return {Logger}
+     */
+    getOrCreateSecureLogger() {
+        if (!this._secureLogger) {
+            this._secureLogger = this.createSecureLogger();
         }
 
-        return this._logger;
+        return this._secureLogger;
     }
 
-    createLogger() {
+    /**
+     * Gets or creates a secure logger
+     * @return {Logger}
+     */
+    getOrCreateInSecureLogger() {
+        if (!this._inSecureLogger) {
+            this._inSecureLogger = this.createInSecureLogger();
+        }
+
+        return this._inSecureLogger;
+    }
+
+    /**
+     * Creates a secure logger
+     * @return {Logger}
+     */
+    createSecureLogger() {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
             defaultMeta: {service: 'fhir-server'},
-            transports: [
-                new winston.transports.Console({
-                    format: winston.format.json()
-                })
-            ]
+            transports: []
         });
 
 
@@ -81,6 +114,30 @@ class FhirLogger {
                 console.error('Error in elasticsearchTransport caught', error);
             });
         }
+
+        // Compulsory error handling
+        logger.on('error', (error) => {
+            console.error('Error in fhirLogger caught', error);
+        });
+
+        return logger;
+    }
+
+    /**
+     * Creates an insecure logger
+     * @return {Logger}
+     */
+    createInSecureLogger() {
+        const logger = winston.createLogger({
+            level: 'info',
+            format: winston.format.json(),
+            defaultMeta: {service: 'fhir-server'},
+            transports: [
+                new winston.transports.Console({
+                    format: winston.format.json()
+                })
+            ]
+        });
 
         // Compulsory error handling
         logger.on('error', (error) => {
