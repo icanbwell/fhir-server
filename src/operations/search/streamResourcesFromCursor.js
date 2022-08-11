@@ -8,8 +8,7 @@ const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ObjectChunker} = require('../streaming/objectChunker');
-
-// const {Transform} = require('stream');
+const assert = require('node:assert/strict');
 
 /**
  * Reads resources from Mongo cursor and writes to response
@@ -37,6 +36,8 @@ async function streamResourcesFromCursorAsync(
     // eslint-disable-next-line no-unused-vars
     batchObjectCount = 1) {
 
+    assert(requestId);
+    console.log(`streamResourcesFromCursorAsync: ${this.requestId}`);
     /**
      * @type {boolean}
      */

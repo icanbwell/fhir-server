@@ -2,6 +2,9 @@ const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {isNdJsonContentType} = require('../../utils/contentTypes');
+const assert = require('node:assert/strict');
+const {loggers} = require('@asymmetrik/node-fhir-server-core');
+const logger = loggers.get('default');
 
 class HttpResponseWriter extends Writable {
     /**
@@ -12,12 +15,13 @@ class HttpResponseWriter extends Writable {
      */
     constructor(requestId, response, contentType, signal) {
         super({objectMode: true});
-
+        assert(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
          */
         this.response = response;
 
+        assert(contentType);
         /**
          * @type {string}
          */
@@ -27,6 +31,7 @@ class HttpResponseWriter extends Writable {
          * @type {AbortSignal}
          */
         this._signal = signal;
+        assert(requestId);
         /**
          * @type {string}
          */
@@ -35,14 +40,14 @@ class HttpResponseWriter extends Writable {
 
     _construct(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
+            logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', this.requestId);
         this.response.setHeader('Content-Type', this.contentType);
         this.response.setTimeout(60 * 60 * 1000, () => {
-            console.log('Response timeout');
+            logger.warn('Response timeout');
         });
         // this.response.flushHeaders();
         callback();
@@ -70,12 +75,12 @@ class HttpResponseWriter extends Writable {
                              * @type {Object}
                              */
                             const jsonObject = JSON.parse(chunk);
-                            console.log(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                            logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
                         } catch (e) {
-                            console.log(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                            logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
                         }
                     } else {
-                        console.log(`HttpResponseWriter: _write ${chunk}`);
+                        logger.verbose(`HttpResponseWriter: _write ${chunk}`);
                     }
                 }
                 this.response.write(chunk, encoding, callback);
@@ -94,7 +99,7 @@ class HttpResponseWriter extends Writable {
      */
     _final(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('HttpResponseWriter: _flush');
+            logger.verbose('HttpResponseWriter: _flush');
         }
         this.response.end();
         callback();
@@ -102,5 +107,5 @@ class HttpResponseWriter extends Writable {
 }
 
 module.exports = {
-    HttpResponseWriter: HttpResponseWriter
+    HttpResponseWriter
 };

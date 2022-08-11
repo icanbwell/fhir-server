@@ -11,6 +11,7 @@ const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
  * @property {Function} searchById
  * @property {Function} searchByVersionId
  * @property {Function} create
+ * @property {Function} merge
  * @property {Function} update
  * @property {Function} remove
  * @property {Function} patch
@@ -94,16 +95,32 @@ module.exports.searchByVersionId = function searchByVersionId(service) {
  * @return Promise
  */
 module.exports.create = function create(service) {
-    let options = {
-        type: 'Practitioner'
-    };
     return async (req, res, next) => {
         try {
             const json = await service.create(req.sanitized_args, {
                 req,
                 res
             });
-            handler.create(req, res, json, options);
+            handler.create(req, res, json, {});
+        } catch (e) {
+            next(e);
+        }
+    };
+};
+
+/**
+ * @function merge
+ * @param {FhirService} service
+ * @return Promise
+ */
+module.exports.merge = function merge(service) {
+    return async (req, res, next) => {
+        try {
+            const json = await service.merge(req.sanitized_args, {
+                req,
+                res
+            });
+            handler.create(req, res, json, {});
         } catch (e) {
             next(e);
         }
