@@ -1,4 +1,4 @@
-NODE_VERSION=16.15.0
+NODE_VERSION=16.16.0
 
 .PHONY:build
 build:
