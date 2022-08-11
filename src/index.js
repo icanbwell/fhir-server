@@ -4,11 +4,11 @@
 const {createHttpTerminator} = require('http-terminator');
 
 const {app} = require('./app');
-const os = require('os');
 const {fhirServerConfig} = require('./config');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
 const {connectAsync} = require('./utils/connect');
 const env = require('var');
+const {logSystemEvent} = require('./operations/common/logging');
 const logger = loggers.get('default');
 
 const main = async function () {
@@ -16,7 +16,7 @@ const main = async function () {
 
     const server = app.listen(fhirServerConfig.server.port, () => {
             const image = env.DOCKER_IMAGE || '';
-            logger.verbose(`Server is up and running! host: ${os.hostname()} Image: ${image}`);
+            logSystemEvent('STARTUP', 'Server is up and running', {image: image});
         }
     );
 
@@ -54,6 +54,7 @@ const main = async function () {
 
     process.on('SIGTERM', async function onSigterm() {
         logger.info('Beginning shutdown of server');
+        logSystemEvent('SIGTERM', 'Beginning shutdown of server for SIGTERM', {});
         try {
             await httpTerminator.terminate();
             logger.info('Successfully shut down server');
@@ -67,6 +68,7 @@ const main = async function () {
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigInt() {
         logger.info('Beginning shutdown of server for SIGINT');
+        logSystemEvent('SIGINT', 'Beginning shutdown of server for SIGINT', {});
         try {
             await httpTerminator.terminate();
             logger.info('Successfully shut down server for SIGINT');

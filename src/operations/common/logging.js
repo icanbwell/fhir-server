@@ -6,6 +6,7 @@ const {getAccessCodesFromScopes} = require('../security/scopes');
  */
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const os = require('os');
+const {generateUUID} = require('../../utils/uid.util');
 const fhirSecureLogger = require('../../utils/fhirLogger').FhirLogger.getSecureLogger();
 const fhirInSecureLogger = require('../../utils/fhirLogger').FhirLogger.getInSecureLogger();
 
@@ -116,44 +117,44 @@ module.exports.logOperation = (options) => {
     const firstAccessCode = accessCodes.length > 0 ? (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) : null;
 
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-    fhirInSecureLogger.info(
-        {
-            id: requestInfo.requestId,
-            type: {
-                code: 'fhirServer'
-            },
-            action: action,
-            period: {
-                start: new Date(startTime).toISOString(),
-                end: new Date(stopTime).toISOString(),
-            },
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-            outcomeDesc: error ? 'Error' : 'Success',
-            agent: [
-                {
-                    type: {
-                        text: firstAccessCode
-                    },
-                    altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
-                    network: {
-                        address: requestInfo.remoteIpAddress
-                    },
-                    policy: requestInfo.scope.split(' ')
-                }
-            ],
-            source: {
-                site: requestInfo.originalUrl
-            },
-            entity: [
-                {
-                    name: resourceType,
-                    detail: detail
-                }
-            ],
-            message: error ? `${message}: ${JSON.stringify(error)}` : message
-        }
-    );
+    const logEntry = {
+        id: requestInfo.requestId,
+        type: {
+            code: 'fhirServer'
+        },
+        action: action,
+        period: {
+            start: new Date(startTime).toISOString(),
+            end: new Date(stopTime).toISOString(),
+        },
+        recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+        outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
+        outcomeDesc: error ? 'Error' : 'Success',
+        agent: [
+            {
+                type: {
+                    text: firstAccessCode
+                },
+                altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
+                network: {
+                    address: requestInfo.remoteIpAddress
+                },
+                policy: requestInfo.scope.split(' ')
+            }
+        ],
+        source: {
+            site: requestInfo.originalUrl
+        },
+        entity: [
+            {
+                name: resourceType,
+                detail: detail
+            }
+        ],
+        message: error ? `${message}: ${JSON.stringify(error)}` : message
+    };
+    // write the insecure information to insecure log
+    fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
     // Now write out the secure logs
     if (requestInfo.body) {
         detail.push({
@@ -173,45 +174,57 @@ module.exports.logOperation = (options) => {
             valueString: result
         });
     }
+
+    logEntry.entity[0].detail = detail;
+
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-    fhirSecureLogger.info(
-        {
-            id: requestInfo.requestId,
-            type: {
-                code: 'fhirServer'
-            },
-            action: action,
-            period: {
-                start: new Date(startTime).toISOString(),
-                end: new Date(stopTime).toISOString(),
-            },
-            recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-            outcomeDesc: error ? 'Error' : 'Success',
-            agent: [
-                {
-                    type: {
-                        text: firstAccessCode
-                    },
-                    altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
-                    network: {
-                        address: requestInfo.remoteIpAddress
-                    },
-                    policy: [
-                        requestInfo.scope
-                    ]
-                }
-            ],
-            source: {
-                site: requestInfo.originalUrl
-            },
-            entity: [
-                {
-                    name: resourceType,
-                    detail: detail
-                }
-            ],
-            message: error ? `${message}: ${JSON.stringify(error)}` : message
+    fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
+};
+
+/**
+ * Logs a system event
+ * @param {string} event
+ * @param {string} message
+ * @param {Object} args
+ * @param {string|null} error
+ */
+module.exports.logSystemEvent = (event, message, args, error = null) => {
+    /**
+     * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
+     */
+    const detail = Object.entries(args).map(([k, v]) => {
+            return {
+                type: k,
+                valueString: (typeof v === 'string') ? v : JSON.stringify(v)
+            };
         }
     );
+    if (os.hostname()) {
+        const hostname = os.hostname();
+        detail.push({
+            type: 'host',
+            valueString: String(hostname)
+        });
+    }
+    // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
+    const logEntry = {
+        id: generateUUID(),
+        type: {
+            code: 'fhirServer'
+        },
+        action: event,
+        recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+        outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
+        outcomeDesc: error ? 'Error' : 'Success',
+        message: message,
+        entity: [
+            {
+                name: 'system',
+                detail: detail
+            }
+        ],
+    };
+    fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
+    fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
 };
+
