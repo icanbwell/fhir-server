@@ -69,7 +69,7 @@ module.exports.logWarn = (user, msg) => {
 module.exports.logOperation = (options) => {
     const {
         requestInfo,
-        args,
+        args = [],
         resourceType,
         startTime,
         stopTime = Date.now(),
@@ -79,6 +79,7 @@ module.exports.logOperation = (options) => {
         query,
         result
     } = options;
+
     /**
      * resource can have PHI so we strip it out for insecure logger
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
@@ -111,11 +112,13 @@ module.exports.logOperation = (options) => {
     /**
      * @type {string[]}
      */
-    const accessCodes = getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+    const accessCodes = requestInfo.scope ?
+        getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
+        : [];
     /**
      * @type {string|null}
      */
-    const firstAccessCode = accessCodes.length > 0 ?
+    const firstAccessCode = (accessCodes && accessCodes.length > 0) ?
         (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) :
         null;
 
@@ -144,7 +147,7 @@ module.exports.logOperation = (options) => {
                 network: {
                     address: requestInfo.remoteIpAddress
                 },
-                policy: requestInfo.scope.split(' ')
+                policy: requestInfo.scope ? requestInfo.scope.split(' ') : null
             }
         ],
         source: {
