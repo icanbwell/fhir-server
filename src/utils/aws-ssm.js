@@ -7,8 +7,9 @@ const ssm = new AWS.SSM({
 });
 
 /**
- * @param {string} environment
- * @returns {{username: string, password: string}}
+ * Gets username and password for ElasticSearch
+ * @param environment
+ * @return {Promise<{password: string, username: string}>}
  */
 module.exports.getElasticSearchParameterAsync = async (environment) => {
     assert(environment);
@@ -19,14 +20,14 @@ module.exports.getElasticSearchParameterAsync = async (environment) => {
      */
     const usernameParameter = await ssm.getParameter({
         Name: `/${environment}/helix/elasticsearch/username`,
-        WithDecryption: false
+        WithDecryption: true
     }).promise();
     /**
      * @type {import('aws-sdk').SSM.GetParameterResult}}
      */
     const passwordParameter = await ssm.getParameter({
         Name: `/${environment}/helix/elasticsearch/password`,
-        WithDecryption: false
+        WithDecryption: true
     }).promise();
     return {username: usernameParameter.Parameter.Value, password: passwordParameter.Parameter.Value};
 };

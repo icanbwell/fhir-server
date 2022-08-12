@@ -40,9 +40,9 @@ class FhirLogger {
 
     /**
      * Gets the secure logger (creates it if it does not exist yet)
-     * @return {Logger}
+     * @return {Promise<Logger>}
      */
-    static getSecureLogger() {
+    static async getSecureLogger() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -53,7 +53,7 @@ class FhirLogger {
      * Gets the In Secure logger (creates it if it does not exist yet)
      * @return {Logger}
      */
-    static getInSecureLogger() {
+    static async getInSecureLogger() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -66,7 +66,10 @@ class FhirLogger {
      */
     getOrCreateSecureLogger() {
         if (!this._secureLogger) {
-            this._secureLogger = this.createSecureLogger();
+            // make the async call synchronously to enable clients to use the "require" syntax
+            (async function (self) {
+                self._secureLogger = await self.createSecureLoggerAsync();
+            })(this);
         }
 
         return this._secureLogger;
@@ -78,7 +81,10 @@ class FhirLogger {
      */
     getOrCreateInSecureLogger() {
         if (!this._inSecureLogger) {
-            this._inSecureLogger = this.createInSecureLogger();
+            // make the async call synchronously to enable clients to use the "require" syntax
+            (async function (self) {
+                self._inSecureLogger = await self.createInSecureLoggerAsync();
+            })(this);
         }
 
         return this._inSecureLogger;
@@ -88,7 +94,7 @@ class FhirLogger {
      * Creates a secure logger
      * @return {Logger}
      */
-    createSecureLogger() {
+    async createSecureLoggerAsync() {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
@@ -104,7 +110,7 @@ class FhirLogger {
             if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             } else {
-                const {username, password} = getElasticSearchParameterAsync(env.ENV);
+                const {username, password} = await getElasticSearchParameterAsync(env.ENV);
                 assert(username);
                 assert(typeof username === 'string');
                 assert(password);
@@ -146,6 +152,7 @@ class FhirLogger {
              * @type {NullTransport}
              */
             const nullTransport = new NullTransport();
+            // noinspection JSCheckFunctionSignatures
             logger.add(nullTransport);
         }
 
@@ -168,7 +175,7 @@ class FhirLogger {
      * Creates an insecure logger
      * @return {Logger}
      */
-    createInSecureLogger() {
+    async createInSecureLoggerAsync() {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
