@@ -5,13 +5,13 @@ const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
-const TransportStream = require('winston-transport');
+const Transport = require('winston-transport');
 
 /**
  * Swallows any logs
  * uses: https://www.npmjs.com/package/winston-transport
  */
-class NullTransport extends TransportStream {
+class NullTransport extends Transport {
     constructor(opts) {
         super(opts);
 
