@@ -5,20 +5,17 @@ const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
-const TransportStream = require('winston-transport');
+const Transport = require('winston-transport');
 
-class NullTransport extends TransportStream {
+class NullTransport extends Transport {
     constructor(opts) {
         super(opts);
 
         this.name = 'NullTransport';
     }
 
-    log(...args) {
-        // in winston >= 3 and winston < 3 callback is the last argument
-        const callback = args[args.length - 1];
+    log(info, callback) {
         callback();
-
         return this;
     }
 }
