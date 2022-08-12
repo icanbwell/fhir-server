@@ -7,6 +7,10 @@ const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
 const Transport = require('winston-transport');
 
+/**
+ * Swallows any logs
+ * uses: https://www.npmjs.com/package/winston-transport
+ */
 class NullTransport extends Transport {
     constructor(opts) {
         super(opts);
