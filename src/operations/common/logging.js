@@ -1,6 +1,6 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const {getAccessCodesFromScopes} = require('../security/scopes');
+const {getAccessCodesFromScopes, parseScopes} = require('../security/scopes');
 /**
  * @type {import('winston').logger}
  */
@@ -147,7 +147,7 @@ module.exports.logOperation = (options) => {
                 network: {
                     address: requestInfo.remoteIpAddress
                 },
-                policy: requestInfo.scope ? requestInfo.scope.split(' ') : null
+                policy: parseScopes(requestInfo.scope)
             }
         ],
         source: {
