@@ -1,11 +1,27 @@
 const env = require('var');
 const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
-const {NullTransport} = require('winston-null');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
+const TransportStream = require('winston-transport');
+
+class NullTransport extends TransportStream {
+    constructor(opts) {
+        super(opts);
+
+        this.name = 'NullTransport';
+    }
+
+    log(...args) {
+        // in winston >= 3 and winston < 3 callback is the last argument
+        const callback = args[args.length - 1];
+        callback();
+
+        return this;
+    }
+}
 
 let fhirLoggerInstance;
 
@@ -120,11 +136,10 @@ class FhirLogger {
                 console.error('Error in elasticsearchTransport caught', error);
             });
         } else {
-            /**'
-             * @type {import('winston-transport').Transport}
+            /**
+             * @type {NullTransport}
              */
             const nullTransport = new NullTransport();
-            // noinspection JSCheckFunctionSignatures
             logger.add(nullTransport);
         }
 
