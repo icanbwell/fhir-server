@@ -86,7 +86,7 @@ module.exports.logOperation = (options) => {
     const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
             return {
                 type: k,
-                valueString: (typeof v === 'string') ? v : JSON.stringify(v)
+                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v)
             };
         }
     );
@@ -115,7 +115,9 @@ module.exports.logOperation = (options) => {
     /**
      * @type {string|null}
      */
-    const firstAccessCode = accessCodes.length > 0 ? (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) : null;
+    const firstAccessCode = accessCodes.length > 0 ?
+        (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) :
+        null;
 
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
     const logEntry = {
@@ -136,7 +138,9 @@ module.exports.logOperation = (options) => {
                 type: {
                     text: firstAccessCode
                 },
-                altId: (typeof requestInfo.user === 'string') ? requestInfo.user : requestInfo.user.id,
+                altId: (!requestInfo.user || typeof requestInfo.user === 'string') ?
+                    requestInfo.user :
+                    requestInfo.user.id,
                 network: {
                     address: requestInfo.remoteIpAddress
                 },
@@ -160,7 +164,9 @@ module.exports.logOperation = (options) => {
     if (requestInfo.body) {
         detail.push({
             type: 'body',
-            valueString: (typeof requestInfo.body === 'string') ? requestInfo.body : JSON.stringify(requestInfo.body)
+            valueString: (!requestInfo.body || typeof requestInfo.body === 'string') ?
+                requestInfo.body :
+                JSON.stringify(requestInfo.body)
         });
     }
     if (query) {
@@ -196,7 +202,7 @@ module.exports.logSystemEvent = (event, message, args, error = null) => {
     const detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
-                valueString: (typeof v === 'string') ? v : JSON.stringify(v)
+                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v)
             };
         }
     );

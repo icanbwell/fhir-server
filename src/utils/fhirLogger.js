@@ -5,6 +5,24 @@ const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
+const Transport = require('winston-transport');
+
+/**
+ * Swallows any logs
+ * uses: https://www.npmjs.com/package/winston-transport
+ */
+class NullTransport extends Transport {
+    constructor(opts) {
+        super(opts);
+
+        this.name = 'NullTransport';
+    }
+
+    log(info, callback) {
+        callback();
+        return this;
+    }
+}
 
 let fhirLoggerInstance;
 
@@ -118,6 +136,12 @@ class FhirLogger {
             elasticsearchTransport.on('error', (error) => {
                 console.error('Error in elasticsearchTransport caught', error);
             });
+        } else {
+            /**
+             * @type {NullTransport}
+             */
+            const nullTransport = new NullTransport();
+            logger.add(nullTransport);
         }
 
         // Compulsory error handling
