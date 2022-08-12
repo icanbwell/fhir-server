@@ -105,6 +105,11 @@ class FhirLogger {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             } else {
                 const {username, password} = getElasticSearchParameterAsync(env.ENV);
+                assert(username);
+                assert(typeof username === 'string');
+                assert(password);
+                assert(typeof password === 'string');
+                console.info(`Logging to ${node} with username: ${username}`);
                 node = node.replace('https://', `https://${username}:${password}@`);
             }
 
