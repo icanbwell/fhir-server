@@ -77,7 +77,7 @@ class FhirLogger {
             try {
                 if (!this._secureLogger)
                 {
-                    this._secureLogger = await self.createSecureLoggerAsync();
+                    this._secureLogger = await this.createSecureLoggerAsync();
                 }
             } finally {
                 release();
@@ -97,7 +97,7 @@ class FhirLogger {
             try {
                  if (!this._inSecureLogger)
                  {
-                     this._inSecureLogger = await self.createInSecureLoggerAsync();
+                     this._inSecureLogger = await this.createInSecureLoggerAsync();
                  }
             } finally {
                 release();
