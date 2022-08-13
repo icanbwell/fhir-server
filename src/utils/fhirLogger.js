@@ -27,6 +27,10 @@ class NullTransport extends Transport {
     }
 }
 
+/**
+ * This implements the Singleton pattern
+ * @type {FhirLogger}
+ */
 let fhirLoggerInstance;
 
 class FhirLogger {
@@ -45,36 +49,39 @@ class FhirLogger {
      * Gets the secure logger (creates it if it does not exist yet)
      * @return {Promise<Logger>}
      */
-    static async getSecureLogger() {
+    static async getSecureLoggerAsync() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
-        return fhirLoggerInstance.getOrCreateSecureLogger();
+        return fhirLoggerInstance.getOrCreateSecureLoggerAsync();
     }
 
     /**
      * Gets the In Secure logger (creates it if it does not exist yet)
      * @return {Logger}
      */
-    static async getInSecureLogger() {
+    static async getInSecureLoggerAsync() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
-        return fhirLoggerInstance.getOrCreateInSecureLogger();
+        return fhirLoggerInstance.getOrCreateInSecureLoggerAsync();
     }
 
     /**
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    getOrCreateSecureLogger() {
+    async getOrCreateSecureLoggerAsync() {
         if (!this._secureLogger) {
-            // make the async call synchronously to enable clients to use the "require" syntax
-            (async function (self) {
-                await mutex.runExclusive(async () => {
-                    self._secureLogger = await self.createSecureLoggerAsync();
-                });
-            })(this);
+            const release = await mutex.acquire();
+            try {
+                if (!this._secureLogger)
+                {
+                    this._secureLogger = await self.createSecureLoggerAsync();
+                }
+            } finally {
+                release();
+            }
         }
 
         return this._secureLogger;
@@ -84,14 +91,17 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    getOrCreateInSecureLogger() {
+    async getOrCreateInSecureLoggerAsync() {
         if (!this._inSecureLogger) {
-            // make the async call synchronously to enable clients to use the "require" syntax
-            (async function (self) {
-                await mutex.runExclusive(async () => {
-                    self._InSecureLogger = await self.createInSecureLoggerAsync();
-                });
-            })(this);
+            const release = await mutex.acquire();
+            try {
+                 if (!this._inSecureLogger)
+                 {
+                     this._inSecureLogger = await self.createInSecureLoggerAsync();
+                 }
+            } finally {
+                release();
+            }
         }
 
         return this._inSecureLogger;

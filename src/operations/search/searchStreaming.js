@@ -1,7 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -15,7 +15,7 @@ const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonI
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 
 /**
@@ -53,7 +53,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -285,7 +285,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -299,7 +299,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

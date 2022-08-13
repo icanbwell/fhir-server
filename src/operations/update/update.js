@@ -1,4 +1,4 @@
-const {logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperationAsync} = require('../common/logging');
 const {
     isAccessToResourceAllowedBySecurityTags,
     doesResourceHaveAccessTags
@@ -19,7 +19,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -35,7 +35,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
     const startTime = Date.now();
     const {user, scope, path, body} = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -158,7 +158,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             // see if there are any changes
             if (patchContent.length === 0) {
                 logDebug(user, 'No changes detected in updated resource');
-                logOperation({
+                await logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -260,7 +260,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             created: res.created,
             resource_version: doc.meta.versionId,
         };
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -278,7 +278,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             currentDate,
             id,
             currentOperationName);
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

@@ -1,11 +1,11 @@
-const {logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
-const {processGraph} = require('./graphHelpers');
+const {processGraphAsync} = require('./graphHelpers');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * Supports $graph
@@ -23,7 +23,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
     const startTime = Date.now();
     const {user, path, body} = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -64,7 +64,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         /**
          * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
          */
-        const result = await processGraph(
+        const result = await processGraphAsync(
             requestInfo,
             base_version,
             useAtlas,
@@ -78,7 +78,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
         //     return operationOutcomeResult;
         // }
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -88,7 +88,7 @@ module.exports.graph = async (requestInfo, args, resourceType) => {
         });
         return result;
     } catch (err) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

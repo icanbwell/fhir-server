@@ -1,4 +1,4 @@
-const {logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperationAsync} = require('../common/logging');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
@@ -15,7 +15,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Create (POST)
@@ -32,7 +32,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
     const startTime = Date.now();
     const {user, body} = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -79,7 +79,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
                 uuid,
                 'create_failure');
             const notValidatedError = new NotValidatedError(operationOutcome);
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -179,7 +179,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
         // Insert our resource record to history but don't assign _id
         await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
         const result = {id: doc.id, resource_version: doc.meta.versionId};
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -197,7 +197,7 @@ module.exports.create = async (requestInfo, args, path, resourceType) => {
             currentDate,
             uuid,
             currentOperationName);
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

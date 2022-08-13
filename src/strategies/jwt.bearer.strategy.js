@@ -10,7 +10,7 @@ const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const {request} = require('../utils/request');
-const fhirLogger = require('../utils/fhirLogger').FhirLogger.getSecureLogger();
+const fhirLogger = require('../utils/fhirLogger').FhirLogger;
 
 /**
  * Retrieve jwks for URL
@@ -89,7 +89,8 @@ const verify = (jwt_payload, done) => {
             scope = scope + ' ' + groups.join(' ');
         }
 
-        fhirLogger.info(
+        const fhirInSecureLogger = fhirLogger.getInSecureLoggerAsync();
+        fhirInSecureLogger.info(
             username || client_id,
             'Verified client_id: ' + client_id + ' username=' + username + ' scope: ' + scope
         );

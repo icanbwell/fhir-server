@@ -1,4 +1,4 @@
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
@@ -7,7 +7,7 @@ const {getExpandedValueSetAsync} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR Search By Id
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -26,7 +26,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -58,7 +58,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -75,7 +75,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
             const forbiddenError = new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resource.resourceType + ' with id ' + id);
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -95,7 +95,7 @@ module.exports.expand = async (requestInfo, args, resourceType) => {
         resource = (await enrich([resource], resourceType))[0];
 
         const result = new Resource(resource);
-        logOperation({
+        await logOperationAsync({
             requestInfo, args, resourceType, startTime,
             message: 'operationCompleted', action: currentOperationName,
             result: JSON.stringify(result)

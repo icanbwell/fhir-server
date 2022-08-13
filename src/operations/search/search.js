@@ -1,7 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -13,7 +13,7 @@ const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search
@@ -51,7 +51,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -211,7 +211,7 @@ module.exports.search = async (requestInfo, args, resourceType,
                 user,
                 useAtlas
             );
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -226,7 +226,7 @@ module.exports.search = async (requestInfo, args, resourceType,
              * @type {string}
              */
             const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -242,7 +242,7 @@ module.exports.search = async (requestInfo, args, resourceType,
          * @type {string}
          */
         const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

@@ -13,13 +13,13 @@ const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('./scopes');
 /**
  * Throws an error if no scope is valid for this request
- * @param {VerifyScopesParameters} options
+ * @param {Promise<VerifyScopesParameters>} options
  */
-const verifyHasValidScopes = (options) => {
+const verifyHasValidScopesAsync = async (options) => {
     const {requestInfo, args, resourceType, startTime, action, accessRequested} = options;
     const {user, scope} = requestInfo;
 
@@ -38,7 +38,7 @@ const verifyHasValidScopes = (options) => {
             let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
             const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
             authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -52,7 +52,7 @@ const verifyHasValidScopes = (options) => {
             let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
             const forbiddenError1 = new ForbiddenError(errorMessage);
             authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -67,5 +67,5 @@ const verifyHasValidScopes = (options) => {
 };
 
 module.exports = {
-    verifyHasValidScopes
+    verifyHasValidScopesAsync
 };

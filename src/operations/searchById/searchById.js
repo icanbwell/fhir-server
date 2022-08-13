@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
@@ -12,7 +12,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search By Id
@@ -43,7 +43,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
         scope
     } = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -105,7 +105,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
                 // log access to audit logs
                 await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
             }
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -118,7 +118,7 @@ module.exports.searchById = async (requestInfo, args, resourceType,
             throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
         }
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
