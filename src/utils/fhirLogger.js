@@ -7,8 +7,11 @@ const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
 const Transport = require('winston-transport');
 
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
 /**
- * Swallows any logs
+ * This transport is designed to swallow any logs
  * uses: https://www.npmjs.com/package/winston-transport
  */
 class NullTransport extends Transport {
@@ -68,7 +71,9 @@ class FhirLogger {
         if (!this._secureLogger) {
             // make the async call synchronously to enable clients to use the "require" syntax
             (async function (self) {
-                self._secureLogger = await self.createSecureLoggerAsync();
+                await mutex.runExclusive(async () => {
+                    self._secureLogger = await self.createSecureLoggerAsync();
+                });
             })(this);
         }
 
@@ -83,7 +88,9 @@ class FhirLogger {
         if (!this._inSecureLogger) {
             // make the async call synchronously to enable clients to use the "require" syntax
             (async function (self) {
-                self._inSecureLogger = await self.createInSecureLoggerAsync();
+                await mutex.runExclusive(async () => {
+                    self._InSecureLogger = await self.createInSecureLoggerAsync();
+                });
             })(this);
         }
 
