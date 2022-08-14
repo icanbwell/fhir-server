@@ -104,7 +104,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
     /**
      * @type {function(?Object): Resource}
      */
-    let Resource = getResource(base_version, resourceType);
+    let ResourceCreator = getResource(base_version, resourceType);
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -186,11 +186,19 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(
+                resourceIds = await streamResourcesFromCursorAsync({
                     requestId,
-                    cursor, res, user, scope, args, Resource, resourceType,
+                    cursor,
+                    res,
+                    user,
+                    scope,
+                    args,
+                    ResourceCreator,
+                    resourceType,
                     useAccessIndex,
-                    fhirContentTypes.ndJson, batchObjectCount);
+                    contentType: fhirContentTypes.ndJson,
+                    batchObjectCount
+                });
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
@@ -202,39 +210,54 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @type {Resource[]}
                      */
                     const resources1 = [];
-                    resourceIds = await streamBundleFromCursorAsync(
+                    /**
+                     * @param {string | null} last_id
+                     * @param {number} stopTime1
+                     * @return {Resource}
+                     */
+                    const fnBundle = (last_id, stopTime1) => createBundle({
+                            url,
+                            last_id,
+                            resources: resources1,
+                            base_version,
+                            total_count,
+                            args,
+                            originalQuery,
+                            collectionName,
+                            originalOptions,
+                            columns,
+                            stopTime: stopTime1,
+                            startTime,
+                            useTwoStepSearchOptimization,
+                            indexHint,
+                            cursorBatchSize,
+                            user,
+                            useAtlas
+                        }
+                    );
+                    resourceIds = await streamBundleFromCursorAsync({
                         requestId,
                         cursor,
                         url,
-                        (last_id, stopTime1) => createBundle({
-                                url,
-                                last_id,
-                                resources: resources1,
-                                base_version,
-                                total_count,
-                                args,
-                                originalQuery,
-                                collectionName,
-                                originalOptions,
-                                columns,
-                                stopTime: stopTime1,
-                                startTime,
-                                useTwoStepSearchOptimization,
-                                indexHint,
-                                cursorBatchSize,
-                                user,
-                                useAtlas
-                            }
-                        ),
-                        res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
+                        fnBundle,
+                        res,
+                        user,
+                        scope,
+                        args,
+                        ResourceCreator,
+                        resourceType,
+                        useAccessIndex,
+                        batchObjectCount
+                    });
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(
+                    resourceIds = await streamResourcesFromCursorAsync({
                         requestId,
                         cursor, res, user, scope, args,
-                        Resource, resourceType,
+                        ResourceCreator, resourceType,
                         useAccessIndex,
-                        fhirContentTypes.fhirJson,
-                        batchObjectCount);
+                        contentType: fhirContentTypes.fhirJson,
+                        batchObjectCount
+                    });
                 }
             }
             if (resourceIds.length > 0) {

@@ -9,31 +9,36 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 const assert = require('node:assert/strict');
 
 /**
+ * @typedef StreamBundleParameters
+ * @type {object}
+ * @property {DatabasePartitionedCursor} cursor
+ * @property {string|null} requestId
+ * @property {string | null} url
+ * @property {function (string | null, number): Resource} fnBundle
+ * @property {import('http').ServerResponse} res
+ * @property {string | null} user
+ * @property {string | null} scope
+ * @property {Object|null} args
+ * @property {function (?Object): Resource} ResourceCreator
+ * @property {string} resourceType
+ * @property {boolean} useAccessIndex
+ * @property {number} batchObjectCount
+ */
+
+/**
  * Reads resources from Mongo cursor and writes to response
- * @param {DatabasePartitionedCursor} cursor
- * @param {string} requestId
- * @param {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>} cursor
- * @param {string | null} url
- * @param {function (string | null, number): Resource} fnBundle
- * @param {import('http').ServerResponse} res
- * @param {string | null} user
- * @param {string | null} scope
- * @param {Object?} args
- * @param {function (Object): Resource} Resource
- * @param {string} resourceName
- * @param {boolean} useAccessIndex
- * @param {number} batchObjectCount
+ * @param {StreamBundleParameters} options
  * @returns {Promise<string[]>}
  */
-async function streamBundleFromCursorAsync(
-    requestId,
-    cursor, url, fnBundle,
-    res, user, scope,
-    args, Resource, resourceName,
-    useAccessIndex,
-    // eslint-disable-next-line no-unused-vars
-    batchObjectCount
-) {
+async function streamBundleFromCursorAsync(options) {
+    const {
+        requestId,
+        cursor, url, fnBundle,
+        res, user, scope,
+        args, ResourceCreator, resourceType,
+        useAccessIndex,
+        batchObjectCount
+    } = options;
     assert(requestId);
     /**
      * @type {AbortController}
@@ -62,7 +67,7 @@ async function streamBundleFromCursorAsync(
      */
     const responseWriter = new HttpResponseWriter(requestId, res, 'application/fhir+json', ac.signal);
 
-    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
+    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, ResourceCreator, resourceType, useAccessIndex, ac.signal);
     const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
 
     const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
