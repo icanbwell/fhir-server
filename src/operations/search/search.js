@@ -72,33 +72,38 @@ module.exports.search = async (requestInfo, args, resourceType,
 
     /** @type {string} **/
     let {base_version} = args;
-
-    const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
-
-    let {
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
-
-    /**
-     * @type {function(?Object): Resource}
-     */
-    let Resource = getResource(base_version, resourceType);
-
     /**
      * @type {import('mongodb').FindOneOptions}
      */
     let options = {};
-
-    // Query our collection for this observation
+    /** @type {import('mongodb').Document}**/
+    let query = {};
+    /** @type {Set} **/
+    let columns = new Set();
     /**
-     * @type {number}
+     * @type {ResourceLocator}
      */
-    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
-
+    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
     try {
+        const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
+
+        ({
+            query,
+            columns
+        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+
+        /**
+         * @type {function(?Object): Resource}
+         */
+        let Resource = getResource(base_version, resourceType);
+
+        // Query our collection for this observation
+        /**
+         * @type {number}
+         */
+        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+
+
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
             args, columns, options, query,
@@ -186,7 +191,7 @@ module.exports.search = async (requestInfo, args, resourceType,
             /**
              * @type {string}
              */
-            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
             /**
              * id of last resource in the list
              * @type {?string}
@@ -225,7 +230,7 @@ module.exports.search = async (requestInfo, args, resourceType,
             /**
              * @type {string}
              */
-            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
             await logOperationAsync({
                 requestInfo,
                 args,
@@ -241,7 +246,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         /**
          * @type {string}
          */
-        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
         await logOperationAsync({
             requestInfo,
             args,
