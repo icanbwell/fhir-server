@@ -77,12 +77,31 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
     const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
-    let {
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
+    /** @type {import('mongodb').Document}**/
+    let query = {};
+    /** @type {Set} **/
+    let columns = new Set();
+
+    try {
+        ({
+            /** @type {import('mongodb').Document}**/
+            query,
+            /** @type {Set} **/
+            columns
+        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+    } catch (e) {
+        await logOperationAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e,
+            query: {}
+        });
+        throw e;
+    }
 
     /**
      * @type {function(?Object): Resource}
