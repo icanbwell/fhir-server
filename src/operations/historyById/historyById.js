@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
@@ -9,7 +9,7 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR History By id
@@ -27,7 +27,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -75,7 +75,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
         if (resources.length === 0) {
             throw new NotFoundError();
         }
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -85,7 +85,7 @@ module.exports.historyById = async (requestInfo, args, resourceType) => {
         });
         return resources;
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

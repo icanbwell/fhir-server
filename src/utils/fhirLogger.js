@@ -7,8 +7,11 @@ const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
 const Transport = require('winston-transport');
 
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
 /**
- * Swallows any logs
+ * This transport is designed to swallow any logs
  * uses: https://www.npmjs.com/package/winston-transport
  */
 class NullTransport extends Transport {
@@ -24,6 +27,10 @@ class NullTransport extends Transport {
     }
 }
 
+/**
+ * This implements the Singleton pattern
+ * @type {FhirLogger}
+ */
 let fhirLoggerInstance;
 
 class FhirLogger {
@@ -40,33 +47,41 @@ class FhirLogger {
 
     /**
      * Gets the secure logger (creates it if it does not exist yet)
-     * @return {Logger}
+     * @return {Promise<Logger>}
      */
-    static getSecureLogger() {
+    static async getSecureLoggerAsync() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
-        return fhirLoggerInstance.getOrCreateSecureLogger();
+        return fhirLoggerInstance.getOrCreateSecureLoggerAsync();
     }
 
     /**
      * Gets the In Secure logger (creates it if it does not exist yet)
      * @return {Logger}
      */
-    static getInSecureLogger() {
+    static async getInSecureLoggerAsync() {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
-        return fhirLoggerInstance.getOrCreateInSecureLogger();
+        return fhirLoggerInstance.getOrCreateInSecureLoggerAsync();
     }
 
     /**
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    getOrCreateSecureLogger() {
+    async getOrCreateSecureLoggerAsync() {
         if (!this._secureLogger) {
-            this._secureLogger = this.createSecureLogger();
+            const release = await mutex.acquire();
+            try {
+                if (!this._secureLogger)
+                {
+                    this._secureLogger = await this.createSecureLoggerAsync();
+                }
+            } finally {
+                release();
+            }
         }
 
         return this._secureLogger;
@@ -76,9 +91,17 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    getOrCreateInSecureLogger() {
+    async getOrCreateInSecureLoggerAsync() {
         if (!this._inSecureLogger) {
-            this._inSecureLogger = this.createInSecureLogger();
+            const release = await mutex.acquire();
+            try {
+                 if (!this._inSecureLogger)
+                 {
+                     this._inSecureLogger = await this.createInSecureLoggerAsync();
+                 }
+            } finally {
+                release();
+            }
         }
 
         return this._inSecureLogger;
@@ -88,7 +111,7 @@ class FhirLogger {
      * Creates a secure logger
      * @return {Logger}
      */
-    createSecureLogger() {
+    async createSecureLoggerAsync() {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
@@ -104,7 +127,12 @@ class FhirLogger {
             if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             } else {
-                const {username, password} = getElasticSearchParameterAsync(env.ENV);
+                const {username, password} = await getElasticSearchParameterAsync(env.ENV);
+                assert(username);
+                assert(typeof username === 'string');
+                assert(password);
+                assert(typeof password === 'string');
+                console.info(`Logging to ${node} with username: ${username}`);
                 node = node.replace('https://', `https://${username}:${password}@`);
             }
 
@@ -141,6 +169,7 @@ class FhirLogger {
              * @type {NullTransport}
              */
             const nullTransport = new NullTransport();
+            // noinspection JSCheckFunctionSignatures
             logger.add(nullTransport);
         }
 
@@ -163,7 +192,7 @@ class FhirLogger {
      * Creates an insecure logger
      * @return {Logger}
      */
-    createInSecureLogger() {
+    async createInSecureLoggerAsync() {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),

@@ -11,31 +11,42 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 const assert = require('node:assert/strict');
 
 /**
+ * @typedef StreamResourcesParameters
+ * @type {object}
+ * @property {DatabasePartitionedCursor} cursor
+ * @property {string|null} requestId
+ * @property {import('http').ServerResponse} res
+ * @property {string | null} user
+ * @property {string | null} scope
+ * @property {Object|null} args
+ * @property {function (?Object): Resource} ResourceCreator
+ * @property {string} resourceType
+ * @property {boolean} useAccessIndex
+ * @property {string} contentType
+ * @property {number} batchObjectCount
+ */
+
+/**
  * Reads resources from Mongo cursor and writes to response
- * @param {DatabasePartitionedCursor} cursor
- * @param {string} requestId
- * @param {import('http').ServerResponse} res
- * @param {string | null} user
- * @param {string | null} scope
- * @param {Object?} args
- * @param {function (Object): Resource} Resource
- * @param {string} resourceName
- * @param {boolean} useAccessIndex
- * @param {string} contentType
- * @param {number} batchObjectCount
+ * @param {StreamResourcesParameters} options
  * @returns {Promise<string[]>} ids of resources streamed
  */
-async function streamResourcesFromCursorAsync(
-    requestId,
-    cursor, res, user, scope,
-    args,
-    Resource,
-    resourceName,
-    useAccessIndex,
-    contentType = 'application/fhir+json',
-    // eslint-disable-next-line no-unused-vars
-    batchObjectCount = 1) {
+async function streamResourcesFromCursorAsync(options) {
 
+    const {
+        requestId,
+        cursor,
+        res,
+        user,
+        scope,
+        args,
+        ResourceCreator,
+        resourceType,
+        useAccessIndex,
+        contentType = 'application/fhir+json',
+        // eslint-disable-next-line no-unused-vars
+        batchObjectCount = 1
+    } = options;
     assert(requestId);
     console.log(`streamResourcesFromCursorAsync: ${this.requestId}`);
     /**
@@ -76,7 +87,7 @@ async function streamResourcesFromCursorAsync(
     /**
      * @type {ResourcePreparerTransform}
      */
-    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal);
+    const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, ResourceCreator, resourceType, useAccessIndex, ac.signal);
     /**
      * @type {ResourceIdTracker}
      */

@@ -1,7 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logDebug, logOperation} = require('../common/logging');
+const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -13,7 +13,7 @@ const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search
@@ -51,7 +51,7 @@ module.exports.search = async (requestInfo, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -70,17 +70,34 @@ module.exports.search = async (requestInfo, args, resourceType,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /** @type {string} **/
-    let {base_version} = args;
+    const {/** @type {string} **/base_version} = args;
 
     const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
-    let {
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
+    /** @type {import('mongodb').Document}**/
+    let query = {};
+    /** @type {Set} **/
+    let columns = new Set();
+
+    try {
+        ({
+            /** @type {import('mongodb').Document}**/
+            query,
+            /** @type {Set} **/
+            columns
+        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+    } catch (e) {
+        await logOperationAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
+        throw e;
+    }
 
     /**
      * @type {function(?Object): Resource}
@@ -97,7 +114,10 @@ module.exports.search = async (requestInfo, args, resourceType,
      * @type {number}
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
-
+    /**
+     * @type {ResourceLocator}
+     */
+    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
         const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
@@ -186,32 +206,33 @@ module.exports.search = async (requestInfo, args, resourceType,
             /**
              * @type {string}
              */
-            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
+            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
             /**
              * id of last resource in the list
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = createBundle(
-                url,
-                last_id,
-                resources,
-                base_version,
-                total_count,
-                args,
-                originalQuery,
-                collectionName,
-                originalOptions,
-                columns,
-                stopTime,
-                startTime,
-                useTwoStepSearchOptimization,
-                indexHint,
-                cursorBatchSize,
-                user,
-                useAtlas
+            const bundle = createBundle({
+                    url,
+                    last_id,
+                    resources,
+                    base_version,
+                    total_count,
+                    args,
+                    originalQuery,
+                    collectionName,
+                    originalOptions,
+                    columns,
+                    stopTime,
+                    startTime,
+                    useTwoStepSearchOptimization,
+                    indexHint,
+                    cursorBatchSize,
+                    user,
+                    useAtlas
+                }
             );
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -225,8 +246,8 @@ module.exports.search = async (requestInfo, args, resourceType,
             /**
              * @type {string}
              */
-            const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-            logOperation({
+            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -241,8 +262,8 @@ module.exports.search = async (requestInfo, args, resourceType,
         /**
          * @type {string}
          */
-        const collectionName = new ResourceLocator(resourceType, base_version, useAtlas).getFirstCollectionNameForQuery();
-        logOperation({
+        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

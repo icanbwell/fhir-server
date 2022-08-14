@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
@@ -11,7 +11,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
@@ -27,7 +27,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
      */
     const startTime = Date.now();
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -113,7 +113,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
         } catch (e) {
             throw new BadRequestError(e);
         }
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -127,7 +127,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
             resource_version: doc.meta.versionId,
         };
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

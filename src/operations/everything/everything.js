@@ -1,10 +1,10 @@
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {graph} = require('../graph/graph');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR $everything
  * @param {import('../../../utils/requestInfo').RequestInfo} requestInfo
@@ -17,7 +17,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
      * @type {number}
      */
     const startTime = Date.now();
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -35,7 +35,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
         if (resourceType === 'Practitioner') {
             requestInfo.body = practitionerEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -47,7 +47,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
         } else if (resourceType === 'Organization') {
             requestInfo.body = organizationEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -59,7 +59,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
         } else if (resourceType === 'Slot') {
             requestInfo.body = slotEverythingGraph;
             const result = await graph(requestInfo, args, resourceType);
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -73,7 +73,7 @@ module.exports.everything = async (requestInfo, args, resourceType) => {
             throw new Error('$everything is not supported for resource: ' + resourceType);
         }
     } catch (err) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

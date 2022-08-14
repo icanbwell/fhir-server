@@ -1,4 +1,4 @@
-const {processGraph} = require('../../../src/operations/graph/graphHelpers');
+const {processGraphAsync} = require('../../../src/operations/graph/graphHelpers');
 const {commonBeforeEach, commonAfterEach} = require('../common');
 const globals = require('../../globals');
 const {CLIENT_DB} = require('../../constants');
@@ -44,7 +44,7 @@ describe('graphHelper Tests', () => {
     describe('graphHelper Tests', () => {
         test('graphHelper single Practitioner works', async () => {
             const resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -77,7 +77,7 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
 
             await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -120,7 +120,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -166,7 +166,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -212,7 +212,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -257,7 +257,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -319,7 +319,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'PractitionerRole';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -368,7 +368,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -430,7 +430,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -523,7 +523,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -643,7 +643,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -766,7 +766,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'PractitionerRole';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -928,7 +928,7 @@ describe('graphHelper Tests', () => {
             );
 
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,
@@ -1142,7 +1142,7 @@ describe('graphHelper Tests', () => {
                 }
             );
             resourceType = 'Practitioner';
-            const result = await processGraph(
+            const result = await processGraphAsync(
                 requestInfo,
                 base_version,
                 false,

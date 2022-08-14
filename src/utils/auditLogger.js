@@ -117,6 +117,11 @@ async function logAuditEntryAsync(requestInfo, base_version, resourceType,
         return;
     }
 
+    if (resourceType === 'AuditEvent') {
+        // don't create audit entries for audit entries
+        return;
+    }
+
     const cleanedArgs = deepcopy(args);
     // remove id and _id args since they are duplicated in the items retrieved
     if (cleanedArgs['id']) {

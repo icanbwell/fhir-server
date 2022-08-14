@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
@@ -8,7 +8,7 @@ const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR Search By Version
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -25,7 +25,7 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
     const user = requestInfo.user;
     const scope = requestInfo.scope;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -62,7 +62,7 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
             }
             // run any enrichment
             resource = (await enrich([resource], resourceType))[0];
-            logOperation({
+            await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -75,7 +75,7 @@ module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
             throw new NotFoundError();
         }
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

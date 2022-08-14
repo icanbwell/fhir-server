@@ -1,7 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
@@ -15,7 +15,7 @@ const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonI
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 
 /**
@@ -53,7 +53,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         requestId
     } = requestInfo;
 
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -72,22 +72,39 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /** @type {string} **/
-    let {base_version} = args;
+    const {/** @type {string} **/base_version} = args;
 
     const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
-    let {
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter);
+    /** @type {import('mongodb').Document}**/
+    let query = {};
+    /** @type {Set} **/
+    let columns = new Set();
+
+    try {
+        ({
+            /** @type {import('mongodb').Document}**/
+            query,
+            /** @type {Set} **/
+            columns
+        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+    } catch (e) {
+        await logOperationAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            message: 'operationFailed',
+            action: currentOperationName,
+            error: e
+        });
+        throw e;
+    }
 
     /**
      * @type {function(?Object): Resource}
      */
-    let Resource = getResource(base_version, resourceType);
+    let ResourceCreator = getResource(base_version, resourceType);
 
     /**
      * @type {import('mongodb').FindOneOptions}
@@ -140,7 +157,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         let indexHint = __ret.indexHint;
         /**
-         * @type {Number}
+         * @type {number}
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
@@ -169,11 +186,19 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(
+                resourceIds = await streamResourcesFromCursorAsync({
                     requestId,
-                    cursor, res, user, scope, args, Resource, resourceType,
+                    cursor,
+                    res,
+                    user,
+                    scope,
+                    args,
+                    ResourceCreator,
+                    resourceType,
                     useAccessIndex,
-                    fhirContentTypes.ndJson, batchObjectCount);
+                    contentType: fhirContentTypes.ndJson,
+                    batchObjectCount
+                });
             } else {
                 // if env.RETURN_BUNDLE is set then return as a Bundle
                 if (env.RETURN_BUNDLE || args['_bundle']) {
@@ -181,14 +206,19 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @type {string}
                      */
                     const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-                    resourceIds = await streamBundleFromCursorAsync(
-                        requestId,
-                        cursor,
-                        url,
-                        (last_id, stopTime1) => createBundle(
+                    /**
+                     * @type {Resource[]}
+                     */
+                    const resources1 = [];
+                    /**
+                     * @param {string | null} last_id
+                     * @param {number} stopTime1
+                     * @return {Resource}
+                     */
+                    const fnBundle = (last_id, stopTime1) => createBundle({
                             url,
                             last_id,
-                            [],
+                            resources: resources1,
                             base_version,
                             total_count,
                             args,
@@ -196,40 +226,53 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                             collectionName,
                             originalOptions,
                             columns,
-                            stopTime1,
+                            stopTime: stopTime1,
                             startTime,
                             useTwoStepSearchOptimization,
                             indexHint,
                             cursorBatchSize,
                             user,
                             useAtlas
-                        ),
-                        res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
+                        }
+                    );
+                    resourceIds = await streamBundleFromCursorAsync({
+                        requestId,
+                        cursor,
+                        url,
+                        fnBundle,
+                        res,
+                        user,
+                        scope,
+                        args,
+                        ResourceCreator,
+                        resourceType,
+                        useAccessIndex,
+                        batchObjectCount
+                    });
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync(
+                    resourceIds = await streamResourcesFromCursorAsync({
                         requestId,
                         cursor, res, user, scope, args,
-                        Resource, resourceType,
+                        ResourceCreator, resourceType,
                         useAccessIndex,
-                        fhirContentTypes.fhirJson,
-                        batchObjectCount);
+                        contentType: fhirContentTypes.fhirJson,
+                        batchObjectCount
+                    });
                 }
             }
             if (resourceIds.length > 0) {
-                if (resourceType !== 'AuditEvent') {
-                    try {
-                        // log access to audit logs
-                        await logAuditEntryAsync(
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            'read',
-                            args,
-                            resourceIds
-                        );
-                    } catch (e) {
-                        await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
-                    }
+                try {
+                    // log access to audit logs
+                    await logAuditEntryAsync(
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        'read',
+                        args,
+                        resourceIds
+                    );
+                } catch (e) {
+                    await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                 }
             }
         } else { // no records found
@@ -250,24 +293,25 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                     /**
                      * @type {Resource}
                      */
-                    const bundle = createBundle(
-                        url,
-                        null,
-                        resources,
-                        base_version,
-                        total_count,
-                        args,
-                        originalQuery,
-                        collectionName,
-                        originalOptions,
-                        columns,
-                        stopTime,
-                        startTime,
-                        useTwoStepSearchOptimization,
-                        indexHint,
-                        cursorBatchSize,
-                        user,
-                        useAtlas
+                    const bundle = createBundle({
+                            url,
+                            last_id: null,
+                            resources,
+                            base_version,
+                            total_count,
+                            args,
+                            originalQuery,
+                            collectionName,
+                            originalOptions,
+                            columns,
+                            stopTime,
+                            startTime,
+                            useTwoStepSearchOptimization,
+                            indexHint,
+                            cursorBatchSize,
+                            user,
+                            useAtlas
+                        }
                     );
                     if (requestId) {
                         res.setHeader('X-Request-ID', String(requestId));
@@ -285,7 +329,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -299,7 +343,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          * @type {string}
          */
         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

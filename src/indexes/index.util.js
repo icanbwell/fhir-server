@@ -10,7 +10,7 @@ const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
-const {logSystemEvent} = require('../operations/common/logging');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 /**
  * creates a multi key index if it does not exist
@@ -32,7 +32,7 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
     try {
         if (!await db.collection(collection_name).indexExists(index_name)) {
             const message = 'Creating index ' + index_name + ' with columns: [' + columns + ']' + ' in ' + collection_name;
-            logSystemEvent('CREATEINDEX', message, {index: index_name, columns: columns, collection: collection_name});
+            await logSystemEventAsync('CREATEINDEX', message, {index: index_name, columns: columns, collection: collection_name});
             await logMessageToSlackAsync(message);
             const my_dict = {};
             for (const property_to_index of properties_to_index) {
@@ -43,7 +43,7 @@ async function create_index_if_not_exists(db, properties_to_index, collection_na
         }
     } catch (e) {
         const message1 = 'Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e);
-        logSystemEvent('CREATEINDEX', message1, {index: index_name, columns: columns, collection: collection_name},
+        await logSystemEventAsync('CREATEINDEX', message1, {index: index_name, columns: columns, collection: collection_name},
             JSON.stringify(e));
         await logMessageToSlackAsync(message1);
     }

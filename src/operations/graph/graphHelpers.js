@@ -14,7 +14,7 @@ const {getFieldNameForSearchParameter} = require('../../searchParameters/searchP
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 
 /**
@@ -192,7 +192,7 @@ function isPropertyAReference(entities, property, filterProperty, filterValue) {
  * @param {string | null} filterProperty (Optional) filter the sublist by this property
  * @param {*|null} filterValue (Optional) match filterProperty to this value
  */
-async function get_forward_references(requestInfo,
+async function getForwardReferencesAsync(requestInfo,
                                       base_version,
                                       resourceType,
                                       parentEntities, property,
@@ -317,7 +317,7 @@ function parseQueryStringIntoArgs(queryString) {
  * @param {*} filterValue (Optional) match filterProperty to this value
  * @param {string} reverse_filter Do a reverse link from child to parent using this property
  */
-async function get_reverse_references(
+async function getReverseReferencesAsync(
     requestInfo,
     base_version,
     parentResourceType,
@@ -436,7 +436,7 @@ async function get_reverse_references(
  * @param {string} property
  * @param {string} filterProperty
  * @param {string} filterValue
- * @returns {*}
+ * @returns {boolean}
  */
 function doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
     const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
@@ -523,7 +523,7 @@ function getFilterFromPropertyPath(property) {
  * @param {{path: string, params: string, target: {type: string}[]}} link
  * @param {[EntityAndContainedBase]} parentEntities
  */
-async function processOneGraphLink(requestInfo,
+async function processOneGraphLinkAsync(requestInfo,
                                    base_version,
                                    parentResourceType,
                                    link,
@@ -559,7 +559,7 @@ async function processOneGraphLink(requestInfo,
             );
             // if this is a reference then get related resources
             if (isPropertyAReference(parentEntities, property, filterProperty, filterValue)) {
-                verifyHasValidScopes({
+                await verifyHasValidScopesAsync({
                     requestInfo,
                     args: {},
                     resourceType,
@@ -568,7 +568,7 @@ async function processOneGraphLink(requestInfo,
                     accessRequested: 'read'
                 });
 
-                await get_forward_references(
+                await getForwardReferencesAsync(
                     requestInfo,
                     base_version,
                     resourceType,
@@ -602,7 +602,7 @@ async function processOneGraphLink(requestInfo,
         } else if (target.params) { // reverse link
             if (target.type) { // if caller has requested this entity or just wants a nested entity
                 // reverse link
-                verifyHasValidScopes({
+                await verifyHasValidScopesAsync({
                     requestInfo,
                     args: {},
                     resourceType,
@@ -612,12 +612,12 @@ async function processOneGraphLink(requestInfo,
                 });
                 if (!parentResourceType) {
                     throw new Error(
-                        'processOneGraphLink: No parent resource found for reverse references for parent entities:' +
+                        'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
                         ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
                         ` using target.params: ${target.params}`
                     );
                 }
-                await get_reverse_references(
+                await getReverseReferencesAsync(
                     requestInfo,
                     base_version,
                     parentResourceType,
@@ -653,7 +653,7 @@ async function processOneGraphLink(requestInfo,
                  */
                 for (const childLink of childLinks) {
                     // now recurse and process the next link in GraphDefinition
-                    await processOneGraphLink(
+                    await processOneGraphLinkAsync(
                         requestInfo,
                         base_version,
                         childResourceType,
@@ -675,7 +675,7 @@ async function processOneGraphLink(requestInfo,
  * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
  * @return {Promise<[ResourceEntityAndContained]>}
  */
-async function processGraphLinks(requestInfo,
+async function processGraphLinksAsync(requestInfo,
                                  base_version,
                                  parentResourceType,
                                  parentEntities, linkItems) {
@@ -694,7 +694,7 @@ async function processGraphLinks(requestInfo,
         /**
          * @type {ResourceEntityAndContained[]}
          */
-        await processOneGraphLink(requestInfo, base_version, parentResourceType, link, resultEntities);
+        await processOneGraphLinkAsync(requestInfo, base_version, parentResourceType, link, resultEntities);
     }
     return resultEntities;
 }
@@ -705,7 +705,7 @@ async function processGraphLinks(requestInfo,
  * @param {[reference:string]} linkReferences
  * @return {Promise<Resource>}
  */
-async function convertToHashedReferences(parent_entity, linkReferences) {
+async function convertToHashedReferencesAsync(parent_entity, linkReferences) {
     /**
      * @type {Set<string>}
      */
@@ -772,7 +772,7 @@ const removeDuplicatesWithLambda = (array, fnCompare) => {
  * @param {string[]} idList
  * @return {Promise<{resource: Resource, fullUrl: string}[]>}
  */
-async function processMultipleIds(base_version, useAtlas, requestInfo,
+async function processMultipleIdsAsync(base_version, useAtlas, requestInfo,
                                   resourceType, graphDefinition,
                                   contained, hash_references,
                                   idList) {
@@ -848,7 +848,7 @@ async function processMultipleIds(base_version, useAtlas, requestInfo,
     /**
      * @type {[ResourceEntityAndContained]}
      */
-    const allRelatedEntries = await processGraphLinks(requestInfo,
+    const allRelatedEntries = await processGraphLinksAsync(requestInfo,
         base_version,
         resourceType,
         topLevelBundleEntries.map(e => e.resource), linkItems);
@@ -876,7 +876,7 @@ async function processMultipleIds(base_version, useAtlas, requestInfo,
                 related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
             }
             if (related_references.length > 0) {
-                topLevelBundleEntry.resource = await convertToHashedReferences(topLevelBundleEntry.resource, related_references);
+                topLevelBundleEntry.resource = await convertToHashedReferencesAsync(topLevelBundleEntry.resource, related_references);
             }
         }
         /**
@@ -911,7 +911,7 @@ async function processMultipleIds(base_version, useAtlas, requestInfo,
  * @param {boolean} hash_references
  * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-async function processGraph(
+async function processGraphAsync(
     requestInfo,
     base_version, useAtlas, resourceType,
     id,
@@ -937,7 +937,7 @@ async function processGraph(
     /**
      * @type {[{resource: Resource, fullUrl: string}]}
      */
-    const entries = await processMultipleIds(
+    const entries = await processMultipleIdsAsync(
         base_version,
         useAtlas,
         requestInfo,
@@ -968,5 +968,5 @@ async function processGraph(
 }
 
 module.exports = {
-    processGraph
+    processGraphAsync
 };

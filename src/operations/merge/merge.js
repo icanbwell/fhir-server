@@ -1,4 +1,4 @@
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
@@ -10,7 +10,7 @@ const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopes} = require('../security/scopesValidator');
+const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * Add successful merges
@@ -77,7 +77,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
      * @type {string}
      */
     const requestId = requestInfo.requestId;
-    verifyHasValidScopes({
+    await verifyHasValidScopesAsync({
         requestInfo,
         args,
         resourceType,
@@ -185,7 +185,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
         await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
 
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,
@@ -196,7 +196,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
         });
         return wasIncomingAList ? mergeResults : mergeResults[0];
     } catch (e) {
-        logOperation({
+        await logOperationAsync({
             requestInfo,
             args,
             resourceType,

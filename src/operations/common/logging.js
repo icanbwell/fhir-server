@@ -7,8 +7,7 @@ const {getAccessCodesFromScopes, parseScopes} = require('../security/scopes');
 const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');
-const fhirSecureLogger = require('../../utils/fhirLogger').FhirLogger.getSecureLogger();
-const fhirInSecureLogger = require('../../utils/fhirLogger').FhirLogger.getInSecureLogger();
+const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 
 /**
  * Always logs regardless of env.IS_PRODUCTION
@@ -66,7 +65,7 @@ module.exports.logWarn = (user, msg) => {
  * Logs a FHIR operation
  * @param {LogOperationParameters} options
  */
-module.exports.logOperation = (options) => {
+module.exports.logOperationAsync = async (options) => {
     const {
         requestInfo,
         args = [],
@@ -161,6 +160,7 @@ module.exports.logOperation = (options) => {
         ],
         message: error ? `${message}: ${JSON.stringify(error)}` : message
     };
+    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
     // write the insecure information to insecure log
     fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
     // Now write out the secure logs
@@ -187,6 +187,7 @@ module.exports.logOperation = (options) => {
 
     logEntry.entity[0].detail = detail;
 
+    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
     fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
 };
@@ -198,7 +199,7 @@ module.exports.logOperation = (options) => {
  * @param {Object} args
  * @param {string|null} error
  */
-module.exports.logSystemEvent = (event, message, args, error = null) => {
+module.exports.logSystemEventAsync = async (event, message, args, error = null) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -234,7 +235,9 @@ module.exports.logSystemEvent = (event, message, args, error = null) => {
             }
         ],
     };
+    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
+    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
     fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
 };
 

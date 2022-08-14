@@ -1,4 +1,4 @@
-const {logOperation} = require('../common/logging');
+const {logOperationAsync} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -23,7 +23,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
     const currentOperationName = 'validate';
     if (operationOutcome && operationOutcome.statusCode === 400) {
         validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-        logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+        await logOperationAsync({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
         return operationOutcome;
     }
 
@@ -44,7 +44,7 @@ module.exports.validate = async (requestInfo, args, resourceType) => {
             ]
         };
     }
-    logOperation({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+    await logOperationAsync({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
     return {
         resourceType: 'OperationOutcome',
         issue: [

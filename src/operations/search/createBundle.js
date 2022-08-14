@@ -5,45 +5,53 @@ const {logDebug} = require('../common/logging');
 const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 /**
+ * @typedef CreateBundleParameters
+ * @type {object}
+ * @property {string | null} url
+ * @property {string | null} last_id
+ * @property {Resource[]} resources
+ * @property {string} base_version
+ * @property {number|null} total_count
+ * @property {Object} args
+ * @property {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+ * @property {string} collectionName
+ * @property {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+ * @property {Set} columns
+ * @property {number} stopTime
+ * @property {number} startTime
+ * @property {boolean} useTwoStepSearchOptimization
+ * @property {string|null} indexHint
+ * @property {number | null} cursorBatchSize
+ * @property {string | null} user
+ * @property {boolean | null} useAtlas
+ */
+
+/**
  * creates a bundle from the given resources
- * @param {string | null} url
- * @param {string | null} last_id
- * @param {Resource[]} resources
- * @param {string} base_version
- * @param {number} total_count
- * @param {Object} args
- * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
- * @param {string} mongoCollectionName
- * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
- * @param {Set} columns
- * @param {number} stopTime
- * @param {number} startTime
- * @param {boolean} useTwoStepSearchOptimization
- * @param {string} indexHint
- * @param {number | null} cursorBatchSize
- * @param {string | null} user
- * @param {boolean | null} useAtlas
+ * @param {CreateBundleParameters} options
  * @return {Resource}
  */
-function createBundle(
-    url,
-    last_id,
-    resources,
-    base_version,
-    total_count,
-    args,
-    originalQuery,
-    mongoCollectionName,
-    originalOptions,
-    columns,
-    stopTime,
-    startTime,
-    useTwoStepSearchOptimization,
-    indexHint,
-    cursorBatchSize,
-    user,
-    useAtlas
-) {
+function createBundle(options) {
+    const {
+        url,
+        last_id,
+        resources,
+        base_version,
+        total_count,
+        args,
+        originalQuery,
+        collectionName,
+        originalOptions,
+        columns,
+        stopTime,
+        startTime,
+        useTwoStepSearchOptimization,
+        indexHint,
+        cursorBatchSize,
+        user,
+        useAtlas
+    } = options;
+
     /**
      * array of links
      * @type {[{relation:string, url: string}]}
@@ -104,11 +112,11 @@ function createBundle(
         const tag = [
             {
                 system: 'https://www.icanbwell.com/query',
-                display: mongoQueryAndOptionsStringify(mongoCollectionName, originalQuery, originalOptions),
+                display: mongoQueryAndOptionsStringify(collectionName, originalQuery, originalOptions),
             },
             {
                 system: 'https://www.icanbwell.com/queryCollection',
-                code: mongoCollectionName,
+                code: collectionName,
             },
             {
                 system: 'https://www.icanbwell.com/queryOptions',
@@ -155,5 +163,5 @@ function createBundle(
 
 
 module.exports = {
-    createBundle: createBundle
+    createBundle
 };
