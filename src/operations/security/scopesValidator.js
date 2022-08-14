@@ -17,7 +17,7 @@ const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('./scopes');
 /**
  * Throws an error if no scope is valid for this request
- * @param {Promise<VerifyScopesParameters>} options
+ * @param {VerifyScopesParameters} options
  */
 const verifyHasValidScopesAsync = async (options) => {
     const {requestInfo, args, resourceType, startTime, action, accessRequested} = options;

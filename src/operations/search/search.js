@@ -70,8 +70,7 @@ module.exports.search = async (requestInfo, args, resourceType,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /** @type {string} **/
-    let {base_version} = args;
+    const {/** @type {string} **/base_version} = args;
 
     const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
@@ -95,8 +94,7 @@ module.exports.search = async (requestInfo, args, resourceType,
             startTime,
             message: 'operationFailed',
             action: currentOperationName,
-            error: e,
-            query: {}
+            error: e
         });
         throw e;
     }
@@ -214,24 +212,25 @@ module.exports.search = async (requestInfo, args, resourceType,
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = createBundle(
-                url,
-                last_id,
-                resources,
-                base_version,
-                total_count,
-                args,
-                originalQuery,
-                collectionName,
-                originalOptions,
-                columns,
-                stopTime,
-                startTime,
-                useTwoStepSearchOptimization,
-                indexHint,
-                cursorBatchSize,
-                user,
-                useAtlas
+            const bundle = createBundle({
+                    url,
+                    last_id,
+                    resources,
+                    base_version,
+                    total_count,
+                    args,
+                    originalQuery,
+                    collectionName,
+                    originalOptions,
+                    columns,
+                    stopTime,
+                    startTime,
+                    useTwoStepSearchOptimization,
+                    indexHint,
+                    cursorBatchSize,
+                    user,
+                    useAtlas
+                }
             );
             await logOperationAsync({
                 requestInfo,

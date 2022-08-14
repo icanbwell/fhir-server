@@ -72,8 +72,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
      */
     const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-    /** @type {string} **/
-    let {base_version} = args;
+    const {/** @type {string} **/base_version} = args;
 
     const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
@@ -97,8 +96,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
             startTime,
             message: 'operationFailed',
             action: currentOperationName,
-            error: e,
-            query: {}
+            error: e
         });
         throw e;
     }
@@ -159,7 +157,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
          */
         let indexHint = __ret.indexHint;
         /**
-         * @type {Number}
+         * @type {number}
          */
         let cursorBatchSize = __ret.cursorBatchSize;
         /**
@@ -200,28 +198,33 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @type {string}
                      */
                     const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+                    /**
+                     * @type {Resource[]}
+                     */
+                    const resources1 = [];
                     resourceIds = await streamBundleFromCursorAsync(
                         requestId,
                         cursor,
                         url,
-                        (last_id, stopTime1) => createBundle(
-                            url,
-                            last_id,
-                            [],
-                            base_version,
-                            total_count,
-                            args,
-                            originalQuery,
-                            collectionName,
-                            originalOptions,
-                            columns,
-                            stopTime1,
-                            startTime,
-                            useTwoStepSearchOptimization,
-                            indexHint,
-                            cursorBatchSize,
-                            user,
-                            useAtlas
+                        (last_id, stopTime1) => createBundle({
+                                url,
+                                last_id,
+                                resources: resources1,
+                                base_version,
+                                total_count,
+                                args,
+                                originalQuery,
+                                collectionName,
+                                originalOptions,
+                                columns,
+                                stopTime: stopTime1,
+                                startTime,
+                                useTwoStepSearchOptimization,
+                                indexHint,
+                                cursorBatchSize,
+                                user,
+                                useAtlas
+                            }
                         ),
                         res, user, scope, args, Resource, resourceType, useAccessIndex, batchObjectCount);
                 } else {
@@ -267,24 +270,25 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                     /**
                      * @type {Resource}
                      */
-                    const bundle = createBundle(
-                        url,
-                        null,
-                        resources,
-                        base_version,
-                        total_count,
-                        args,
-                        originalQuery,
-                        collectionName,
-                        originalOptions,
-                        columns,
-                        stopTime,
-                        startTime,
-                        useTwoStepSearchOptimization,
-                        indexHint,
-                        cursorBatchSize,
-                        user,
-                        useAtlas
+                    const bundle = createBundle({
+                            url,
+                            last_id: null,
+                            resources,
+                            base_version,
+                            total_count,
+                            args,
+                            originalQuery,
+                            collectionName,
+                            originalOptions,
+                            columns,
+                            stopTime,
+                            startTime,
+                            useTwoStepSearchOptimization,
+                            indexHint,
+                            cursorBatchSize,
+                            user,
+                            useAtlas
+                        }
                     );
                     if (requestId) {
                         res.setHeader('X-Request-ID', String(requestId));
