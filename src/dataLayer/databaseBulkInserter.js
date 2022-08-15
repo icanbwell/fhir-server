@@ -43,26 +43,26 @@ class DatabaseBulkInserter extends EventEmitter {
          * <resourceType, list of operations>
          * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
-        this.operationsByResourceType = new Map();
+        this.operationsByResourceTypeMap = new Map();
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
          * on that resourceType
          * <resourceType, list of operations>
          * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
-        this.historyOperationsByResourceType = new Map();
+        this.historyOperationsByResourceTypeMap = new Map();
         /**
          * list of ids inserted
          * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.insertedIdsByResourceType = new Map();
+        this.insertedIdsByResourceTypeMap = new Map();
         /**
          * list of ids updated
          * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.updatedIdsByResourceType = new Map();
+        this.updatedIdsByResourceTypeMap = new Map();
     }
 
     /**
@@ -72,13 +72,13 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     addOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(this.operationsByResourceType.has(resourceType))) {
-            this.operationsByResourceType.set(`${resourceType}`, []);
-            this.insertedIdsByResourceType.set(`${resourceType}`, []);
-            this.updatedIdsByResourceType.set(`${resourceType}`, []);
+        if (!(this.operationsByResourceTypeMap.has(resourceType))) {
+            this.operationsByResourceTypeMap.set(`${resourceType}`, []);
+            this.insertedIdsByResourceTypeMap.set(`${resourceType}`, []);
+            this.updatedIdsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.operationsByResourceType.get(resourceType).push(operation);
+        this.operationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
@@ -88,11 +88,11 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     addHistoryOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(this.historyOperationsByResourceType.has(resourceType))) {
-            this.historyOperationsByResourceType.set(`${resourceType}`, []);
+        if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
+            this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.historyOperationsByResourceType.get(resourceType).push(operation);
+        this.historyOperationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
@@ -102,14 +102,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync(resourceType, doc) {
-        /**
-         * @type {string|null}
-         */
-        const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, doc);
-        if (patientId) {
-            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: doc});
-        }
-        this.emit('insertResource', {id: doc.id, resourceType: resourceType, resource: doc});
         this.addOperationForResourceType(resourceType,
             {
                 insertOne: {
@@ -117,7 +109,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
         );
-        this.insertedIdsByResourceType.get(resourceType).push(doc['id']);
+        this.insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
     }
 
     /**
@@ -144,14 +136,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync(resourceType, id, doc) {
-        /**
-         * @type {string|null}
-         */
-        const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, doc);
-        if (patientId) {
-            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: doc});
-        }
-        this.emit('updateResource', {id: doc.id, resourceType: resourceType, resource: doc});
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         this.addOperationForResourceType(resourceType,
             {
@@ -162,7 +146,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
         );
-        this.updatedIdsByResourceType.get(resourceType).push(doc['id']);
+        this.updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
     }
 
     /**
@@ -177,14 +161,14 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {BulkResultEntry[]}
          */
         const resultsByResourceType = await async.map(
-            this.operationsByResourceType.entries(),
+            this.operationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                 x, base_version, useAtlas, false
             ));
 
         // TODO: For now, we are ignoring errors saving history
         await async.map(
-            this.historyOperationsByResourceType.entries(),
+            this.historyOperationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                 x, base_version, useAtlas, true
             ));
@@ -199,7 +183,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 /**
                  * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                  */
-                const operationsForResourceType = this.operationsByResourceType.get(erroredMerge.resourceType);
+                const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
                 await logErrorToSlackAsync(
                     `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                     ` ${JSON.stringify(operationsForResourceType)}`,
@@ -212,7 +196,7 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {MergeResultEntry[]}
          */
         const mergeResultEntries = [];
-        for (const [resourceType, ids] of this.insertedIdsByResourceType) {
+        for (const [resourceType, ids] of this.insertedIdsByResourceTypeMap) {
             /**
              * @type {BulkResultEntry|null}
              */
@@ -244,10 +228,25 @@ class DatabaseBulkInserter extends EventEmitter {
                     mergeResultEntries.push(
                         mergeResultEntry
                     );
+                    // fire change events
+                    /**
+                     * @type {Resource}
+                     */
+                    const resource = this.operationsByResourceTypeMap
+                        .get(resourceType)
+                        .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
+                    /**
+                     * @type {string|null}
+                     */
+                    const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    if (patientId) {
+                        this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                    }
+                    this.emit('insertResource', {id: id, resourceType: resourceType, resource: resource});
                 }
             }
         }
-        for (const [resourceType, ids] of this.updatedIdsByResourceType) {
+        for (const [resourceType, ids] of this.updatedIdsByResourceTypeMap) {
             /**
              * @type {BulkResultEntry|null}
              */
@@ -278,6 +277,20 @@ class DatabaseBulkInserter extends EventEmitter {
                     mergeResultEntries.push(
                         mergeResultEntry
                     );
+                    /**
+                     * @type {Resource}
+                     */
+                    const resource = this.operationsByResourceTypeMap
+                        .get(resourceType)
+                        .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
+                    /**
+                     * @type {string|null}
+                     */
+                    const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    if (patientId) {
+                        this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                    }
+                    this.emit('updateResource', {id: id, resourceType: resourceType, resource: resource});
                 }
             }
         }

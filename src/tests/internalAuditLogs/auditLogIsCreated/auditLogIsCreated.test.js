@@ -40,11 +40,15 @@ describe('InternalAuditLog Tests', () => {
 
             // check that InternalAuditLog is created
             /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = globals.get(CLIENT_DB);
+            /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            let fhirDb = globals.get(CLIENT_DB);
-            let auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
             const base_version = '4_0_0';
             const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             /**
