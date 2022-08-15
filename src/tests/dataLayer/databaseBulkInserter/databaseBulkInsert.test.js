@@ -26,6 +26,12 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);
+
+            const patientChangeHandler = jest.fn();
+
+            databaseBulkInserter.on('changePatient', patientChangeHandler);
+
+            // now execute the bulk inserts
             const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync(base_version, false);
 
@@ -44,6 +50,8 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
+
+            expect(patientChangeHandler).toBeCalledTimes(2);
         });
     });
 });
