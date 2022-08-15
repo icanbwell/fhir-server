@@ -5,6 +5,7 @@ const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {logErrorToSlackAsync} = require('../utils/slack.logger');
+const {EventEmitter} = require('events');
 
 /**
  * @typedef BulkResultEntry
@@ -18,13 +19,14 @@ const {logErrorToSlackAsync} = require('../utils/slack.logger');
 /**
  * This class accepts inserts and updates and when execute() is called it sends them to Mongo in bulk
  */
-class DatabaseBulkInserter {
+class DatabaseBulkInserter extends EventEmitter {
     /**
      * Constructor
      * @param {string} requestId
      * @param {string} currentDate
      */
     constructor(requestId, currentDate) {
+        super();
         /**
          * @type {string}
          */

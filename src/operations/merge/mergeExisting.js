@@ -80,13 +80,7 @@ async function mergeExistingAsync(resourceToMerge, data,
     // for speed, first check if the incoming resource is exactly the same
     if (deepEqual(my_data, resourceToMerge) === true) {
         logDebug(user, 'No changes detected in updated resource');
-        return {
-            id: id,
-            created: false,
-            updated: false,
-            resource_version: foundResource.meta.versionId,
-            message: 'No changes detected in updated resource'
-        };
+        return;
     }
 
     // data seems to get updated below
@@ -109,13 +103,7 @@ async function mergeExistingAsync(resourceToMerge, data,
     // see if there are any changes
     if (patchContent.length === 0) {
         logDebug(user, 'No changes detected in updated resource');
-        return {
-            id: id,
-            created: false,
-            updated: false,
-            resource_version: foundResource.meta.versionId,
-            message: 'No changes detected in updated resource'
-        };
+        return;
     }
     if (!(isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
         throw new ForbiddenError(

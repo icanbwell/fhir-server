@@ -55,11 +55,6 @@ async function performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
     delete doc['_id'];
 
     // Insert/update our resource record
-    // When using the $set operator, only the specified fields are updated
-    // /**
-    //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
-    //  */
-    //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
     await databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
 
     /**
