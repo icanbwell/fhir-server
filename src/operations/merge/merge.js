@@ -123,6 +123,9 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          * @type {DatabaseBulkInserter}
          */
         const databaseBulkInserter = new DatabaseBulkInserter(requestId, currentDate);
+        databaseBulkInserter.on('changePatient', (event) => {
+            console.info(`PatientChange: ${JSON.stringify(event)}`);
+        });
         /**
          * @type {boolean}
          */
