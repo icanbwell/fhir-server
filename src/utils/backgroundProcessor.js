@@ -41,7 +41,9 @@ class BackgroundProcessor {
      */
     tick() {
         const task = this.queue.pop();
-        task();
+        if (task) {
+            task();
+        }
     }
 }
 

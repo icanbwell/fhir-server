@@ -124,6 +124,7 @@
     "immer": "^9.0.15",
     "joi": "^17.6.0",
     "jwks-rsa": "^2.1.4",
+    "kafkajs": "^2.1.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "mongodb": "^4.8.1",
