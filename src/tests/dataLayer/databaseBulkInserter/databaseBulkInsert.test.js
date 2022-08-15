@@ -27,6 +27,9 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);
 
+            patient.birthDate = '2020-01-01';
+            await databaseBulkInserter.replaceOneAsync('Patient', patient.id, patient);
+
             const patientChangeHandler = jest.fn();
 
             databaseBulkInserter.on('changePatient', patientChangeHandler);
@@ -51,7 +54,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(patientChangeHandler).toBeCalledTimes(2);
+            expect(patientChangeHandler).toBeCalledTimes(3);
         });
     });
 });
