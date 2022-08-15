@@ -6,6 +6,7 @@ const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {logErrorToSlackAsync} = require('../utils/slack.logger');
 const {EventEmitter} = require('events');
+const {ResourceManager} = require('../operations/common/resourceManager');
 
 /**
  * @typedef BulkResultEntry
@@ -101,6 +102,14 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync(resourceType, doc) {
+        /**
+         * @type {string|null}
+         */
+        const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        if (patientId) {
+            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: doc});
+        }
+        this.emit('insertResource', {id: doc.id, resourceType: resourceType, resource: doc});
         this.addOperationForResourceType(resourceType,
             {
                 insertOne: {
@@ -135,6 +144,14 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync(resourceType, id, doc) {
+        /**
+         * @type {string|null}
+         */
+        const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        if (patientId) {
+            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: doc});
+        }
+        this.emit('updateResource', {id: doc.id, resourceType: resourceType, resource: doc});
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         this.addOperationForResourceType(resourceType,
             {

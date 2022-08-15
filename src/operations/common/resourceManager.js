@@ -30,7 +30,8 @@ class ResourceManager {
     /**
      * get
      * @param {string} resourceType
-     * @param {string} resource
+     * @param {Resource} resource
+     * @return {Promise<string|null>}
      */
     static async getPatientIdFromResourceAsync(resourceType, resource) {
         const patientFieldName = this.getPatientFieldNameFromResource(resourceType);
