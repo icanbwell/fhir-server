@@ -240,7 +240,11 @@ class DatabaseBulkInserter extends EventEmitter {
                      */
                     const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, resource);
                     if (patientId) {
-                        this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                        if (resourceType === 'Patient') {
+                            this.emit('createPatient', {id: patientId, resourceType: resourceType, resource: resource});
+                        } else {
+                            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                        }
                     }
                     this.emit('insertResource', {id: id, resourceType: resourceType, resource: resource});
                 }

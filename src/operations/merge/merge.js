@@ -125,6 +125,10 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          */
         const databaseBulkInserter = new DatabaseBulkInserter(requestId, currentDate);
         const changeEventProducer = new ChangeEventProducer();
+        databaseBulkInserter.on('createPatient', async (event) => {
+            // console.info(`PatientChange: ${JSON.stringify(event)}`);
+            await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
+        });
         databaseBulkInserter.on('changePatient', async (event) => {
             // console.info(`PatientChange: ${JSON.stringify(event)}`);
             await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);

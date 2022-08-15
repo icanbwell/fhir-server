@@ -35,8 +35,8 @@ class KafkaClient {
                         key: m.key,
                         value: m.value,
                         headers: {
-                            'correlation-id': m.requestId,
-                            'fhir_version': m.fhirVersion,
+                            'b3': m.requestId,
+                            'version': m.fhirVersion,
                         }
                     };
                 }),

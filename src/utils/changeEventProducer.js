@@ -14,16 +14,71 @@ class ChangeEventProducer {
      * @param {string} timestamp
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync(requestId, patientId, timestamp) {
+    async onPatientCreateAsync(requestId, patientId, timestamp) {
         if (!env.ENABLE_EVENTS_KAFKA) {
             return;
         }
-        const fhirVersion = '4_0_0';
+        const fhirVersion = 'R4';
         const topic = 'business.events';
         const messageJson = {
             'resourceType': 'AuditEvent',
             'id': generateUUID(),
-            'action': 'E',
+            'action': 'C',
+            'period':
+                {
+                    'start': timestamp,
+                    'end': timestamp
+                },
+            'purposeOfEvent':
+                [
+                    {
+                        'coding':
+                            [
+                                {
+                                    'system': 'https://www.icanbwell.com/event-purpose',
+                                    'code': 'Patient Change'
+                                }
+                            ]
+                    }
+                ],
+            'agent':
+                [
+                    {
+                        'who':
+                            {
+                                'reference': `Patient/${patientId}`
+                            }
+                    }
+                ]
+        };
+
+        await this.kafkaClient.sendMessagesAsync(topic, [
+            {
+                key: patientId,
+                fhirVersion: fhirVersion,
+                requestId: requestId,
+                value: JSON.stringify(messageJson)
+            }
+        ]);
+    }
+
+    /**
+     * Fire event for patient change
+     * @param {string} requestId
+     * @param {string} patientId
+     * @param {string} timestamp
+     * @return {Promise<void>}
+     */
+    async onPatientChangeAsync(requestId, patientId, timestamp) {
+        if (!env.ENABLE_EVENTS_KAFKA) {
+            return;
+        }
+        const fhirVersion = 'R4';
+        const topic = 'business.events';
+        const messageJson = {
+            'resourceType': 'AuditEvent',
+            'id': generateUUID(),
+            'action': 'U',
             'period':
                 {
                     'start': timestamp,
