@@ -1,5 +1,6 @@
 const {KafkaClient} = require('./KafkaClient');
 const env = require('var');
+const {generateUUID} = require('./uid.util');
 
 class ChangeEventProducer {
     constructor() {
@@ -8,50 +9,57 @@ class ChangeEventProducer {
 
     /**
      * Fire event for patient change
+     * @param {string} requestId
      * @param {string} patientId
-     * @param {date} timestamp
+     * @param {string} timestamp
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync(patientId, timestamp) {
+    async onPatientChangeAsync(requestId, patientId, timestamp) {
         if (!env.ENABLE_EVENTS_KAFKA) {
             return;
         }
+        const fhirVersion = '4_0_0';
         const topic = 'business.events';
-        const messages = [
-            {
-                'resourceType': 'AuditEvent',
-                'id': '01023320-5ac5-4309-8e53-2bd0f7e22ac9',
-                'action': 'E',
-                'period':
+        const messageJson = {
+            'resourceType': 'AuditEvent',
+            'id': generateUUID(),
+            'action': 'E',
+            'period':
+                {
+                    'start': timestamp,
+                    'end': timestamp
+                },
+            'purposeOfEvent':
+                [
                     {
-                        'start': timestamp,
-                        'end': timestamp
-                    },
-                'purposeOfEvent':
-                    [
-                        {
-                            'coding':
-                                [
-                                    {
-                                        'system': 'https://www.icanbwell.com/event-purpose',
-                                        'code': 'Patient Change'
-                                    }
-                                ]
-                        }
-                    ],
-                'agent':
-                    [
-                        {
-                            'who':
+                        'coding':
+                            [
                                 {
-                                    'reference': `Patient/${patientId}`
+                                    'system': 'https://www.icanbwell.com/event-purpose',
+                                    'code': 'Patient Change'
                                 }
-                        }
-                    ]
-            }
-        ];
+                            ]
+                    }
+                ],
+            'agent':
+                [
+                    {
+                        'who':
+                            {
+                                'reference': `Patient/${patientId}`
+                            }
+                    }
+                ]
+        };
 
-        await this.kafkaClient.sendMessageAsync(topic, messages);
+        await this.kafkaClient.sendMessagesAsync(topic, [
+            {
+                key: patientId,
+                fhirVersion: fhirVersion,
+                requestId: requestId,
+                value: JSON.stringify(messageJson)
+            }
+        ]);
     }
 }
 

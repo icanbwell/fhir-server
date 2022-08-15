@@ -48,6 +48,7 @@ services:
       LOG_ELASTIC_SEARCH_PASSWORD: "admin"
       LOG_ELASTIC_SEARCH_PREFIX: "fhir-logs"
       LOG_STREAM_STEPS: "0"
+      ENABLE_EVENTS_KAFKA: "1"
     ports:
       - '3000:3000'
     volumes:

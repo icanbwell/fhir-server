@@ -1,5 +1,14 @@
 const {Kafka} = require('kafkajs');
 
+/**
+ * @typedef KafkaClientMessage
+ * @type {object}
+ * @property {string|null|undefined} key
+ * @property {string} requestId
+ * @property {string} fhirVersion
+ * @property {string} value
+ */
+
 class KafkaClient {
     constructor() {
         this.client = new Kafka({
@@ -11,17 +20,26 @@ class KafkaClient {
     /**
      * Sends a message to Kafka
      * @param {string} topic
-     * @param {Object[]} messages
+     * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    async sendMessageAsync(topic, messages) {
+    async sendMessagesAsync(topic, messages) {
         const producer = this.client.producer();
 
         await producer.connect();
         try {
             await producer.send({
                 topic: topic,
-                messages: messages,
+                messages: messages.map(m => {
+                    return {
+                        key: m.key,
+                        value: m.value,
+                        headers: {
+                            'correlation-id': m.requestId,
+                            'fhir_version': m.fhirVersion,
+                        }
+                    };
+                }),
             });
         } finally {
             await producer.disconnect();
