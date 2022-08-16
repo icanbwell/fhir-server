@@ -1,4 +1,5 @@
 const {Kafka} = require('kafkajs');
+const env = require('var');
 
 /**
  * @typedef KafkaClientMessage
@@ -12,8 +13,8 @@ const {Kafka} = require('kafkajs');
 class KafkaClient {
     constructor() {
         this.client = new Kafka({
-            clientId: 'my-app',
-            brokers: ['kafka:9092'],
+            clientId: env.KAFKA_CLIENT_ID,
+            brokers: env.KAFKA_URLS.split(','),
         });
     }
 

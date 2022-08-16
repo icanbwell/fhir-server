@@ -49,6 +49,8 @@ services:
       LOG_ELASTIC_SEARCH_PREFIX: "fhir-logs"
       LOG_STREAM_STEPS: "0"
       ENABLE_EVENTS_KAFKA: "1"
+      KAFKA_CLIENT_ID: "fhir-server"
+      KAFKA_URLS: "kafka:9092"
     ports:
       - '3000:3000'
     volumes:
