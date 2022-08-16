@@ -15,10 +15,13 @@ const {
 const {getRequestInfo} = require('../../graphql/v2/requestInfoHelper');
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
-const {createContainer} = require('../../createContainer');
 
 
-const graphql = async () => {
+/**
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @return {Promise<e.Router>}
+ */
+const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
@@ -48,7 +51,7 @@ const graphql = async () => {
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
-                const container = createContainer();
+                const container = fnCreateContainer();
 
                 const requestInfo = {
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||

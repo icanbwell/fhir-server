@@ -177,7 +177,7 @@ function createApp(fnCreateContainer) {
         app.use(cors(fhirServerConfig.server.corsOptions));
         const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
         if (useGraphQLv2) {
-            graphql()
+            graphql(fnCreateContainer)
                 .then((graphqlMiddleware) => {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
@@ -188,7 +188,7 @@ function createApp(fnCreateContainer) {
 
                     app.use('/graphql', router);
                 })
-                .then((_) => graphqlv1())
+                .then((_) => graphqlv1(fnCreateContainer))
                 .then((graphqlMiddlewareV1) => {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
@@ -203,7 +203,7 @@ function createApp(fnCreateContainer) {
                     createFhirApp(fnCreateContainer, app);
                 });
         } else {
-            graphql()
+            graphql(fnCreateContainer)
                 .then((graphqlMiddleware) => {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
@@ -212,7 +212,7 @@ function createApp(fnCreateContainer) {
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
                 })
-                .then((_) => graphqlv1())
+                .then((_) => graphqlv1(fnCreateContainer))
                 .then((graphqlMiddlewareV1) => {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
