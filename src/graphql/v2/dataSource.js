@@ -5,6 +5,7 @@ const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
+const assert = require('node:assert/strict');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -62,10 +63,13 @@ class ResourceWithId {
  */
 class FhirDataSource extends DataSource {
     /**
+     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      */
-    constructor(requestInfo) {
+    constructor(container, requestInfo) {
         super();
+        assert(container !== undefined);
+        assert(requestInfo !== undefined);
         /**
          * @type {import('../../utils/requestInfo').RequestInfo}}
          */
@@ -74,7 +78,7 @@ class FhirDataSource extends DataSource {
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
         this.dataLoader = new DataLoader(
-            async (keys) => await this.getResourcesInBatch(keys, requestInfo)
+            async (keys) => await this.getResourcesInBatch(container, keys, requestInfo)
         );
         /**
          * @type {Meta[]}
@@ -135,9 +139,10 @@ class FhirDataSource extends DataSource {
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {SimpleContainer} container
      * @return {Promise<Resource[]|{entry: {resource: Resource}[]}>}
      */
-    async getResourcesInBatch(keys, requestInfo) {
+    async getResourcesInBatch(container, keys, requestInfo) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -169,6 +174,7 @@ class FhirDataSource extends DataSource {
                     .filter(r => r !== null);
                 return this.unBundle(
                     await search(
+                        container,
                         requestInfo,
                         {
                             base_version: '4_0_0',
@@ -282,6 +288,7 @@ class FhirDataSource extends DataSource {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
             await search(
+                context.container,
                 getRequestInfo(context),
                 {
                     base_version: '4_0_0',
@@ -306,6 +313,7 @@ class FhirDataSource extends DataSource {
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const bundle = await search(
+            context.container,
             getRequestInfo(context),
             {
                 base_version: '4_0_0',
@@ -368,5 +376,5 @@ class FhirDataSource extends DataSource {
 }
 
 module.exports = {
-    FhirDataSource: FhirDataSource
+    FhirDataSource
 };

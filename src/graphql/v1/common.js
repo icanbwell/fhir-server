@@ -55,6 +55,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
     const idOfReference = reference.reference.split('/')[1];
     try {
         return await searchById(
+            context.container,
             getRequestInfo(context),
             {base_version: '4_0_0', id: idOfReference},
             typeOfReference
@@ -92,6 +93,7 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
         try {
             return module.exports.unBundle(
                 await search(
+                    context.container,
                     getRequestInfo(context),
                     {
                         base_version: '4_0_0',
@@ -126,6 +128,7 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
     // TODO: iterate over the keys in args.  handle all the search parameters in src/graphql/schemas/inputs
     return module.exports.unBundle(
         await search(
+            context.container,
             getRequestInfo(context),
             {
                 base_version: '4_0_0',

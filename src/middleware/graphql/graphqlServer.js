@@ -15,6 +15,7 @@ const {
 const {getRequestInfo} = require('../../graphql/v2/requestInfoHelper');
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+const {createContainer} = require('../../createContainer');
 
 
 const graphql = async () => {
@@ -47,6 +48,8 @@ const graphql = async () => {
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
+                const container = createContainer();
+
                 const requestInfo = {
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
@@ -61,13 +64,13 @@ const graphql = async () => {
                     host: req.hostname,
                     body: req.body,
                     isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-                    fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
+                    fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId
                 };
                 return {
                     req,
                     res,
                     ...requestInfo,
-                    dataApi: new FhirDataSource(getRequestInfo(requestInfo))
+                    dataApi: new FhirDataSource(container, getRequestInfo(requestInfo))
                 };
             }
         });

@@ -14,6 +14,7 @@ const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonI
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 
 /**
  * does a FHIR Search
@@ -24,9 +25,14 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.search = async (container,
-                               requestInfo, args, resourceType,
-                               filter = true) => {
+module.exports.search = async (
+    container,
+    requestInfo, args, resourceType,
+    filter = true
+) => {
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'search';
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();

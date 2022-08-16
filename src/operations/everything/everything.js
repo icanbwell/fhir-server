@@ -35,7 +35,7 @@ module.exports.everything = async (container, requestInfo, args, resourceType) =
         // Grab an instance of our DB and collection
         if (resourceType === 'Practitioner') {
             requestInfo.body = practitionerEverythingGraph;
-            const result = await graph(requestInfo, args, resourceType);
+            const result = await graph(container, requestInfo, args, resourceType);
             await logOperationAsync({
                 requestInfo,
                 args,
@@ -47,7 +47,7 @@ module.exports.everything = async (container, requestInfo, args, resourceType) =
             return result;
         } else if (resourceType === 'Organization') {
             requestInfo.body = organizationEverythingGraph;
-            const result = await graph(requestInfo, args, resourceType);
+            const result = await graph(container, requestInfo, args, resourceType);
             await logOperationAsync({
                 requestInfo,
                 args,
@@ -59,7 +59,7 @@ module.exports.everything = async (container, requestInfo, args, resourceType) =
             return result;
         } else if (resourceType === 'Slot') {
             requestInfo.body = slotEverythingGraph;
-            const result = await graph(requestInfo, args, resourceType);
+            const result = await graph(container, requestInfo, args, resourceType);
             await logOperationAsync({
                 requestInfo,
                 args,

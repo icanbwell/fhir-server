@@ -9,6 +9,7 @@ const mutex = new Mutex();
 const {indexCollectionAsync} = require('../indexes/index.util');
 const {isTrue} = require('./isTrue');
 const env = require('var');
+const assert = require('node:assert/strict');
 
 /**
  * Gets or creates a collection
@@ -17,6 +18,8 @@ const env = require('var');
  * @return {Promise<import('mongodb').Collection>}
  */
 async function getOrCreateCollectionAsync(db, collection_name) {
+    assert(db !== undefined);
+    assert(collection_name !== undefined);
     if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         await mutex.runExclusive(async () => {
