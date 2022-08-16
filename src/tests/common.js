@@ -11,6 +11,7 @@ const {jwksEndpoint} = require('./mocks/jwks');
 const {publicKey, privateKey} = require('./mocks/keys');
 const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
+const {updateContainerForTest} = require('./updateContainerForTest');
 // const {app} = require('../app');
 
 let connection;
@@ -21,7 +22,8 @@ let mongo;
  * sets up the mongo db and token endpoint
  * @return {Promise<void>}
  */
-module.exports.commonBeforeEach = async () => {
+module.exports.commonBeforeEach = async (app) => {
+    updateContainerForTest(app.get('container'));
     // https://levelup.gitconnected.com/testing-your-node-js-application-with-an-in-memory-mongodb-976c1da1288f
     /**
      * 1.1

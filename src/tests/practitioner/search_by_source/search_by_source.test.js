@@ -15,7 +15,7 @@ const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
 
 describe('search_by_source', () => {
     beforeEach(async () => {
-        await commonBeforeEach();
+        await commonBeforeEach(app);
     });
 
     afterEach(async () => {
@@ -51,6 +51,7 @@ describe('search_by_source', () => {
                 console.log('------- response practitionerResource ------------');
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response  ------------');
+                expect(resp.body.issue).toBeUndefined();
                 expect(resp.body['created']).toBe(true);
 
                 resp = await request
