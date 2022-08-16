@@ -1,17 +1,28 @@
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const moment = require('moment-timezone');
+const assert = require('node:assert/strict');
 
 /**
  * This class provides helper functions for dealing with resources
  */
 class ResourceManager {
     /**
+     * @param {ChangeEventProducer} changeEventProducer
+     */
+    constructor(changeEventProducer) {
+        assert(changeEventProducer);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+    }
+
+    /**
      * Gets name of the patient field from resource
      * @param {string} resourceType
      * @return {string|null}
      */
-    static getPatientFieldNameFromResource(resourceType) {
+    getPatientFieldNameFromResource(resourceType) {
         if (resourceType === 'Patient') {
             return 'id';
         }
@@ -38,7 +49,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {Promise<string|null>}
      */
-    static async getPatientIdFromResourceAsync(resourceType, resource) {
+    async getPatientIdFromResourceAsync(resourceType, resource) {
         /**
          * @type {string|null}
          */
@@ -68,15 +79,15 @@ class ResourceManager {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    static async fireEventsAsync(requestId, eventType, resourceType, doc) {
+    async fireEventsAsync(requestId, eventType, resourceType, doc) {
         /**
          * @type {string|null}
          */
-        const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        const patientId = await this.getPatientIdFromResourceAsync(resourceType, doc);
         /**
          * @type {ChangeEventProducer}
          */
-        const changeEventProducer = new ChangeEventProducer();
+        const changeEventProducer = this.changeEventProducer;
         /**
          * @type {string}
          */

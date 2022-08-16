@@ -6,6 +6,9 @@ const moment = require('moment-timezone');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
+const {ResourceManager} = require('../../../operations/common/resourceManager');
+const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
+const {MockKafkaClient} = require('../../mocks/mockKafkaClient');
 
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
@@ -22,7 +25,11 @@ describe('databaseBulkInserter Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const databaseBulkInserter = new DatabaseBulkInserter('1234', currentDate);
+            const kafkaClient = new MockKafkaClient();
+
+            // noinspection JSCheckFunctionSignatures
+            const changeEventProducer = new ChangeEventProducer(kafkaClient);
+            const databaseBulkInserter = new DatabaseBulkInserter(new ResourceManager(changeEventProducer));
 
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);
@@ -31,6 +38,7 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.replaceOneAsync('Patient', patient.id, patient);
 
             const patientCreateHandler = jest.fn();
+
             const patientChangeHandler = jest.fn();
 
             databaseBulkInserter.on('createPatient', patientCreateHandler);
@@ -38,7 +46,8 @@ describe('databaseBulkInserter Tests', () => {
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
-            await databaseBulkInserter.executeAsync(base_version, false);
+            const requestId1 = '1234';
+            await databaseBulkInserter.executeAsync(requestId1, currentDate, base_version, false);
 
             /**
              * mongo connection

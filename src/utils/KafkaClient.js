@@ -1,5 +1,5 @@
 const {Kafka} = require('kafkajs');
-const env = require('var');
+const assert = require('node:assert/strict');
 
 /**
  * @typedef KafkaClientMessage
@@ -11,10 +11,22 @@ const env = require('var');
  */
 
 class KafkaClient {
-    constructor() {
+    /**
+     * constructor
+     * @param {string} clientId
+     * @param {string[]} brokers
+     */
+    constructor(clientId, brokers) {
+        assert(clientId !== undefined);
+        assert(brokers !== undefined);
+        assert(Array.isArray(brokers));
+        assert(brokers.length > 0);
+        /**
+         * @type {Kafka}
+         */
         this.client = new Kafka({
-            clientId: env.KAFKA_CLIENT_ID,
-            brokers: env.KAFKA_URLS.split(','),
+            clientId: clientId,
+            brokers: brokers,
         });
     }
 
@@ -25,6 +37,9 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async sendMessagesAsync(topic, messages) {
+        /**
+         * @type {import('kafkajs').Producer}
+         */
         const producer = this.client.producer();
 
         await producer.connect();

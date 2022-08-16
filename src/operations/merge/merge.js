@@ -7,11 +7,9 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 
 /**
  * Add successful merges
@@ -125,9 +123,12 @@ module.exports.merge = async (container,
         /**
          * @type {DatabaseBulkInserter}
          */
-        const databaseBulkInserter = new DatabaseBulkInserter(requestId, currentDate);
+        const databaseBulkInserter = container.databaseBulkInserter;
         // add event handlers
-        const changeEventProducer = new ChangeEventProducer();
+        /**
+         * @type {ChangeEventProducer}
+         */
+        const changeEventProducer = container.changeEventProducer;
         databaseBulkInserter.on('createPatient', async (event) => {
             // console.info(`PatientChange: ${JSON.stringify(event)}`);
             await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
@@ -186,7 +187,9 @@ module.exports.merge = async (container,
          * mergeResults
          * @type {MergeResultEntry[]}
          */
-        let mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+        let mergeResults = await databaseBulkInserter.executeAsync(
+            requestId, currentDate,
+            base_version, useAtlas);
 
         // flush any event handlers
         await changeEventProducer.flushAsync(requestId);

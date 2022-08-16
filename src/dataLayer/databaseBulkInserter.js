@@ -6,7 +6,7 @@ const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {logErrorToSlackAsync} = require('../utils/slack.logger');
 const {EventEmitter} = require('events');
-const {ResourceManager} = require('../operations/common/resourceManager');
+const assert = require('node:assert/strict');
 
 /**
  * @typedef BulkResultEntry
@@ -23,19 +23,15 @@ const {ResourceManager} = require('../operations/common/resourceManager');
 class DatabaseBulkInserter extends EventEmitter {
     /**
      * Constructor
-     * @param {string} requestId
-     * @param {string} currentDate
+     * @param {ResourceManager} resourceManager
      */
-    constructor(requestId, currentDate) {
+    constructor(resourceManager) {
         super();
+        assert(resourceManager);
         /**
-         * @type {string}
+         * @type {ResourceManager}
          */
-        this.requestId = requestId;
-        /**
-         * @type {string}
-         */
-        this.currentDate = currentDate;
+        this.resourceManager = resourceManager;
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -153,9 +149,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * Executes all the operations in bulk
      * @param {string} base_version
      * @param {boolean?} useAtlas
+     * @param {string} requestId
+     * @param {string} currentDate
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync(base_version, useAtlas) {
+    async executeAsync(requestId, currentDate, base_version, useAtlas,) {
         // run both the operations on the main tables and the history tables in parallel
         /**
          * @type {BulkResultEntry[]}
@@ -163,6 +161,7 @@ class DatabaseBulkInserter extends EventEmitter {
         const resultsByResourceType = await async.map(
             this.operationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                requestId, currentDate,
                 x, base_version, useAtlas, false
             ));
 
@@ -170,6 +169,7 @@ class DatabaseBulkInserter extends EventEmitter {
         await async.map(
             this.historyOperationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                requestId, currentDate,
                 x, base_version, useAtlas, true
             ));
 
@@ -238,7 +238,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {string|null}
                      */
-                    const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
                     if (patientId) {
                         if (resourceType === 'Patient') {
                             this.emit('createPatient', {id: patientId, resourceType: resourceType, resource: resource});
@@ -290,7 +290,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {string|null}
                      */
-                    const patientId = await ResourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
                     if (patientId) {
                         this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
                     }
@@ -303,24 +303,33 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Performs bulk operations
+     * @param {string} requestId
+     * @param {string} currentDate
      * @param {[string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      * @param {boolean|null} useHistoryCollection
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeWithMapEntryAsync(mapEntry, base_version,
-                                                      useAtlas, useHistoryCollection) {
+    async performBulkForResourceTypeWithMapEntryAsync(
+        requestId,
+        currentDate,
+        mapEntry, base_version,
+        useAtlas, useHistoryCollection) {
         const [
             /** @type {string} */resourceType,
             /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations
         ] = mapEntry;
 
-        return await this.performBulkForResourceTypeAsync(resourceType, base_version, useAtlas, useHistoryCollection, operations);
+        return await this.performBulkForResourceTypeAsync(
+            requestId, currentDate,
+            resourceType, base_version, useAtlas, useHistoryCollection, operations);
     }
 
     /**
      * Run bulk operations for collection of resourceType
+     * @param {string} requestId
+     * @param {string} currentDate
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
@@ -328,8 +337,14 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeAsync(resourceType, base_version, useAtlas,
-                                          useHistoryCollection, operations) {
+    async performBulkForResourceTypeAsync(
+        requestId,
+        currentDate,
+        resourceType,
+        base_version,
+        useAtlas,
+        useHistoryCollection,
+        operations) {
         /**
          * @type {Map<string, *[]>}
          */
@@ -371,8 +386,8 @@ class DatabaseBulkInserter extends EventEmitter {
                 await sendToS3('bulk_inserter',
                     resourceType,
                     operations,
-                    this.currentDate,
-                    this.requestId,
+                    currentDate,
+                    requestId,
                     'merge');
             }
             try {

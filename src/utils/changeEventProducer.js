@@ -1,10 +1,14 @@
-const {KafkaClient} = require('./KafkaClient');
 const env = require('var');
 const {generateUUID} = require('./uid.util');
+const assert = require('node:assert/strict');
 
 class ChangeEventProducer {
-    constructor() {
-        this.kafkaClient = new KafkaClient();
+    /**
+     * @param {KafkaClient} kafkaClient
+     */
+    constructor(kafkaClient) {
+        assert(kafkaClient);
+        this.kafkaClient = kafkaClient;
         /**
          * @type {Map<string, Object>}
          */
