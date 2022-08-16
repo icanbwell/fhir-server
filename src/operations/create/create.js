@@ -16,6 +16,7 @@ const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager')
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 
 /**
  * does a FHIR Create (POST)
@@ -27,6 +28,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  */
 module.exports.create = async (container,
                                requestInfo, args, path, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'create';
     /**
      * @type {number}

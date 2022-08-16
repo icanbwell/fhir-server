@@ -13,6 +13,7 @@ const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 
 /**
  * does a FHIR Search By Id
@@ -27,6 +28,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 module.exports.searchById = async (container,
                                    requestInfo, args, resourceType,
                                    filter = true) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'searchById';
     /**
      * @type {number}

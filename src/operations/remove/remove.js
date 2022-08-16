@@ -11,6 +11,7 @@ const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -21,6 +22,10 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.remove = async (container, requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'remove';
     /**
      * @type {number}

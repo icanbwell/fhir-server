@@ -12,6 +12,7 @@ const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
@@ -22,8 +23,12 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (container, requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'patch';
-    const { requestId } = requestInfo;
+    const {requestId} = requestInfo;
     /**
      * @type {number}
      */

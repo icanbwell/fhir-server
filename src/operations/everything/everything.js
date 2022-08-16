@@ -5,6 +5,7 @@ const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {graph} = require('../graph/graph');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 /**
  * does a FHIR $everything
  * @param {SimpleContainer} container
@@ -13,6 +14,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  * @param {string} resourceType
  */
 module.exports.everything = async (container, requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'everything';
     /**
      * @type {number}

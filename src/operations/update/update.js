@@ -20,6 +20,7 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 /**
  * does a FHIR Update (PUT)
  * @param {SimpleContainer} container
@@ -29,6 +30,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  */
 module.exports.update = async (container,
                                requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'update';
 
     /**

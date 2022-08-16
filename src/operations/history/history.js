@@ -8,6 +8,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
@@ -20,6 +21,10 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (container,
                                 requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'history';
     /**
      * @type {number}
@@ -84,6 +89,13 @@ module.exports.history = async (container,
     if (resources.length === 0) {
         throw new NotFoundError();
     }
-    await logOperationAsync({requestInfo, args, resourceType, startTime, message: 'operationCompleted', action: currentOperationName});
+    await logOperationAsync({
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        message: 'operationCompleted',
+        action: currentOperationName
+    });
     return resources;
 };

@@ -9,6 +9,7 @@ const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResul
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 
 /**
  * Add successful merges
@@ -49,6 +50,10 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
  */
 module.exports.merge = async (container,
                               requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'merge';
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();

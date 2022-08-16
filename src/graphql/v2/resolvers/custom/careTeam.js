@@ -90,6 +90,7 @@ module.exports = {
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [careTeam];
                 const result = await merge(
+                    context.container,
                     requestInfo,
                     {...args, base_version: '4_0_0'},
                     'CareTeam'

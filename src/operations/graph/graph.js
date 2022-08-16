@@ -6,6 +6,7 @@ const {processGraphAsync} = require('./graphHelpers');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 
 /**
  * Supports $graph
@@ -16,6 +17,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
 module.exports.graph = async (container, requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'graph';
 
     /**

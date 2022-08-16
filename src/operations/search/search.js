@@ -30,6 +30,7 @@ module.exports.search = async (
     requestInfo, args, resourceType,
     filter = true
 ) => {
+    assert(container !== undefined);
     assert(requestInfo !== undefined);
     assert(args !== undefined);
     assert(resourceType !== undefined);

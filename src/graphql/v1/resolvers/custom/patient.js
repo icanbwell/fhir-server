@@ -116,6 +116,7 @@ module.exports = {
                     patientToChange.generalPractitioner = removeAllGeneralPractitioner(patientToChange.generalPractitioner, args.practitionerId);
                     const requestInfo = getRequestInfo(context);
                     await remove(
+                        context.container,
                         requestInfo,
                         {...args, base_version: '4_0_0',
                         id: args.patientId},
@@ -144,6 +145,7 @@ module.exports = {
                 requestInfo.body = [patientToChange];
 
                 const result = await merge(
+                    context.container,
                     requestInfo,
                     {...args, base_version: '4_0_0'},
                     'Patient'

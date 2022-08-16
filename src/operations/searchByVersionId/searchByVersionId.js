@@ -9,6 +9,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const assert = require('node:assert/strict');
 /**
  * does a FHIR Search By Version
  * @param {SimpleContainer} container
@@ -19,6 +20,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (container,
                                           requestInfo, args, resourceType) => {
+    assert(container !== undefined);
+    assert(requestInfo !== undefined);
+    assert(args !== undefined);
+    assert(resourceType !== undefined);
     const currentOperationName = 'searchByVersionId';
     /**
      * @type {number}
