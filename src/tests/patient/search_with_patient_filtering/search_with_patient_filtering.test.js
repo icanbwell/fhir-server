@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const async = require('async');
 
 // test file
 const patient1Resource = require('./fixtures/patient/patient1.json');
@@ -604,33 +603,27 @@ describe('patient Tests', () => {
             let payload = desiree_payload;
 
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
+            let resp = await request
+                // .get('/graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/graphqlv2')
+                .send({
+                    'operationName': null,
+                    'variables': {},
+                    'query': graphqlQueryText
+                })
+                .set(getCustomGraphQLHeaders(payload))
+                .expect(200);
+            // clear out the lastUpdated column since that changes
+            let body = resp.body;
+            console.log('------- response graphql ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response graphql  ------------');
+            expect(body.data.allergyIntolerance.entry.length).toBe(1);
 
-            await async.waterfall([
-                (cb) => request
-                    // .get('/graphql/?query=' + graphqlQueryText)
-                    // .set(getHeaders())
-                    .post('/graphqlv2')
-                    .send({
-                        'operationName': null,
-                        'variables': {},
-                        'query': graphqlQueryText
-                    })
-                    .set(getCustomGraphQLHeaders(payload))
-                    .expect(200, cb)
-                    .expect((resp) => {
-                        // clear out the lastUpdated column since that changes
-                        let body = resp.body;
-                        console.log('------- response graphql ------------');
-                        console.log(JSON.stringify(resp.body, null, 2));
-                        console.log('------- end response graphql  ------------');
-                        expect(body.data.allergyIntolerance.entry.length).toBe(1);
-
-                        expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
-                        expect(body.data.allergyIntolerance.entry[0].resource.code.text).toBe('Not on File');
-                        expect(body.data.errors).toBeUndefined();
-                    }, cb),
-            ]);
-            // });
+            expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
+            expect(body.data.allergyIntolerance.entry[0].resource.code.text).toBe('Not on File');
+            expect(body.data.errors).toBeUndefined();
         });
     });
 });

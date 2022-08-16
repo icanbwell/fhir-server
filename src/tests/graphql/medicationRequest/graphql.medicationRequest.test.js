@@ -3,7 +3,6 @@ const patientBundleResource = require('./fixtures/patients.json');
 const medicationRequestBundleResource = require('./fixtures/medication_requests.json');
 const medicationDispenseBundleResource = require('./fixtures/medication_dispenses.json');
 
-const async = require('async');
 const fs = require('fs');
 const path = require('path');
 
@@ -32,74 +31,59 @@ describe('GraphQL MedicationRequest Tests', () => {
         test('GraphQL get MedicationRequest with dispenses', async () => {
             // noinspection JSUnusedLocalSymbols
             const graphqlQueryText = query.replace(/\\n/g, '');
+            let resp = await request
+                .get('/4_0_0/MedicationRequest')
+                .set(getHeaders())
+                .expect(200);
+            expect(resp.body.length).toBe(0);
+            console.log('------- response 1 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 1 ------------');
 
-            await async.waterfall([
-                (cb) => // first confirm there are no records
-                    request
-                        .get('/4_0_0/MedicationRequest')
-                        .set(getHeaders())
-                        .expect(200, (err, resp) => {
-                            expect(resp.body.length).toBe(0);
-                            console.log('------- response 1 ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response 1 ------------');
-                            return cb(err, resp);
-                        }),
-                (results, cb) =>
-                    request
-                        .post('/4_0_0/Patient/$merge')
-                        .send(patientBundleResource)
-                        .set(getHeaders())
-                        .expect(200, (err, resp) => {
-                            console.log('------- response 2 ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response 2  ------------');
-                            return cb(err, resp);
-                        }),
-                (results, cb) =>
-                    request
-                        .post('/4_0_0/MedicationRequest/$merge')
-                        .send(medicationRequestBundleResource)
-                        .set(getHeaders())
-                        .expect(200, (err, resp) => {
-                            console.log('------- response 3 ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response 3 ------------');
-                            return cb(err, resp);
-                        }),
-                (results, cb) =>
-                    request
-                        .post('/4_0_0/MedicationDispense/$merge')
-                        .send(medicationDispenseBundleResource)
-                        .set(getHeaders())
-                        .expect(200, (err, resp) => {
-                            console.log('------- response 4 ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response 4 ------------');
-                            return cb(err, resp);
-                        }),
-                (results, cb) =>
-                    request
-                        .post('/graphqlv2')
-                        .send({
-                            'operationName': null,
-                            'variables': {},
-                            'query': graphqlQueryText
-                        })
-                        .set(getGraphQLHeaders())
-                        .expect(200, cb)
-                        .expect((resp) => {
-                            let body = resp.body;
-                            console.log('------- response graphql ------------');
-                            console.log(JSON.stringify(resp.body, null, 2));
-                            console.log('------- end response graphql  ------------');
-                            if (body.errors) {
-                                console.log(body.errors);
-                                expect(body.errors).toBeUndefined();
-                            }
-                            expect(body.data.medicationRequest.entry).toStrictEqual(expectedGraphQlResponse);
-                        }, cb),
-            ]);
+            resp = await request
+                .post('/4_0_0/Patient/$merge')
+                .send(patientBundleResource)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response 2 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 2  ------------');
+
+            resp = await request
+                .post('/4_0_0/MedicationRequest/$merge')
+                .send(medicationRequestBundleResource)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response 3 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 3 ------------');
+
+            resp = await request
+                .post('/4_0_0/MedicationDispense/$merge')
+                .send(medicationDispenseBundleResource)
+                .set(getHeaders())
+                .expect(200);
+            console.log('------- response 4 ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response 4 ------------');
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    'operationName': null,
+                    'variables': {},
+                    'query': graphqlQueryText
+                })
+                .set(getGraphQLHeaders())
+                .expect(200);
+            let body = resp.body;
+            console.log('------- response graphql ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response graphql  ------------');
+            if (body.errors) {
+                console.log(body.errors);
+                expect(body.errors).toBeUndefined();
+            }
+            expect(body.data.medicationRequest.entry).toStrictEqual(expectedGraphQlResponse);
         });
     });
 });
