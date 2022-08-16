@@ -3,16 +3,22 @@
  */
 const {createHttpTerminator} = require('http-terminator');
 
-const {app} = require('./app');
+const {createApp} = require('./app');
 const {fhirServerConfig} = require('./config');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
 const {connectAsync} = require('./utils/connect');
 const env = require('var');
 const {logSystemEventAsync} = require('./operations/common/logging');
+const {createContainer} = require('./createContainer');
 const logger = loggers.get('default');
 
 const main = async function () {
     await connectAsync();
+
+    /**
+     * @type {import('http').Server}
+     */
+    const app = createApp(() => createContainer());
 
     const server = app.listen(fhirServerConfig.server.port, async () => {
             const image = env.DOCKER_IMAGE || '';

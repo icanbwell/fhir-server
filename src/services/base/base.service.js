@@ -45,6 +45,10 @@ function getRequestInfo(req) {
     );
 }
 
+function getContainer(req) {
+    return req.container;
+}
+
 /**
  * does a FHIR Search
  * @param {string[]} args
@@ -65,7 +69,7 @@ module.exports.search = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return search(
         container,
         getRequestInfo(req),
@@ -92,7 +96,7 @@ module.exports.searchStreaming = async (args, {req, res}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return searchStreaming(
         container,
         getRequestInfo(req),
@@ -111,7 +115,7 @@ module.exports.searchById = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return searchById(
         container,
         getRequestInfo(req),
@@ -137,7 +141,7 @@ module.exports.create = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return create(
         container,
         getRequestInfo(req),
@@ -159,7 +163,7 @@ module.exports.update = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return update(
         container,
         getRequestInfo(req),
@@ -182,7 +186,7 @@ module.exports.merge = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return merge(
         container,
         getRequestInfo(req),
@@ -204,7 +208,7 @@ module.exports.everything = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return everything(
         container,
         getRequestInfo(req),
@@ -227,7 +231,7 @@ module.exports.remove = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return remove(
         container,
         getRequestInfo(req),
@@ -245,7 +249,7 @@ module.exports.searchByVersionId = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return searchByVersionId(
         container,
         getRequestInfo(req),
@@ -263,7 +267,7 @@ module.exports.history = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return history(
         container,
         getRequestInfo(req),
@@ -281,7 +285,7 @@ module.exports.historyById = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return historyById(
         container,
         getRequestInfo(req),
@@ -299,7 +303,7 @@ module.exports.patch = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return patch(
         container,
         getRequestInfo(req),
@@ -316,7 +320,7 @@ module.exports.validate = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return validate(
         container,
         getRequestInfo(req),
@@ -339,7 +343,7 @@ module.exports.graph = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return graph(
         container,
         getRequestInfo(req),
@@ -357,7 +361,7 @@ module.exports.expand = async (args, {req}, resourceType) => {
     /**
      * @type {SimpleContainer}
      */
-    const container = req.app.get('container');
+    const container = getContainer(req);
     return expand(
         container,
         getRequestInfo(req),

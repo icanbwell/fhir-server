@@ -17,9 +17,19 @@ const router = require('../middleware/fhir/router');
 const {generateUUID} = require('../utils/uid.util');
 
 class MyFHIRServer extends FHIRServer.Server {
-    constructor(config = {}, app = null) {
+    /**
+     * constructor
+     * @param {function (): SimpleContainer} fnCreateContainer
+     * @param {Object} config
+     * @param {import('http').Server} app
+     */
+    constructor(fnCreateContainer, config = {}, app = null) {
         // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
         super(config, app);
+        /**
+         * @type {function(): SimpleContainer}
+         */
+        this.fnCreateContainer = fnCreateContainer;
     }
 
     configureMiddleware() {
@@ -65,6 +75,11 @@ class MyFHIRServer extends FHIRServer.Server {
             next();
         });
 
+        // add container to request
+        this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
+            req.container = this.fnCreateContainer();
+            next();
+        });
         return this;
     }
 
@@ -177,5 +192,5 @@ class MyFHIRServer extends FHIRServer.Server {
 }
 
 module.exports = {
-    MyFHIRServer: MyFHIRServer
+    MyFHIRServer
 };
