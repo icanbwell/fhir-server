@@ -26,6 +26,10 @@ const {handleIndex} = require('./routeHandlers/index');
 const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
+const cookieParser = require('cookie-parser');
+const {handleFixDates} = require('./routeHandlers/fixDates');
+const {createContainer} = require('./createContainer');
+
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
@@ -37,8 +41,8 @@ const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
 const app = express();
 
-const cookieParser = require('cookie-parser');
-const {handleFixDates} = require('./routeHandlers/fixDates');
+const container = createContainer();
+app.set('container', container);
 
 const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 

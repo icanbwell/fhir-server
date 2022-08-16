@@ -20,6 +20,7 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {import('http').ServerResponse} res
  * @param {Object} args
@@ -27,8 +28,10 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  * @param {boolean} filter
  * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
  */
-module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
-                                        filter = true) => {
+module.exports.searchStreaming = async (
+    container,
+    requestInfo, res, args, resourceType,
+    filter = true) => {
     const currentOperationName = 'searchStreaming';
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();

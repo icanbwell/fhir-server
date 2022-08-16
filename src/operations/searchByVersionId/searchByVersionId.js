@@ -11,12 +11,14 @@ const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR Search By Version
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchByVersionId = async (requestInfo, args, resourceType) => {
+module.exports.searchByVersionId = async (container,
+                                          requestInfo, args, resourceType) => {
     const currentOperationName = 'searchByVersionId';
     /**
      * @type {number}

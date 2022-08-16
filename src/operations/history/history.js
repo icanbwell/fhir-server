@@ -12,12 +12,14 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 /**
  * does a FHIR History
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.history = async (requestInfo, args, resourceType) => {
+module.exports.history = async (container,
+                                requestInfo, args, resourceType) => {
     const currentOperationName = 'history';
     /**
      * @type {number}

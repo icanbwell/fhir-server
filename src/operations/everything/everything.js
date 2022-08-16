@@ -7,11 +7,12 @@ const {graph} = require('../graph/graph');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR $everything
+ * @param {SimpleContainer} container
  * @param {import('../../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
-module.exports.everything = async (requestInfo, args, resourceType) => {
+module.exports.everything = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'everything';
     /**
      * @type {number}

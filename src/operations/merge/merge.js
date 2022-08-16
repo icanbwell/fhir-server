@@ -44,12 +44,14 @@ function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMerge
 
 /**
  * does a FHIR Merge
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
  */
-module.exports.merge = async (requestInfo, args, resourceType) => {
+module.exports.merge = async (container,
+                              requestInfo, args, resourceType) => {
     const currentOperationName = 'merge';
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();

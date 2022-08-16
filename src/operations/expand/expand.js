@@ -10,13 +10,14 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 /**
  * does a FHIR Search By Id
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.expand = async (requestInfo, args, resourceType) => {
+module.exports.expand = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'expand';
     /**
      * @type {number}

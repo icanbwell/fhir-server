@@ -20,12 +20,14 @@ const {ResourceManager} = require('../common/resourceManager');
 
 /**
  * does a FHIR Create (POST)
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} path
  * @param {string} resourceType
  */
-module.exports.create = async (requestInfo, args, path, resourceType) => {
+module.exports.create = async (container,
+                               requestInfo, args, path, resourceType) => {
     const currentOperationName = 'create';
     /**
      * @type {number}

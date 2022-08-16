@@ -61,7 +61,13 @@ module.exports.search = async (args, {req}, resourceType) => {
     if (req.body && Object.keys(req.body).length > 0) {
         combined_args = Object.assign({}, args, req.body);
     }
+
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return search(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -83,7 +89,12 @@ module.exports.searchStreaming = async (args, {req, res}, resourceType) => {
     if (req.body && Object.keys(req.body).length > 0) {
         combined_args = Object.assign({}, args, req.body);
     }
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return searchStreaming(
+        container,
         getRequestInfo(req),
         res,
         combined_args, resourceType);
@@ -97,7 +108,12 @@ module.exports.searchStreaming = async (args, {req, res}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchById = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return searchById(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -118,8 +134,12 @@ module.exports.create = async (args, {req}, resourceType) => {
      * @type {string}
      */
     const path = req.path;
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return create(
+        container,
         getRequestInfo(req),
         combined_args, path, resourceType);
 };
@@ -136,8 +156,12 @@ module.exports.update = async (args, {req}, resourceType) => {
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return update(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -155,8 +179,12 @@ module.exports.merge = async (args, {req}, resourceType) => {
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return merge(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -173,8 +201,12 @@ module.exports.everything = async (args, {req}, resourceType) => {
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return everything(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -192,8 +224,12 @@ module.exports.remove = async (args, {req}, resourceType) => {
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return remove(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -206,7 +242,12 @@ module.exports.remove = async (args, {req}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.searchByVersionId = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return searchByVersionId(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -219,7 +260,12 @@ module.exports.searchByVersionId = async (args, {req}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.history = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return history(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -232,7 +278,12 @@ module.exports.history = async (args, {req}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.historyById = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return historyById(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -245,7 +296,12 @@ module.exports.historyById = async (args, {req}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return patch(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -257,7 +313,12 @@ module.exports.patch = async (args, {req}, resourceType) => {
  * @param {string} resourceType
  */
 module.exports.validate = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return validate(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };
@@ -275,8 +336,12 @@ module.exports.graph = async (args, {req}, resourceType) => {
      * @type {string[]}
      */
     const combined_args = get_all_args(req, args);
-
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return graph(
+        container,
         getRequestInfo(req),
         combined_args, resourceType);
 };
@@ -289,7 +354,12 @@ module.exports.graph = async (args, {req}, resourceType) => {
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.expand = async (args, {req}, resourceType) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = req.app.get('container');
     return expand(
+        container,
         getRequestInfo(req),
         args, resourceType);
 };

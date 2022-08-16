@@ -16,12 +16,13 @@ const {ResourceManager} = require('../common/resourceManager');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.patch = async (requestInfo, args, resourceType) => {
+module.exports.patch = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'patch';
     const { requestId } = requestInfo;
     /**

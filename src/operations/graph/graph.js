@@ -9,12 +9,13 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * Supports $graph
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
  */
-module.exports.graph = async (requestInfo, args, resourceType) => {
+module.exports.graph = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'graph';
 
     /**

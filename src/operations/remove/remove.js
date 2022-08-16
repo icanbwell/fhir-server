@@ -14,12 +14,13 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.remove = async (requestInfo, args, resourceType) => {
+module.exports.remove = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'remove';
     /**
      * @type {number}

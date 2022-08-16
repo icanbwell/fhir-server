@@ -16,6 +16,7 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 /**
  * does a FHIR Search By Id
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
@@ -23,7 +24,8 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
  * @return {Resource}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchById = async (requestInfo, args, resourceType,
+module.exports.searchById = async (container,
+                                   requestInfo, args, resourceType,
                                    filter = true) => {
     const currentOperationName = 'searchById';
     /**

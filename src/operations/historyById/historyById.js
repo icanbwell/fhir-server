@@ -13,12 +13,13 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR History By id
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.historyById = async (requestInfo, args, resourceType) => {
+module.exports.historyById = async (container, requestInfo, args, resourceType) => {
     const currentOperationName = 'historyById';
     /**
      * @type {number}

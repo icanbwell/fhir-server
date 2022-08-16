@@ -4,11 +4,12 @@ const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 /**
  * does a FHIR Validate
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
-module.exports.validate = async (requestInfo, args, resourceType) => {
+module.exports.validate = async (container, requestInfo, args, resourceType) => {
     /**
      * @type {number}
      */

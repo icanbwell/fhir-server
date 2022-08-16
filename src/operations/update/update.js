@@ -23,11 +23,13 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {ResourceManager} = require('../common/resourceManager');
 /**
  * does a FHIR Update (PUT)
+ * @param {SimpleContainer} container
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  */
-module.exports.update = async (requestInfo, args, resourceType) => {
+module.exports.update = async (container,
+                               requestInfo, args, resourceType) => {
     const currentOperationName = 'update';
 
     /**
