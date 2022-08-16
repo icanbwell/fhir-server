@@ -12,7 +12,6 @@ const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const {ResourceManager} = require('../common/resourceManager');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
@@ -124,7 +123,7 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
             message: 'operationCompleted',
             action: currentOperationName
         });
-        await ResourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
+        await container.resourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
         return {
             id: doc.id,
             created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,

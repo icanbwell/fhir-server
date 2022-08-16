@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
@@ -18,8 +15,9 @@ const person11Resource = require('./fixtures/Person/person11.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Person Tests', () => {

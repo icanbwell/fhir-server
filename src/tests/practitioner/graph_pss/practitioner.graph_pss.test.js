@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // practice
 const groupResource = require('./fixtures/practitioner/group.json');
 const insurancePlanResource = require('./fixtures/practitioner/insurancePlan.json');
@@ -19,8 +15,10 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedResource = require('./fixtures/expected/expected.json');
 const expectedHashReferencesResource = require('./fixtures/expected/expected_hash_references.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+
 const {assertCompareBundles} = require('../../fhirAsserts');
 
 describe('Practitioner Graph PSS Contained Tests', () => {

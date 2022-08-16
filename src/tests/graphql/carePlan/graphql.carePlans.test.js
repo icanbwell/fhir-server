@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const carePlanBundleResource = require('./fixtures/carePlans.json');
 const expectedCarePlanBundleResource = require('./fixtures/expected_carePlans.json');
 
@@ -15,14 +11,14 @@ const carePlanQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.
 
 const async = require('async');
 
-const request = supertest(app);
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getUnAuthenticatedHeaders,
-    getGraphQLHeaders
+    getGraphQLHeaders, createTestRequest
 } = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL CarePlan Tests', () => {
     beforeEach(async () => {

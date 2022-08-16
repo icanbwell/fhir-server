@@ -8,6 +8,7 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('search_by_source', () => {
     beforeEach(async () => {

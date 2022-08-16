@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
@@ -31,8 +27,9 @@ const expectedEverythingResource = require('./fixtures/expected/expected_everyth
 /**
  * @type {Test}
  */
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {findDuplicateResources} = require('../../../utils/list.util');
 
 describe('Practitioner Everything Tests', () => {

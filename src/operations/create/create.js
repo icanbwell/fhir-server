@@ -16,7 +16,6 @@ const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager')
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const {ResourceManager} = require('../common/resourceManager');
 
 /**
  * does a FHIR Create (POST)
@@ -191,7 +190,7 @@ module.exports.create = async (container,
             action: currentOperationName,
             result: JSON.stringify(result)
         });
-        await ResourceManager.fireEventsAsync(requestId, 'C', resourceType, doc);
+        await container.resourceManager.fireEventsAsync(requestId, 'C', resourceType, doc);
         return result;
     } catch (/** @type {Error} */ e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');

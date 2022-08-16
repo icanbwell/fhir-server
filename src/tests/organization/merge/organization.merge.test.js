@@ -1,12 +1,10 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const organizationBundleResourceInit = require('./fixtures/organization_init.json');
 const organizationBundleResourceUpdate = require('./fixtures/organization_update.json');
 const expectedOrganizationBundleResource = require('./fixtures/expected_organization.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Merge Tests', () => {
     beforeEach(async () => {

@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits.json');
 const allergyIntoleranceBundleResource = require('./fixtures/allergy_intolerances.json');
 const careTeamBundleResource = require('./fixtures/care_team.json');
@@ -24,13 +20,13 @@ const explanationOfBenefitQuery = fs.readFileSync(path.resolve(__dirname, './fix
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const updatePractitionerQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/updatePractitioner.graphql'), 'utf8');
 
-const request = supertest(app);
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders
+    getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders, createTestRequest
 } = require('../../common');
+const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Patient Tests', () => {

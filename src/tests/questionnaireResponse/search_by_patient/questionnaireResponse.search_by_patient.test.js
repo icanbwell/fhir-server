@@ -1,13 +1,10 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.json');
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {

@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const schedule1Resource = require('./fixtures/Schedule/schedule1.json');
 const schedule2Resource = require('./fixtures/Schedule/schedule2.json');
@@ -8,8 +5,9 @@ const schedule2Resource = require('./fixtures/Schedule/schedule2.json');
 // expected
 const expectedScheduleResources = require('./fixtures/expected/expected_Schedule.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Schedule Tests', () => {

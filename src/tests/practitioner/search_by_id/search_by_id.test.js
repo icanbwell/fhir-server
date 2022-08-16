@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
@@ -8,8 +5,8 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 // expected
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {

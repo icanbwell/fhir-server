@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const fs = require('fs');
 const path = require('path');
 const async = require('async');
@@ -26,14 +23,13 @@ const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.al
 
 // const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
 const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'), 'utf8');
-const {describe, beforeAll, afterAll, expect} = require('@jest/globals');
 
-const request = supertest(app);
 const {
     commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload,
-    getCustomGraphQLHeaders
+    getCustomGraphQLHeaders, createTestRequest
 } = require('../../common');
-
+const request = createTestRequest();
+const {describe, expect} = require('@jest/globals');
 
 describe('patient Tests', () => {
     beforeAll(async () => {

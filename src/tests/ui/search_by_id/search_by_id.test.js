@@ -1,11 +1,9 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, getHtmlHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, getHtmlHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {

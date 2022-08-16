@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // practice
 const slotResource = require('./fixtures/slot/slot.json');
 const slotScheduleResource = require('./fixtures/slot/schedule.json');
@@ -11,8 +7,9 @@ const slotPractitionerResource = require('./fixtures/slot/practitioner.json');
 // expected
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {findDuplicateResources} = require('../../../utils/list.util');
 
 describe('Slot Everything Tests', () => {

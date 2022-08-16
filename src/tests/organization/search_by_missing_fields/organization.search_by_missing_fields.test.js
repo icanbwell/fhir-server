@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const organizationResponseBundle1 = require('./fixtures/organization1.json');
 const organizationResponseBundle2 = require('./fixtures/organization2.json');
 const organizationResponseBundle3 = require('./fixtures/organization3.json');
@@ -9,8 +5,9 @@ const expectedOrganizationResponseBundle = require('./fixtures/expected_organiza
 const expectedOrganizationResponseBundle2 = require('./fixtures/expected_organization_responses_2.json');
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Response Tests', () => {
     beforeEach(async () => {

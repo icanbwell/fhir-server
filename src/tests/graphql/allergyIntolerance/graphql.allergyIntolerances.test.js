@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const allergyIntoleranceBundleResource = require('./fixtures/allergy_intolerances.json');
 const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected_allergy_intolerances.json');
 
@@ -15,14 +11,14 @@ const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtu
 
 const async = require('async');
 
-const request = supertest(app);
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getUnAuthenticatedHeaders,
-    getGraphQLHeaders
+    getGraphQLHeaders, createTestRequest
 } = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL AllergyIntolerance Tests', () => {
     beforeEach(async () => {

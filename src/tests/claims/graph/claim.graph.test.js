@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // claim
 const claimResource = require('./fixtures/claim/explanation_of_benefits.json');
 const practitionerResource = require('./fixtures/claim/practitioner.json');
@@ -13,8 +9,9 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Claim Graph Contained Tests', () => {
     beforeEach(async () => {

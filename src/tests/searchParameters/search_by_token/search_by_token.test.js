@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
@@ -8,8 +5,9 @@ const observation2Resource = require('./fixtures/observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('ObservationReturnIdTests', () => {

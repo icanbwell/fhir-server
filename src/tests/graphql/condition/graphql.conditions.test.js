@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const conditionBundleResource = require('./fixtures/conditions.json');
 const expectedConditionBundleResource = require('./fixtures/expected_conditions.json');
 
@@ -15,15 +11,13 @@ const conditionQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query
 
 const async = require('async');
 
-const request = supertest(app);
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getUnAuthenticatedHeaders,
-    getGraphQLHeaders
+    getGraphQLHeaders, createTestRequest
 } = require('../../common');
-
+const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Condition Tests', () => {

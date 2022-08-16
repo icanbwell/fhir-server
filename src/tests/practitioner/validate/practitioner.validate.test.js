@@ -1,8 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
-
 const validPractitionerResource = require('./fixtures/valid_practitioner.json');
 const validPractitionerNoSecurityCodeResource = require('./fixtures/valid_practitioner_no_security_code.json');
 const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
@@ -13,8 +8,8 @@ const expectedInvalidPractitionerResponse = require('./expected/invalid_practiti
 
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {

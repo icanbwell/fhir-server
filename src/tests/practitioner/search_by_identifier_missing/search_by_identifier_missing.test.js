@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.json');
@@ -9,8 +6,9 @@ const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.jso
 const expectedPractitionerIdentifierMissingFalse = require('./fixtures/expected/expected_practitioner_identifier_missing_false.json');
 const expectedPractitionerIdentifierMissingTrue = require('./fixtures/expected/expected_practitioner_identifier_missing_true.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {

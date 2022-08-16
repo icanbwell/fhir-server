@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // practice
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerRoleResource = require('./fixtures/practitioner/practitionerRole.json');
@@ -15,8 +11,9 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedResource = require('./fixtures/expected/expected.json');
 const expectedHashReferencesResource = require('./fixtures/expected/expected_hash_references.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+
 const {findDuplicateResources} = require('../../../utils/list.util');
 const {assertCompareBundles} = require('../../fhirAsserts');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');

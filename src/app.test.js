@@ -1,11 +1,10 @@
 /**
  * simple test for the app
  */
-const supertest = require('supertest');
-
-const { app } = require('./app');
-const request = supertest(app);
+const {createTestRequest} = require('./tests/common');
+const request = createTestRequest();
 const {describe, expect} = require('@jest/globals');
+
 
 describe('#app', () => {
   test('it should startup and return health check status ok', async () => {

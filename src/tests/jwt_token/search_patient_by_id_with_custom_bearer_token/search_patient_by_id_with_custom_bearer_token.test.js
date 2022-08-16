@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
@@ -9,8 +6,9 @@ const expectedSinglePatientResource = require('./fixtures/expected/expected_sing
 
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeadersWithCustomToken} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeadersWithCustomToken, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     beforeEach(async () => {

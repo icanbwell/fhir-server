@@ -1,13 +1,10 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../app');
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const practitionerResourcev2 = require('./fixtures/providers/practitioner_v2.json');
 const expectedPractitionerResource_v2 = require('./fixtures/providers/expected_practitioner_v2.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Merge Tests', () => {
     beforeEach(async () => {

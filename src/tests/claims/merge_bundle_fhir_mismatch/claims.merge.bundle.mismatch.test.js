@@ -1,15 +1,11 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const explanationOfBenefitBundleResource1 = require('./fixtures/explanation_of_benefits1.json');
 const explanationOfBenefitBundleResource2 = require('./fixtures/explanation_of_benefits2.json');
 const explanationOfBenefitBundleResource3 = require('./fixtures/explanation_of_benefits3.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
-const request = supertest(app);
-
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {

@@ -1,11 +1,10 @@
-const supertest = require('supertest');
 const deepcopy = require('deepcopy');
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersNdJson} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersNdJson, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {

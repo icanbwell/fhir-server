@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const moment = require('moment-timezone');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
@@ -11,8 +7,9 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Last Updated Time', () => {
     beforeEach(async () => {

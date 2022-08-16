@@ -11,7 +11,7 @@ const {jwksEndpoint} = require('./mocks/jwks');
 const {publicKey, privateKey} = require('./mocks/keys');
 const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
-const {createTestContainer} = require('./updateContainerForTest');
+const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
 const {createApp} = require('../app');
 

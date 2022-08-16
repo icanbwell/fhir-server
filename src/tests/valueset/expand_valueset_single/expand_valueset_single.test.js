@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const valueset1Resource = require('./fixtures/ValueSet/valueset1.json');
 
@@ -8,8 +5,9 @@ const valueset1Resource = require('./fixtures/ValueSet/valueset1.json');
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
 const expectedValueSetExpandResources = require('./fixtures/expected/expected_ValueSet_expand.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, wrapResourceInBundle} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, wrapResourceInBundle, createTestRequest} = require('../../common');
+const request = createTestRequest();
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {

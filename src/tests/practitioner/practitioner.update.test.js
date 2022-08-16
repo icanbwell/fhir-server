@@ -1,12 +1,9 @@
-const supertest = require('supertest');
-
-const {app} = require('../../app');
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
+const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {
