@@ -7,7 +7,6 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
 const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
-const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
@@ -170,7 +169,7 @@ module.exports.merge = async (container,
         /**
          * @type {DatabaseBulkLoader}
          */
-        const databaseBulkLoader = new DatabaseBulkLoader();
+        const databaseBulkLoader = container.databaseBulkLoader;
         // Load the resources from the database
         await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
             base_version,

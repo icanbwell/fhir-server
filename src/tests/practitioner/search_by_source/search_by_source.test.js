@@ -43,6 +43,7 @@ describe('search_by_source', () => {
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response  ------------');
                 expect(resp.body['created']).toBe(true);
+
                 resp = await request
                     .post('/4_0_0/Practitioner/0/$merge')
                     .send(practitionerResource2)

@@ -298,6 +298,12 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
         }
+
+        this.operationsByResourceTypeMap.clear();
+        this.historyOperationsByResourceTypeMap.clear();
+        this.insertedIdsByResourceTypeMap.clear();
+        this.updatedIdsByResourceTypeMap.clear();
+
         return mergeResultEntries;
     }
 
