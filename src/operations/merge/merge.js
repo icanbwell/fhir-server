@@ -124,6 +124,7 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          * @type {DatabaseBulkInserter}
          */
         const databaseBulkInserter = new DatabaseBulkInserter(requestId, currentDate);
+        // add event handlers
         const changeEventProducer = new ChangeEventProducer();
         databaseBulkInserter.on('createPatient', async (event) => {
             // console.info(`PatientChange: ${JSON.stringify(event)}`);
@@ -184,6 +185,9 @@ module.exports.merge = async (requestInfo, args, resourceType) => {
          * @type {MergeResultEntry[]}
          */
         let mergeResults = await databaseBulkInserter.executeAsync(base_version, useAtlas);
+
+        // flush any event handlers
+        await changeEventProducer.flushAsync(requestId);
 
         // add in any pre-merge failures
         mergeResults = mergeResults.concat(mergePreCheckErrors);
