@@ -12,6 +12,7 @@ const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const {ResourceManager} = require('../common/resourceManager');
 // noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
@@ -22,6 +23,7 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 // eslint-disable-next-line no-unused-vars
 module.exports.patch = async (requestInfo, args, resourceType) => {
     const currentOperationName = 'patch';
+    const { requestId } = requestInfo;
     /**
      * @type {number}
      */
@@ -121,6 +123,7 @@ module.exports.patch = async (requestInfo, args, resourceType) => {
             message: 'operationCompleted',
             action: currentOperationName
         });
+        await ResourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
         return {
             id: doc.id,
             created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,

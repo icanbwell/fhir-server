@@ -20,6 +20,7 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const {ResourceManager} = require('../common/resourceManager');
 /**
  * does a FHIR Update (PUT)
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
@@ -33,7 +34,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
      * @type {number}
      */
     const startTime = Date.now();
-    const {user, scope, path, body} = requestInfo;
+    const {user, scope, path, body, requestId} = requestInfo;
 
     await verifyHasValidScopesAsync({
         requestInfo,
@@ -269,6 +270,7 @@ module.exports.update = async (requestInfo, args, resourceType) => {
             action: currentOperationName,
             result: JSON.stringify(result)
         });
+        await ResourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
         return result;
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
