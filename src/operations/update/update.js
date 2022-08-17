@@ -13,7 +13,6 @@ const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
@@ -259,7 +258,14 @@ module.exports.update = async (container,
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource_incoming['id']]);
+            /**
+             * @type {AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                currentOperationName, args, [resource_incoming['id']]);
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await auditLogger.flushAsync(requestId, currentDate);
         }
 
         const result = {

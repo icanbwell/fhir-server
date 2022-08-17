@@ -7,11 +7,11 @@ const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const moment = require('moment-timezone');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 /**
  * does a FHIR Remove (DELETE)
@@ -31,8 +31,7 @@ module.exports.remove = async (container, requestInfo, args, resourceType) => {
      * @type {number}
      */
     const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
+    const {user, scope, requestId} = requestInfo;
 
     if (args['id'] === '0') {
         delete args['id'];
@@ -125,7 +124,13 @@ module.exports.remove = async (container, requestInfo, args, resourceType) => {
                 .deleteManyAsync(query);
 
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+            /**
+             * @type {AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await auditLogger.flushAsync(requestId, currentDate);
 
         } catch (e) {
             throw new NotAllowedError(e.message);

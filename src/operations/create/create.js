@@ -9,7 +9,6 @@ const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
@@ -160,7 +159,13 @@ module.exports.create = async (container,
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
+            /**
+             * @type {AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await auditLogger.flushAsync(requestId, currentDate);
         }
         // Create a clone of the object without the _id parameter before assigning a value to
         // the _id parameter in the original document

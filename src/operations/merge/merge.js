@@ -210,7 +210,11 @@ module.exports.merge = async (container,
             return {resourceType: r.resourceType, id: r.id};
         });
         mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
-        await logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults);
+        /**
+         * @type {AuditLogger}
+         */
+        const auditLogger = container.auditLogger;
+        await logAuditEntriesForMergeResults(auditLogger, requestInfo, requestId, base_version, args, mergeResults);
 
         await logOperationAsync({
             requestInfo,

@@ -3,7 +3,6 @@ const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
 const {logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
@@ -16,6 +15,7 @@ const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const moment = require('moment-timezone');
 
 
 /**
@@ -266,7 +266,11 @@ module.exports.searchStreaming = async (
             if (resourceIds.length > 0) {
                 try {
                     // log access to audit logs
-                    await logAuditEntryAsync(
+                    /**
+                     * @type {AuditLogger}
+                     */
+                    const auditLogger = container.auditLogger;
+                    await auditLogger.logAuditEntryAsync(
                         requestInfo,
                         base_version,
                         resourceType,
@@ -274,6 +278,8 @@ module.exports.searchStreaming = async (
                         args,
                         resourceIds
                     );
+                    const currentDate = moment.utc().format('YYYY-MM-DD');
+                    await auditLogger.flushAsync(requestId, currentDate);
                 } catch (e) {
                     await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                 }

@@ -6,7 +6,6 @@ const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
@@ -14,6 +13,7 @@ const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIds
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const moment = require('moment-timezone');
 
 /**
  * does a FHIR Search By Id
@@ -47,7 +47,8 @@ module.exports.searchById = async (container,
         /** @type {string | null} */
         user,
         /** @type {string | null} */
-        scope
+        scope,
+        requestId
     } = requestInfo;
 
     await verifyHasValidScopesAsync({
@@ -110,7 +111,14 @@ module.exports.searchById = async (container,
             resource = (await enrich([resource], resourceType))[0];
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
-                await logAuditEntryAsync(requestInfo, base_version, resourceType, 'read', args, [resource['id']]);
+                /**
+                 * @type {AuditLogger}
+                 */
+                const auditLogger = container.auditLogger;
+                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                    'read', args, [resource['id']]);
+                const currentDate = moment.utc().format('YYYY-MM-DD');
+                await auditLogger.flushAsync(requestId, currentDate);
             }
             await logOperationAsync({
                 requestInfo,

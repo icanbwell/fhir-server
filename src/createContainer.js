@@ -6,6 +6,7 @@ const {ResourceManager} = require('./operations/common/resourceManager');
 const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
+const {AuditLogger} = require('./utils/auditLogger');
 
 /**
  * Creates a container and sets up all the services
@@ -24,6 +25,8 @@ const createContainer = function () {
     container.register('databaseBulkInserter', c => new DatabaseBulkInserter(c.resourceManager, c.postRequestProcessor));
     container.register('databaseBulkLoader', () => new DatabaseBulkLoader());
     container.register('postRequestProcessor', () => new PostRequestProcessor());
+    container.register('auditLogger', c => new AuditLogger(c.postRequestProcessor, c.databaseBulkInserter));
+
     return container;
 };
 module.exports = {

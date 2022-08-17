@@ -1,15 +1,23 @@
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {groupByLambda} = require('../../utils/list.util');
+const assert = require('node:assert/strict');
+const moment = require('moment-timezone');
 
 /**
  * logs audit entries for merge result entries
+ * @param {AuditLogger} auditLogger
  * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+ * @param {string} requestId
  * @param {string} base_version
  * @param {Object} args
  * @param {MergeResultEntry[]} mergeResults
  * @returns {Promise<void>}
  */
-async function logAuditEntriesForMergeResults(requestInfo, base_version, args, mergeResults) {
+async function logAuditEntriesForMergeResults(auditLogger, requestInfo,
+                                              requestId,
+                                              base_version, args,
+                                              mergeResults) {
+    assert(auditLogger);
+    assert(requestInfo);
     /**
      * merge results grouped by resourceType
      * @type {Object}
@@ -29,13 +37,18 @@ async function logAuditEntriesForMergeResults(requestInfo, base_version, args, m
              */
             const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
             if (createdItems && createdItems.length > 0) {
-                await logAuditEntryAsync(requestInfo, base_version, resourceType, 'create', args, createdItems.map(r => r['id']));
+                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                    'create', args, createdItems.map(r => r['id']));
             }
             if (updatedItems && updatedItems.length > 0) {
-                await logAuditEntryAsync(requestInfo, base_version, resourceType, 'update', args, updatedItems.map(r => r['id']));
+                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                    'update', args, updatedItems.map(r => r['id']));
             }
         }
     }
+
+    const currentDate = moment.utc().format('YYYY-MM-DD');
+    await auditLogger.flushAsync(requestId, currentDate);
 }
 
 module.exports = {
