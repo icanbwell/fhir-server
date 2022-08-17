@@ -55,7 +55,7 @@ function createFhirApp(fnCreateContainer, app1) {
 /**
  * Creates the app
  * @param {function (): SimpleContainer} fnCreateContainer
- * @return {Express}
+ * @return {import('express').Express}
  */
 function createApp(fnCreateContainer) {
     const swaggerUi = require('swagger-ui-express');
@@ -238,4 +238,18 @@ function createApp(fnCreateContainer) {
     return app;
 }
 
-module.exports = {createApp};
+/**
+ *
+ * @param {import('express').Express} app
+ * @return {boolean}
+ */
+function unmountRoutes(app) {
+    // eslint-disable-next-line new-cap
+    app.use('/graphqlv1', express.Router());
+    // eslint-disable-next-line new-cap
+    app.use('/graphql', express.Router());
+    // eslint-disable-next-line new-cap
+    app.use('/graphqlv2', express.Router());
+}
+
+module.exports = {createApp, unmountRoutes};
