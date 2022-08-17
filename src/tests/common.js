@@ -48,6 +48,9 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async () => {
+    if (tester) {
+        return tester;
+    }
     server = await module.exports.createTestServer();
     tester = supertest(server);
     return tester;
@@ -63,7 +66,10 @@ module.exports.commonBeforeEach = async () => {
      * 1.1
      * Start in-memory MongoDB
      */
-    mongo = await MongoMemoryServer.create();
+    if (!mongo)
+    {
+        mongo = await MongoMemoryServer.create();
+    }
     /**
      * 1.2
      * Set the MongoDB host and DB name as environment variables,
@@ -116,10 +122,12 @@ module.exports.commonAfterEach = async () => {
     nock.restore();
     await db.dropDatabase();
     db = null;
+    await globals.get(AUDIT_EVENT_CLIENT_DB).dropDatabase();
+    globals.delete(AUDIT_EVENT_CLIENT_DB);
     await connection.close();
     connection = null;
-    await mongo.stop();
-    mongo = null;
+    // await mongo.stop();
+    // mongo = null;
     await server.close();
     server = null;
     global.gc();
