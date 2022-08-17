@@ -17,18 +17,17 @@ const {createApp} = require('../app');
 const {createServer} = require('../server');
 
 
-
 let connection;
 let db;
 let mongo;
-// /**
-//  * @type {import('http').Server}
-//  */
-// let server;
-// /**
-//  * @type {import('supertest').Test}
-//  */
-// let tester;
+/**
+ * @type {import('http').Server}
+ */
+let server;
+/**
+ * @type {import('supertest').Test}
+ */
+let tester;
 
 /**
  * Creates a test version of the app
@@ -49,8 +48,8 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async () => {
-    const server = await module.exports.createTestServer();
-    const tester = supertest(server);
+    server = await module.exports.createTestServer();
+    tester = supertest(server);
     return tester;
 };
 
@@ -116,10 +115,14 @@ module.exports.commonAfterEach = async () => {
     nock.cleanAll();
     nock.restore();
     await db.dropDatabase();
+    db = null;
     await connection.close();
+    connection = null;
     await mongo.stop();
-    // global.gc();
-    // await server.close();
+    mongo = null;
+    await server.close();
+    server = null;
+    global.gc();
 };
 
 

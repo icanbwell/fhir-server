@@ -36,7 +36,7 @@ if (isTrue(env.TRACING_ENABLED)) {
 /**
  * Creates the FHIR app
  * @param {function (): SimpleContainer} fnCreateContainer
- * @param {import('http').Server} app1
+ * @param {import('express').Express} app1
  * @return {MyFHIRServer}
  */
 function createFhirApp(fnCreateContainer, app1) {

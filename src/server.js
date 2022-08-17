@@ -5,7 +5,9 @@ const env = require('var');
 const {logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
+const http = require('http');
 const logger = loggers.get('default');
+
 /**
  * Creates the http server
  * @param {function (): SimpleContainer} fnCreateContainer
@@ -16,7 +18,8 @@ async function createServer(fnCreateContainer) {
 
     const app = createApp(fnCreateContainer);
 
-    const server = app.listen(fhirServerConfig.server.port, async () => {
+    const server = http.createServer(app).listen(fhirServerConfig.server.port, null, null,
+        async () => {
             const image = env.DOCKER_IMAGE || '';
             await logSystemEventAsync('STARTUP', 'Server is up and running', {image: image});
         }
