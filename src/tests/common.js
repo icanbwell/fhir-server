@@ -51,7 +51,9 @@ module.exports.createTestRequest = async () => {
     if (tester) {
         return tester;
     }
-    server = await module.exports.createTestServer();
+    if (!server) {
+        server = await module.exports.createTestServer();
+    }
     tester = supertest(server);
     return tester;
 };
