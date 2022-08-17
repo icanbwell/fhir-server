@@ -15,7 +15,7 @@ class PostRequestProcessor {
 
     /**
      * Add a task to the queue
-     * @type {(function():void)[]}
+     * @type {(() =>void)[]}
      */
     add(fnTask) {
         this.queue.push(fnTask);

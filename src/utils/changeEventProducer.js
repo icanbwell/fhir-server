@@ -1,14 +1,23 @@
 const env = require('var');
 const {generateUUID} = require('./uid.util');
 const assert = require('node:assert/strict');
+const moment = require('moment-timezone');
 
 class ChangeEventProducer {
     /**
      * @param {KafkaClient} kafkaClient
+     * @param {ResourceManager} resourceManager
      */
-    constructor(kafkaClient) {
+    constructor(kafkaClient, resourceManager) {
         assert(kafkaClient);
+        /**
+         * @type {KafkaClient}
+         */
         this.kafkaClient = kafkaClient;
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
         /**
          * @type {Map<string, Object>}
          */
@@ -87,6 +96,34 @@ class ChangeEventProducer {
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
             this.messageMap.set(patientId, messageJson);
+        }
+    }
+
+    /**
+     * Fires events when a resource is changed
+     * @param {string} requestId
+     * @param {string} eventType.  Can be C = create or U = update
+     * @param {string} resourceType
+     * @param {Resource} doc
+     * @return {Promise<void>}
+     */
+    async fireEventsAsync(requestId, eventType, resourceType, doc) {
+        /**
+         * @type {string|null}
+         */
+        const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        const changeEventProducer = this.changeEventProducer;
+        /**
+         * @type {string}
+         */
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+        if (eventType === 'C' && resourceType === 'Patient') {
+            await changeEventProducer.onPatientCreateAsync(requestId, patientId, currentDate);
+        } else {
+            await changeEventProducer.onPatientChangeAsync(requestId, patientId, currentDate);
         }
     }
 

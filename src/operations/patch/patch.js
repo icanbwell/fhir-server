@@ -128,7 +128,17 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
             message: 'operationCompleted',
             action: currentOperationName
         });
-        await container.resourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        const changeEventProducer = container.changeEventProducer;
+        await changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = container.postRequestProcessor;
+        postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+
         return {
             id: doc.id,
             created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,

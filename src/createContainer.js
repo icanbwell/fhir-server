@@ -18,9 +18,9 @@ const createContainer = function () {
         env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '')
     );
     container.register('changeEventProducer', c => new ChangeEventProducer(
-        c.kafkaClient
+        c.kafkaClient, c.resourceManager
     ));
-    container.register('resourceManager', c => new ResourceManager(c.changeEventProducer));
+    container.register('resourceManager', () => new ResourceManager());
     container.register('databaseBulkInserter', c => new DatabaseBulkInserter(c.resourceManager, c.postRequestProcessor));
     container.register('databaseBulkLoader', () => new DatabaseBulkLoader());
     container.register('postRequestProcessor', () => new PostRequestProcessor());

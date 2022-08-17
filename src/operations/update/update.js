@@ -276,7 +276,17 @@ module.exports.update = async (container,
             action: currentOperationName,
             result: JSON.stringify(result)
         });
-        await container.resourceManager.fireEventsAsync(requestId, 'U', resourceType, doc);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        const changeEventProducer = container.changeEventProducer;
+        await changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = container.postRequestProcessor;
+        postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+
         return result;
     } catch (e) {
         const currentDate = moment.utc().format('YYYY-MM-DD');

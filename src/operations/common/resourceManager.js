@@ -1,20 +1,12 @@
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const moment = require('moment-timezone');
-const assert = require('node:assert/strict');
 
 /**
  * This class provides helper functions for dealing with resources
  */
 class ResourceManager {
     /**
-     * @param {ChangeEventProducer} changeEventProducer
      */
-    constructor(changeEventProducer) {
-        assert(changeEventProducer);
-        /**
-         * @type {ChangeEventProducer}
-         */
-        this.changeEventProducer = changeEventProducer;
+    constructor() {
     }
 
     /**
@@ -68,34 +60,6 @@ class ResourceManager {
             return patientReference.reference.replace('Patient/', '');
         } else {
             return patientReference;
-        }
-    }
-
-    /**
-     * Fires events when a resource is changed
-     * @param {string} requestId
-     * @param {string} eventType.  Can be C = create or U = update
-     * @param {string} resourceType
-     * @param {Resource} doc
-     * @return {Promise<void>}
-     */
-    async fireEventsAsync(requestId, eventType, resourceType, doc) {
-        /**
-         * @type {string|null}
-         */
-        const patientId = await this.getPatientIdFromResourceAsync(resourceType, doc);
-        /**
-         * @type {ChangeEventProducer}
-         */
-        const changeEventProducer = this.changeEventProducer;
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        if (eventType === 'C' && resourceType === 'Patient') {
-            await changeEventProducer.onPatientCreateAsync(requestId, patientId, currentDate);
-        } else {
-            await changeEventProducer.onPatientChangeAsync(requestId, patientId, currentDate);
         }
     }
 }

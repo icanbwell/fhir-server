@@ -196,7 +196,11 @@ module.exports.merge = async (container,
             base_version, useAtlas);
 
         // flush any event handlers
-        await changeEventProducer.flushAsync(requestId);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = container.postRequestProcessor;
+        postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
 
         // add in any pre-merge failures
         mergeResults = mergeResults.concat(mergePreCheckErrors);
