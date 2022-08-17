@@ -130,7 +130,7 @@ module.exports.commonAfterEach = async () => {
     // mongo = null;
     await server.close();
     server = null;
-    global.gc();
+    // global.gc();
 };
 
 

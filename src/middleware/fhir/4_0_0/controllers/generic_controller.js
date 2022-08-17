@@ -50,6 +50,12 @@ module.exports.search = function search(service) {
             }
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -72,6 +78,12 @@ module.exports.searchById = function searchById(service) {
             handler.readOne(req, res, resource);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -94,6 +106,12 @@ module.exports.searchByVersionId = function searchByVersionId(service) {
             handler.readOne(req, res, resource);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -116,6 +134,12 @@ module.exports.create = function create(service) {
             handler.create(req, res, json, {});
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -138,6 +162,12 @@ module.exports.merge = function merge(service) {
             handler.create(req, res, json, {});
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -160,6 +190,12 @@ module.exports.update = function update(service) {
             handler.update(req, res, json, {});
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -182,6 +218,12 @@ module.exports.remove = function remove(service) {
             handler.remove(req, res, json);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -204,6 +246,12 @@ module.exports.patch = function patch(service) {
             handler.update(req, res, json, {});
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -226,6 +274,12 @@ module.exports.history = function history(service) {
             handler.history(req, res, bundle);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -248,6 +302,12 @@ module.exports.historyById = function historyById(service) {
             handler.history(req, res, bundle);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };

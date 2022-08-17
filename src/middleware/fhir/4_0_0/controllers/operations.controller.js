@@ -35,6 +35,12 @@ module.exports.operationsPost = function operationsPost(
             handler.read(req, res, results);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
@@ -64,6 +70,12 @@ module.exports.operationsGet = function operationsGet(
             handler.read(req, res, results);
         } catch (e) {
             next(e);
+        } finally {
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = req.container.postRequestProcessor;
+            await postRequestProcessor.executeAsync();
         }
     };
 };
