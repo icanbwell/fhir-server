@@ -2,6 +2,8 @@
  * This class stores any actions to run after the current request has finished
  * The goal is to get the response back to client quickly and then run these actions
  */
+const {logErrorToSlackAsync} = require('./slack.logger');
+
 class PostRequestProcessor {
     constructor() {
         /**
@@ -29,7 +31,11 @@ class PostRequestProcessor {
          */
         let task = this.queue.pop();
         while (task !== undefined) {
-            await task();
+            try {
+                await task();
+            } catch (e) {
+                await logErrorToSlackAsync('Error running post request task', e);
+            }
             task = this.queue.pop();
         }
     }

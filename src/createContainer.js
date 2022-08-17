@@ -21,7 +21,7 @@ const createContainer = function () {
         c.kafkaClient
     ));
     container.register('resourceManager', c => new ResourceManager(c.changeEventProducer));
-    container.register('databaseBulkInserter', c => new DatabaseBulkInserter(c.resourceManager));
+    container.register('databaseBulkInserter', c => new DatabaseBulkInserter(c.resourceManager, c.postRequestProcessor));
     container.register('databaseBulkLoader', () => new DatabaseBulkLoader());
     container.register('postRequestProcessor', () => new PostRequestProcessor());
     return container;

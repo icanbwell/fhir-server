@@ -24,14 +24,21 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Constructor
      * @param {ResourceManager} resourceManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(resourceManager) {
+    constructor(resourceManager, postRequestProcessor) {
         super();
         assert(resourceManager);
+        assert(postRequestProcessor);
+
         /**
          * @type {ResourceManager}
          */
         this.resourceManager = resourceManager;
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -165,13 +172,14 @@ class DatabaseBulkInserter extends EventEmitter {
                 x, base_version, useAtlas, false
             ));
 
-        // TODO: For now, we are ignoring errors saving history
-        await async.map(
-            this.historyOperationsByResourceTypeMap.entries(),
-            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                requestId, currentDate,
-                x, base_version, useAtlas, true
-            ));
+        this.postRequestProcessor.add(async () =>
+            await async.map(
+                this.historyOperationsByResourceTypeMap.entries(),
+                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                    requestId, currentDate,
+                    x, base_version, useAtlas, true
+                ))
+        );
 
         // If there are any errors, send them to Slack notification
         if (resultsByResourceType.some(r => r.error)) {
