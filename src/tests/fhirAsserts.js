@@ -1,3 +1,5 @@
+const {expect} = require('@jest/globals');
+
 /**
  * confirms that object was created
  * @param {Object | [Object]} body
@@ -114,7 +116,23 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
     expect(body).toStrictEqual(expected);
 }
 
+/**
+ * Asserts that response matches the status
+ * @param {number} expectedStatusCode
+ * @return {(function(*): void)|*}
+ */
+function assertStatusCode(expectedStatusCode) {
+    return (resp) => {
+        try {
+            expect(resp.status).toBe(expectedStatusCode);
+        } catch (e) {
+            throw new Error(`Status ${expectedStatusCode} != ${resp.status}: ${resp.body}`);
+        }
+    };
+}
+
 module.exports = {
-    assertCompareBundles: assertCompareBundles,
-    assertMergeIsSuccessful: assertMergeIsSuccessful
+    assertCompareBundles,
+    assertMergeIsSuccessful,
+    assertStatusCode
 };

@@ -28,6 +28,7 @@ const {
     getCustomGraphQLHeaders, createTestRequest
 } = require('../../common');
 const {describe, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('patient Tests', () => {
     beforeAll(async () => {
@@ -148,7 +149,8 @@ describe('patient Tests', () => {
         resp = await request
             .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
             .send(allergyResource)
-            .set(getHeaders());
+            .set(getHeaders())
+            .expect(assertStatusCode(201));
 
         console.log('------- response 2 ------------');
         console.log(JSON.stringify(resp.body, null, 2));

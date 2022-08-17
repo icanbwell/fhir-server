@@ -66,8 +66,7 @@ module.exports.commonBeforeEach = async () => {
      * 1.1
      * Start in-memory MongoDB
      */
-    if (!mongo)
-    {
+    if (!mongo) {
         mongo = await MongoMemoryServer.create();
     }
     /**
@@ -128,8 +127,10 @@ module.exports.commonAfterEach = async () => {
     connection = null;
     // await mongo.stop();
     // mongo = null;
-    await server.close();
-    server = null;
+    if (server) {
+        await server.close();
+        server = null;
+    }
     // global.gc();
 };
 

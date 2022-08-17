@@ -17,7 +17,7 @@
     "test:lint": "eslint \"src/**/*.js\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
     "test:jshint": "jshint \"src/\"",
-    "test:jest": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=12328 node --max-old-space-size=12328 --expose-gc ./node_modules/.bin/jest --silent --runInBand --logHeapUsage .",
+    "test:jest": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=12328 node --max-old-space-size=12328 --expose-gc ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit .",
     "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
     "test:specific": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
     "test:everything": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/everything",

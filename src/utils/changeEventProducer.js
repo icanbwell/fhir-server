@@ -10,6 +10,7 @@ class ChangeEventProducer {
      */
     constructor(kafkaClient, resourceManager) {
         assert(kafkaClient);
+        assert(resourceManager);
         /**
          * @type {KafkaClient}
          */
@@ -113,17 +114,13 @@ class ChangeEventProducer {
          */
         const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
         /**
-         * @type {ChangeEventProducer}
-         */
-        const changeEventProducer = this.changeEventProducer;
-        /**
          * @type {string}
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
         if (eventType === 'C' && resourceType === 'Patient') {
-            await changeEventProducer.onPatientCreateAsync(requestId, patientId, currentDate);
+            await this.onPatientCreateAsync(requestId, patientId, currentDate);
         } else {
-            await changeEventProducer.onPatientChangeAsync(requestId, patientId, currentDate);
+            await this.onPatientChangeAsync(requestId, patientId, currentDate);
         }
     }
 
