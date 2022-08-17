@@ -3,7 +3,6 @@ const organizationBundleResourceUpdate = require('./fixtures/organization_update
 const expectedOrganizationBundleResource = require('./fixtures/expected_organization.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Merge Tests', () => {
@@ -17,6 +16,7 @@ describe('Organization Merge Tests', () => {
 
     describe('Organization Merge Bundles', () => {
         test('Organization name merges properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Organization')
                 .set(getHeaders())

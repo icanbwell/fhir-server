@@ -15,7 +15,6 @@ const {
     getHeaders,
     getGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Immunization Tests', () => {
@@ -29,7 +28,7 @@ describe('GraphQL Immunization Tests', () => {
 
     describe('GraphQL Immunization', () => {
         test('GraphQL Immunization properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')

@@ -26,7 +26,6 @@ const {
     getHeaders,
     getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Patient Tests', () => {
@@ -40,7 +39,7 @@ describe('GraphQL Patient Tests', () => {
 
     describe('GraphQL Patient', () => {
         test('GraphQL Patient properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -162,7 +161,7 @@ describe('GraphQL Patient Tests', () => {
             expect(body.data.patient).toStrictEqual(expected);
         });
         test('GraphQL Patient properly (unauthenticated)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -263,7 +262,7 @@ describe('GraphQL Patient Tests', () => {
                 .expect(401);
         });
         test('GraphQL Patient properly (missing user scopes)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -367,11 +366,10 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- response graphql ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response graphql  ------------');
-            let expected = expectedGraphqlMissingUserScopesResponse;
-            expect(body).toStrictEqual(expected);
+            expect(body).toStrictEqual(expectedGraphqlMissingUserScopesResponse);
         });
         test('GraphQL Patient properly (missing access scopes)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -475,13 +473,12 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- response graphql ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response graphql  ------------');
-            let expected = expectedGraphqlMissingAccessScopesResponse;
-            expect(body).toStrictEqual(expected);
+            expect(body).toStrictEqual(expectedGraphqlMissingAccessScopesResponse);
         });
     });
     describe('GraphQL Update General Practitioner', () => {
         test('GraphQL Update General Practitioner for Patient', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -561,7 +558,7 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expectedUpdateGraphQlResponse);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -631,7 +628,7 @@ describe('GraphQL Patient Tests', () => {
                 .expect(401);
         });
         test('GraphQL Update General Practitioner for Patient (missing user scopes)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
             let resp = await request
@@ -707,7 +704,7 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expectedPractitionerMissingUserScopesResponse);
         });
         test('GraphQL Update General Practitioner for Patient (missing access scopes)', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
             let resp = await request

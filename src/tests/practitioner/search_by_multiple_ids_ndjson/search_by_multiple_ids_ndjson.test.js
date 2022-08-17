@@ -13,7 +13,6 @@ const {
     getHeaders,
     getHeadersNdJson, getHeadersNdJsonFormUrlEncoded, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {ndjsonToJsonText} = require('ndjson-to-json-text');
 
@@ -28,6 +27,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
@@ -92,6 +92,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersNdJson())
@@ -163,6 +164,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
@@ -216,6 +218,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)

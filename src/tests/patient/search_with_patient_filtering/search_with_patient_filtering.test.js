@@ -27,13 +27,12 @@ const {
     commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload,
     getCustomGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, expect} = require('@jest/globals');
 
 describe('patient Tests', () => {
     beforeAll(async () => {
         await commonBeforeEach();
-
+        const request = await createTestRequest();
         let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
         expect(resp.body.length).toBe(0);
         console.log('------- response 0 ------------');
@@ -286,6 +285,7 @@ describe('patient Tests', () => {
         describe('User security filtering', () => {
 
             test('Legacy users can only access a single patient', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_payload))
@@ -300,6 +300,7 @@ describe('patient Tests', () => {
             });
 
             test('Only linked patients are returned', async () => {
+                const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
                 // console.log(getHeadersWithCustomPayload(payload));
@@ -329,6 +330,7 @@ describe('patient Tests', () => {
             });
 
             test('No resources are returned if user has no fhir ids', async () => {
+                const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
                 // console.log(getHeadersWithCustomPayload(payload));
@@ -356,6 +358,7 @@ describe('patient Tests', () => {
             });
 
             test('No resources are returned if user has a bad fhir id', async () => {
+                const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
                 // console.log(getHeadersWithCustomPayload(payload));
@@ -383,6 +386,7 @@ describe('patient Tests', () => {
             });
 
             test('Patients are filtered by platform member id', async () => {
+                const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
                 // console.log(getHeadersWithCustomPayload(payload));
@@ -400,6 +404,7 @@ describe('patient Tests', () => {
             });
 
             test('A user can access their patient by id', async () => {
+                const request = await createTestRequest();
                 // Patient-123 should be able to access himself
                 let resp = await request
                     .get('/4_0_0/patient/patient-123-a')
@@ -426,6 +431,7 @@ describe('patient Tests', () => {
             });
 
             test('A user can access their patient by id (member id only)', async () => {
+                const request = await createTestRequest();
                 // Patient-123 should be able to access himself
                 let resp = await request
                     .get('/4_0_0/patient/patient-123-c')
@@ -442,6 +448,7 @@ describe('patient Tests', () => {
 
 
             test('A user cannot access another patient by id', async () => {
+                const request = await createTestRequest();
                 // Make sure patient-123 access other-patient
                 let resp = await request
                     .get('/4_0_0/Patient/other-patient')
@@ -456,6 +463,7 @@ describe('patient Tests', () => {
             });
 
             test('A user cannot access another patient by id (member id)', async () => {
+                const request = await createTestRequest();
                 // Make sure patient-123 access other-patient
                 let resp = await request
                     .get('/4_0_0/Patient/other-patient')
@@ -470,6 +478,7 @@ describe('patient Tests', () => {
             });
 
             test('Resources are filtered by patient', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload))
@@ -498,6 +507,7 @@ describe('patient Tests', () => {
             });
 
             test('A user can access their patient-filtered resources by id', async () => {
+                const request = await createTestRequest();
                 // Make sure patient 123 can access a certain allergy
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
@@ -513,6 +523,7 @@ describe('patient Tests', () => {
 
 
             test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload))
@@ -528,6 +539,7 @@ describe('patient Tests', () => {
 
 
             test('A user can access their subject-filtered resources by id', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Condition/other-patient-condition')
                     .set(getHeadersWithCustomPayload(patient_123_payload))
@@ -541,6 +553,7 @@ describe('patient Tests', () => {
             });
 
             test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload))
@@ -558,6 +571,7 @@ describe('patient Tests', () => {
         describe('App clients security filtering', () => {
             //Make sure app clients can access all patients
             test('App clients can access all id-filtered resources', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload))
@@ -571,6 +585,7 @@ describe('patient Tests', () => {
             });
 
             test('App clients can access all patient-filtered resources', async () => {
+                const request = await createTestRequest();
                 //Make sure app clients can access all patient filtered resources
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
@@ -585,6 +600,7 @@ describe('patient Tests', () => {
             });
 
             test('App clients can access all subject-filtered resources', async () => {
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload))
@@ -603,6 +619,7 @@ describe('patient Tests', () => {
             let payload = desiree_payload;
 
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
+            const request = await createTestRequest();
             let resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())

@@ -15,7 +15,6 @@ const {
     getHeaders,
     getGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL AllergyIntolerance Tests', () => {
@@ -29,7 +28,7 @@ describe('GraphQL AllergyIntolerance Tests', () => {
 
     describe('GraphQL AllergyIntolerance', () => {
         test('GraphQL AllergyIntolerance properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
             let resp = await request
                 .get('/4_0_0/AllergyIntolerance')

@@ -11,7 +11,6 @@ const expectedResource_230916613368 = require('./fixtures/expected/expected-WPS-
 const expectedResource_230916613369 = require('./fixtures/expected/expected-WPS-Claim-230916613369.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Claim Graph By Id Contained Tests', () => {
@@ -25,6 +24,7 @@ describe('Claim Graph By Id Contained Tests', () => {
 
     describe('Graph By Id Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())

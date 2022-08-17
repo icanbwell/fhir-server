@@ -8,7 +8,6 @@ const expectedPractitionerWithLimitedAccessScopes = require('./fixtures/expected
 const expectedPractitionerWithUnlimitedAccessScopes = require('./fixtures/expected/expected_practitioner_with_unlimited_access_scopes.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -23,6 +22,7 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner search_by_multiple_access_scopes Tests', () => {
         test('search_by_multiple_access_scopes works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

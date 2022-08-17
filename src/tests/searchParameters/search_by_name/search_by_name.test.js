@@ -16,7 +16,6 @@ const person11Resource = require('./fixtures/Person/person11.json');
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -31,6 +30,7 @@ describe('Person Tests', () => {
 
     describe('Person search_by_name Tests', () => {
         test('search_by_name works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

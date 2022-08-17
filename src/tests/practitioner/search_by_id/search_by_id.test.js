@@ -6,7 +6,6 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
@@ -20,6 +19,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Id Tests', () => {
         test('search by single id works', async () => {
+            const request = await createTestRequest();
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')
@@ -71,6 +71,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by single id fails if there is no access', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -115,6 +116,7 @@ describe('PractitionerReturnIdTests', () => {
                 .expect(403);
         });
         test('search by single id fails if access does not match', async () => {
+            const request = await createTestRequest();
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')

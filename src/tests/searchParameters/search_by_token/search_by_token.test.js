@@ -6,7 +6,6 @@ const observation2Resource = require('./fixtures/observation/observation2.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -21,6 +20,7 @@ describe('ObservationReturnIdTests', () => {
 
     describe('Observation Search By token Tests', () => {
         test('search by single token works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

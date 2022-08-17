@@ -5,7 +5,6 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles} = require('../../fhirAsserts');
 
@@ -20,6 +19,7 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner update Tests', () => {
         test('update works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             await request

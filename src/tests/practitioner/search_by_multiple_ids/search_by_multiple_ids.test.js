@@ -8,7 +8,6 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersFormUrlEncoded, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
@@ -22,6 +21,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -85,6 +85,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -155,6 +156,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
@@ -209,6 +211,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)

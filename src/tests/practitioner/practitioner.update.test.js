@@ -2,7 +2,6 @@ const practitionerResource = require('./fixtures/providers/practitioner.json');
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {
@@ -16,6 +15,7 @@ describe('Practitioner Update Tests', () => {
 
     describe('Practitioner Merges', () => {
         test('Multiple calls to Practitioner update properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

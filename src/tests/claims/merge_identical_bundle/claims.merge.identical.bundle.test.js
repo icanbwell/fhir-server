@@ -2,7 +2,6 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
@@ -16,6 +15,7 @@ describe('Claim Merge Tests', () => {
 
     describe('Claim Merge Bundles', () => {
         test('Identical Claims merge properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())

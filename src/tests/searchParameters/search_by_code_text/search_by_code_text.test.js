@@ -7,7 +7,6 @@ const medication3Resource = require('./fixtures/Medication/medication3.json');
 const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -22,6 +21,7 @@ describe('Medication Tests', () => {
 
     describe('Medication search_by_code_text Tests', () => {
         test('search_by_code_text works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

@@ -4,7 +4,6 @@ const explanationOfBenefitBundleResource3 = require('./fixtures/explanation_of_b
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -19,6 +18,7 @@ describe('Claim Merge Tests', () => {
 
     describe('Claim Merge with overlapping items', () => {
         test('Claims with same claim number in different bundles and similar items merge properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders());

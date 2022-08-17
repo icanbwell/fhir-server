@@ -55,13 +55,16 @@ function createFhirApp(fnCreateContainer, app1) {
 /**
  * Creates the app
  * @param {function (): SimpleContainer} fnCreateContainer
- * @return {import('http').Server}
+ * @return {Express}
  */
 function createApp(fnCreateContainer) {
     const swaggerUi = require('swagger-ui-express');
 // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
+    /**
+     * @type {Express}
+     */
     const app = express();
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';

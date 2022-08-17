@@ -6,7 +6,6 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerSearchAllWithCountTests', () => {
@@ -20,6 +19,7 @@ describe('PractitionerSearchAllWithCountTests', () => {
 
     describe('Practitioner Search All With Count Tests', () => {
         test('search all with count works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

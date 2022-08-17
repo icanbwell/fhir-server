@@ -5,7 +5,6 @@ const expectedOrganizationResponseBundle = require('./fixtures/expected_organiza
 const expectedOrganizationResponseBundle2 = require('./fixtures/expected_organization_responses_2.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Response Tests', () => {
@@ -19,6 +18,7 @@ describe('Organization Response Tests', () => {
 
     describe('OrganizationResponse Bundles', () => {
         test('OrganizationResponse can search by null', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Organization')
                 .set(getHeaders())

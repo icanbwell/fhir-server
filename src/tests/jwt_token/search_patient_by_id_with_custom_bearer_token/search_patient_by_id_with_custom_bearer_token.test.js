@@ -5,7 +5,6 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeadersWithCustomToken, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {
@@ -19,6 +18,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
 
     describe('Patient Search By Id Tests With Custom Bearer Token', () => {
         test('search by single id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeadersWithCustomToken())

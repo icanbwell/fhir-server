@@ -9,7 +9,6 @@ const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_
 const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_3.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
@@ -26,6 +25,7 @@ describe('InternalAuditLog Tests', () => {
 
     describe('InternalAuditLog Tests', () => {
         test('InternalAuditLog works', async () => {
+            const request = await createTestRequest();
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')

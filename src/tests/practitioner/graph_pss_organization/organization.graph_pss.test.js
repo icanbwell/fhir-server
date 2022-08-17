@@ -12,7 +12,6 @@ const expectedResource = require('./fixtures/expected/expected.json');
 const expectedHashReferencesResource = require('./fixtures/expected/expected_hash_references.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles} = require('../../fhirAsserts');
 
@@ -27,6 +26,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
 
     describe('Graph Contained PSS Tests', () => {
         test('Graph contained PSS works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

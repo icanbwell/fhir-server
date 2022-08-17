@@ -6,7 +6,6 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Delete Tests', () => {
@@ -20,6 +19,7 @@ describe('Practitioner Delete Tests', () => {
 
     describe('Patient Delete by query Tests', () => {
         test('search by delete by query works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders())

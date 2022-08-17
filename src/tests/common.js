@@ -14,26 +14,44 @@ const nock = require('nock');
 const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
 const {createApp} = require('../app');
+const {createServer} = require('../server');
 
 
 
 let connection;
 let db;
 let mongo;
+// /**
+//  * @type {import('http').Server}
+//  */
+// let server;
+// /**
+//  * @type {import('supertest').Test}
+//  */
+// let tester;
 
 /**
  * Creates a test version of the app
- * @return {import('http').Server}
+ * @return {import('express').Express}
  */
 module.exports.createTestApp = () => {
     return createApp(() => createTestContainer());
 };
 
 /**
- * @return {Test}
+ * @return {Promise<import('http').Server>}
  */
-module.exports.createTestRequest = () => {
-    return supertest(module.exports.createTestApp());
+module.exports.createTestServer = async () => {
+    return createServer(() => createTestContainer());
+};
+
+/**
+ * @return {import('supertest').Test}
+ */
+module.exports.createTestRequest = async () => {
+    const server = await module.exports.createTestServer();
+    const tester = supertest(server);
+    return tester;
 };
 
 /**
@@ -101,7 +119,7 @@ module.exports.commonAfterEach = async () => {
     await connection.close();
     await mongo.stop();
     // global.gc();
-    // await app.close();
+    // await server.close();
 };
 
 

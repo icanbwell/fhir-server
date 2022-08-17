@@ -4,7 +4,6 @@ const expectedMergeResponse = require('./fixtures/expected/expected_merge_respon
 const expectedPatientBundleResource = require('./fixtures/expected/expected_patients.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles} = require('../../fhirAsserts');
 
@@ -19,7 +18,7 @@ describe('Claim Merge Tests', () => {
 
     describe('Claim Merge Bundles', () => {
         test('Claims with heterogeneous resources merge properly', async () => {
-
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())

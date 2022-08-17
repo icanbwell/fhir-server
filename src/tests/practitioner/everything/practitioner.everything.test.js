@@ -28,7 +28,6 @@ const expectedEverythingResource = require('./fixtures/expected/expected_everyth
  * @type {Test}
  */
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {findDuplicateResources} = require('../../../utils/list.util');
 
@@ -43,6 +42,7 @@ describe('Practitioner Everything Tests', () => {
 
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

@@ -9,7 +9,6 @@ const practiceLocationResource = require('./fixtures/practice/location.json');
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Multiple Everything Tests', () => {
@@ -23,6 +22,7 @@ describe('Organization Multiple Everything Tests', () => {
 
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

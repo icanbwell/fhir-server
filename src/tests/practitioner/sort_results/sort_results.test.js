@@ -6,7 +6,6 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
@@ -28,6 +27,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Sort Tests', () => {
         test('sort equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -87,6 +87,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('sort equals nested descending', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

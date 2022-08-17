@@ -8,7 +8,6 @@ const valueset4Resource = require('./fixtures/ValueSet/valueset4.json');
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -24,6 +23,7 @@ describe('ValueSet Multiple Tests', () => {
 
     describe('ValueSet expand_valueset.test.js Tests', () => {
         test('expand_valueset.test.js works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

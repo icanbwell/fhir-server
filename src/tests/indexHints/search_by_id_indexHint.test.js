@@ -5,7 +5,6 @@ const auditEventResource = require('./fixtures/auditEvents.json');
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles} = require('../fhirAsserts');
 
@@ -20,7 +19,7 @@ describe('AuditEventReturnIdTests', () => {
 
     describe('AuditEvent Search By Id Tests', () => {
         test('search by single id works', async () => {
-
+            const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');

@@ -12,7 +12,6 @@ const expectedResource = require('./fixtures/expected/expected.json');
 const expectedHashReferencesResource = require('./fixtures/expected/expected_hash_references.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 
 const {findDuplicateResources} = require('../../../utils/list.util');
 const {assertCompareBundles} = require('../../fhirAsserts');
@@ -29,6 +28,7 @@ describe('Practitioner Graph Contained Tests', () => {
 
     describe('Graph Contained Tests', () => {
         test('Graph contained works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

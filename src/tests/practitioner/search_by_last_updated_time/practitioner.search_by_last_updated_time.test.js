@@ -6,7 +6,6 @@ const practitionerResource = require('./fixtures/practitioner/practitioner.json'
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Last Updated Time', () => {
@@ -23,6 +22,7 @@ describe('Practitioner Last Updated Time', () => {
 
     describe('Practitioner Search By Last Updated Time Tests', () => {
         test('search by lastUpdated time greater than or equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -68,6 +68,7 @@ describe('Practitioner Last Updated Time', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated greater than', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -113,6 +114,7 @@ describe('Practitioner Last Updated Time', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than or equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -158,6 +160,7 @@ describe('Practitioner Last Updated Time', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -203,6 +206,7 @@ describe('Practitioner Last Updated Time', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than and greater than (found)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -248,6 +252,7 @@ describe('Practitioner Last Updated Time', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than and greater than (not found)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

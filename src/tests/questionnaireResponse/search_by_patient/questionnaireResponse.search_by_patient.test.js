@@ -2,7 +2,6 @@ const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Questionnaire Response Tests', () => {
@@ -16,6 +15,7 @@ describe('Questionnaire Response Tests', () => {
 
     describe('QuestionnaireResponse Bundles', () => {
         test('QuestionnaireResponse can search by patient', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
                 .set(getHeaders())

@@ -10,7 +10,6 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedResource = require('./fixtures/expected/expected.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Claim Graph Contained Tests', () => {
@@ -24,6 +23,7 @@ describe('Claim Graph Contained Tests', () => {
 
     describe('Graph Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())

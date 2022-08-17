@@ -15,7 +15,6 @@ const {
     getHeaders,
     getGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Condition Tests', () => {
@@ -29,7 +28,7 @@ describe('GraphQL Condition Tests', () => {
 
     describe('GraphQL Condition', () => {
         test('GraphQL Condition properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = conditionQuery.replace(/\\n/g, '');
             let resp = await request
                 .get('/4_0_0/Condition')

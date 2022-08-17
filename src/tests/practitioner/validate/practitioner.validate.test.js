@@ -7,7 +7,6 @@ const expectedValidPractitionerNoSecurityCodeResponse = require('./expected/vali
 const expectedInvalidPractitionerResponse = require('./expected/invalid_practitioner_response.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {
@@ -21,6 +20,7 @@ describe('Practitioner Update Tests', () => {
 
     describe('Practitioner Validate', () => {
         test('Valid resource', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -43,6 +43,7 @@ describe('Practitioner Update Tests', () => {
 
         });
         test('Valid resource but no security code', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -64,6 +65,7 @@ describe('Practitioner Update Tests', () => {
             expect(body).toStrictEqual(expectedValidPractitionerNoSecurityCodeResponse);
         });
         test('Invalid resource', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

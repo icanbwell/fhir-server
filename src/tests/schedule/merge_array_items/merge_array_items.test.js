@@ -6,7 +6,6 @@ const schedule2Resource = require('./fixtures/Schedule/schedule2.json');
 const expectedScheduleResources = require('./fixtures/expected/expected_Schedule.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
@@ -21,6 +20,7 @@ describe('Schedule Tests', () => {
 
     describe('Schedule merge_array_items Tests', () => {
         test('merge_array_items works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

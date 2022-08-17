@@ -7,7 +7,6 @@ const expectedSinglePatientResource = require('./fixtures/expected/expected_sing
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const env = require('var');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
@@ -21,6 +20,7 @@ describe('PractitionerUpdateSecurityTagTests', () => {
 
     describe('Patient UpdateSecurityTag Tests', () => {
         test('UpdateSecurityTag works', async () => {
+            const request = await createTestRequest();
             const oldValue = env['CHECK_ACCESS_TAG_ON_SAVE'];
 
             // env['SLACK_TOKEN'] = '';

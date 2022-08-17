@@ -6,7 +6,6 @@ const practitionerResource = require('./fixtures/practitioner/practitioner.json'
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
@@ -23,6 +22,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Last Updated Tests', () => {
         test('search by lastUpdated equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -71,6 +71,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated greater than or equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -113,6 +114,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated greater than', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -156,6 +158,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than or equals', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -200,6 +203,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -242,6 +246,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than and greater than (found)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -284,6 +289,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by lastUpdated less than and greater than (not found)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

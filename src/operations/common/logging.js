@@ -25,7 +25,7 @@ module.exports.logRequest = (user, msg) => {
  */
 module.exports.logDebug = (user, msg) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
-        logger.info(user + ': ' + msg);
+        logger.debug(user + ': ' + msg);
     }
 };
 

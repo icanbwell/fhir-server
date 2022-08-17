@@ -15,7 +15,6 @@ const {
     getHeaders,
     getGraphQLHeaders, createTestRequest
 } = require('../../common');
-const request = createTestRequest();
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL CarePlan Tests', () => {
@@ -29,7 +28,7 @@ describe('GraphQL CarePlan Tests', () => {
 
     describe('GraphQL CarePlan', () => {
         test('GraphQL CarePlan properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = carePlanQuery.replace(/\\n/g, '');
             let resp = await request
                 .get('/4_0_0/CarePlan')
