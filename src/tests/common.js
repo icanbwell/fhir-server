@@ -30,6 +30,11 @@ let server;
 let tester;
 
 /**
+ *  @type {import('express').Express}
+ */
+let app;
+
+/**
  * Creates a test version of the app
  * @return {import('express').Express}
  */
@@ -48,13 +53,10 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async () => {
-    if (tester) {
-        return tester;
+    if (!app) {
+        app = await module.exports.createTestApp();
     }
-    if (!server) {
-        server = await module.exports.createTestServer();
-    }
-    tester = supertest(server);
+    tester = supertest(app);
     return tester;
 };
 
@@ -127,12 +129,16 @@ module.exports.commonAfterEach = async () => {
     globals.delete(AUDIT_EVENT_CLIENT_DB);
     await connection.close();
     connection = null;
-    // await mongo.stop();
-    // mongo = null;
+    if (mongo) {
+        await mongo.stop();
+        mongo = null;
+    }
     if (server) {
         await server.close();
         server = null;
     }
+    // tester = null;
+    // app = null;
     // global.gc();
 };
 

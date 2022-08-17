@@ -172,14 +172,18 @@ class DatabaseBulkInserter extends EventEmitter {
                 x, base_version, useAtlas, false
             ));
 
-        this.postRequestProcessor.add(async () =>
-            await async.map(
-                this.historyOperationsByResourceTypeMap.entries(),
-                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                    requestId, currentDate,
-                    x, base_version, useAtlas, true
-                ))
-        );
+        if (this.historyOperationsByResourceTypeMap.size > 0) {
+            this.postRequestProcessor.add(async () => {
+                    await async.map(
+                        this.historyOperationsByResourceTypeMap.entries(),
+                        async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                            requestId, currentDate,
+                            x, base_version, useAtlas, true
+                        ));
+                    this.historyOperationsByResourceTypeMap.clear();
+                }
+            );
+        }
 
         // If there are any errors, send them to Slack notification
         if (resultsByResourceType.some(r => r.error)) {
@@ -308,7 +312,6 @@ class DatabaseBulkInserter extends EventEmitter {
         }
 
         this.operationsByResourceTypeMap.clear();
-        this.historyOperationsByResourceTypeMap.clear();
         this.insertedIdsByResourceTypeMap.clear();
         this.updatedIdsByResourceTypeMap.clear();
 

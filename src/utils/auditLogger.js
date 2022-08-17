@@ -177,16 +177,16 @@ class AuditLogger {
      */
     async flushAsync(requestId, currentDate) {
         /**
+         * Audit entries are always of resource type AuditEvent
          * @type {string}
          */
-        const auditEventCollectionName = env.INTERNAL_AUDIT_TABLE || `AuditEvent_${this.base_version}`;
-
+        const resourceType = 'AuditEvent';
         for (const doc of this.queue) {
             if (this.databaseBulkInserter) {
-                await this.databaseBulkInserter.insertOneAsync(auditEventCollectionName, doc);
+                await this.databaseBulkInserter.insertOneAsync(resourceType, doc);
             } else {
                 try {
-                    await new DatabaseUpdateManager('AuditEvent', this.base_version, false).insertOneAsync(doc);
+                    await new DatabaseUpdateManager(resourceType, this.base_version, false).insertOneAsync(doc);
                 } catch (e) {
                     const documentContents = JSON.stringify(doc);
                     throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${e}: ${documentContents}`);

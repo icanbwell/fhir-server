@@ -4,6 +4,7 @@ const expectedQuestionnaireResponseBundle2 = require('./fixtures/expected_questi
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -63,7 +64,7 @@ describe('Questionnaire Response Tests', () => {
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=false')
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusCode(200));
             // clear out the lastUpdated column since that changes
             body = resp.body;
             console.log('------- response 5 ------------');
