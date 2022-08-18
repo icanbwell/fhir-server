@@ -25,6 +25,7 @@ describe('InternalAuditLog Tests', () => {
 
     describe('InternalAuditLog Tests', () => {
         test('InternalAuditLog works', async () => {
+            await new Promise((r) => setTimeout(r, 2000));
             const request = await createTestRequest();
             // first confirm there are no practitioners
             let resp = await request
