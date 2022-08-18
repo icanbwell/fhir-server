@@ -99,3 +99,11 @@ Some mongo implementations (such as AWS DocumentDB) are not very good at selecti
 
 ## How to add/update custom rendering views
 [renderingViews.md](renderingViews.md)
+
+## IoC (Inversion of Control)
+This project uses IoC (inversion of control).  The container is defined in [SimpleContainer](src/utils/simpleContainer.js).
+
+The container is set up in [src/createContainer.js](src/createContainer.js).
+
+For testing, you can override the services in the container in [src/tests/createTestContainer.js](src/tests/createTestContainer.js).
+
