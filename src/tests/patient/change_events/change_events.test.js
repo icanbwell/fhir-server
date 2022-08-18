@@ -18,12 +18,12 @@ describe('Patient Change Event Tests', () => {
     describe('Patient Change Event Tests', () => {
         test('creating a new patient works', async () => {
             await new Promise((r) => setTimeout(r, 2000));
+            const request = await createTestRequest();
             /**
              * @type {MockKafkaClient}
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders());
@@ -57,12 +57,12 @@ describe('Patient Change Event Tests', () => {
         });
         test('creating a new observation works', async () => {
             await new Promise((r) => setTimeout(r, 2000));
+            const request = await createTestRequest();
             /**
              * @type {MockKafkaClient}
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Observation')
                 .set(getHeaders());
