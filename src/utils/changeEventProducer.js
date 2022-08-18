@@ -3,8 +3,12 @@ const {generateUUID} = require('./uid.util');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
 
+/**
+ * This class is used to produce change events
+ */
 class ChangeEventProducer {
     /**
+     * Constructor
      * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
      */
@@ -26,7 +30,7 @@ class ChangeEventProducer {
     }
 
     /**
-     * Fire event for patient change
+     * Fire event for patient create
      * @param {string} requestId
      * @param {string} patientId
      * @param {string} timestamp
