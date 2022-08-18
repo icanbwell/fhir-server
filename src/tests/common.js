@@ -135,6 +135,13 @@ module.exports.commonBeforeEach = async () => {
  * @return {Promise<void>}
  */
 module.exports.commonAfterEach = async () => {
+    if (testContainer) {
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = testContainer.postRequestProcessor;
+        await postRequestProcessor.waitTillDone();
+    }
     globals.delete(CLIENT);
     globals.delete(CLIENT_DB);
     nock.cleanAll();

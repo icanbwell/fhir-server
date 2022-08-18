@@ -75,7 +75,7 @@ class ResourcePreparerTransform extends Transform {
      * @param chunk1
      * @returns {Promise<Resource[]>}
      */
-    processChunkAsync(chunk1) {
+    async processChunkAsync(chunk1) {
         return prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
             this.resourceName, this.useAccessIndex)
             .then(

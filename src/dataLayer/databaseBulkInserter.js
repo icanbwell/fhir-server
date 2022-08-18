@@ -7,6 +7,7 @@ const {getFirstElementOrNull} = require('../utils/list.util');
 const {logErrorToSlackAsync} = require('../utils/slack.logger');
 const {EventEmitter} = require('events');
 const assert = require('node:assert/strict');
+const {logVerboseAsync} = require('../operations/common/logging');
 
 /**
  * @typedef BulkResultEntry
@@ -105,6 +106,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync(resourceType, doc) {
+        await logVerboseAsync('DatabaseBulkInserter.insertOneAsync',
+            {
+                message: 'start',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         this.addOperationForResourceType(resourceType,
             {
                 insertOne: {
@@ -161,6 +167,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync(requestId, currentDate, base_version, useAtlas,) {
+        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
+            {
+                message: 'start',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         // run both the operations on the main tables and the history tables in parallel
         /**
          * @type {BulkResultEntry[]}
@@ -315,6 +326,11 @@ class DatabaseBulkInserter extends EventEmitter {
         this.insertedIdsByResourceTypeMap.clear();
         this.updatedIdsByResourceTypeMap.clear();
 
+        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
+            {
+                message: 'end',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         return mergeResultEntries;
     }
 

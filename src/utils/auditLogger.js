@@ -193,6 +193,7 @@ class AuditLogger {
                 }
             }
         }
+        this.queue = [];
         if (this.databaseBulkInserter) {
             await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
         }

@@ -10,7 +10,7 @@ const {getRequestInfo} = require('../../requestInfoHelper');
     @returns {array} the collection of ids after processing
  */
 function removeAllGeneralPractitioner(arr, id) {
-  var i = 0;
+  let i = 0;
   if (arr && id){
     while (i < arr.length) {
         // eslint-disable-next-line security/detect-object-injection

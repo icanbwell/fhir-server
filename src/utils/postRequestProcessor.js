@@ -39,6 +39,17 @@ class PostRequestProcessor {
             task = this.queue.pop();
         }
     }
+
+    /**
+     * Waits until the queue is empty
+     * @return {Promise<boolean>}
+     */
+    async waitTillDone() {
+        while (this.queue.length > 0) {
+            await new Promise((r) => setTimeout(r, 1000));
+        }
+        return true;
+    }
 }
 
 module.exports = {

@@ -241,3 +241,14 @@ module.exports.logSystemEventAsync = async (event, message, args, error = null) 
     fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
 };
 
+/**
+ * logs a verbose message
+ * @param {string} source
+ * @param {Object} messageJson
+ * @return {Promise<void>}
+ */
+module.exports.logVerboseAsync = async (source, messageJson) => {
+    if (env.LOGLEVEL === 'DEBUG') {
+        console.log(`${source}: ${JSON.stringify(messageJson)}`);
+    }
+};

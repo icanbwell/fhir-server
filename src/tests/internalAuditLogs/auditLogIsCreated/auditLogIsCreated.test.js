@@ -8,7 +8,7 @@ const expectedAuditEvents1 = require('./fixtures/expected/expected_audit_events_
 const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_2.json');
 const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_3.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
@@ -27,6 +27,10 @@ describe('InternalAuditLog Tests', () => {
     describe('InternalAuditLog Tests', () => {
         test('InternalAuditLog works', async () => {
             const request = await createTestRequest();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')
@@ -36,7 +40,7 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
-
+            await postRequestProcessor.waitTillDone();
             // check that InternalAuditLog is created
             /**
              * mongo connection
@@ -60,7 +64,7 @@ describe('InternalAuditLog Tests', () => {
              */
             let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
-            expect(await internalAuditEventCollection.find({}).count()).toStrictEqual(0);
+            expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 
             // now add a record
             resp = await request
@@ -72,6 +76,7 @@ describe('InternalAuditLog Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
+            await postRequestProcessor.waitTillDone();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach(log => {
@@ -100,7 +105,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             // wait for post request processing to finish
-            await new Promise((r) => setTimeout(r, 2000));
+            await postRequestProcessor.waitTillDone();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -132,6 +137,7 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(false);
             expect(resp.body['updated']).toBe(false);
+            await postRequestProcessor.waitTillDone();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach(log => {
@@ -159,6 +165,7 @@ describe('InternalAuditLog Tests', () => {
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             delete body['meta']['lastUpdated'];
+            await postRequestProcessor.waitTillDone();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);
