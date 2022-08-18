@@ -17,6 +17,7 @@ describe('Patient Change Event Tests', () => {
 
     describe('Patient Change Event Tests', () => {
         test('creating a new patient works', async () => {
+            await new Promise((r) => setTimeout(r, 2000));
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
@@ -54,6 +55,7 @@ describe('Patient Change Event Tests', () => {
             expect(messageValue.agent[0].who.reference).toBe('Patient/00100000000');
         });
         test('creating a new observation works', async () => {
+            await new Promise((r) => setTimeout(r, 2000));
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Observation')
