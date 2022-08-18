@@ -10,6 +10,9 @@ const assert = require('node:assert/strict');
  * @property {string} value
  */
 
+/**
+ * This class implements a client to Kafka
+ */
 class KafkaClient {
     /**
      * constructor

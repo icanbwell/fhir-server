@@ -1,5 +1,5 @@
 const {SimpleContainer} = require('./utils/simpleContainer');
-const {KafkaClient} = require('./utils/KafkaClient');
+const {KafkaClient} = require('./utils/kafkaClient');
 const env = require('var');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
