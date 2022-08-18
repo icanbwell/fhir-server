@@ -137,7 +137,7 @@ module.exports.commonAfterEach = async () => {
         await server.close();
         server = null;
     }
-    // tester = null;
+    tester = null;
     // app = null;
     // global.gc();
 };
