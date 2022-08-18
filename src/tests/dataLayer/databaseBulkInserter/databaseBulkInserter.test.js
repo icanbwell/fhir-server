@@ -63,6 +63,9 @@ describe('databaseBulkInserter Tests', () => {
 
             expect(patientCreateHandler).toBeCalledTimes(1);
             expect(patientChangeHandler).toBeCalledTimes(2);
+
+            databaseBulkInserter.removeListener('createPatient', patientCreateHandler);
+            databaseBulkInserter.removeListener('changePatient', patientChangeHandler);
         });
     });
 });

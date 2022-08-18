@@ -57,10 +57,12 @@ async function streamBundleFromCursorAsync(options) {
         id: []
     };
 
-    // if response is closed then abort the pipeline
-    res.on('close', () => {
+    function onResponseClose() {
         ac.abort();
-    });
+    }
+
+    // if response is closed then abort the pipeline
+    res.on('close', onResponseClose);
 
     /**
      * @type {HttpResponseWriter}
@@ -74,10 +76,10 @@ async function streamBundleFromCursorAsync(options) {
 
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
-        readableMongoStream.on('close', () => {
-            // console.log('Mongo read stream was closed');
-            // ac.abort();
-        });
+        // readableMongoStream.on('close', () => {
+        //     // console.log('Mongo read stream was closed');
+        //     // ac.abort();
+        // });
         // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
         await pipeline(
             readableMongoStream,
@@ -91,6 +93,8 @@ async function streamBundleFromCursorAsync(options) {
         logError(user, e);
         ac.abort();
         throw e;
+    } finally {
+        res.removeListener('close', onResponseClose);
     }
     if (!res.writableEnded) {
         res.end();

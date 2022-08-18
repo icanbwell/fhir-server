@@ -65,15 +65,16 @@ async function streamResourcesFromCursorAsync(options) {
      */
     const ac = new AbortController();
 
-    // if response is closed then abort the pipeline
-    res.on('close', () => {
-        // console.log('HTTP Response stream was closed');
+    function onResponseClose() {
         ac.abort();
-    });
+    }
 
-    res.on('error', (err) => {
-        console.error(err);
-    });
+    // if response is closed then abort the pipeline
+    res.on('close', onResponseClose);
+
+    // res.on('error', (err) => {
+    //     console.error(err);
+    // });
     /**
      * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
      */
@@ -98,10 +99,10 @@ async function streamResourcesFromCursorAsync(options) {
 
     try {
         const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
-        readableMongoStream.on('close', () => {
-            // console.log('Mongo read stream was closed');
-            // ac.abort();
-        });
+        // readableMongoStream.on('close', () => {
+        //     // console.log('Mongo read stream was closed');
+        //     // ac.abort();
+        // });
 
         const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
 
@@ -125,6 +126,8 @@ async function streamResourcesFromCursorAsync(options) {
         logError(user, e);
         ac.abort();
         throw e;
+    } finally {
+        res.removeListener('close', onResponseClose);
     }
     if (!res.writableEnded) {
         res.end();

@@ -91,12 +91,32 @@ module.exports.merge = async (container,
         accessRequested: 'write'
     });
 
+    /**
+     * @type {DatabaseBulkInserter}
+     */
+    const databaseBulkInserter = container.databaseBulkInserter;
+    /**
+     * @type {ChangeEventProducer}
+     */
+    const changeEventProducer = container.changeEventProducer;
+    /**
+     * @type {string}
+     */
+    const currentDate = moment.utc().format('YYYY-MM-DD');
+
+    async function onCreatePatient(event) {
+        await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
+    }
+
+    async function onChangePatient(event) {
+        await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
+    }
+
     try {
         /**
          * @type {string[]}
          */
         const scopes = parseScopes(scope);
-
 
         // read the incoming resource from request body
         /**
@@ -107,11 +127,6 @@ module.exports.merge = async (container,
          * @type {string}
          */
         let {base_version} = args;
-
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
 
         // if the incoming request is a bundle then unwrap the bundle
         if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
@@ -124,23 +139,9 @@ module.exports.merge = async (container,
             resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
         }
 
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        const databaseBulkInserter = container.databaseBulkInserter;
         // add event handlers
-        /**
-         * @type {ChangeEventProducer}
-         */
-        const changeEventProducer = container.changeEventProducer;
-        databaseBulkInserter.on('createPatient', async (event) => {
-            // console.info(`PatientChange: ${JSON.stringify(event)}`);
-            await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
-        });
-        databaseBulkInserter.on('changePatient', async (event) => {
-            // console.info(`PatientChange: ${JSON.stringify(event)}`);
-            await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
-        });
+        databaseBulkInserter.on('createPatient', onCreatePatient);
+        databaseBulkInserter.on('changePatient', onChangePatient);
         /**
          * @type {boolean}
          */
@@ -238,6 +239,8 @@ module.exports.merge = async (container,
         });
         throw e;
     } finally {
+        databaseBulkInserter.removeListener('createPatient', onCreatePatient);
+        databaseBulkInserter.removeListener('changePatient', onChangePatient);
         timer({action: currentOperationName, resourceType});
     }
 };
