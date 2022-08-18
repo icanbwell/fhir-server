@@ -16,7 +16,6 @@ const env = require('var');
 
 describe('InternalAuditLog Tests', () => {
     beforeEach(async () => {
-        await new Promise((r) => setTimeout(r, 2000));
         await commonBeforeEach();
     });
 
