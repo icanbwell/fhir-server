@@ -1,4 +1,5 @@
 /**
+ * Implements a very simple IoC (inversion of control) container
  * inspired by https://medium.com/@magnusjt/ioc-container-in-nodejs-e7aea8a89600
  */
 class SimpleContainer {
@@ -6,6 +7,12 @@ class SimpleContainer {
         this.services = {};
     }
 
+    /**
+     * Registers a new service in the IoC container
+     * @param {string} name
+     * @param {(SimpleContainer) => Object} cb
+     * @return {SimpleContainer}
+     */
     register(name, cb) {
         Object.defineProperty(this, name, {
             get: () => {
