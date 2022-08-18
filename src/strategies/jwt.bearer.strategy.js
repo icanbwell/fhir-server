@@ -9,7 +9,7 @@ const env = require('var');
 const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
-const {request} = require('../utils/request');
+const superagent = require('superagent');
 
 /**
  * Retrieve jwks for URL
@@ -17,11 +17,17 @@ const {request} = require('../utils/request');
  * @returns {Promise<{keys:{alg:string, kid: string, n: string}[]}>}
  */
 const getExternalJwksByUrlAsync = async (jwksUrl) => {
-    const res = await request({
-        uri: jwksUrl,
+    /**
+     * @type {*}
+     */
+    const res = await superagent.get(jwksUrl).set({
+        'Accept': 'application/json'
     });
-
-    return res.keys;
+    /**
+     * @type {Object}
+     */
+    const jsonResponse = JSON.parse(res.text);
+    return jsonResponse.keys;
 };
 
 /**
