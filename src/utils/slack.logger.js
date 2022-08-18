@@ -26,7 +26,7 @@ async function logMessageToSlackAsync(message) {
 /**
  * logs error to Slack
  * @param {string} message
- * @param {Error} err
+ * @param {Error} [err]
  * @returns {Promise<void>}
  */
 async function logErrorToSlackAsync(message, err) {
@@ -36,7 +36,7 @@ async function logErrorToSlackAsync(message, err) {
         // Post a message to the channel, and await the result.
         // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
         await web.chat.postMessage({
-            text: message + ':' + err.stack,
+            text: message + err ? (':' + err.stack) : '',
             channel: options.channel,
         });
     }

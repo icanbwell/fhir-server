@@ -39,7 +39,7 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             // check that InternalAuditLog is created
             /**
              * mongo connection
@@ -75,7 +75,7 @@ describe('InternalAuditLog Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach(log => {
@@ -104,7 +104,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -136,7 +136,7 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(false);
             expect(resp.body['updated']).toBe(false);
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach(log => {
@@ -164,7 +164,7 @@ describe('InternalAuditLog Tests', () => {
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             delete body['meta']['lastUpdated'];
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);

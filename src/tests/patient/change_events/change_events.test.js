@@ -47,7 +47,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -89,7 +89,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDone();
+            await postRequestProcessor.waitTillDoneAsync();
             /**
              * @type {KafkaClientMessage[]}
              */

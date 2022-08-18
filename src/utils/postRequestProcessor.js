@@ -51,7 +51,7 @@ class PostRequestProcessor {
      * Waits until the queue is empty
      * @return {Promise<boolean>}
      */
-    async waitTillDone() {
+    async waitTillDoneAsync() {
         while (this.queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
         }

@@ -11,6 +11,7 @@ const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
 const {DatabaseUpdateManager} = require('../dataLayer/databaseUpdateManager');
 const assert = require('node:assert/strict');
+const {logErrorToSlackAsync} = require('./slack.logger');
 
 class AuditLogger {
     /**
@@ -195,7 +196,14 @@ class AuditLogger {
         }
         this.queue = [];
         if (this.databaseBulkInserter) {
-            await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
+            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            if (mergeResultErrors.length > 0) {
+                await logErrorToSlackAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
+            }
         }
     }
 }
