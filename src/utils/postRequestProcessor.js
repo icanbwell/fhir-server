@@ -4,7 +4,14 @@
  */
 const {logErrorToSlackAsync} = require('./slack.logger');
 
+/**
+ * This class implements a processor that runs tasks after the response for the current request has been
+ * sent to the client.  This speeds up responding to clients and offloading other tasks for after
+ */
 class PostRequestProcessor {
+    /**
+     * Constructor
+     */
     constructor() {
         /**
          * queue
