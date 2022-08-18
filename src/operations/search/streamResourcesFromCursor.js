@@ -48,7 +48,6 @@ async function streamResourcesFromCursorAsync(options) {
         batchObjectCount = 1
     } = options;
     assert(requestId);
-    console.log(`streamResourcesFromCursorAsync: ${this.requestId}`);
     /**
      * @type {boolean}
      */
@@ -68,7 +67,7 @@ async function streamResourcesFromCursorAsync(options) {
 
     // if response is closed then abort the pipeline
     res.on('close', () => {
-        console.log('HTTP Response stream was closed');
+        // console.log('HTTP Response stream was closed');
         ac.abort();
     });
 

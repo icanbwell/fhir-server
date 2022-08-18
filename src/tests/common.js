@@ -35,11 +35,27 @@ let tester;
 let app;
 
 /**
+ * @type {SimpleContainer}
+ */
+let testContainer;
+
+/**
+ * @return {SimpleContainer}
+ */
+module.exports.getTestContainer = () => {
+    return testContainer;
+};
+
+/**
  * Creates a test version of the app
  * @return {import('express').Express}
  */
 module.exports.createTestApp = () => {
-    return createApp(() => createTestContainer());
+    /**
+     * @type {SimpleContainer}
+     */
+    testContainer = createTestContainer();
+    return createApp(() => testContainer);
 };
 
 /**

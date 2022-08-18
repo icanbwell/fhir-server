@@ -98,6 +98,8 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
+            // wait for post request processing to finish
+            await new Promise((r) => setTimeout(r, 2000));
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);

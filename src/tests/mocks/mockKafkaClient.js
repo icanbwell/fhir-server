@@ -3,6 +3,14 @@ class MockKafkaClient {
      * constructor
      */
     constructor() {
+        /**
+         * @type {KafkaClientMessage[]}
+         */
+        this.messages = [];
+    }
+
+    clear() {
+        this.messages = [];
     }
 
     /**
@@ -13,6 +21,15 @@ class MockKafkaClient {
      */
     // eslint-disable-next-line no-unused-vars
     async sendMessagesAsync(topic, messages) {
+        this.messages = this.messages.concat(messages);
+    }
+
+    /**
+     * Returns current messages
+     * @return {KafkaClientMessage[]}
+     */
+    getMessages() {
+        return this.messages;
     }
 }
 
