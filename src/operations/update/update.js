@@ -205,7 +205,7 @@ module.exports.update = async (container,
             // check_fhir_mismatch(cleaned, patched_incoming_data);
         } else {
             // not found so insert
-            logDebug(user, 'update: new resource: ' + resource_incoming);
+            logDebug(user, 'update: new resource: ' + JSON.stringify(resource_incoming));
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                 if (!doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
                     // noinspection ExceptionCaughtLocallyJS

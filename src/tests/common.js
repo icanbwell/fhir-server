@@ -156,6 +156,7 @@ module.exports.commonAfterEach = async () => {
     tester = null;
     // app = null;
     // global.gc();
+    globals.clear();
 };
 
 
