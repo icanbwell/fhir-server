@@ -18,6 +18,11 @@ describe('Patient Change Event Tests', () => {
     describe('Patient Change Event Tests', () => {
         test('creating a new patient works', async () => {
             await new Promise((r) => setTimeout(r, 2000));
+            /**
+             * @type {MockKafkaClient}
+             */
+            const mockKafkaClient = getTestContainer().kafkaClient;
+            mockKafkaClient.clear();
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
@@ -41,10 +46,6 @@ describe('Patient Change Event Tests', () => {
             // wait for post request processing to finish
             await new Promise((r) => setTimeout(r, 2000));
             /**
-             * @type {MockKafkaClient}
-             */
-            const mockKafkaClient = getTestContainer().kafkaClient;
-            /**
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
@@ -56,6 +57,11 @@ describe('Patient Change Event Tests', () => {
         });
         test('creating a new observation works', async () => {
             await new Promise((r) => setTimeout(r, 2000));
+            /**
+             * @type {MockKafkaClient}
+             */
+            const mockKafkaClient = getTestContainer().kafkaClient;
+            mockKafkaClient.clear();
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Observation')
@@ -78,10 +84,6 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await new Promise((r) => setTimeout(r, 2000));
-            /**
-             * @type {MockKafkaClient}
-             */
-            const mockKafkaClient = getTestContainer().kafkaClient;
             /**
              * @type {KafkaClientMessage[]}
              */
