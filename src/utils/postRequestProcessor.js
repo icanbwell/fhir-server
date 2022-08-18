@@ -15,14 +15,14 @@ class PostRequestProcessor {
     constructor() {
         /**
          * queue
-         * @type {(function():void)[]}
+         * @type {(() =>void)[]}
          */
         this.queue = [];
     }
 
     /**
      * Add a task to the queue
-     * @type {(() =>void)[]}
+     * @param {() =>void} fnTask
      */
     add(fnTask) {
         this.queue.push(fnTask);
