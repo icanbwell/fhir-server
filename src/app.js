@@ -27,7 +27,6 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const {handleFixDates} = require('./routeHandlers/fixDates');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
@@ -146,8 +145,6 @@ function createApp(fnCreateContainer) {
     app.get('/stats', handleStats);
 
     app.get('/index/:op?/:table?', handleIndex);
-
-    app.get('/fixDates/:table?/:batchSize?', handleFixDates);
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
 
