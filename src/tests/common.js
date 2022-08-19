@@ -150,10 +150,15 @@ module.exports.commonAfterEach = async () => {
         await db.dropDatabase();
         db = null;
     }
-    await globals.get(AUDIT_EVENT_CLIENT_DB).dropDatabase();
-    globals.delete(AUDIT_EVENT_CLIENT_DB);
-    await connection.close();
-    connection = null;
+    const auditDatabase = globals.get(AUDIT_EVENT_CLIENT_DB);
+    if (auditDatabase) {
+        await auditDatabase.dropDatabase();
+        globals.delete(AUDIT_EVENT_CLIENT_DB);
+    }
+    if (connection) {
+        await connection.close();
+        connection = null;
+    }
     if (mongo) {
         await mongo.stop();
         mongo = null;
