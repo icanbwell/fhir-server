@@ -1,15 +1,17 @@
 const {logRequest, logError} = require('../../../operations/common/logging');
+const {ApolloServerPlugin} = require('apollo-server-plugin-base');
 
 /***
  * Plugin to log calls to GraphQL
  */
-class MyApolloServerLoggingPlugin {
+class MyApolloServerLoggingPlugin extends ApolloServerPlugin {
     /***
      * This plugin logs calls to the GraphQL
      * https://www.apollographql.com/docs/apollo-server/integrations/plugins/
      * @param {string} endpoint
      */
     constructor(endpoint) {
+        super();
         /**
          * @type {string}
          */
@@ -21,7 +23,7 @@ class MyApolloServerLoggingPlugin {
      * events listed above. You can respond to this event just like you respond to serverWillStart, but you also use
      * this function to define responses for a request's lifecycle events
      * https://www.apollographql.com/docs/apollo-server/integrations/plugins/
-     * @param {import("apollo-server-core/dist/requestPipeline").GraphQLRequestContext} requestContext
+     * @param {import('apollo-server-core/dist/requestPipeline').GraphQLRequestContext} requestContext
      * @return {Promise<{executionDidEnd(*): Promise<void>}|{executionDidStart(): Promise<{executionDidEnd(*): Promise<void>}>, parsingDidStart(): Promise<function(*): Promise<void>>, validationDidStart(): Promise<function(*): Promise<void>>}|(function(*): Promise<void>)|*>}
      */
     async requestDidStart(requestContext) {
