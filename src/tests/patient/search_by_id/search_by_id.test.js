@@ -6,6 +6,7 @@ const expectedSinglePatientResource = require('./fixtures/expected/expected_sing
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -21,7 +22,8 @@ describe('PractitionerReturnIdTests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(assertStatusCode(200));
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -31,7 +33,8 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(assertStatusCode(200));
 
             console.log('------- response patient1Resource ------------');
             console.log(JSON.stringify(resp.body, null, 2));

@@ -16,6 +16,7 @@ const {ResourceLocatorFactory} = require('./operations/common/resourceLocatorFac
 const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
 const {MergeManager} = require('./operations/merge/mergeManager');
 const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
+const {SearchManager} = require('./operations/search/searchManager');
 
 /**
  * Creates a container and sets up all the services
@@ -31,7 +32,7 @@ const createContainer = function () {
         c.kafkaClient, c.resourceManager
     ));
     container.register('errorReporter', () => new ErrorReporter());
-    container.register('indexManager', () => new IndexManager());
+    container.register('indexManager', c => new IndexManager(c.errorReporter));
     container.register('collectionManager', c => new MongoCollectionManager(c.indexManager));
     container.register('valueSetManager', c => new ValueSetManager(c.collectionManager));
     container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(c.collectionManager));
@@ -41,6 +42,9 @@ const createContainer = function () {
     container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory(c.resourceLocatorFactory));
 
     container.register('resourceManager', () => new ResourceManager());
+    container.register('searchManager', c => new SearchManager(
+        c.databaseQueryFactory, c.resourceLocatorFactory
+    ));
     container.register('mergeManager', c => new MergeManager(c.databaseQueryFactory, c.auditLogger));
     container.register('databaseBulkInserter', c => new DatabaseBulkInserter(
         c.resourceManager, c.postRequestProcessor, c.errorReporter, c.collectionManager, c.resourceLocatorFactory));

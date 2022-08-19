@@ -126,7 +126,7 @@ function assertStatusCode(expectedStatusCode) {
         try {
             expect(resp.status).toBe(expectedStatusCode);
         } catch (e) {
-            throw new Error(`Status ${expectedStatusCode} != ${resp.status}: ${resp.body}`);
+            throw new Error(`Status ${expectedStatusCode} != ${resp.status}: ${JSON.stringify(resp.body)}`);
         }
     };
 }

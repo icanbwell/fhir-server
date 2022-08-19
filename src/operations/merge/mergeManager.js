@@ -19,8 +19,8 @@ const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const assert = require('node:assert/strict');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 
 class MergeManager {
     /**
@@ -30,7 +30,7 @@ class MergeManager {
      */
     constructor(databaseQueryFactory, auditLogger) {
         assert(databaseQueryFactory);
-        assert(databaseQueryFactory instanceof ResourceLocatorFactory);
+        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
         assert(auditLogger);
         assert(auditLogger instanceof AuditLogger);
         /**

@@ -5,17 +5,30 @@
 const async = require('async');
 const env = require('var');
 
-const {logMessageToSlackAsync} = require('../utils/slack.logger');
 const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync} = require('../operations/common/logging');
+const assert = require('node:assert/strict');
+const {ErrorReporter} = require('../utils/slack.logger');
 
 /**
  * Manages indexes
  */
 class IndexManager {
+    /**
+     * constructor
+     * @param {ErrorReporter} errorReporter
+     */
+    constructor(errorReporter) {
+        assert(errorReporter);
+        assert(errorReporter instanceof ErrorReporter);
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
+    }
     /**
      * creates a multi key index if it does not exist
      * @param {import('mongodb').Db} db
@@ -41,7 +54,7 @@ class IndexManager {
                     columns: columns,
                     collection: collection_name
                 });
-                await logMessageToSlackAsync(message);
+                await this.errorReporter.logMessageToSlackAsync(message);
                 const my_dict = {};
                 for (const property_to_index of properties_to_index) {
                     my_dict[String(property_to_index)] = 1;
@@ -57,7 +70,7 @@ class IndexManager {
                     collection: collection_name
                 },
                 JSON.stringify(e));
-            await logMessageToSlackAsync(message1);
+            await this.errorReporter.logMessageToSlackAsync(message1);
         }
         return false;
     }
