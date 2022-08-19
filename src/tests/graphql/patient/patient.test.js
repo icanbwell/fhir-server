@@ -249,7 +249,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
+            await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/graphql')
@@ -617,7 +617,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response practitioner  ------------');
 
-            resp = await request
+            await request
                 .post('/graphql')
                 .send({
                     'operationName': null,

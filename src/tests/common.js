@@ -146,8 +146,10 @@ module.exports.commonAfterEach = async () => {
     globals.delete(CLIENT_DB);
     nock.cleanAll();
     nock.restore();
-    await db.dropDatabase();
-    db = null;
+    if (db) {
+        await db.dropDatabase();
+        db = null;
+    }
     await globals.get(AUDIT_EVENT_CLIENT_DB).dropDatabase();
     globals.delete(AUDIT_EVENT_CLIENT_DB);
     await connection.close();
