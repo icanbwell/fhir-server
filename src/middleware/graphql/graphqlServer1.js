@@ -12,6 +12,7 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 
 /**
  * @param {function (): SimpleContainer} fnCreateContainer
@@ -42,7 +43,8 @@ const graphql = async (fnCreateContainer) => {
                         faviconUrl: '',
                     }
                 ),
-                getApolloServerLoggingPlugin('graphqlv1')
+                getApolloServerLoggingPlugin('graphqlv1'),
+                getGraphqlContainerPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {

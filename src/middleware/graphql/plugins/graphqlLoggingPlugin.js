@@ -1,17 +1,16 @@
 const {logRequest, logError} = require('../../../operations/common/logging');
-const {ApolloServerPlugin} = require('apollo-server-plugin-base');
+// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
 
 /***
  * Plugin to log calls to GraphQL
  */
-class MyApolloServerLoggingPlugin extends ApolloServerPlugin {
+class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
     /***
      * This plugin logs calls to the GraphQL
      * https://www.apollographql.com/docs/apollo-server/integrations/plugins/
      * @param {string} endpoint
      */
     constructor(endpoint) {
-        super();
         /**
          * @type {string}
          */

@@ -15,6 +15,7 @@ const {
 const {getRequestInfo} = require('../../graphql/v2/requestInfoHelper');
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 
 
 /**
@@ -47,7 +48,8 @@ const graphql = async (fnCreateContainer) => {
                     }
                 ),
                 getBundleMetaApolloServerPlugin(),
-                getApolloServerLoggingPlugin('graphqlv2')
+                getApolloServerLoggingPlugin('graphqlv2'),
+                getGraphqlContainerPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
@@ -68,7 +70,6 @@ const graphql = async (fnCreateContainer) => {
                     body: req.body,
                     isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
                     fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
-                    container: container
                 };
                 return {
                     req,
