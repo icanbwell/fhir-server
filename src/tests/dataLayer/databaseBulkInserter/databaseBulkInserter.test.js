@@ -31,7 +31,7 @@ describe('databaseBulkInserter Tests', () => {
             const errorReporter = new ErrorReporter();
             const postRequestProcessor = new PostRequestProcessor(errorReporter);
 
-            const collectionManager = new MongoCollectionManager(new IndexManager());
+            const collectionManager = new MongoCollectionManager(new IndexManager(new ErrorReporter()));
             const databaseBulkInserter = new DatabaseBulkInserter(
                 new ResourceManager(), postRequestProcessor, errorReporter, collectionManager,
                 new ResourceLocatorFactory(collectionManager));
@@ -58,6 +58,7 @@ describe('databaseBulkInserter Tests', () => {
              * mongo connection
              * @type {import('mongodb').Db}
              */
+            // noinspection JSValidateTypes
             const fhirDb = globals.get(CLIENT_DB);
             // check patients
             const patientCollection = `Patient_${base_version}`;
