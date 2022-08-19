@@ -1,8 +1,8 @@
 const {groupByLambda, getFirstElementOrNull} = require('../utils/list.util');
 const async = require('async');
 const {getResource} = require('../operations/common/getResource');
-const {DatabaseQueryManager} = require('./databaseQueryManager');
 const assert = require('node:assert/strict');
+const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -10,18 +10,19 @@ const assert = require('node:assert/strict');
 class DatabaseBulkLoader {
     /**
      * Constructor
-     * @param {MongoCollectionManager} collectionManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(collectionManager) {
-        assert(collectionManager);
+    constructor(databaseQueryFactory) {
+        assert(databaseQueryFactory);
+        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
         /**
          * @type {Map<string, Resource[]>}
          */
         this.bulkCache = new Map();
         /**
-         * @type {MongoCollectionManager}
+         * @type {DatabaseQueryFactory}
          */
-        this.collectionManager = collectionManager;
+        this.databaseQueryFactory = databaseQueryFactory;
     }
 
     /**
@@ -71,9 +72,8 @@ class DatabaseBulkLoader {
          * cursor
          * @type {DatabasePartitionedCursor}
          */
-        const cursor = await new DatabaseQueryManager(this.collectionManager, resourceType, base_version, useAtlas).findAsync(
-            query
-        );
+        const cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+            .findAsync(query);
 
         /**
          * @type {Resource[]}

@@ -8,7 +8,6 @@ const {getResource} = require('../common/getResource');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
@@ -26,6 +25,10 @@ module.exports.historyById = async (container, requestInfo, args, resourceType) 
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'historyById';
+    /**
+     * @type {DatabaseHistoryFactory}
+     */
+    const databaseHistoryFactory = container.databaseHistoryFactory;
     /**
      * @type {number}
      */
@@ -66,7 +69,8 @@ module.exports.historyById = async (container, requestInfo, args, resourceType) 
          */
         let cursor;
         try {
-            cursor = await new DatabaseHistoryManager(resourceType, base_version, useAtlas).findAsync(query);
+            cursor = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                .findAsync(query);
         } catch (e) {
             throw new BadRequestError(e);
         }

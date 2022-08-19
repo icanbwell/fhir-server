@@ -3,6 +3,7 @@
  * The goal is to get the response back to client quickly and then run these actions
  */
 const assert = require('node:assert/strict');
+const {ErrorReporter} = require('./slack.logger');
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -15,6 +16,7 @@ class PostRequestProcessor {
      */
     constructor(errorReporter) {
         assert(errorReporter);
+        assert(errorReporter instanceof ErrorReporter);
         /**
          * queue
          * @type {(() =>void)[]}

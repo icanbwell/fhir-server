@@ -15,8 +15,6 @@ const {getMeta} = require('../common/getMeta');
 const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
@@ -34,6 +32,15 @@ module.exports.update = async (container,
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'update';
+    // Query our collection for this observation
+    /**
+     * @type {DatabaseQueryFactory}
+     */
+    const databaseQueryFactory = container.databaseQueryFactory;
+    /**
+     * @type {DatabaseHistoryFactory}
+     */
+    const databaseHistoryFactory = container.databaseHistoryFactory;
 
     /**
      * @type {number}
@@ -96,15 +103,10 @@ module.exports.update = async (container,
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
         // Get current record
-        // Query our collection for this observation
-        /**
-         * @type {MongoCollectionManager}
-         */
-        const collectionManager = container.collectionManager;
         /**
          * @type {Resource | null}
          */
-        let data = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
+        let data = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
         // create a resource with incoming data
         /**
@@ -245,7 +247,7 @@ module.exports.update = async (container,
         /**
          * @type {FindOneAndUpdateResult|null}
          */
-        const res = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
+        const res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
             .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
 
@@ -257,7 +259,8 @@ module.exports.update = async (container,
         // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
         // Insert our resource record to history but don't assign _id
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
+        await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+            .insertOneAsync(history_resource);
 
         if (resourceType !== 'AuditEvent') {
             // log access to audit logs

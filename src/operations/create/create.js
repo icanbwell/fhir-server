@@ -11,8 +11,6 @@ const {getMeta} = require('../common/getMeta');
 const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
@@ -32,6 +30,14 @@ module.exports.create = async (container,
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'create';
+    /**
+     * @type {DatabaseHistoryFactory}
+     */
+    const databaseHistoryFactory = container.databaseHistoryFactory;
+    /**
+     * @type {DatabaseUpdateFactory}
+     */
+    const databaseUpdateFactory = container.databaseUpdateFactory;
     /**
      * @type {number}
      */
@@ -181,11 +187,8 @@ module.exports.create = async (container,
 
         // Insert our resource record
         try {
-            /**
-             * @type {MongoCollectionManager}
-             */
-            const collectionManager = container.collectionManager;
-            await new DatabaseUpdateManager(collectionManager, resourceType, base_version, useAtlas).insertOneAsync(doc);
+            await databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
+                .insertOneAsync(doc);
         } catch (e) {
             // noinspection ExceptionCaughtLocallyJS
             throw new BadRequestError(e);
@@ -193,7 +196,8 @@ module.exports.create = async (container,
         // Save the resource to history
 
         // Insert our resource record to history but don't assign _id
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
+        await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+            .insertOneAsync(history_doc);
         const result = {id: doc.id, resource_version: doc.meta.versionId};
         await logOperationAsync({
             requestInfo,

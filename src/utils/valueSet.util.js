@@ -1,7 +1,7 @@
 'use strict';
 const async = require('async');
-const {DatabaseQueryManager} = require('../dataLayer/databaseQueryManager');
 const assert = require('node:assert/strict');
+const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 
 /**
  * This file implements helpers for expanding value sets
@@ -9,14 +9,15 @@ const assert = require('node:assert/strict');
 class ValueSetManager {
     /**
      * constructor
-     * @param {MongoCollectionManager} collectionManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(collectionManager) {
-        assert(collectionManager);
+    constructor(databaseQueryFactory) {
+        assert(databaseQueryFactory);
+        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
         /**
-         * @type {MongoCollectionManager}
+         * @type {DatabaseQueryFactory}
          */
-        this.collectionManager = collectionManager;
+        this.databaseQueryFactory = databaseQueryFactory;
     }
 
     /**
@@ -28,7 +29,7 @@ class ValueSetManager {
      * @return {Promise<{system, code, display, version: string}[]>}
      */
     async getContentsOfValueSetAsync(resourceType, base_version, useAtlas, valueSetUrl) {
-        const valueSet = await new DatabaseQueryManager(this.collectionManager, resourceType, base_version, useAtlas)
+        const valueSet = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
             .findOneAsync({url: valueSetUrl.toString()});
         return await this.getValueSetConceptsAsync(resourceType, base_version, useAtlas, valueSet);
     }

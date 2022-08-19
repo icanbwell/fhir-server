@@ -1,5 +1,4 @@
 'use strict';
-const {ResourceLocator} = require('../operations/common/resourceLocator');
 const async = require('async');
 const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
@@ -7,6 +6,11 @@ const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
 const assert = require('node:assert/strict');
 const {logVerboseAsync} = require('../operations/common/logging');
+const {ResourceManager} = require('../operations/common/resourceManager');
+const {PostRequestProcessor} = require('../utils/postRequestProcessor');
+const {ErrorReporter} = require('../utils/slack.logger');
+const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 
 /**
  * @typedef BulkResultEntry
@@ -18,7 +22,7 @@ const {logVerboseAsync} = require('../operations/common/logging');
 
 
 /**
- * This class accepts inserts and updates and when execute() is called it sends them to Mongo in bulk
+ * This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
 class DatabaseBulkInserter extends EventEmitter {
     /**
@@ -27,14 +31,21 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ErrorReporter} errorReporter
      * @param {MongoCollectionManager} collectionManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(resourceManager, postRequestProcessor, errorReporter,
-                collectionManager) {
+                collectionManager, resourceLocatorFactory) {
         super();
         assert(resourceManager);
+        assert(resourceManager instanceof ResourceManager);
         assert(postRequestProcessor);
+        assert(postRequestProcessor instanceof PostRequestProcessor);
         assert(errorReporter);
+        assert(errorReporter instanceof ErrorReporter);
         assert(collectionManager);
+        assert(collectionManager instanceof MongoCollectionManager);
+        assert(resourceLocatorFactory);
+        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
 
         /**
          * @type {ResourceManager}
@@ -52,6 +63,10 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {MongoCollectionManager}
          */
         this.collectionManager = collectionManager;
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
 
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
@@ -396,6 +411,10 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {Map<string, *[]>}
          */
         const operationsByCollectionNames = new Map();
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
         for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
             // noinspection JSValidateTypes
             /**
@@ -406,8 +425,8 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {string}
              */
             const collectionName = useHistoryCollection ?
-                new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas).getHistoryCollectionName(resource) :
-                new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas).getCollectionName(resource);
+                resourceLocator.getHistoryCollectionName(resource) :
+                resourceLocator.getCollectionName(resource);
             if (!(operationsByCollectionNames.has(collectionName))) {
                 operationsByCollectionNames.set(`${collectionName}`, []);
             }
@@ -441,8 +460,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                  */
-                const collection = await new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas)
-                    .getOrCreateCollectionAsync(collectionName);
+                const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
                 /**
                  * @type {import('mongodb').BulkWriteOpResultObject}
                  */

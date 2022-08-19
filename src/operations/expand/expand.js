@@ -5,7 +5,6 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 /**
@@ -23,6 +22,10 @@ module.exports.expand = async (container, requestInfo, args, resourceType) => {
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'expand';
+    /**
+     * @type {DatabaseQueryFactory}
+     */
+    const databaseQueryFactory = container.databaseQueryFactory;
     /**
      * @type {number}
      */
@@ -59,12 +62,7 @@ module.exports.expand = async (container, requestInfo, args, resourceType) => {
      */
     let resource;
     try {
-        /**
-         * @type {MongoCollectionManager}
-         */
-        const collectionManager = container.collectionManager;
-        resource = await new DatabaseQueryManager(collectionManager,
-            resourceType, base_version, useAtlas)
+        resource = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
     } catch (e) {
         await logOperationAsync({

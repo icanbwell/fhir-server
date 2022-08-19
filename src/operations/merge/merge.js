@@ -2,11 +2,8 @@ const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
-const {mergeResourceListAsync} = require('./mergeResourceList');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {logAuditEntriesForMergeResults} = require('./logAuditEntriesForMergeResults');
-const {preMergeChecksMultipleAsync} = require('./preMergeChecks');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
@@ -57,6 +54,10 @@ module.exports.merge = async (container,
     const currentOperationName = 'merge';
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();
+    /**
+     * @type {MergeManager}
+     */
+    const mergeManager = container.mergeManager;
     /**
      * @type {number}
      */
@@ -159,7 +160,7 @@ module.exports.merge = async (container,
         const {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
-        } = await preMergeChecksMultipleAsync(resourcesIncomingArray,
+        } = await mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
             scopes, user, path, currentDate);
 
         // process only the resources that are valid
@@ -187,7 +188,7 @@ module.exports.merge = async (container,
          */
         const collectionManager = container.collectionManager;
         // merge the resources
-        await mergeResourceListAsync(
+        await mergeManager.mergeResourceListAsync(
             collectionManager,
             resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
             requestId, base_version, scope, requestInfo, args,
@@ -216,11 +217,7 @@ module.exports.merge = async (container,
             return {resourceType: r.resourceType, id: r.id};
         });
         mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
-        /**
-         * @type {AuditLogger}
-         */
-        const auditLogger = container.auditLogger;
-        await logAuditEntriesForMergeResults(auditLogger, requestInfo, requestId, base_version, args, mergeResults);
+        await mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
 
         await logOperationAsync({
             requestInfo,

@@ -13,7 +13,6 @@ const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 
 
@@ -103,14 +102,14 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
 
 class GraphHelper {
     /**
-     * @param {MongoCollectionManager} collectionManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(collectionManager) {
-        assert(collectionManager);
+    constructor(databaseQueryFactory) {
+        assert(databaseQueryFactory);
         /**
-         * @type {MongoCollectionManager}
+         * @type {DatabaseQueryFactory}
          */
-        this.collectionManager = collectionManager;
+        this.databaseQueryFactory = databaseQueryFactory;
     }
 
     /**
@@ -265,8 +264,7 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await new DatabaseQueryManager(this.collectionManager,
-            resourceType, base_version, requestInfo.useAtlas)
+        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, requestInfo.useAtlas)
             .findAsync(query, options);
 
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
@@ -382,8 +380,7 @@ class GraphHelper {
          * mongo db cursor
          * @type {Promise<Cursor<Document>> | *}
          */
-        let cursor = await new DatabaseQueryManager(this.collectionManager,
-            relatedResourceType, base_version,
+        let cursor = await this.databaseQueryFactory.createQuery(relatedResourceType, base_version,
             requestInfo.useAtlas).findAsync(query, options);
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
@@ -826,8 +823,7 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await new DatabaseQueryManager(this.collectionManager,
-            resourceType, base_version, useAtlas)
+        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
             .findAsync(query, options);
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
 

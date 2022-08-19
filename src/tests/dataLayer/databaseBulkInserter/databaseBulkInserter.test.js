@@ -11,6 +11,7 @@ const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 const {ErrorReporter} = require('../../../utils/slack.logger');
 const {MongoCollectionManager} = require('../../../utils/mongoCollectionManager');
 const {IndexManager} = require('../../../indexes/index.util');
+const {ResourceLocatorFactory} = require('../../../operations/common/resourceLocatorFactory');
 
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
@@ -30,8 +31,10 @@ describe('databaseBulkInserter Tests', () => {
             const errorReporter = new ErrorReporter();
             const postRequestProcessor = new PostRequestProcessor(errorReporter);
 
+            const collectionManager = new MongoCollectionManager(new IndexManager());
             const databaseBulkInserter = new DatabaseBulkInserter(
-                new ResourceManager(), postRequestProcessor, errorReporter, new MongoCollectionManager(new IndexManager()));
+                new ResourceManager(), postRequestProcessor, errorReporter, collectionManager,
+                new ResourceLocatorFactory(collectionManager));
 
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);

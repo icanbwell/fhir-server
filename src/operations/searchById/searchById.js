@@ -9,8 +9,6 @@ const {removeNull} = require('../../utils/nullRemover');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
-const {getPatientIdsByPersonIdentifiersAsync} = require('../search/getPatientIdsByPersonIdentifiers');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
@@ -33,6 +31,14 @@ module.exports.searchById = async (container,
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'searchById';
+    /**
+     * @type {SearchManager}
+     */
+    const searchManager = container.searchManager;
+    /**
+     * @type {DatabaseQueryFactory}
+     */
+    const databaseQueryFactory = container.databaseQueryFactory;
     /**
      * @type {number}
      */
@@ -81,22 +87,17 @@ module.exports.searchById = async (container,
 
         let Resource = getResource(base_version, resourceType);
         /**
-         * @type {MongoCollectionManager}
-         */
-        const collectionManager = container.collectionManager;
-        /**
          * @type {Promise<Resource> | *}
          */
         let resource;
         query = {id: id.toString()};
         if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-            const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(collectionManager,
-                base_version, useAtlas, fhirPersonId));
+            const allPatients = patients.concat(
+                await searchManager.getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
             query = getQueryWithPatientFilter(allPatients, query, resourceType);
         }
         try {
-            resource = await new DatabaseQueryManager(collectionManager,
-                resourceType, base_version, useAtlas).findOneAsync(query);
+            resource = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);
         } catch (e) {
             throw new BadRequestError(e);
         }

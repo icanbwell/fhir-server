@@ -11,6 +11,11 @@ const {ErrorReporter} = require('./utils/slack.logger');
 const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
 const {IndexManager} = require('./indexes/index.util');
 const {ValueSetManager} = require('./utils/valueSet.util');
+const {DatabaseQueryFactory} = require('./dataLayer/databaseQueryFactory');
+const {ResourceLocatorFactory} = require('./operations/common/resourceLocatorFactory');
+const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
+const {MergeManager} = require('./operations/merge/mergeManager');
+const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
 
 /**
  * Creates a container and sets up all the services
@@ -28,12 +33,18 @@ const createContainer = function () {
     container.register('errorReporter', () => new ErrorReporter());
     container.register('indexManager', () => new IndexManager());
     container.register('collectionManager', c => new MongoCollectionManager(c.indexManager));
-        container.register('valueSetManager', c => new ValueSetManager(c.collectionManager));
+    container.register('valueSetManager', c => new ValueSetManager(c.collectionManager));
+    container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(c.collectionManager));
+
+    container.register('databaseQueryFactory', c => new DatabaseQueryFactory(c.resourceLocatorFactory));
+    container.register('databaseHistoryFactory', c => new DatabaseHistoryFactory(c.resourceLocatorFactory));
+    container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory(c.resourceLocatorFactory));
 
     container.register('resourceManager', () => new ResourceManager());
+    container.register('mergeManager', c => new MergeManager(c.databaseQueryFactory, c.auditLogger));
     container.register('databaseBulkInserter', c => new DatabaseBulkInserter(
-        c.resourceManager, c.postRequestProcessor, c.errorReporter, c.collectionManager));
-    container.register('databaseBulkLoader', c => new DatabaseBulkLoader(c.collectionManager));
+        c.resourceManager, c.postRequestProcessor, c.errorReporter, c.collectionManager, c.resourceLocatorFactory));
+    container.register('databaseBulkLoader', c => new DatabaseBulkLoader(c.databaseQueryFactory));
     container.register('postRequestProcessor', c => new PostRequestProcessor(c.errorReporter));
     container.register('auditLogger', c => new AuditLogger(
         c.postRequestProcessor, c.databaseBulkInserter, c.errorReporter));

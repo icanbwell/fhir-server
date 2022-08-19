@@ -3,13 +3,7 @@ const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
 const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {getCursorForQueryAsync} = require('./getCursorForQuery');
-const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
-const {createBundle} = require('./createBundle');
-const {constructQuery} = require('./constructQuery');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
@@ -35,9 +29,13 @@ module.exports.search = async (
     assert(resourceType !== undefined);
     const currentOperationName = 'search';
     /**
-     * @type {MongoCollectionManager}
+     * @type {SearchManager}
      */
-    const collectionManager = container.collectionManager;
+    const searchManager = container.searchManager;
+    /**
+     * @type {ResourceLocatorFactory}
+     */
+    const resourceLocatorFactory = container.resourceLocatorFactory;
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();
     /**
@@ -84,7 +82,8 @@ module.exports.search = async (
 
     const {/** @type {string} **/base_version} = args;
 
-    const allPatients = patients.concat(await getLinkedPatientsAsync(collectionManager, base_version, useAtlas, isUser, fhirPersonId));
+    const allPatients = patients.concat(
+        await searchManager.getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
     /** @type {import('mongodb').Document}**/
     let query = {};
@@ -97,7 +96,7 @@ module.exports.search = async (
             query,
             /** @type {Set} **/
             columns
-        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+        } = searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
     } catch (e) {
         await logOperationAsync({
             requestInfo,
@@ -129,10 +128,11 @@ module.exports.search = async (
     /**
      * @type {ResourceLocator}
      */
-    const resourceLocator = new ResourceLocator(collectionManager, resourceType, base_version, useAtlas);
+    const resourceLocator = resourceLocatorFactory.createResourceLocator(
+        resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(collectionManager,
+        const __ret = await searchManager.getCursorForQueryAsync(
             resourceType, base_version, useAtlas,
             args, columns, options, query,
             maxMongoTimeMS, user, false, useAccessIndex);
@@ -183,10 +183,9 @@ module.exports.search = async (
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
                 mongoQueryAndOptionsStringify(
-                    new ResourceLocator(collectionManager,
-                        resourceType, base_version, useAtlas)
-                        .getFirstCollectionNameForQuery(), originalQuery, originalOptions));
-            resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
+                    resourceLocator.getFirstCollectionNameForQuery(), originalQuery, originalOptions));
+            resources = await searchManager.readResourcesFromCursorAsync(cursor, user, scope, args,
+                Resource, resourceType, batchObjectCount,
                 useAccessIndex
             );
 
@@ -237,7 +236,7 @@ module.exports.search = async (
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = createBundle({
+            const bundle = searchManager.createBundle({
                     url,
                     last_id,
                     resources,

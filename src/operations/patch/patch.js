@@ -9,11 +9,8 @@ const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
-// noinspection ExceptionCaughtLocallyJS
 /**
  * does a FHIR Patch
  * @param {SimpleContainer} container
@@ -29,6 +26,14 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
     assert(resourceType !== undefined);
     const currentOperationName = 'patch';
     const {requestId} = requestInfo;
+    /**
+     * @type {DatabaseQueryFactory}
+     */
+    const databaseQueryFactory = container.databaseQueryFactory;
+    /**
+     * @type {DatabaseHistoryFactory}
+     */
+    const databaseHistoryFactory = container.databaseHistoryFactory;
     /**
      * @type {number}
      */
@@ -56,11 +61,7 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
         // Query our collection for this observation
         let data;
         try {
-            /**
-             * @type {MongoCollectionManager}
-             */
-            const collectionManager = container.collectionManager;
-            data = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
+            data = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
         } catch (e) {
             throw new BadRequestError(e);
@@ -106,12 +107,7 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
         let res;
         try {
             delete doc['_id'];
-            /**
-             * @type {MongoCollectionManager}
-             */
-            const collectionManager = container.collectionManager;
-            res = await new DatabaseQueryManager(collectionManager,
-                resourceType, base_version, useAtlas)
+            res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         } catch (e) {
             throw new BadRequestError(e);
@@ -125,7 +121,8 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
 
         // Insert our resource record to history but don't assign _id
         try {
-            await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_resource);
+            await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                .insertOneAsync(history_resource);
         } catch (e) {
             throw new BadRequestError(e);
         }

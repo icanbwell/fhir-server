@@ -1,4 +1,4 @@
-const {ResourceLocator} = require('../operations/common/resourceLocator');
+const assert = require('node:assert/strict');
 
 /**
  * This class manages inserts and updates to the database
@@ -6,12 +6,13 @@ const {ResourceLocator} = require('../operations/common/resourceLocator');
 class DatabaseUpdateManager {
     /**
      * Constructor
-     * @param {MongoCollectionManager} collectionManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(collectionManager, resourceType, base_version, useAtlas) {
+    constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
+        assert(resourceLocatorFactory);
         /**
          * @type {string}
          * @private
@@ -28,9 +29,10 @@ class DatabaseUpdateManager {
          */
         this._useAtlas = useAtlas;
         /**
-         * @type {MongoCollectionManager}
+         * @type {ResourceLocator}
          */
-        this.collectionManager = collectionManager;
+        this.resourceLocator = resourceLocatorFactory.createResourceLocator(this._resourceType,
+            this._base_version, this._useAtlas);
     }
 
     /**
@@ -39,8 +41,7 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator(this.collectionManager, this._resourceType, this._base_version, this._useAtlas)
-            .getOrCreateCollectionForResourceAsync(doc);
+        const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
         await collection.insertOne(doc);
     }
 }

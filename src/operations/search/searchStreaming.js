@@ -3,14 +3,7 @@ const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
 const {logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {getCursorForQueryAsync} = require('./getCursorForQuery');
-const {createBundle} = require('./createBundle');
-const {constructQuery} = require('./constructQuery');
-const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
-const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
-const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
-const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
@@ -33,9 +26,14 @@ module.exports.searchStreaming = async (
     filter = true) => {
     const currentOperationName = 'searchStreaming';
     /**
-     * @type {MongoCollectionManager}
+     * @type {SearchManager}
      */
-    const collectionManager = container.collectionManager;
+    const searchManager = container.searchManager;
+    /**
+     * @type {ResourceLocatorFactory}
+     */
+    const resourceLocatorFactory = container.resourceLocatorFactory;
+
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();
     /**
@@ -80,7 +78,7 @@ module.exports.searchStreaming = async (
 
     const {/** @type {string} **/base_version} = args;
 
-    const allPatients = patients.concat(await getLinkedPatientsAsync(collectionManager,
+    const allPatients = patients.concat(await searchManager.getLinkedPatientsAsync(
         base_version, useAtlas, isUser, fhirPersonId));
 
     /** @type {import('mongodb').Document}**/
@@ -94,7 +92,7 @@ module.exports.searchStreaming = async (
             query,
             /** @type {Set} **/
             columns
-        } = constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+        } = searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
     } catch (e) {
         await logOperationAsync({
             requestInfo,
@@ -126,10 +124,10 @@ module.exports.searchStreaming = async (
     /**
      * @type {ResourceLocator}
      */
-    const resourceLocator = new ResourceLocator(collectionManager, resourceType, base_version, useAtlas);
+    const resourceLocator = resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(collectionManager,
+        const __ret = await searchManager.getCursorForQueryAsync(
             resourceType, base_version, useAtlas,
             args, columns, options, query,
             maxMongoTimeMS, user, true, useAccessIndex);
@@ -193,7 +191,7 @@ module.exports.searchStreaming = async (
 
         if (cursor !== null) { // usually means the two-step optimization found no results
             if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync({
+                resourceIds = await searchManager.streamResourcesFromCursorAsync({
                     requestId,
                     cursor,
                     res,
@@ -222,7 +220,7 @@ module.exports.searchStreaming = async (
                      * @param {number} stopTime1
                      * @return {Resource}
                      */
-                    const fnBundle = (last_id, stopTime1) => createBundle({
+                    const fnBundle = (last_id, stopTime1) => searchManager.createBundle({
                             url,
                             last_id,
                             resources: resources1,
@@ -242,7 +240,7 @@ module.exports.searchStreaming = async (
                             useAtlas
                         }
                     );
-                    resourceIds = await streamBundleFromCursorAsync({
+                    resourceIds = await searchManager.streamBundleFromCursorAsync({
                         requestId,
                         cursor,
                         url,
@@ -257,7 +255,7 @@ module.exports.searchStreaming = async (
                         batchObjectCount
                     });
                 } else {
-                    resourceIds = await streamResourcesFromCursorAsync({
+                    resourceIds = await searchManager.streamResourcesFromCursorAsync({
                         requestId,
                         cursor, res, user, scope, args,
                         ResourceCreator, resourceType,
@@ -311,7 +309,7 @@ module.exports.searchStreaming = async (
                     /**
                      * @type {Resource}
                      */
-                    const bundle = createBundle({
+                    const bundle = searchManager.createBundle({
                             url,
                             last_id: null,
                             resources,

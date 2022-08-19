@@ -7,7 +7,6 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 /**
@@ -25,6 +24,10 @@ module.exports.searchByVersionId = async (container,
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'searchByVersionId';
+    /**
+     * @type {DatabaseHistoryFactory}
+     */
+    const databaseHistoryFactory = container.databaseHistoryFactory;
     /**
      * @type {number}
      */
@@ -55,7 +58,7 @@ module.exports.searchByVersionId = async (container,
         // Query our collection for this observation
         let resource;
         try {
-            resource = await new DatabaseHistoryManager(resourceType, base_version, useAtlas)
+            resource = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
         } catch (e) {
             throw new BadRequestError(e);

@@ -8,7 +8,6 @@ const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
@@ -27,6 +26,10 @@ module.exports.remove = async (container, requestInfo, args, resourceType) => {
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'remove';
+    /**
+     * @type {DatabaseQueryFactory}
+     */
+    const databaseQueryFactory = container.databaseQueryFactory;
     /**
      * @type {number}
      */
@@ -118,14 +121,9 @@ module.exports.remove = async (container, requestInfo, args, resourceType) => {
         let res;
         try {
             /**
-             * @type {MongoCollectionManager}
-             */
-            const collectionManager = container.collectionManager;
-            /**
              * @type {DeleteManyResult}
              */
-            res = await new DatabaseQueryManager(collectionManager,
-                resourceType, base_version, useAtlas)
+            res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .deleteManyAsync(query);
 
             // log access to audit logs
