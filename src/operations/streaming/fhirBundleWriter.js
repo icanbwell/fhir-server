@@ -4,14 +4,14 @@ const {removeNull} = require('../../utils/nullRemover');
 class FhirBundleWriter extends Transform {
     /**
      * Streams the incoming data inside a FHIR Bundle
-     * @param {function (string[], number): Resource} fnBundle
+     * @param {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
      * @param {string | null} url
      * @param {AbortSignal} signal
      */
     constructor(fnBundle, url, signal) {
         super({objectMode: true});
         /**
-         * @type {function(string[], number): Resource}
+         * @type {function (string | null, number): {entry: {resource: Resource}[]}}
          * @private
          */
         this._fnBundle = fnBundle;
@@ -89,7 +89,7 @@ class FhirBundleWriter extends Transform {
             const stopTime = Date.now();
 
             /**
-             * @type {Resource}
+             * @type {{entry: {resource: Resource}[]}}
              */
             const bundle = this._fnBundle(this._lastid, stopTime);
 
@@ -112,5 +112,5 @@ class FhirBundleWriter extends Transform {
 }
 
 module.exports = {
-    FhirBundleWriter: FhirBundleWriter
+    FhirBundleWriter
 };

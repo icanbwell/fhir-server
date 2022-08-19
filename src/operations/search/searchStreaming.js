@@ -18,7 +18,7 @@ const moment = require('moment-timezone');
  * @param {Object} args
  * @param {string} resourceType
  * @param {boolean} filter
- * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
+ * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
  */
 module.exports.searchStreaming = async (
     container,
@@ -216,9 +216,10 @@ module.exports.searchStreaming = async (
                      */
                     const resources1 = [];
                     /**
-                     * @param {string | null} last_id
-                     * @param {number} stopTime1
-                     * @return {Resource}
+                     * bundle
+                     * @param last_id
+                     * @param stopTime1
+                     * @return {{entry: {resource: Resource}[]}}
                      */
                     const fnBundle = (last_id, stopTime1) => searchManager.createBundle({
                             url,
@@ -307,7 +308,7 @@ module.exports.searchStreaming = async (
                      */
                     const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                     /**
-                     * @type {Resource}
+                     * @type {{entry: {resource: Resource}[]}}
                      */
                     const bundle = searchManager.createBundle({
                             url,

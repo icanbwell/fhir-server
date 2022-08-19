@@ -1,11 +1,11 @@
 const {DataSource} = require('apollo-datasource');
-const {search} = require('../../operations/search/search');
 const {getRequestInfo} = require('./requestInfoHelper');
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
 const assert = require('node:assert/strict');
+const {searchBundle} = require('../../operations/search/searchBundle');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -92,7 +92,7 @@ class FhirDataSource extends DataSource {
 
     /**
      * This function takes a FHIR Bundle and returns the resources in it
-     * @param {Resource[]|{entry: {resource: Resource}[]}} bundle
+     * @param {{entry: {resource: Resource}[]}} bundle
      * @return {Resource[]}
      */
     unBundle(bundle) {
@@ -173,7 +173,7 @@ class FhirDataSource extends DataSource {
                     .map(r => ResourceWithId.getIdFromReference(r))
                     .filter(r => r !== null);
                 return this.unBundle(
-                    await search(
+                    await searchBundle(
                         container,
                         requestInfo,
                         {
@@ -287,7 +287,7 @@ class FhirDataSource extends DataSource {
     async getResources(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
-            await search(
+            await searchBundle(
                 context.container,
                 getRequestInfo(context),
                 {
@@ -308,11 +308,11 @@ class FhirDataSource extends DataSource {
      * @param context
      * @param info
      * @param {string} resourceType
-     * @return {Promise<Resource[]>}
+     * @return {Promise<{entry:{resource: Resource}[]}>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
-        const bundle = await search(
+        const bundle = await searchBundle(
             context.container,
             getRequestInfo(context),
             {

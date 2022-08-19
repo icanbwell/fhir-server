@@ -242,7 +242,7 @@ function enableResourceRoutes(app, config, corsDefaults) {
         let parameters;
 
         try {
-            parameters = versions.reduce((all, version) => all.concat(getSearchParameters(lowercaseKey, version, overrideArguments)), []);
+            parameters = versions.reduce((all, version) => all.concat(getSearchParameters(profile, lowercaseKey, version, overrideArguments)), []);
         } catch (err) {
             throw new Error(`${profileName} is an invalid profile configuration, please see the wiki for ` + 'instructions on how to enable a profile in your server, ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Profile');
         } // Enable all provided operations for this profile

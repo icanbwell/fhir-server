@@ -72,6 +72,7 @@ module.exports.createTestRequest = async () => {
     if (!app) {
         app = await module.exports.createTestApp();
     }
+    // noinspection JSCheckFunctionSignatures
     tester = supertest(app);
     return tester;
 };

@@ -128,7 +128,7 @@ class SearchManager {
     /**
      * creates a bundle from the given resources
      * @param {CreateBundleParameters} options
-     * @return {Resource}
+     * @return {{entry: {resource: Resource}[]}}
      */
     createBundle(options) {
         const {
@@ -199,6 +199,10 @@ class SearchManager {
         const entries = resources.map((resource) => {
             return {resource: resource};
         });
+        // noinspection JSValidateTypes
+        /**
+         * @type {{entry: {resource: Resource}[]}}
+         */
         const bundle = new Bundle({
             type: 'searchset',
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
@@ -249,7 +253,7 @@ class SearchManager {
                     code: useAtlas ? '1' : 0,
                 });
             }
-            if (cursorBatchSize !== null && cursorBatchSize > 0) {
+            if (cursorBatchSize && cursorBatchSize > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryCursorBatchSize',
                     display: `${cursorBatchSize}`,
@@ -866,7 +870,7 @@ class SearchManager {
      * @property {DatabasePartitionedCursor} cursor
      * @property {string|null} requestId
      * @property {string | null} url
-     * @property {function (string | null, number): Resource} fnBundle
+     * @property {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
      * @property {import('http').ServerResponse} res
      * @property {string | null} user
      * @property {string | null} scope

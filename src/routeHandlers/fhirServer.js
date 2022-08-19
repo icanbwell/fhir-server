@@ -21,7 +21,7 @@ class MyFHIRServer extends FHIRServer.Server {
      * constructor
      * @param {function (): SimpleContainer} fnCreateContainer
      * @param {Object} config
-     * @param {import('http').Server} app
+     * @param {import('express').Express} app
      */
     constructor(fnCreateContainer, config = {}, app = null) {
         // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
@@ -98,7 +98,10 @@ class MyFHIRServer extends FHIRServer.Server {
     }
 
     setErrorRoutes() {
-        let logger = loggers.get('default');
+        /**
+         * @type {import('winston').logger}
+         */
+        let logger = loggers.get('default', {});
         //Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
             this.app.use(this.config.errorTracking.errorHandler());
