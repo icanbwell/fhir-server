@@ -118,9 +118,14 @@ module.exports.remove = async (container, requestInfo, args, resourceType) => {
         let res;
         try {
             /**
+             * @type {MongoCollectionManager}
+             */
+            const collectionManager = container.collectionManager;
+            /**
              * @type {DeleteManyResult}
              */
-            res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            res = await new DatabaseQueryManager(collectionManager,
+                resourceType, base_version, useAtlas)
                 .deleteManyAsync(query);
 
             // log access to audit logs

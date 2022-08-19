@@ -26,13 +26,15 @@ const assert = require('node:assert/strict');
 class DatabaseQueryManager {
     /**
      * Constructor
+     * @param {MongoCollectionManager} collectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
+    constructor(collectionManager, resourceType, base_version, useAtlas) {
         assert(resourceType, 'resourceType is not passed to DatabaseQueryManager constructor');
         assert(base_version, 'base_version is not passed to DatabaseQueryManager constructor');
+        assert(collectionManager);
         /**
          * @type {string}
          * @private
@@ -48,6 +50,10 @@ class DatabaseQueryManager {
          * @private
          */
         this._useAtlas = useAtlas;
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
     }
 
     /**
@@ -60,7 +66,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager,
+            this._resourceType, this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -85,7 +92,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -112,7 +120,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         let deletedCount = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
@@ -136,7 +145,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
@@ -162,7 +172,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType, this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
@@ -185,7 +195,8 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateCollectionsForQueryAsync();
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {

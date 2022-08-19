@@ -194,6 +194,5 @@ async function preMergeChecksMultipleAsync(resourcesToMerge, scopes, user, path,
 }
 
 module.exports = {
-    preMergeChecksAsync,
     preMergeChecksMultipleAsync
 };

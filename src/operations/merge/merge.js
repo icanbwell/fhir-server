@@ -182,8 +182,13 @@ module.exports.merge = async (container,
             useAtlas,
             incomingResourceTypeAndIds
         );
+        /**
+         * @type {MongoCollectionManager}
+         */
+        const collectionManager = container.collectionManager;
         // merge the resources
         await mergeResourceListAsync(
+            collectionManager,
             resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
             requestId, base_version, scope, requestInfo, args,
             databaseBulkInserter, databaseBulkLoader

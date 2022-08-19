@@ -3,7 +3,7 @@
  */
 
 const env = require('var');
-const {logErrorAndRequestToSlackAsync} = require('../utils/slack.logger');
+const {ErrorReporter} = require('../utils/slack.logger');
 
 /**
  * Middleware for logging errors to Slack
@@ -29,7 +29,7 @@ const slackErrorHandler = async (err, req, res, next) => {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
-            await logErrorAndRequestToSlackAsync(options.token, options.channel, err, req);
+            await new ErrorReporter().logErrorAndRequestToSlackAsync(options.token, options.channel, err, req);
         }
     } catch (e) {
         console.error(`Error sending slack message: ${e}`);

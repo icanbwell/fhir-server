@@ -80,18 +80,23 @@ module.exports.searchById = async (container,
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
         let Resource = getResource(base_version, resourceType);
-
+        /**
+         * @type {MongoCollectionManager}
+         */
+        const collectionManager = container.collectionManager;
         /**
          * @type {Promise<Resource> | *}
          */
         let resource;
         query = {id: id.toString()};
         if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-            const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
+            const allPatients = patients.concat(await getPatientIdsByPersonIdentifiersAsync(collectionManager,
+                base_version, useAtlas, fhirPersonId));
             query = getQueryWithPatientFilter(allPatients, query, resourceType);
         }
         try {
-            resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas).findOneAsync(query);
+            resource = await new DatabaseQueryManager(collectionManager,
+                resourceType, base_version, useAtlas).findOneAsync(query);
         } catch (e) {
             throw new BadRequestError(e);
         }

@@ -8,6 +8,9 @@ const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
 const {ResourceManager} = require('../../../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
+const {ErrorReporter} = require('../../../utils/slack.logger');
+const {MongoCollectionManager} = require('../../../utils/mongoCollectionManager');
+const {IndexManager} = require('../../../indexes/index.util');
 
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
@@ -24,8 +27,11 @@ describe('databaseBulkInserter Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const postRequestProcessor = new PostRequestProcessor();
-            const databaseBulkInserter = new DatabaseBulkInserter(new ResourceManager(), postRequestProcessor);
+            const errorReporter = new ErrorReporter();
+            const postRequestProcessor = new PostRequestProcessor(errorReporter);
+
+            const databaseBulkInserter = new DatabaseBulkInserter(
+                new ResourceManager(), postRequestProcessor, errorReporter, new MongoCollectionManager(new IndexManager()));
 
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);

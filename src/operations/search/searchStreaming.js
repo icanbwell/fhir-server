@@ -9,7 +9,6 @@ const {constructQuery} = require('./constructQuery');
 const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
 const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
-const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
@@ -33,6 +32,10 @@ module.exports.searchStreaming = async (
     requestInfo, res, args, resourceType,
     filter = true) => {
     const currentOperationName = 'searchStreaming';
+    /**
+     * @type {MongoCollectionManager}
+     */
+    const collectionManager = container.collectionManager;
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();
     /**
@@ -77,7 +80,8 @@ module.exports.searchStreaming = async (
 
     const {/** @type {string} **/base_version} = args;
 
-    const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
+    const allPatients = patients.concat(await getLinkedPatientsAsync(collectionManager,
+        base_version, useAtlas, isUser, fhirPersonId));
 
     /** @type {import('mongodb').Document}**/
     let query = {};
@@ -119,14 +123,14 @@ module.exports.searchStreaming = async (
      * @type {number}
      */
     const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
-
     /**
      * @type {ResourceLocator}
      */
-    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
+    const resourceLocator = new ResourceLocator(collectionManager, resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
+        const __ret = await getCursorForQueryAsync(collectionManager,
+            resourceType, base_version, useAtlas,
             args, columns, options, query,
             maxMongoTimeMS, user, true, useAccessIndex);
         /**
@@ -281,7 +285,12 @@ module.exports.searchStreaming = async (
                     const currentDate = moment.utc().format('YYYY-MM-DD');
                     await auditLogger.flushAsync(requestId, currentDate);
                 } catch (e) {
-                    await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
+                    /**
+                     * @type {ErrorReporter}
+                     */
+                    const errorReporter = container.errorReporter;
+                    await errorReporter.logErrorToSlackAsync(
+                        `searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                 }
             }
         } else { // no records found

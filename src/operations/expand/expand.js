@@ -3,7 +3,6 @@ const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {getExpandedValueSetAsync} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
@@ -29,8 +28,7 @@ module.exports.expand = async (container, requestInfo, args, resourceType) => {
      */
     const startTime = Date.now();
 
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
+    const {user, scope} = requestInfo;
 
     await verifyHasValidScopesAsync({
         requestInfo,
@@ -61,7 +59,12 @@ module.exports.expand = async (container, requestInfo, args, resourceType) => {
      */
     let resource;
     try {
-        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        /**
+         * @type {MongoCollectionManager}
+         */
+        const collectionManager = container.collectionManager;
+        resource = await new DatabaseQueryManager(collectionManager,
+            resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
     } catch (e) {
         await logOperationAsync({
@@ -94,8 +97,12 @@ module.exports.expand = async (container, requestInfo, args, resourceType) => {
             throw forbiddenError;
         }
 
+        /**
+         * @type {ValueSetManager}
+         */
+        const valueSetManager = container.valueSetManager;
         // implement expand functionality
-        resource = await getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
+        resource = await valueSetManager.getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
 
         // run any enrichment
         resource = (await enrich([resource], resourceType))[0];

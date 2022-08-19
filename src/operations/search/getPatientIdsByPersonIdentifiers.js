@@ -6,6 +6,7 @@ const idProjection = {id: 1, _id: 0};
 
 /**
  * Gets Patient id from identifiers
+ * @param {MongoCollectionManager} collectionManager
  * @param {string} base_version
  * @param {boolean} useAtlas
  * @param {string} fhirPersonId
@@ -13,10 +14,12 @@ const idProjection = {id: 1, _id: 0};
  * @param {string} patientSystem
  * @return {Promise<string[]>}
  */
-const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhirPersonId,
-                                                     // eslint-disable-next-line no-unused-vars
-                                                     personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
-                                                     patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM) => {
+const getPatientIdsByPersonIdentifiersAsync = async (
+    collectionManager,
+    base_version, useAtlas, fhirPersonId,
+    // eslint-disable-next-line no-unused-vars
+    personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
+    patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM) => {
     /**
      * @type {string[]}
      */
@@ -25,7 +28,8 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
         /**
          * @type {Resource | null}
          */
-        let person = await new DatabaseQueryManager('Person', base_version, useAtlas)
+        let person = await new DatabaseQueryManager(collectionManager,
+            'Person', base_version, useAtlas)
             .findOneAsync({id: fhirPersonId});
         // Finds Patients by platform member ids and returns an array with the found patient ids
         if (person.identifier && person.identifier.length > 0) {
@@ -38,10 +42,11 @@ const getPatientIdsByPersonIdentifiersAsync = async (base_version, useAtlas, fhi
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await new DatabaseQueryManager('Patient', base_version, useAtlas)
+            let cursor = await new DatabaseQueryManager(collectionManager,
+                'Patient', base_version, useAtlas)
                 .findAsync(
                     {identifier: {$elemMatch: {'system': patientSystem, 'value': {$in: memberId.map(id => id.value)}}}},
-            );
+                );
             cursor = cursor.project(idProjection);
             result = await cursor.map(p => p.id).toArray();
         }

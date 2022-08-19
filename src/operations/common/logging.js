@@ -4,7 +4,7 @@ const {getAccessCodesFromScopes, parseScopes} = require('../security/scopes');
 /**
  * @type {import('winston').logger}
  */
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
+const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
@@ -57,8 +57,8 @@ module.exports.logWarn = (user, msg) => {
  * @property {string} message
  * @property {string} action
  * @property {Error|undefined} error
- * @property {string|undefined} query
- * @property {string|undefined} result
+ * @property {string|undefined} [query]
+ * @property {string|undefined} [result]
  */
 
 /**

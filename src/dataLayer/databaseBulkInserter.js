@@ -4,7 +4,6 @@ const async = require('async');
 const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
-const {logErrorToSlackAsync} = require('../utils/slack.logger');
 const {EventEmitter} = require('events');
 const assert = require('node:assert/strict');
 const {logVerboseAsync} = require('../operations/common/logging');
@@ -26,11 +25,16 @@ class DatabaseBulkInserter extends EventEmitter {
      * Constructor
      * @param {ResourceManager} resourceManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ErrorReporter} errorReporter
+     * @param {MongoCollectionManager} collectionManager
      */
-    constructor(resourceManager, postRequestProcessor) {
+    constructor(resourceManager, postRequestProcessor, errorReporter,
+                collectionManager) {
         super();
         assert(resourceManager);
         assert(postRequestProcessor);
+        assert(errorReporter);
+        assert(collectionManager);
 
         /**
          * @type {ResourceManager}
@@ -40,6 +44,15 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
+
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -146,6 +159,7 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async replaceOneAsync(resourceType, id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+        // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType(resourceType,
             {
                 replaceOne: {
@@ -207,7 +221,7 @@ class DatabaseBulkInserter extends EventEmitter {
                  * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                  */
                 const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
-                await logErrorToSlackAsync(
+                await this.errorReporter.logErrorToSlackAsync(
                     `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                     ` ${JSON.stringify(operationsForResourceType)}`,
                     erroredMerge.error
@@ -392,8 +406,8 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {string}
              */
             const collectionName = useHistoryCollection ?
-                new ResourceLocator(resourceType, base_version, useAtlas).getHistoryCollectionName(resource) :
-                new ResourceLocator(resourceType, base_version, useAtlas).getCollectionName(resource);
+                new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas).getHistoryCollectionName(resource) :
+                new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas).getCollectionName(resource);
             if (!(operationsByCollectionNames.has(collectionName))) {
                 operationsByCollectionNames.set(`${collectionName}`, []);
             }
@@ -427,7 +441,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                  */
-                const collection = await new ResourceLocator(resourceType, base_version, useAtlas)
+                const collection = await new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas)
                     .getOrCreateCollectionAsync(collectionName);
                 /**
                  * @type {import('mongodb').BulkWriteOpResultObject}

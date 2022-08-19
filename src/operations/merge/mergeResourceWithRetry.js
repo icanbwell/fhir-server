@@ -4,6 +4,7 @@ const {mergeResourceAsync} = require('./mergeResource');
  * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
  *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
  *  and then the other ones tries to insert too
+ * @param {MongoCollectionManager} collectionManager
  * @param {Object} resource_to_merge
  * @param {string} resourceName
  * @param {string[] | null} scopes
@@ -17,12 +18,15 @@ const {mergeResourceAsync} = require('./mergeResource');
  * @param {DatabaseBulkLoader} databaseBulkLoader
  * @return {Promise<void>}
  */
-async function mergeResourceWithRetryAsync(resource_to_merge, resourceName,
+async function mergeResourceWithRetryAsync(collectionManager,
+    resource_to_merge, resourceName,
                                            scopes, user, path, currentDate,
                                            requestId, baseVersion, scope,
                                            databaseBulkInserter,
                                            databaseBulkLoader) {
-    await mergeResourceAsync(resource_to_merge, resourceName,
+    await mergeResourceAsync(
+        collectionManager,
+        resource_to_merge, resourceName,
         scopes, user, path, currentDate,
         requestId, baseVersion, scope,
         databaseBulkInserter, databaseBulkLoader);

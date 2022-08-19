@@ -2,7 +2,6 @@ const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError} = require('../../utils/httpErrors');
-const {processGraphAsync} = require('./graphHelpers');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
@@ -66,11 +65,14 @@ module.exports.graph = async (container, requestInfo, args, resourceType) => {
             logDebug(user, 'GraphDefinition schema failed validation');
             return operationOutcome;
         }
-        // noinspection UnnecessaryLocalVariableJS
+        /**
+         * @type {GraphHelper}
+         */
+        const graphHelper = container.graphHelper;
         /**
          * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
          */
-        const result = await processGraphAsync(
+        const result = await graphHelper.processGraphAsync(
             requestInfo,
             base_version,
             useAtlas,

@@ -10,6 +10,7 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
 
 /**
  * Merges a single resource
+ * @param {MongoCollectionManager} collectionManager
  * @param {Object} resource_to_merge
  * @param {string} resourceName
  * @param {string[] | null} scopes
@@ -23,7 +24,8 @@ const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
  * @param {DatabaseBulkLoader} databaseBulkLoader
  * @return {Promise<MergeResultEntry|null>}
  */
-async function mergeResourceAsync(resource_to_merge, resourceName,
+async function mergeResourceAsync(collectionManager,
+    resource_to_merge, resourceName,
                                   scopes, user, path, currentDate,
                                   requestId, baseVersion, scope,
                                   databaseBulkInserter,
@@ -58,7 +60,8 @@ async function mergeResourceAsync(resource_to_merge, resourceName,
          */
         let data = databaseBulkLoader ?
             databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
-            await new DatabaseQueryManager(resource_to_merge.resourceType, baseVersion, useAtlas)
+            await new DatabaseQueryManager(collectionManager,
+                resource_to_merge.resourceType, baseVersion, useAtlas)
                 .findOneAsync({id: id.toString()});
 
         logDebug('test?', '------- data -------');

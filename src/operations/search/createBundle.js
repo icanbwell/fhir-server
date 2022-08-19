@@ -109,6 +109,9 @@ function createBundle(options) {
     });
 
     if (args['_debug'] || env.LOGLEVEL === 'DEBUG') {
+        /**
+         * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
+         */
         const tag = [
             {
                 system: 'https://www.icanbwell.com/query',
@@ -144,7 +147,7 @@ function createBundle(options) {
         if (useAtlas) {
             tag.push({
                 system: 'https://www.icanbwell.com/queryUseAtlas',
-                code: useAtlas,
+                code: useAtlas ? '1' : 0,
             });
         }
         if (cursorBatchSize !== null && cursorBatchSize > 0) {

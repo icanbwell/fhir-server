@@ -168,7 +168,7 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
  * @name referenceQueryBuilder
  * @param {string} target
  * @param {string} field
- * @param {?boolean} exists_flag
+ * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
 let referenceQueryBuilder = function (target, field, exists_flag) {

@@ -1,12 +1,12 @@
 /**
  * This file implements a background long running task to apply indexes to mongo db
  */
+const {ErrorReporter} = require('../utils/slack.logger');
 
 // This runs in a separate process to index so the main thread is not blocked
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
-const {indexAllCollectionsAsync, deleteIndexesInAllCollectionsAsync} = require('../indexes/index.util');
-const {logMessageToSlackAsync} = require('../utils/slack.logger');
+const {IndexManager} = require('../indexes/index.util');
 
 
 // eslint-disable-next-line no-unused-vars
@@ -17,32 +17,34 @@ process.on('message', async (params) => {
     const tableName = params.tableName;
     process.send({status: 'We have started processing your data.'});
 
+    const errorReporter = new ErrorReporter();
     try {
+        const indexManager = new IndexManager();
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
-            await logMessageToSlackAsync('Starting indexing in separate process');
-            const collection_stats = await indexAllCollectionsAsync(tableName);
-            await logMessageToSlackAsync('Finished indexing in separate process');
+            await errorReporter.logMessageToSlackAsync('Starting indexing in separate process');
+            const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
+            await errorReporter.logMessageToSlackAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await logMessageToSlackAsync(JSON.stringify(collection_stats));
+            await errorReporter.logMessageToSlackAsync(JSON.stringify(collection_stats));
         } else if (message === 'Rebuild Index') {
             console.log('==== Starting deleting indexes in separate process ====');
-            await logMessageToSlackAsync('Starting deleting indexes in separate process');
-            await deleteIndexesInAllCollectionsAsync(tableName);
-            await logMessageToSlackAsync('Finished deleting index in separate process');
+            await errorReporter.logMessageToSlackAsync('Starting deleting indexes in separate process');
+            await indexManager.deleteIndexesInAllCollectionsAsync(tableName);
+            await errorReporter.logMessageToSlackAsync('Finished deleting index in separate process');
             console.log('===== Finished deleting index in separate process ======');
-            await logMessageToSlackAsync('Starting indexing in separate process');
-            const collection_stats = await indexAllCollectionsAsync(tableName);
-            await logMessageToSlackAsync('Finished indexing in separate process');
+            await errorReporter.logMessageToSlackAsync('Starting indexing in separate process');
+            const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
+            await errorReporter.logMessageToSlackAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await logMessageToSlackAsync(JSON.stringify(collection_stats));
+            await errorReporter.logMessageToSlackAsync(JSON.stringify(collection_stats));
         }
     } catch (e) {
         console.log('===== ERROR Indexing in separate process ======', e);
         console.log(JSON.stringify(e));
-        await logMessageToSlackAsync(JSON.stringify(e));
+        await errorReporter.logMessageToSlackAsync(JSON.stringify(e));
     }
     //notify node, that we are done with this task
     process.disconnect();

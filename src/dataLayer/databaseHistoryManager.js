@@ -37,7 +37,8 @@ class DatabaseHistoryManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collection = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateHistoryCollectionAsync(doc);
         await collection.insertOne(doc);
     }
@@ -52,7 +53,8 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateHistoryCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -76,7 +78,8 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collections = await new ResourceLocator(this.collectionManager, this._resourceType,
+            this._base_version, this._useAtlas)
             .getOrCreateHistoryCollectionsForQueryAsync();
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}

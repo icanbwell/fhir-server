@@ -3,7 +3,7 @@
  */
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
-const {getIndexesInAllCollectionsAsync} = require('../indexes/index.util');
+const {IndexManager} = require('../indexes/index.util');
 
 module.exports.handleIndex = async (req, res) => {
     // console.info('Running index');
@@ -37,7 +37,7 @@ module.exports.handleIndex = async (req, res) => {
         taskProcessor.send(params);
         message = 'Started rebuilding indexes in separate process.  Check logs or Slack for output.';
     } else {
-        collection_stats = await getIndexesInAllCollectionsAsync();
+        collection_stats = await new IndexManager().getIndexesInAllCollectionsAsync();
         message = 'Listing current indexes.  Use /index/run if you want to run index creation';
     }
 

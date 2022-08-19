@@ -9,20 +9,23 @@ const {getUuid} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
-const {DatabaseUpdateManager} = require('../dataLayer/databaseUpdateManager');
 const assert = require('node:assert/strict');
-const {logErrorToSlackAsync} = require('./slack.logger');
 
 class AuditLogger {
     /**
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {ErrorReporter} errorReporter
      * @param {string} base_version
      */
-    constructor(postRequestProcessor, databaseBulkInserter, base_version = '4_0_0') {
+    constructor(postRequestProcessor,
+                databaseBulkInserter,
+                errorReporter,
+                base_version = '4_0_0') {
         assert(postRequestProcessor);
         assert(databaseBulkInserter);
+        assert(errorReporter);
         /**
          * @type {PostRequestProcessor}
          */
@@ -31,6 +34,10 @@ class AuditLogger {
          * @type {DatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
         /**
          * @type {Resource[]}
          */
@@ -183,27 +190,16 @@ class AuditLogger {
          */
         const resourceType = 'AuditEvent';
         for (const doc of this.queue) {
-            if (this.databaseBulkInserter) {
-                await this.databaseBulkInserter.insertOneAsync(resourceType, doc);
-            } else {
-                try {
-                    await new DatabaseUpdateManager(resourceType, this.base_version, false).insertOneAsync(doc);
-                } catch (e) {
-                    const documentContents = JSON.stringify(doc);
-                    throw new Error(`ERROR inserting AuditEvent into db [${Buffer.byteLength(documentContents, 'utf8')} bytes]: ${e}: ${documentContents}`);
-                }
-            }
+            await this.databaseBulkInserter.insertOneAsync(resourceType, doc);
         }
         this.queue = [];
-        if (this.databaseBulkInserter) {
-            /**
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
-            const mergeResultErrors = mergeResults.filter(m => m.issue);
-            if (mergeResultErrors.length > 0) {
-                await logErrorToSlackAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
-            }
+        /**
+         * @type {MergeResultEntry[]}
+         */
+        const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
+        const mergeResultErrors = mergeResults.filter(m => m.issue);
+        if (mergeResultErrors.length > 0) {
+            await this.errorReporter.logErrorToSlackAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
         }
     }
 }

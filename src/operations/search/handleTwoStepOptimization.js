@@ -1,5 +1,8 @@
+const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
+
 /**
  * implements a two-step optimization by first retrieving ids and then requesting the data for those ids
+ * @param {MongoCollectionManager} collectionManager
  * @param {string} resourceType
  * @param {string} base_version
  * @param {boolean|null} useAtlas
@@ -10,9 +13,8 @@
  * @param {number} maxMongoTimeMS
  * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
  */
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-
 async function handleTwoStepSearchOptimizationAsync(
+    collectionManager,
     resourceType,
     base_version,
     useAtlas,
@@ -34,7 +36,8 @@ async function handleTwoStepSearchOptimizationAsync(
     /**
      * @type {DatabasePartitionedCursor}
      */
-    const cursor = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+    const cursor = await new DatabaseQueryManager(collectionManager,
+        resourceType, base_version, useAtlas)
         .findAsync(query, options);
     /**
      * @type {import('mongodb').DefaultSchema[]}

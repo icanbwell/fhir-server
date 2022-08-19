@@ -2,7 +2,7 @@
  * This class stores any actions to run after the current request has finished
  * The goal is to get the response back to client quickly and then run these actions
  */
-const {logErrorToSlackAsync} = require('./slack.logger');
+const assert = require('node:assert/strict');
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -11,13 +11,19 @@ const {logErrorToSlackAsync} = require('./slack.logger');
 class PostRequestProcessor {
     /**
      * Constructor
+     * @param {ErrorReporter} errorReporter
      */
-    constructor() {
+    constructor(errorReporter) {
+        assert(errorReporter);
         /**
          * queue
          * @type {(() =>void)[]}
          */
         this.queue = [];
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
     }
 
     /**
@@ -41,7 +47,7 @@ class PostRequestProcessor {
             try {
                 await task();
             } catch (e) {
-                await logErrorToSlackAsync('Error running post request task', e);
+                await this.errorReporter.logErrorToSlackAsync('Error running post request task', e);
             }
             task = this.queue.pop();
         }

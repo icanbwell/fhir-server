@@ -1,6 +1,5 @@
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollectionAsync} = require('../../utils/mongoCollectionManager');
 const async = require('async');
 const assert = require('node:assert/strict');
 
@@ -9,13 +8,19 @@ const assert = require('node:assert/strict');
  */
 class ResourceLocator {
     /**
+     * @param {MongoCollectionManager} collectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
+    constructor(collectionManager, resourceType, base_version, useAtlas) {
         assert(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assert(base_version, 'base_version is not passed to ResourceLocator constructor');
+        assert(collectionManager);
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
         /**
          * @type {string}
          * @private
@@ -103,7 +108,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
     }
 
     /**
@@ -133,7 +138,8 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
+        return async.map(collectionNames,
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
     }
 
     /**
@@ -150,7 +156,8 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
+        return async.map(collectionNames,
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
     }
 
     /**
@@ -168,7 +175,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
     }
 }
 

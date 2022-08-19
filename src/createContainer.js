@@ -7,6 +7,10 @@ const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
+const {ErrorReporter} = require('./utils/slack.logger');
+const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
+const {IndexManager} = require('./indexes/index.util');
+const {ValueSetManager} = require('./utils/valueSet.util');
 
 /**
  * Creates a container and sets up all the services
@@ -21,11 +25,18 @@ const createContainer = function () {
     container.register('changeEventProducer', c => new ChangeEventProducer(
         c.kafkaClient, c.resourceManager
     ));
+    container.register('errorReporter', () => new ErrorReporter());
+    container.register('indexManager', () => new IndexManager());
+    container.register('collectionManager', c => new MongoCollectionManager(c.indexManager));
+        container.register('valueSetManager', c => new ValueSetManager(c.collectionManager));
+
     container.register('resourceManager', () => new ResourceManager());
-    container.register('databaseBulkInserter', c => new DatabaseBulkInserter(c.resourceManager, c.postRequestProcessor));
-    container.register('databaseBulkLoader', () => new DatabaseBulkLoader());
-    container.register('postRequestProcessor', () => new PostRequestProcessor());
-    container.register('auditLogger', c => new AuditLogger(c.postRequestProcessor, c.databaseBulkInserter));
+    container.register('databaseBulkInserter', c => new DatabaseBulkInserter(
+        c.resourceManager, c.postRequestProcessor, c.errorReporter, c.collectionManager));
+    container.register('databaseBulkLoader', c => new DatabaseBulkLoader(c.collectionManager));
+    container.register('postRequestProcessor', c => new PostRequestProcessor(c.errorReporter));
+    container.register('auditLogger', c => new AuditLogger(
+        c.postRequestProcessor, c.databaseBulkInserter, c.errorReporter));
 
     return container;
 };

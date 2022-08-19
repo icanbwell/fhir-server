@@ -31,6 +31,7 @@ const {ResourceLocator} = require('../common/resourceLocator');
 
 /**
  * Create the query and gets the cursor from mongo
+ * @param {MongoCollectionManager} collectionManager
  * @param {string} resourceType
  * @param {string} base_version
  * @param {boolean|null} useAtlas
@@ -45,12 +46,14 @@ const {ResourceLocator} = require('../common/resourceLocator');
  * @param {boolean} useAccessIndex
  * @returns {Promise<GetCursorResult>}
  */
-async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
-                                      args, columns, options,
-                                      query,
-                                      maxMongoTimeMS,
-                                      user,
-                                      isStreaming, useAccessIndex) {
+async function getCursorForQueryAsync(
+    collectionManager,
+    resourceType, base_version, useAtlas,
+    args, columns, options,
+    query,
+    maxMongoTimeMS,
+    user,
+    isStreaming, useAccessIndex) {
     // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
     if (args['_elements']) {
         const __ret = handleElementsQuery(args, columns, resourceType, options, useAccessIndex);
@@ -107,6 +110,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
         (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
     if (isTrue(useTwoStepSearchOptimization)) {
         const __ret = await handleTwoStepSearchOptimizationAsync(
+            collectionManager,
             resourceType,
             base_version,
             useAtlas,
@@ -161,7 +165,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     /**
      * @type {DatabasePartitionedCursor}
      */
-    let cursorQuery = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+    let cursorQuery = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
         .findAsync(query, options);
 
     if (isStreaming) {
@@ -194,7 +198,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
     // find columns being queried and match them to an index
     if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
         // TODO: handle index hints for multiple collections
-        const collectionNamesForQueryForResourceType = new ResourceLocator(resourceType, base_version, useAtlas)
+        const collectionNamesForQueryForResourceType = new ResourceLocator(collectionManager, resourceType, base_version, useAtlas)
             .getCollectionNamesForQuery();
         const __ret = setIndexHint(indexHint, collectionNamesForQueryForResourceType[0], columns, cursor, user);
         indexHint = __ret.indexHint;
@@ -203,7 +207,7 @@ async function getCursorForQueryAsync(resourceType, base_version, useAtlas,
 
     // if _total is specified then ask mongo for the total else set total to 0
     if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
-        total_count = await handleGetTotalsAsync(resourceType, base_version, useAtlas, args, query, maxMongoTimeMS);
+        total_count = await handleGetTotalsAsync(collectionManager, resourceType, base_version, useAtlas, args, query, maxMongoTimeMS);
     }
 
     return {

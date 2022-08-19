@@ -56,7 +56,11 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
         // Query our collection for this observation
         let data;
         try {
-            data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const collectionManager = container.collectionManager;
+            data = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
         } catch (e) {
             throw new BadRequestError(e);
@@ -102,7 +106,12 @@ module.exports.patch = async (container, requestInfo, args, resourceType) => {
         let res;
         try {
             delete doc['_id'];
-            res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const collectionManager = container.collectionManager;
+            res = await new DatabaseQueryManager(collectionManager,
+                resourceType, base_version, useAtlas)
                 .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         } catch (e) {
             throw new BadRequestError(e);

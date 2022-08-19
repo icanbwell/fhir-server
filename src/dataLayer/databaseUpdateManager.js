@@ -6,11 +6,12 @@ const {ResourceLocator} = require('../operations/common/resourceLocator');
 class DatabaseUpdateManager {
     /**
      * Constructor
+     * @param {MongoCollectionManager} collectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
+    constructor(collectionManager, resourceType, base_version, useAtlas) {
         /**
          * @type {string}
          * @private
@@ -26,6 +27,10 @@ class DatabaseUpdateManager {
          * @private
          */
         this._useAtlas = useAtlas;
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
     }
 
     /**
@@ -34,7 +39,7 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
+        const collection = await new ResourceLocator(this.collectionManager, this._resourceType, this._base_version, this._useAtlas)
             .getOrCreateCollectionForResourceAsync(doc);
         await collection.insertOne(doc);
     }

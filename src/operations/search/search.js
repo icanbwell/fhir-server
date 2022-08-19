@@ -7,7 +7,6 @@ const {getCursorForQueryAsync} = require('./getCursorForQuery');
 const {readResourcesFromCursorAsync} = require('./readResourcesFromCursor');
 const {createBundle} = require('./createBundle');
 const {constructQuery} = require('./constructQuery');
-const {logErrorToSlackAsync} = require('../../utils/slack.logger');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {getLinkedPatientsAsync} = require('../security/getLinkedPatientsByPersonId');
 const {ResourceLocator} = require('../common/resourceLocator');
@@ -35,6 +34,10 @@ module.exports.search = async (
     assert(args !== undefined);
     assert(resourceType !== undefined);
     const currentOperationName = 'search';
+    /**
+     * @type {MongoCollectionManager}
+     */
+    const collectionManager = container.collectionManager;
     // Start the FHIR request timer, saving a reference to the returned method
     const timer = fhirRequestTimer.startTimer();
     /**
@@ -81,7 +84,7 @@ module.exports.search = async (
 
     const {/** @type {string} **/base_version} = args;
 
-    const allPatients = patients.concat(await getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
+    const allPatients = patients.concat(await getLinkedPatientsAsync(collectionManager, base_version, useAtlas, isUser, fhirPersonId));
 
     /** @type {import('mongodb').Document}**/
     let query = {};
@@ -126,10 +129,11 @@ module.exports.search = async (
     /**
      * @type {ResourceLocator}
      */
-    const resourceLocator = new ResourceLocator(resourceType, base_version, useAtlas);
+    const resourceLocator = new ResourceLocator(collectionManager, resourceType, base_version, useAtlas);
     try {
         /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(resourceType, base_version, useAtlas,
+        const __ret = await getCursorForQueryAsync(collectionManager,
+            resourceType, base_version, useAtlas,
             args, columns, options, query,
             maxMongoTimeMS, user, false, useAccessIndex);
         /**
@@ -179,7 +183,8 @@ module.exports.search = async (
         if (cursor !== null) { // usually means the two-step optimization found no results
             logDebug(user,
                 mongoQueryAndOptionsStringify(
-                    new ResourceLocator(resourceType, base_version, useAtlas)
+                    new ResourceLocator(collectionManager,
+                        resourceType, base_version, useAtlas)
                         .getFirstCollectionNameForQuery(), originalQuery, originalOptions));
             resources = await readResourcesFromCursorAsync(cursor, user, scope, args, Resource, resourceType, batchObjectCount,
                 useAccessIndex
@@ -204,7 +209,12 @@ module.exports.search = async (
                         const currentDate = moment.utc().format('YYYY-MM-DD');
                         await auditLogger.flushAsync(requestId, currentDate);
                     } catch (e) {
-                        await logErrorToSlackAsync(`search: Error writing AuditEvent for resource ${resourceType}`, e);
+                        /**
+                         * @type {ErrorReporter}
+                         */
+                        const errorReporter = container.errorReporter;
+                        await errorReporter.logErrorToSlackAsync(
+                            `search: Error writing AuditEvent for resource ${resourceType}`, e);
                     }
                 }
             }

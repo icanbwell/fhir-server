@@ -5,6 +5,7 @@ const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
 
 /**
  * merges a list of resources
+ * @param {MongoCollectionManager} collectionManager
  * @param {Resource[]} resources_incoming
  * @param {string|null} user
  * @param {string} resourceType
@@ -20,7 +21,8 @@ const {mergeResourceWithRetryAsync} = require('./mergeResourceWithRetry');
  * @param {DatabaseBulkLoader} databaseBulkLoader
  * @returns {Promise<MergeResultEntry[]>}
  */
-async function mergeResourceListAsync(resources_incoming, user,
+async function mergeResourceListAsync(collectionManager,
+                                      resources_incoming, user,
                                       resourceType, scopes, path,
                                       currentDate, requestId, base_version,
                                       scope, requestInfo,
@@ -50,10 +52,12 @@ async function mergeResourceListAsync(resources_incoming, user,
     const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
     await Promise.all([
-        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+        async.map(non_duplicate_id_resources, async x => await mergeResourceWithRetryAsync(collectionManager,
+            x, resourceType,
             scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
             databaseBulkLoader)), // run in parallel
-        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(x, resourceType,
+        async.mapSeries(duplicate_id_resources, async x => await mergeResourceWithRetryAsync(collectionManager,
+            x, resourceType,
             scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
             databaseBulkLoader)) // run in series
     ]);

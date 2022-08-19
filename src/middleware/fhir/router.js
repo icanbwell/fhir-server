@@ -140,7 +140,10 @@ function enableOperationRoutesForProfile(app, config, profile, key, parameters, 
             app.options(operationsRoute, cors(corsOptions)); // Enable this operation route
 
             app[route.type]( // We need to allow the $ to exist in these routes
-                operationsRoute, cors(corsOptions), versionValidationMiddleware(profile), sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]), authenticationMiddleware(config), sofScopeMiddleware({
+                operationsRoute, cors(corsOptions), versionValidationMiddleware(profile),
+                sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
                     route,
                     auth: config.auth,
                     name: key

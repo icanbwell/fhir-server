@@ -181,7 +181,11 @@ module.exports.create = async (container,
 
         // Insert our resource record
         try {
-            await new DatabaseUpdateManager(resourceType, base_version, useAtlas).insertOneAsync(doc);
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const collectionManager = container.collectionManager;
+            await new DatabaseUpdateManager(collectionManager, resourceType, base_version, useAtlas).insertOneAsync(doc);
         } catch (e) {
             // noinspection ExceptionCaughtLocallyJS
             throw new BadRequestError(e);

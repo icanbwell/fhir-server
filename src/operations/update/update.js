@@ -97,11 +97,14 @@ module.exports.update = async (container,
 
         // Get current record
         // Query our collection for this observation
-        // noinspection JSUnresolvedVariable
+        /**
+         * @type {MongoCollectionManager}
+         */
+        const collectionManager = container.collectionManager;
         /**
          * @type {Resource | null}
          */
-        let data = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        let data = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
             .findOneAsync({id: id.toString()});
         // create a resource with incoming data
         /**
@@ -242,7 +245,7 @@ module.exports.update = async (container,
         /**
          * @type {FindOneAndUpdateResult|null}
          */
-        const res = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
+        const res = await new DatabaseQueryManager(collectionManager, resourceType, base_version, useAtlas)
             .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
         // save to history
 
