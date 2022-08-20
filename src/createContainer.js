@@ -17,6 +17,7 @@ const {DatabaseHistoryFactory} = require('./dataLayer/databaseHistoryFactory');
 const {MergeManager} = require('./operations/merge/mergeManager');
 const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
 const {SearchManager} = require('./operations/search/searchManager');
+const {GraphHelper} = require('./operations/graph/graphHelpers');
 
 /**
  * Creates a container and sets up all the services
@@ -52,6 +53,7 @@ const createContainer = function () {
     container.register('postRequestProcessor', c => new PostRequestProcessor(c.errorReporter));
     container.register('auditLogger', c => new AuditLogger(
         c.postRequestProcessor, c.databaseBulkInserter, c.errorReporter));
+    container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
 
     return container;
 };

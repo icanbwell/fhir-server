@@ -30,6 +30,7 @@ const expectedEverythingResource = require('./fixtures/expected/expected_everyth
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {findDuplicateResources} = require('../../../utils/list.util');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('Practitioner Everything Tests', () => {
     beforeEach(async () => {
@@ -256,7 +257,7 @@ describe('Practitioner Everything Tests', () => {
             resp = await request
                 .get('/4_0_0/Practitioner/1679033641/$everything')
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusCode(200));
 
             console.log('------- response Practitioner 1679033641 $everything ------------');
             console.log(JSON.stringify(resp.body, null, 2));
