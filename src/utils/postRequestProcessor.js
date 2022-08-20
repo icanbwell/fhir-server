@@ -45,7 +45,9 @@ class PostRequestProcessor {
      * @return {Promise<void>}
      */
     async executeAsync() {
-        assert(!this.startedExecuting, 'executeAsync is already running');
+        if (this.startedExecuting) {
+            return;
+        }
         this.startedExecuting = true;
         /**
          * @type {function(): void}
