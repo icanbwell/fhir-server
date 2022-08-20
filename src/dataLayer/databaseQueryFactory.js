@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const {DatabaseQueryManager} = require('./databaseQueryManager');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 
 class DatabaseQueryFactory {
     /**
@@ -8,6 +9,7 @@ class DatabaseQueryFactory {
      */
     constructor(resourceLocatorFactory) {
         assert(resourceLocatorFactory);
+        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
          */

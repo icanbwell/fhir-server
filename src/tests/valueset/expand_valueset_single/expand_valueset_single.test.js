@@ -13,7 +13,7 @@ const {
     createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {assertCompareBundles, assertMergeIsSuccessful, assertStatusCode} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
@@ -51,7 +51,7 @@ describe('ValueSet Tests', () => {
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31/$expand')
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusCode(200));
 
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));

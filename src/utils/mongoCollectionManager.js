@@ -9,6 +9,7 @@ const mutex = new Mutex();
 const {isTrue} = require('./isTrue');
 const env = require('var');
 const assert = require('node:assert/strict');
+const {IndexManager} = require('../indexes/index.util');
 
 class MongoCollectionManager {
     /**
@@ -17,6 +18,7 @@ class MongoCollectionManager {
      */
     constructor(indexManager) {
         assert(indexManager);
+        assert(indexManager instanceof IndexManager);
         /**
          * @type {IndexManager}
          */

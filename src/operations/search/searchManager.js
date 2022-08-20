@@ -27,6 +27,8 @@ const {ObjectChunker} = require('../streaming/objectChunker');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
 const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
@@ -40,7 +42,9 @@ class SearchManager {
      */
     constructor(databaseQueryFactory, resourceLocatorFactory) {
         assert(databaseQueryFactory);
+        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
         assert(resourceLocatorFactory);
+        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
         /**
          * @type {DatabaseQueryFactory}
          */

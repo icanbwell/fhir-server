@@ -35,7 +35,7 @@ const createContainer = function () {
     container.register('errorReporter', () => new ErrorReporter());
     container.register('indexManager', c => new IndexManager(c.errorReporter));
     container.register('collectionManager', c => new MongoCollectionManager(c.indexManager));
-    container.register('valueSetManager', c => new ValueSetManager(c.collectionManager));
+    container.register('valueSetManager', c => new ValueSetManager(c.databaseQueryFactory));
     container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(c.collectionManager));
 
     container.register('databaseQueryFactory', c => new DatabaseQueryFactory(c.resourceLocatorFactory));
