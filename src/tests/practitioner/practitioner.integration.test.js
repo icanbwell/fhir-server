@@ -5,6 +5,7 @@ const expectedPractitionerResource = require('./fixtures/providers/expected_prac
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../fhirAsserts');
 
 describe('Practitioner Integration Tests', () => {
     beforeEach(async () => {
@@ -39,7 +40,7 @@ describe('Practitioner Integration Tests', () => {
                 .post('/4_0_0/PractitionerRole')
                 .send(practitionerRoleResource)
                 .set(getHeaders())
-                .expect(201);
+                .expect(assertStatusCode(201));
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3  ------------');

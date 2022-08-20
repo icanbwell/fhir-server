@@ -1,6 +1,6 @@
 const {DatabaseUpdateManager} = require('./databaseUpdateManager');
 const assert = require('node:assert/strict');
-const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 
 class DatabaseUpdateFactory {
     /**
@@ -8,8 +8,9 @@ class DatabaseUpdateFactory {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(resourceLocatorFactory) {
-        assert(resourceLocatorFactory);
-        assert(resourceLocatorFactory instanceof MongoCollectionManager);
+        assert(resourceLocatorFactory, 'resourceLocatorFactory is null');
+        assert(resourceLocatorFactory instanceof ResourceLocatorFactory,
+            `resourceLocatorFactory is of wrong type: ${typeof resourceLocatorFactory}`);
         /**
          * @type {ResourceLocatorFactory}
          */
