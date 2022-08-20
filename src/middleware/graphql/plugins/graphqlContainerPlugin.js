@@ -28,7 +28,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
                         if (container) {
                             const postRequestProcessor = container.postRequestProcessor;
                             if (postRequestProcessor) {
-                                await postRequestProcessor.waitTillDoneAsync();
+                                await postRequestProcessor.executeAsync();
                             }
                         }
                     }

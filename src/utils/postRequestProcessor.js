@@ -26,6 +26,10 @@ class PostRequestProcessor {
          * @type {ErrorReporter}
          */
         this.errorReporter = errorReporter;
+        /**
+         * @type {boolean}
+         */
+        this.startedExecuting = false;
     }
 
     /**
@@ -41,18 +45,21 @@ class PostRequestProcessor {
      * @return {Promise<void>}
      */
     async executeAsync() {
+        assert(!this.startedExecuting, 'executeAsync is already running');
+        this.startedExecuting = true;
         /**
          * @type {function(): void}
          */
-        let task = this.queue.pop();
+        let task = this.queue.shift();
         while (task !== undefined) {
             try {
                 await task();
             } catch (e) {
                 await this.errorReporter.logErrorToSlackAsync('Error running post request task', e);
             }
-            task = this.queue.pop();
+            task = this.queue.shift();
         }
+        this.startedExecuting = false;
     }
 
     /**
@@ -60,6 +67,10 @@ class PostRequestProcessor {
      * @return {Promise<boolean>}
      */
     async waitTillDoneAsync() {
+        if (this.queue.length === 0) {
+            return true;
+        }
+        assert(this.startedExecuting || this.queue.length === 0, 'executeAsync is not running so queue will never empty');
         while (this.queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
         }
