@@ -71,6 +71,10 @@ class FhirDataSource extends DataSource {
         assert(container !== undefined);
         assert(requestInfo !== undefined);
         /**
+         * @type {SimpleContainer}
+         */
+        this.container = container;
+        /**
          * @type {import('../../utils/requestInfo').RequestInfo}}
          */
         this.requestInfo = requestInfo;
@@ -78,7 +82,7 @@ class FhirDataSource extends DataSource {
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
         this.dataLoader = new DataLoader(
-            async (keys) => await this.getResourcesInBatch(container, keys, requestInfo)
+            async (keys) => await this.getResourcesInBatch(keys, requestInfo)
         );
         /**
          * @type {Meta[]}
@@ -139,10 +143,9 @@ class FhirDataSource extends DataSource {
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
-     * @param {SimpleContainer} container
      * @return {Promise<Resource[]|{entry: {resource: Resource}[]}>}
      */
-    async getResourcesInBatch(container, keys, requestInfo) {
+    async getResourcesInBatch( keys, requestInfo) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -174,7 +177,7 @@ class FhirDataSource extends DataSource {
                     .filter(r => r !== null);
                 return this.unBundle(
                     await searchBundle(
-                        container,
+                        this.container,
                         requestInfo,
                         {
                             base_version: '4_0_0',
@@ -288,7 +291,7 @@ class FhirDataSource extends DataSource {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
             await searchBundle(
-                context.container,
+                this.container,
                 getRequestInfo(context),
                 {
                     base_version: '4_0_0',
@@ -313,7 +316,7 @@ class FhirDataSource extends DataSource {
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const bundle = await searchBundle(
-            context.container,
+            this.container,
             getRequestInfo(context),
             {
                 base_version: '4_0_0',

@@ -638,6 +638,7 @@ describe('patient Tests', () => {
             console.log('------- response graphql ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response graphql  ------------');
+            expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry.length).toBe(1);
 
             expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
