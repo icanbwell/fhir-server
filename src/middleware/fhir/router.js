@@ -34,11 +34,19 @@ const {CustomOperationsController} = require('./4_0_0/controllers/operations.con
 
 const cors = require('cors');
 
+const assert = require('node:assert/strict');
+
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
 class FhirRouter {
-    constructor() {
-        this.controllerUtils = new ControllerUtils();
+    /**
+     * constructor
+     * @param {ControllerUtils} controllerUtils
+     */
+    constructor(controllerUtils) {
+        assert(controllerUtils);
+        assert(controllerUtils instanceof ControllerUtils);
+        this.controllerUtils = controllerUtils;
     }
     /**
      * @function getAllConfiguredVersions

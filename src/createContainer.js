@@ -19,6 +19,7 @@ const {DatabaseUpdateFactory} = require('./dataLayer/databaseUpdateFactory');
 const {SearchManager} = require('./operations/search/searchManager');
 const {GraphHelper} = require('./operations/graph/graphHelpers');
 const {FhirRouter} = require('./middleware/fhir/router');
+const {ControllerUtils} = require('./middleware/fhir/controller.utils');
 
 /**
  * Creates a container and sets up all the services
@@ -56,7 +57,8 @@ const createContainer = function () {
         c.postRequestProcessor, c.databaseBulkInserter, c.errorReporter));
     container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
 
-    container.register('fhirRouter', () => new FhirRouter());
+    container.register('controllerUtils', () => new ControllerUtils());
+    container.register('fhirRouter', c => new FhirRouter(c.controllerUtils));
 
     return container;
 };
