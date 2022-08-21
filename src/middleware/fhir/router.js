@@ -37,7 +37,8 @@ const cors = require('cors');
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
 class FhirRouter {
-
+    constructor() {
+    }
     /**
      * @function getAllConfiguredVersions
      * @description Get a unique list of versions provided in profile configurations

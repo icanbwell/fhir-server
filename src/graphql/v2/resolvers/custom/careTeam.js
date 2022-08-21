@@ -1,5 +1,5 @@
 const {getUuid} = require('../../../../utils/uid.util');
-const {merge} = require('../../../../operations/merge/merge');
+const {MergeOperation} = require('../../../../operations/merge/merge');
 const {getRequestInfo} = require('../../requestInfoHelper');
 
 function mapParticipants(members) {
@@ -89,7 +89,7 @@ module.exports = {
                  */
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [careTeam];
-                const result = await merge(
+                const result = await new MergeOperation().merge(
                     context.container,
                     requestInfo,
                     {...args, base_version: '4_0_0'},

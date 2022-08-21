@@ -1,6 +1,6 @@
 const {getResources} = require('../../common');
-const {remove} = require('../../../../operations/remove/remove');
-const {merge} = require('../../../../operations/merge/merge');
+const {RemoveOperation} = require('../../../../operations/remove/remove');
+const {MergeOperation} = require('../../../../operations/merge/merge');
 const {getRequestInfo} = require('../../requestInfoHelper');
 
 /**
@@ -115,7 +115,7 @@ module.exports = {
                 } else if (deletePractitioner) {
                     patientToChange.generalPractitioner = removeAllGeneralPractitioner(patientToChange.generalPractitioner, args.practitionerId);
                     const requestInfo = getRequestInfo(context);
-                    await remove(
+                    await new RemoveOperation().remove(
                         context.container,
                         requestInfo,
                         {...args, base_version: '4_0_0',
@@ -144,7 +144,7 @@ module.exports = {
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [patientToChange];
 
-                const result = await merge(
+                const result = await new MergeOperation().merge(
                     context.container,
                     requestInfo,
                     {...args, base_version: '4_0_0'},

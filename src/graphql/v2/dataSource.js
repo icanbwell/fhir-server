@@ -5,7 +5,7 @@ const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
 const assert = require('node:assert/strict');
-const {searchBundle} = require('../../operations/search/searchBundle');
+const {SearchBundleOperation} = require('../../operations/search/searchBundle');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -143,7 +143,7 @@ class FhirDataSource extends DataSource {
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
-     * @return {Promise<Resource[]|{entry: {resource: Resource}[]}>}
+     * @return {Promise<Resource[]>}>}
      */
     async getResourcesInBatch( keys, requestInfo) {
         // separate by resourceType
@@ -176,7 +176,7 @@ class FhirDataSource extends DataSource {
                     .map(r => ResourceWithId.getIdFromReference(r))
                     .filter(r => r !== null);
                 return this.unBundle(
-                    await searchBundle(
+                    await new SearchBundleOperation().searchBundle(
                         this.container,
                         requestInfo,
                         {
@@ -290,7 +290,7 @@ class FhirDataSource extends DataSource {
     async getResources(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
-            await searchBundle(
+            await new SearchBundleOperation().searchBundle(
                 this.container,
                 getRequestInfo(context),
                 {
@@ -315,7 +315,7 @@ class FhirDataSource extends DataSource {
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
-        const bundle = await searchBundle(
+        const bundle = await new SearchBundleOperation().searchBundle(
             this.container,
             getRequestInfo(context),
             {

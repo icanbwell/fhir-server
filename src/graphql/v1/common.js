@@ -2,11 +2,11 @@
  * Implements helper functions for graphql
  */
 
-const {searchById} = require('../../operations/searchById/searchById');
+const {SearchByIdOperation} = require('../../operations/searchById/searchById');
 const async = require('async');
 const {logWarn} = require('../../operations/common/logging');
 const {getRequestInfo} = require('./requestInfoHelper');
-const {searchBundle} = require('../../operations/search/searchBundle');
+const {SearchBundleOperation} = require('../../operations/search/searchBundle');
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
  * @param {{entry:{resource: Resource}[]}} bundle
@@ -54,7 +54,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
      */
     const idOfReference = reference.reference.split('/')[1];
     try {
-        return await searchById(
+        return await new SearchByIdOperation().searchById(
             context.container,
             getRequestInfo(context),
             {base_version: '4_0_0', id: idOfReference},
@@ -92,7 +92,7 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
         const idOfReference = reference.reference.split('/')[1];
         try {
             return module.exports.unBundle(
-                await searchBundle(
+                await new SearchBundleOperation().searchBundle(
                     context.container,
                     getRequestInfo(context),
                     {
@@ -127,7 +127,7 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
     // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
     // TODO: iterate over the keys in args.  handle all the search parameters in src/graphql/schemas/inputs
     return module.exports.unBundle(
-        await searchBundle(
+        await new SearchBundleOperation().searchBundle(
             context.container,
             getRequestInfo(context),
             {

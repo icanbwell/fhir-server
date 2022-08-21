@@ -1,4 +1,4 @@
-const {SearchOperation} = require('./search/search');
+const {SearchBundleOperation} = require('./search/searchBundle');
 const {SearchByIdOperation} = require('./searchById/searchById');
 const {ExpandOperation} = require('./expand/expand');
 const {CreateOperation} = require('./create/create');
@@ -74,7 +74,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return new SearchOperation().search(
+        return new SearchBundleOperation().searchBundle(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
