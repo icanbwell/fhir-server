@@ -2,6 +2,7 @@ const handler = require('../../fhir-response-util');
 const {isTrue} = require('../../../../utils/isTrue');
 const env = require('var');
 const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
+const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 
 /**
  * @typedef FhirService
@@ -22,12 +23,20 @@ const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 
 class GenericController {
 
+    constructor() {
+        /**
+         * @type {FhirOperationsManager}
+         */
+        this.fhirOperationsManager = new FhirOperationsManager();
+    }
+
     /**
      * @function search
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise<Any>
      */
-    search(service) {
+    search(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
@@ -40,15 +49,21 @@ class GenericController {
 
                 // if stream option is set, and we are not returning HTML then stream the data to client
                 if (stream && !shouldReturnHtml(req)) {
-                    await service.searchStreaming(req.sanitized_args, {
-                        req,
-                        res
-                    });
+                    await this.fhirOperationsManager.searchStreaming(
+                        req.sanitized_args,
+                        {
+                            req,
+                            res
+                        },
+                        resourceType);
                 } else { // else return the data without streaming
-                    const bundle = await service.search(req.sanitized_args, {
-                        req,
-                        res
-                    });
+                    const bundle = await this.fhirOperationsManager.search(
+                        req.sanitized_args,
+                        {
+                            req,
+                            res
+                        },
+                        resourceType);
                     handler.read(req, res, bundle);
                 }
             } catch (e) {
@@ -66,18 +81,20 @@ class GenericController {
     /**
      * @function searchById
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    searchById(service) {
+    searchById(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const resource = await service.searchById(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const resource = await this.fhirOperationsManager.searchById(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType);
                 handler.readOne(req, res, resource);
             } catch (e) {
                 next(e);
@@ -94,18 +111,23 @@ class GenericController {
     /**
      * @function searchByVersionId
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    searchByVersionId(service) {
+    searchByVersionId(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const resource = await service.searchByVersionId(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const resource = await this.fhirOperationsManager.searchByVersionId(
+                    req.sanitized_args,
+                    {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.readOne(req, res, resource);
             } catch (e) {
                 next(e);
@@ -122,18 +144,21 @@ class GenericController {
     /**
      * @function create
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    create(service) {
+    create(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await service.create(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const json = await this.fhirOperationsManager.create(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.create(req, res, json, {});
             } catch (e) {
                 next(e);
@@ -150,18 +175,21 @@ class GenericController {
     /**
      * @function merge
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    merge(service) {
+    merge(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await service.merge(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const json = await this.fhirOperationsManager.merge(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.create(req, res, json, {});
             } catch (e) {
                 next(e);
@@ -178,18 +206,21 @@ class GenericController {
     /**
      * @function update
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    update(service) {
+    update(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await service.update(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const json = await this.fhirOperationsManager.update(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.update(req, res, json, {});
             } catch (e) {
                 next(e);
@@ -206,18 +237,21 @@ class GenericController {
     /**
      * @function remove
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    remove(service) {
+    remove(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await service.remove(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const json = await this.fhirOperationsManager.remove(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.remove(req, res, json);
             } catch (e) {
                 next(e);
@@ -234,18 +268,23 @@ class GenericController {
     /**
      * @function patch
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    patch(service) {
+    patch(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await service.patch(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const json = await this.fhirOperationsManager.patch(
+                    req.sanitized_args,
+                    {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.update(req, res, json, {});
             } catch (e) {
                 next(e);
@@ -262,18 +301,21 @@ class GenericController {
     /**
      * @function history
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    history(service) {
+    history(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const bundle = await service.history(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const bundle = await this.fhirOperationsManager.history(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.history(req, res, bundle);
             } catch (e) {
                 next(e);
@@ -290,18 +332,21 @@ class GenericController {
     /**
      * @function historyById
      * @param {FhirService} service
+     * @param {string} resourceType
      * @return Promise
      */
-    historyById(service) {
+    historyById(service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const bundle = await service.historyById(req.sanitized_args, {
-                    req,
-                    res
-                });
+                const bundle = await this.fhirOperationsManager.historyById(req.sanitized_args, {
+                        req,
+                        res
+                    },
+                    resourceType
+                );
                 handler.history(req, res, bundle);
             } catch (e) {
                 next(e);

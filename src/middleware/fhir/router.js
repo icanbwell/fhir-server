@@ -85,9 +85,10 @@ class FhirRouter {
      * @param {string} lowercaseKey - Profile key
      * @param {string} interaction - Interaction needed to perform
      * @param {Object} service - Consumer provided service module
+     * @param {string} resourceType
      * @return {Function} express middleware
      */
-    loadController(lowercaseKey, interaction, service) {
+    loadController(lowercaseKey, interaction, service, resourceType) {
         return async (req, res, next) => {
             const {
                 base_version
@@ -96,7 +97,7 @@ class FhirRouter {
 
             const controller = getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 
-            await controller[interaction](service)(req, res, next);
+            await controller[interaction](service, resourceType)(req, res, next);
         };
     }
 
@@ -232,10 +233,10 @@ class FhirRouter {
              */
             let lowercaseKey = profileName.toLowerCase();
             let profile = config.profiles[profileName];
-            // /**
-            //  * @type {string}
-            //  */
-            // const resourceType = profileName;
+            /**
+             * @type {string}
+             */
+            const resourceType = profileName;
             let versions = profile.versions; // User's can override arguments by providing their own metadata
             // function, may have more use in other areas in the future
 
@@ -303,7 +304,7 @@ class FhirRouter {
                         route,
                         auth: config.auth,
                         name: profileName
-                    }), this.loadController(lowercaseKey, route.interaction, profile.serviceModule));
+                    }), this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType));
                 } else {
                     let profileRoute = route.path.replace(':resource', profileName); // Enable cors with preflight
 
@@ -320,7 +321,7 @@ class FhirRouter {
                             auth: config.auth,
                             name: profileName
                         }),
-                        this.loadController(lowercaseKey, route.interaction, profile.serviceModule)
+                        this.loadController(lowercaseKey, route.interaction, profile.serviceModule, resourceType)
                     );
                 }
             }
