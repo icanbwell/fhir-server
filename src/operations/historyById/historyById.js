@@ -11,99 +11,109 @@ const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
-/**
- * does a FHIR History By id
- * @param {SimpleContainer} container
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- */
+
+class HistoryByIdOperation {
+    constructor() {
+    }
+
+    /**
+     * does a FHIR History By id
+     * @param {SimpleContainer} container
+     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     */
 // eslint-disable-next-line no-unused-vars
-module.exports.historyById = async (container, requestInfo, args, resourceType) => {
-    assert(container !== undefined);
-    assert(requestInfo !== undefined);
-    assert(args !== undefined);
-    assert(resourceType !== undefined);
-    const currentOperationName = 'historyById';
-    /**
-     * @type {DatabaseHistoryFactory}
-     */
-    const databaseHistoryFactory = container.databaseHistoryFactory;
-    /**
-     * @type {number}
-     */
-    const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'read'
-    });
-
-    let {base_version, id} = args;
-    let query = {};
-
-    if (base_version === VERSIONS['3_0_1']) {
-        query = buildStu3SearchQuery(args);
-    } else if (base_version === VERSIONS['1_0_2']) {
-        query = buildDstu2SearchQuery(args);
-    }
-
-    query.id = `${id}`;
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    let Resource = getResource(base_version, resourceType);
-
-    try {
+    async historyById(container, requestInfo, args, resourceType) {
+        assert(container !== undefined);
+        assert(requestInfo !== undefined);
+        assert(args !== undefined);
+        assert(resourceType !== undefined);
+        const currentOperationName = 'historyById';
         /**
-         * @type {DatabasePartitionedCursor}
+         * @type {DatabaseHistoryFactory}
          */
-        let cursor;
-        try {
-            cursor = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .findAsync(query);
-        } catch (e) {
-            throw new BadRequestError(e);
-        }
-        const resources = [];
-        while (await cursor.hasNext()) {
-            const element = await cursor.next();
-            const resource = new Resource(element);
-            if (isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
-                resources.push(resource);
-            }
-        }
-        if (resources.length === 0) {
-            throw new NotFoundError();
-        }
-        await logOperationAsync({
+        const databaseHistoryFactory = container.databaseHistoryFactory;
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const user = requestInfo.user;
+        const scope = requestInfo.scope;
+
+        await verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,
             startTime,
-            message: 'operationCompleted',
-            action: currentOperationName
-        });
-        return resources;
-    } catch (e) {
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationFailed',
             action: currentOperationName,
-            error: e
+            accessRequested: 'read'
         });
-        throw e;
+
+        let {base_version, id} = args;
+        let query = {};
+
+        if (base_version === VERSIONS['3_0_1']) {
+            query = buildStu3SearchQuery(args);
+        } else if (base_version === VERSIONS['1_0_2']) {
+            query = buildDstu2SearchQuery(args);
+        }
+
+        query.id = `${id}`;
+
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        let Resource = getResource(base_version, resourceType);
+
+        try {
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor;
+            try {
+                cursor = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                    .findAsync(query);
+            } catch (e) {
+                throw new BadRequestError(e);
+            }
+            const resources = [];
+            while (await cursor.hasNext()) {
+                const element = await cursor.next();
+                const resource = new Resource(element);
+                if (isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+                    resources.push(resource);
+                }
+            }
+            if (resources.length === 0) {
+                throw new NotFoundError();
+            }
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName
+            });
+            return resources;
+        } catch (e) {
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: currentOperationName,
+                error: e
+            });
+            throw e;
+        }
     }
+}
+
+module.exports = {
+    HistoryByIdOperation
 };

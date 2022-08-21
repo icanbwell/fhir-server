@@ -7,104 +7,113 @@ const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 
-/**
- * Supports $graph
- * @param {SimpleContainer} container
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
- */
-module.exports.graph = async (container, requestInfo, args, resourceType) => {
-    assert(container !== undefined);
-    assert(requestInfo !== undefined);
-    assert(args !== undefined);
-    assert(resourceType !== undefined);
-    const currentOperationName = 'graph';
+class GraphOperation {
+    constructor() {
+    }
 
     /**
-     * @type {number}
+     * Supports $graph
+     * @param {SimpleContainer} container
+     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
-    const startTime = Date.now();
-    const {user, path, body} = requestInfo;
+    async graph(container, requestInfo, args, resourceType) {
+        assert(container !== undefined);
+        assert(requestInfo !== undefined);
+        assert(args !== undefined);
+        assert(resourceType !== undefined);
+        const currentOperationName = 'graph';
 
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'read'
-    });
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const {user, path, body} = requestInfo;
 
-    try {
-        /**
-         * @type {string}
-         */
-        let {base_version, id} = args;
-
-        id = id.split(',');
-        /**
-         * @type {boolean}
-         */
-        const contained = isTrue(args['contained']);
-        /**
-         * @type {boolean}
-         */
-        const hash_references = isTrue(args['_hash_references']);
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-        // get GraphDefinition from body
-        const graphDefinitionRaw = body;
-        const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
-        if (operationOutcome && operationOutcome.statusCode === 400) {
-            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-            logDebug(user, 'GraphDefinition schema failed validation');
-            return operationOutcome;
-        }
-        /**
-         * @type {GraphHelper}
-         */
-        const graphHelper = container.graphHelper;
-        /**
-         * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
-         */
-        const result = await graphHelper.processGraphAsync(
-            requestInfo,
-            base_version,
-            useAtlas,
-            resourceType,
-            id,
-            graphDefinitionRaw,
-            contained,
-            hash_references
-        );
-        // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
-        // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
-        //     return operationOutcomeResult;
-        // }
-        await logOperationAsync({
+        await verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,
             startTime,
-            message: 'operationCompleted',
-            action: currentOperationName
-        });
-        return result;
-    } catch (err) {
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationFailed',
             action: currentOperationName,
-            error: err
+            accessRequested: 'read'
         });
-        throw new BadRequestError(err);
+
+        try {
+            /**
+             * @type {string}
+             */
+            let {base_version, id} = args;
+
+            id = id.split(',');
+            /**
+             * @type {boolean}
+             */
+            const contained = isTrue(args['contained']);
+            /**
+             * @type {boolean}
+             */
+            const hash_references = isTrue(args['_hash_references']);
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            // get GraphDefinition from body
+            const graphDefinitionRaw = body;
+            const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
+            if (operationOutcome && operationOutcome.statusCode === 400) {
+                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                logDebug(user, 'GraphDefinition schema failed validation');
+                return operationOutcome;
+            }
+            /**
+             * @type {GraphHelper}
+             */
+            const graphHelper = container.graphHelper;
+            /**
+             * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
+             */
+            const result = await graphHelper.processGraphAsync(
+                requestInfo,
+                base_version,
+                useAtlas,
+                resourceType,
+                id,
+                graphDefinitionRaw,
+                contained,
+                hash_references
+            );
+            // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
+            // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
+            //     return operationOutcomeResult;
+            // }
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName
+            });
+            return result;
+        } catch (err) {
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: currentOperationName,
+                error: err
+            });
+            throw new BadRequestError(err);
+        }
     }
+}
+
+module.exports = {
+    GraphOperation
 };

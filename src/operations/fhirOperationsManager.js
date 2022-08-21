@@ -1,20 +1,20 @@
-const {search} = require('./search/search');
-const {searchById} = require('./searchById/searchById');
-const {expand} = require('./expand/expand');
-const {create} = require('./create/create');
-const {update} = require('./update/update');
-const {merge} = require('./merge/merge');
-const {everything} = require('./everything/everything');
-const {remove} = require('./remove/remove');
-const {searchByVersionId} = require('./searchByVersionId/searchByVersionId');
-const {history} = require('./history/history');
-const {historyById} = require('./historyById/historyById');
-const {patch} = require('./patch/patch');
-const {validate} = require('./validate/validate');
-const {graph} = require('./graph/graph');
+const {SearchOperation} = require('./search/search');
+const {SearchByIdOperation} = require('./searchById/searchById');
+const {ExpandOperation} = require('./expand/expand');
+const {CreateOperation} = require('./create/create');
+const {UpdateOperation} = require('./update/update');
+const {MergeOperation} = require('./merge/merge');
+const {EverythingOperation} = require('./everything/everything');
+const {RemoveOperation} = require('./remove/remove');
+const {SearchByVersionIdOperation} = require('./searchByVersionId/searchByVersionId');
+const {HistoryOperation} = require('./history/history');
+const {HistoryByIdOperation} = require('./historyById/historyById');
+const {PatchOperation} = require('./patch/patch');
+const {ValidateOperation} = require('./validate/validate');
+const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
 const {RequestInfo} = require('../utils/requestInfo');
-const {searchStreaming} = require('./search/searchStreaming');
+const {SearchStreamingOperation} = require('./search/searchStreaming');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -25,6 +25,9 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 });
 
 class FhirOperationsManager {
+    constructor() {
+    }
+
     getRequestInfo(req) {
         const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
             (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
@@ -71,7 +74,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return search(
+        return new SearchOperation().search(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -98,7 +101,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return searchStreaming(
+        return new SearchStreamingOperation().searchStreaming(
             container,
             this.getRequestInfo(req),
             res,
@@ -117,7 +120,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return searchById(
+        return new SearchByIdOperation().searchById(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -143,7 +146,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return create(
+        return new CreateOperation().create(
             container,
             this.getRequestInfo(req),
             combined_args, path, resourceType);
@@ -165,7 +168,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return update(
+        return new UpdateOperation().update(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -188,7 +191,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return merge(
+        return new MergeOperation().merge(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -210,7 +213,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return everything(
+        return new EverythingOperation().everything(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -233,7 +236,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return remove(
+        return new RemoveOperation().remove(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -251,7 +254,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return searchByVersionId(
+        return new SearchByVersionIdOperation().searchByVersionId(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -269,7 +272,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return history(
+        return new HistoryOperation().history(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -287,7 +290,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return historyById(
+        return new HistoryByIdOperation().historyById(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -305,7 +308,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return patch(
+        return new PatchOperation().patch(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -322,7 +325,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return validate(
+        return new ValidateOperation().validate(
             container,
             this.getRequestInfo(req),
             args, resourceType);
@@ -345,7 +348,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return graph(
+        return new GraphOperation().graph(
             container,
             this.getRequestInfo(req),
             combined_args, resourceType);
@@ -363,7 +366,7 @@ class FhirOperationsManager {
          * @type {SimpleContainer}
          */
         const container = this.getContainer(req);
-        return expand(
+        return new ExpandOperation().expand(
             container,
             this.getRequestInfo(req),
             args, resourceType);

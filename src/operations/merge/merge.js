@@ -8,241 +8,251 @@ const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/promet
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 
-/**
- * Add successful merges
- * @param {{id: string, resourceType: string}[]} incomingResourceTypeAndIds
- * @param {{id: string, resourceType: string}[]} idsInMergeResults
- * @return {MergeResultEntry[]}
- */
-function addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults) {
+class MergeOperation {
+    constructor() {
+    }
+
     /**
-     * @type {MergeResultEntry[]}
+     * Add successful merges
+     * @param {{id: string, resourceType: string}[]} incomingResourceTypeAndIds
+     * @param {{id: string, resourceType: string}[]} idsInMergeResults
+     * @return {MergeResultEntry[]}
      */
-    const mergeResults = [];
-    for (const {resourceType, id} of incomingResourceTypeAndIds) {
-        // if this resourceType,id is not in the merge results then add it as an unchanged entry
-        if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
-            /**
-             * @type {MergeResultEntry}
-             */
-            const mergeResultItem = {
-                id: id,
-                resourceType: resourceType,
-                created: false,
-                updated: false,
-            };
-            mergeResults.push(mergeResultItem);
+    addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults) {
+        /**
+         * @type {MergeResultEntry[]}
+         */
+        const mergeResults = [];
+        for (const {resourceType, id} of incomingResourceTypeAndIds) {
+            // if this resourceType,id is not in the merge results then add it as an unchanged entry
+            if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+                /**
+                 * @type {MergeResultEntry}
+                 */
+                const mergeResultItem = {
+                    id: id,
+                    resourceType: resourceType,
+                    created: false,
+                    updated: false,
+                };
+                mergeResults.push(mergeResultItem);
+            }
         }
-    }
-    return mergeResults;
-}
-
-/**
- * does a FHIR Merge
- * @param {SimpleContainer} container
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
- */
-module.exports.merge = async (container,
-                              requestInfo, args, resourceType) => {
-    assert(container !== undefined);
-    assert(requestInfo !== undefined);
-    assert(args !== undefined);
-    assert(resourceType !== undefined);
-    const currentOperationName = 'merge';
-    // Start the FHIR request timer, saving a reference to the returned method
-    const timer = fhirRequestTimer.startTimer();
-    /**
-     * @type {MergeManager}
-     */
-    const mergeManager = container.mergeManager;
-    /**
-     * @type {number}
-     */
-    const startTime = Date.now();
-    /**
-     * @type {string|null}
-     */
-    const user = requestInfo.user;
-    /**
-     * @type {string}
-     */
-    const scope = requestInfo.scope;
-    /**
-     * @type {string|null}
-     */
-    const path = requestInfo.path;
-    /**
-     * @type {Object|Object[]|null}
-     */
-    const body = requestInfo.body;
-    // Assign a random number to this batch request
-    /**
-     * @type {string}
-     */
-    const requestId = requestInfo.requestId;
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'write'
-    });
-
-    /**
-     * @type {DatabaseBulkInserter}
-     */
-    const databaseBulkInserter = container.databaseBulkInserter;
-    /**
-     * @type {ChangeEventProducer}
-     */
-    const changeEventProducer = container.changeEventProducer;
-    /**
-     * @type {string}
-     */
-    const currentDate = moment.utc().format('YYYY-MM-DD');
-
-    async function onCreatePatient(event) {
-        await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
+        return mergeResults;
     }
 
-    async function onChangePatient(event) {
-        await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
-    }
-
-    try {
+    /**
+     * does a FHIR Merge
+     * @param {SimpleContainer} container
+     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
+     */
+    async merge(container,
+                requestInfo, args, resourceType) {
+        assert(container !== undefined);
+        assert(requestInfo !== undefined);
+        assert(args !== undefined);
+        assert(resourceType !== undefined);
+        const currentOperationName = 'merge';
+        // Start the FHIR request timer, saving a reference to the returned method
+        const timer = fhirRequestTimer.startTimer();
         /**
-         * @type {string[]}
+         * @type {MergeManager}
          */
-        const scopes = parseScopes(scope);
-
-        // read the incoming resource from request body
+        const mergeManager = container.mergeManager;
         /**
-         * @type {Resource|Resource[]}
+         * @type {number}
          */
-        let resourcesIncoming = body;
+        const startTime = Date.now();
+        /**
+         * @type {string|null}
+         */
+        const user = requestInfo.user;
         /**
          * @type {string}
          */
-        let {base_version} = args;
+        const scope = requestInfo.scope;
+        /**
+         * @type {string|null}
+         */
+        const path = requestInfo.path;
+        /**
+         * @type {Object|Object[]|null}
+         */
+        const body = requestInfo.body;
+        // Assign a random number to this batch request
+        /**
+         * @type {string}
+         */
+        const requestId = requestInfo.requestId;
+        await verifyHasValidScopesAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            action: currentOperationName,
+            accessRequested: 'write'
+        });
 
-        // if the incoming request is a bundle then unwrap the bundle
-        if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
-            const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
-            if (operationOutcome && operationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                return operationOutcome;
-            }
-            // unwrap the resources
-            resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        const databaseBulkInserter = container.databaseBulkInserter;
+        /**
+         * @type {ChangeEventProducer}
+         */
+        const changeEventProducer = container.changeEventProducer;
+        /**
+         * @type {string}
+         */
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
+        async function onCreatePatient(event) {
+            await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
         }
 
-        // add event handlers
-        databaseBulkInserter.on('createPatient', onCreatePatient);
-        databaseBulkInserter.on('changePatient', onChangePatient);
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = isTrue(env.USE_ATLAS);
-        /**
-         * @type {boolean}
-         */
-        const wasIncomingAList = Array.isArray(resourcesIncoming);
+        async function onChangePatient(event) {
+            await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
+        }
 
-        /**
-         * @type {Resource[]}
-         */
-        let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+        try {
+            /**
+             * @type {string[]}
+             */
+            const scopes = parseScopes(scope);
 
-        const {
-            /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-            /** @type {Resource[]} */ validResources
-        } = await mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
-            scopes, user, path, currentDate);
+            // read the incoming resource from request body
+            /**
+             * @type {Resource|Resource[]}
+             */
+            let resourcesIncoming = body;
+            /**
+             * @type {string}
+             */
+            let {base_version} = args;
 
-        // process only the resources that are valid
-        resourcesIncomingArray = validResources;
+            // if the incoming request is a bundle then unwrap the bundle
+            if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
+                const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
+                if (operationOutcome && operationOutcome.statusCode === 400) {
+                    validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                    return operationOutcome;
+                }
+                // unwrap the resources
+                resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
+            }
 
-        /**
-         * @type {{id: string, resourceType: string}[]}
-         */
-        const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
-            return {resourceType: r.resourceType, id: r.id};
-        });
+            // add event handlers
+            databaseBulkInserter.on('createPatient', onCreatePatient);
+            databaseBulkInserter.on('changePatient', onChangePatient);
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = isTrue(env.USE_ATLAS);
+            /**
+             * @type {boolean}
+             */
+            const wasIncomingAList = Array.isArray(resourcesIncoming);
 
-        /**
-         * @type {DatabaseBulkLoader}
-         */
-        const databaseBulkLoader = container.databaseBulkLoader;
-        // Load the resources from the database
-        await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
-            base_version,
-            useAtlas,
-            incomingResourceTypeAndIds
-        );
-        /**
-         * @type {MongoCollectionManager}
-         */
-        const collectionManager = container.collectionManager;
-        // merge the resources
-        await mergeManager.mergeResourceListAsync(
-            collectionManager,
-            resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
-            requestId, base_version, scope, requestInfo, args,
-            databaseBulkInserter, databaseBulkLoader
-        );
-        /**
-         * mergeResults
-         * @type {MergeResultEntry[]}
-         */
-        let mergeResults = await databaseBulkInserter.executeAsync(
-            requestId, currentDate,
-            base_version, useAtlas);
+            /**
+             * @type {Resource[]}
+             */
+            let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
 
-        // flush any event handlers
-        /**
-         * @type {PostRequestProcessor}
-         */
-        const postRequestProcessor = container.postRequestProcessor;
-        postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+            const {
+                /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
+                /** @type {Resource[]} */ validResources
+            } = await mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
+                scopes, user, path, currentDate);
 
-        // add in any pre-merge failures
-        mergeResults = mergeResults.concat(mergePreCheckErrors);
+            // process only the resources that are valid
+            resourcesIncomingArray = validResources;
 
-        // add in unchanged for ids that we did not merge
-        const idsInMergeResults = mergeResults.map(r => {
-            return {resourceType: r.resourceType, id: r.id};
-        });
-        mergeResults = mergeResults.concat(addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
-        await mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
+            /**
+             * @type {{id: string, resourceType: string}[]}
+             */
+            const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
+                return {resourceType: r.resourceType, id: r.id};
+            });
 
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationCompleted',
-            action: currentOperationName,
-            result: JSON.stringify(mergeResults)
-        });
-        return wasIncomingAList ? mergeResults : mergeResults[0];
-    } catch (e) {
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationFailed',
-            action: currentOperationName,
-            error: e
-        });
-        throw e;
-    } finally {
-        databaseBulkInserter.removeListener('createPatient', onCreatePatient);
-        databaseBulkInserter.removeListener('changePatient', onChangePatient);
-        timer({action: currentOperationName, resourceType});
+            /**
+             * @type {DatabaseBulkLoader}
+             */
+            const databaseBulkLoader = container.databaseBulkLoader;
+            // Load the resources from the database
+            await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
+                base_version,
+                useAtlas,
+                incomingResourceTypeAndIds
+            );
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const collectionManager = container.collectionManager;
+            // merge the resources
+            await mergeManager.mergeResourceListAsync(
+                collectionManager,
+                resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
+                requestId, base_version, scope, requestInfo, args,
+                databaseBulkInserter, databaseBulkLoader
+            );
+            /**
+             * mergeResults
+             * @type {MergeResultEntry[]}
+             */
+            let mergeResults = await databaseBulkInserter.executeAsync(
+                requestId, currentDate,
+                base_version, useAtlas);
+
+            // flush any event handlers
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+
+            // add in any pre-merge failures
+            mergeResults = mergeResults.concat(mergePreCheckErrors);
+
+            // add in unchanged for ids that we did not merge
+            const idsInMergeResults = mergeResults.map(r => {
+                return {resourceType: r.resourceType, id: r.id};
+            });
+            mergeResults = mergeResults.concat(
+                this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
+            await mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
+
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationCompleted',
+                action: currentOperationName,
+                result: JSON.stringify(mergeResults)
+            });
+            return wasIncomingAList ? mergeResults : mergeResults[0];
+        } catch (e) {
+            await logOperationAsync({
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                message: 'operationFailed',
+                action: currentOperationName,
+                error: e
+            });
+            throw e;
+        } finally {
+            databaseBulkInserter.removeListener('createPatient', onCreatePatient);
+            databaseBulkInserter.removeListener('changePatient', onChangePatient);
+            timer({action: currentOperationName, resourceType});
+        }
     }
+}
+
+module.exports = {
+    MergeOperation
 };

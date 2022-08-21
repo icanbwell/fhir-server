@@ -30,19 +30,11 @@ const {
 
 const {VERSIONS, INTERACTIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
-const deprecate = require('@asymmetrik/node-fhir-server-core/dist/server/utils/deprecation.notice');
-
-const operationsController = require('./4_0_0/controllers/operations.controller');
-
-const {
-    container
-} = require('@asymmetrik/node-fhir-server-core/dist/server/winston');
+const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
 
 const cors = require('cors');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
-
-let deprecatedLogger = deprecate(container.get('default'), 'Using the logger this way is deprecated. Please see the documentation on ' + 'BREAKING CHANGES in version 2.0.0 for instructions on how to upgrade.');
 
 class FhirRouter {
 
@@ -63,7 +55,7 @@ class FhirRouter {
             return set;
         }, new Set()); // Filter the provided versions by ones we actually support. We need to check this to make
         // sure some user does not pass in a version we do not officially support in core for whatever
-        // reason. Otherwise there may be some compliance issues.
+        // reason. Otherwise, there may be some compliance issues.
 
         return Array.from(providedVersions).filter(version => supportedVersions.indexOf(version) !== -1);
     }
@@ -71,7 +63,7 @@ class FhirRouter {
     /**
      * @function hasValidService
      * @description Does this profile have a service with a function whose name
-     * macthes what the route expects to call when invoked
+     * matches what the route expects to call when invoked
      * @param {object} route - route configuration for this specific route
      * @param {object} profile - profile configuration for this particular profile
      * @return {boolean}
@@ -130,6 +122,22 @@ class FhirRouter {
             let corsOptions = Object.assign({}, corsDefaults, {
                 methods: [route.type.toUpperCase()]
             });
+            /**
+             * @type {string}
+             */
+            const resourceType = key;
+
+            const customOperationsController = new CustomOperationsController();
+            const operationsControllerRouteHandler = lowercaseMethod === 'post' ?
+                customOperationsController.operationsPost({
+                    name: functionName,
+                    resourceType
+                }) :
+                customOperationsController.operationsGet({
+                    name: functionName,
+                    resourceType
+                })
+            ;
 
             if (profile.baseUrls && profile.baseUrls.length && profile.baseUrls.includes('/')) {
                 const operationsRoute = '/'.concat(op.route).replace(/\$/g, '([$])'); // Enable cors with preflight
@@ -144,12 +152,9 @@ class FhirRouter {
                         route,
                         auth: config.auth,
                         name: key
-                    }), // TODO: REMOVE: logger in future versions
-                    operationsController[interaction]({
-                        profile,
-                        name: functionName,
-                        logger: deprecatedLogger
-                    }));
+                    }),
+                    operationsControllerRouteHandler
+                );
             }
 
             const operationRoute = route.path.replace(':resource', key).concat(op.route).replace(/\$/g, '([$])'); // Enable cors with preflight
@@ -161,12 +166,9 @@ class FhirRouter {
                     route,
                     auth: config.auth,
                     name: key
-                }), // TODO: REMOVE: logger in future versions
-                operationsController[interaction]({
-                    profile,
-                    name: functionName,
-                    logger: deprecatedLogger
-                }));
+                }),
+                operationsControllerRouteHandler
+            );
         }
     }
 

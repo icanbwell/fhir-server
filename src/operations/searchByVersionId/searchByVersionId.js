@@ -9,91 +9,102 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
-/**
- * does a FHIR Search By Version
- * @param {SimpleContainer} container
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- */
+
+class SearchByVersionIdOperation {
+    constructor() {
+    }
+
+    /**
+     * does a FHIR Search By Version
+     * @param {SimpleContainer} container
+     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     */
 // eslint-disable-next-line no-unused-vars
-module.exports.searchByVersionId = async (container,
-                                          requestInfo, args, resourceType) => {
-    assert(container !== undefined);
-    assert(requestInfo !== undefined);
-    assert(args !== undefined);
-    assert(resourceType !== undefined);
-    const currentOperationName = 'searchByVersionId';
-    /**
-     * @type {DatabaseHistoryFactory}
-     */
-    const databaseHistoryFactory = container.databaseHistoryFactory;
-    /**
-     * @type {number}
-     */
-    const startTime = Date.now();
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'read'
-    });
-
-    try {
-
-        let {base_version, id, version_id} = args;
-
-        let Resource = getResource(base_version, resourceType);
-
+    async searchByVersionId(container,
+                            requestInfo, args, resourceType) {
+        assert(container !== undefined);
+        assert(requestInfo !== undefined);
+        assert(args !== undefined);
+        assert(resourceType !== undefined);
+        const currentOperationName = 'searchByVersionId';
         /**
-         * @type {boolean}
+         * @type {DatabaseHistoryFactory}
          */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+        const databaseHistoryFactory = container.databaseHistoryFactory;
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const user = requestInfo.user;
+        const scope = requestInfo.scope;
 
-        // Query our collection for this observation
-        let resource;
+        await verifyHasValidScopesAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            action: currentOperationName,
+            accessRequested: 'read'
+        });
+
         try {
-            resource = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
-        } catch (e) {
-            throw new BadRequestError(e);
-        }
 
-        if (resource) {
-            if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-                throw new ForbiddenError(
-                    'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                    resource.resourceType + ' with id ' + id);
+            let {base_version, id, version_id} = args;
+
+            let Resource = getResource(base_version, resourceType);
+
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            // Query our collection for this observation
+            let resource;
+            try {
+                resource = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                    .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
+            } catch (e) {
+                throw new BadRequestError(e);
             }
-            // run any enrichment
-            resource = (await enrich([resource], resourceType))[0];
+
+            if (resource) {
+                if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                    throw new ForbiddenError(
+                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                        resource.resourceType + ' with id ' + id);
+                }
+                // run any enrichment
+                resource = (await enrich([resource], resourceType))[0];
+                await logOperationAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    message: 'operationCompleted',
+                    action: currentOperationName
+                });
+                return (new Resource(resource));
+            } else {
+                throw new NotFoundError();
+            }
+        } catch (e) {
             await logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationCompleted',
-                action: currentOperationName
+                message: 'operationFailed',
+                action: currentOperationName,
+                error: e
             });
-            return (new Resource(resource));
-        } else {
-            throw new NotFoundError();
+            throw e;
         }
-    } catch (e) {
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationFailed',
-            action: currentOperationName,
-            error: e
-        });
-        throw e;
     }
+}
+
+module.exports = {
+    SearchByVersionIdOperation
 };
+
