@@ -17,6 +17,8 @@ const router = require('../middleware/fhir/router');
 const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
+// const passport = require('passport');
+// const path = require('path');
 
 
 class MyFHIRServer extends FHIRServer.Server {
@@ -48,6 +50,10 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    /**
+     * Configures middleware
+     * @return {MyFHIRServer}
+     */
     configureMiddleware() {
         //Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
@@ -99,6 +105,11 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    /**
+     * Configures Helmet for security
+     * @param helmetConfig
+     * @return {MyFHIRServer}
+     */
     configureHelmet(helmetConfig) {
         /**
          * The following headers are turned on by default:
@@ -119,6 +130,11 @@ class MyFHIRServer extends FHIRServer.Server {
     } // Configure session
 
 
+    /**
+     * Configures with the session
+     * @param session
+     * @return {MyFHIRServer}
+     */
     configureSession(session) {
         // Session config can come from the core config as well, let's handle both cases
         let {
@@ -131,7 +147,7 @@ class MyFHIRServer extends FHIRServer.Server {
 
 
         return this;
-    } // Configure authorization
+    }
 
 
     // configureAuthorization() {
@@ -147,14 +163,18 @@ class MyFHIRServer extends FHIRServer.Server {
     //         } = require(path.resolve(this.config.auth.strategy.service));
     //
     //         // noinspection JSCheckFunctionSignatures
-    //         passport.use(strategy);
+    //         passport.use('jwt', strategy);
     //     } // return self for chaining
     //
     //
     //     return this;
-    // } // Setup a public directory for static assets
+    // }
 
-
+    /**
+     * Setup a public directory for static assets
+     * @param {string} publicDirectory
+     * @return {MyFHIRServer}
+     */
     setPublicDirectory(publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
         let {
@@ -175,6 +195,10 @@ class MyFHIRServer extends FHIRServer.Server {
     //     return this;
     // }
 
+    /**
+     * Configures HTML renderer for rendering HTML pages in browser
+     * @return {MyFHIRServer}
+     */
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
             // noinspection JSCheckFunctionSignatures
@@ -183,6 +207,10 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    /**
+     * Configures the error handler to report any errors
+     * @return {MyFHIRServer}
+     */
     configureSlackErrorHandler() {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
             this.app.use(slackErrorHandler);
@@ -190,6 +218,10 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    /**
+     * Sets up routes to catch and show errors
+     * @return {MyFHIRServer}
+     */
     setErrorRoutes() {
         /**
          * @type {import('winston').logger}
@@ -283,9 +315,12 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    /**
+     * Sets routes for all the operations
+     * @return {MyFHIRServer}
+     */
     setProfileRoutes() {
         router.setRoutes(this); // return self for chaining
-
         return this;
     } // Setup custom logging
 }
