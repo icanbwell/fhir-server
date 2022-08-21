@@ -7,7 +7,7 @@ const controllers3 = require('@asymmetrik/node-fhir-server-core/dist/server/reso
 
 const controllers1 = require('@asymmetrik/node-fhir-server-core/dist/server/resources/1_0_2/controllers');
 
-const genericController = require('./4_0_0/controllers/generic_controller');
+const {GenericController} = require('./4_0_0/controllers/generic_controller');
 /**
  *
  * @param {string} version
@@ -21,7 +21,7 @@ const getController = (version, resourceName) => {
             return controllersR401[resourceName];
 
         case '4_0_0':
-            return genericController;
+            return new GenericController();
 
         case '3_0_1':
             return controllers3[resourceName];

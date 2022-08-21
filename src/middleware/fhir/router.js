@@ -348,6 +348,10 @@ class FhirRouter {
         }
     }
 
+    /**
+     * Sets up the routes for FHIR resources
+     * @param options
+     */
     setRoutes(options = {}) {
         let {
             app,
