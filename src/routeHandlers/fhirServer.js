@@ -13,7 +13,7 @@ const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston')
 const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
-const router = require('../middleware/fhir/router');
+const {FhirRouter} = require('../middleware/fhir/router');
 const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
@@ -113,7 +113,7 @@ class MyFHIRServer extends FHIRServer.Server {
     configureHelmet(helmetConfig) {
         /**
          * The following headers are turned on by default:
-         * - dnsPrefetchControl (Controle browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
+         * - dnsPrefetchControl (Control browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
          * - frameguard (prevent clickjacking). https://helmetjs.github.io/docs/frameguard
          * - hidePoweredBy (remove the X-Powered-By header). https://helmetjs.github.io/docs/hide-powered-by
          * - hsts (HTTP strict transport security). https://helmetjs.github.io/docs/hsts
@@ -171,7 +171,7 @@ class MyFHIRServer extends FHIRServer.Server {
     // }
 
     /**
-     * Setup a public directory for static assets
+     * Set up a public directory for static assets
      * @param {string} publicDirectory
      * @return {MyFHIRServer}
      */
@@ -320,7 +320,7 @@ class MyFHIRServer extends FHIRServer.Server {
      * @return {MyFHIRServer}
      */
     setProfileRoutes() {
-        router.setRoutes(this); // return self for chaining
+        new FhirRouter().setRoutes(this); // return self for chaining
         return this;
     } // Setup custom logging
 }
