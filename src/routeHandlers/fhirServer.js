@@ -13,10 +13,11 @@ const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston')
 const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
-const {FhirRouter} = require('../middleware/fhir/router');
 const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
+const assert = require('node:assert/strict');
+const {FhirRouter} = require('../middleware/fhir/router');
 // const passport = require('passport');
 // const path = require('path');
 
@@ -37,6 +38,11 @@ class MyFHIRServer extends FHIRServer.Server {
          * @type {function(): SimpleContainer}
          */
         this.fnCreateContainer = fnCreateContainer;
+
+        /**
+         * @type {SimpleContainer}
+         */
+        this.container = fnCreateContainer();
 
         let {
             server = {}
@@ -320,7 +326,13 @@ class MyFHIRServer extends FHIRServer.Server {
      * @return {MyFHIRServer}
      */
     setProfileRoutes() {
-        new FhirRouter().setRoutes(this); // return self for chaining
+        /**
+         * @type {FhirRouter}
+         */
+        const fhirRouter = this.container.fhirRouter;
+        assert(fhirRouter);
+        assert(fhirRouter instanceof FhirRouter);
+        fhirRouter.setRoutes(this); // return self for chaining
         return this;
     } // Setup custom logging
 }

@@ -21,7 +21,7 @@ const {
 } = require('@asymmetrik/node-fhir-server-core/dist/server/utils/sanitize.utils');
 
 const {
-    getController
+    ControllerUtils
 } = require('./controller.utils');
 
 const {
@@ -38,6 +38,7 @@ const uniques = list => list.filter((val, index, self) => val && self.indexOf(va
 
 class FhirRouter {
     constructor() {
+        this.controllerUtils = new ControllerUtils();
     }
     /**
      * @function getAllConfiguredVersions
@@ -88,7 +89,7 @@ class FhirRouter {
             } = req.params;
             const fhirVersion = VERSIONS[base_version] || VERSIONS['4_0_1']; // fallback to r4 for custom baseUrl
 
-            const controller = getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
+            const controller = this.controllerUtils.getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 
             await controller[interaction](service, resourceType)(req, res, next);
         };
