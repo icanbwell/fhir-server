@@ -15,6 +15,9 @@ const {VERSIONS} = require('@asymmetrik/node-fhir-server-core/dist/constants');
 const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
 const router = require('../middleware/fhir/router');
 const {generateUUID} = require('../utils/uid.util');
+const helmet = require('helmet');
+const express = require('express');
+
 
 class MyFHIRServer extends FHIRServer.Server {
     /**
@@ -24,12 +27,25 @@ class MyFHIRServer extends FHIRServer.Server {
      * @param {import('express').Express} app
      */
     constructor(fnCreateContainer, config = {}, app = null) {
-        // https://github.com/Asymmetrik/node-fhir-server-core/blob/master/docs/MIGRATION_2.0.0.md
         super(config, app);
+        // this.config = config;
+        // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
+        // this.app = app ? app : express(); // Setup some environment variables handy for setup
         /**
          * @type {function(): SimpleContainer}
          */
         this.fnCreateContainer = fnCreateContainer;
+
+        let {
+            server = {}
+        } = this.config;
+        this.env = {
+            IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
+            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
+        };
+
+        // return self for chaining
+        return this;
     }
 
     configureMiddleware() {
@@ -83,8 +99,85 @@ class MyFHIRServer extends FHIRServer.Server {
         return this;
     }
 
+    configureHelmet(helmetConfig) {
+        /**
+         * The following headers are turned on by default:
+         * - dnsPrefetchControl (Controle browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
+         * - frameguard (prevent clickjacking). https://helmetjs.github.io/docs/frameguard
+         * - hidePoweredBy (remove the X-Powered-By header). https://helmetjs.github.io/docs/hide-powered-by
+         * - hsts (HTTP strict transport security). https://helmetjs.github.io/docs/hsts
+         * - ieNoOpen (sets X-Download-Options for IE8+). https://helmetjs.github.io/docs/ienoopen
+         * - noSniff (prevent clients from sniffing MIME type). https://helmetjs.github.io/docs/dont-sniff-mimetype
+         * - xssFilter (adds small XSS protections). https://helmetjs.github.io/docs/xss-filter/
+         */
+        this.app.use(helmet(helmetConfig || {
+            // Needs https running first
+            hsts: this.env.USE_HTTPS
+        })); // return self for chaining
+
+        return this;
+    } // Configure session
+
+
+    configureSession(session) {
+        // Session config can come from the core config as well, let's handle both cases
+        let {
+            server = {}
+        } = this.config; // If a session was passed in the config, let's use it
+
+        if (session || server.sessionStore) {
+            this.app.use(session || server.sessionStore);
+        } // return self for chaining
+
+
+        return this;
+    } // Configure authorization
+
+
+    // configureAuthorization() {
+    //     // return self for chaining
+    //     return this;
+    // }
+
+    // configurePassport() {
+    //     if (this.config.auth && this.config.auth.strategy) {
+    //         let {
+    //             strategy
+    //             // eslint-disable-next-line security/detect-non-literal-require
+    //         } = require(path.resolve(this.config.auth.strategy.service));
+    //
+    //         // noinspection JSCheckFunctionSignatures
+    //         passport.use(strategy);
+    //     } // return self for chaining
+    //
+    //
+    //     return this;
+    // } // Setup a public directory for static assets
+
+
+    setPublicDirectory(publicDirectory = '') {
+        // Public config can come from the core config as well, let's handle both cases
+        let {
+            server = {}
+        } = this.config;
+
+        if (publicDirectory || server.publicDirectory) {
+            this.app.use(express.static(publicDirectory || server.publicDirectory));
+        } // return self for chaining
+
+
+        return this;
+    }
+
+    // configureLoggers(fun) {
+    //     fun(loggers.container, loggers.transports); // return self for chaining
+    //
+    //     return this;
+    // }
+
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
+            // noinspection JSCheckFunctionSignatures
             this.app.use(htmlRenderer);
         }
         return this;
@@ -109,46 +202,49 @@ class MyFHIRServer extends FHIRServer.Server {
 
         // Generic catch all error handler
         // Errors should be thrown with next and passed through
-        this.app.use((err, req, res, next) => {
-            // get base from URL instead of params since it might not be forwarded
-            const base = req.url.split('/')[1];
+        this.app.use(
+            (err,
+             /** @type {import('http').IncomingMessage} */ req,
+             /** @type {import('http').ServerResponse} */ res, next) => {
+                // get base from URL instead of params since it might not be forwarded
+                const base = req.url.split('/')[1];
 
-            // Get an operation outcome for this instance
-            const OperationOutcome = resolveSchema(
-                isValidVersion(base) ? base : VERSIONS['4_0_1'],
-                'operationoutcome'
-            );
-            if (req.id) {
-                res.setHeader('X-Request-ID', String(req.id));
-            }
-            // If there is an error and it is an OperationOutcome
-            if (err && err.resourceType === OperationOutcome.resourceType) {
-                const status = err.statusCode || 500;
-                res.status(status).json(err);
-            } else if (err instanceof ServerError) {
-                const status = err.statusCode || 500;
-                res.status(status).json(new OperationOutcome(err));
-            } else if (err) {
-                const error = new OperationOutcome({
-                    statusCode: 500,
-                    issue: [
-                        {
-                            severity: 'error',
-                            code: 'internal',
-                            details: {
-                                text: `Unexpected: ${err.message}`,
+                // Get an operation outcome for this instance
+                const OperationOutcome = resolveSchema(
+                    isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                    'operationoutcome'
+                );
+                if (req.id) {
+                    res.setHeader('X-Request-ID', String(req.id));
+                }
+                // If there is an error and it is an OperationOutcome
+                if (err && err.resourceType === OperationOutcome.resourceType) {
+                    const status = err.statusCode || 500;
+                    res.status(status).json(err);
+                } else if (err instanceof ServerError) {
+                    const status = err.statusCode || 500;
+                    res.status(status).json(new OperationOutcome(err));
+                } else if (err) {
+                    const error = new OperationOutcome({
+                        statusCode: 500,
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'internal',
+                                details: {
+                                    text: `Unexpected: ${err.message}`,
+                                },
+                                diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
                             },
-                            diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
-                        },
-                    ],
-                });
+                        ],
+                    });
 
-                logger.error(error);
-                res.status(error.statusCode).json(error);
-            } else {
-                next();
-            }
-        });
+                    logger.error(error);
+                    res.status(error.statusCode).json(error);
+                } else {
+                    next();
+                }
+            });
 
         // Nothing has responded by now, respond with 404
         this.app.use((req, res) => {
