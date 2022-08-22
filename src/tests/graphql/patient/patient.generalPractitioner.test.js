@@ -15,9 +15,12 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders, createTestRequest
+    getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders, createTestRequest, getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const globals = require('../../../globals');
+const {AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const env = require('var');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -31,7 +34,30 @@ describe('GraphQL Patient Tests', () => {
     describe('GraphQL Update General Practitioner', () => {
         test('GraphQL Update General Practitioner for Patient', async () => {
             const request = await createTestRequest();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
+
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const base_version = '4_0_0';
+            const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName = `${collection_name}_${base_version}`;
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            // no audit logs should be created since there were no resources returned
+            expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 
             let resp = await request
                 .get('/4_0_0/Patient')
@@ -89,6 +115,11 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response practitioner  ------------');
 
+            await postRequestProcessor.waitTillDoneAsync();
+            expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
+            // clear out audit table
+            await internalAuditEventCollection.deleteMany({});
+
             resp = await request
                 .post('/graphql')
                 .send({
@@ -108,6 +139,12 @@ describe('GraphQL Patient Tests', () => {
                 expect(body.errors).toBeUndefined();
             }
             expect(body).toStrictEqual(expectedUpdateGraphQlResponse);
+
+            // check that the audit entry is made
+            await postRequestProcessor.waitTillDoneAsync();
+            const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
+            console.log(auditLogs);
+            expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {
             const request = await createTestRequest();
