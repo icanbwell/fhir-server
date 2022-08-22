@@ -76,7 +76,12 @@ const createContainer = function () {
     container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
 
     // register fhir operations
-    container.register('searchBundleOperation', () => new SearchBundleOperation());
+    container.register('searchBundleOperation', c => new SearchBundleOperation({
+        searchManager: c.searchManager,
+        resourceLocatorFactory: c.resourceLocatorFactory,
+        auditLogger: c.auditLogger,
+        errorReporter: c.errorReporter
+    }));
     container.register('searchStreamingOperation', () => new SearchStreamingOperation());
     container.register('searchByIdOperation', () => new SearchByIdOperation());
     container.register('createOperation', () => new CreateOperation());

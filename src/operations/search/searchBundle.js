@@ -8,9 +8,32 @@ const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SearchManager} = require('./searchManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {ErrorReporter} = require('../../utils/slack.logger');
+const {AuditLogger} = require('../../utils/auditLogger');
 
 class SearchBundleOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {SearchManager} searchManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {AuditLogger} auditLogger
+     * @param {ErrorReporter} errorReporter
+     */
+    constructor({searchManager, resourceLocatorFactory, auditLogger, errorReporter}) {
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        this.errorReporter = errorReporter;
+        assertTypeEquals(errorReporter, ErrorReporter);
     }
 
     /**
@@ -32,14 +55,6 @@ class SearchBundleOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'search';
-        /**
-         * @type {SearchManager}
-         */
-        const searchManager = container.searchManager;
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        const resourceLocatorFactory = container.resourceLocatorFactory;
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
@@ -87,7 +102,7 @@ class SearchBundleOperation {
         const {/** @type {string} **/base_version} = args;
 
         const allPatients = patients.concat(
-            await searchManager.getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
+            await this.searchManager.getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -100,7 +115,7 @@ class SearchBundleOperation {
                 query,
                 /** @type {Set} **/
                 columns
-            } = searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+            } = this.searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
         } catch (e) {
             await logOperationAsync({
                 requestInfo,
@@ -132,11 +147,11 @@ class SearchBundleOperation {
         /**
          * @type {ResourceLocator}
          */
-        const resourceLocator = resourceLocatorFactory.createResourceLocator(
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
             resourceType, base_version, useAtlas);
         try {
             /** @type {GetCursorResult} **/
-            const __ret = await searchManager.getCursorForQueryAsync(
+            const __ret = await this.searchManager.getCursorForQueryAsync(
                 resourceType, base_version, useAtlas,
                 args, columns, options, query,
                 maxMongoTimeMS, user, false, useAccessIndex);
@@ -188,7 +203,7 @@ class SearchBundleOperation {
                 logDebug(user,
                     mongoQueryAndOptionsStringify(
                         resourceLocator.getFirstCollectionNameForQuery(), originalQuery, originalOptions));
-                resources = await searchManager.readResourcesFromCursorAsync(cursor, user, scope, args,
+                resources = await this.searchManager.readResourcesFromCursorAsync(cursor, user, scope, args,
                     Resource, resourceType, batchObjectCount,
                     useAccessIndex
                 );
@@ -197,11 +212,7 @@ class SearchBundleOperation {
                     if (resourceType !== 'AuditEvent') {
                         try {
                             // log access to audit logs
-                            /**
-                             * @type {AuditLogger}
-                             */
-                            const auditLogger = container.auditLogger;
-                            await auditLogger.logAuditEntryAsync(
+                            await this.auditLogger.logAuditEntryAsync(
                                 requestInfo,
                                 base_version,
                                 resourceType,
@@ -210,13 +221,9 @@ class SearchBundleOperation {
                                 resources.map((r) => r['id'])
                             );
                             const currentDate = moment.utc().format('YYYY-MM-DD');
-                            await auditLogger.flushAsync(requestId, currentDate);
+                            await this.auditLogger.flushAsync(requestId, currentDate);
                         } catch (e) {
-                            /**
-                             * @type {ErrorReporter}
-                             */
-                            const errorReporter = container.errorReporter;
-                            await errorReporter.logErrorToSlackAsync(
+                            await this.errorReporter.logErrorToSlackAsync(
                                 `search: Error writing AuditEvent for resource ${resourceType}`, e);
                         }
                     }
@@ -237,7 +244,7 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = searchManager.createBundle({
+            const bundle = this.searchManager.createBundle({
                     url,
                     last_id,
                     resources,
