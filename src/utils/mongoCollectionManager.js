@@ -8,8 +8,8 @@ const mutex = new Mutex();
 
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const assert = require('node:assert/strict');
 const {IndexManager} = require('../indexes/index.util');
+const {assertTypeEquals, assertIsValid} = require('./assertType');
 
 class MongoCollectionManager {
     /**
@@ -17,8 +17,7 @@ class MongoCollectionManager {
      * @param {IndexManager} indexManager
      */
     constructor(indexManager) {
-        assert(indexManager);
-        assert(indexManager instanceof IndexManager);
+        assertTypeEquals(indexManager, IndexManager);
         /**
          * @type {IndexManager}
          */
@@ -32,8 +31,8 @@ class MongoCollectionManager {
      * @return {Promise<import('mongodb').Collection>}
      */
     async getOrCreateCollectionAsync(db, collection_name) {
-        assert(db !== undefined);
-        assert(collection_name !== undefined);
+        assertIsValid(db !== undefined);
+        assertIsValid(collection_name !== undefined);
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         await mutex.runExclusive(async () => {
             const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();

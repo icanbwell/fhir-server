@@ -2,8 +2,8 @@ const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {isNdJsonContentType} = require('../../utils/contentTypes');
-const assert = require('node:assert/strict');
 const {loggers} = require('@asymmetrik/node-fhir-server-core');
+const {assertIsValid} = require('../../utils/assertType');
 const logger = loggers.get('default');
 
 class HttpResponseWriter extends Writable {
@@ -15,13 +15,13 @@ class HttpResponseWriter extends Writable {
      */
     constructor(requestId, response, contentType, signal) {
         super({objectMode: true});
-        assert(response !== undefined);
+        assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
          */
         this.response = response;
 
-        assert(contentType);
+        assertIsValid(contentType);
         /**
          * @type {string}
          */
@@ -31,7 +31,7 @@ class HttpResponseWriter extends Writable {
          * @type {AbortSignal}
          */
         this._signal = signal;
-        assert(requestId);
+        assertIsValid(requestId);
         /**
          * @type {string}
          */

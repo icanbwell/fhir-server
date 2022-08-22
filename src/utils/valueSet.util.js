@@ -1,7 +1,7 @@
 'use strict';
 const async = require('async');
-const assert = require('node:assert/strict');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const {assertTypeEquals} = require('./assertType');
 
 /**
  * This file implements helpers for expanding value sets
@@ -12,8 +12,7 @@ class ValueSetManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
     constructor(databaseQueryFactory) {
-        assert(databaseQueryFactory);
-        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}
          */

@@ -4,8 +4,7 @@ const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SimpleContainer} = require('../../utils/simpleContainer');
 
 /**
@@ -70,7 +69,7 @@ class FhirDataSource extends DataSource {
     constructor(container, requestInfo) {
         super();
         assertTypeEquals(container, SimpleContainer);
-        assert(requestInfo !== undefined);
+        assertIsValid(requestInfo !== undefined);
         /**
          * @type {SimpleContainer}
          */

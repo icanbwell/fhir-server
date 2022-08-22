@@ -10,8 +10,7 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -62,9 +61,9 @@ class PatchOperation {
      * @param {string} resourceType
      */
     async patch(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'patch';
         const {requestId} = requestInfo;
         /**

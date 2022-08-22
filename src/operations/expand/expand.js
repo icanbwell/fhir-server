@@ -6,8 +6,7 @@ const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ValueSetManager} = require('../../utils/valueSet.util');
 
@@ -43,9 +42,9 @@ class ExpandOperation {
      * @return {Resource}
      */
     async expand(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'expand';
         /**
          * @type {number}

@@ -19,7 +19,6 @@ const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparer');
 const {Transform} = require('stream');
 const {findIndexForFields} = require('../../indexes/indexHinter');
-const assert = require('node:assert/strict');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
@@ -29,6 +28,7 @@ const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
 const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
@@ -41,10 +41,8 @@ class SearchManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(databaseQueryFactory, resourceLocatorFactory) {
-        assert(databaseQueryFactory);
-        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
-        assert(resourceLocatorFactory);
-        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -899,7 +897,7 @@ class SearchManager {
             useAccessIndex,
             batchObjectCount
         } = options;
-        assert(requestId);
+        assertIsValid(requestId);
         /**
          * @type {AbortController}
          */
@@ -999,7 +997,7 @@ class SearchManager {
             // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1
         } = options;
-        assert(requestId);
+        assertIsValid(requestId);
         /**
          * @type {boolean}
          */

@@ -5,8 +5,7 @@ const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 
 class EverythingOperation {
     /**
@@ -28,9 +27,9 @@ class EverythingOperation {
      * @param {string} resourceType
      */
     async everything( requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'everything';
         /**
          * @type {number}

@@ -9,9 +9,8 @@ const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
 const {isTrue} = require('../../utils/isTrue');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
@@ -46,9 +45,9 @@ class RemoveOperation {
      * @param {string} resourceType
      */
     async remove(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'remove';
 
         /**

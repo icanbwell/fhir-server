@@ -6,9 +6,8 @@ const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ErrorReporter} = require('../../utils/slack.logger');
@@ -48,9 +47,9 @@ class SearchBundleOperation {
         requestInfo, args, resourceType,
         filter = true
     ) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'search';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

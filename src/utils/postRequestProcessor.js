@@ -2,8 +2,8 @@
  * This class stores any actions to run after the current request has finished
  * The goal is to get the response back to client quickly and then run these actions
  */
-const assert = require('node:assert/strict');
 const {ErrorReporter} = require('./slack.logger');
+const {assertTypeEquals, assertIsValid} = require('./assertType');
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -15,8 +15,7 @@ class PostRequestProcessor {
      * @param {ErrorReporter} errorReporter
      */
     constructor(errorReporter) {
-        assert(errorReporter);
-        assert(errorReporter instanceof ErrorReporter);
+        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * queue
          * @type {(() =>void)[]}
@@ -73,7 +72,7 @@ class PostRequestProcessor {
         if (this.queue.length === 0) {
             return true;
         }
-        assert(this.startedExecuting || this.queue.length === 0, 'executeAsync is not running so queue will never empty');
+        assertIsValid(this.startedExecuting || this.queue.length === 0, 'executeAsync is not running so queue will never empty');
         let secondsWaiting = 0;
         while (this.queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));

@@ -3,8 +3,8 @@ const {isTrue} = require('../../../../utils/isTrue');
 const env = require('var');
 const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
-const assert = require('node:assert/strict');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
+const {assertTypeEquals} = require('../../../../utils/assertType');
 
 /**
  * @typedef FhirService
@@ -32,14 +32,12 @@ class GenericController {
      * @param {FhirOperationsManager} fhirOperationsManager
      */
     constructor(postRequestProcessor, fhirOperationsManager) {
-        assert(postRequestProcessor);
-        assert(postRequestProcessor instanceof PostRequestProcessor);
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
-        assert(fhirOperationsManager);
-        assert(fhirOperationsManager instanceof FhirOperationsManager);
+        assertTypeEquals(fhirOperationsManager, FhirOperationsManager);
         /**
          * @type {FhirOperationsManager}
          */

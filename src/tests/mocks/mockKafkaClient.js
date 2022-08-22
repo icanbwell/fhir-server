@@ -1,11 +1,16 @@
-class MockKafkaClient {
+const {KafkaClient} = require('../../utils/kafkaClient');
+
+class MockKafkaClient extends KafkaClient{
+    // noinspection JSAnnotator
     /**
      * constructor
      */
+    // eslint-disable-next-line constructor-super
     constructor() {
         /**
          * @type {KafkaClientMessage[]}
          */
+        // eslint-disable-next-line no-this-before-super
         this.messages = [];
     }
 

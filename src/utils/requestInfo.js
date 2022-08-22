@@ -1,4 +1,4 @@
-const assert = require('node:assert/strict');
+const {assertIsValid} = require('./assertType');
 
 class RequestInfo {
     /**
@@ -30,7 +30,7 @@ class RequestInfo {
                 isUser,
                 patients,
                 fhirPersonId) {
-        assert(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
+        assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         /**
          * @type {string|null}
          */

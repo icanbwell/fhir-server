@@ -9,10 +9,10 @@ const {getUuid} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
-const assert = require('node:assert/strict');
 const {PostRequestProcessor} = require('./postRequestProcessor');
 const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
 const {ErrorReporter} = require('./slack.logger');
+const {assertTypeEquals} = require('./assertType');
 
 class AuditLogger {
     /**
@@ -26,12 +26,9 @@ class AuditLogger {
                 databaseBulkInserter,
                 errorReporter,
                 base_version = '4_0_0') {
-        assert(postRequestProcessor);
-        assert(postRequestProcessor instanceof PostRequestProcessor);
-        assert(databaseBulkInserter);
-        assert(databaseBulkInserter instanceof DatabaseBulkInserter);
-        assert(errorReporter);
-        assert(errorReporter instanceof ErrorReporter);
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {PostRequestProcessor}
          */

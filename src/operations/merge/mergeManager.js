@@ -18,9 +18,9 @@ const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const assert = require('node:assert/strict');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 
 class MergeManager {
     /**
@@ -29,10 +29,8 @@ class MergeManager {
      * @param {AuditLogger} auditLogger
      */
     constructor(databaseQueryFactory, auditLogger) {
-        assert(databaseQueryFactory);
-        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
-        assert(auditLogger);
-        assert(auditLogger instanceof AuditLogger);
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        assertTypeEquals(auditLogger, AuditLogger);
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -721,7 +719,7 @@ class MergeManager {
                                          requestId,
                                          base_version, args,
                                          mergeResults) {
-        assert(requestInfo);
+        assertIsValid(requestInfo);
         /**
          * merge results grouped by resourceType
          * @type {Object}

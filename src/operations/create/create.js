@@ -13,8 +13,7 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -74,9 +73,9 @@ class CreateOperation {
      * @param {string} resourceType
      */
     async create(requestInfo, args, path, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'create';
         /**
          * @type {number}

@@ -1,11 +1,10 @@
 const env = require('var');
-const assert = require('node:assert/strict');
 const {searchBundle} = require('./searchBundle');
+const {assertIsValid} = require('../../utils/assertType');
 
 class SearchOperation {
     constructor() {
     }
-
 
     /**
      * does a FHIR Search
@@ -19,9 +18,9 @@ class SearchOperation {
         requestInfo, args, resourceType,
         filter = true
     ) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         /**
          * @type {{entry: {resource: Resource}[]}}
          */

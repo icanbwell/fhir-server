@@ -5,8 +5,7 @@ const {BadRequestError} = require('../../utils/httpErrors');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
 
 class GraphOperation {
@@ -33,9 +32,9 @@ class GraphOperation {
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
     async graph(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'graph';
 
         /**

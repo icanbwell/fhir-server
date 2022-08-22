@@ -6,8 +6,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -103,9 +102,9 @@ class MergeOperation {
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
      */
     async merge(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'merge';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

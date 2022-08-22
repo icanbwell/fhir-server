@@ -1,6 +1,6 @@
-const assert = require('node:assert/strict');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {DatabaseHistoryManager} = require('./databaseHistoryManager');
+const {assertTypeEquals} = require('../utils/assertType');
 
 class DatabaseHistoryFactory {
     /**
@@ -8,8 +8,7 @@ class DatabaseHistoryFactory {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(resourceLocatorFactory) {
-        assert(resourceLocatorFactory);
-        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
          */

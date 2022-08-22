@@ -4,13 +4,13 @@ const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
-const assert = require('node:assert/strict');
 const {logVerboseAsync} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+const {assertTypeEquals} = require('../utils/assertType');
 
 /**
  * @typedef BulkResultEntry
@@ -36,16 +36,11 @@ class DatabaseBulkInserter extends EventEmitter {
     constructor(resourceManager, postRequestProcessor, errorReporter,
                 collectionManager, resourceLocatorFactory) {
         super();
-        assert(resourceManager);
-        assert(resourceManager instanceof ResourceManager);
-        assert(postRequestProcessor);
-        assert(postRequestProcessor instanceof PostRequestProcessor);
-        assert(errorReporter);
-        assert(errorReporter instanceof ErrorReporter);
-        assert(collectionManager);
-        assert(collectionManager instanceof MongoCollectionManager);
-        assert(resourceLocatorFactory);
-        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
+        assertTypeEquals(resourceManager, ResourceManager);
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        assertTypeEquals(errorReporter, ErrorReporter);
+        assertTypeEquals(collectionManager, MongoCollectionManager);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
         /**
          * @type {ResourceManager}

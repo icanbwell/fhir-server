@@ -1,5 +1,6 @@
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
-const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../utils/assertType');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 
 /**
  * This class provides access to _History collections
@@ -13,7 +14,7 @@ class DatabaseHistoryManager {
      * @param {boolean} useAtlas
      */
     constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
-        assert(resourceLocatorFactory);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
          */

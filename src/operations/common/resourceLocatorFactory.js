@@ -1,6 +1,6 @@
 const {ResourceLocator} = require('./resourceLocator');
-const assert = require('node:assert/strict');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
+const {assertTypeEquals} = require('../../utils/assertType');
 
 /**
  * This factor creates ResourceLocators
@@ -11,8 +11,7 @@ class ResourceLocatorFactory {
      * @param {MongoCollectionManager} collectionManager
      */
     constructor(collectionManager) {
-        assert(collectionManager);
-        assert(collectionManager instanceof MongoCollectionManager);
+        assertTypeEquals(collectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
          */

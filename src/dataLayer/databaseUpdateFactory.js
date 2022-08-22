@@ -1,6 +1,6 @@
 const {DatabaseUpdateManager} = require('./databaseUpdateManager');
-const assert = require('node:assert/strict');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+const {assertTypeEquals} = require('../utils/assertType');
 
 class DatabaseUpdateFactory {
     /**
@@ -8,9 +8,7 @@ class DatabaseUpdateFactory {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(resourceLocatorFactory) {
-        assert(resourceLocatorFactory, 'resourceLocatorFactory is null');
-        assert(resourceLocatorFactory instanceof ResourceLocatorFactory,
-            `resourceLocatorFactory is of wrong type: ${typeof resourceLocatorFactory}`);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
          */

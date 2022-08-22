@@ -17,8 +17,7 @@ const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
@@ -80,9 +79,9 @@ class UpdateOperation {
      * @param {string} resourceType
      */
     async update(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'update';
         // Query our collection for this observation
         /**

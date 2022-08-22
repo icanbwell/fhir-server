@@ -2,7 +2,7 @@ const {logOperationAsync} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const assert = require('node:assert/strict');
+const {assertIsValid} = require('../../utils/assertType');
 
 class ValidateOperation {
     constructor() {
@@ -15,9 +15,9 @@ class ValidateOperation {
      * @param {string} resourceType
      */
     async validate(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         /**
          * @type {number}
          */

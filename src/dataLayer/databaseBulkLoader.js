@@ -1,8 +1,8 @@
 const {groupByLambda, getFirstElementOrNull} = require('../utils/list.util');
 const async = require('async');
 const {getResource} = require('../operations/common/getResource');
-const assert = require('node:assert/strict');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
+const {assertTypeEquals} = require('../utils/assertType');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -13,8 +13,7 @@ class DatabaseBulkLoader {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
     constructor(databaseQueryFactory) {
-        assert(databaseQueryFactory);
-        assert(databaseQueryFactory instanceof DatabaseQueryFactory);
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {Map<string, Resource[]>}
          */

@@ -1,7 +1,9 @@
 const env = require('var');
 const {generateUUID} = require('./uid.util');
-const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
+const {assertTypeEquals} = require('./assertType');
+const {KafkaClient} = require('./kafkaClient');
+const {ResourceManager} = require('../operations/common/resourceManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -16,8 +18,8 @@ class ChangeEventProducer {
      * @param {ResourceManager} resourceManager
      */
     constructor(kafkaClient, resourceManager) {
-        assert(kafkaClient);
-        assert(resourceManager);
+        assertTypeEquals(kafkaClient, KafkaClient);
+        assertTypeEquals(resourceManager, ResourceManager);
         /**
          * @type {KafkaClient}
          */

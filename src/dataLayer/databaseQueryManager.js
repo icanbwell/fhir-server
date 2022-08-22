@@ -1,7 +1,7 @@
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
-const assert = require('node:assert/strict');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {ResourceLocator} = require('../operations/common/resourceLocator');
+const {assertTypeEquals} = require('../utils/assertType');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -31,10 +31,7 @@ class DatabaseQueryManager {
      * @param {boolean} useAtlas
      */
     constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
-        assert(resourceType, 'resourceType is not passed to DatabaseQueryManager constructor');
-        assert(base_version, 'base_version is not passed to DatabaseQueryManager constructor');
-        assert(resourceLocatorFactory);
-        assert(resourceLocatorFactory instanceof ResourceLocatorFactory);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
          * @private
@@ -55,7 +52,7 @@ class DatabaseQueryManager {
          */
         this.resourceLocator = resourceLocatorFactory.createResourceLocator(this._resourceType,
             this._base_version, this._useAtlas);
-        assert(this.resourceLocator instanceof ResourceLocator);
+        assertTypeEquals(this.resourceLocator, ResourceLocator);
     }
 
     /**

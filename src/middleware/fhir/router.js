@@ -33,8 +33,7 @@ const {VERSIONS, INTERACTIONS} = require('@asymmetrik/node-fhir-server-core').co
 const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
 
 const cors = require('cors');
-
-const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -45,14 +44,12 @@ class FhirRouter {
      * @param {CustomOperationsController} customOperationsController
      */
     constructor(controllerUtils, customOperationsController) {
-        assert(controllerUtils);
-        assert(controllerUtils instanceof ControllerUtils);
+        assertTypeEquals(controllerUtils, ControllerUtils);
         /**
          * @type {ControllerUtils}
          */
         this.controllerUtils = controllerUtils;
-        assert(customOperationsController);
-        assert(customOperationsController instanceof CustomOperationsController);
+        assertTypeEquals(customOperationsController, CustomOperationsController);
         /**
          * @type {CustomOperationsController}
          */
@@ -81,17 +78,17 @@ class FhirRouter {
         return Array.from(providedVersions).filter(version => supportedVersions.indexOf(version) !== -1);
     }
 
-    /**
-     * @function hasValidService
-     * @description Does this profile have a service with a function whose name
-     * matches what the route expects to call when invoked
-     * @param {object} route - route configuration for this specific route
-     * @param {object} profile - profile configuration for this particular profile
-     * @return {boolean}
-     */
-    hasValidService(route = {}, profile = {}) {
-        return Boolean(profile.serviceModule && profile.serviceModule[route.interaction]);
-    }
+    // /**
+    //  * @function hasValidService
+    //  * @description Does this profile have a service with a function whose name
+    //  * matches what the route expects to call when invoked
+    //  * @param {object} route - route configuration for this specific route
+    //  * @param {object} profile - profile configuration for this particular profile
+    //  * @return {boolean}
+    //  */
+    // hasValidService(route = {}, profile = {}) {
+    //     return Boolean(profile.serviceModule && profile.serviceModule[route.interaction]);
+    // }
 
     /**
      * @function loadController

@@ -8,8 +8,7 @@ const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 
 class SearchByVersionIdOperation {
@@ -36,9 +35,9 @@ class SearchByVersionIdOperation {
      * @param {string} resourceType
      */
     async searchByVersionId(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'searchByVersionId';
         /**
          * @type {number}

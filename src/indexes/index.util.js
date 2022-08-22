@@ -10,8 +10,8 @@ const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync} = require('../operations/common/logging');
-const assert = require('node:assert/strict');
 const {ErrorReporter} = require('../utils/slack.logger');
+const {assertTypeEquals} = require('../utils/assertType');
 
 /**
  * Manages indexes
@@ -22,8 +22,7 @@ class IndexManager {
      * @param {ErrorReporter} errorReporter
      */
     constructor(errorReporter) {
-        assert(errorReporter);
-        assert(errorReporter instanceof ErrorReporter);
+        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {ErrorReporter}
          */

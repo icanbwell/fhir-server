@@ -7,8 +7,7 @@ const {NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
@@ -36,9 +35,9 @@ class HistoryOperation {
      * @param {string} resourceType
      */
     async history(requestInfo, args, resourceType) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'history';
         /**
          * @type {number}

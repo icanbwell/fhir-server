@@ -1,6 +1,6 @@
 const env = require('var');
-const assert = require('node:assert/strict');
 const {ForbiddenError} = require('../../utils/httpErrors');
+const {assertIsValid} = require('../../utils/assertType');
 
 /**
  * converts a space separated list of scopes into an array of scopes
@@ -23,7 +23,7 @@ const parseScopes = (scope) => {
  */
 const getAccessCodesFromScopes = (action, user, scope) => {
     if (env.AUTH_ENABLED === '1') {
-        assert(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
+        assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
         /**
          * @type {string[]}

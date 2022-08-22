@@ -1,8 +1,9 @@
-const assert = require('node:assert/strict');
-
 /**
  * This class manages inserts and updates to the database
  */
+const {assertTypeEquals} = require('../utils/assertType');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+
 class DatabaseUpdateManager {
     /**
      * Constructor
@@ -12,7 +13,7 @@ class DatabaseUpdateManager {
      * @param {boolean} useAtlas
      */
     constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
-        assert(resourceLocatorFactory);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
          * @private

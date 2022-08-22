@@ -1,5 +1,5 @@
 const {Kafka} = require('kafkajs');
-const assert = require('node:assert/strict');
+const {assertIsValid} = require('./assertType');
 
 /**
  * @typedef KafkaClientMessage
@@ -20,10 +20,10 @@ class KafkaClient {
      * @param {string[]} brokers
      */
     constructor(clientId, brokers) {
-        assert(clientId !== undefined);
-        assert(brokers !== undefined);
-        assert(Array.isArray(brokers));
-        assert(brokers.length > 0);
+        assertIsValid(clientId !== undefined);
+        assertIsValid(brokers !== undefined);
+        assertIsValid(Array.isArray(brokers));
+        assertIsValid(brokers.length > 0);
         /**
          * @type {Kafka}
          */

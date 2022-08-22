@@ -10,9 +10,8 @@ const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
@@ -58,9 +57,9 @@ class SearchByIdOperation {
      */
     async searchById(requestInfo, args, resourceType,
                      filter = true) {
-        assert(requestInfo !== undefined);
-        assert(args !== undefined);
-        assert(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
         const currentOperationName = 'searchById';
         /**
          * @type {number}

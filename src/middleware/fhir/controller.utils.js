@@ -8,8 +8,7 @@ const controllers3 = require('@asymmetrik/node-fhir-server-core/dist/server/reso
 const controllers1 = require('@asymmetrik/node-fhir-server-core/dist/server/resources/1_0_2/controllers');
 
 const {GenericController} = require('./4_0_0/controllers/generic_controller');
-
-const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
 
 class ControllerUtils {
     /**
@@ -17,8 +16,7 @@ class ControllerUtils {
      * @param {GenericController} genericController
      */
     constructor(genericController) {
-        assert(genericController);
-        assert(genericController instanceof GenericController);
+        assertTypeEquals(genericController, GenericController);
         /**
          * @type {GenericController}
          */
