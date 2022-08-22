@@ -1,18 +1,28 @@
 const {KafkaClient} = require('../../utils/kafkaClient');
 
-class MockKafkaClient extends KafkaClient{
-    // noinspection JSAnnotator
+class MockKafkaClient extends KafkaClient {
     /**
      * constructor
      */
-    // eslint-disable-next-line constructor-super
     constructor() {
+        super(null, []);
         /**
          * @type {KafkaClientMessage[]}
          */
         // eslint-disable-next-line no-this-before-super
         this.messages = [];
     }
+
+    /**
+     * init
+     * @param {string} clientId
+     * @param {string[]} brokers
+     */
+    // eslint-disable-next-line no-unused-vars
+    init(clientId, brokers) {
+        // do nothing
+    }
+
 
     clear() {
         this.messages = [];

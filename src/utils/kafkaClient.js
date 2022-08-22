@@ -20,6 +20,15 @@ class KafkaClient {
      * @param {string[]} brokers
      */
     constructor(clientId, brokers) {
+        this.init(clientId, brokers);
+    }
+
+    /**
+     * init
+     * @param {string} clientId
+     * @param {string[]} brokers
+     */
+    init(clientId, brokers) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
