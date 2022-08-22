@@ -88,7 +88,7 @@ class DatabaseHistoryManager {
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          */
         const cursors = [];
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
+        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
              */

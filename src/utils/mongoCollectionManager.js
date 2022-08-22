@@ -34,20 +34,21 @@ class MongoCollectionManager {
     async getOrCreateCollectionAsync(db, collection_name) {
         assert(db !== undefined);
         assert(collection_name !== undefined);
-        if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
-            // use mutex to prevent parallel async calls from trying to create the collection at the same time
-            await mutex.runExclusive(async () => {
-                const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
-                if (!collectionExists) {
-                    await db.createCollection(collection_name);
+        // use mutex to prevent parallel async calls from trying to create the collection at the same time
+        await mutex.runExclusive(async () => {
+            const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
+            if (!collectionExists) {
+                await db.createCollection(collection_name);
+                if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
                     // and index it
                     await this.indexManager.indexCollectionAsync(collection_name, db);
                 }
-            });
-        }
+            }
+        });
         return db.collection(collection_name);
     }
 }
+
 module.exports = {
     MongoCollectionManager
 };
