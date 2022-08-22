@@ -14,9 +14,56 @@ const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
+const {ChangeEventProducer} = require('../../utils/changeEventProducer');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class CreateOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {ChangeEventProducer} changeEventProducer
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
+     */
+    constructor(
+        {
+            databaseHistoryFactory,
+            databaseUpdateFactory,
+            changeEventProducer,
+            auditLogger,
+            postRequestProcessor
+        }
+    ) {
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+        /**
+         * @type {DatabaseUpdateFactory}
+         */
+        this.databaseUpdateFactory = databaseUpdateFactory;
+        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -34,14 +81,6 @@ class CreateOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'create';
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        const databaseHistoryFactory = container.databaseHistoryFactory;
-        /**
-         * @type {DatabaseUpdateFactory}
-         */
-        const databaseUpdateFactory = container.databaseUpdateFactory;
         /**
          * @type {number}
          */
@@ -169,13 +208,10 @@ class CreateOperation {
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
-                /**
-                 * @type {AuditLogger}
-                 */
-                const auditLogger = container.auditLogger;
-                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
+
+                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync(requestId, currentDate);
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -191,7 +227,7 @@ class CreateOperation {
 
             // Insert our resource record
             try {
-                await databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
+                await this.databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
                     .insertOneAsync(doc);
             } catch (e) {
                 // noinspection ExceptionCaughtLocallyJS
@@ -200,7 +236,7 @@ class CreateOperation {
             // Save the resource to history
 
             // Insert our resource record to history but don't assign _id
-            await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .insertOneAsync(history_doc);
             const result = {id: doc.id, resource_version: doc.meta.versionId};
             await logOperationAsync({
@@ -212,16 +248,8 @@ class CreateOperation {
                 action: currentOperationName,
                 result: JSON.stringify(result)
             });
-            /**
-             * @type {ChangeEventProducer}
-             */
-            const changeEventProducer = container.changeEventProducer;
-            await changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return result;
         } catch (/** @type {Error} */ e) {

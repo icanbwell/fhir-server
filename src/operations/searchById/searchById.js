@@ -12,9 +12,40 @@ const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SearchManager} = require('../search/searchManager');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
 
 class SearchByIdOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {SearchManager} searchManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {AuditLogger} auditLogger
+     */
+    constructor(
+        {
+            searchManager,
+            databaseQueryFactory,
+            auditLogger
+        }
+    ) {
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
     }
 
     /**
@@ -35,14 +66,6 @@ class SearchByIdOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'searchById';
-        /**
-         * @type {SearchManager}
-         */
-        const searchManager = container.searchManager;
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        const databaseQueryFactory = container.databaseQueryFactory;
         /**
          * @type {number}
          */
@@ -97,11 +120,11 @@ class SearchByIdOperation {
             query = {id: id.toString()};
             if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
                 const allPatients = patients.concat(
-                    await searchManager.getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
+                    await this.searchManager.getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
                 query = getQueryWithPatientFilter(allPatients, query, resourceType);
             }
             try {
-                resource = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);
+                resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -121,14 +144,10 @@ class SearchByIdOperation {
                 resource = (await enrich([resource], resourceType))[0];
                 if (resourceType !== 'AuditEvent') {
                     // log access to audit logs
-                    /**
-                     * @type {AuditLogger}
-                     */
-                    const auditLogger = container.auditLogger;
-                    await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
                         'read', args, [resource['id']]);
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await auditLogger.flushAsync(requestId, currentDate);
+                    await this.auditLogger.flushAsync(requestId, currentDate);
                 }
                 await logOperationAsync({
                     requestInfo,

@@ -94,9 +94,32 @@ const createContainer = function () {
             }
         )
     );
-    container.register('searchByIdOperation', () => new SearchByIdOperation());
-    container.register('createOperation', () => new CreateOperation());
-    container.register('updateOperation', () => new UpdateOperation());
+    container.register('searchByIdOperation', c => new SearchByIdOperation(
+        {
+            searchManager: c.searchManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            auditLogger: c.auditLogger
+        }
+    ));
+    container.register('createOperation', c => new CreateOperation(
+            {
+                postRequestProcessor: c.postRequestProcessor,
+                auditLogger: c.auditLogger,
+                changeEventProducer: c.changeEventProducer,
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                databaseHistoryFactory: c.databaseHistoryFactory
+            }
+        )
+    );
+    container.register('updateOperation', c => new UpdateOperation(
+            {
+                postRequestProcessor: c.postRequestProcessor,
+                auditLogger: c.auditLogger,
+                changeEventProducer: c.changeEventProducer,
+                databaseHistoryFactory: c.databaseHistoryFactory
+            }
+        )
+    );
     container.register('mergeOperation', c => new MergeOperation(
         {
             mergeManager: c.mergeManager,

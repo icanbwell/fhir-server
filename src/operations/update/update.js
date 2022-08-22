@@ -18,9 +18,48 @@ const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {ChangeEventProducer} = require('../../utils/changeEventProducer');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class UpdateOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {ChangeEventProducer} changeEventProducer
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
+     */
+    constructor(
+        {
+            databaseHistoryFactory,
+            changeEventProducer,
+            auditLogger,
+            postRequestProcessor
+        }
+    ) {
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -38,15 +77,6 @@ class UpdateOperation {
         assert(resourceType !== undefined);
         const currentOperationName = 'update';
         // Query our collection for this observation
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        const databaseQueryFactory = container.databaseQueryFactory;
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        const databaseHistoryFactory = container.databaseHistoryFactory;
-
         /**
          * @type {number}
          */
@@ -111,7 +141,7 @@ class UpdateOperation {
             /**
              * @type {Resource | null}
              */
-            let data = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+            let data = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
             // create a resource with incoming data
             /**
@@ -252,7 +282,7 @@ class UpdateOperation {
             /**
              * @type {FindOneAndUpdateResult|null}
              */
-            const res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+            const res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
             // save to history
 
@@ -264,19 +294,15 @@ class UpdateOperation {
             // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
             // Insert our resource record to history but don't assign _id
-            await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .insertOneAsync(history_resource);
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
-                /**
-                 * @type {AuditLogger}
-                 */
-                const auditLogger = container.auditLogger;
-                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
+                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
                     currentOperationName, args, [resource_incoming['id']]);
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync(requestId, currentDate);
             }
 
             const result = {
@@ -293,16 +319,8 @@ class UpdateOperation {
                 action: currentOperationName,
                 result: JSON.stringify(result)
             });
-            /**
-             * @type {ChangeEventProducer}
-             */
-            const changeEventProducer = container.changeEventProducer;
-            await changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return result;
         } catch (e) {
