@@ -6,9 +6,7 @@ const {expect} = require('@jest/globals');
  * @param {boolean} expectCreate
  */
 function assertMergeIsSuccessful(body, expectCreate = true) {
-    console.log('------- response from adding observation2Resource ------------');
     console.log(JSON.stringify(body, null, 2));
-    console.log('------- end response  ------------');
     if (Array.isArray(body)) {
         for (const bodyItem of body) {
             if (expectCreate) {
@@ -33,9 +31,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {Boolean} ignoreMetaTags
  */
 function assertCompareBundles(body, expected, ignoreMetaTags = false) {
-    console.log('------- response  sorted ------------');
     console.log(JSON.stringify(body, null, 2));
-    console.log('------- end response sort ------------');
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];

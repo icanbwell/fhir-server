@@ -231,7 +231,7 @@ class DatabaseBulkInserter extends EventEmitter {
                  * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                  */
                 const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
-                await this.errorReporter.logErrorToSlackAsync(
+                await this.errorReporter.reportErrorAsync(
                     `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                     ` ${JSON.stringify(operationsForResourceType)}`,
                     erroredMerge.error

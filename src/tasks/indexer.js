@@ -22,29 +22,29 @@ process.on('message', async (params) => {
         const indexManager = new IndexManager({errorReporter: new ErrorReporter()});
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
-            await errorReporter.logMessageToSlackAsync('Starting indexing in separate process');
+            await errorReporter.reportMessageAsync('Starting indexing in separate process');
             const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
-            await errorReporter.logMessageToSlackAsync('Finished indexing in separate process');
+            await errorReporter.reportMessageAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await errorReporter.logMessageToSlackAsync(JSON.stringify(collection_stats));
+            await errorReporter.reportMessageAsync(JSON.stringify(collection_stats));
         } else if (message === 'Rebuild Index') {
             console.log('==== Starting deleting indexes in separate process ====');
-            await errorReporter.logMessageToSlackAsync('Starting deleting indexes in separate process');
+            await errorReporter.reportMessageAsync('Starting deleting indexes in separate process');
             await indexManager.deleteIndexesInAllCollectionsAsync(tableName);
-            await errorReporter.logMessageToSlackAsync('Finished deleting index in separate process');
+            await errorReporter.reportMessageAsync('Finished deleting index in separate process');
             console.log('===== Finished deleting index in separate process ======');
-            await errorReporter.logMessageToSlackAsync('Starting indexing in separate process');
+            await errorReporter.reportMessageAsync('Starting indexing in separate process');
             const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
-            await errorReporter.logMessageToSlackAsync('Finished indexing in separate process');
+            await errorReporter.reportMessageAsync('Finished indexing in separate process');
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await errorReporter.logMessageToSlackAsync(JSON.stringify(collection_stats));
+            await errorReporter.reportMessageAsync(JSON.stringify(collection_stats));
         }
     } catch (e) {
         console.log('===== ERROR Indexing in separate process ======', e);
         console.log(JSON.stringify(e));
-        await errorReporter.logMessageToSlackAsync(JSON.stringify(e));
+        await errorReporter.reportMessageAsync(JSON.stringify(e));
     }
     //notify node, that we are done with this task
     process.disconnect();

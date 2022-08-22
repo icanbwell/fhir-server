@@ -56,7 +56,7 @@ class PostRequestProcessor {
             try {
                 await task();
             } catch (e) {
-                await this.errorReporter.logErrorToSlackAsync('Error running post request task', e);
+                await this.errorReporter.reportErrorAsync('Error running post request task', e);
             }
             task = this.queue.shift();
         }

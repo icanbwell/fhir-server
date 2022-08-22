@@ -7,7 +7,7 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
-const {slackErrorHandler} = require('../middleware/slackErrorHandler');
+const {errorReportingMiddleware} = require('../middleware/slackErrorHandler');
 const {isTrue} = require('../utils/isTrue');
 const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston');
 const {resolveSchema, isValidVersion} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
@@ -221,7 +221,7 @@ class MyFHIRServer extends FHIRServer.Server {
      */
     configureSlackErrorHandler() {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
-            this.app.use(slackErrorHandler);
+            this.app.use(errorReportingMiddleware);
         }
         return this;
     }

@@ -14,7 +14,7 @@ class ErrorReporter {
      * @param {string} message
      * @returns {Promise<void>}
      */
-    async logMessageToSlackAsync(message) {
+    async reportMessageAsync(message) {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             const web = new WebClient(options.token);
@@ -33,7 +33,7 @@ class ErrorReporter {
      * @param {Error} [err]
      * @returns {Promise<void>}
      */
-    async logErrorToSlackAsync(message, err) {
+    async reportErrorAsync(message, err) {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             const web = new WebClient(options.token);
@@ -76,8 +76,9 @@ class ErrorReporter {
      * @param {import('http').IncomingMessage} req
      * @returns {Promise<void>}
      */
-    async logErrorAndRequestToSlackAsync(token, channel, err, req) {
+    async reportErrorAndRequestAsync(token, channel, err, req) {
         const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
+        const self = this;
         const request = {
             method: req.method,
             url: req.url,
@@ -87,6 +88,11 @@ class ErrorReporter {
             user: user
         };
         const fields = [
+            {
+                title: 'Request Id',
+                value: req.id,
+                short: true
+            },
             {
                 title: 'Request Method',
                 value: req.method,
@@ -133,31 +139,36 @@ class ErrorReporter {
             }
         }
         /**
+         * @type {string}
+         */
+        const text = [
+            {
+                title: 'Error:', code: err.toString()
+            },
+            {
+                title: 'Stack trace:', code: err.stack
+            },
+            {
+                title: 'Request',
+                code: request
+            }
+        ].map(function (data) {
+            return self.createCodeBlock(data.title, data.code);
+        }).join('');
+
+        /**
          * @type  {import('@slack/web-api').MessageAttachment}
          */
         const attachment = {
             fallback: 'FHIR Server Error: ' + err.message,
             color: err.statusCode < 500 ? 'warning' : 'danger',
-            author_name: req.headers.host,
+            author_name: Array.isArray(req.headers.host) ? req.headers.host[0] : req.headers.host,
             title: 'FHIR Server Error: ' + err.message,
             fields: fields,
-            text: [
-                {
-                    title: 'Error:', code: err.toString()
-                },
-                {
-                    title: 'Stack trace:', code: err.stack
-                },
-                {
-                    title: 'Request',
-                    code: request
-                }
-            ].map(function (data) {
-                return this.createCodeBlock(data.title, data.code);
-            }).join(''),
+            text: text,
             mrkdwn_in: ['text'],
             footer: 'express-errors-to-slack',
-            ts: Date.now() / 1000
+            ts: String(Date.now() / 1000)
         };
         const web = new WebClient(token);
 
@@ -172,7 +183,7 @@ class ErrorReporter {
         });
 
         // The result contains an identifier for the message, `ts`.
-        console.log(`Successfully sent error message ${result.ts} in channel ${channel}`);
+        console.log(JSON.stringify({message: `Successfully sent error message ${result.ts} in channel ${channel}`}));
     }
 }
 

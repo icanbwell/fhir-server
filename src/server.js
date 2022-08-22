@@ -30,7 +30,7 @@ async function createServer(fnCreateContainer) {
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
     server.setTimeout(10 * 60 * 1000, (/*socket*/) => {
-        console.log('Server timeout');
+        console.log(JSON.stringify({message: 'Server timeout'}));
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
     // finished writing the last response, before a socket will be destroyed. If the server receives new data
@@ -43,11 +43,11 @@ async function createServer(fnCreateContainer) {
     server.on('connection', function (socket) {
         socket.setTimeout(10 * 60 * 1000);
         socket.once('timeout', function () {
-            console.log('Socket timeout');
+            console.log(JSON.stringify({message: 'Socket timeout'}));
             // process.nextTick(socket.destroy);
         });
         socket.once('error', function (e) {
-            console.log('Socket error: ' + e);
+            console.log(JSON.stringify({message: 'Socket error: ' + e}));
             // process.nextTick(socket.destroy);
         });
     });

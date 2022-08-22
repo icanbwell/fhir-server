@@ -202,7 +202,7 @@ class AuditLogger {
         const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
         const mergeResultErrors = mergeResults.filter(m => m.issue);
         if (mergeResultErrors.length > 0) {
-            await this.errorReporter.logErrorToSlackAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
+            await this.errorReporter.reportErrorAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
         }
     }
 }

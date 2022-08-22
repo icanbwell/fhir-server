@@ -81,13 +81,13 @@ class ResourcePreparerTransform extends Transform {
             .then(
                 resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
-                        console.log('ResourcePreparerTransform: _transform');
+                        console.log(JSON.stringify({message: 'ResourcePreparerTransform: _transform'}));
                     }
                     if (resources.length > 0) {
                         for (const resource of resources) {
                             if (resource) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                                    console.log(`ResourcePreparerTransform: push ${resource['id']}`);
+                                    console.log(JSON.stringify({message: `ResourcePreparerTransform: push ${resource['id']}`}));
                                 }
                                 this.push(resource);
                             }
@@ -103,7 +103,7 @@ class ResourcePreparerTransform extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('ResourcePreparerTransform: _flush');
+            console.log(JSON.stringify({message: 'ResourcePreparerTransform: _flush'}));
         }
         callback();
     }

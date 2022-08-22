@@ -219,7 +219,7 @@ class SearchBundleOperation {
                             const currentDate = moment.utc().format('YYYY-MM-DD');
                             await this.auditLogger.flushAsync(requestId, currentDate);
                         } catch (e) {
-                            await this.errorReporter.logErrorToSlackAsync(
+                            await this.errorReporter.reportErrorAsync(
                                 `search: Error writing AuditEvent for resource ${resourceType}`, e);
                         }
                     }

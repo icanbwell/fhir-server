@@ -9,5 +9,5 @@ const main = async function () {
 };
 
 main().catch(reason => {
-    console.error(`Top level error: ${reason}`);
+    console.error(JSON.stringify({message: `Top level error: ${reason}`}));
 });

@@ -249,6 +249,6 @@ module.exports.logSystemEventAsync = async (event, message, args, error = null) 
  */
 module.exports.logVerboseAsync = async (source, messageJson) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        console.log(`${source}: ${JSON.stringify(messageJson)}`);
+        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(messageJson)}`}));
     }
 };

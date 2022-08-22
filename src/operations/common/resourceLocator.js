@@ -46,7 +46,7 @@ class ResourceLocator {
      */
     // eslint-disable-next-line no-unused-vars
     getCollectionName(resource) {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return `${this._resourceType}_${this._base_version}`;
     }
 
@@ -55,7 +55,7 @@ class ResourceLocator {
      * @returns {string[]}
      */
     getCollectionNamesForQuery() {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}`];
     }
 
@@ -64,7 +64,7 @@ class ResourceLocator {
      * @returns {string}
      */
     getFirstCollectionNameForQuery() {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}`][0];
     }
 
@@ -75,7 +75,7 @@ class ResourceLocator {
      */
 // eslint-disable-next-line no-unused-vars
     getHistoryCollectionName(resource) {
-        console.assert(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         return `${this._resourceType}_${this._base_version}_History`;
     }
 
@@ -84,7 +84,7 @@ class ResourceLocator {
      * @returns {string[]}
      */
     getHistoryCollectionNamesForQuery() {
-        console.assert(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}_History`];
     }
 

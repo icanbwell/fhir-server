@@ -53,7 +53,7 @@ class IndexManager {
                     columns: columns,
                     collection: collection_name
                 });
-                await this.errorReporter.logMessageToSlackAsync(message);
+                await this.errorReporter.reportMessageAsync(message);
                 const my_dict = {};
                 for (const property_to_index of properties_to_index) {
                     my_dict[String(property_to_index)] = 1;
@@ -69,7 +69,7 @@ class IndexManager {
                     collection: collection_name
                 },
                 JSON.stringify(e));
-            await this.errorReporter.logMessageToSlackAsync(message1);
+            await this.errorReporter.reportMessageAsync(message1);
         }
         return false;
     }
@@ -235,11 +235,11 @@ class IndexManager {
             }
 
             for await (const collection_name of collection_names) {
-                console.log('Deleting all indexes in ' + collection_name);
+                console.log(JSON.stringify({message: 'Deleting all indexes in ' + collection_name}));
                 await this.deleteIndexesInCollectionAsync(collection_name, db);
             }
 
-            console.log('Finished deleteIndexesInAllCollections');
+            console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
         } finally {
             await disconnectClientAsync(client);
         }

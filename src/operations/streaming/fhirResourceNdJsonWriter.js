@@ -33,7 +33,7 @@ class FhirResourceNdJsonWriter extends Transform {
         try {
             if (chunk !== null && chunk !== undefined) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`);
+                    console.log(JSON.stringify({message: `FhirResourceNdJsonWriter: _transform ${chunk['id']}`}));
                 }
                 const resourceJson = JSON.stringify(chunk);
                 this.push(resourceJson + '\n', encoding);
@@ -50,7 +50,7 @@ class FhirResourceNdJsonWriter extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('FhirResourceNdJsonWriter: _flush');
+            console.log(JSON.stringify({message: 'FhirResourceNdJsonWriter: _flush'}));
         }
         callback();
     }

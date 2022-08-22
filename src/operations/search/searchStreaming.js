@@ -296,7 +296,7 @@ class SearchStreamingOperation {
                         const currentDate = moment.utc().format('YYYY-MM-DD');
                         await this.auditLogger.flushAsync(requestId, currentDate);
                     } catch (e) {
-                        await this.errorReporter.logErrorToSlackAsync(
+                        await this.errorReporter.reportErrorAsync(
                             `searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                     }
                 }

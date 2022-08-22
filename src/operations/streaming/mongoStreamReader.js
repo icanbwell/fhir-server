@@ -21,12 +21,12 @@ async function* readMongoStreamGenerator(cursor, signal) {
             // console.log(`read: chunk:${chunk_number}`);
             if (signal.aborted) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log('mongoStreamReader: aborted');
+                    console.log(JSON.stringify({message: 'mongoStreamReader: aborted'}));
                 }
                 return;
             }
             if (isTrue(env.LOG_STREAM_STEPS)) {
-                console.log('mongoStreamReader: read');
+                console.log(JSON.stringify({message: 'mongoStreamReader: read'}));
             }
             /**
              * element
@@ -35,7 +35,7 @@ async function* readMongoStreamGenerator(cursor, signal) {
             yield await cursor.next();
         }
     } catch (e) {
-        console.log('mongoStreamReader: error' + e.toString());
+        console.log(JSON.stringify({message: 'mongoStreamReader: error' + e.toString()}));
         throw new AggregateError([e], 'mongoStreamReader: error');
     }
 }
