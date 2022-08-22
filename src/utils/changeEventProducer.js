@@ -3,6 +3,9 @@ const {generateUUID} = require('./uid.util');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
 
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
 /**
  * This class is used to produce change events
  */
@@ -146,22 +149,26 @@ class ChangeEventProducer {
         const fhirVersion = 'R4';
         const topic = 'business.events';
 
-        /**
-         * @type {{requestId: *, fhirVersion: string, value: string, key: *}[]}
-         */
-        const messages = Array.from(this.messageMap.entries(), ([patientId, messageJson]) => {
-                return {
-                    key: patientId,
-                    fhirVersion: fhirVersion,
-                    requestId: requestId,
-                    value: JSON.stringify(messageJson)
-                };
-            }
-        );
+        await mutex.runExclusive(async () => {
+            /**
+             * @type {{requestId: *, fhirVersion: string, value: string, key: *}[]}
+             */
+            const messages = Array.from(
+                this.messageMap.entries(),
+                ([/** @type {string} */ patientId, /** @type {Object} */ messageJson]) => {
+                    return {
+                        key: patientId,
+                        fhirVersion: fhirVersion,
+                        requestId: requestId,
+                        value: JSON.stringify(messageJson)
+                    };
+                }
+            );
 
-        await this.kafkaClient.sendMessagesAsync(topic, messages);
+            await this.kafkaClient.sendMessagesAsync(topic, messages);
 
-        this.messageMap.clear();
+            this.messageMap.clear();
+        });
     }
 }
 
