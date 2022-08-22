@@ -31,7 +31,7 @@ class GenericController {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
      */
-    constructor(postRequestProcessor, fhirOperationsManager) {
+    constructor({postRequestProcessor, fhirOperationsManager}) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}

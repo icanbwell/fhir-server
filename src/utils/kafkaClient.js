@@ -16,10 +16,10 @@ const {assertIsValid} = require('./assertType');
 class KafkaClient {
     /**
      * constructor
-     * @param {string} clientId
-     * @param {string[]} brokers
+     * @param {string|undefined} clientId
+     * @param {string[]|undefined} brokers
      */
-    constructor(clientId, brokers) {
+    constructor({clientId, brokers}) {
         this.init(clientId, brokers);
     }
 

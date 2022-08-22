@@ -10,7 +10,7 @@ class ResourceLocatorFactory {
      * Constructor
      * @param {MongoCollectionManager} collectionManager
      */
-    constructor(collectionManager) {
+    constructor({collectionManager}) {
         assertTypeEquals(collectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}

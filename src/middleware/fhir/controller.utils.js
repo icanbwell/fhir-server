@@ -15,7 +15,7 @@ class ControllerUtils {
      * constructor
      * @param {GenericController} genericController
      */
-    constructor(genericController) {
+    constructor({genericController}) {
         assertTypeEquals(genericController, GenericController);
         /**
          * @type {GenericController}

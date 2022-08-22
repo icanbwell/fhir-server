@@ -22,10 +22,10 @@ class AuditLogger {
      * @param {ErrorReporter} errorReporter
      * @param {string} base_version
      */
-    constructor(postRequestProcessor,
+    constructor({postRequestProcessor,
                 databaseBulkInserter,
                 errorReporter,
-                base_version = '4_0_0') {
+                base_version = '4_0_0'}) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         assertTypeEquals(errorReporter, ErrorReporter);

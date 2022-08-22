@@ -17,7 +17,7 @@ class ChangeEventProducer {
      * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
      */
-    constructor(kafkaClient, resourceManager) {
+    constructor({kafkaClient, resourceManager}) {
         assertTypeEquals(kafkaClient, KafkaClient);
         assertTypeEquals(resourceManager, ResourceManager);
         /**

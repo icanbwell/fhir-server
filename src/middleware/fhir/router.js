@@ -43,7 +43,7 @@ class FhirRouter {
      * @param {ControllerUtils} controllerUtils
      * @param {CustomOperationsController} customOperationsController
      */
-    constructor(controllerUtils, customOperationsController) {
+    constructor({controllerUtils, customOperationsController}) {
         assertTypeEquals(controllerUtils, ControllerUtils);
         /**
          * @type {ControllerUtils}

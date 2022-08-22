@@ -14,7 +14,7 @@ class PostRequestProcessor {
      * Constructor
      * @param {ErrorReporter} errorReporter
      */
-    constructor(errorReporter) {
+    constructor({errorReporter}) {
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * queue

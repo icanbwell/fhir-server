@@ -46,34 +46,87 @@ const {SearchByIdOperation} = require('./operations/searchById/searchById');
 const createContainer = function () {
     const container = new SimpleContainer();
     container.register('kafkaClient', () => new KafkaClient(
-        env.KAFKA_CLIENT_ID,
-        env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '')
+            {
+                clientId: env.KAFKA_CLIENT_ID,
+                brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : ''
+            }
+        )
     );
     container.register('changeEventProducer', c => new ChangeEventProducer(
-        c.kafkaClient, c.resourceManager
+        {
+            kafkaClient: c.kafkaClient,
+            resourceManager: c.resourceManager
+        }
     ));
     container.register('errorReporter', () => new ErrorReporter());
-    container.register('indexManager', c => new IndexManager(c.errorReporter));
-    container.register('collectionManager', c => new MongoCollectionManager(c.indexManager));
-    container.register('valueSetManager', c => new ValueSetManager(c.databaseQueryFactory));
-    container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(c.collectionManager));
+    container.register('indexManager', c => new IndexManager({
+            errorReporter: c.errorReporter
+        })
+    );
+    container.register('collectionManager', c => new MongoCollectionManager({
+        indexManager: c.indexManager
+    }));
+    container.register('valueSetManager', c => new ValueSetManager({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
+    container.register('resourceLocatorFactory', c => new ResourceLocatorFactory({
+        collectionManager: c.collectionManager
+    }));
 
-    container.register('databaseQueryFactory', c => new DatabaseQueryFactory(c.resourceLocatorFactory));
-    container.register('databaseHistoryFactory', c => new DatabaseHistoryFactory(c.resourceLocatorFactory));
-    container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory(c.resourceLocatorFactory));
+    container.register('databaseQueryFactory', c => new DatabaseQueryFactory({
+        resourceLocatorFactory: c.resourceLocatorFactory
+    }));
+    container.register('databaseHistoryFactory', c => new DatabaseHistoryFactory({
+        resourceLocatorFactory: c.resourceLocatorFactory
+    }));
+    container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory({
+        resourceLocatorFactory: c.resourceLocatorFactory
+    }));
 
     container.register('resourceManager', () => new ResourceManager());
     container.register('searchManager', c => new SearchManager(
-        c.databaseQueryFactory, c.resourceLocatorFactory
-    ));
-    container.register('mergeManager', c => new MergeManager(c.databaseQueryFactory, c.auditLogger));
+            {
+                databaseQueryFactory: c.databaseQueryFactory,
+                resourceLocatorFactory: c.resourceLocatorFactory
+            }
+        )
+    );
+    container.register('mergeManager', c => new MergeManager({
+                databaseQueryFactory: c.databaseQueryFactory,
+                auditLogger: c.auditLogger
+            }
+        )
+    );
     container.register('databaseBulkInserter', c => new DatabaseBulkInserter(
-        c.resourceManager, c.postRequestProcessor, c.errorReporter, c.collectionManager, c.resourceLocatorFactory));
-    container.register('databaseBulkLoader', c => new DatabaseBulkLoader(c.databaseQueryFactory));
-    container.register('postRequestProcessor', c => new PostRequestProcessor(c.errorReporter));
+            {
+                resourceManager: c.resourceManager,
+                postRequestProcessor: c.postRequestProcessor,
+                errorReporter: c.errorReporter,
+                collectionManager: c.collectionManager,
+                resourceLocatorFactory: c.resourceLocatorFactory
+            }
+        )
+    );
+    container.register('databaseBulkLoader', c => new DatabaseBulkLoader({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
+    container.register('postRequestProcessor', c => new PostRequestProcessor({
+        errorReporter: c.errorReporter
+    }));
     container.register('auditLogger', c => new AuditLogger(
-        c.postRequestProcessor, c.databaseBulkInserter, c.errorReporter));
-    container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
+            {
+                postRequestProcessor: c.postRequestProcessor,
+                databaseBulkInserter: c.databaseBulkInserter,
+                errorReporter: c.errorReporter
+            }
+        )
+    );
+    container.register('graphHelper', c => new GraphHelper(
+            {
+                databaseQueryFactory: c.databaseQueryFactory
+            }
+        )
+    );
 
     // register fhir operations
     container.register('searchBundleOperation', c => new SearchBundleOperation(
@@ -197,14 +250,33 @@ const createContainer = function () {
             }
         )
     );
-    container.register('genericController', c => new GenericController(c.postRequestProcessor, c.fhirOperationsManager));
-    container.register('controllerUtils', c => new ControllerUtils(c.genericController));
-    container.register('customOperationsController', c => new CustomOperationsController({
-            postRequestProcessor: c.postRequestProcessor,
-            fhirOperationsManager: c.fhirOperationsManager
-        })
+    container.register('genericController', c => new GenericController(
+            {
+                postRequestProcessor: c.postRequestProcessor,
+                fhirOperationsManager: c.fhirOperationsManager
+            }
+        )
     );
-    container.register('fhirRouter', c => new FhirRouter(c.controllerUtils, c.customOperationsController));
+    container.register('controllerUtils', c => new ControllerUtils(
+            {
+                genericController: c.genericController
+            }
+        )
+    );
+    container.register('customOperationsController', c => new CustomOperationsController(
+            {
+                postRequestProcessor: c.postRequestProcessor,
+                fhirOperationsManager: c.fhirOperationsManager
+            }
+        )
+    );
+    container.register('fhirRouter', c => new FhirRouter(
+            {
+                controllerUtils: c.controllerUtils,
+                customOperationsController: c.customOperationsController
+            }
+        )
+    );
 
     return container;
 };

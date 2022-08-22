@@ -40,7 +40,7 @@ class SearchManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(databaseQueryFactory, resourceLocatorFactory) {
+    constructor({databaseQueryFactory, resourceLocatorFactory}) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**

@@ -33,8 +33,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MongoCollectionManager} collectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(resourceManager, postRequestProcessor, errorReporter,
-                collectionManager, resourceLocatorFactory) {
+    constructor({resourceManager, postRequestProcessor, errorReporter,
+                collectionManager, resourceLocatorFactory}) {
         super();
         assertTypeEquals(resourceManager, ResourceManager);
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);

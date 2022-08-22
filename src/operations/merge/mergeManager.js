@@ -28,7 +28,7 @@ class MergeManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
      */
-    constructor(databaseQueryFactory, auditLogger) {
+    constructor({databaseQueryFactory, auditLogger}) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         assertTypeEquals(auditLogger, AuditLogger);
         /**

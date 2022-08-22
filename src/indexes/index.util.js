@@ -21,7 +21,7 @@ class IndexManager {
      * constructor
      * @param {ErrorReporter} errorReporter
      */
-    constructor(errorReporter) {
+    constructor({errorReporter}) {
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {ErrorReporter}

@@ -16,7 +16,7 @@ class MongoCollectionManager {
      * Constructor
      * @param {IndexManager} indexManager
      */
-    constructor(indexManager) {
+    constructor({indexManager}) {
         assertTypeEquals(indexManager, IndexManager);
         /**
          * @type {IndexManager}

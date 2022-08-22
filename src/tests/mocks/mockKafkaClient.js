@@ -5,7 +5,7 @@ class MockKafkaClient extends KafkaClient {
      * constructor
      */
     constructor() {
-        super(null, []);
+        super({clientId: undefined, brokers: []});
         /**
          * @type {KafkaClientMessage[]}
          */

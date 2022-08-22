@@ -104,7 +104,7 @@ class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(databaseQueryFactory) {
+    constructor({databaseQueryFactory}) {
         assert(databaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}

@@ -7,7 +7,7 @@ class DatabaseHistoryFactory {
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(resourceLocatorFactory) {
+    constructor({resourceLocatorFactory}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}

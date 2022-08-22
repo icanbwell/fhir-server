@@ -7,7 +7,7 @@ class DatabaseUpdateFactory {
      * constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(resourceLocatorFactory) {
+    constructor({resourceLocatorFactory}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}

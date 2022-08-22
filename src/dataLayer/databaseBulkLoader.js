@@ -12,7 +12,7 @@ class DatabaseBulkLoader {
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(databaseQueryFactory) {
+    constructor({databaseQueryFactory}) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {Map<string, Resource[]>}

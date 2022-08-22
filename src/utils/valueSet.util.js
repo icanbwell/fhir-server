@@ -11,7 +11,7 @@ class ValueSetManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(databaseQueryFactory) {
+    constructor({databaseQueryFactory}) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}
