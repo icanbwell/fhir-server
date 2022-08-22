@@ -72,6 +72,38 @@ describe('PractitionerReturnIdTests', () => {
             delete expected['$schema'];
 
             expect(body).toStrictEqual(expected);
+
+            // now merge the same patient.  There should be no additional history record created
+            resp = await request
+                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(assertStatusCode(200));
+
+            console.log('------- response patient1Resource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(false);
+
+            await postRequestProcessor.waitTillDoneAsync();
+            resp = await request
+                .get('/4_0_0/Patient/00100000000/_history')
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response sort ------------');
+            // clear out the lastUpdated column since that changes
+            body = resp.body[0];
+            delete body['meta']['lastUpdated'];
+
+            expected = expectedSinglePatientResource[0];
+            delete expected['meta']['lastUpdated'];
+            delete expected['$schema'];
+
+            expect(body).toStrictEqual(expected);
+
         });
     });
 });
