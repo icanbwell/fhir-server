@@ -11,10 +11,32 @@ const {isTrue} = require('../../utils/isTrue');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
 const moment = require('moment-timezone');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class RemoveOperation {
-    constructor() {
+    /**
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {AuditLogger} auditLogger
+     */
+    constructor(
+        {
+            databaseQueryFactory,
+            auditLogger
+        }
+    ) {
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
     }
 
     /**
@@ -31,10 +53,7 @@ class RemoveOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'remove';
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        const databaseQueryFactory = container.databaseQueryFactory;
+
         /**
          * @type {number}
          */
@@ -128,17 +147,13 @@ class RemoveOperation {
                 /**
                  * @type {DeleteManyResult}
                  */
-                res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+                res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                     .deleteManyAsync(query);
 
                 // log access to audit logs
-                /**
-                 * @type {AuditLogger}
-                 */
-                const auditLogger = container.auditLogger;
-                await auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync(requestId, currentDate);
 
             } catch (e) {
                 throw new NotAllowedError(e.message);

@@ -9,9 +9,24 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 
 class SearchByVersionIdOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     */
+    constructor(
+        {
+            databaseHistoryFactory
+        }
+    ) {
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
     }
 
     /**
@@ -30,15 +45,10 @@ class SearchByVersionIdOperation {
         assert(resourceType !== undefined);
         const currentOperationName = 'searchByVersionId';
         /**
-         * @type {DatabaseHistoryFactory}
-         */
-        const databaseHistoryFactory = container.databaseHistoryFactory;
-        /**
          * @type {number}
          */
         const startTime = Date.now();
-        const user = requestInfo.user;
-        const scope = requestInfo.scope;
+        const {user, scope} = requestInfo;
 
         await verifyHasValidScopesAsync({
             requestInfo,
@@ -63,7 +73,7 @@ class SearchByVersionIdOperation {
             // Query our collection for this observation
             let resource;
             try {
-                resource = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                     .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
             } catch (e) {
                 throw new BadRequestError(e);

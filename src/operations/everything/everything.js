@@ -3,12 +3,22 @@ const practitionerEverythingGraph = require('../../graphs/practitioner/everythin
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
-const {graph} = require('../graph/graph');
+const {GraphOperation} = require('../graph/graph');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
 
 class EverythingOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {GraphOperation} graphOperation
+     */
+    constructor({graphOperation}) {
+        /**
+         * @type {GraphOperation}
+         */
+        this.graphOperation = graphOperation;
+        assertTypeEquals(graphOperation, GraphOperation);
     }
 
     /**
@@ -45,7 +55,7 @@ class EverythingOperation {
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
                 requestInfo.body = practitionerEverythingGraph;
-                const result = await graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,
@@ -57,7 +67,7 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Organization') {
                 requestInfo.body = organizationEverythingGraph;
-                const result = await graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,
@@ -69,7 +79,7 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Slot') {
                 requestInfo.body = slotEverythingGraph;
-                const result = await graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,

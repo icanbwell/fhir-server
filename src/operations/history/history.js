@@ -8,10 +8,25 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class HistoryOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     */
+    constructor(
+        {
+            databaseHistoryFactory
+        }
+    ) {
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
     }
 
     /**
@@ -29,10 +44,6 @@ class HistoryOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'history';
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        const databaseHistoryFactory = container.databaseHistoryFactory;
         /**
          * @type {number}
          */
@@ -72,7 +83,7 @@ class HistoryOperation {
          */
         let cursor;
         try {
-            cursor = await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+            cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .findAsync(query);
         } catch (e) {
             await logOperationAsync({

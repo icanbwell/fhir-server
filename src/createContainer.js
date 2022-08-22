@@ -130,12 +130,38 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter
         }
     ));
-    container.register('everythingOperation', () => new EverythingOperation());
-    container.register('removeOperation', () => new RemoveOperation());
-    container.register('searchByVersionIdOperation', () => new SearchByVersionIdOperation());
-    container.register('historyOperation', () => new HistoryOperation());
-    container.register('historyByIdOperation', () => new HistoryByIdOperation());
-    container.register('patchOperation', () => new PatchOperation());
+    container.register('everythingOperation', c => new EverythingOperation({
+        graphOperation: c.graphOperation
+    }));
+    container.register('removeOperation', c => new RemoveOperation(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            auditLogger: c.auditLogger
+        }
+    ));
+    container.register('searchByVersionIdOperation', c => new SearchByVersionIdOperation(
+        {
+            databaseHistoryFactory: c.databaseHistoryFactory
+        }
+    ));
+    container.register('historyOperation', c => new HistoryOperation(
+        {
+            databaseHistoryFactory: c.databaseHistoryFactory
+        }
+    ));
+    container.register('historyByIdOperation', c => new HistoryByIdOperation(
+        {
+            databaseHistoryFactory: c.databaseHistoryFactory
+        }
+    ));
+    container.register('patchOperation', c => new PatchOperation(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseHistoryFactory: c.databaseHistoryFactory,
+            changeEventProducer: c.changeEventProducer,
+            postRequestProcessor: c.postRequestProcessor
+        }
+    ));
     container.register('validateOperation', () => new ValidateOperation());
     container.register('graphOperation', () => new GraphOperation());
     container.register('expandOperation', () => new ExpandOperation());

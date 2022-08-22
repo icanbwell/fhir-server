@@ -11,9 +11,48 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {ChangeEventProducer} = require('../../utils/changeEventProducer');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class PatchOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostRequestProcessor} postRequestProcessor
+     */
+    constructor(
+        {
+            databaseQueryFactory,
+            databaseHistoryFactory,
+            changeEventProducer,
+            postRequestProcessor
+        }
+    ) {
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -31,14 +70,6 @@ class PatchOperation {
         assert(resourceType !== undefined);
         const currentOperationName = 'patch';
         const {requestId} = requestInfo;
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        const databaseQueryFactory = container.databaseQueryFactory;
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        const databaseHistoryFactory = container.databaseHistoryFactory;
         /**
          * @type {number}
          */
@@ -66,7 +97,7 @@ class PatchOperation {
             // Query our collection for this observation
             let data;
             try {
-                data = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+                data = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                     .findOneAsync({id: id.toString()});
             } catch (e) {
                 throw new BadRequestError(e);
@@ -112,7 +143,7 @@ class PatchOperation {
             let res;
             try {
                 delete doc['_id'];
-                res = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+                res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                     .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
             } catch (e) {
                 throw new BadRequestError(e);
@@ -126,7 +157,7 @@ class PatchOperation {
 
             // Insert our resource record to history but don't assign _id
             try {
-                await databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                     .insertOneAsync(history_resource);
             } catch (e) {
                 throw new BadRequestError(e);
@@ -139,16 +170,10 @@ class PatchOperation {
                 message: 'operationCompleted',
                 action: currentOperationName
             });
-            /**
-             * @type {ChangeEventProducer}
-             */
-            const changeEventProducer = container.changeEventProducer;
-            await changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+
+            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+
+            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return {
                 id: doc.id,
