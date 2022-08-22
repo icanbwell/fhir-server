@@ -7,29 +7,15 @@ const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
 const {RequestInfo} = require('../../utils/requestInfo');
-const {GraphHelper} = require('../../operations/graph/graphHelpers');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
-const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {IndexManager} = require('../../indexes/index.util');
-const {ErrorReporter} = require('../../utils/slack.logger');
+const {createTestContainer} = require('../createTestContainer');
 
 /**
  * Gets graph helper
  * @return {GraphHelper}
  */
 function getGraphHelper() {
-    return new GraphHelper(
-        new DatabaseQueryFactory(
-            new ResourceLocatorFactory(
-                new MongoCollectionManager(
-                    new IndexManager(
-                        new ErrorReporter()
-                    )
-                )
-            )
-        )
-    );
+    const container = createTestContainer();
+    return container.graphHelper;
 }
 
 describe('graphHelper Tests', () => {
