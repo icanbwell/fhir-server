@@ -6,9 +6,23 @@ const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {GraphHelper} = require('./graphHelpers');
 
 class GraphOperation {
-    constructor() {
+    /**
+     * @param {GraphHelper} graphHelper
+     */
+    constructor(
+        {
+            graphHelper
+        }
+    ) {
+        /**
+         * @type {GraphHelper}
+         */
+        this.graphHelper = graphHelper;
+        assertTypeEquals(graphHelper, GraphHelper);
     }
 
     /**
@@ -70,13 +84,9 @@ class GraphOperation {
                 return operationOutcome;
             }
             /**
-             * @type {GraphHelper}
-             */
-            const graphHelper = container.graphHelper;
-            /**
              * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
              */
-            const result = await graphHelper.processGraphAsync(
+            const result = await this.graphHelper.processGraphAsync(
                 requestInfo,
                 base_version,
                 useAtlas,

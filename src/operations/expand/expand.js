@@ -7,8 +7,34 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {ValueSetManager} = require('../../utils/valueSet.util');
 
 class ExpandOperation {
+    /**
+     * constructor
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ValueSetManager} valueSetManager
+     */
+    constructor(
+        {
+            databaseQueryFactory,
+            valueSetManager
+        }
+    ) {
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {ValueSetManager}
+         */
+        this.valueSetManager = valueSetManager;
+        assertTypeEquals(valueSetManager, ValueSetManager);
+    }
+
     /**
      * does a FHIR Search By Id
      * @param {SimpleContainer} container
@@ -24,10 +50,6 @@ class ExpandOperation {
         assert(args !== undefined);
         assert(resourceType !== undefined);
         const currentOperationName = 'expand';
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        const databaseQueryFactory = container.databaseQueryFactory;
         /**
          * @type {number}
          */
@@ -64,7 +86,7 @@ class ExpandOperation {
          */
         let resource;
         try {
-            resource = await databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+            resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
         } catch (e) {
             await logOperationAsync({
@@ -97,12 +119,8 @@ class ExpandOperation {
                 throw forbiddenError;
             }
 
-            /**
-             * @type {ValueSetManager}
-             */
-            const valueSetManager = container.valueSetManager;
             // implement expand functionality
-            resource = await valueSetManager.getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
+            resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
 
             // run any enrichment
             resource = (await enrich([resource], resourceType))[0];

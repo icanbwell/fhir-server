@@ -163,8 +163,17 @@ const createContainer = function () {
         }
     ));
     container.register('validateOperation', () => new ValidateOperation());
-    container.register('graphOperation', () => new GraphOperation());
-    container.register('expandOperation', () => new ExpandOperation());
+    container.register('graphOperation', c => new GraphOperation(
+        {
+            graphHelper: c.graphHelper
+        }
+    ));
+    container.register('expandOperation', c => new ExpandOperation(
+        {
+            valueSetManager: c.valueSetManager,
+            databaseQueryFactory: c.databaseQueryFactory
+        }
+    ));
 
     // now register the routing for fhir
     container.register('fhirOperationsManager', c => new FhirOperationsManager(
