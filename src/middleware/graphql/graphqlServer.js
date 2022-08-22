@@ -25,6 +25,29 @@ const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
+
+    /**
+     * @type {import('apollo-server-plugin-base').PluginDefinition[]}
+     */
+    const plugins = [
+        // request.credentials is set so we receive cookies
+        // https://github.com/graphql/graphql-playground#settings
+        // eslint-disable-next-line new-cap
+        ApolloServerPluginLandingPageGraphQLPlayground(
+            {
+                settings: {
+                    'request.credentials': 'same-origin',
+                    'schema.polling.enable': false, // enables automatic schema polling
+                },
+                cdnUrl: 'https://cdn.jsdelivr.net/npm',
+                faviconUrl: '',
+            }
+        ),
+        getBundleMetaApolloServerPlugin(),
+        getApolloServerLoggingPlugin('graphqlv2'),
+        getGraphqlContainerPlugin()
+        // ApolloServerPluginLandingPageDisabled()
+    ];
     // create the Apollo graphql middleware
     const server = new ApolloServer(
         {
@@ -33,25 +56,7 @@ const graphql = async (fnCreateContainer) => {
             resolvers: resolvers,
             introspection: true,
             cache: 'bounded',
-            plugins: [
-                // request.credentials is set so we receive cookies
-                // https://github.com/graphql/graphql-playground#settings
-                // eslint-disable-next-line new-cap
-                ApolloServerPluginLandingPageGraphQLPlayground(
-                    {
-                        settings: {
-                            'request.credentials': 'same-origin',
-                            'schema.polling.enable': false, // enables automatic schema polling
-                        },
-                        cdnUrl: 'https://cdn.jsdelivr.net/npm',
-                        faviconUrl: '',
-                    }
-                ),
-                getBundleMetaApolloServerPlugin(),
-                getApolloServerLoggingPlugin('graphqlv2'),
-                getGraphqlContainerPlugin()
-                // ApolloServerPluginLandingPageDisabled()
-            ],
+            plugins: plugins,
             context: async ({req, res}) => {
                 const container = fnCreateContainer();
 

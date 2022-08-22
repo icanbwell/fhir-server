@@ -129,6 +129,9 @@ class CreateOperation {
                     currentDate,
                     uuid,
                     'create_failure');
+                /**
+                 * @type {Error}
+                 */
                 const notValidatedError = new NotValidatedError(operationOutcome);
                 await logOperationAsync({
                     requestInfo,
