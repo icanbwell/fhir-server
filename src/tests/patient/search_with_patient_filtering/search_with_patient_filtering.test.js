@@ -34,7 +34,7 @@ describe('patient Tests', () => {
     beforeAll(async () => {
         await commonBeforeEach();
         const request = await createTestRequest();
-        let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+        let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(assertStatusCode(200));
         expect(resp.body.length).toBe(0);
         console.log('------- response 0 ------------');
         console.log(JSON.stringify(resp.body, null, 2));

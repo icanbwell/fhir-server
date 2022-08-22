@@ -23,11 +23,16 @@ const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 
+/**
+ * Update Operation
+ */
 class UpdateOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
@@ -35,6 +40,7 @@ class UpdateOperation {
     constructor(
         {
             databaseHistoryFactory,
+            databaseQueryFactory,
             changeEventProducer,
             auditLogger,
             postRequestProcessor
@@ -45,6 +51,11 @@ class UpdateOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {ChangeEventProducer}
          */
