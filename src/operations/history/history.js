@@ -31,15 +31,11 @@ class HistoryOperation {
 
     /**
      * does a FHIR History
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
-    async history(container,
-                  requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async history(requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

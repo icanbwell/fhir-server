@@ -38,7 +38,6 @@ class SearchBundleOperation {
 
     /**
      * does a FHIR Search
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
@@ -46,11 +45,9 @@ class SearchBundleOperation {
      * @return {Promise<{entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchBundle(
-        container,
         requestInfo, args, resourceType,
         filter = true
     ) {
-        assert(container !== undefined);
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

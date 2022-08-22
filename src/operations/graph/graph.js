@@ -27,14 +27,12 @@ class GraphOperation {
 
     /**
      * Supports $graph
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
-    async graph(container, requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async graph(requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

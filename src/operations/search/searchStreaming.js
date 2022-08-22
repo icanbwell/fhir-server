@@ -39,7 +39,6 @@ class SearchStreamingOperation {
 
     /**
      * does a FHIR Search
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {import('http').ServerResponse} res
      * @param {Object} args
@@ -48,7 +47,6 @@ class SearchStreamingOperation {
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreaming(
-        container,
         requestInfo, res, args, resourceType,
         filter = true) {
         const currentOperationName = 'searchStreaming';

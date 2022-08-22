@@ -161,10 +161,6 @@ class FhirOperationsManager {
         );
     }
 
-    getContainer(req) {
-        return req.container;
-    }
-
     /**
      * does a FHIR Search
      * @param {string[]} args
@@ -182,12 +178,7 @@ class FhirOperationsManager {
             combined_args = Object.assign({}, args, req.body);
         }
 
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.searchBundleOperation.searchBundle(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -209,12 +200,7 @@ class FhirOperationsManager {
         if (req.body && Object.keys(req.body).length > 0) {
             combined_args = Object.assign({}, args, req.body);
         }
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.searchStreamingOperation.searchStreaming(
-            container,
             this.getRequestInfo(req),
             res,
             combined_args, resourceType);
@@ -228,12 +214,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async searchById(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.searchByIdOperation.searchById(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -254,12 +235,8 @@ class FhirOperationsManager {
          * @type {string}
          */
         const path = req.path;
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
+
         return this.createOperation.create(
-            container,
             this.getRequestInfo(req),
             combined_args, path, resourceType);
     }
@@ -276,12 +253,8 @@ class FhirOperationsManager {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
+
         return this.updateOperation.update(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -299,12 +272,8 @@ class FhirOperationsManager {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
+
         return this.mergeOperation.merge(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -321,12 +290,8 @@ class FhirOperationsManager {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
+
         return this.everythingOperation.everything(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -344,12 +309,8 @@ class FhirOperationsManager {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
+
         return this.removeOperation.remove(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -362,12 +323,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async searchByVersionId(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.searchByVersionIdOperation.searchByVersionId(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -380,12 +336,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async history(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.historyOperation.history(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -398,12 +349,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async historyById(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.historyByIdOperation.historyById(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -416,12 +362,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async patch(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.patchOperation.patch(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -433,12 +374,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      */
     async validate(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.validateOperation.validate(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }
@@ -456,12 +392,7 @@ class FhirOperationsManager {
          * @type {string[]}
          */
         const combined_args = get_all_args(req, args);
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.graphOperation.graph(
-            container,
             this.getRequestInfo(req),
             combined_args, resourceType);
     }
@@ -474,12 +405,7 @@ class FhirOperationsManager {
      */
 // eslint-disable-next-line no-unused-vars
     async expand(args, {req}, resourceType) {
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = this.getContainer(req);
         return this.expandOperation.expand(
-            container,
             this.getRequestInfo(req),
             args, resourceType);
     }

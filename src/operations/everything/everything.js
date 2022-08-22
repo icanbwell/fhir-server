@@ -23,13 +23,11 @@ class EverythingOperation {
 
     /**
      * does a FHIR $everything
-     * @param {SimpleContainer} container
      * @param {import('../../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
-    async everything(container, requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async everything( requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);
@@ -55,7 +53,7 @@ class EverythingOperation {
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
                 requestInfo.body = practitionerEverythingGraph;
-                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,
@@ -67,7 +65,7 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Organization') {
                 requestInfo.body = organizationEverythingGraph;
-                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,
@@ -79,7 +77,7 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Slot') {
                 requestInfo.body = slotEverythingGraph;
-                const result = await this.graphOperation.graph(container, requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await logOperationAsync({
                     requestInfo,
                     args,

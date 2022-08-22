@@ -37,15 +37,12 @@ class ExpandOperation {
 
     /**
      * does a FHIR Search By Id
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @return {Resource}
      */
-// eslint-disable-next-line no-unused-vars
-    async expand(container, requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async expand(requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

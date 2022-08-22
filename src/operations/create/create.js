@@ -68,15 +68,12 @@ class CreateOperation {
 
     /**
      * does a FHIR Create (POST)
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} path
      * @param {string} resourceType
      */
-    async create(container,
-                 requestInfo, args, path, resourceType) {
-        assert(container !== undefined);
+    async create(requestInfo, args, path, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

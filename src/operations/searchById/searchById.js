@@ -50,18 +50,14 @@ class SearchByIdOperation {
 
     /**
      * does a FHIR Search By Id
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @param {boolean} filter
      * @return {Resource}
      */
-// eslint-disable-next-line no-unused-vars
-    async searchById(container,
-                     requestInfo, args, resourceType,
+    async searchById(requestInfo, args, resourceType,
                      filter = true) {
-        assert(container !== undefined);
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

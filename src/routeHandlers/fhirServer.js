@@ -104,10 +104,10 @@ class MyFHIRServer extends FHIRServer.Server {
         });
 
         // add container to request
-        this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
-            req.container = this.fnCreateContainer();
-            next();
-        });
+        // this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
+        //     req.container = this.fnCreateContainer();
+        //     next();
+        // });
         return this;
     }
 

@@ -64,14 +64,11 @@ class UpdateOperation {
 
     /**
      * does a FHIR Update (PUT)
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
-    async update(container,
-                 requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async update(requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);

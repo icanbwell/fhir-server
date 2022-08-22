@@ -10,13 +10,11 @@ class ValidateOperation {
 
     /**
      * does a FHIR Validate
-     * @param {SimpleContainer} container
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
-    async validate(container, requestInfo, args, resourceType) {
-        assert(container !== undefined);
+    async validate(requestInfo, args, resourceType) {
         assert(requestInfo !== undefined);
         assert(args !== undefined);
         assert(resourceType !== undefined);
