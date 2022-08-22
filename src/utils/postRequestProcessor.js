@@ -79,7 +79,7 @@ class PostRequestProcessor {
             await new Promise((r) => setTimeout(r, 1000));
             secondsWaiting += 1;
             if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
-                throw new Error(`waitTillDoneAsync did not finish in specified time: ${timeoutInSeconds}`);
+                throw new Error(`PostRequestProcessor.waitTillDoneAsync() did not finish in specified time: ${timeoutInSeconds}`);
             }
         }
         return true;
