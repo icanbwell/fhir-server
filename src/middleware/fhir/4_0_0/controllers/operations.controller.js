@@ -1,8 +1,20 @@
 const handler = require('../../fhir-response-util');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
+const assert = require('node:assert/strict');
+const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 
 class CustomOperationsController {
-    constructor() {
+    /**
+     * constructor
+     * @param {PostRequestProcessor} postRequestProcessor
+     */
+    constructor(postRequestProcessor) {
+        assert(postRequestProcessor);
+        assert(postRequestProcessor instanceof PostRequestProcessor);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
     }
 
     /**
@@ -37,11 +49,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -68,11 +76,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }

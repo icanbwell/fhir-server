@@ -20,6 +20,7 @@ const {SearchManager} = require('./operations/search/searchManager');
 const {GraphHelper} = require('./operations/graph/graphHelpers');
 const {FhirRouter} = require('./middleware/fhir/router');
 const {ControllerUtils} = require('./middleware/fhir/controller.utils');
+const {CustomOperationsController} = require('./middleware/fhir/4_0_0/controllers/operations.controller');
 
 /**
  * Creates a container and sets up all the services
@@ -58,7 +59,8 @@ const createContainer = function () {
     container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
 
     container.register('controllerUtils', () => new ControllerUtils());
-    container.register('fhirRouter', c => new FhirRouter(c.controllerUtils));
+    container.register('customOperationsController', c => new CustomOperationsController(c.postRequestProcessor));
+    container.register('fhirRouter', c => new FhirRouter(c.controllerUtils, c.customOperationsController));
 
     return container;
 };

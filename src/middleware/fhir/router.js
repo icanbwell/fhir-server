@@ -42,12 +42,23 @@ class FhirRouter {
     /**
      * constructor
      * @param {ControllerUtils} controllerUtils
+     * @param {CustomOperationsController} customOperationsController
      */
-    constructor(controllerUtils) {
+    constructor(controllerUtils, customOperationsController) {
         assert(controllerUtils);
         assert(controllerUtils instanceof ControllerUtils);
+        /**
+         * @type {ControllerUtils}
+         */
         this.controllerUtils = controllerUtils;
+        assert(customOperationsController);
+        assert(customOperationsController instanceof CustomOperationsController);
+        /**
+         * @type {CustomOperationsController}
+         */
+        this.customOperationsController = customOperationsController;
     }
+
     /**
      * @function getAllConfiguredVersions
      * @description Get a unique list of versions provided in profile configurations
@@ -137,13 +148,12 @@ class FhirRouter {
              */
             const resourceType = key;
 
-            const customOperationsController = new CustomOperationsController();
             const operationsControllerRouteHandler = lowercaseMethod === 'post' ?
-                customOperationsController.operationsPost({
+                this.customOperationsController.operationsPost({
                     name: functionName,
                     resourceType
                 }) :
-                customOperationsController.operationsGet({
+                this.customOperationsController.operationsGet({
                     name: functionName,
                     resourceType
                 })
@@ -172,7 +182,12 @@ class FhirRouter {
             app.options(operationRoute, cors(corsOptions)); // Enable this operation route
 
             app[route.type]( // We need to allow the $ to exist in these routes
-                operationRoute, cors(corsOptions), versionValidationMiddleware(profile), sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]), authenticationMiddleware(config), sofScopeMiddleware({
+                operationRoute,
+                cors(corsOptions),
+                versionValidationMiddleware(profile),
+                sanitizeMiddleware([routeArgs.BASE, routeArgs.ID, ...parameters]),
+                authenticationMiddleware(config),
+                sofScopeMiddleware({
                     route,
                     auth: config.auth,
                     name: key
@@ -194,14 +209,14 @@ class FhirRouter {
             if (profile.baseUrls && profile.baseUrls.length) {
                 return profile;
             }
-        }).filter(profile => profile);
+        }).filter(profile => profile !== null && profile !== undefined);
         const inferredProfiles = Object.keys(profiles).map(profileName => {
             const profile = profiles[profileName];
 
             if (!profile.baseUrls || !profile.baseUrls.length) {
                 return profile;
             }
-        }).filter(profile => profile); // Determine which versions need a metadata endpoint, we need to loop through
+        }).filter(profile => profile !== null && profile !== undefined); // Determine which versions need a metadata endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
 
         const versionValidationConfiguration = {
