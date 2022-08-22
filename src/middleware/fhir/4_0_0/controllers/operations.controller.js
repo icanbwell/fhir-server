@@ -1,20 +1,25 @@
 const handler = require('../../fhir-response-util');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
-const assert = require('node:assert/strict');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
+const {assertTypeEquals} = require('../../../../utils/assertType');
 
 class CustomOperationsController {
     /**
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {FhirOperationsManager} fhirOperationsManager
      */
-    constructor(postRequestProcessor) {
-        assert(postRequestProcessor);
-        assert(postRequestProcessor instanceof PostRequestProcessor);
+    constructor({postRequestProcessor, fhirOperationsManager}) {
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(fhirOperationsManager, FhirOperationsManager);
+        /**
+         * @type {FhirOperationsManager}
+         */
+        this.fhirOperationsManager = fhirOperationsManager;
     }
 
     /**
@@ -42,7 +47,7 @@ class CustomOperationsController {
             };
 
             try {
-                const results = await new FhirOperationsManager()[`${name}`](args, {
+                const results = await this.fhirOperationsManager[`${name}`](args, {
                     req
                 }, resourceType);
                 handler.read(req, res, results);
@@ -69,7 +74,7 @@ class CustomOperationsController {
             /** @type {function() : void}*/next) => {
             try {
                 const results = await
-                    new FhirOperationsManager()[`${name}`](req.sanitized_args, {
+                    this.fhirOperationsManager[`${name}`](req.sanitized_args, {
                         req
                     }, resourceType);
                 handler.read(req, res, results);

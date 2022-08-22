@@ -15,6 +15,7 @@ const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
 const {RequestInfo} = require('../utils/requestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
+const {assertTypeEquals} = require('../utils/assertType');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -25,22 +26,118 @@ Object.defineProperty(RegExp.prototype, 'toJSON', {
 });
 
 class FhirOperationsManager {
-    constructor() {
-        this.searchBundleOperation = new SearchBundleOperation();
-        this.searchStreamingOperation = new SearchStreamingOperation();
-        this.searchByIdOperation = new SearchByIdOperation();
-        this.createOperation = new CreateOperation();
-        this.updateOperation = new UpdateOperation();
-        this.mergeOperation = new MergeOperation();
-        this.everythingOperation = new EverythingOperation();
-        this.removeOperation = new RemoveOperation();
-        this.searchByVersionIdOperation = new SearchByVersionIdOperation();
-        this.historyOperation = new HistoryOperation();
-        this.historyByIdOperation = new HistoryByIdOperation();
-        this.patchOperation = new PatchOperation();
-        this.validateOperation = new ValidateOperation();
-        this.graphOperation = new GraphOperation();
-        this.expandOperation = new ExpandOperation();
+    /**
+     * constructor
+     * @param searchBundleOperation
+     * @param searchStreamingOperation
+     * @param searchByIdOperation
+     * @param createOperation
+     * @param updateOperation
+     * @param mergeOperation
+     * @param everythingOperation
+     * @param removeOperation
+     * @param searchByVersionIdOperation
+     * @param historyOperation
+     * @param historyByIdOperation
+     * @param patchOperation
+     * @param validateOperation
+     * @param graphOperation
+     * @param expandOperation
+     */
+    constructor(
+        {
+            searchBundleOperation,
+            searchStreamingOperation,
+            searchByIdOperation,
+            createOperation,
+            updateOperation,
+            mergeOperation,
+            everythingOperation,
+            removeOperation,
+            searchByVersionIdOperation,
+            historyOperation,
+            historyByIdOperation,
+            patchOperation,
+            validateOperation,
+            graphOperation,
+            expandOperation
+        }
+    ) {
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = searchBundleOperation;
+        assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+        /**
+         * @type {SearchStreamingOperation}
+         */
+        this.searchStreamingOperation = searchStreamingOperation;
+        assertTypeEquals(searchStreamingOperation, SearchStreamingOperation);
+        /**
+         * @type {SearchByIdOperation}
+         */
+        this.searchByIdOperation = searchByIdOperation;
+        assertTypeEquals(searchByIdOperation, SearchByIdOperation);
+        /**
+         * @type {CreateOperation}
+         */
+        this.createOperation = createOperation;
+        assertTypeEquals(createOperation, CreateOperation);
+        /**
+         * @type {UpdateOperation}
+         */
+        this.updateOperation = updateOperation;
+        assertTypeEquals(updateOperation, UpdateOperation);
+        /**
+         * @type {MergeOperation}
+         */
+        this.mergeOperation = mergeOperation;
+        assertTypeEquals(mergeOperation, MergeOperation);
+        /**
+         * @type {EverythingOperation}
+         */
+        this.everythingOperation = everythingOperation;
+        assertTypeEquals(everythingOperation, EverythingOperation);
+        /**
+         * @type {RemoveOperation}
+         */
+        this.removeOperation = removeOperation;
+        assertTypeEquals(removeOperation, RemoveOperation);
+        /**
+         * @type {SearchByVersionIdOperation}
+         */
+        this.searchByVersionIdOperation = searchByVersionIdOperation;
+        assertTypeEquals(searchByVersionIdOperation, SearchByVersionIdOperation);
+        /**
+         * @type {HistoryOperation}
+         */
+        this.historyOperation = historyOperation;
+        assertTypeEquals(historyOperation, HistoryOperation);
+        /**
+         * @type {HistoryByIdOperation}
+         */
+        this.historyByIdOperation = historyByIdOperation;
+        assertTypeEquals(historyByIdOperation, HistoryByIdOperation);
+        /**
+         * @type {PatchOperation}
+         */
+        this.patchOperation = patchOperation;
+        assertTypeEquals(patchOperation, PatchOperation);
+        /**
+         * @type {ValidateOperation}
+         */
+        this.validateOperation = validateOperation;
+        assertTypeEquals(validateOperation, ValidateOperation);
+        /**
+         * @type {GraphOperation}
+         */
+        this.graphOperation = graphOperation;
+        assertTypeEquals(graphOperation, GraphOperation);
+        /**
+         * @type {ExpandOperation}
+         */
+        this.expandOperation = expandOperation;
+        assertTypeEquals(expandOperation, ExpandOperation);
     }
 
     getRequestInfo(req) {
