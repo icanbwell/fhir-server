@@ -63,6 +63,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
+            expect(resp.body.length).toBe(1);
             // clear out the lastUpdated column since that changes
             let body = resp.body[0];
             delete body['meta']['lastUpdated'];
@@ -94,6 +95,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
+            expect(resp.body.length).toBe(1);
             // clear out the lastUpdated column since that changes
             body = resp.body[0];
             delete body['meta']['lastUpdated'];
@@ -104,6 +106,49 @@ describe('PractitionerReturnIdTests', () => {
 
             expect(body).toStrictEqual(expected);
 
+            // now merge the modified patient.  There should be an additional history record created
+            patient1Resource.birthDate = '2015-01-01';
+            resp = await request
+                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders())
+                .expect(assertStatusCode(200));
+
+            console.log('------- response patient1Resource ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response  ------------');
+            expect(resp.body['created']).toBe(false);
+
+            await postRequestProcessor.waitTillDoneAsync();
+            resp = await request
+                .get('/4_0_0/Patient/00100000000/_history')
+                .set(getHeaders())
+                .expect(200);
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp.body, null, 2));
+            console.log('------- end response sort ------------');
+            expect(resp.body.length).toBe(2);
+            // clear out the lastUpdated column since that changes
+            body = resp.body[0];
+            delete body['meta']['lastUpdated'];
+
+            expected = expectedSinglePatientResource[0];
+            delete expected['meta']['lastUpdated'];
+            delete expected['$schema'];
+
+            expect(body).toStrictEqual(expected);
+
+            body = resp.body[1];
+            delete body['meta']['lastUpdated'];
+
+            expected = expectedSinglePatientResource[0];
+            delete expected['meta']['lastUpdated'];
+            delete expected['$schema'];
+            expected.birthDate = patient1Resource.birthDate;
+            expected.meta.versionId = '2';
+
+            expect(body).toStrictEqual(expected);
         });
     });
 });
