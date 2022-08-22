@@ -116,7 +116,8 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
                 changeEventProducer: c.changeEventProducer,
-                databaseHistoryFactory: c.databaseHistoryFactory
+                databaseHistoryFactory: c.databaseHistoryFactory,
+                databaseQueryFactory: c.databaseQueryFactory
             }
         )
     );
