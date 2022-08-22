@@ -19,7 +19,7 @@ process.on('message', async (params) => {
 
     const errorReporter = new ErrorReporter();
     try {
-        const indexManager = new IndexManager(new ErrorReporter());
+        const indexManager = new IndexManager({errorReporter: new ErrorReporter()});
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
             await errorReporter.logMessageToSlackAsync('Starting indexing in separate process');

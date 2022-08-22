@@ -1,17 +1,11 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
 const {describe, expect, beforeEach, afterEach} = require('@jest/globals');
-const {DatabaseBulkInserter} = require('../../../dataLayer/databaseBulkInserter');
 const moment = require('moment-timezone');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
-const {ResourceManager} = require('../../../operations/common/resourceManager');
-const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
-const {ErrorReporter} = require('../../../utils/slack.logger');
-const {MongoCollectionManager} = require('../../../utils/mongoCollectionManager');
-const {IndexManager} = require('../../../indexes/index.util');
-const {ResourceLocatorFactory} = require('../../../operations/common/resourceLocatorFactory');
+const {createTestContainer} = require('../../createTestContainer');
 
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
@@ -28,13 +22,11 @@ describe('databaseBulkInserter Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const errorReporter = new ErrorReporter();
-            const postRequestProcessor = new PostRequestProcessor(errorReporter);
-
-            const collectionManager = new MongoCollectionManager(new IndexManager(new ErrorReporter()));
-            const databaseBulkInserter = new DatabaseBulkInserter(
-                new ResourceManager(), postRequestProcessor, errorReporter, collectionManager,
-                new ResourceLocatorFactory(collectionManager));
+            const container = createTestContainer();
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
 
             await databaseBulkInserter.insertOneAsync('Patient', patient);
             await databaseBulkInserter.insertOneAsync('Observation', observation);
@@ -58,7 +50,7 @@ describe('databaseBulkInserter Tests', () => {
              * mongo connection
              * @type {import('mongodb').Db}
              */
-            // noinspection JSValidateTypes
+                // noinspection JSValidateTypes
             const fhirDb = globals.get(CLIENT_DB);
             // check patients
             const patientCollection = `Patient_${base_version}`;

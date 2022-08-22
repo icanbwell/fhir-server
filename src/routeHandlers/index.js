@@ -38,7 +38,8 @@ module.exports.handleIndex = async (req, res) => {
         taskProcessor.send(params);
         message = 'Started rebuilding indexes in separate process.  Check logs or Slack for output.';
     } else {
-        collection_stats = await new IndexManager(new ErrorReporter()).getIndexesInAllCollectionsAsync();
+        collection_stats = await new IndexManager({errorReporter: new ErrorReporter()})
+            .getIndexesInAllCollectionsAsync();
         message = 'Listing current indexes.  Use /index/run if you want to run index creation';
     }
 

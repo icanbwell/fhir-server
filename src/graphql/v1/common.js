@@ -18,12 +18,16 @@ module.exports.unBundle = (bundle) => {
     return bundle.entry.map(e => e.resource);
 };
 
+// noinspection JSUnusedLocalSymbols
 /**
  * This is to handle unions in GraphQL
  * @param obj
+ * @param context
+ * @param info
  * @return {null|string}
  */
-module.exports.resolveType = (obj, /*context, info*/) => {
+// eslint-disable-next-line no-unused-vars
+module.exports.resolveType = (obj, context, info) => {
     if (obj) {
         return obj.resourceType;
     }
