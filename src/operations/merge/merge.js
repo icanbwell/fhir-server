@@ -7,9 +7,63 @@ const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const assert = require('node:assert/strict');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {MergeManager} = require('./mergeManager');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {ChangeEventProducer} = require('../../utils/changeEventProducer');
+const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
+const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class MergeOperation {
-    constructor() {
+    /**
+     * @param {MergeManager} mergeManager
+     * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {ChangeEventProducer} changeEventProducer
+     * @param {DatabaseBulkLoader} databaseBulkLoader
+     * @param {MongoCollectionManager} collectionManager
+     * @param {PostRequestProcessor} postRequestProcessor
+     */
+    constructor(
+        {
+            mergeManager,
+            databaseBulkInserter,
+            changeEventProducer,
+            databaseBulkLoader,
+            collectionManager,
+            postRequestProcessor
+        }
+    ) {
+        /**
+         * @type {MergeManager}
+         */
+        this.mergeManager = mergeManager;
+        assertTypeEquals(mergeManager, MergeManager);
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        /**
+         * @type {DatabaseBulkLoader}
+         */
+        this.databaseBulkLoader = databaseBulkLoader;
+        assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
+        assertTypeEquals(collectionManager, MongoCollectionManager);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -59,10 +113,6 @@ class MergeOperation {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
-         * @type {MergeManager}
-         */
-        const mergeManager = container.mergeManager;
-        /**
          * @type {number}
          */
         const startTime = Date.now();
@@ -97,24 +147,18 @@ class MergeOperation {
         });
 
         /**
-         * @type {DatabaseBulkInserter}
-         */
-        const databaseBulkInserter = container.databaseBulkInserter;
-        /**
-         * @type {ChangeEventProducer}
-         */
-        const changeEventProducer = container.changeEventProducer;
-        /**
          * @type {string}
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
+        const self = this;
+
         async function onCreatePatient(event) {
-            await changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
+            await self.changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
         }
 
         async function onChangePatient(event) {
-            await changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
+            await self.changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
         }
 
         try {
@@ -145,8 +189,8 @@ class MergeOperation {
             }
 
             // add event handlers
-            databaseBulkInserter.on('createPatient', onCreatePatient);
-            databaseBulkInserter.on('changePatient', onChangePatient);
+            this.databaseBulkInserter.on('createPatient', onCreatePatient);
+            this.databaseBulkInserter.on('changePatient', onChangePatient);
             /**
              * @type {boolean}
              */
@@ -164,7 +208,7 @@ class MergeOperation {
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ validResources
-            } = await mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
+            } = await this.mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
                 scopes, user, path, currentDate);
 
             // process only the resources that are valid
@@ -177,41 +221,30 @@ class MergeOperation {
                 return {resourceType: r.resourceType, id: r.id};
             });
 
-            /**
-             * @type {DatabaseBulkLoader}
-             */
-            const databaseBulkLoader = container.databaseBulkLoader;
             // Load the resources from the database
-            await databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
+            await this.databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
                 base_version,
                 useAtlas,
                 incomingResourceTypeAndIds
             );
-            /**
-             * @type {MongoCollectionManager}
-             */
-            const collectionManager = container.collectionManager;
+
             // merge the resources
-            await mergeManager.mergeResourceListAsync(
-                collectionManager,
+            await this.mergeManager.mergeResourceListAsync(
+                this.collectionManager,
                 resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
                 requestId, base_version, scope, requestInfo, args,
-                databaseBulkInserter, databaseBulkLoader
+                this.databaseBulkInserter, this.databaseBulkLoader
             );
             /**
              * mergeResults
              * @type {MergeResultEntry[]}
              */
-            let mergeResults = await databaseBulkInserter.executeAsync(
+            let mergeResults = await this.databaseBulkInserter.executeAsync(
                 requestId, currentDate,
                 base_version, useAtlas);
 
             // flush any event handlers
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
-            postRequestProcessor.add(async () => await changeEventProducer.flushAsync(requestId));
+            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
@@ -222,7 +255,7 @@ class MergeOperation {
             });
             mergeResults = mergeResults.concat(
                 this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
-            await mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
+            await this.mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
 
             await logOperationAsync({
                 requestInfo,
@@ -246,8 +279,8 @@ class MergeOperation {
             });
             throw e;
         } finally {
-            databaseBulkInserter.removeListener('createPatient', onCreatePatient);
-            databaseBulkInserter.removeListener('changePatient', onChangePatient);
+            this.databaseBulkInserter.removeListener('createPatient', onCreatePatient);
+            this.databaseBulkInserter.removeListener('changePatient', onChangePatient);
             timer({action: currentOperationName, resourceType});
         }
     }

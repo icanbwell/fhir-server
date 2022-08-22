@@ -76,17 +76,37 @@ const createContainer = function () {
     container.register('graphHelper', c => new GraphHelper(c.databaseQueryFactory));
 
     // register fhir operations
-    container.register('searchBundleOperation', c => new SearchBundleOperation({
-        searchManager: c.searchManager,
-        resourceLocatorFactory: c.resourceLocatorFactory,
-        auditLogger: c.auditLogger,
-        errorReporter: c.errorReporter
-    }));
-    container.register('searchStreamingOperation', () => new SearchStreamingOperation());
+    container.register('searchBundleOperation', c => new SearchBundleOperation(
+            {
+                searchManager: c.searchManager,
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                auditLogger: c.auditLogger,
+                errorReporter: c.errorReporter
+            }
+        )
+    );
+    container.register('searchStreamingOperation', c => new SearchStreamingOperation(
+            {
+                searchManager: c.searchManager,
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                auditLogger: c.auditLogger,
+                errorReporter: c.errorReporter
+            }
+        )
+    );
     container.register('searchByIdOperation', () => new SearchByIdOperation());
     container.register('createOperation', () => new CreateOperation());
     container.register('updateOperation', () => new UpdateOperation());
-    container.register('mergeOperation', () => new MergeOperation());
+    container.register('mergeOperation', c => new MergeOperation(
+        {
+            mergeManager: c.mergeManager,
+            postRequestProcessor: c.postRequestProcessor,
+            collectionManager: c.collectionManager,
+            changeEventProducer: c.changeEventProducer,
+            databaseBulkLoader: c.databaseBulkLoader,
+            databaseBulkInserter: c.databaseBulkInserter
+        }
+    ));
     container.register('everythingOperation', () => new EverythingOperation());
     container.register('removeOperation', () => new RemoveOperation());
     container.register('searchByVersionIdOperation', () => new SearchByVersionIdOperation());

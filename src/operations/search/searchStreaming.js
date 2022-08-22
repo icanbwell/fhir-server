@@ -8,10 +8,33 @@ const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const moment = require('moment-timezone');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SearchManager} = require('./searchManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {ErrorReporter} = require('../../utils/slack.logger');
 
 
 class SearchStreamingOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {SearchManager} searchManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {AuditLogger} auditLogger
+     * @param {ErrorReporter} errorReporter
+     */
+    constructor({searchManager, resourceLocatorFactory, auditLogger, errorReporter}) {
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        this.errorReporter = errorReporter;
+        assertTypeEquals(errorReporter, ErrorReporter);
     }
 
     /**
@@ -29,15 +52,6 @@ class SearchStreamingOperation {
         requestInfo, res, args, resourceType,
         filter = true) {
         const currentOperationName = 'searchStreaming';
-        /**
-         * @type {SearchManager}
-         */
-        const searchManager = container.searchManager;
-        /**
-         * @type {ResourceLocatorFactory}
-         */
-        const resourceLocatorFactory = container.resourceLocatorFactory;
-
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
@@ -82,7 +96,7 @@ class SearchStreamingOperation {
 
         const {/** @type {string} **/base_version} = args;
 
-        const allPatients = patients.concat(await searchManager.getLinkedPatientsAsync(
+        const allPatients = patients.concat(await this.searchManager.getLinkedPatientsAsync(
             base_version, useAtlas, isUser, fhirPersonId));
 
         /** @type {import('mongodb').Document}**/
@@ -96,7 +110,7 @@ class SearchStreamingOperation {
                 query,
                 /** @type {Set} **/
                 columns
-            } = searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+            } = this.searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
         } catch (e) {
             await logOperationAsync({
                 requestInfo,
@@ -128,10 +142,10 @@ class SearchStreamingOperation {
         /**
          * @type {ResourceLocator}
          */
-        const resourceLocator = resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
         try {
             /** @type {GetCursorResult} **/
-            const __ret = await searchManager.getCursorForQueryAsync(
+            const __ret = await this.searchManager.getCursorForQueryAsync(
                 resourceType, base_version, useAtlas,
                 args, columns, options, query,
                 maxMongoTimeMS, user, true, useAccessIndex);
@@ -195,7 +209,7 @@ class SearchStreamingOperation {
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
-                    resourceIds = await searchManager.streamResourcesFromCursorAsync({
+                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync({
                         requestId,
                         cursor,
                         res,
@@ -225,7 +239,7 @@ class SearchStreamingOperation {
                          * @param stopTime1
                          * @return {{entry: {resource: Resource}[]}}
                          */
-                        const fnBundle = (last_id, stopTime1) => searchManager.createBundle({
+                        const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle({
                                 url,
                                 last_id,
                                 resources: resources1,
@@ -245,7 +259,7 @@ class SearchStreamingOperation {
                                 useAtlas
                             }
                         );
-                        resourceIds = await searchManager.streamBundleFromCursorAsync({
+                        resourceIds = await this.searchManager.streamBundleFromCursorAsync({
                             requestId,
                             cursor,
                             url,
@@ -260,7 +274,7 @@ class SearchStreamingOperation {
                             batchObjectCount
                         });
                     } else {
-                        resourceIds = await searchManager.streamResourcesFromCursorAsync({
+                        resourceIds = await this.searchManager.streamResourcesFromCursorAsync({
                             requestId,
                             cursor, res, user, scope, args,
                             ResourceCreator, resourceType,
@@ -273,11 +287,7 @@ class SearchStreamingOperation {
                 if (resourceIds.length > 0) {
                     try {
                         // log access to audit logs
-                        /**
-                         * @type {AuditLogger}
-                         */
-                        const auditLogger = container.auditLogger;
-                        await auditLogger.logAuditEntryAsync(
+                        await this.auditLogger.logAuditEntryAsync(
                             requestInfo,
                             base_version,
                             resourceType,
@@ -286,13 +296,9 @@ class SearchStreamingOperation {
                             resourceIds
                         );
                         const currentDate = moment.utc().format('YYYY-MM-DD');
-                        await auditLogger.flushAsync(requestId, currentDate);
+                        await this.auditLogger.flushAsync(requestId, currentDate);
                     } catch (e) {
-                        /**
-                         * @type {ErrorReporter}
-                         */
-                        const errorReporter = container.errorReporter;
-                        await errorReporter.logErrorToSlackAsync(
+                        await this.errorReporter.logErrorToSlackAsync(
                             `searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
                     }
                 }
@@ -314,7 +320,7 @@ class SearchStreamingOperation {
                         /**
                          * @type {{entry: {resource: Resource}[]}}
                          */
-                        const bundle = searchManager.createBundle({
+                        const bundle = this.searchManager.createBundle({
                                 url,
                                 last_id: null,
                                 resources,
