@@ -66,15 +66,21 @@ class PostRequestProcessor {
 
     /**
      * Waits until the queue is empty
+     * @param {number|null|undefined} [timeoutInSeconds]
      * @return {Promise<boolean>}
      */
-    async waitTillDoneAsync() {
+    async waitTillDoneAsync(timeoutInSeconds) {
         if (this.queue.length === 0) {
             return true;
         }
         assert(this.startedExecuting || this.queue.length === 0, 'executeAsync is not running so queue will never empty');
+        let secondsWaiting = 0;
         while (this.queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
+            secondsWaiting += 1;
+            if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
+                throw new Error(`waitTillDoneAsync did not finish in specified time: ${timeoutInSeconds}`);
+            }
         }
         return true;
     }

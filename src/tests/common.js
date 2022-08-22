@@ -141,7 +141,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillDoneAsync();
+        await postRequestProcessor.waitTillDoneAsync(20);
     }
     globals.delete(CLIENT);
     globals.delete(CLIENT_DB);
