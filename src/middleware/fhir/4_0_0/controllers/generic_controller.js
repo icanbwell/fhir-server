@@ -3,6 +3,8 @@ const {isTrue} = require('../../../../utils/isTrue');
 const env = require('var');
 const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
+const assert = require('node:assert/strict');
+const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 
 /**
  * @typedef FhirService
@@ -20,14 +22,28 @@ const {FhirOperationsManager} = require('../../../../operations/fhirOperationsMa
  * @property {Function} historyById
  */
 
-
+/**
+ * Handles standard fhir requrests
+ */
 class GenericController {
-
-    constructor() {
+    /**
+     * constructor
+     * @param {PostRequestProcessor} postRequestProcessor
+     * @param {FhirOperationsManager} fhirOperationsManager
+     */
+    constructor(postRequestProcessor, fhirOperationsManager) {
+        assert(postRequestProcessor);
+        assert(postRequestProcessor instanceof PostRequestProcessor);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assert(fhirOperationsManager);
+        assert(fhirOperationsManager instanceof FhirOperationsManager);
         /**
          * @type {FhirOperationsManager}
          */
-        this.fhirOperationsManager = new FhirOperationsManager();
+        this.fhirOperationsManager = fhirOperationsManager;
     }
 
     /**
@@ -69,11 +85,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -99,11 +111,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -132,11 +140,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -163,11 +167,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -194,11 +194,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -225,11 +221,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -256,11 +248,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -289,11 +277,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -320,11 +304,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }
@@ -351,11 +331,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                /**
-                 * @type {PostRequestProcessor}
-                 */
-                const postRequestProcessor = req.container.postRequestProcessor;
-                await postRequestProcessor.executeAsync();
+                await this.postRequestProcessor.executeAsync();
             }
         };
     }

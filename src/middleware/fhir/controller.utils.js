@@ -9,7 +9,21 @@ const controllers1 = require('@asymmetrik/node-fhir-server-core/dist/server/reso
 
 const {GenericController} = require('./4_0_0/controllers/generic_controller');
 
+const assert = require('node:assert/strict');
+
 class ControllerUtils {
+    /**
+     * constructor
+     * @param {GenericController} genericController
+     */
+    constructor(genericController) {
+        assert(genericController);
+        assert(genericController instanceof GenericController);
+        /**
+         * @type {GenericController}
+         */
+        this.genericController = genericController;
+    }
     /**
      *
      * @param {string} version
@@ -21,7 +35,7 @@ class ControllerUtils {
                 return controllersR401[resourceName];
 
             case '4_0_0':
-                return new GenericController();
+                return this.genericController;
 
             case '3_0_1':
                 return controllers3[resourceName];
