@@ -5,7 +5,8 @@ const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
 const assert = require('node:assert/strict');
-const {SearchBundleOperation} = require('../../operations/search/searchBundle');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SimpleContainer} = require('../../utils/simpleContainer');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -68,12 +69,17 @@ class FhirDataSource extends DataSource {
      */
     constructor(container, requestInfo) {
         super();
-        assert(container !== undefined);
+        assertTypeEquals(container, SimpleContainer);
         assert(requestInfo !== undefined);
         /**
          * @type {SimpleContainer}
          */
         this.container = container;
+
+        /**
+         * @type {SearchBundleOperation}
+         */
+        this.searchBundleOperation = container.searchBundleOperation;
         /**
          * @type {import('../../utils/requestInfo').RequestInfo}}
          */
@@ -107,16 +113,17 @@ class FhirDataSource extends DataSource {
     }
 
     /**
-     * This function orders the resources by key so DataLoader can find the right results
+     * This function orders the resources by key so DataLoader can find the right results.
+     * IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
      * https://github.com/graphql/dataloader#batching
      * @param {{Resource}[]} resources
      * @param {string[]} keys
-     * @return {Resource[]}
+     * @return {(Resource|null)[]}
      */
     async reorderResources(resources, keys) {
         // now order them the same way
         /**
-         * @type {?Resource[]}
+         * @type {(Resource|null)[]}
          */
         const resultsOrdered = [];
         for (const /** @type {string} */ key of keys) {
@@ -128,9 +135,10 @@ class FhirDataSource extends DataSource {
             } = ResourceWithId.getResourceTypeAndIdFromReference(key);
             /**
              * resources with this resourceType and id
-             * @type {{Resource}[]}
+             * @type {Resource[]}
              */
             const items = resources.filter(r => r.resourceType === resourceType && r.id === id);
+            // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
             resultsOrdered.push(
                 items.length > 0 ? items[0] : null
             );
@@ -145,7 +153,7 @@ class FhirDataSource extends DataSource {
      * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
      * @return {Promise<Resource[]>}>}
      */
-    async getResourcesInBatch( keys, requestInfo) {
+    async getResourcesInBatch(keys, requestInfo) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -157,7 +165,7 @@ class FhirDataSource extends DataSource {
         );
         // noinspection UnnecessaryLocalVariableJS
         /**
-         * @type {Resource[]}
+         * @type {(Resource|null)[]}
          */
         const results = this.reorderResources(
             // run the loads in parallel by resourceType
@@ -176,8 +184,7 @@ class FhirDataSource extends DataSource {
                     .map(r => ResourceWithId.getIdFromReference(r))
                     .filter(r => r !== null);
                 return this.unBundle(
-                    await new SearchBundleOperation().searchBundle(
-                        this.container,
+                    await this.searchBundleOperation.searchBundle(
                         requestInfo,
                         {
                             base_version: '4_0_0',
@@ -290,8 +297,7 @@ class FhirDataSource extends DataSource {
     async getResources(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
-            await new SearchBundleOperation().searchBundle(
-                this.container,
+            await this.searchBundleOperation.searchBundle(
                 getRequestInfo(context),
                 {
                     base_version: '4_0_0',
@@ -315,8 +321,7 @@ class FhirDataSource extends DataSource {
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
-        const bundle = await new SearchBundleOperation().searchBundle(
-            this.container,
+        const bundle = await this.searchBundleOperation.searchBundle(
             getRequestInfo(context),
             {
                 base_version: '4_0_0',
