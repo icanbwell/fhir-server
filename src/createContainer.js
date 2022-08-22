@@ -59,29 +59,36 @@ const createContainer = function () {
         }
     ));
     container.register('errorReporter', () => new ErrorReporter());
-    container.register('indexManager', c => new IndexManager({
+    container.register('indexManager', c => new IndexManager(
+        {
             errorReporter: c.errorReporter
         })
     );
-    container.register('collectionManager', c => new MongoCollectionManager({
-        indexManager: c.indexManager
-    }));
-    container.register('valueSetManager', c => new ValueSetManager({
-        databaseQueryFactory: c.databaseQueryFactory
-    }));
-    container.register('resourceLocatorFactory', c => new ResourceLocatorFactory({
-        collectionManager: c.collectionManager
-    }));
+    container.register('collectionManager', c => new MongoCollectionManager(
+        {
+            indexManager: c.indexManager
+        }));
+    container.register('valueSetManager', c => new ValueSetManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory
+        }));
+    container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(
+        {
+            collectionManager: c.collectionManager
+        }));
 
-    container.register('databaseQueryFactory', c => new DatabaseQueryFactory({
-        resourceLocatorFactory: c.resourceLocatorFactory
-    }));
-    container.register('databaseHistoryFactory', c => new DatabaseHistoryFactory({
-        resourceLocatorFactory: c.resourceLocatorFactory
-    }));
-    container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory({
-        resourceLocatorFactory: c.resourceLocatorFactory
-    }));
+    container.register('databaseQueryFactory', c => new DatabaseQueryFactory(
+        {
+            resourceLocatorFactory: c.resourceLocatorFactory
+        }));
+    container.register('databaseHistoryFactory', c => new DatabaseHistoryFactory(
+        {
+            resourceLocatorFactory: c.resourceLocatorFactory
+        }));
+    container.register('databaseUpdateFactory', c => new DatabaseUpdateFactory(
+        {
+            resourceLocatorFactory: c.resourceLocatorFactory
+        }));
 
     container.register('resourceManager', () => new ResourceManager());
     container.register('searchManager', c => new SearchManager(
@@ -91,7 +98,8 @@ const createContainer = function () {
             }
         )
     );
-    container.register('mergeManager', c => new MergeManager({
+    container.register('mergeManager', c => new MergeManager(
+            {
                 databaseQueryFactory: c.databaseQueryFactory,
                 auditLogger: c.auditLogger
             }
@@ -107,12 +115,14 @@ const createContainer = function () {
             }
         )
     );
-    container.register('databaseBulkLoader', c => new DatabaseBulkLoader({
-        databaseQueryFactory: c.databaseQueryFactory
-    }));
-    container.register('postRequestProcessor', c => new PostRequestProcessor({
-        errorReporter: c.errorReporter
-    }));
+    container.register('databaseBulkLoader', c => new DatabaseBulkLoader(
+        {
+            databaseQueryFactory: c.databaseQueryFactory
+        }));
+    container.register('postRequestProcessor', c => new PostRequestProcessor(
+        {
+            errorReporter: c.errorReporter
+        }));
     container.register('auditLogger', c => new AuditLogger(
             {
                 postRequestProcessor: c.postRequestProcessor,
