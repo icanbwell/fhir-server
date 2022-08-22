@@ -130,10 +130,10 @@ class FhirRouter {
 
         for (let op of profile.operation) {
             let functionName = hyphenToCamelcase(op.name || '');
-            let hasController = profile.serviceModule ? Object.keys(profile.serviceModule).includes(functionName) : false; // Check for required configurations, must have name, route, method, and
+            // let hasController = profile.serviceModule ? true : false; // Check for required configurations, must have name, route, method, and
             // a matching controller
 
-            if (!op.name || !op.route || !op.method || !hasController) {
+            if (!op.name || !op.route || !op.method /*|| !hasController*/) {
                 throw new Error(errorMessage);
             }
 
@@ -286,11 +286,11 @@ class FhirRouter {
 
             for (let route of routes) {
                 // If we do not have a matching service function for this route, skip it
-                if (!this.hasValidService(route, profile)) {
-                    continue;
-                } // Calculate the cors setting we want for this route
+                // if (!this.hasValidService(route, profile)) {
+                //     continue;
+                // }
 
-
+                // Calculate the cors setting we want for this route
                 let corsOptions = Object.assign({}, corsDefaults, profile.corsOptions, {
                     methods: [route.type.toUpperCase()]
                 }); // Define the arguments based on the interactions
