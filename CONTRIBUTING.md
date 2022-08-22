@@ -103,7 +103,15 @@ Some mongo implementations (such as AWS DocumentDB) are not very good at selecti
 ## IoC (Inversion of Control)
 This project uses IoC (inversion of control).  The container is defined in [SimpleContainer](src/utils/simpleContainer.js).
 
-The container is set up in [src/createContainer.js](src/createContainer.js).
+The container is set up in [src/createContainer.js](src/createContainer.js).  
+This is where all the classes are instantiated with the parameters to other classes.
 
-For testing, you can override the services in the container in [src/tests/createTestContainer.js](src/tests/createTestContainer.js).
+If you add a new class, you can instantiate it here.
+
+If you add a new parameter to an existing class, you can pass it here.
+
+For testing, you can override the classes in the container in [src/tests/createTestContainer.js](src/tests/createTestContainer.js). 
+This allows you to test the code by swapping out classes with your mock classes.  
+
+See MockKafka client for an example.
 
