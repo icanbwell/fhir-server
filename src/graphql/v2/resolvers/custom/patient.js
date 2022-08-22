@@ -1,26 +1,27 @@
 const {RemoveOperation} = require('../../../../operations/remove/remove');
 const {MergeOperation} = require('../../../../operations/merge/merge');
 const {getRequestInfo} = require('../../requestInfoHelper');
+const {assertTypeEquals} = require('../../../../utils/assertType');
 
 /**
-    method to match general practitioners to an id and remove from the provided list
-    @param {array} arr the list of practitioners to inspect
-    @param {string} id the id to remove from the list
-    @returns {array} the collection of ids after processing
+ method to match general practitioners to an id and remove from the provided list
+ @param {array} arr the list of practitioners to inspect
+ @param {string} id the id to remove from the list
+ @returns {array} the collection of ids after processing
  */
 function removeAllGeneralPractitioner(arr, id) {
-  let i = 0;
-  if (arr && id){
-    while (i < arr.length) {
-        // eslint-disable-next-line security/detect-object-injection
-        if (arr[i].reference.indexOf(id, id.length - arr[i].reference.length) !== -1) {
-            arr.splice(i, 1);
-        } else {
-            ++i;
+    let i = 0;
+    if (arr && id) {
+        while (i < arr.length) {
+            // eslint-disable-next-line security/detect-object-injection
+            if (arr[i].reference.indexOf(id, id.length - arr[i].reference.length) !== -1) {
+                arr.splice(i, 1);
+            } else {
+                ++i;
+            }
         }
     }
-    }
-  return arr;
+    return arr;
 }
 
 module.exports = {
@@ -94,6 +95,10 @@ module.exports = {
         updateGeneralPractitioner:
         // eslint-disable-next-line no-unused-vars
             async (parent, args, context, info) => {
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container = context.container;
                 const deletePractitioner = args.remove;
                 const patients = await context.dataApi.getResources(
                     parent,
@@ -109,16 +114,22 @@ module.exports = {
                     throw new Error(`Patient not found ${args.patientId}`);
                 }
                 const patientToChange = patients[0];
-                if (deletePractitioner && patientToChange.generalPractitioner === null){
-                        return patientToChange;
+                if (deletePractitioner && patientToChange.generalPractitioner === null) {
+                    return patientToChange;
                 } else if (deletePractitioner) {
                     patientToChange.generalPractitioner = removeAllGeneralPractitioner(patientToChange.generalPractitioner, args.practitionerId);
                     const requestInfo = getRequestInfo(context);
-                    await new RemoveOperation().remove(
-                        context.container,
+                    /**
+                     * @type {RemoveOperation}
+                     */
+                    const removeOperation = container.removeOperation;
+                    assertTypeEquals(removeOperation, RemoveOperation);
+                    await removeOperation.remove(
                         requestInfo,
-                        {...args, base_version: '4_0_0',
-                        id: args.patientId},
+                        {
+                            ...args, base_version: '4_0_0',
+                            id: args.patientId
+                        },
                         'Patient'
                     );
                 } else {
@@ -143,8 +154,12 @@ module.exports = {
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [patientToChange];
 
-                const result = await new MergeOperation().merge(
-                    context.container,
+                /**
+                 * @type {MergeOperation}
+                 */
+                const mergeOperation = container.mergeOperation;
+                assertTypeEquals(mergeOperation, MergeOperation);
+                const result = await mergeOperation.merge(
                     requestInfo,
                     {...args, base_version: '4_0_0'},
                     'Patient'

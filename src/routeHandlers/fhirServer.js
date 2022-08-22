@@ -115,7 +115,7 @@ class MyFHIRServer extends FHIRServer.Server {
 
     /**
      * Configures Helmet for security
-     * @param helmetConfig
+     * @param [helmetConfig]
      * @return {MyFHIRServer}
      */
     configureHelmet(helmetConfig) {
@@ -140,7 +140,7 @@ class MyFHIRServer extends FHIRServer.Server {
 
     /**
      * Configures with the session
-     * @param session
+     * @param {Object|undefined} [session]
      * @return {MyFHIRServer}
      */
     configureSession(session) {

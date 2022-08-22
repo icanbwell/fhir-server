@@ -2,6 +2,8 @@ const {getResources} = require('../../common');
 const {getUuid} = require('../../../../utils/uid.util');
 const {MergeOperation} = require('../../../../operations/merge/merge');
 const {getRequestInfo} = require('../../requestInfoHelper');
+const {assertTypeEquals} = require('../../../../utils/assertType');
+const {SimpleContainer} = require('../../../../utils/simpleContainer');
 
 function mapParticipants(members) {
     const result = [];
@@ -66,6 +68,11 @@ module.exports = {
         updatePreferredProviders:
         // eslint-disable-next-line no-unused-vars
             async (parent, args, context, info) => {
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container = context.container;
+                assertTypeEquals(container, SimpleContainer);
                 const patients = await getResources(
                     parent,
                     {
@@ -90,8 +97,13 @@ module.exports = {
                  */
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [careTeam];
-                const result = await new MergeOperation().merge(
-                    context.container,
+
+                /**
+                 * @type {MergeOperation}
+                 */
+                const mergeOperation = container.mergeOperation;
+                assertTypeEquals(mergeOperation, MergeOperation);
+                const result = await mergeOperation.merge(
                     requestInfo,
                     {...args, base_version: '4_0_0'},
                     'CareTeam'
