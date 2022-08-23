@@ -8,7 +8,7 @@ const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = requi
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertStatusCode} = require('../../fhirAsserts');
 
-describe('PractitionerReturnIdTests', () => {
+describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

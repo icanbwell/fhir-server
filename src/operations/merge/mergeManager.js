@@ -21,43 +21,68 @@ const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 
 class MergeManager {
     /**
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
+     * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {DatabaseBulkLoader} databaseBulkLoader
      */
-    constructor({databaseQueryFactory, auditLogger}) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        assertTypeEquals(auditLogger, AuditLogger);
+    constructor(
+        {
+            databaseQueryFactory,
+            auditLogger,
+            databaseBulkInserter,
+            databaseBulkLoader
+        }
+    ) {
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {AuditLogger}
          */
         this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {DatabaseBulkLoader}
+         */
+        this.databaseBulkLoader = databaseBulkLoader;
+        assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
     }
 
     /**
      * resource to merge
      * @param {Resource} resourceToMerge
      * @param {Object} data
-     * @param {string} baseVersion
+     * @param {string} base_version
      * @param {string|null} user
      * @param {string} scope
      * @param {string} currentDate
      * @param {string} requestId
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @returns {Promise<void>}
      */
-    async mergeExistingAsync(resourceToMerge, data,
-                             baseVersion, user, scope,
-                             currentDate,
-                             requestId,
-                             databaseBulkInserter) {
+    async mergeExistingAsync(
+        {
+            resourceToMerge,
+            data,
+            base_version,
+            user,
+            scope,
+            currentDate,
+            requestId
+        }) {
         /**
          * @type {string}
          */
@@ -66,7 +91,7 @@ class MergeManager {
         /**
          * @type {function({Object}):Resource}
          */
-        let Resource = getResource(baseVersion, resourceToMerge.resourceType);
+        let Resource = getResource(base_version, resourceToMerge.resourceType);
 
         // found an existing resource
         logDebug(user, resourceToMerge.resourceType + ': merge found resource ' + '[' + data.id + ']: ' + JSON.stringify(data));
@@ -198,19 +223,22 @@ class MergeManager {
                 id,
                 'merge_' + meta.versionId + '_' + requestId);
         }
-        await this.performMergeDbUpdateAsync(resourceToMerge, doc, cleaned, baseVersion, databaseBulkInserter);
+        await this.performMergeDbUpdateAsync({resourceToMerge, doc, cleaned});
     }
 
     /**
      * merge insert
      * @param {Resource} resourceToMerge
-     * @param {string} baseVersion
+     * @param {string} base_version
      * @param {string | null} user
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @returns {Promise<void>}
      */
-    async mergeInsertAsync(resourceToMerge, baseVersion,
-                           user, databaseBulkInserter) {
+    async mergeInsertAsync(
+        {
+            resourceToMerge, base_version,
+            user
+        }
+    ) {
         let id = resourceToMerge.id;
         // not found so insert
         logDebug(user,
@@ -230,7 +258,7 @@ class MergeManager {
             /**
              * @type {function({Object}): Meta}
              */
-            let Meta = getMeta(baseVersion);
+            let Meta = getMeta(base_version);
             resourceToMerge.meta = new Meta({
                 versionId: '1',
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
@@ -246,44 +274,44 @@ class MergeManager {
         const cleaned = removeNull(resourceToMerge);
         const doc = Object.assign(cleaned, {_id: id});
 
-        await this.performMergeDbInsertAsync(resourceToMerge, doc, cleaned, baseVersion, databaseBulkInserter);
+        await this.performMergeDbInsertAsync({resourceToMerge, doc, cleaned});
     }
 
     /**
      * Merges a single resource
-     * @param {MongoCollectionManager} collectionManager
-     * @param {Object} resource_to_merge
+     * @param {Object} resourceToMerge
      * @param {string} resourceType
-     * @param {string[] | null} scopes
      * @param {string|null} user
-     * @param {string} path
      * @param {string} currentDate
      * @param {string} requestId
-     * @param {string} baseVersion
+     * @param {string} base_version
      * @param {string | null} scope
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {DatabaseBulkLoader} databaseBulkLoader
      * @return {Promise<MergeResultEntry|null>}
      */
-    async mergeResourceAsync(collectionManager,
-                             resource_to_merge, resourceType,
-                             scopes, user, path, currentDate,
-                             requestId, baseVersion, scope,
-                             databaseBulkInserter,
-                             databaseBulkLoader) {
+    async mergeResourceAsync(
+        {
+            resourceToMerge,
+            resourceType,
+            user,
+            currentDate,
+            requestId,
+            base_version,
+            scope
+        }
+    ) {
         /**
          * @type {string}
          */
-        let id = resource_to_merge.id;
+        let id = resourceToMerge.id;
 
-        if (resource_to_merge.meta && resource_to_merge.meta.lastUpdated && typeof resource_to_merge.meta.lastUpdated !== 'string') {
-            resource_to_merge.meta.lastUpdated = new Date(resource_to_merge.meta.lastUpdated).toISOString();
+        if (resourceToMerge.meta && resourceToMerge.meta.lastUpdated && typeof resourceToMerge.meta.lastUpdated !== 'string') {
+            resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
         }
 
         if (env.LOG_ALL_SAVES) {
             await sendToS3('logs',
-                resource_to_merge.resourceType,
-                resource_to_merge,
+                resourceToMerge.resourceType,
+                resourceToMerge,
                 currentDate,
                 id,
                 'merge_' + requestId);
@@ -299,30 +327,33 @@ class MergeManager {
             /**
              * @type {Object}
              */
-            let data = databaseBulkLoader ?
-                databaseBulkLoader.getResourceFromExistingList(resource_to_merge.resourceType, id.toString()) :
+            let data = this.databaseBulkLoader ?
+                this.databaseBulkLoader.getResourceFromExistingList(resourceToMerge.resourceType, id.toString()) :
                 await this.databaseQueryFactory.createQuery(
-                    resource_to_merge.resourceType, baseVersion, useAtlas)
+                    resourceToMerge.resourceType, base_version, useAtlas)
                     .findOneAsync({id: id.toString()});
 
             logDebug('test?', '------- data -------');
-            logDebug('test?', `${resource_to_merge.resourceType}_${baseVersion}`);
+            logDebug('test?', `${resourceToMerge.resourceType}_${base_version}`);
             logDebug('test?', JSON.stringify(data));
             logDebug('test?', '------- end data -------');
 
             // check if resource was found in database or not
             if (data && data.meta) {
-                databaseBulkLoader.updateResourceInExistingList(resource_to_merge);
+                this.databaseBulkLoader.updateResourceInExistingList(resourceToMerge);
                 await this.mergeExistingAsync(
-                    resource_to_merge, data, baseVersion, user, scope, currentDate, requestId,
-                    databaseBulkInserter);
+                    {
+                        resourceToMerge, data, base_version, user, scope, currentDate, requestId
+                    }
+                );
             } else {
-                databaseBulkLoader.addResourceToExistingList(resource_to_merge);
-                await this.mergeInsertAsync(resource_to_merge, baseVersion, user,
-                    databaseBulkInserter);
+                this.databaseBulkLoader.addResourceToExistingList(resourceToMerge);
+                await this.mergeInsertAsync({
+                    resourceToMerge, base_version, user
+                });
             }
         } catch (e) {
-            logError(`Error with merging resource ${resource_to_merge.resourceType}.merge with id: ${id} `, e);
+            logError(`Error with merging resource ${resourceToMerge.resourceType}.merge with id: ${id} `, e);
             const operationOutcome = {
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -330,23 +361,23 @@ class MergeManager {
                         severity: 'error',
                         code: 'exception',
                         details: {
-                            text: 'Error merging: ' + JSON.stringify(resource_to_merge)
+                            text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                         },
                         diagnostics: e.toString(),
                         expression: [
-                            resource_to_merge.resourceType + '/' + id
+                            resourceToMerge.resourceType + '/' + id
                         ]
                     }
                 ]
             };
             await sendToS3('errors',
-                resource_to_merge.resourceType,
-                resource_to_merge,
+                resourceToMerge.resourceType,
+                resourceToMerge,
                 currentDate,
                 id,
                 'merge');
             await sendToS3('errors',
-                resource_to_merge.resourceType,
+                resourceToMerge.resourceType,
                 operationOutcome,
                 currentDate,
                 id,
@@ -364,30 +395,26 @@ class MergeManager {
 
     /**
      * merges a list of resources
-     * @param {MongoCollectionManager} collectionManager
      * @param {Resource[]} resources_incoming
      * @param {string|null} user
      * @param {string} resourceType
-     * @param {string[]|null} scopes
-     * @param {string} path
      * @param {string} currentDate
      * @param {string} requestId
      * @param {string} base_version
      * @param {string} scope
-     * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {DatabaseBulkLoader} databaseBulkLoader
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async mergeResourceListAsync(collectionManager,
-                                 resources_incoming, user,
-                                 resourceType, scopes, path,
-                                 currentDate, requestId, base_version,
-                                 scope, requestInfo,
-                                 args,
-                                 databaseBulkInserter,
-                                 databaseBulkLoader) {
+    async mergeResourceListAsync(
+        {
+            resources_incoming,
+            user,
+            resourceType,
+            currentDate,
+            requestId,
+            base_version,
+            scope
+        }
+    ) {
         /**
          * @type {string[]}
          */
@@ -411,14 +438,19 @@ class MergeManager {
         const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
         await Promise.all([
-            async.map(non_duplicate_id_resources, async x => await this.mergeResourceWithRetryAsync(collectionManager,
-                x, resourceType,
-                scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
-                databaseBulkLoader)), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await this.mergeResourceWithRetryAsync(collectionManager,
-                x, resourceType,
-                scopes, user, path, currentDate, requestId, base_version, scope, databaseBulkInserter,
-                databaseBulkLoader)) // run in series
+            async.map(non_duplicate_id_resources,
+                async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
+                    {
+                        resourceToMerge: x,
+                        resourceType,
+                        user, currentDate, requestId, base_version, scope
+                    }
+                )), // run in parallel
+            async.mapSeries(duplicate_id_resources, async x => await this.mergeResourceWithRetryAsync(
+                {
+                    resourceToMerge: x, resourceType,
+                    user, currentDate, requestId, base_version, scope
+                })) // run in series
         ]);
     }
 
@@ -426,32 +458,36 @@ class MergeManager {
      * Tries to merge and retries if there is an error to protect against race conditions where 2 calls are happening
      *  in parallel for the same resource. Both of them see that the resource does not exist, one of them inserts it
      *  and then the other ones tries to insert too
-     * @param {MongoCollectionManager} collectionManager
-     * @param {Object} resource_to_merge
-     * @param {string} resourceName
-     * @param {string[] | null} scopes
+     * @param {Object} resourceToMerge
+     * @param {string} resourceType
      * @param {string|null} user
-     * @param {string} path
      * @param {string} currentDate
      * @param {string} requestId
-     * @param {string} baseVersion
+     * @param {string} base_version
      * @param {string} scope
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {DatabaseBulkLoader} databaseBulkLoader
      * @return {Promise<void>}
      */
-    async mergeResourceWithRetryAsync(collectionManager,
-                                      resource_to_merge, resourceName,
-                                      scopes, user, path, currentDate,
-                                      requestId, baseVersion, scope,
-                                      databaseBulkInserter,
-                                      databaseBulkLoader) {
+    async mergeResourceWithRetryAsync(
+        {
+            resourceToMerge,
+            resourceType,
+            user,
+            currentDate,
+            requestId,
+            base_version,
+            scope
+        }
+    ) {
         await this.mergeResourceAsync(
-            collectionManager,
-            resource_to_merge, resourceName,
-            scopes, user, path, currentDate,
-            requestId, baseVersion, scope,
-            databaseBulkInserter, databaseBulkLoader);
+            {
+                resourceToMerge,
+                resourceType,
+                user,
+                currentDate,
+                requestId,
+                base_version,
+                scope
+            });
     }
 
     /**
@@ -459,13 +495,15 @@ class MergeManager {
      * @param {Object} resourceToMerge
      * @param {Object} doc
      * @param {Object} cleaned
-     * @param {string} baseVersion
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @returns {Promise<void>}
      */
-    async performMergeDbUpdateAsync(resourceToMerge, doc, cleaned,
-                                    baseVersion,
-                                    databaseBulkInserter) {
+    async performMergeDbUpdateAsync(
+        {
+            resourceToMerge,
+            doc,
+            cleaned
+        }
+    ) {
         let id = resourceToMerge.id;
 
         await preSaveAsync(doc);
@@ -478,7 +516,7 @@ class MergeManager {
         //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
         //  */
         //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-        await databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
+        await this.databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
 
         /**
          * @type {import('mongodb').Document}
@@ -487,7 +525,7 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
     }
 
     /**
@@ -495,13 +533,12 @@ class MergeManager {
      * @param {Object} resourceToMerge
      * @param {Object} doc
      * @param {Object} cleaned
-     * @param {string} baseVersion
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @returns {Promise<void>}
      */
-    async performMergeDbInsertAsync(resourceToMerge, doc, cleaned,
-                                    baseVersion,
-                                    databaseBulkInserter) {
+    async performMergeDbInsertAsync(
+        {
+            resourceToMerge, doc, cleaned
+        }) {
         let id = resourceToMerge.id;
 
         await preSaveAsync(doc);
@@ -509,7 +546,7 @@ class MergeManager {
         delete doc['_id'];
 
         // Insert/update our resource record
-        await databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
 
         /**
          * @type {import('mongodb').Document}
@@ -518,21 +555,28 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
     }
 
     /**
      * run any pre-checks before merge
      * @param {Resource} resourceToMerge
-     * @param {string} resourceName
+     * @param {string} resourceType
      * @param {string[] | null} scopes
      * @param {string | null} user
      * @param {string | null} path
      * @param {string} currentDate
      * @returns {Promise<MergeResultEntry|null>}
      */
-    async preMergeChecksAsync(resourceToMerge, resourceName,
-                              scopes, user, path, currentDate) {
+    async preMergeChecksAsync(
+        {
+            resourceToMerge,
+            resourceType,
+            scopes,
+            user,
+            path,
+            currentDate
+        }) {
         /**
          * @type {string} id
          */
@@ -552,7 +596,7 @@ class MergeManager {
                         },
                         diagnostics: 'resource is missing resourceType',
                         expression: [
-                            resourceName + '/' + id
+                            resourceType + '/' + id
                         ]
                     }
                 ]
@@ -564,7 +608,7 @@ class MergeManager {
                 updated: false,
                 issue: issue,
                 operationOutcome: operationOutcome,
-                resourceType: resourceName
+                resourceType: resourceType
             };
         }
 
@@ -685,7 +729,10 @@ class MergeManager {
      * @param {string} currentDate
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
      */
-    async preMergeChecksMultipleAsync(resourcesToMerge, scopes, user, path, currentDate) {
+    async preMergeChecksMultipleAsync(
+        {
+            resourcesToMerge, scopes, user, path, currentDate
+        }) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -698,7 +745,16 @@ class MergeManager {
             /**
              * @type {MergeResultEntry|null}
              */
-            const mergeResult = await this.preMergeChecksAsync(r, r.resourceType, scopes, user, path, currentDate);
+            const mergeResult = await this.preMergeChecksAsync(
+                {
+                    resourceToMerge: r,
+                    resourceType: r.resourceType,
+                    scopes,
+                    user,
+                    path,
+                    currentDate
+                }
+            );
             if (mergeResult) {
                 mergePreCheckErrors.push(mergeResult);
             } else {
@@ -710,17 +766,21 @@ class MergeManager {
 
     /**
      * logs audit entries for merge result entries
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} requestId
      * @param {string} base_version
      * @param {Object} args
      * @param {MergeResultEntry[]} mergeResults
      * @returns {Promise<void>}
      */
-    async logAuditEntriesForMergeResults(requestInfo,
-                                         requestId,
-                                         base_version, args,
-                                         mergeResults) {
+    async logAuditEntriesForMergeResults(
+        {
+            requestInfo,
+            requestId,
+            base_version, args,
+            mergeResults
+        }
+    ) {
         assertIsValid(requestInfo);
         /**
          * merge results grouped by resourceType

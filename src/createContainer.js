@@ -101,7 +101,9 @@ const createContainer = function () {
     container.register('mergeManager', c => new MergeManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
-                auditLogger: c.auditLogger
+                auditLogger: c.auditLogger,
+                databaseBulkInserter: c.databaseBulkInserter,
+                databaseBulkLoader: c.databaseBulkLoader
             }
         )
     );

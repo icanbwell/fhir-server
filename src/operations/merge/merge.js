@@ -204,8 +204,10 @@ class MergeOperation {
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ validResources
-            } = await this.mergeManager.preMergeChecksMultipleAsync(resourcesIncomingArray,
-                scopes, user, path, currentDate);
+            } = await this.mergeManager.preMergeChecksMultipleAsync({
+                resourcesToMerge: resourcesIncomingArray,
+                scopes, user, path, currentDate
+            });
 
             // process only the resources that are valid
             resourcesIncomingArray = validResources;
@@ -226,10 +228,17 @@ class MergeOperation {
 
             // merge the resources
             await this.mergeManager.mergeResourceListAsync(
-                this.collectionManager,
-                resourcesIncomingArray, user, resourceType, scopes, path, currentDate,
-                requestId, base_version, scope, requestInfo, args,
-                this.databaseBulkInserter, this.databaseBulkLoader
+                {
+                    resources_incoming: resourcesIncomingArray,
+                    user,
+                    resourceType,
+                    scopes,
+                    path,
+                    currentDate,
+                    requestId,
+                    base_version,
+                    scope
+                }
             );
             /**
              * mergeResults
@@ -251,7 +260,10 @@ class MergeOperation {
             });
             mergeResults = mergeResults.concat(
                 this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
-            await this.mergeManager.logAuditEntriesForMergeResults(requestInfo, requestId, base_version, args, mergeResults);
+            await this.mergeManager.logAuditEntriesForMergeResults(
+                {
+                    requestInfo, requestId, base_version, args, mergeResults
+                });
 
             await logOperationAsync({
                 requestInfo,
