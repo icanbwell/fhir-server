@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-missing-require
 const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
 

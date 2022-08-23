@@ -17,4 +17,3 @@ process.env.LOG_STREAM_STEPS = '0';
 process.env.STREAMING_BATCH_COUNT = '10';
 process.env.ENABLE_PATIENT_FILTERING = '1';
 process.env.ENABLE_EVENTS_KAFKA = '1';
-process.env.ENVIRONMENT = 'test';
