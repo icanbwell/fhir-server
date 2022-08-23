@@ -53,7 +53,7 @@ class AuditLogger {
 
     /**
      * Create an AuditEntry resource
-     * @param {import('./fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} base_version
      * @param {string} operation
@@ -142,7 +142,7 @@ class AuditLogger {
 
     /**
      * logs an entry for audit
-     * @param {import('./fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} base_version
      * @param {string} operation

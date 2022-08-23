@@ -80,7 +80,7 @@ class FhirDataSource extends DataSource {
          */
         this.searchBundleOperation = container.searchBundleOperation;
         /**
-         * @type {import('../../utils/fhirRequestInfo').FhirRequestInfo}}
+         * @type {import('../../utils/fhirRequestInfo').FhirRequestInfo}
          */
         this.requestInfo = requestInfo;
         /**

@@ -10,7 +10,7 @@ class ValidateOperation {
 
     /**
      * does a FHIR Validate
-     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */

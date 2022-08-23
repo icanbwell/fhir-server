@@ -39,7 +39,7 @@ class SearchStreamingOperation {
 
     /**
      * does a FHIR Search
-     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {import('http').ServerResponse} res
      * @param {Object} args
      * @param {string} resourceType

@@ -60,7 +60,7 @@ const graphql = async (fnCreateContainer) => {
             context: async ({req, res}) => {
                 const container = fnCreateContainer();
 
-                const requestInfo = {
+                const fhirRequestInfo = {
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
                         ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
@@ -79,8 +79,8 @@ const graphql = async (fnCreateContainer) => {
                 return {
                     req,
                     res,
-                    ...requestInfo,
-                    dataApi: new FhirDataSource(container, getRequestInfo(requestInfo))
+                    ...fhirRequestInfo,
+                    dataApi: new FhirDataSource(container, getRequestInfo(fhirRequestInfo))
                 };
             }
         });

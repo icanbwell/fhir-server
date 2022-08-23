@@ -710,7 +710,7 @@ class MergeManager {
 
     /**
      * logs audit entries for merge result entries
-     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {string} requestId
      * @param {string} base_version
      * @param {Object} args

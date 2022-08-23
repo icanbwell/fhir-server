@@ -74,7 +74,7 @@ class UpdateOperation {
 
     /**
      * does a FHIR Update (PUT)
-     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */

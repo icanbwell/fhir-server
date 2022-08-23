@@ -40,7 +40,7 @@ class RemoveOperation {
 
     /**
      * does a FHIR Remove (DELETE)
-     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
