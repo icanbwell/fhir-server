@@ -48,7 +48,7 @@ class IndexManager {
         try {
             if (!await db.collection(collection_name).indexExists(index_name)) {
                 const message = 'Creating index ' + index_name + ' with columns: [' + columns + ']' + ' in ' + collection_name;
-                await logSystemEventAsync('CREATEINDEX', message, {
+                await logSystemEventAsync('createIndex', message, {
                     index: index_name,
                     columns: columns,
                     collection: collection_name
@@ -63,12 +63,13 @@ class IndexManager {
             }
         } catch (e) {
             const message1 = 'Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e);
-            await logSystemEventAsync('CREATEINDEX', message1, {
+            await logSystemEventAsync('createIndex', message1, {
                     index: index_name,
                     columns: columns,
                     collection: collection_name
                 },
-                JSON.stringify(e));
+                JSON.stringify(e)
+            );
             await this.errorReporter.reportMessageAsync(message1);
         }
         return false;

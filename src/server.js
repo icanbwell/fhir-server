@@ -21,7 +21,7 @@ async function createServer(fnCreateContainer) {
     const server = http.createServer(app).listen(fhirServerConfig.server.port, null, null,
         async () => {
             const image = env.DOCKER_IMAGE || '';
-            await logSystemEventAsync('STARTUP', 'Server is up and running', {image: image});
+            await logSystemEventAsync('serverStartup', 'Server is up and running', {image: image});
         }
     );
 

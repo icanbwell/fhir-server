@@ -4,6 +4,7 @@
  */
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -48,6 +49,7 @@ class PostRequestProcessor {
             return;
         }
         this.startedExecuting = true;
+        const tasksInQueue = this.queue.length;
         /**
          * @type {function(): void}
          */
@@ -61,6 +63,11 @@ class PostRequestProcessor {
             task = this.queue.shift();
         }
         this.startedExecuting = false;
+        if (tasksInQueue > 0) {
+            await logSystemEventAsync('postRequestProcessorFinished', 'Finished', {
+                tasksInQueue: tasksInQueue
+            });
+        }
     }
 
     /**
