@@ -22,10 +22,5 @@ module.exports.get_all_args = (req, args) => {
         sanitized_args[x[0]] = x[1];
     });
 
-    /**
-     * combined args
-     * @type {string[]}
-     */
-    const combined_args = Object.assign({}, args, sanitized_args, query_param_args);
-    return combined_args;
+    return Object.assign({}, args, sanitized_args, query_param_args);
 };

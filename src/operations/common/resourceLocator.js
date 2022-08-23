@@ -1,21 +1,27 @@
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {getOrCreateCollectionAsync} = require('../../utils/mongoCollectionManager');
 const async = require('async');
-const assert = require('node:assert/strict');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 
 /**
  * This class returns collections that contain the requested resourceType
  */
 class ResourceLocator {
     /**
+     * @param {MongoCollectionManager} collectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
-        assert(resourceType, 'resourceType is not passed to ResourceLocator constructor');
-        assert(base_version, 'base_version is not passed to ResourceLocator constructor');
+    constructor(collectionManager, resourceType, base_version, useAtlas) {
+        assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
+        assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
+        assertTypeEquals(collectionManager, MongoCollectionManager);
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
         /**
          * @type {string}
          * @private
@@ -40,7 +46,7 @@ class ResourceLocator {
      */
     // eslint-disable-next-line no-unused-vars
     getCollectionName(resource) {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return `${this._resourceType}_${this._base_version}`;
     }
 
@@ -49,7 +55,7 @@ class ResourceLocator {
      * @returns {string[]}
      */
     getCollectionNamesForQuery() {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}`];
     }
 
@@ -58,7 +64,7 @@ class ResourceLocator {
      * @returns {string}
      */
     getFirstCollectionNameForQuery() {
-        console.assert(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}`][0];
     }
 
@@ -69,7 +75,7 @@ class ResourceLocator {
      */
 // eslint-disable-next-line no-unused-vars
     getHistoryCollectionName(resource) {
-        console.assert(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         return `${this._resourceType}_${this._base_version}_History`;
     }
 
@@ -78,7 +84,7 @@ class ResourceLocator {
      * @returns {string[]}
      */
     getHistoryCollectionNamesForQuery() {
-        console.assert(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
+        assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         return [`${this._resourceType}_${this._base_version}_History`];
     }
 
@@ -87,6 +93,7 @@ class ResourceLocator {
      * @returns {import('mongodb').Db}
      */
     getDatabaseConnection() {
+        // noinspection JSValidateTypes
         return (this._resourceType === 'AuditEvent') ?
             globals.get(AUDIT_EVENT_CLIENT_DB) : (this._useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
                 globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
@@ -103,7 +110,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
     }
 
     /**
@@ -133,7 +140,8 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
+        return async.map(collectionNames,
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
     }
 
     /**
@@ -150,7 +158,8 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return async.map(collectionNames, async collectionName => await getOrCreateCollectionAsync(db, collectionName));
+        return async.map(collectionNames,
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
     }
 
     /**
@@ -168,7 +177,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
     }
 }
 

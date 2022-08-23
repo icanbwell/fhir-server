@@ -21,7 +21,7 @@ const {logSystemEventAsync} = require('../operations/common/logging');
 async function createClientAsync(mongoConfig1) {
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         mongoConfig1.options.monitorCommands = true;
-        await logSystemEventAsync('DBCONNECT', `Connecting to ${mongoConfig1.connection}`, {db: mongoConfig1.db_name});
+        await logSystemEventAsync('dbConnect', `Connecting to ${mongoConfig1.connection}`, {db: mongoConfig1.db_name});
     }
     // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/
     /**
@@ -32,27 +32,27 @@ async function createClientAsync(mongoConfig1) {
     try {
         await client.connect();
     } catch (e) {
-        console.error(`Failed to connect to ${mongoConfig1.connection}: ${e}`);
+        console.error(JSON.stringify({message: `Failed to connect to ${mongoConfig1.connection}: ${e}`}));
         throw e;
     }
     try {
         await client.db('admin').command({ping: 1});
     } catch (e) {
-        console.error(`Failed to execute ping on ${mongoConfig1.connection}: ${e}`);
+        console.error(JSON.stringify({message: `Failed to execute ping on ${mongoConfig1.connection}: ${e}`}));
         throw e;
     }
-    await logSystemEventAsync('DBCONNECT', 'Successfully connected to database', {db: mongoConfig1.db_name});
+    await logSystemEventAsync('dbConnect', 'Successfully connected to database', {db: mongoConfig1.db_name});
 
     if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
         // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
         client.on('commandStarted', event => {
-            console.log(`AWS Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`);
+            console.log(JSON.stringify({message: `AWS Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`}));
         });
         client.on('commandSucceeded', event => {
-            console.log(`AWS Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`);
+            console.log(JSON.stringify({message: `AWS Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`}));
         });
         client.on('commandFailed', event => {
-            console.log(`AWS Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`);
+            console.log(JSON.stringify({message: `AWS Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`}));
         });
     }
     return client;

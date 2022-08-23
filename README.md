@@ -15,6 +15,8 @@ For example:
 6. Provides a WebUI to explore the FHIR data using the web browser
 7. Support GraphQL access to FHIR resources
 8. Added support for all FHIR search parameters
+9. Delayed processing for updating history table and creating audit logs to speed up the response to the client.
+10. Change events are (optionally) sent to a Kafka queue to enable any client to respond to and also enables realtime streaming.
 
 ## Cheat sheet
 [Cheatsheet](cheatsheet.md)
@@ -68,5 +70,9 @@ The FHIR server implements OAuth.  You can set these environment variables:
 2. AUTH_CODE_FLOW_URL: 
 3. AUTH_CODE_FLOW_CLIENT_ID: 
 4. REDIRECT_TO_LOGIN: whether to redirect a GET call from a web browser to the OAuth Provider login page
+
+## Change Events
+The FHIR server can optionally send change events to a Kafka queue. 
+[Change Events](changeEvents.md)
 
 

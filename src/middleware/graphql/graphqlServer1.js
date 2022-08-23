@@ -12,9 +12,13 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 
-
-const graphql = async () => {
+/**
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @return {Promise<e.Router>}
+ */
+const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v1/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
@@ -39,7 +43,8 @@ const graphql = async () => {
                         faviconUrl: '',
                     }
                 ),
-                getApolloServerLoggingPlugin('graphqlv1')
+                getApolloServerLoggingPlugin('graphqlv1'),
+                getGraphqlContainerPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
@@ -56,7 +61,8 @@ const graphql = async () => {
                     originalUrl: req.originalUrl,
                     path: req.path,
                     host: req.hostname,
-                    body: req.body
+                    body: req.body,
+                    container: fnCreateContainer()
                 };
             }
         });

@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // practice
 const practiceHealthcareServiceResource = require('./fixtures/practice/healthcare_service.json');
 const practiceOrganizationResource = require('./fixtures/practice/practice_organization.json');
@@ -12,8 +8,8 @@ const practiceLocationResource = require('./fixtures/practice/location.json');
 const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Organization Everything Tests', () => {
     beforeEach(async () => {
@@ -26,6 +22,7 @@ describe('Organization Everything Tests', () => {
 
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())

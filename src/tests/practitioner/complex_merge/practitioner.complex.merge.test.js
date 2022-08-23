@@ -1,8 +1,3 @@
-/*jshint esversion: 8 */
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/providers/practitioner.json');
 const locationResource = require('./fixtures/providers/location.json');
@@ -33,8 +28,8 @@ const expectedOrganizationResource = require('./fixtures/expected/expected_organ
 const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
 const expectedHealthcareServiceResource = require('./fixtures/expected/expected_healthcare_service.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Complex Merge Tests', () => {
     beforeEach(async () => {
@@ -47,6 +42,7 @@ describe('Practitioner Complex Merge Tests', () => {
 
     describe('Practitioner Merges', () => {
         test('Multiple calls to Practitioner merge properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());

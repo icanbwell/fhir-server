@@ -1,10 +1,16 @@
 'use strict';
-const {ResourceLocator} = require('../operations/common/resourceLocator');
 const async = require('async');
 const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
-const {logErrorToSlackAsync} = require('../utils/slack.logger');
+const {EventEmitter} = require('events');
+const {logVerboseAsync} = require('../operations/common/logging');
+const {ResourceManager} = require('../operations/common/resourceManager');
+const {PostRequestProcessor} = require('../utils/postRequestProcessor');
+const {ErrorReporter} = require('../utils/slack.logger');
+const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+const {assertTypeEquals} = require('../utils/assertType');
 
 /**
  * @typedef BulkResultEntry
@@ -16,23 +22,47 @@ const {logErrorToSlackAsync} = require('../utils/slack.logger');
 
 
 /**
- * This class accepts inserts and updates and when execute() is called it sends them to Mongo in bulk
+ * This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
-class DatabaseBulkInserter {
+class DatabaseBulkInserter extends EventEmitter {
     /**
      * Constructor
-     * @param {string} requestId
-     * @param {string} currentDate
+     * @param {ResourceManager} resourceManager
+     * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ErrorReporter} errorReporter
+     * @param {MongoCollectionManager} collectionManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(requestId, currentDate) {
+    constructor({resourceManager, postRequestProcessor, errorReporter,
+                collectionManager, resourceLocatorFactory}) {
+        super();
+        assertTypeEquals(resourceManager, ResourceManager);
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        assertTypeEquals(errorReporter, ErrorReporter);
+        assertTypeEquals(collectionManager, MongoCollectionManager);
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
         /**
-         * @type {string}
+         * @type {ResourceManager}
          */
-        this.requestId = requestId;
+        this.resourceManager = resourceManager;
         /**
-         * @type {string}
+         * @type {PostRequestProcessor}
          */
-        this.currentDate = currentDate;
+        this.postRequestProcessor = postRequestProcessor;
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
+        /**
+         * @type {MongoCollectionManager}
+         */
+        this.collectionManager = collectionManager;
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
@@ -40,26 +70,26 @@ class DatabaseBulkInserter {
          * <resourceType, list of operations>
          * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
-        this.operationsByResourceType = new Map();
+        this.operationsByResourceTypeMap = new Map();
         /**
          * This map stores an entry per resourceType where the value is a list of operations to perform
          * on that resourceType
          * <resourceType, list of operations>
          * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
          */
-        this.historyOperationsByResourceType = new Map();
+        this.historyOperationsByResourceTypeMap = new Map();
         /**
          * list of ids inserted
          * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.insertedIdsByResourceType = new Map();
+        this.insertedIdsByResourceTypeMap = new Map();
         /**
          * list of ids updated
          * <resourceType, list of ids>
          * @type {Map<string, string[]>}
          */
-        this.updatedIdsByResourceType = new Map();
+        this.updatedIdsByResourceTypeMap = new Map();
     }
 
     /**
@@ -69,13 +99,13 @@ class DatabaseBulkInserter {
      */
     addOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(this.operationsByResourceType.has(resourceType))) {
-            this.operationsByResourceType.set(`${resourceType}`, []);
-            this.insertedIdsByResourceType.set(`${resourceType}`, []);
-            this.updatedIdsByResourceType.set(`${resourceType}`, []);
+        if (!(this.operationsByResourceTypeMap.has(resourceType))) {
+            this.operationsByResourceTypeMap.set(`${resourceType}`, []);
+            this.insertedIdsByResourceTypeMap.set(`${resourceType}`, []);
+            this.updatedIdsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.operationsByResourceType.get(resourceType).push(operation);
+        this.operationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
@@ -85,11 +115,11 @@ class DatabaseBulkInserter {
      */
     addHistoryOperationForResourceType(resourceType, operation) {
         // If there is no entry for this collection then create one
-        if (!(this.historyOperationsByResourceType.has(resourceType))) {
-            this.historyOperationsByResourceType.set(`${resourceType}`, []);
+        if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
+            this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.historyOperationsByResourceType.get(resourceType).push(operation);
+        this.historyOperationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
@@ -99,6 +129,11 @@ class DatabaseBulkInserter {
      * @returns {Promise<void>}
      */
     async insertOneAsync(resourceType, doc) {
+        await logVerboseAsync('DatabaseBulkInserter.insertOneAsync',
+            {
+                message: 'start',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         this.addOperationForResourceType(resourceType,
             {
                 insertOne: {
@@ -106,7 +141,7 @@ class DatabaseBulkInserter {
                 }
             }
         );
-        this.insertedIdsByResourceType.get(resourceType).push(doc['id']);
+        this.insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
     }
 
     /**
@@ -134,6 +169,7 @@ class DatabaseBulkInserter {
      */
     async replaceOneAsync(resourceType, id, doc) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+        // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType(resourceType,
             {
                 replaceOne: {
@@ -143,32 +179,46 @@ class DatabaseBulkInserter {
                 }
             }
         );
-        this.updatedIdsByResourceType.get(resourceType).push(doc['id']);
+        this.updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
     }
 
     /**
      * Executes all the operations in bulk
      * @param {string} base_version
      * @param {boolean?} useAtlas
+     * @param {string} requestId
+     * @param {string} currentDate
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync(base_version, useAtlas) {
+    async executeAsync(requestId, currentDate, base_version, useAtlas,) {
+        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
+            {
+                message: 'start',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         // run both the operations on the main tables and the history tables in parallel
         /**
          * @type {BulkResultEntry[]}
          */
         const resultsByResourceType = await async.map(
-            this.operationsByResourceType.entries(),
+            this.operationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                requestId, currentDate,
                 x, base_version, useAtlas, false
             ));
 
-        // TODO: For now, we are ignoring errors saving history
-        await async.map(
-            this.historyOperationsByResourceType.entries(),
-            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                x, base_version, useAtlas, true
-            ));
+        if (this.historyOperationsByResourceTypeMap.size > 0) {
+            this.postRequestProcessor.add(async () => {
+                    await async.map(
+                        this.historyOperationsByResourceTypeMap.entries(),
+                        async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                            requestId, currentDate,
+                            x, base_version, useAtlas, true
+                        ));
+                    this.historyOperationsByResourceTypeMap.clear();
+                }
+            );
+        }
 
         // If there are any errors, send them to Slack notification
         if (resultsByResourceType.some(r => r.error)) {
@@ -180,8 +230,8 @@ class DatabaseBulkInserter {
                 /**
                  * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                  */
-                const operationsForResourceType = this.operationsByResourceType.get(erroredMerge.resourceType);
-                await logErrorToSlackAsync(
+                const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
+                await this.errorReporter.reportErrorAsync(
                     `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                     ` ${JSON.stringify(operationsForResourceType)}`,
                     erroredMerge.error
@@ -193,7 +243,7 @@ class DatabaseBulkInserter {
          * @type {MergeResultEntry[]}
          */
         const mergeResultEntries = [];
-        for (const [resourceType, ids] of this.insertedIdsByResourceType) {
+        for (const [resourceType, ids] of this.insertedIdsByResourceTypeMap) {
             /**
              * @type {BulkResultEntry|null}
              */
@@ -225,10 +275,29 @@ class DatabaseBulkInserter {
                     mergeResultEntries.push(
                         mergeResultEntry
                     );
+                    // fire change events
+                    /**
+                     * @type {Resource}
+                     */
+                    const resource = this.operationsByResourceTypeMap
+                        .get(resourceType)
+                        .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
+                    /**
+                     * @type {string|null}
+                     */
+                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    if (patientId) {
+                        if (resourceType === 'Patient') {
+                            this.emit('createPatient', {id: patientId, resourceType: resourceType, resource: resource});
+                        } else {
+                            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                        }
+                    }
+                    this.emit('insertResource', {id: id, resourceType: resourceType, resource: resource});
                 }
             }
         }
-        for (const [resourceType, ids] of this.updatedIdsByResourceType) {
+        for (const [resourceType, ids] of this.updatedIdsByResourceTypeMap) {
             /**
              * @type {BulkResultEntry|null}
              */
@@ -259,32 +328,65 @@ class DatabaseBulkInserter {
                     mergeResultEntries.push(
                         mergeResultEntry
                     );
+                    /**
+                     * @type {Resource}
+                     */
+                    const resource = this.operationsByResourceTypeMap
+                        .get(resourceType)
+                        .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
+                    /**
+                     * @type {string|null}
+                     */
+                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
+                    if (patientId) {
+                        this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
+                    }
+                    this.emit('updateResource', {id: id, resourceType: resourceType, resource: resource});
                 }
             }
         }
+
+        this.operationsByResourceTypeMap.clear();
+        this.insertedIdsByResourceTypeMap.clear();
+        this.updatedIdsByResourceTypeMap.clear();
+
+        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
+            {
+                message: 'end',
+                bufferLength: this.operationsByResourceTypeMap.size
+            });
         return mergeResultEntries;
     }
 
     /**
      * Performs bulk operations
+     * @param {string} requestId
+     * @param {string} currentDate
      * @param {[string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      * @param {boolean|null} useHistoryCollection
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeWithMapEntryAsync(mapEntry, base_version,
-                                                      useAtlas, useHistoryCollection) {
+    async performBulkForResourceTypeWithMapEntryAsync(
+        requestId,
+        currentDate,
+        mapEntry, base_version,
+        useAtlas, useHistoryCollection) {
         const [
             /** @type {string} */resourceType,
             /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations
         ] = mapEntry;
 
-        return await this.performBulkForResourceTypeAsync(resourceType, base_version, useAtlas, useHistoryCollection, operations);
+        return await this.performBulkForResourceTypeAsync(
+            requestId, currentDate,
+            resourceType, base_version, useAtlas, useHistoryCollection, operations);
     }
 
     /**
      * Run bulk operations for collection of resourceType
+     * @param {string} requestId
+     * @param {string} currentDate
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
@@ -292,12 +394,22 @@ class DatabaseBulkInserter {
      * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeAsync(resourceType, base_version, useAtlas,
-                                          useHistoryCollection, operations) {
+    async performBulkForResourceTypeAsync(
+        requestId,
+        currentDate,
+        resourceType,
+        base_version,
+        useAtlas,
+        useHistoryCollection,
+        operations) {
         /**
          * @type {Map<string, *[]>}
          */
         const operationsByCollectionNames = new Map();
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
         for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
             // noinspection JSValidateTypes
             /**
@@ -308,8 +420,8 @@ class DatabaseBulkInserter {
              * @type {string}
              */
             const collectionName = useHistoryCollection ?
-                new ResourceLocator(resourceType, base_version, useAtlas).getHistoryCollectionName(resource) :
-                new ResourceLocator(resourceType, base_version, useAtlas).getCollectionName(resource);
+                resourceLocator.getHistoryCollectionName(resource) :
+                resourceLocator.getCollectionName(resource);
             if (!(operationsByCollectionNames.has(collectionName))) {
                 operationsByCollectionNames.set(`${collectionName}`, []);
             }
@@ -335,16 +447,15 @@ class DatabaseBulkInserter {
                 await sendToS3('bulk_inserter',
                     resourceType,
                     operations,
-                    this.currentDate,
-                    this.requestId,
+                    currentDate,
+                    requestId,
                     'merge');
             }
             try {
                 /**
                  * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                  */
-                const collection = await new ResourceLocator(resourceType, base_version, useAtlas)
-                    .getOrCreateCollectionAsync(collectionName);
+                const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
                 /**
                  * @type {import('mongodb').BulkWriteOpResultObject}
                  */

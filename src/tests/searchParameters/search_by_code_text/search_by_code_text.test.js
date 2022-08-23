@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const medication1Resource = require('./fixtures/Medication/medication1.json');
 const medication2Resource = require('./fixtures/Medication/medication2.json');
@@ -9,10 +6,9 @@ const medication3Resource = require('./fixtures/Medication/medication3.json');
 // expected
 const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Medication Tests', () => {
     beforeEach(async () => {
@@ -25,6 +21,7 @@ describe('Medication Tests', () => {
 
     describe('Medication search_by_code_text Tests', () => {
         test('search_by_code_text works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

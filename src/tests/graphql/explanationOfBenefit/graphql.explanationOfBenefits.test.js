@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits.json');
 const expectedGraphQLResponse = require('./fixtures/expected_graphql_response.json');
 
@@ -15,13 +11,13 @@ const path = require('path');
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const explanationOfBenefitQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
-const request = supertest(app);
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders
+    getGraphQLHeaders, createTestRequest
 } = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles} = require('../../fhirAsserts');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
@@ -35,7 +31,7 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
 
     describe('GraphQL ExplanationOfBenefit', () => {
         test('GraphQL ExplanationOfBenefit properly', async () => {
-            // noinspection JSUnusedLocalSymbols
+            const request = await createTestRequest();
             const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')

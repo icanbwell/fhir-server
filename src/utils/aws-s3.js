@@ -3,7 +3,7 @@
  */
 
 const AWS = require('aws-sdk');
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
+const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
 // const Sentry = require('./sentry');
 const moment = require('moment-timezone');
 

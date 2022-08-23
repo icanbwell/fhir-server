@@ -1,7 +1,6 @@
-const {
-    ResourceLocator
-} = require('../operations/common/resourceLocator');
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
+const {assertTypeEquals} = require('../utils/assertType');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 
 /**
  * This class provides access to _History collections
@@ -9,11 +8,17 @@ const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 class DatabaseHistoryManager {
     /**
      * Constructor
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
+    constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
         /**
          * @type {string}
          * @private
@@ -29,6 +34,11 @@ class DatabaseHistoryManager {
          * @private
          */
         this._useAtlas = useAtlas;
+        /**
+         * @type {ResourceLocator}
+         */
+        this.resourceLocator = this.resourceLocatorFactory.createResourceLocator(this._resourceType,
+            this._base_version, this._useAtlas);
     }
 
     /**
@@ -37,8 +47,7 @@ class DatabaseHistoryManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
-            .getOrCreateHistoryCollectionAsync(doc);
+        const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
         await collection.insertOne(doc);
     }
 
@@ -52,8 +61,7 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
-            .getOrCreateHistoryCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type { Promise<Resource|null>}
@@ -76,13 +84,12 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
-            .getOrCreateHistoryCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync();
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          */
         const cursors = [];
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection in collections) {
+        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
              */

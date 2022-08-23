@@ -1,22 +1,24 @@
-const {RequestInfo} = require('../../utils/requestInfo');
+const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 /**
  * @param context
- * @returns {RequestInfo}
+ * @returns {FhirRequestInfo}
  */
 module.exports.getRequestInfo = (context) => {
-    return new RequestInfo(
-      context.user,
-      context.scope,
-      context.remoteIpAddress,
-      context.requestId,
-      context.protocol,
-      context.originalUrl,
-      context.path,
-      context.host,
-      context.body,
-      context.accept,
-      context.isUser,
-      context.patients,
-      context.fhirPersonId
+    return new FhirRequestInfo(
+        {
+            user: context.user,
+            scope: context.scope,
+            remoteIpAddress: context.remoteIpAddress,
+            requestId: context.requestId,
+            protocol: context.protocol,
+            originalUrl: context.originalUrl,
+            path: context.path,
+            host: context.host,
+            body: context.body,
+            accept: context.accept,
+            isUser: context.isUser,
+            patients: context.patients,
+            fhirPersonId: context.fhirPersonId
+        }
     );
 };

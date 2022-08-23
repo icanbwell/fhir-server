@@ -1,12 +1,12 @@
+const {expect} = require('@jest/globals');
+
 /**
  * confirms that object was created
  * @param {Object | [Object]} body
  * @param {boolean} expectCreate
  */
 function assertMergeIsSuccessful(body, expectCreate = true) {
-    console.log('------- response from adding observation2Resource ------------');
     console.log(JSON.stringify(body, null, 2));
-    console.log('------- end response  ------------');
     if (Array.isArray(body)) {
         for (const bodyItem of body) {
             if (expectCreate) {
@@ -31,9 +31,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {Boolean} ignoreMetaTags
  */
 function assertCompareBundles(body, expected, ignoreMetaTags = false) {
-    console.log('------- response  sorted ------------');
     console.log(JSON.stringify(body, null, 2));
-    console.log('------- end response sort ------------');
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];
@@ -114,7 +112,23 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
     expect(body).toStrictEqual(expected);
 }
 
+/**
+ * Asserts that response matches the status
+ * @param {number} expectedStatusCode
+ * @return {(function(*): void)|*}
+ */
+function assertStatusCode(expectedStatusCode) {
+    return (resp) => {
+        try {
+            expect(resp.status).toBe(expectedStatusCode);
+        } catch (e) {
+            throw new Error(`Status ${expectedStatusCode} != ${resp.status}: ${JSON.stringify(resp.body)}`);
+        }
+    };
+}
+
 module.exports = {
-    assertCompareBundles: assertCompareBundles,
-    assertMergeIsSuccessful: assertMergeIsSuccessful
+    assertCompareBundles,
+    assertMergeIsSuccessful,
+    assertStatusCode
 };

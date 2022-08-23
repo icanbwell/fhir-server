@@ -24,6 +24,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     break;
                 case 'token':
                     if (queryParameterValue['value']) {
+                        // noinspection JSValidateTypes
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
                     if (queryParameterValue['values']) {
@@ -77,6 +78,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                 case 'dateTime':
                 case 'number':
                     if (queryParameterValue['value']) {
+                        // noinspection JSValidateTypes
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
                     if (queryParameterValue['values']) {

@@ -5,7 +5,7 @@ class FhirResourceWriter extends Transform {
      * Streams the incoming data as json
      * @param {AbortSignal} signal
      */
-    constructor(signal) {
+    constructor({signal}) {
         super({objectMode: true});
         /**
          * @type {boolean}

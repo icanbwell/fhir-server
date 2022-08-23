@@ -9105,6 +9105,11 @@
     "jwa" "^1.4.1"
     "safe-buffer" "^5.0.1"
 
+"kafkajs@^2.1.0":
+  "integrity" "sha512-6IYiOdGWvFPbSbVB+AV3feT+A7vzw5sXm7Ze4QTfP7FRNdY8pGcpiNPvD2lfgYFD8Dm9KbMgBgTt2mf8KaIkzw=="
+  "resolved" "https://registry.npmjs.org/kafkajs/-/kafkajs-2.1.0.tgz"
+  "version" "2.1.0"
+
 "keyv@3.0.0":
   "integrity" "sha512-eguHnq22OE3uVoSYG0LVWNP+4ppamWr9+zWBe1bsNcovIMy6huUJFPgy4mGwCd/rnl3vOLGW1MTlu4c57CT1xA=="
   "resolved" "https://registry.npmjs.org/keyv/-/keyv-3.0.0.tgz"

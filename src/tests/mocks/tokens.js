@@ -5,7 +5,7 @@ const env = require('var');
  * Creates and signs a token
  * @param {string} key
  * @param {string} kid
- * @param {{noTimestamp: boolean, algorithm: string, header: { alg: string, kid: string}}} payload
+ * @param {string | Buffer | object} payload
  * @return {string}
  */
 function createToken(key, kid, payload) {

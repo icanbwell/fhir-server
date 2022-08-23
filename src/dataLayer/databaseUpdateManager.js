@@ -1,16 +1,19 @@
-const {ResourceLocator} = require('../operations/common/resourceLocator');
-
 /**
  * This class manages inserts and updates to the database
  */
+const {assertTypeEquals} = require('../utils/assertType');
+const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+
 class DatabaseUpdateManager {
     /**
      * Constructor
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceType, base_version, useAtlas) {
+    constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
          * @private
@@ -26,6 +29,11 @@ class DatabaseUpdateManager {
          * @private
          */
         this._useAtlas = useAtlas;
+        /**
+         * @type {ResourceLocator}
+         */
+        this.resourceLocator = resourceLocatorFactory.createResourceLocator(this._resourceType,
+            this._base_version, this._useAtlas);
     }
 
     /**
@@ -34,8 +42,7 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync(doc) {
-        const collection = await new ResourceLocator(this._resourceType, this._base_version, this._useAtlas)
-            .getOrCreateCollectionForResourceAsync(doc);
+        const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
         await collection.insertOne(doc);
     }
 }

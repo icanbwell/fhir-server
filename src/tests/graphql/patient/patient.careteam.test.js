@@ -1,8 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const { app } = require('../../../app');
-
 const expectedGraphQlResponse = require('./fixtures/expected_careteam_graphql_response.json');
 const patientBundleResource = require('./fixtures/patients.json');
 const practitionerBundleResource = require('./fixtures/practitioners.json');
@@ -13,13 +8,13 @@ const path = require('path');
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const query = fs.readFileSync(path.resolve(__dirname, './fixtures/updateCareTeam.graphql'), 'utf8');
 
-const request = supertest(app);
 const {
   commonBeforeEach,
   commonAfterEach,
   getHeaders,
-  getGraphQLHeaders,
+  getGraphQLHeaders, createTestRequest,
 } = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
   beforeEach(async () => {
@@ -32,7 +27,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
   describe('GraphQL Patient Update Care Team', () => {
     test('GraphQL Update General Practitioner for Patient', async () => {
-      // noinspection JSUnusedLocalSymbols
+      const request = await createTestRequest();
       const graphqlQueryText = query.replace(/\\n/g, '');
 
       let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);

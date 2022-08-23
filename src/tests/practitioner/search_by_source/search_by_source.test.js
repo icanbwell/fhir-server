@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
@@ -10,8 +6,8 @@ const practitionerResource3 = require('./fixtures/practitioner/practitioner3.jso
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('search_by_source', () => {
     beforeEach(async () => {
@@ -24,7 +20,7 @@ describe('search_by_source', () => {
 
     describe('Practitioner Search By Source Tests', () => {
         test('search by source works', async () => {
-
+                const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Practitioner')
                     .set(getHeaders())
@@ -43,6 +39,7 @@ describe('search_by_source', () => {
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response  ------------');
                 expect(resp.body['created']).toBe(true);
+
                 resp = await request
                     .post('/4_0_0/Practitioner/0/$merge')
                     .send(practitionerResource2)
@@ -51,6 +48,7 @@ describe('search_by_source', () => {
                 console.log('------- response practitionerResource ------------');
                 console.log(JSON.stringify(resp.body, null, 2));
                 console.log('------- end response  ------------');
+                expect(resp.body.issue).toBeUndefined();
                 expect(resp.body['created']).toBe(true);
 
                 resp = await request

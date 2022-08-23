@@ -1,9 +1,9 @@
-const assert = require('node:assert/strict');
 /**
  * converts a mongo query to string
  * @param {Object} query
  * @returns {string|undefined}
  */
+const {assertIsValid} = require('./assertType');
 const mongoQueryStringify = (query) => {
 
     const isArray = (value) => {
@@ -142,8 +142,8 @@ const mongoQueryAndOptionsStringifySingleQuery = (
     query,
     options
 ) => {
-    assert(!Array.isArray(query));
-    assert(!Array.isArray(options));
+    assertIsValid(!Array.isArray(query));
+    assertIsValid(!Array.isArray(options));
     const queryText = mongoQueryStringify(query);
     const projection = options.projection ? options.projection : {};
     let result = `db.${collectionName}.find(${queryText}, ${mongoQueryStringify(projection)})`;
