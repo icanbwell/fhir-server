@@ -3,7 +3,6 @@
  */
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
-const assert = require('assert');
 const {
     doesResourceHaveAnyAccessCodeFromThisList, getAccessCodesFromScopes
 } = require('../security/scopes');
@@ -16,92 +15,12 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
-
-
-/**
- * Base class for an entity and its contained entities
- */
-class EntityAndContainedBase {
-    /**
-     * @param {boolean} includeInOutput
-     */
-    constructor(includeInOutput) {
-        /**
-         * @type {boolean}
-         */
-        this.includeInOutput = includeInOutput;
-    }
-}
+const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
+const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
 
 /**
- * class that represents a resource and its contained entities
+ * This class helps with creating graph responses
  */
-class ResourceEntityAndContained extends EntityAndContainedBase {
-    /**
-     * class
-     * @param {string} entityId
-     * @param {string} entityResourceType
-     * @param {string} fullUrl
-     * @param {boolean} includeInOutput
-     * @param {Resource} resource
-     * @param {EntityAndContainedBase[]} containedEntries
-     */
-    constructor(entityId, entityResourceType, fullUrl,
-                includeInOutput, resource, containedEntries) {
-        super(includeInOutput);
-        /**
-         * @type {string}
-         */
-        assert(entityId);
-        this.entityId = entityId;
-        /**
-         * @type {string}
-         */
-        assert(entityResourceType);
-        this.entityResourceType = entityResourceType;
-        /**
-         * @type {string}
-         */
-        assert(fullUrl);
-        this.fullUrl = fullUrl;
-        /**
-         * @type {Resource}
-         */
-        assert(resource);
-        this.resource = resource;
-        /**
-         * @type {[EntityAndContainedBase]}
-         */
-        assert(containedEntries);
-        this.containedEntries = containedEntries;
-    }
-}
-
-/**
- * class that represents a non-resource (such as an element inside a resource) and its contained entities
- */
-class NonResourceEntityAndContained extends EntityAndContainedBase {
-    /**
-     * class
-     * @param {boolean} includeInOutput
-     * @param {*} item
-     * @param {EntityAndContainedBase[]} containedEntries
-     */
-    constructor(includeInOutput, item, containedEntries) {
-        super(includeInOutput);
-        /**
-         * @type {*}
-         */
-        assert(item);
-        this.item = item;
-        /**
-         * @type {[EntityAndContainedBase]}
-         */
-        assert(containedEntries);
-        this.containedEntries = containedEntries;
-    }
-}
-
 class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
@@ -127,7 +46,7 @@ class GraphHelper {
      * @param {Resource} parentEntity
      * @return {string}
      */
-    getFullUrlForResource(requestInfo, base_version, parentEntity) {
+    getFullUrlForResource({requestInfo, base_version, parentEntity}) {
         return `${requestInfo.protocol}://${requestInfo.host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
     }
 
@@ -137,15 +56,18 @@ class GraphHelper {
      * @param {string} property Property to read
      * @param {string?} filterProperty Filter property (optional)
      * @param {string?} filterValue Filter value (optional)
-     * @returns {*[]}
+     * @returns {Object[]}
      */
-    getPropertiesForEntity(entity, property, filterProperty, filterValue) {
+    getPropertiesForEntity({entity, property, filterProperty, filterValue}) {
         const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
         if (property.includes('.')) { // this is a nested property so recurse down and find the value
             /**
              * @type {string[]}
              */
             const propertyComponents = property.split('.');
+            /**
+             * @type {Object[]}
+             */
             let currentElements = [item];
             for (const propertyComponent of propertyComponents) {
                 // find nested elements where the property is present and select the property
@@ -170,7 +92,7 @@ class GraphHelper {
      * @param {Object || Object[]} propertyValue
      * @return {string[]}
      */
-    getReferencesFromPropertyValue(propertyValue) {
+    getReferencesFromPropertyValue({propertyValue}) {
         return Array.isArray(propertyValue) ? propertyValue.map(a => a['reference']) : [propertyValue['reference']];
     }
 
@@ -182,7 +104,7 @@ class GraphHelper {
      * @param {string?} filterValue
      * @returns {boolean}
      */
-    isPropertyAReference(entities, property, filterProperty, filterValue) {
+    isPropertyAReference({entities, property, filterProperty, filterValue}) {
         /**
          * @type {EntityAndContainedBase}
          */
@@ -190,9 +112,12 @@ class GraphHelper {
             /**
              * @type {*[]}
              */
-            const propertiesForEntity = this.getPropertiesForEntity(entity, property, filterProperty, filterValue);
+            const propertiesForEntity = this.getPropertiesForEntity(
+                {
+                    entity, property, filterProperty, filterValue
+                });
             const references = propertiesForEntity
-                .flatMap(r => this.getReferencesFromPropertyValue(r))
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                 .filter(r => r !== undefined);
 
             if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
@@ -213,11 +138,14 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      */
     async getForwardReferencesAsync(
-        requestInfo,
-        base_version,
-        resourceType,
-        parentEntities, property,
-        filterProperty, filterValue) {
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            parentEntities, property,
+            filterProperty,
+            filterValue
+        }) {
         if (!parentEntities || parentEntities.length === 0) {
             return; // nothing to do
         }
@@ -228,8 +156,8 @@ class GraphHelper {
 
         // get values of this property from all the entities
         const relatedReferences = parentEntities.flatMap(p =>
-            this.getPropertiesForEntity(p, property)
-                .flatMap(r => this.getReferencesFromPropertyValue(r))
+            this.getPropertiesForEntity({entity: p, property})
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                 .filter(r => r !== undefined)
         );
         // select just the ids from those reference properties
@@ -289,19 +217,24 @@ class GraphHelper {
 
             // create a class to hold information about this resource
             const relatedEntityAndContained = new ResourceEntityAndContained(
-                relatedResource.id,
-                relatedResource.resourceType,
-                this.getFullUrlForResource(requestInfo, base_version, relatedResource),
-                true,
-                relatedResource,
-                []
+                {
+                    entityId: relatedResource.id,
+                    entityResourceType: relatedResource.resourceType,
+                    fullUrl: this.getFullUrlForResource(
+                        {
+                            requestInfo, base_version, parentEntity: relatedResource
+                        }),
+                    includeInOutput: true,
+                    resource: relatedResource,
+                    containedEntries: []
+                }
             );
 
             // find matching parent and add to containedEntries
             const matchingParentEntities = parentEntities.filter(
                 p => (
-                    this.getPropertiesForEntity(p, property)
-                        .flatMap(r => this.getReferencesFromPropertyValue(r))
+                    this.getPropertiesForEntity({entity: p, property})
+                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined)
                         .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
                 )
@@ -345,11 +278,14 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      */
     async getReverseReferencesAsync(
-        requestInfo,
-        base_version,
-        parentResourceType,
-        relatedResourceType, parentEntities,
-        filterProperty, filterValue, reverse_filter) {
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            relatedResourceType, parentEntities,
+            filterProperty, filterValue, reverse_filter
+        }
+    ) {
         if (!(reverse_filter)) {
             throw new Error('reverse_filter must be set');
         }
@@ -426,21 +362,30 @@ class GraphHelper {
             }
             // create the entry
             const resourceEntityAndContained = new ResourceEntityAndContained(
-                relatedResourcePropertyCurrent.id,
-                relatedResourcePropertyCurrent.resourceType,
-                this.getFullUrlForResource(requestInfo, base_version, relatedResourcePropertyCurrent),
-                true,
-                removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
-                []
+                {
+                    entityId: relatedResourcePropertyCurrent.id,
+                    entityResourceType: relatedResourcePropertyCurrent.resourceType,
+                    fullUrl: this.getFullUrlForResource(
+                        {
+                            requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
+                        }),
+                    includeInOutput: true,
+                    resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                    containedEntries: []
+                }
             );
             // now match to parent entity, so we can put under correct contained property
-            const properties = this.getPropertiesForEntity(resourceEntityAndContained, fieldForSearchParameter);
+            const properties = this.getPropertiesForEntity(
+                {
+                    entity: resourceEntityAndContained, property: fieldForSearchParameter
+                }
+            );
             // the reference property can be a single item or an array.
             /**
              * @type {string[]}
              */
             const references = properties
-                .flatMap(r => this.getReferencesFromPropertyValue(r))
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                 .filter(r => r !== undefined);
             const matchingParentEntities = parentEntities.filter(
                 p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
@@ -471,7 +416,7 @@ class GraphHelper {
      * @param {string} filterValue
      * @returns {boolean}
      */
-    doesEntityHaveProperty(entity, property, filterProperty, filterValue) {
+    doesEntityHaveProperty({entity, property, filterProperty, filterValue}) {
         const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
         if (property.includes('.')) {
             /**
@@ -556,11 +501,14 @@ class GraphHelper {
      * @param {{path: string, params: string, target: {type: string}[]}} link
      * @param {[EntityAndContainedBase]} parentEntities
      */
-    async processOneGraphLinkAsync(requestInfo,
-                                   base_version,
-                                   parentResourceType,
-                                   link,
-                                   parentEntities) {
+    async processOneGraphLinkAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities
+        }) {
 
         /**
          * @type {EntityAndContainedBase[]}
@@ -588,10 +536,16 @@ class GraphHelper {
                 const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
                 // find parent entities that have a valid property
                 parentEntities = parentEntities.filter(
-                    p => this.doesEntityHaveProperty(p, property, filterProperty, filterValue)
+                    p => this.doesEntityHaveProperty(
+                        {
+                            entity: p, property, filterProperty, filterValue
+                        })
                 );
                 // if this is a reference then get related resources
-                if (this.isPropertyAReference(parentEntities, property, filterProperty, filterValue)) {
+                if (this.isPropertyAReference(
+                    {
+                        entities: parentEntities, property, filterProperty, filterValue
+                    })) {
                     await verifyHasValidScopesAsync({
                         requestInfo,
                         args: {},
@@ -602,13 +556,15 @@ class GraphHelper {
                     });
 
                     await this.getForwardReferencesAsync(
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        parentEntities,
-                        property,
-                        filterProperty,
-                        filterValue
+                        {
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            parentEntities,
+                            property,
+                            filterProperty,
+                            filterValue
+                        }
                     );
                     childEntries = parentEntities.flatMap(p => p.containedEntries);
                 } else { // handle paths that are not references
@@ -616,16 +572,21 @@ class GraphHelper {
                     for (const parentEntity of parentEntities) {
                         // create child entries
                         /**
-                         * @type {*[]}
+                         * @type {Object[]}
                          */
-                        const children = this.getPropertiesForEntity(parentEntity, property, filterProperty, filterValue);
+                        const children = this.getPropertiesForEntity(
+                            {
+                                entity: parentEntity, property, filterProperty, filterValue
+                            });
                         /**
                          * @type {NonResourceEntityAndContained[]}
                          */
                         const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
-                                target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                                c,
-                                []
+                                {
+                                    includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
+                                    item: c,
+                                    containedEntries: []
+                                }
                             )
                         );
                         childEntries = childEntries.concat(childEntriesForCurrentEntity);
@@ -651,14 +612,16 @@ class GraphHelper {
                         );
                     }
                     await this.getReverseReferencesAsync(
-                        requestInfo,
-                        base_version,
-                        parentResourceType,
-                        resourceType,
-                        parentEntities,
-                        null,
-                        null,
-                        target.params
+                        {
+                            requestInfo,
+                            base_version,
+                            parentResourceType,
+                            relatedResourceType: resourceType,
+                            parentEntities,
+                            filterProperty: null,
+                            filterValue: null,
+                            reverse_filter: target.params
+                        }
                     );
                     childEntries = parentEntities.flatMap(p => p.containedEntries);
                 }
@@ -687,11 +650,13 @@ class GraphHelper {
                     for (const childLink of childLinks) {
                         // now recurse and process the next link in GraphDefinition
                         await this.processOneGraphLinkAsync(
-                            requestInfo,
-                            base_version,
-                            childResourceType,
-                            childLink,
-                            childEntries
+                            {
+                                requestInfo,
+                                base_version,
+                                parentResourceType: childResourceType,
+                                link: childLink,
+                                parentEntities: childEntries
+                            }
                         );
                     }
                 }
@@ -708,15 +673,30 @@ class GraphHelper {
      * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
      * @return {Promise<[ResourceEntityAndContained]>}
      */
-    async processGraphLinksAsync(requestInfo,
-                                 base_version,
-                                 parentResourceType,
-                                 parentEntities, linkItems) {
+    async processGraphLinksAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            parentEntities, linkItems
+        }
+    ) {
         /**
          * @type {[ResourceEntityAndContained]}
          */
-        const resultEntities = parentEntities.map(e => new ResourceEntityAndContained(e.id, e.resourceType,
-            this.getFullUrlForResource(requestInfo, base_version, e), true, e, []));
+        const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained(
+            {
+                entityId: parentEntity.id,
+                entityResourceType: parentEntity.resourceType,
+                fullUrl: this.getFullUrlForResource(
+                    {
+                        requestInfo, base_version, parentEntity
+                    }),
+                includeInOutput: true,
+                resource: parentEntity,
+                containedEntries: []
+            }
+        ));
         /**
          * @type {{path:string, params: string,target:[{type: string}]}}
          */
@@ -727,7 +707,10 @@ class GraphHelper {
             /**
              * @type {ResourceEntityAndContained[]}
              */
-            await this.processOneGraphLinkAsync(requestInfo, base_version, parentResourceType, link, resultEntities);
+            await this.processOneGraphLinkAsync(
+                {
+                    requestInfo, base_version, parentResourceType, link, parentEntities: resultEntities
+                });
         }
         return resultEntities;
     }
@@ -738,7 +721,7 @@ class GraphHelper {
      * @param {[reference:string]} linkReferences
      * @return {Promise<Resource>}
      */
-    async convertToHashedReferencesAsync(parent_entity, linkReferences) {
+    async convertToHashedReferencesAsync({parent_entity, linkReferences}) {
         /**
          * @type {Set<string>}
          */
@@ -805,10 +788,14 @@ class GraphHelper {
      * @param {string[]} idList
      * @return {Promise<{resource: Resource, fullUrl: string}[]>}
      */
-    async processMultipleIdsAsync(base_version, useAtlas, requestInfo,
-                                  resourceType, graphDefinition,
-                                  contained, hash_references,
-                                  idList) {
+    async processMultipleIdsAsync(
+        {
+            base_version, useAtlas, requestInfo,
+            resourceType, graphDefinition,
+            contained, hash_references,
+            idList
+        }
+    ) {
         /**
          * @type {function(?Object): Resource}
          */
@@ -873,8 +860,11 @@ class GraphHelper {
              * @type {{resource: Resource, fullUrl: string}}
              */
             let current_entity = {
-                'fullUrl': this.getFullUrlForResource(requestInfo, base_version, startResource),
-                'resource': removeNull(startResource.toJSON())
+                fullUrl: this.getFullUrlForResource(
+                    {
+                        requestInfo, base_version, parentEntity: startResource
+                    }),
+                resource: removeNull(startResource.toJSON())
             };
             entries = entries.concat([current_entity]);
             topLevelBundleEntries.push(current_entity);
@@ -887,10 +877,14 @@ class GraphHelper {
         /**
          * @type {[ResourceEntityAndContained]}
          */
-        const allRelatedEntries = await this.processGraphLinksAsync(requestInfo,
-            base_version,
-            resourceType,
-            topLevelBundleEntries.map(e => e.resource), linkItems);
+        const allRelatedEntries = await this.processGraphLinksAsync(
+            {
+                requestInfo,
+                base_version,
+                parentResourceType: resourceType,
+                parentEntities: topLevelBundleEntries.map(e => e.resource),
+                linkItems
+            });
 
         for (const topLevelBundleEntry of topLevelBundleEntries) {
             // add related resources as container
@@ -908,14 +902,19 @@ class GraphHelper {
                  * @type {[string]}
                  */
                 const related_references = [];
-                /**
-                 * @type {resource: Resource, fullUrl: string}
-                 */
-                for (const related_item of related_entries) {
-                    related_references.push(related_item['resource']['resourceType'].concat('/', related_item['resource']['id']));
+                for (const /** @type  EntityAndContainedBase */ related_item of related_entries) {
+                    /**
+                     * @type {string}
+                     */
+                    const relatedItemElementElement = related_item['resource']['resourceType'];
+                    related_references.push(relatedItemElementElement.concat('/', related_item['resource']['id']));
                 }
                 if (related_references.length > 0) {
-                    topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync(topLevelBundleEntry.resource, related_references);
+                    topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync(
+                        {
+                            parent_entity: topLevelBundleEntry.resource,
+                            linkReferences: related_references
+                        });
                 }
             }
             /**
@@ -951,10 +950,12 @@ class GraphHelper {
      * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
     async processGraphAsync(
-        requestInfo,
-        base_version, useAtlas, resourceType,
-        id,
-        graphDefinitionJson, contained, hash_references) {
+        {
+            requestInfo,
+            base_version, useAtlas, resourceType,
+            id,
+            graphDefinitionJson, contained, hash_references
+        }) {
         /**
          * @type {function(?Object): Resource}
          */
@@ -977,10 +978,17 @@ class GraphHelper {
          * @type {[{resource: Resource, fullUrl: string}]}
          */
         const entries = await this.processMultipleIdsAsync(
-            base_version,
-            useAtlas,
-            requestInfo,
-            resourceType, graphDefinition, contained, hash_references, id);
+            {
+                base_version,
+                useAtlas,
+                requestInfo,
+                resourceType,
+                graphDefinition,
+                contained,
+                hash_references,
+                idList: id
+            }
+        );
 
         // remove duplicate resources
         /**

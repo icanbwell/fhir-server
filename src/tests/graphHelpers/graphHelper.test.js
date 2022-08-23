@@ -49,14 +49,16 @@ describe('graphHelper Tests', () => {
         test('graphHelper single Practitioner works', async () => {
             const resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphSimpleReverseDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -82,14 +84,16 @@ describe('graphHelper Tests', () => {
 
             await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1', '2'],
-                graphSimpleReverseDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1', '2'],
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -125,14 +129,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphSimpleReverseDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -171,14 +177,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -217,14 +225,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphSimpleReverseDefinition,
-                true,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: true,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -262,14 +272,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphDefinition,
-                true,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphDefinition,
+                    contained: true,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -324,14 +336,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'PractitionerRole';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['10'],
-                graphSimpleForwardDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['10'],
+                    graphDefinitionJson: graphSimpleForwardDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -373,14 +387,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphSimpleReverseDefinition,
-                true,
-                true
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: true,
+                    hash_references: true
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -435,14 +451,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1'],
-                graphDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1'],
+                    graphDefinitionJson: graphDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -528,14 +546,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1', '2'],
-                graphDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1', '2'],
+                    graphDefinitionJson: graphDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -648,14 +668,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1', '2'],
-                graphDefinition,
-                true,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1', '2'],
+                    graphDefinitionJson: graphDefinition,
+                    contained: true,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -771,14 +793,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'PractitionerRole';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['10'],
-                graphSimpleWithExtensionDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['10'],
+                    graphDefinitionJson: graphSimpleWithExtensionDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -933,14 +957,16 @@ describe('graphHelper Tests', () => {
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1', '2'],
-                graphWithExtensionDefinition,
-                false,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1', '2'],
+                    graphDefinitionJson: graphWithExtensionDefinition,
+                    contained: false,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1147,14 +1173,16 @@ describe('graphHelper Tests', () => {
             );
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync(
-                requestInfo,
-                base_version,
-                false,
-                resourceType,
-                ['1', '2'],
-                graphWithExtensionDefinition,
-                true,
-                false
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas: false,
+                    resourceType,
+                    id: ['1', '2'],
+                    graphDefinitionJson: graphWithExtensionDefinition,
+                    contained: true,
+                    hash_references: false
+                }
             );
             expect(result).not.toBeNull();
             delete result['timestamp'];

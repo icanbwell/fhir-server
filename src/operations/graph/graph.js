@@ -100,14 +100,16 @@ class GraphOperation {
              * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
              */
             const result = await this.graphHelper.processGraphAsync(
-                requestInfo,
-                base_version,
-                useAtlas,
-                resourceType,
-                id,
-                graphDefinitionRaw,
-                contained,
-                hash_references
+                {
+                    requestInfo,
+                    base_version,
+                    useAtlas,
+                    resourceType,
+                    id,
+                    graphDefinitionJson: graphDefinitionRaw,
+                    contained,
+                    hash_references
+                }
             );
             // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
             // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
