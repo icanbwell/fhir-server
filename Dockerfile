@@ -6,6 +6,9 @@ ARG NODE_ENV=production
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y install curl autoconf build-essential && apt-get clean
 
+# update npm
+RUN npm install -g npm@latest
+
 RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
 
@@ -24,6 +27,9 @@ ARG NODE_ENV=production
 
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y install curl && apt-get clean
+
+# update npm
+RUN npm install -g npm@latest
 
 # Set the working directory
 RUN mkdir -p /srv/src && chown node:node /srv/src
