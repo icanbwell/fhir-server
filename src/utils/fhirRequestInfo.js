@@ -9,30 +9,34 @@ class FhirRequestInfo {
      * @param {string | null} user
      * @param {string} scope
      * @param {string} protocol
-     * @param {string} originalUrl
-     * @param {string | null} remoteIpAddress
+     * @param {string|null} originalUrl
+     * @param {string | null} [remoteIpAddress]
      * @param {string|null} requestId
-     * @param {string | null} path
+     * @param {string | null} [path]
      * @param {string | null} host
-     * @param {Object | Object[] | null} body
-     * @param {string | null} accept
-     * @param {boolean | null} isUser
-     * @param {string[] | null} patients
-     * @param {string | null} fhirPersonId
+     * @param {Object | Object[] | null} [body]
+     * @param {string | null} [accept]
+     * @param {boolean | null} [isUser]
+     * @param {string[] | null} [patients]
+     * @param {string | null} [fhirPersonId]
      */
-    constructor(user,
-                scope,
-                remoteIpAddress,
-                requestId,
-                protocol,
-                originalUrl,
-                path,
-                host,
-                body,
-                accept,
-                isUser,
-                patients,
-                fhirPersonId) {
+    constructor(
+        {
+            user,
+            scope,
+            remoteIpAddress,
+            requestId,
+            protocol,
+            originalUrl,
+            path,
+            host,
+            body,
+            accept,
+            isUser,
+            patients,
+            fhirPersonId
+        }
+    ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
         /**
          * @type {string|null}

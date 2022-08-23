@@ -141,23 +141,76 @@ class FhirOperationsManager {
     }
 
     getRequestInfo(req) {
+        /**
+         * @type {string | null}
+         */
         const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
             (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
             ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
+        /**
+         * @type {boolean}
+         */
+        const isUser = req.authInfo && req.authInfo.context && req.authInfo.context.isUser;
+        /**
+         * @type {string[] | null}
+         */
+        const patients = req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds;
+        /**
+         * @type {string|null}
+         */
+        const fhirPersonId = req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId;
+        /**
+         * @type {string}
+         */
+        const scope = req.authInfo && req.authInfo.scope;
+        /**
+         * @type {string|null}
+         */
+        const remoteIpAddress = req.headers['X-Forwarded-For'] || req.connection.remoteAddress;
+        /**
+         * @type {string|null}
+         */
+        const requestId = req.id;
+        /**
+         * @type {string}
+         */
+        const path = req.path;
+        /**
+         * @type {string|null}
+         */
+        const accept = req.headers.accept;
+        /**
+         * @type {string}
+         */
+        const protocol = req.protocol;
+        /**
+         * @type {string | null}
+         */
+        const originalUrl = req.originalUrl;
+        /**
+         * @type {string | null}
+         */
+        const host = req.hostname;
+        /**
+         * @type {Object | Object[] | null}
+         */
+        const body = req.body;
         return new FhirRequestInfo(
-            user,
-            req.authInfo && req.authInfo.scope,
-            req.headers['X-Forwarded-For'] || req.connection.remoteAddress,
-            req.id,
-            req.protocol,
-            req.originalUrl,
-            req.path,
-            req.hostname,
-            req.body,
-            req.headers.accept,
-            req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-            req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
-            req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId
+            {
+                user,
+                scope,
+                remoteIpAddress,
+                requestId,
+                protocol,
+                originalUrl,
+                path,
+                host,
+                body,
+                accept,
+                isUser,
+                patients,
+                fhirPersonId
+            }
         );
     }
 
