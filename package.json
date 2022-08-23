@@ -6,7 +6,7 @@
   "repository": "https://github.com/icanbwell/node-fhir-server",
   "license": "MIT",
   "engines": {
-    "node": "16.16.x"
+    "node": "16.17.x"
   },
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
