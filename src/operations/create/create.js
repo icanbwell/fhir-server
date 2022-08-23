@@ -1,5 +1,4 @@
-const {logDebug, logOperationAsync} = require('../common/logging');
-const {doesResourceHaveAccessTags} = require('../security/scopes');
+const {logDebug} = require('../common/logging');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -9,203 +8,295 @@ const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
-const {DatabaseUpdateManager} = require('../../dataLayer/databaseUpdateManager');
-const {DatabaseHistoryManager} = require('../../dataLayer/databaseHistoryManager');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
+const {ChangeEventProducer} = require('../../utils/changeEventProducer');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
-/**
- * does a FHIR Create (POST)
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} path
- * @param {string} resourceType
- */
-module.exports.create = async (requestInfo, args, path, resourceType) => {
-    const currentOperationName = 'create';
+class CreateOperation {
     /**
-     * @type {number}
+     * constructor
+     * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {ChangeEventProducer} changeEventProducer
+     * @param {AuditLogger} auditLogger
+     * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
-    const startTime = Date.now();
-    const {user, body} = requestInfo;
+    constructor(
+        {
+            databaseHistoryFactory,
+            databaseUpdateFactory,
+            changeEventProducer,
+            auditLogger,
+            postRequestProcessor,
+            scopesManager,
+            fhirLoggingManager,
+            scopesValidator
+        }
+    ) {
+        /**
+         * @type {DatabaseHistoryFactory}
+         */
+        this.databaseHistoryFactory = databaseHistoryFactory;
+        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+        /**
+         * @type {DatabaseUpdateFactory}
+         */
+        this.databaseUpdateFactory = databaseUpdateFactory;
+        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'write'
-    });
-
-    let resource_incoming = body;
-
-    let {base_version} = args;
-
-    const uuid = resource_incoming.id || getUuid(resource_incoming);
-
-    if (env.LOG_ALL_SAVES) {
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        await sendToS3('logs',
-            resourceType,
-            resource_incoming,
-            currentDate,
-            uuid,
-            currentOperationName
-        );
     }
 
-    if (env.VALIDATE_SCHEMA || args['_validate']) {
-        const operationOutcome = validateResource(resource_incoming, resourceType, path);
-        if (operationOutcome && operationOutcome.statusCode === 400) {
-            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+    /**
+     * does a FHIR Create (POST)
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} path
+     * @param {string} resourceType
+     */
+    async create(requestInfo, args, path, resourceType) {
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
+        const currentOperationName = 'create';
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const {user, body, requestId} = requestInfo;
+
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'write'
+            }
+        );
+
+        let resource_incoming = body;
+
+        let {base_version} = args;
+
+        const uuid = resource_incoming.id || getUuid(resource_incoming);
+
+        if (env.LOG_ALL_SAVES) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            operationOutcome.expression = [
-                resourceType + '/' + uuid
-            ];
-            await sendToS3('validation_failures',
+            await sendToS3('logs',
+                resourceType,
+                resource_incoming,
+                currentDate,
+                uuid,
+                currentOperationName
+            );
+        }
+
+        if (env.VALIDATE_SCHEMA || args['_validate']) {
+            const operationOutcome = validateResource(resource_incoming, resourceType, path);
+            if (operationOutcome && operationOutcome.statusCode === 400) {
+                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                const currentDate = moment.utc().format('YYYY-MM-DD');
+                operationOutcome.expression = [
+                    resourceType + '/' + uuid
+                ];
+                await sendToS3('validation_failures',
+                    resourceType,
+                    resource_incoming,
+                    currentDate,
+                    uuid,
+                    currentOperationName);
+                await sendToS3('validation_failures',
+                    'OperationOutcome',
+                    operationOutcome,
+                    currentDate,
+                    uuid,
+                    'create_failure');
+                // noinspection JSValidateTypes
+                /**
+                 * @type {Error}
+                 */
+                const notValidatedError = new NotValidatedError(operationOutcome);
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: notValidatedError
+                });
+                throw notValidatedError;
+            }
+        }
+
+        try {
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            // Get current record
+            /**
+             * @type {function({Object}): Resource}
+             */
+            let ResourceCreator = getResource(base_version, resourceType);
+            /**
+             * @type {Resource}
+             */
+            const resource = new ResourceCreator(resource_incoming);
+
+            logDebug(user, `resource: ${resource.toJSON()}`);
+
+            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+                if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
+                }
+            }
+
+            // If no resource ID was provided, generate one.
+            /**
+             * @type {string}
+             */
+            let id = resource_incoming.id || getUuid(resource);
+            logDebug(user, `id: ${id}`);
+
+            // Create the resource's metadata
+            /**
+             * @type {function({Object}): Meta}
+             */
+            let Meta = getMeta(base_version);
+            if (!resource.meta) {
+                // noinspection SpellCheckingInspection
+                resource.meta = new Meta({
+                    versionId: '1',
+                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+                });
+            } else {
+                resource.meta['versionId'] = '1';
+                // noinspection JSValidateTypes,SpellCheckingInspection
+                resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            }
+
+            await preSaveAsync(resource);
+
+            // Create the document to be inserted into Mongo
+            // noinspection JSUnresolvedFunction
+            /**
+             * @type {Object}
+             */
+            let doc = removeNull(resource.toJSON());
+            Object.assign(doc, {id: id});
+
+            if (resourceType !== 'AuditEvent') {
+                // log access to audit logs
+
+                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
+                const currentDate = moment.utc().format('YYYY-MM-DD');
+                await this.auditLogger.flushAsync(requestId, currentDate);
+            }
+            // Create a clone of the object without the _id parameter before assigning a value to
+            // the _id parameter in the original document
+            /**
+             * @type {Object}
+             */
+            let history_doc = Object.assign({}, doc);
+            Object.assign(doc, {_id: id});
+
+            logDebug(user, '---- inserting doc ---');
+            logDebug(user, doc);
+            logDebug(user, '----------------------');
+
+            // Insert our resource record
+            try {
+                await this.databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
+                    .insertOneAsync(doc);
+            } catch (e) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(e);
+            }
+            // Save the resource to history
+
+            // Insert our resource record to history but don't assign _id
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
+                .insertOneAsync(history_doc);
+            const result = {id: doc.id, resource_version: doc.meta.versionId};
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result)
+                });
+            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+
+            return result;
+        } catch (/** @type {Error} */ e) {
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await sendToS3('errors',
                 resourceType,
                 resource_incoming,
                 currentDate,
                 uuid,
                 currentOperationName);
-            await sendToS3('validation_failures',
-                'OperationOutcome',
-                operationOutcome,
-                currentDate,
-                uuid,
-                'create_failure');
-            const notValidatedError = new NotValidatedError(operationOutcome);
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationFailed',
                 action: currentOperationName,
-                error: notValidatedError
+                error: e
             });
-            throw notValidatedError;
+            throw e;
         }
     }
+}
 
-    try {
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-        // Get current record
-        /**
-         * @type {function({Object}): Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceType);
-        /**
-         * @type {Resource}
-         */
-        const resource = new ResourceCreator(resource_incoming);
-
-        logDebug(user, `resource: ${resource.toJSON()}`);
-
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!doesResourceHaveAccessTags(resource)) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
-            }
-        }
-
-        // If no resource ID was provided, generate one.
-        /**
-         * @type {string}
-         */
-        let id = resource_incoming.id || getUuid(resource);
-        logDebug(user, `id: ${id}`);
-
-        // Create the resource's metadata
-        /**
-         * @type {function({Object}): Meta}
-         */
-        let Meta = getMeta(base_version);
-        if (!resource.meta) {
-            // noinspection SpellCheckingInspection
-            resource.meta = new Meta({
-                versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            });
-        } else {
-            resource.meta['versionId'] = '1';
-            // noinspection JSValidateTypes,SpellCheckingInspection
-            resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        }
-
-        await preSaveAsync(resource);
-
-        // Create the document to be inserted into Mongo
-        // noinspection JSUnresolvedFunction
-        /**
-         * @type {Object}
-         */
-        let doc = removeNull(resource.toJSON());
-        Object.assign(doc, {id: id});
-
-        if (resourceType !== 'AuditEvent') {
-            // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
-        }
-        // Create a clone of the object without the _id parameter before assigning a value to
-        // the _id parameter in the original document
-        /**
-         * @type {Object}
-         */
-        let history_doc = Object.assign({}, doc);
-        Object.assign(doc, {_id: id});
-
-        logDebug(user, '---- inserting doc ---');
-        logDebug(user, doc);
-        logDebug(user, '----------------------');
-
-        // Insert our resource record
-        try {
-            await new DatabaseUpdateManager(resourceType, base_version, useAtlas).insertOneAsync(doc);
-        } catch (e) {
-            // noinspection ExceptionCaughtLocallyJS
-            throw new BadRequestError(e);
-        }
-        // Save the resource to history
-
-        // Insert our resource record to history but don't assign _id
-        await new DatabaseHistoryManager(resourceType, base_version, useAtlas).insertOneAsync(history_doc);
-        const result = {id: doc.id, resource_version: doc.meta.versionId};
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationCompleted',
-            action: currentOperationName,
-            result: JSON.stringify(result)
-        });
-        return result;
-    } catch (/** @type {Error} */ e) {
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        await sendToS3('errors',
-            resourceType,
-            resource_incoming,
-            currentDate,
-            uuid,
-            currentOperationName);
-        await logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationFailed',
-            action: currentOperationName,
-            error: e
-        });
-        throw e;
-    }
+module.exports = {
+    CreateOperation
 };

@@ -1,6 +1,7 @@
 const {getUuid} = require('../../../../utils/uid.util');
-const {merge} = require('../../../../operations/merge/merge');
-const {getRequestInfo} = require('../../requestInfoHelper');
+const {MergeOperation} = require('../../../../operations/merge/merge');
+const {assertTypeEquals} = require('../../../../utils/assertType');
+const {SimpleContainer} = require('../../../../utils/simpleContainer');
 
 function mapParticipants(members) {
     const result = [];
@@ -63,8 +64,19 @@ function mapCareTeam(team) {
 module.exports = {
     Mutation: {
         updatePreferredProviders:
-        // eslint-disable-next-line no-unused-vars
+            /**
+             * @param {Resource|null} parent
+             * @param {Object} args
+             * @param {GraphQLContext} context
+             * @param {Object} info
+             * @return {Promise<Resource>}
+             */
             async (parent, args, context, info) => {
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container = context.container;
+                assertTypeEquals(container, SimpleContainer);
                 const patients = await context.dataApi.getResources(
                     parent,
                     {
@@ -85,11 +97,16 @@ module.exports = {
                     careTeam.id = getUuid(careTeam);
                 }
                 /**
-                 * @type {import('../../../utils/requestInfo').RequestInfo}
+                 * @type {FhirRequestInfo}
                  */
-                const requestInfo = getRequestInfo(context);
+                const requestInfo = context.fhirRequestInfo;
                 requestInfo.body = [careTeam];
-                const result = await merge(
+                /**
+                 * @type {MergeOperation}
+                 */
+                const mergeOperation = container.mergeOperation;
+                assertTypeEquals(mergeOperation, MergeOperation);
+                const result = await mergeOperation.merge(
                     requestInfo,
                     {...args, base_version: '4_0_0'},
                     'CareTeam'

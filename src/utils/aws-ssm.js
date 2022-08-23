@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
+const {assertIsValid} = require('./assertType');
 const REGION = process.env.AWS_REGION || 'us-east-1';
-const assert = require('node:assert/strict');
 
 const ssm = new AWS.SSM({
     region: REGION,
@@ -12,8 +12,8 @@ const ssm = new AWS.SSM({
  * @return {Promise<{password: string, username: string}>}
  */
 module.exports.getElasticSearchParameterAsync = async (environment) => {
-    assert(environment);
-    assert(typeof environment === 'string');
+    assertIsValid(environment);
+    assertIsValid(typeof environment === 'string');
 
     /**
      * @type {import('aws-sdk').SSM.GetParameterResult}}

@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
@@ -10,8 +7,8 @@ const practitionerResource3 = require('./fixtures/practitioner/practitioner3.jso
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersFormUrlEncoded} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersFormUrlEncoded, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -24,6 +21,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -87,6 +85,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -157,6 +156,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
@@ -211,6 +211,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)

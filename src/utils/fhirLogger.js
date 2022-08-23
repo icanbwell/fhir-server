@@ -3,9 +3,9 @@ const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
-const assert = require('node:assert/strict');
 const {getElasticSearchParameterAsync} = require('./aws-ssm');
 const Transport = require('winston-transport');
+const {assertIsValid} = require('./assertType');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -122,17 +122,17 @@ class FhirLogger {
         if (isTrue(env.LOG_ELASTIC_SEARCH_ENABLE)) {
             // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/basic-config.html
             let node = env.LOG_ELASTIC_SEARCH_URL;
-            assert(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
-            console.info(`Logging to ${node}`);
+            assertIsValid(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
+            console.info(JSON.stringify({message: `Logging to ${node}`}));
             if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             } else {
                 const {username, password} = await getElasticSearchParameterAsync(env.ENV);
-                assert(username);
-                assert(typeof username === 'string');
-                assert(password);
-                assert(typeof password === 'string');
-                console.info(`Logging to ${node} with username: ${username}`);
+                assertIsValid(username);
+                assertIsValid(typeof username === 'string');
+                assertIsValid(password);
+                assertIsValid(typeof password === 'string');
+                console.info(JSON.stringify({message: `Logging to ${node} with username: ${username}`}));
                 node = node.replace('https://', `https://${username}:${password}@`);
             }
 
@@ -162,7 +162,7 @@ class FhirLogger {
             const elasticsearchTransport = new ElasticsearchTransport(esTransportOpts);
             logger.add(elasticsearchTransport);
             elasticsearchTransport.on('error', (error) => {
-                console.error('Error in elasticsearchTransport caught', error);
+                console.error(JSON.stringify({message: 'Error in elasticsearchTransport caught', error}));
             });
         } else {
             /**
@@ -182,7 +182,7 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error('Error in fhirLogger caught', error);
+            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
         });
 
         return logger;
@@ -208,7 +208,7 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error('Error in fhirLogger caught', error);
+            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
         });
 
         return logger;

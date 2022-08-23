@@ -1,107 +1,162 @@
-const {logOperationAsync} = require('../common/logging');
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {getExpandedValueSetAsync} = require('../../utils/valueSet.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {DatabaseQueryManager} = require('../../dataLayer/databaseQueryManager');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
-/**
- * does a FHIR Search By Id
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceType
- * @return {Resource}
- */
-// eslint-disable-next-line no-unused-vars
-module.exports.expand = async (requestInfo, args, resourceType) => {
-    const currentOperationName = 'expand';
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {ValueSetManager} = require('../../utils/valueSet.util');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
+
+class ExpandOperation {
     /**
-     * @type {number}
+     * constructor
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ValueSetManager} valueSetManager
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
-    const startTime = Date.now();
+    constructor(
+        {
+            databaseQueryFactory,
+            valueSetManager,
+            scopesManager,
+            fhirLoggingManager,
+            scopesValidator
+        }
+    ) {
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {ValueSetManager}
+         */
+        this.valueSetManager = valueSetManager;
+        assertTypeEquals(valueSetManager, ValueSetManager);
 
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
-    await verifyHasValidScopesAsync({
-        requestInfo,
-        args,
-        resourceType,
-        startTime,
-        action: currentOperationName,
-        accessRequested: 'read'
-    });
+    }
 
-    // Common search params
-    let {id} = args;
-    let {base_version} = args;
-
-    // Search Result param
-
-    let query = {};
-    query.id = id;
     /**
-     * @type {boolean}
+     * does a FHIR Search By Id
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @return {Resource}
      */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+    async expand(requestInfo, args, resourceType) {
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
+        const currentOperationName = 'expand';
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
 
-    let Resource = getResource(base_version, resourceType);
+        const {user, scope} = requestInfo;
 
-    /**
-     * @type {Resource}
-     */
-    let resource;
-    try {
-        resource = await new DatabaseQueryManager(resourceType, base_version, useAtlas)
-            .findOneAsync({id: id.toString()});
-    } catch (e) {
-        await logOperationAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,
             startTime,
-            message: 'operationFailed',
             action: currentOperationName,
-            error: e
+            accessRequested: 'read'
         });
-        throw new BadRequestError(e);
-    }
 
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-            const forbiddenError = new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-            await logOperationAsync({
+        // Common search params
+        let {id} = args;
+        let {base_version} = args;
+
+        // Search Result param
+
+        let query = {};
+        query.id = id;
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        let Resource = getResource(base_version, resourceType);
+
+        /**
+         * @type {Resource}
+         */
+        let resource;
+        try {
+            resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
+                .findOneAsync({id: id.toString()});
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationFailed',
                 action: currentOperationName,
-                error: forbiddenError
+                error: e
             });
-
-            throw forbiddenError;
+            throw new BadRequestError(e);
         }
 
-        // implement expand functionality
-        resource = await getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
+        if (resource) {
+            if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                const forbiddenError = new ForbiddenError(
+                    'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                    resource.resourceType + ' with id ' + id);
+                await this.fhirLoggingManager.logOperationFailureAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: forbiddenError
+                });
 
-        // run any enrichment
-        resource = (await enrich([resource], resourceType))[0];
+                throw forbiddenError;
+            }
 
-        const result = new Resource(resource);
-        await logOperationAsync({
-            requestInfo, args, resourceType, startTime,
-            message: 'operationCompleted', action: currentOperationName,
-            result: JSON.stringify(result)
-        });
-        return result;
-    } else {
-        throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+            // implement expand functionality
+            resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
+
+            // run any enrichment
+            resource = (await enrich([resource], resourceType))[0];
+
+            const result = new Resource(resource);
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo, args, resourceType, startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result)
+                });
+            return result;
+        } else {
+            throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+        }
     }
+}
+
+module.exports = {
+    ExpandOperation
 };
+

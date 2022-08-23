@@ -1,4 +1,6 @@
-class BundleMetaApolloServerPlugin {
+// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
+
+class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
     /**
      * This plugin set the meta from each query into the results to provide debugging information
      */
@@ -7,7 +9,7 @@ class BundleMetaApolloServerPlugin {
 
     // noinspection JSUnusedLocalSymbols
     // eslint-disable-next-line no-unused-vars
-    async requestDidStart(/*requestContext1*/) {
+    async requestDidStart(requestContext1) {
         // const start = Date.now();
         // let op;
 

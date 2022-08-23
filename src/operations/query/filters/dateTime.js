@@ -20,7 +20,7 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
         queryParameterValue = [queryParameterValue];
     }
     if (queryParameterValue.join('').trim() === '') {
-        return;
+        return [];
     }
     for (const dateQueryItem of queryParameterValue) {
         // prettier-ignore

@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const patient2Resource = require('./fixtures/patient/patient2.json');
@@ -8,8 +5,7 @@ const patient2Resource = require('./fixtures/patient/patient2.json');
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Delete Tests', () => {
@@ -23,6 +19,7 @@ describe('Practitioner Delete Tests', () => {
 
     describe('Patient Delete by Id Tests', () => {
         test('search by delete by Id works', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders())

@@ -1,12 +1,6 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
-
 const validResource = require('./fixtures/questionnaireresponse.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Update Tests', () => {
@@ -20,6 +14,7 @@ describe('Practitioner Update Tests', () => {
 
     describe('Practitioner Validate', () => {
         test('POST Valid resource', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
                 .set(getHeaders())

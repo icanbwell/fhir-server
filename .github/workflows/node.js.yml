@@ -18,10 +18,10 @@ jobs:
       test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.16.x
+      - name: Use Node.js 16.17.x
         uses: actions/setup-node@v1
         with:
-          node-version: 16.16.x
+          node-version: 16.17.x
       - run: yarn install
       - run: npm run build --if-present
       - id: set-test-chunks
@@ -43,13 +43,13 @@ jobs:
         chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.16.x
+      - name: Use Node.js 16.17.x
         uses: actions/setup-node@v1
         with:
-          node-version: 16.16.x
+          node-version: 16.17.x
       - run: yarn install
       - run: npm run build --if-present
       - name: jest
-        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node --max-old-space-size=8192 --expose-gc ./node_modules/.bin/jest --forceExit
+        run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node --max-old-space-size=8192 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
         env:
           CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}

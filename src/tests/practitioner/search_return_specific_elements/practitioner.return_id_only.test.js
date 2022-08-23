@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 
@@ -10,8 +6,8 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedPractitionerResourceBundle = require('./fixtures/expected/expected_practitioner_bundle.json');
 const expectedPractitionerNoUserScopesBundle = require('./fixtures/expected/expected_practitioner_no_user_scopes.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -24,6 +20,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('PractitionerReturnId Tests', () => {
         test('Id works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
@@ -63,6 +60,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expected);
         });
         test('Id works properly with bundle', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
                 .set(getHeaders())
@@ -99,6 +97,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expectedPractitionerResourceBundle);
         });
         test('Id works properly with bundle and specific scopes', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
                 .set(getHeaders())
@@ -135,6 +134,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expectedPractitionerResourceBundle);
         });
         test('Id fails without user scopes', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
                 .set(getHeaders())
@@ -168,6 +168,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(body).toStrictEqual(expectedPractitionerNoUserScopesBundle);
         });
         test('Id fails without access scopes', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
                 .set(getHeaders())

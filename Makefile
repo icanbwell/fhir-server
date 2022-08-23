@@ -1,4 +1,4 @@
-NODE_VERSION=16.16.0
+NODE_VERSION=16.17.0
 
 .PHONY:build
 build:
@@ -32,6 +32,7 @@ up:
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Prometheus: http://localhost:9090 && \
 	echo Grafana: http://localhost:3010 && \
+	echo Kafka UI: http://localhost:9000 && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline

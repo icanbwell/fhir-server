@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const valueset1Resource = require('./fixtures/ValueSet/valueset1.json');
 const valueset2Resource = require('./fixtures/ValueSet/valueset2.json');
@@ -10,10 +7,10 @@ const valueset4Resource = require('./fixtures/ValueSet/valueset4.json');
 // expected
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertMergeIsSuccessful} = require('../../fhirAsserts');
+
 
 describe('ValueSet Multiple Tests', () => {
     beforeEach(async () => {
@@ -26,6 +23,7 @@ describe('ValueSet Multiple Tests', () => {
 
     describe('ValueSet expand_valueset.test.js Tests', () => {
         test('expand_valueset.test.js works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

@@ -1,14 +1,11 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const auditEventResource = require('./fixtures/auditEvents.json');
 
 // expected
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {assertCompareBundles} = require('../../fhirAsserts');
 
 describe('AuditEventLastUpdatedTests', () => {
@@ -22,6 +19,7 @@ describe('AuditEventLastUpdatedTests', () => {
 
     describe('AuditEvent Last Updated Tests', () => {
         test('search by last updated works', async () => {
+            const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request
                 .get('/4_0_0/AuditEvent')

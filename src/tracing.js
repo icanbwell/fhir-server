@@ -11,9 +11,7 @@ const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
 const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
 // const { PrometheusExporter } = require("@openTelemetry/exporter-prometheus");
 
-const collectorOptions = {
-    serviceName: 'fhir_server',
-};
+const collectorOptions = {};
 
 const traceExporter = new CollectorTraceExporter(collectorOptions);
 

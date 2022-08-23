@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.json');
@@ -10,8 +7,8 @@ const practitioner3Resource = require('./fixtures/Practitioner/practitioner3.jso
 const expectedPractitionerWithLimitedAccessScopes = require('./fixtures/expected/expected_practitioner_with_limited_access_scopes.json');
 const expectedPractitionerWithUnlimitedAccessScopes = require('./fixtures/expected/expected_practitioner_with_unlimited_access_scopes.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
@@ -25,6 +22,7 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner search_by_multiple_access_scopes Tests', () => {
         test('search_by_multiple_access_scopes works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

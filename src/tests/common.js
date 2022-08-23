@@ -11,11 +11,76 @@ const {jwksEndpoint} = require('./mocks/jwks');
 const {publicKey, privateKey} = require('./mocks/keys');
 const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
-// const {app} = require('../app');
+const {createTestContainer} = require('./createTestContainer');
+const supertest = require('supertest');
+const {createApp} = require('../app');
+const {createServer} = require('../server');
+
 
 let connection;
 let db;
 let mongo;
+/**
+ * @type {import('http').Server}
+ */
+let server;
+/**
+ * @type {import('supertest').Test}
+ */
+let tester;
+
+/**
+ *  @type {import('express').Express}
+ */
+let app;
+
+/**
+ * @type {SimpleContainer}
+ */
+let testContainer;
+
+/**
+ * @return {SimpleContainer}
+ */
+module.exports.getTestContainer = () => {
+    return testContainer;
+};
+
+/**
+ * Creates a test version of the app
+ * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
+ * @return {import('express').Express}
+ */
+module.exports.createTestApp = (fnUpdateContainer) => {
+    /**
+     * @type {SimpleContainer}
+     */
+    testContainer = createTestContainer();
+    if (fnUpdateContainer !== undefined) {
+        testContainer = fnUpdateContainer(testContainer);
+    }
+    return createApp(() => testContainer);
+};
+
+/**
+ * @return {Promise<import('http').Server>}
+ */
+module.exports.createTestServer = async () => {
+    return createServer(() => createTestContainer());
+};
+
+/**
+ * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
+ * @return {import('supertest').Test}
+ */
+module.exports.createTestRequest = async (fnUpdateContainer) => {
+    if (!app) {
+        app = await module.exports.createTestApp(fnUpdateContainer);
+    }
+    // noinspection JSCheckFunctionSignatures
+    tester = supertest(app);
+    return tester;
+};
 
 /**
  * sets up the mongo db and token endpoint
@@ -27,7 +92,9 @@ module.exports.commonBeforeEach = async () => {
      * 1.1
      * Start in-memory MongoDB
      */
-    mongo = await MongoMemoryServer.create();
+    if (!mongo) {
+        mongo = await MongoMemoryServer.create();
+    }
     /**
      * 1.2
      * Set the MongoDB host and DB name as environment variables,
@@ -74,15 +141,42 @@ module.exports.commonBeforeEach = async () => {
  * @return {Promise<void>}
  */
 module.exports.commonAfterEach = async () => {
+    if (testContainer) {
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = testContainer.postRequestProcessor;
+        await postRequestProcessor.waitTillDoneAsync(20);
+    }
     globals.delete(CLIENT);
     globals.delete(CLIENT_DB);
     nock.cleanAll();
     nock.restore();
-    await db.dropDatabase();
-    await connection.close();
-    await mongo.stop();
+    if (db) {
+        await db.dropDatabase();
+        db = null;
+    }
+    const auditDatabase = globals.get(AUDIT_EVENT_CLIENT_DB);
+    if (auditDatabase) {
+        await auditDatabase.dropDatabase();
+        globals.delete(AUDIT_EVENT_CLIENT_DB);
+    }
+    if (connection) {
+        await connection.close();
+        connection = null;
+    }
+    if (mongo) {
+        await mongo.stop();
+        mongo = null;
+    }
+    if (server) {
+        await server.close();
+        server = null;
+    }
+    tester = null;
+    // app = null;
     // global.gc();
-    // await app.close();
+    globals.clear();
 };
 
 

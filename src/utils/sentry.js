@@ -4,7 +4,7 @@
 
 const Sentry = require('@sentry/node');
 
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
+const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN_SERVER,

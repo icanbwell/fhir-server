@@ -168,7 +168,7 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
  * @name referenceQueryBuilder
  * @param {string} target
  * @param {string} field
- * @param {?boolean} exists_flag
+ * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
 let referenceQueryBuilder = function (target, field, exists_flag) {
@@ -214,7 +214,7 @@ let referenceQueryBuilder = function (target, field, exists_flag) {
  * @description takes in number query and returns a mongo query. The target parameter can have a 2 letter prefix to
  *              specify a specific kind of query. Else, an approximation query will be returned.
  * @param target
- * @returns {JSON} a mongo query
+ * @returns {Object} a mongo query
  */
 let numberQueryBuilder = function (target) {
     let prefix = '';

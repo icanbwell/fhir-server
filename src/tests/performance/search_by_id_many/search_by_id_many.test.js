@@ -1,11 +1,9 @@
-const supertest = require('supertest');
 const deepcopy = require('deepcopy');
-const {app} = require('../../../app');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersNdJson} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, getHeadersNdJson, createTestRequest} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -18,6 +16,7 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By 10,0000 Tests', () => {
         test('search by 2,000 id works', async () => {
+            const request = await createTestRequest();
             // first confirm there are no practitioners
             let resp = await request
                 .get('/4_0_0/Practitioner')
