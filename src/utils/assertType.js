@@ -48,7 +48,9 @@ function assertIsValid(obj, message) {
     if (!obj) {
         const assertionError = new AssertionError(message ? message : 'obj is null or undefined');
         if (Error.captureStackTrace) {
-            Error.captureStackTrace(assertionError, assertTypeEquals);
+            Error.captureStackTrace(assertionError, assertIsValid);
+        } else {
+            assertionError.stack = new Error().stack;
         }
         throw assertionError;
     }
