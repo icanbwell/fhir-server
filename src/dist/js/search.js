@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 const formElement = document.getElementById('searchForm');
 const advSearchFormElement = document.getElementById('advSearchForm');
 const resetButtonElement = document.getElementById('resetFormButton');

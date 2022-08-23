@@ -1,7 +1,9 @@
+// noinspection ExceptionCaughtLocallyJS
+
 const {logDebug, logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
-const {BadRequestError} = require('../../utils/httpErrors');
+const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
@@ -26,7 +28,7 @@ class GraphOperation {
 
     /**
      * Supports $graph
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
@@ -78,7 +80,21 @@ class GraphOperation {
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 logDebug(user, 'GraphDefinition schema failed validation');
-                return operationOutcome;
+                // noinspection JSValidateTypes
+                /**
+                 * @type {Error}
+                 */
+                const notValidatedError = new NotValidatedError(operationOutcome);
+                await logOperationAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    message: 'operationFailed',
+                    action: currentOperationName,
+                    error: notValidatedError
+                });
+                throw notValidatedError;
             }
             /**
              * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}

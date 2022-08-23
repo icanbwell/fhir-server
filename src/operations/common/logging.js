@@ -48,26 +48,21 @@ module.exports.logWarn = (user, msg) => {
 };
 
 /**
- * @typedef LogOperationParameters
- * @type {object}
- * @property {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @property {Object} args
- * @property {string} resourceType
- * @property {number|null} startTime
- * @property {string} message
- * @property {string} action
- * @property {Error|undefined} error
- * @property {string|undefined} [query]
- * @property {string|undefined} [result]
- */
-
-/**
  * Logs a FHIR operation
- * @param {LogOperationParameters} options
+ * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+ * @param {Object} args
+ * @param {string} resourceType
+ * @param {number|null} startTime
+ * @param {number|null|undefined} [stopTime]
+ * @param {string} message
+ * @param {string} action
+ * @param {Error|undefined} error
+ * @param {string|undefined} [query]
+ * @param {string|undefined} [result]
  */
-module.exports.logOperationAsync = async (options) => {
-    const {
-        requestInfo,
+module.exports.logOperationAsync = async (
+    {
+        /** @type {import('../../utils/fhirRequestInfo').FhirRequestInfo} */ requestInfo,
         args = [],
         resourceType,
         startTime,
@@ -77,10 +72,11 @@ module.exports.logOperationAsync = async (options) => {
         error,
         query,
         result
-    } = options;
+    }
+) => {
 
     /**
-     * resource can have PHI so we strip it out for insecure logger
+     * resource can have PHI, so we strip it out for insecure logger
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
     const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {

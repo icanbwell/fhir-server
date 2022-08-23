@@ -46,11 +46,11 @@ describe('databaseBulkInserter Tests', () => {
             const requestId1 = '1234';
             await databaseBulkInserter.executeAsync(requestId1, currentDate, base_version, false);
 
+            // noinspection JSValidateTypes
             /**
              * mongo connection
              * @type {import('mongodb').Db}
              */
-                // noinspection JSValidateTypes
             const fhirDb = globals.get(CLIENT_DB);
             // check patients
             const patientCollection = `Patient_${base_version}`;

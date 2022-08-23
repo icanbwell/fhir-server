@@ -40,6 +40,7 @@ describe('GraphQL Patient Tests', () => {
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
 
+            // noinspection JSValidateTypes
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}

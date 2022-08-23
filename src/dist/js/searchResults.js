@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 const searchResultRows = document.querySelectorAll('.row-click');
 searchResultRows.forEach((row) => {
     row.addEventListener('click', rowClick);

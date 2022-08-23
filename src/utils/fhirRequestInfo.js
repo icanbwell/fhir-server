@@ -1,6 +1,9 @@
 const {assertIsValid} = require('./assertType');
 
-class RequestInfo {
+/**
+ * Store information about the HTTP request
+ */
+class FhirRequestInfo {
     /**
      * class that holds request info
      * @param {string | null} user
@@ -87,5 +90,5 @@ class RequestInfo {
 }
 
 module.exports = {
-    RequestInfo
+    FhirRequestInfo
 };

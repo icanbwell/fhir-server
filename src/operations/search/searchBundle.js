@@ -37,7 +37,7 @@ class SearchBundleOperation {
 
     /**
      * does a FHIR Search
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @param {boolean} filter

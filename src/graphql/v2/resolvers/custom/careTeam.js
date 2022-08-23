@@ -92,7 +92,7 @@ module.exports = {
                     careTeam.id = getUuid(careTeam);
                 }
                 /**
-                 * @type {import('../../../utils/requestInfo').RequestInfo}
+                 * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
                  */
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [careTeam];

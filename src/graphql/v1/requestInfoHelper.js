@@ -1,10 +1,10 @@
-const {RequestInfo} = require('../../utils/requestInfo');
+const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 /**
  * @param context
- * @returns {RequestInfo}
+ * @returns {FhirRequestInfo}
  */
 module.exports.getRequestInfo = (context) => {
-    return new RequestInfo(
+    return new FhirRequestInfo(
       context.user,
       context.scope,
       context.remoteIpAddress,

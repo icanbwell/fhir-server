@@ -253,7 +253,7 @@ class MergeManager {
      * Merges a single resource
      * @param {MongoCollectionManager} collectionManager
      * @param {Object} resource_to_merge
-     * @param {string} resourceName
+     * @param {string} resourceType
      * @param {string[] | null} scopes
      * @param {string|null} user
      * @param {string} path
@@ -266,7 +266,7 @@ class MergeManager {
      * @return {Promise<MergeResultEntry|null>}
      */
     async mergeResourceAsync(collectionManager,
-                             resource_to_merge, resourceName,
+                             resource_to_merge, resourceType,
                              scopes, user, path, currentDate,
                              requestId, baseVersion, scope,
                              databaseBulkInserter,
@@ -353,6 +353,7 @@ class MergeManager {
                 'merge_error');
             return {
                 id: id,
+                resourceType: resourceType,
                 created: false,
                 updated: false,
                 issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
@@ -373,7 +374,7 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {string} scope
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
@@ -556,11 +557,12 @@ class MergeManager {
                     }
                 ]
             };
+            const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
             return {
                 id: id,
                 created: false,
                 updated: false,
-                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                issue: issue,
                 operationOutcome: operationOutcome,
                 resourceType: resourceName
             };
@@ -708,7 +710,7 @@ class MergeManager {
 
     /**
      * logs audit entries for merge result entries
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
      * @param {string} requestId
      * @param {string} base_version
      * @param {Object} args

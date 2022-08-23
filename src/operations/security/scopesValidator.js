@@ -1,14 +1,3 @@
-/**
- * @typedef VerifyScopesParameters
- * @type {object}
- * @property {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @property {Object} args
- * @property {string} resourceType
- * @property {number|null} startTime
- * @property {string} action
- * @property {string} accessRequested
- */
-
 const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {ForbiddenError} = require('../../utils/httpErrors');
@@ -17,10 +6,23 @@ const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('./scopes');
 /**
  * Throws an error if no scope is valid for this request
- * @param {VerifyScopesParameters} options
+ * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+ * @param {Object} args
+ * @param {string} resourceType
+ * @param {number|null} startTime
+ * @param {string} action
+ * @param {string} accessRequested
  */
-const verifyHasValidScopesAsync = async (options) => {
-    const {requestInfo, args, resourceType, startTime, action, accessRequested} = options;
+const verifyHasValidScopesAsync = async (
+    {
+        requestInfo,
+        args,
+        resourceType,
+        startTime,
+        action,
+        accessRequested
+    }
+) => {
     const {user, scope} = requestInfo;
 
     if (env.AUTH_ENABLED === '1') {

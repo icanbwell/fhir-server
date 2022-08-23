@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 const pageOffsetInput = document.querySelector('input[name="_getpagesoffset"]');
 const countInput = document.querySelector('input[name="_count"]');
 

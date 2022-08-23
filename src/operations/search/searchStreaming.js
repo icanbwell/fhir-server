@@ -39,7 +39,7 @@ class SearchStreamingOperation {
 
     /**
      * does a FHIR Search
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
      * @param {import('http').ServerResponse} res
      * @param {Object} args
      * @param {string} resourceType
@@ -341,6 +341,7 @@ class SearchStreamingOperation {
                         if (requestId) {
                             res.setHeader('X-Request-ID', String(requestId));
                         }
+                        // noinspection JSUnresolvedFunction
                         res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                     } else {
                         if (requestId) {

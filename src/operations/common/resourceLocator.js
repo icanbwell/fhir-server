@@ -93,6 +93,7 @@ class ResourceLocator {
      * @returns {import('mongodb').Db}
      */
     getDatabaseConnection() {
+        // noinspection JSValidateTypes
         return (this._resourceType === 'AuditEvent') ?
             globals.get(AUDIT_EVENT_CLIENT_DB) : (this._useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
                 globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);

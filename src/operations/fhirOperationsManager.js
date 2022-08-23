@@ -13,7 +13,7 @@ const {PatchOperation} = require('./patch/patch');
 const {ValidateOperation} = require('./validate/validate');
 const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
-const {RequestInfo} = require('../utils/requestInfo');
+const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals} = require('../utils/assertType');
 
@@ -144,7 +144,7 @@ class FhirOperationsManager {
         const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
             (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
             ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
-        return new RequestInfo(
+        return new FhirRequestInfo(
             user,
             req.authInfo && req.authInfo.scope,
             req.headers['X-Forwarded-For'] || req.connection.remoteAddress,

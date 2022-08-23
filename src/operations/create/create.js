@@ -67,7 +67,7 @@ class CreateOperation {
 
     /**
      * does a FHIR Create (POST)
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} path
      * @param {string} resourceType
@@ -129,6 +129,7 @@ class CreateOperation {
                     currentDate,
                     uuid,
                     'create_failure');
+                // noinspection JSValidateTypes
                 /**
                  * @type {Error}
                  */

@@ -18,6 +18,7 @@ module.exports.countAllRequests = () => {
     return (req, res, next) => {
         if (!boundInstruments.has(req.path)) {
             const labels = {route: req.path};
+            // noinspection JSUnresolvedFunction
             const boundCounter = requestCount.bind(labels);
             boundInstruments.set(req.path, boundCounter);
         }

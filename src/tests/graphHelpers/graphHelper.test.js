@@ -6,7 +6,7 @@ const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json
 const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
-const {RequestInfo} = require('../../utils/requestInfo');
+const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
 
 /**
@@ -34,7 +34,7 @@ describe('graphHelper Tests', () => {
         await commonAfterEach();
     });
 
-    const requestInfo = new RequestInfo(
+    const requestInfo = new FhirRequestInfo(
         'user',
         'user/*.read access/*.*',
         null,

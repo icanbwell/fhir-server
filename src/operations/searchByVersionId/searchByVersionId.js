@@ -30,7 +30,7 @@ class SearchByVersionIdOperation {
 
     /**
      * does a FHIR Search By Version
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').RequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */

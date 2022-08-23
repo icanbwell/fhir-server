@@ -106,53 +106,45 @@ class SearchManager {
     }
 
     /**
-     * @typedef CreateBundleParameters
-     * @type {object}
-     * @property {string | null} url
-     * @property {string | null} last_id
-     * @property {Resource[]} resources
-     * @property {string} base_version
-     * @property {number|null} total_count
-     * @property {Object} args
-     * @property {import('mongodb').Document|import('mongodb').Document[]} originalQuery
-     * @property {string} collectionName
-     * @property {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
-     * @property {Set} columns
-     * @property {number} stopTime
-     * @property {number} startTime
-     * @property {boolean} useTwoStepSearchOptimization
-     * @property {string|null} indexHint
-     * @property {number | null} cursorBatchSize
-     * @property {string | null} user
-     * @property {boolean | null} useAtlas
-     */
-
-    /**
      * creates a bundle from the given resources
-     * @param {CreateBundleParameters} options
+     * @param {string | null} url
+     * @param {string | null} last_id
+     * @param {Resource[]} resources
+     * @param {string} base_version
+     * @param {number|null} total_count
+     * @param {Object} args
+     * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+     * @param {string} collectionName
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @param {Set} columns
+     * @param {number} stopTime
+     * @param {number} startTime
+     * @param {boolean} useTwoStepSearchOptimization
+     * @param {string|null} indexHint
+     * @param {number | null} cursorBatchSize
+     * @param {string | null} user
+     * @param {boolean | null} useAtlas
      * @return {{entry: {resource: Resource}[]}}
      */
-    createBundle(options) {
-        const {
-            url,
-            last_id,
-            resources,
-            base_version,
-            total_count,
-            args,
-            originalQuery,
-            collectionName,
-            originalOptions,
-            columns,
-            stopTime,
-            startTime,
-            useTwoStepSearchOptimization,
-            indexHint,
-            cursorBatchSize,
-            user,
-            useAtlas
-        } = options;
-
+    createBundle({
+                     url,
+                     last_id,
+                     resources,
+                     base_version,
+                     total_count,
+                     args,
+                     originalQuery,
+                     collectionName,
+                     originalOptions,
+                     columns,
+                     stopTime,
+                     startTime,
+                     useTwoStepSearchOptimization,
+                     indexHint,
+                     cursorBatchSize,
+                     user,
+                     useAtlas
+                 }) {
         /**
          * array of links
          * @type {[{relation:string, url: string}]}
@@ -272,8 +264,8 @@ class SearchManager {
     /**
      * @typedef GetCursorResult
      * @type {object}
-     * @property {int | null} cursorBatchSize
-     * @property {DatabasePartitionedCursor} cursor
+     * @property {number | null} cursorBatchSize
+     * @property {DatabasePartitionedCursor|null} cursor
      * @property {string | null} indexHint
      * @property {boolean} useTwoStepSearchOptimization
      * @property {Set} columns
@@ -388,7 +380,7 @@ class SearchManager {
                     useTwoStepSearchOptimization,
                     resources: [],
                     total_count: 0,
-                    indexHint: false,
+                    indexHint: null,
                     cursorBatchSize: 0,
                     cursor: null
                 };
@@ -867,36 +859,30 @@ class SearchManager {
     }
 
     /**
-     * @typedef StreamBundleParameters
-     * @type {object}
-     * @property {DatabasePartitionedCursor} cursor
-     * @property {string|null} requestId
-     * @property {string | null} url
-     * @property {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
-     * @property {import('http').ServerResponse} res
-     * @property {string | null} user
-     * @property {string | null} scope
-     * @property {Object|null} args
-     * @property {function (?Object): Resource} ResourceCreator
-     * @property {string} resourceType
-     * @property {boolean} useAccessIndex
-     * @property {number} batchObjectCount
-     */
-
-    /**
      * Reads resources from Mongo cursor and writes to response
-     * @param {StreamBundleParameters} options
+     * @type {object}
+     * @param {DatabasePartitionedCursor} cursor
+     * @param {string|null} requestId
+     * @param {string | null} url
+     * @param {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
+     * @param {import('http').ServerResponse} res
+     * @param {string | null} user
+     * @param {string | null} scope
+     * @param {Object|null} args
+     * @param {function (?Object): Resource} ResourceCreator
+     * @param {string} resourceType
+     * @param {boolean} useAccessIndex
+     * @param {number} batchObjectCount
      * @returns {Promise<string[]>}
      */
-    async streamBundleFromCursorAsync(options) {
-        const {
-            requestId,
-            cursor, url, fnBundle,
-            res, user, scope,
-            args, ResourceCreator, resourceType,
-            useAccessIndex,
-            batchObjectCount
-        } = options;
+    async streamBundleFromCursorAsync({
+                                          requestId,
+                                          cursor, url, fnBundle,
+                                          res, user, scope,
+                                          args, ResourceCreator, resourceType,
+                                          useAccessIndex,
+                                          batchObjectCount
+                                      }) {
         assertIsValid(requestId);
         /**
          * @type {AbortController}
@@ -961,29 +947,22 @@ class SearchManager {
     }
 
     /**
-     * @typedef StreamResourcesParameters
-     * @type {object}
-     * @property {DatabasePartitionedCursor} cursor
-     * @property {string|null} requestId
-     * @property {import('http').ServerResponse} res
-     * @property {string | null} user
-     * @property {string | null} scope
-     * @property {Object|null} args
-     * @property {function (?Object): Resource} ResourceCreator
-     * @property {string} resourceType
-     * @property {boolean} useAccessIndex
-     * @property {string} contentType
-     * @property {number} batchObjectCount
-     */
-
-    /**
      * Reads resources from Mongo cursor and writes to response
-     * @param {StreamResourcesParameters} options
+     * @param {DatabasePartitionedCursor} cursor
+     * @param {string|null} requestId
+     * @param {import('http').ServerResponse} res
+     * @param {string | null} user
+     * @param {string | null} scope
+     * @param {Object|null} args
+     * @param {function (?Object): Resource} ResourceCreator
+     * @param {string} resourceType
+     * @param {boolean} useAccessIndex
+     * @param {string} contentType
+     * @param {number} batchObjectCount
      * @returns {Promise<string[]>} ids of resources streamed
      */
-    async streamResourcesFromCursorAsync(options) {
-
-        const {
+    async streamResourcesFromCursorAsync(
+        {
             requestId,
             cursor,
             res,
@@ -996,7 +975,8 @@ class SearchManager {
             contentType = 'application/fhir+json',
             // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1
-        } = options;
+        }
+    ) {
         assertIsValid(requestId);
         /**
          * @type {boolean}

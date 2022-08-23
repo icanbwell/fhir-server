@@ -41,11 +41,13 @@ describe('InternalAuditLog Tests', () => {
             console.log('------- end response 1 ------------');
             await postRequestProcessor.waitTillDoneAsync();
             // check that InternalAuditLog is created
+            // noinspection JSValidateTypes
             /**
              * mongo connection
              * @type {import('mongodb').Db}
              */
             const fhirDb = globals.get(CLIENT_DB);
+            // noinspection JSValidateTypes
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}

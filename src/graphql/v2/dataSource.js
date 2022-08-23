@@ -64,7 +64,7 @@ class ResourceWithId {
 class FhirDataSource extends DataSource {
     /**
      * @param {SimpleContainer} container
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      */
     constructor(container, requestInfo) {
         super();
@@ -80,7 +80,7 @@ class FhirDataSource extends DataSource {
          */
         this.searchBundleOperation = container.searchBundleOperation;
         /**
-         * @type {import('../../utils/requestInfo').RequestInfo}}
+         * @type {import('../../utils/fhirRequestInfo').FhirRequestInfo}}
          */
         this.requestInfo = requestInfo;
         /**
@@ -149,7 +149,7 @@ class FhirDataSource extends DataSource {
      * gets resources for the passed in keys
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
-     * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
+     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
      * @return {Promise<Resource[]>}>}
      */
     async getResourcesInBatch(keys, requestInfo) {

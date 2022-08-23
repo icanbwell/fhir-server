@@ -160,15 +160,16 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-/* This function is called to extract the token from the jwt cookie
+/**
+ * This function is called to extract the token from the jwt cookie
+ * @param {import('http').IncomingMessage} req
+ * @return {{claims: {[p: string]: string|number|boolean|string[]}, scopes: string[]}|null}
  */
 const cookieExtractor = function (req) {
     /**
-     * @type {string|null}
+     * @type {{claims: {[p: string]: string | number | boolean | string[]}; scopes: string[]}|null}
      */
     let token = null;
-    logDebug('', 'Cookie req: ');
-    logDebug('', req);
     if (req && req.accepts('text/html') && req.cookies) {
         token = req.cookies['jwt'];
         logDebug('', 'Found cookie jwt with value: ' + token);

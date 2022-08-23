@@ -163,6 +163,10 @@ class MyFHIRServer extends FHIRServer.Server {
     //     return this;
     // }
 
+     configurePassport() {
+        return super.configurePassport();
+     }
+
     // configurePassport() {
     //     if (this.config.auth && this.config.auth.strategy) {
     //         let {

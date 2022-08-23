@@ -93,6 +93,7 @@ class FhirBundleWriter extends Transform {
              */
             const bundle = this._fnBundle(this._lastid, stopTime);
 
+            // noinspection JSUnresolvedFunction
             /**
              * @type {Object}
              */

@@ -195,6 +195,7 @@ function createApp(fnCreateContainer) {
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
                     router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
                     app.use('/graphqlv1', router1);
@@ -220,6 +221,7 @@ function createApp(fnCreateContainer) {
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
                     router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
                     app.use('/graphqlv1', router1);

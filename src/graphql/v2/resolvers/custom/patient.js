@@ -149,7 +149,7 @@ module.exports = {
                     patientToChange.generalPractitioner = [{reference: `Practitioner/${practitioners[0].id}`}];
                 }
                 /**
-                 * @type {import('../../../utils/requestInfo').RequestInfo}
+                 * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
                  */
                 const requestInfo = getRequestInfo(context);
                 requestInfo.body = [patientToChange];

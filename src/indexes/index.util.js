@@ -132,7 +132,11 @@ class IndexManager {
             let collection_names = [];
             // const collections = await db.listCollections().toArray();
 
-            await db.listCollections().forEach(collection => {
+            /**
+             * @type {import('mongodb').CommandCursor}
+             */
+            const commandCursor = db.listCollections();
+            await commandCursor.forEach(collection => {
                 if (collection.name.indexOf('system.') === -1) {
                     collection_names.push(collection.name);
                 }

@@ -14,6 +14,18 @@ if (env.MONGO_USERNAME !== undefined) {
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
 /**
+ * https://mongodb.github.io/node-mongodb-native/3.6/api/global.html#MongoClientOptions
+ * @type {import('mongodb').MongoClientOptions}
+ */
+const options = {
+    appname: 'fhir',
+    socketOptions: {
+        keepAlive: true,
+        connectTimeoutMS: 60000,
+        socketTimeoutMS: 60000
+    }
+};
+/**
  * @name mongoConfig
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
@@ -21,14 +33,7 @@ mongoUrl = encodeURI(mongoUrl);
 let mongoConfig = {
     connection: mongoUrl,
     db_name: String(env.MONGO_DB_NAME),
-    options: {
-        appName: 'fhir',
-        keepAlive: true,
-        connectTimeoutMS: 60000,
-        socketTimeoutMS: 60000,
-        retryReads: true,
-        // minPoolSize: 100,
-    },
+    options: options,
 };
 
 let atlasMongoUrl = env.ATLAS_MONGO_URL;
@@ -46,14 +51,7 @@ atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
 let atlasMongoConfig = {
     connection: atlasMongoUrl,
     db_name: String(env.ATLAS_MONGO_DB_NAME),
-    options: {
-        appName: 'fhir',
-        // keepAlive: true,
-        // connectTimeoutMS: 60000,
-        // socketTimeoutMS: 60000,
-        retryReads: true,
-        // minPoolSize: 100,
-    },
+    options: options
 };
 
 let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
@@ -71,14 +69,7 @@ auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditE
 let auditEventMongoConfig = {
     connection: auditEventMongoUrl,
     db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
-    options: {
-        appName: 'fhir_audit_event',
-        // keepAlive: true,
-        // connectTimeoutMS: 60000,
-        // socketTimeoutMS: 60000,
-        retryReads: true,
-        // minPoolSize: 100,
-    },
+    options: options
 };
 
 // Set up whitelist
