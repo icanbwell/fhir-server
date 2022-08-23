@@ -8,13 +8,13 @@ const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
-const {getQueryWithPatientFilter} = require('../common/getSecurityTags');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
+const {SecurityTagManager} = require('../common/securityTagManager');
 
 class SearchByIdOperation {
     /**
@@ -22,12 +22,14 @@ class SearchByIdOperation {
      * @param {SearchManager} searchManager
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
+     * @param {SecurityTagManager} securityTagManager
      */
     constructor(
         {
             searchManager,
             databaseQueryFactory,
-            auditLogger
+            auditLogger,
+            securityTagManager
         }
     ) {
         /**
@@ -45,6 +47,11 @@ class SearchByIdOperation {
          */
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -119,7 +126,7 @@ class SearchByIdOperation {
                         {
                             base_version, useAtlas, fhirPersonId
                         }));
-                query = getQueryWithPatientFilter({patients: allPatients, query, resourceType});
+                query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
             }
             try {
                 resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);

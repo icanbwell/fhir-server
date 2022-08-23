@@ -11,9 +11,11 @@ const env = require('var');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
-const {getSecurityTagsFromScope, getQueryWithSecurityTags} = require('../common/getSecurityTags');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {SecurityTagManager} = require('../common/securityTagManager');
 
 
 /**
@@ -103,13 +105,19 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
 class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {SecurityTagManager} securityTagManager
      */
-    constructor({databaseQueryFactory}) {
-        assert(databaseQueryFactory);
+    constructor({databaseQueryFactory, securityTagManager}) {
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -243,7 +251,10 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
+        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+            user: requestInfo.user,
+            scope: requestInfo.scope
+        });
         /**
          * @type {Object}
          */
@@ -255,7 +266,7 @@ class GraphHelper {
         if (filterProperty) {
             query[`${filterProperty}`] = filterValue;
         }
-        query = getQueryWithSecurityTags(
+        query = this.securityTagManager.getQueryWithSecurityTags(
             {
                 resourceType, securityTags, query
             });
@@ -366,8 +377,11 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
-        query = getQueryWithSecurityTags(
+        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+            user: requestInfo.user,
+            scope: requestInfo.scope
+        });
+        query = this.securityTagManager.getQueryWithSecurityTags(
             {
                 resourceType: relatedResourceType, securityTags, query
             });
@@ -811,8 +825,11 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
-        query = getQueryWithSecurityTags(
+        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+            user: requestInfo.user,
+            scope: requestInfo.scope
+        });
+        query = this.securityTagManager.getQueryWithSecurityTags(
             {
                 resourceType, securityTags, query
             });

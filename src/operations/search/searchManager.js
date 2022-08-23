@@ -1,8 +1,3 @@
-const {
-    getSecurityTagsFromScope,
-    getQueryWithSecurityTags,
-    getQueryWithPatientFilter
-} = require('../common/getSecurityTags');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
@@ -29,6 +24,7 @@ const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWrite
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {SecurityTagManager} = require('../common/securityTagManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
@@ -39,18 +35,27 @@ class SearchManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {SecurityTagManager} securityTagManager
      */
-    constructor({databaseQueryFactory, resourceLocatorFactory}) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+    constructor({
+                    databaseQueryFactory, resourceLocatorFactory,
+                    securityTagManager
+                }) {
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {ResourceLocatorFactory}
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
     }
 
     /**
@@ -72,13 +77,14 @@ class SearchManager {
             patients,
             args,
             resourceType,
-            useAccessIndex, filter = true
+            useAccessIndex,
+            filter = true
         }
     ) {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope({user, scope});
+        let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
         /**
          * @type {string}
          */
@@ -105,12 +111,12 @@ class SearchManager {
         } catch (e) {
             throw e;
         }
-        query = getQueryWithSecurityTags(
+        query = this.securityTagManager.getQueryWithSecurityTags(
             {
                 resourceType, securityTags, query, useAccessIndex
             });
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-            query = getQueryWithPatientFilter({patients, query, resourceType});
+            query = this.securityTagManager.getQueryWithPatientFilter({patients, query, resourceType});
         }
         return {base_version, query, columns};
     }

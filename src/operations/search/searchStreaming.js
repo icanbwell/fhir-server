@@ -70,6 +70,7 @@ class SearchStreamingOperation {
             fhirPersonId,
             /** @type {boolean} */
             isUser,
+            /** @type {string} */
             requestId
         } = requestInfo;
 

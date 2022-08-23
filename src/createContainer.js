@@ -38,12 +38,14 @@ const {ValidateOperation} = require('./operations/validate/validate');
 const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
 const {SearchByIdOperation} = require('./operations/searchById/searchById');
+const {SecurityTagManager} = require('./operations/common/securityTagManager');
 
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
  */
 const createContainer = function () {
+    // Note the order of registration does NOT matter
     const container = new SimpleContainer();
     container.register('kafkaClient', () => new KafkaClient(
             {
@@ -94,10 +96,14 @@ const createContainer = function () {
     container.register('searchManager', c => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
-                resourceLocatorFactory: c.resourceLocatorFactory
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                securityTagManager: c.securityTagManager
             }
         )
     );
+
+    container.register('securityTagManager', () => new SecurityTagManager());
+
     container.register('mergeManager', c => new MergeManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -135,7 +141,8 @@ const createContainer = function () {
     );
     container.register('graphHelper', c => new GraphHelper(
             {
-                databaseQueryFactory: c.databaseQueryFactory
+                databaseQueryFactory: c.databaseQueryFactory,
+                securityTagManager: c.securityTagManager
             }
         )
     );
@@ -163,7 +170,8 @@ const createContainer = function () {
         {
             searchManager: c.searchManager,
             databaseQueryFactory: c.databaseQueryFactory,
-            auditLogger: c.auditLogger
+            auditLogger: c.auditLogger,
+            securityTagManager: c.securityTagManager
         }
     ));
     container.register('createOperation', c => new CreateOperation(
