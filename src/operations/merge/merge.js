@@ -96,7 +96,7 @@ class MergeOperation {
 
     /**
      * does a FHIR Merge
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}

@@ -22,7 +22,7 @@ class EverythingOperation {
 
     /**
      * does a FHIR $everything
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */

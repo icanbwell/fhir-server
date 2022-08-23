@@ -28,7 +28,7 @@ class GraphOperation {
 
     /**
      * Supports $graph
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}

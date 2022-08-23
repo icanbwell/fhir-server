@@ -3,6 +3,7 @@ const {validateResource} = require('../../utils/validator.util');
 const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertIsValid} = require('../../utils/assertType');
+const {getResource} = require('../common/getResource');
 
 class ValidateOperation {
     constructor() {
@@ -10,7 +11,7 @@ class ValidateOperation {
 
     /**
      * does a FHIR Validate
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
@@ -23,9 +24,15 @@ class ValidateOperation {
          */
         const startTime = Date.now();
         const path = requestInfo.path;
+        /**
+         * @type {string}
+         */
+        let {base_version} = args;
 
         // no auth check needed to call validate
-
+        /**
+         * @type {Object|null}
+         */
         let resource_incoming = requestInfo.body;
 
         const operationOutcome = validateResource(resource_incoming, resourceType, path);
@@ -43,7 +50,8 @@ class ValidateOperation {
             return operationOutcome;
         }
 
-        if (!doesResourceHaveAccessTags(resource_incoming)) {
+        const ResourceCreator = getResource(base_version, resourceType);
+        if (!doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
             return {
                 resourceType: 'OperationOutcome',
                 issue: [

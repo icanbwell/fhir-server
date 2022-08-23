@@ -32,7 +32,7 @@ class HistoryByIdOperation {
 
     /**
      * does a FHIR History By id
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */

@@ -67,7 +67,7 @@ class CreateOperation {
 
     /**
      * does a FHIR Create (POST)
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} path
      * @param {string} resourceType

@@ -49,7 +49,7 @@ class SearchByIdOperation {
 
     /**
      * does a FHIR Search By Id
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      * @param {boolean} filter

@@ -114,7 +114,7 @@ class GraphHelper {
 
     /**
      * generates a full url for an entity
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {Resource} parentEntity
      * @return {string}
@@ -196,7 +196,7 @@ class GraphHelper {
 
     /**
      * Gets related resources and adds them to containedEntries in parentEntities
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
      * @param {EntityAndContainedBase[]} parentEntities
@@ -321,7 +321,7 @@ class GraphHelper {
 
     /**
      * Gets related resources using reverse link and add them to containedEntries in parentEntities
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} parentResourceType
      * @param {string} relatedResourceType
@@ -530,7 +530,7 @@ class GraphHelper {
 
     /**
      * processes a single graph link
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string | null} parentResourceType
      * @param {{path: string, params: string, target: {type: string}[]}} link
@@ -681,7 +681,7 @@ class GraphHelper {
 
     /**
      * processes a list of graph links
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} parentResourceType
      * @param {[Resource]} parentEntities
@@ -777,7 +777,7 @@ class GraphHelper {
      * processing multiple ids
      * @param {string} base_version
      * @param {boolean} useAtlas
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} graphDefinition
      * @param {boolean} contained
@@ -914,7 +914,7 @@ class GraphHelper {
 
     /**
      * process GraphDefinition and returns a bundle with all the related resources
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {boolean} useAtlas
      * @param {string} resourceType

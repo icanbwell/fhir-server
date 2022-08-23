@@ -49,7 +49,7 @@ module.exports.logWarn = (user, msg) => {
 
 /**
  * Logs a FHIR operation
- * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+ * @param {FhirRequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  * @param {number|null} startTime
@@ -62,7 +62,7 @@ module.exports.logWarn = (user, msg) => {
  */
 module.exports.logOperationAsync = async (
     {
-        /** @type {import('../../utils/fhirRequestInfo').FhirRequestInfo} */ requestInfo,
+        /** @type {FhirRequestInfo} */ requestInfo,
         args = [],
         resourceType,
         startTime,

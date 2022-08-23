@@ -6,7 +6,7 @@ const {logOperationAsync} = require('../common/logging');
 const {parseScopes} = require('./scopes');
 /**
  * Throws an error if no scope is valid for this request
- * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+ * @param {FhirRequestInfo} requestInfo
  * @param {Object} args
  * @param {string} resourceType
  * @param {number|null} startTime

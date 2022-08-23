@@ -56,7 +56,7 @@ class PatchOperation {
 
     /**
      * does a FHIR Patch
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
      */
