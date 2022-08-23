@@ -1,7 +1,7 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logDebug, logOperationAsync} = require('../common/logging');
+const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
@@ -12,6 +12,7 @@ const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ErrorReporter} = require('../../utils/slack.logger');
 const {AuditLogger} = require('../../utils/auditLogger');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class SearchBundleOperation {
     /**
@@ -20,8 +21,17 @@ class SearchBundleOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {AuditLogger} auditLogger
      * @param {ErrorReporter} errorReporter
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
-    constructor({searchManager, resourceLocatorFactory, auditLogger, errorReporter}) {
+    constructor(
+        {
+            searchManager,
+            resourceLocatorFactory,
+            auditLogger,
+            errorReporter,
+            fhirLoggingManager
+        }
+    ) {
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
 
@@ -33,6 +43,11 @@ class SearchBundleOperation {
 
         this.errorReporter = errorReporter;
         assertTypeEquals(errorReporter, ErrorReporter);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -119,7 +134,7 @@ class SearchBundleOperation {
                     user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
                 }));
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -134,7 +149,7 @@ class SearchBundleOperation {
         /**
          * @type {function(?Object): Resource}
          */
-        let Resource = getResource(base_version, resourceType);
+        let ResourceCreator = getResource(base_version, resourceType);
 
         /**
          * @type {import('mongodb').FindOneOptions}
@@ -205,7 +220,7 @@ class SearchBundleOperation {
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
                         cursor, user, scope, args,
-                        Resource, resourceType,
+                        ResourceCreator, resourceType,
                         useAccessIndex
                     }
                 );
@@ -266,7 +281,7 @@ class SearchBundleOperation {
                     useAtlas
                 }
             );
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -282,7 +297,7 @@ class SearchBundleOperation {
              * @type {string}
              */
             const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

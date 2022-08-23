@@ -1,7 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperationAsync} = require('../common/logging');
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -10,15 +8,21 @@ const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class SearchByVersionIdOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
-            databaseHistoryFactory
+            databaseHistoryFactory,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -26,6 +30,17 @@ class SearchByVersionIdOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -75,14 +90,14 @@ class SearchByVersionIdOperation {
             }
 
             if (resource) {
-                if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         resource.resourceType + ' with id ' + id);
                 }
                 // run any enrichment
                 resource = (await enrich([resource], resourceType))[0];
-                await logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -95,7 +110,7 @@ class SearchByVersionIdOperation {
                 throw new NotFoundError();
             }
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

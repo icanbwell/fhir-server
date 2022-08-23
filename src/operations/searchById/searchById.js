@@ -1,7 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperationAsync} = require('../common/logging');
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -15,6 +13,8 @@ const {SearchManager} = require('../search/searchManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {SecurityTagManager} = require('../common/securityTagManager');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class SearchByIdOperation {
     /**
@@ -23,13 +23,17 @@ class SearchByIdOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
      * @param {SecurityTagManager} securityTagManager
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
             searchManager,
             databaseQueryFactory,
             auditLogger,
-            securityTagManager
+            securityTagManager,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -52,6 +56,16 @@ class SearchByIdOperation {
          */
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -136,7 +150,7 @@ class SearchByIdOperation {
 
 
             if (resource) {
-                if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         resource.resourceType + ' with id ' + id);
@@ -154,7 +168,7 @@ class SearchByIdOperation {
                     const currentDate = moment.utc().format('YYYY-MM-DD');
                     await this.auditLogger.flushAsync(requestId, currentDate);
                 }
-                await logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -167,7 +181,7 @@ class SearchByIdOperation {
                 throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
             }
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

@@ -1,7 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperationAsync} = require('../common/logging');
-const {getAccessCodesFromScopes} = require('../security/scopes');
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
@@ -13,17 +11,23 @@ const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class RemoveOperation {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {AuditLogger} auditLogger
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
             databaseQueryFactory,
-            auditLogger
+            auditLogger,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -36,6 +40,16 @@ class RemoveOperation {
          */
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -64,7 +78,7 @@ class RemoveOperation {
          */
         let securityTags = [];
         // add any access codes from scopes
-        const accessCodes = getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
         if (env.AUTH_ENABLED === '1') {
             // fail if there are no access codes
             if (accessCodes.length === 0) {
@@ -155,7 +169,7 @@ class RemoveOperation {
                 throw new NotAllowedError(e.message);
             }
 
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -165,7 +179,7 @@ class RemoveOperation {
             });
             return {deleted: res.deletedCount};
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

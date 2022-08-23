@@ -1,7 +1,6 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
 const {getResource} = require('../common/getResource');
-const {logOperationAsync} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
@@ -13,6 +12,7 @@ const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {ErrorReporter} = require('../../utils/slack.logger');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 
 class SearchStreamingOperation {
@@ -22,19 +22,45 @@ class SearchStreamingOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {AuditLogger} auditLogger
      * @param {ErrorReporter} errorReporter
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
-    constructor({searchManager, resourceLocatorFactory, auditLogger, errorReporter}) {
+    constructor(
+        {
+            searchManager,
+            resourceLocatorFactory,
+            auditLogger,
+            errorReporter,
+            fhirLoggingManager
+        }
+    ) {
+        /**
+         * @type {SearchManager}
+         */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
 
+        /**
+         * @type {ResourceLocatorFactory}
+         */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
+        /**
+         * @type {AuditLogger}
+         */
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
 
+        /**
+         * @type {ErrorReporter}
+         */
         this.errorReporter = errorReporter;
         assertTypeEquals(errorReporter, ErrorReporter);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -118,7 +144,7 @@ class SearchStreamingOperation {
                     user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
                 }));
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -369,7 +395,7 @@ class SearchStreamingOperation {
              * @type {string}
              */
             const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -383,7 +409,7 @@ class SearchStreamingOperation {
              * @type {string}
              */
             const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

@@ -3,9 +3,6 @@
  */
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
-const {
-    doesResourceHaveAnyAccessCodeFromThisList, getAccessCodesFromScopes
-} = require('../security/scopes');
 const env = require('var');
 const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
@@ -17,6 +14,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
+const {ScopesManager} = require('../security/scopesManager');
 
 /**
  * This class helps with creating graph responses
@@ -25,8 +23,10 @@ class GraphHelper {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SecurityTagManager} securityTagManager
+     * @param {ScopesManager} scopesManager
      */
-    constructor({databaseQueryFactory, securityTagManager}) {
+    constructor({databaseQueryFactory, securityTagManager,
+                scopesManager}) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -37,6 +37,12 @@ class GraphHelper {
          */
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -997,9 +1003,9 @@ class GraphHelper {
         let uniqueEntries = this.removeDuplicatesWithLambda(entries,
             (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
 
-        const accessCodes = getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
         uniqueEntries = uniqueEntries.filter(
-            e => doesResourceHaveAnyAccessCodeFromThisList(
+            e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
                 accessCodes, requestInfo.user, requestInfo.scope, e.resource
             )
         );

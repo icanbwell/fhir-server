@@ -1,5 +1,3 @@
-const {logOperationAsync} = require('../common/logging');
-const {isAccessToResourceAllowedBySecurityTags} = require('../../operations/security/scopes');
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const {getResource} = require('../common/getResource');
@@ -9,16 +7,22 @@ const env = require('var');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class HistoryOperation {
     /**
      * constructor
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
-            databaseHistoryFactory
+            databaseHistoryFactory,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -26,6 +30,17 @@ class HistoryOperation {
          */
         this.databaseHistoryFactory = databaseHistoryFactory;
         assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -81,7 +96,7 @@ class HistoryOperation {
             cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .findAsync(query);
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -96,14 +111,14 @@ class HistoryOperation {
         while (await cursor.hasNext()) {
             const element = await cursor.next();
             const resource = new Resource(element);
-            if (isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+            if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
                 resources.push(resource);
             }
         }
         if (resources.length === 0) {
             throw new NotFoundError();
         }
-        await logOperationAsync({
+        await this.fhirLoggingManager.logOperationAsync({
             requestInfo,
             args,
             resourceType,

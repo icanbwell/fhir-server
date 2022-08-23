@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logOperationAsync} = require('../common/logging');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
@@ -15,6 +14,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class PatchOperation {
     /**
@@ -23,13 +23,15 @@ class PatchOperation {
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
             databaseQueryFactory,
             databaseHistoryFactory,
             changeEventProducer,
-            postRequestProcessor
+            postRequestProcessor,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -52,6 +54,11 @@ class PatchOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -158,7 +165,7 @@ class PatchOperation {
             } catch (e) {
                 throw new BadRequestError(e);
             }
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -177,7 +184,7 @@ class PatchOperation {
                 resource_version: doc.meta.versionId,
             };
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

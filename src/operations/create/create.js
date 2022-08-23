@@ -1,5 +1,4 @@
-const {logDebug, logOperationAsync} = require('../common/logging');
-const {doesResourceHaveAccessTags} = require('../security/scopes');
+const {logDebug} = require('../common/logging');
 const {getUuid} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -19,6 +18,8 @@ const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory')
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class CreateOperation {
     /**
@@ -28,6 +29,8 @@ class CreateOperation {
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
@@ -35,7 +38,9 @@ class CreateOperation {
             databaseUpdateFactory,
             changeEventProducer,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -63,6 +68,16 @@ class CreateOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -134,7 +149,7 @@ class CreateOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(operationOutcome);
-                await logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -166,7 +181,7 @@ class CreateOperation {
             logDebug(user, `resource: ${resource.toJSON()}`);
 
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-                if (!doesResourceHaveAccessTags(resource)) {
+                if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
                 }
@@ -239,7 +254,7 @@ class CreateOperation {
             await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .insertOneAsync(history_doc);
             const result = {id: doc.id, resource_version: doc.meta.versionId};
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -260,7 +275,7 @@ class CreateOperation {
                 currentDate,
                 uuid,
                 currentOperationName);
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

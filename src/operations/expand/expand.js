@@ -1,5 +1,3 @@
-const {logOperationAsync} = require('../common/logging');
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
 const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
@@ -9,17 +7,23 @@ const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ValueSetManager} = require('../../utils/valueSet.util');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class ExpandOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ValueSetManager} valueSetManager
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
             databaseQueryFactory,
-            valueSetManager
+            valueSetManager,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -32,6 +36,17 @@ class ExpandOperation {
          */
         this.valueSetManager = valueSetManager;
         assertTypeEquals(valueSetManager, ValueSetManager);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -85,7 +100,7 @@ class ExpandOperation {
             resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -98,11 +113,11 @@ class ExpandOperation {
         }
 
         if (resource) {
-            if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+            if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
-                await logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -122,7 +137,7 @@ class ExpandOperation {
             resource = (await enrich([resource], resourceType))[0];
 
             const result = new Resource(resource);
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo, args, resourceType, startTime,
                 message: 'operationCompleted', action: currentOperationName,
                 result: JSON.stringify(result)

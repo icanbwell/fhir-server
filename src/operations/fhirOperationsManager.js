@@ -265,7 +265,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async searchById(args, {req}, resourceType) {
         return this.searchByIdOperation.searchById(
             this.getRequestInfo(req),
@@ -355,7 +354,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async remove(args, {req}, resourceType) {
         /**
          * combined args
@@ -374,7 +372,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async searchByVersionId(args, {req}, resourceType) {
         return this.searchByVersionIdOperation.searchByVersionId(
             this.getRequestInfo(req),
@@ -387,7 +384,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async history(args, {req}, resourceType) {
         return this.historyOperation.history(
             this.getRequestInfo(req),
@@ -400,7 +396,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async historyById(args, {req}, resourceType) {
         return this.historyByIdOperation.historyById(
             this.getRequestInfo(req),
@@ -413,7 +408,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async patch(args, {req}, resourceType) {
         return this.patchOperation.patch(
             this.getRequestInfo(req),
@@ -456,7 +450,6 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-// eslint-disable-next-line no-unused-vars
     async expand(args, {req}, resourceType) {
         return this.expandOperation.expand(
             this.getRequestInfo(req),

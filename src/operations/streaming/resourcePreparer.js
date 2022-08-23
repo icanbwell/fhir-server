@@ -1,5 +1,4 @@
 const {Transform} = require('stream');
-const {prepareResourceAsync} = require('../common/resourcePreparer');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 
@@ -13,6 +12,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
+     * @param {ResourcePreparer} resourcePreparer
      */
     constructor(
         {
@@ -22,7 +22,8 @@ class ResourcePreparerTransform extends Transform {
             ResourceCreator,
             resourceType,
             useAccessIndex,
-            signal
+            signal,
+            resourcePreparer
         }
     ) {
         super({objectMode: true});
@@ -54,6 +55,10 @@ class ResourcePreparerTransform extends Transform {
          * @type {AbortSignal}
          */
         this._signal = signal;
+        /**
+         * @type {ResourcePreparer}
+         */
+        this.resourcePreparer = resourcePreparer;
     }
 
     /**
@@ -86,7 +91,7 @@ class ResourcePreparerTransform extends Transform {
      * @returns {Promise<Resource[]>}
      */
     async processChunkAsync(chunk1) {
-        return prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
+        return this.resourcePreparer.prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
             this.resourceName, this.useAccessIndex)
             .then(
                 resources => {

@@ -1,5 +1,3 @@
-const {logOperationAsync} = require('../common/logging');
-const {parseScopes} = require('../security/scopes');
 const moment = require('moment-timezone');
 const {validateResource} = require('../../utils/validator.util');
 const {isTrue} = require('../../utils/isTrue');
@@ -13,6 +11,8 @@ const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class MergeOperation {
     /**
@@ -22,6 +22,8 @@ class MergeOperation {
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {MongoCollectionManager} collectionManager
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
@@ -30,7 +32,9 @@ class MergeOperation {
             changeEventProducer,
             databaseBulkLoader,
             collectionManager,
-            postRequestProcessor
+            postRequestProcessor,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -63,6 +67,18 @@ class MergeOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -161,7 +177,7 @@ class MergeOperation {
             /**
              * @type {string[]}
              */
-            const scopes = parseScopes(scope);
+            const scopes = this.scopesManager.parseScopes(scope);
 
             // read the incoming resource from request body
             /**
@@ -265,7 +281,7 @@ class MergeOperation {
                     requestInfo, requestId, base_version, args, mergeResults
                 });
 
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -276,7 +292,7 @@ class MergeOperation {
             });
             return wasIncomingAList ? mergeResults : mergeResults[0];
         } catch (e) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

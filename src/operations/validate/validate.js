@@ -1,12 +1,27 @@
-const {logOperationAsync} = require('../common/logging');
 const {validateResource} = require('../../utils/validator.util');
-const {doesResourceHaveAccessTags} = require('../security/scopes');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {getResource} = require('../common/getResource');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class ValidateOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
+     */
+    constructor({scopesManager, fhirLoggingManager}) {
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -39,7 +54,7 @@ class ValidateOperation {
         const currentOperationName = 'validate';
         if (operationOutcome && operationOutcome.statusCode === 400) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-            await logOperationAsync({
+            await this.fh.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -51,7 +66,7 @@ class ValidateOperation {
         }
 
         const ResourceCreator = getResource(base_version, resourceType);
-        if (!doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+        if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
             return {
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -68,7 +83,7 @@ class ValidateOperation {
                 ]
             };
         }
-        await logOperationAsync({
+        await this.fhirLoggingManager.logOperationAsync({
             requestInfo,
             args,
             resourceType,

@@ -25,6 +25,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagManager} = require('../common/securityTagManager');
+const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
@@ -36,11 +37,14 @@ class SearchManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {SecurityTagManager} securityTagManager
+     * @param {ResourcePreparer} resourcePreparer
      */
     constructor(
         {
-            databaseQueryFactory, resourceLocatorFactory,
-            securityTagManager
+            databaseQueryFactory,
+            resourceLocatorFactory,
+            securityTagManager,
+            resourcePreparer
         }
     ) {
         /**
@@ -58,6 +62,12 @@ class SearchManager {
          */
         this.securityTagManager = securityTagManager;
         assertTypeEquals(securityTagManager, SecurityTagManager);
+
+        /**
+         * @type {ResourcePreparer}
+         */
+        this.resourcePreparer = resourcePreparer;
+        assertTypeEquals(resourcePreparer, ResourcePreparer);
     }
 
     /**
@@ -842,7 +852,8 @@ class SearchManager {
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+                        user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                        resourcePreparer: this.resourcePreparer
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -995,7 +1006,8 @@ class SearchManager {
 
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                resourcePreparer: this.resourcePreparer
             }
         );
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
@@ -1108,7 +1120,8 @@ class SearchManager {
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                resourcePreparer: this.resourcePreparer
             }
         );
         /**

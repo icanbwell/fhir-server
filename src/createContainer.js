@@ -39,6 +39,10 @@ const {GraphOperation} = require('./operations/graph/graph');
 const {ExpandOperation} = require('./operations/expand/expand');
 const {SearchByIdOperation} = require('./operations/searchById/searchById');
 const {SecurityTagManager} = require('./operations/common/securityTagManager');
+const {FhirLoggingManager} = require('./operations/common/fhirLoggingManager');
+const {ScopesManager} = require('./operations/security/scopesManager');
+const {ScopesValidator} = require('./operations/security/scopesValidator');
+const {ResourcePreparer} = require('./operations/common/resourcePreparer');
 
 /**
  * Creates a container and sets up all the services
@@ -47,6 +51,22 @@ const {SecurityTagManager} = require('./operations/common/securityTagManager');
 const createContainer = function () {
     // Note the order of registration does NOT matter
     const container = new SimpleContainer();
+
+    container.register('scopesManager', () => new ScopesManager());
+    container.register('resourcePreparer', c => new ResourcePreparer(
+        {
+            scopesManager: c.scopesManager
+        }
+    ));
+
+    container.register('scopesValidator', c => new ScopesValidator({
+        scopesManager: c.scopesManager,
+        fhirLoggingManager: c.fhirLoggingManager
+    }));
+
+    container.register('fhirLoggingManager', c => new FhirLoggingManager({
+        scopesManager: c.scopesManager
+    }));
     container.register('kafkaClient', () => new KafkaClient(
             {
                 clientId: env.KAFKA_CLIENT_ID,
@@ -97,19 +117,24 @@ const createContainer = function () {
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                securityTagManager: c.securityTagManager
+                securityTagManager: c.securityTagManager,
+                resourcePreparer: c.resourcePreparer
             }
         )
     );
 
-    container.register('securityTagManager', () => new SecurityTagManager());
+    container.register('securityTagManager', c => new SecurityTagManager(
+        {
+            scopesManager: c.scopesManager
+        }));
 
     container.register('mergeManager', c => new MergeManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 auditLogger: c.auditLogger,
                 databaseBulkInserter: c.databaseBulkInserter,
-                databaseBulkLoader: c.databaseBulkLoader
+                databaseBulkLoader: c.databaseBulkLoader,
+                scopesManager: c.scopesManager
             }
         )
     );
@@ -142,7 +167,8 @@ const createContainer = function () {
     container.register('graphHelper', c => new GraphHelper(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
-                securityTagManager: c.securityTagManager
+                securityTagManager: c.securityTagManager,
+                scopesManager: c.scopesManager
             }
         )
     );
@@ -153,7 +179,8 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
-                errorReporter: c.errorReporter
+                errorReporter: c.errorReporter,
+                fhirLoggingManager: c.fhirLoggingManager
             }
         )
     );
@@ -162,7 +189,8 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
-                errorReporter: c.errorReporter
+                errorReporter: c.errorReporter,
+                fhirLoggingManager: c.fhirLoggingManager
             }
         )
     );
@@ -171,7 +199,9 @@ const createContainer = function () {
             searchManager: c.searchManager,
             databaseQueryFactory: c.databaseQueryFactory,
             auditLogger: c.auditLogger,
-            securityTagManager: c.securityTagManager
+            securityTagManager: c.securityTagManager,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('createOperation', c => new CreateOperation(
@@ -180,7 +210,9 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 changeEventProducer: c.changeEventProducer,
                 databaseUpdateFactory: c.databaseUpdateFactory,
-                databaseHistoryFactory: c.databaseHistoryFactory
+                databaseHistoryFactory: c.databaseHistoryFactory,
+                scopesManager: c.scopesManager,
+                fhirLoggingManager: c.fhirLoggingManager
             }
         )
     );
@@ -190,7 +222,9 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 changeEventProducer: c.changeEventProducer,
                 databaseHistoryFactory: c.databaseHistoryFactory,
-                databaseQueryFactory: c.databaseQueryFactory
+                databaseQueryFactory: c.databaseQueryFactory,
+                scopesManager: c.scopesManager,
+                fhirLoggingManager: c.fhirLoggingManager
             }
         )
     );
@@ -201,31 +235,43 @@ const createContainer = function () {
             collectionManager: c.collectionManager,
             changeEventProducer: c.changeEventProducer,
             databaseBulkLoader: c.databaseBulkLoader,
-            databaseBulkInserter: c.databaseBulkInserter
+            databaseBulkInserter: c.databaseBulkInserter,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
-        graphOperation: c.graphOperation
+        graphOperation: c.graphOperation,
+        fhirLoggingManager: c.fhirLoggingManager
     }));
+
     container.register('removeOperation', c => new RemoveOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            auditLogger: c.auditLogger
+            auditLogger: c.auditLogger,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('searchByVersionIdOperation', c => new SearchByVersionIdOperation(
         {
-            databaseHistoryFactory: c.databaseHistoryFactory
+            databaseHistoryFactory: c.databaseHistoryFactory,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('historyOperation', c => new HistoryOperation(
         {
-            databaseHistoryFactory: c.databaseHistoryFactory
+            databaseHistoryFactory: c.databaseHistoryFactory,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('historyByIdOperation', c => new HistoryByIdOperation(
         {
-            databaseHistoryFactory: c.databaseHistoryFactory
+            databaseHistoryFactory: c.databaseHistoryFactory,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('patchOperation', c => new PatchOperation(
@@ -233,19 +279,28 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             databaseHistoryFactory: c.databaseHistoryFactory,
             changeEventProducer: c.changeEventProducer,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
-    container.register('validateOperation', () => new ValidateOperation());
+    container.register('validateOperation', c => new ValidateOperation(
+        {
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
+        }
+    ));
     container.register('graphOperation', c => new GraphOperation(
         {
-            graphHelper: c.graphHelper
+            graphHelper: c.graphHelper,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
     container.register('expandOperation', c => new ExpandOperation(
         {
             valueSetManager: c.valueSetManager,
-            databaseQueryFactory: c.databaseQueryFactory
+            databaseQueryFactory: c.databaseQueryFactory,
+            scopesManager: c.scopesManager,
+            fhirLoggingManager: c.fhirLoggingManager
         }
     ));
 

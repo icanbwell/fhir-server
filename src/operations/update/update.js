@@ -1,8 +1,4 @@
-const {logDebug, logOperationAsync} = require('../common/logging');
-const {
-    isAccessToResourceAllowedBySecurityTags,
-    doesResourceHaveAccessTags
-} = require('../security/scopes');
+const {logDebug} = require('../common/logging');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
@@ -23,6 +19,8 @@ const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 /**
  * Update Operation
@@ -35,6 +33,8 @@ class UpdateOperation {
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
@@ -42,7 +42,9 @@ class UpdateOperation {
             databaseQueryFactory,
             changeEventProducer,
             auditLogger,
-            postRequestProcessor
+            postRequestProcessor,
+            scopesManager,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -70,6 +72,16 @@ class UpdateOperation {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -178,7 +190,7 @@ class UpdateOperation {
                  * @type {Resource}
                  */
                 let foundResource = new ResourceCreator(data);
-                if (!(isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
@@ -211,7 +223,7 @@ class UpdateOperation {
                 // see if there are any changes
                 if (patchContent.length === 0) {
                     logDebug(user, 'No changes detected in updated resource');
-                    await logOperationAsync({
+                    await this.fhirLoggingManager.logOperationAsync({
                         requestInfo,
                         args,
                         resourceType,
@@ -254,7 +266,7 @@ class UpdateOperation {
                 // not found so insert
                 logDebug(user, 'update: new resource: ' + JSON.stringify(resource_incoming));
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-                    if (!doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+                    if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
                         // noinspection ExceptionCaughtLocallyJS
                         throw new BadRequestError(new Error('ResourceC is missing a security access tag with system: https://www.icanbwell.com/access '));
                     }
@@ -317,7 +329,7 @@ class UpdateOperation {
                 created: res.created,
                 resource_version: doc.meta.versionId,
             };
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -338,7 +350,7 @@ class UpdateOperation {
                 currentDate,
                 id,
                 currentOperationName);
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

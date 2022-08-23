@@ -6,7 +6,6 @@ const {removeNull} = require('../../utils/nullRemover');
 const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
-const {isAccessToResourceAllowedBySecurityTags, doesResourceHaveAccessTags} = require('../security/scopes');
 const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
@@ -23,6 +22,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
+const {ScopesManager} = require('../security/scopesManager');
 
 class MergeManager {
     /**
@@ -31,13 +31,15 @@ class MergeManager {
      * @param {AuditLogger} auditLogger
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
+     * @param {ScopesManager} scopesManager
      */
     constructor(
         {
             databaseQueryFactory,
             auditLogger,
             databaseBulkInserter,
-            databaseBulkLoader
+            databaseBulkLoader,
+            scopesManager
         }
     ) {
         /**
@@ -60,6 +62,11 @@ class MergeManager {
          */
         this.databaseBulkLoader = databaseBulkLoader;
         assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -158,7 +165,7 @@ class MergeManager {
             logDebug(user, 'No changes detected in updated resource');
             return;
         }
-        if (!(isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 foundResource.resourceType + ' with id ' + id);
@@ -248,7 +255,7 @@ class MergeManager {
             JSON.stringify(resourceToMerge)
         );
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!doesResourceHaveAccessTags(resourceToMerge)) {
+            if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
             }
         }
@@ -689,7 +696,7 @@ class MergeManager {
         }
 
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!doesResourceHaveAccessTags(resourceToMerge)) {
+            if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 const accessTagOperationOutcome = {
                     resourceType: 'OperationOutcome',
                     issue: [

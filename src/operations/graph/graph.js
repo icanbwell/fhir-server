@@ -1,6 +1,6 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logDebug, logOperationAsync} = require('../common/logging');
+const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
@@ -9,14 +9,17 @@ const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
 class GraphOperation {
     /**
      * @param {GraphHelper} graphHelper
+     * @param {FhirLoggingManager} fhirLoggingManager
      */
     constructor(
         {
-            graphHelper
+            graphHelper,
+            fhirLoggingManager
         }
     ) {
         /**
@@ -24,6 +27,11 @@ class GraphOperation {
          */
         this.graphHelper = graphHelper;
         assertTypeEquals(graphHelper, GraphHelper);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
     }
 
     /**
@@ -85,7 +93,7 @@ class GraphOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(operationOutcome);
-                await logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -115,7 +123,7 @@ class GraphOperation {
             // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
             //     return operationOutcomeResult;
             // }
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,
@@ -125,7 +133,7 @@ class GraphOperation {
             });
             return result;
         } catch (err) {
-            await logOperationAsync({
+            await this.fhirLoggingManager.logOperationAsync({
                 requestInfo,
                 args,
                 resourceType,

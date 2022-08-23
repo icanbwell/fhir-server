@@ -1,14 +1,24 @@
-const {getAccessCodesFromScopes} = require('../security/scopes');
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 const {profiles} = require('../../profiles');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ScopesManager} = require('../security/scopesManager');
 
 /**
  * This class manages queries for security tags
  */
 class SecurityTagManager {
-    constructor() {
+    /**
+     * constructor
+     * @param {ScopesManager} scopesManager
+     */
+    constructor({scopesManager}) {
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -23,7 +33,7 @@ class SecurityTagManager {
          */
         let securityTags = [];
         // add any access codes from scopes
-        const accessCodes = getAccessCodesFromScopes('read', user, scope);
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
         if (env.AUTH_ENABLED === '1') {
             // fail if there are no access codes
             if (accessCodes.length === 0) {
