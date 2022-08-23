@@ -1,6 +1,7 @@
 /**
  * 3rd party Error Tracking Middleware
  */
+const process = require('node:process');
 const Sentry = require('@sentry/node');
 const {ErrorReporter} = require('../utils/slack.logger');
 
