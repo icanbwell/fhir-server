@@ -1,5 +1,4 @@
 const {DataSource} = require('apollo-datasource');
-const {getRequestInfo} = require('./requestInfoHelper');
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
@@ -64,7 +63,7 @@ class ResourceWithId {
 class FhirDataSource extends DataSource {
     /**
      * @param {SimpleContainer} container
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      */
     constructor(container, requestInfo) {
         super();
@@ -80,7 +79,7 @@ class FhirDataSource extends DataSource {
          */
         this.searchBundleOperation = container.searchBundleOperation;
         /**
-         * @type {import('../../utils/fhirRequestInfo').FhirRequestInfo}
+         * @type {FhirRequestInfo}
          */
         this.requestInfo = requestInfo;
         /**
@@ -95,6 +94,10 @@ class FhirDataSource extends DataSource {
         this.metaList = [];
     }
 
+    /**
+     * @param {import('apollo-datasource').DataSourceConfig<TContext>} config
+     * @return {void | Promise<void>}
+     */
     initialize(config) {
         return super.initialize(config);
     }
@@ -149,7 +152,7 @@ class FhirDataSource extends DataSource {
      * gets resources for the passed in keys
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
-     * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch(keys, requestInfo) {
@@ -204,9 +207,9 @@ class FhirDataSource extends DataSource {
 
     /**
      * This is to handle unions in GraphQL
-     * @param obj
-     * @param context
-     * @param info
+     * @param {Object|Object[]} obj
+     * @param {GraphQLContext} context
+     * @param {Object} info
      * @return {null|string}
      */
     // noinspection JSUnusedLocalSymbols
@@ -226,10 +229,10 @@ class FhirDataSource extends DataSource {
 
     /**
      * Finds a single resource by reference
-     * @param {Resource} parent
-     * @param args
-     * @param context
-     * @param info
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
      * @param {{reference: string}} reference
      * @return {Promise<null|Resource>}
      */
@@ -267,10 +270,10 @@ class FhirDataSource extends DataSource {
 
     /**
      * Finds one or more resources by references array
-     * @param {Resource} parent
-     * @param args
-     * @param context
-     * @param info
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
      * @param {{reference: string}[]} references
      * @return {Promise<null|Resource[]>}
      */
@@ -287,10 +290,10 @@ class FhirDataSource extends DataSource {
 
     /**
      * Finds resources with args
-     * @param parent
-     * @param args
-     * @param context
-     * @param info
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
@@ -298,7 +301,7 @@ class FhirDataSource extends DataSource {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
             await this.searchBundleOperation.searchBundle(
-                getRequestInfo(context),
+                context.fhirRequestInfo,
                 {
                     base_version: '4_0_0',
                     _bundle: '1',
@@ -312,17 +315,17 @@ class FhirDataSource extends DataSource {
 
     /**
      * Finds resources with args
-     * @param parent
-     * @param args
-     * @param context
-     * @param info
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
      * @param {string} resourceType
      * @return {Promise<{entry:{resource: Resource}[]}>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const bundle = await this.searchBundleOperation.searchBundle(
-            getRequestInfo(context),
+            context.fhirRequestInfo,
             {
                 base_version: '4_0_0',
                 _bundle: '1',

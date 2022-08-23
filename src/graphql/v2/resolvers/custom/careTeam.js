@@ -1,6 +1,5 @@
 const {getUuid} = require('../../../../utils/uid.util');
 const {MergeOperation} = require('../../../../operations/merge/merge');
-const {getRequestInfo} = require('../../requestInfoHelper');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {SimpleContainer} = require('../../../../utils/simpleContainer');
 
@@ -65,7 +64,13 @@ function mapCareTeam(team) {
 module.exports = {
     Mutation: {
         updatePreferredProviders:
-        // eslint-disable-next-line no-unused-vars
+            /**
+             * @param {Resource|null} parent
+             * @param {Object} args
+             * @param {GraphQLContext} context
+             * @param {Object} info
+             * @return {Promise<Resource>}
+             */
             async (parent, args, context, info) => {
                 /**
                  * @type {SimpleContainer}
@@ -92,9 +97,9 @@ module.exports = {
                     careTeam.id = getUuid(careTeam);
                 }
                 /**
-                 * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
+                 * @type {FhirRequestInfo}
                  */
-                const requestInfo = getRequestInfo(context);
+                const requestInfo = context.fhirRequestInfo;
                 requestInfo.body = [careTeam];
                 /**
                  * @type {MergeOperation}

@@ -1,6 +1,5 @@
 const {RemoveOperation} = require('../../../../operations/remove/remove');
 const {MergeOperation} = require('../../../../operations/merge/merge');
-const {getRequestInfo} = require('../../requestInfoHelper');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 
 /**
@@ -27,6 +26,13 @@ function removeAllGeneralPractitioner(arr, id) {
 module.exports = {
     Patient: {
         // eslint-disable-next-line no-unused-vars
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
         explanationOfBenefit: async (parent, args, context, info) => {
             return await context.dataApi.getResources(
                 parent,
@@ -40,6 +46,13 @@ module.exports = {
             );
         },
         // eslint-disable-next-line no-unused-vars
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
         allergyIntolerance: async (parent, args, context, info) => {
             return await context.dataApi.getResources(
                 parent,
@@ -53,6 +66,13 @@ module.exports = {
             );
         },
         // eslint-disable-next-line no-unused-vars
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
         condition: async (parent, args, context, info) => {
             return await context.dataApi.getResources(
                 parent,
@@ -66,6 +86,13 @@ module.exports = {
             );
         },
         // eslint-disable-next-line no-unused-vars
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
         carePlan: async (parent, args, context, info) => {
             return await context.dataApi.getResources(
                 parent,
@@ -78,6 +105,13 @@ module.exports = {
                 'CarePlan'
             );
         },
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
         careTeam: async (parent, args, context, info) => {
             return await context.dataApi.getResources(
                 parent,
@@ -94,6 +128,13 @@ module.exports = {
     Mutation: {
         updateGeneralPractitioner:
         // eslint-disable-next-line no-unused-vars
+            /**
+             * @param {Resource|null} parent
+             * @param {Object} args
+             * @param {GraphQLContext} context
+             * @param {Object} info
+             * @return {Promise<Resource>}
+             */
             async (parent, args, context, info) => {
                 /**
                  * @type {SimpleContainer}
@@ -118,7 +159,10 @@ module.exports = {
                     return patientToChange;
                 } else if (deletePractitioner) {
                     patientToChange.generalPractitioner = removeAllGeneralPractitioner(patientToChange.generalPractitioner, args.practitionerId);
-                    const requestInfo = getRequestInfo(context);
+                    /**
+                     * @type {FhirRequestInfo}
+                     */
+                    const requestInfo = context.fhirRequestInfo;
                     /**
                      * @type {RemoveOperation}
                      */
@@ -149,9 +193,9 @@ module.exports = {
                     patientToChange.generalPractitioner = [{reference: `Practitioner/${practitioners[0].id}`}];
                 }
                 /**
-                 * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
+                 * @type {FhirRequestInfo}
                  */
-                const requestInfo = getRequestInfo(context);
+                const requestInfo = context.fhirRequestInfo;
                 requestInfo.body = [patientToChange];
 
                 /**
