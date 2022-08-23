@@ -8,7 +8,7 @@ class ObjectChunker extends Transform {
      * @param {number} chunkSize
      * @param {AbortSignal} signal
      */
-    constructor(chunkSize, signal) {
+    constructor({chunkSize, signal}) {
         super({objectMode: true});
         this._buffer = [];
         this._chunkSize = chunkSize;
@@ -69,5 +69,5 @@ class ObjectChunker extends Transform {
 }
 
 module.exports = {
-    ObjectChunker: ObjectChunker
+    ObjectChunker
 };

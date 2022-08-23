@@ -794,7 +794,7 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object?} args
-     * @param {Function} Resource
+     * @param {(Object) => Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
@@ -802,7 +802,7 @@ class SearchManager {
     async readResourcesFromCursorAsync(
         {
             cursor, user, scope,
-            args, Resource, resourceType,
+            args, ResourceCreator, resourceType,
             useAccessIndex
         }
     ) {
@@ -831,7 +831,7 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-            const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
+            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
             //     // console.log('Mongo read stream was closed');
             //     // ac.abort();
@@ -840,7 +840,11 @@ class SearchManager {
             await pipeline(
                 readableMongoStream,
                 // new ObjectChunker(batchObjectCount),
-                new ResourcePreparerTransform(user, scope, args, Resource, resourceType, useAccessIndex, ac.signal),
+                new ResourcePreparerTransform(
+                    {
+                        user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+                    }
+                ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -964,7 +968,7 @@ class SearchManager {
         /**
          * @type {FhirBundleWriter}
          */
-        const fhirBundleWriter = new FhirBundleWriter(fnBundle, url, ac.signal);
+        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal});
 
         /**
          * @type {{id: string[]}}
@@ -983,15 +987,23 @@ class SearchManager {
         /**
          * @type {HttpResponseWriter}
          */
-        const responseWriter = new HttpResponseWriter(requestId, res, 'application/fhir+json', ac.signal);
+        const responseWriter = new HttpResponseWriter(
+            {
+                requestId, response: res, contentType: 'application/fhir+json', signal: ac.signal
+            }
+        );
 
-        const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, ResourceCreator, resourceType, useAccessIndex, ac.signal);
-        const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
+        const resourcePreparerTransform = new ResourcePreparerTransform(
+            {
+                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+            }
+        );
+        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
-        const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
+        const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
         try {
-            const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
+            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
             //     // console.log('Mongo read stream was closed');
             //     // ac.abort();
@@ -1079,33 +1091,43 @@ class SearchManager {
         /**
          * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
          */
-        const fhirWriter = useJson ? new FhirResourceWriter(ac.signal) : new FhirResourceNdJsonWriter(ac.signal);
+        const fhirWriter = useJson ?
+            new FhirResourceWriter({signal: ac.signal}) :
+            new FhirResourceNdJsonWriter({signal: ac.signal});
 
         /**
          * @type {HttpResponseWriter}
          */
-        const responseWriter = new HttpResponseWriter(requestId, res, contentType, ac.signal);
+        const responseWriter = new HttpResponseWriter(
+            {
+                requestId, response: res, contentType, signal: ac.signal
+            }
+        );
         /**
          * @type {ResourcePreparerTransform}
          */
-        const resourcePreparerTransform = new ResourcePreparerTransform(user, scope, args, ResourceCreator, resourceType, useAccessIndex, ac.signal);
+        const resourcePreparerTransform = new ResourcePreparerTransform(
+            {
+                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal
+            }
+        );
         /**
          * @type {ResourceIdTracker}
          */
-        const resourceIdTracker = new ResourceIdTracker(tracker, ac.signal);
+        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
         // function sleep(ms) {
         //     return new Promise(resolve => setTimeout(resolve, ms));
         // }
 
         try {
-            const readableMongoStream = createReadableMongoStream(cursor, ac.signal);
+            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
             //     // console.log('Mongo read stream was closed');
             //     // ac.abort();
             // });
 
-            const objectChunker = new ObjectChunker(batchObjectCount, ac.signal);
+            const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
             // now setup and run the pipeline
             await pipeline(

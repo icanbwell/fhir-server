@@ -9,12 +9,22 @@ class ResourcePreparerTransform extends Transform {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object} args
-     * @param {function(?Object): Resource} Resource
-     * @param {string} resourceName
+     * @param {(Object) => Resource} ResourceCreator
+     * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      */
-    constructor(user, scope, args, Resource, resourceName, useAccessIndex, signal) {
+    constructor(
+        {
+            user,
+            scope,
+            args,
+            ResourceCreator,
+            resourceType,
+            useAccessIndex,
+            signal
+        }
+    ) {
         super({objectMode: true});
         /**
          * @type {string|null}
@@ -31,11 +41,11 @@ class ResourcePreparerTransform extends Transform {
         /**
          * @type {function(?Object): Resource}
          */
-        this.Resource = Resource;
+        this.Resource = ResourceCreator;
         /**
          * @type {string}
          */
-        this.resourceName = resourceName;
+        this.resourceName = resourceType;
         /**
          * @type {boolean}
          */
@@ -110,5 +120,5 @@ class ResourcePreparerTransform extends Transform {
 }
 
 module.exports = {
-    ResourcePreparerTransform: ResourcePreparerTransform
+    ResourcePreparerTransform
 };

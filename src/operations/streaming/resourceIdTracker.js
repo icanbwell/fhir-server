@@ -8,7 +8,7 @@ class ResourceIdTracker extends Transform {
      * @param  {{id: string[]}} tracker
      * @param {AbortSignal} signal
      */
-    constructor(tracker, signal) {
+    constructor({tracker, signal}) {
         super({objectMode: true});
         /**
          * @type {{id: string[]}}
@@ -54,5 +54,5 @@ class ResourceIdTracker extends Transform {
 }
 
 module.exports = {
-    ResourceIdTracker: ResourceIdTracker
+    ResourceIdTracker
 };

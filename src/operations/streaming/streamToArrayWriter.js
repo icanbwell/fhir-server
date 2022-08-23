@@ -40,5 +40,5 @@ class StreamToArrayWriter extends Writable {
 }
 
 module.exports = {
-    StreamToArrayWriter: StreamToArrayWriter
+    StreamToArrayWriter
 };

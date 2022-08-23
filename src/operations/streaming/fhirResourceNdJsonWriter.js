@@ -8,7 +8,7 @@ class FhirResourceNdJsonWriter extends Transform {
      *
      * @param {AbortSignal} signal
      */
-    constructor(signal) {
+    constructor({signal}) {
         super({objectMode: true});
 
         /**
@@ -57,5 +57,5 @@ class FhirResourceNdJsonWriter extends Transform {
 }
 
 module.exports = {
-    FhirResourceNdJsonWriter: FhirResourceNdJsonWriter
+    FhirResourceNdJsonWriter
 };

@@ -8,12 +8,12 @@ const logger = loggers.get('default');
 
 class HttpResponseWriter extends Writable {
     /**
-     * @param {string} requestId
+     * @param {string|null} requestId
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
      * @param {AbortSignal} signal
      */
-    constructor(requestId, response, contentType, signal) {
+    constructor({requestId, response, contentType, signal}) {
         super({objectMode: true});
         assertIsValid(response !== undefined);
         /**

@@ -8,7 +8,7 @@ class FhirBundleWriter extends Transform {
      * @param {string | null} url
      * @param {AbortSignal} signal
      */
-    constructor(fnBundle, url, signal) {
+    constructor({fnBundle, url, signal}) {
         super({objectMode: true});
         /**
          * @type {function (string | null, number): {entry: {resource: Resource}[]}}

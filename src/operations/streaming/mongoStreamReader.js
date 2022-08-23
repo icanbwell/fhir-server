@@ -12,7 +12,7 @@ const {isTrue} = require('../../utils/isTrue');
  * @param {AbortSignal} signal
  * @returns {AsyncGenerator<*, Resource, *>}
  */
-async function* readMongoStreamGenerator(cursor, signal) {
+async function* readMongoStreamGenerator({cursor, signal}) {
     try {
         // let chunk_number = 0;
         while (await cursor.hasNext()) {
@@ -47,8 +47,8 @@ async function* readMongoStreamGenerator(cursor, signal) {
  * @param {AbortSignal} signal
  * @returns {import('stream').Readable}
  */
-const createReadableMongoStream = (cursor, signal) => Readable.from(
-    readMongoStreamGenerator(cursor, signal)
+const createReadableMongoStream = ({cursor, signal}) => Readable.from(
+    readMongoStreamGenerator({cursor, signal})
 );
 
 
