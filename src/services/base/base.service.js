@@ -15,6 +15,7 @@ const {graph} = require('../../operations/graph/graph');
 const {get_all_args} = require('../../operations/common/get_all_args');
 const {RequestInfo} = require('../../utils/requestInfo');
 const {searchStreaming} = require('../../operations/search/searchStreaming');
+const env = require('var');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -36,7 +37,7 @@ function getRequestInfo(req) {
         req.protocol,
         req.originalUrl,
         req.path,
-        req.hostname,
+        env.ENVIRONMENT === 'local' ? req.headers.host : req.hostname, // local will append port number to host
         req.body,
         req.headers.accept,
         req.authInfo && req.authInfo.context && req.authInfo.context.isUser,

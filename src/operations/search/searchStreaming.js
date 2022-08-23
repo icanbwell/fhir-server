@@ -43,7 +43,11 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
         /** @type {string | null} */
         scope,
         /** @type {string | null} */
-        originalUrl: url,
+        originalUrl,
+        /** @type {string | null} */
+        protocol,
+        /** @type {string | null} */
+        host,
         /** @type {string[] | null} */
         patients = [],
         /** @type {string} */
@@ -216,7 +220,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @return {Resource}
                      */
                     const fnBundle = (last_id, stopTime1) => createBundle({
-                            url,
+                            originalUrl,
+                            host,
+                            protocol,
                             last_id,
                             resources: resources1,
                             base_version,
@@ -238,7 +244,7 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                     resourceIds = await streamBundleFromCursorAsync({
                         requestId,
                         cursor,
-                        url,
+                        originalUrl,
                         fnBundle,
                         res,
                         user,
@@ -294,7 +300,9 @@ module.exports.searchStreaming = async (requestInfo, res, args, resourceType,
                      * @type {Resource}
                      */
                     const bundle = createBundle({
-                            url,
+                            originalUrl,
+                            host,
+                            protocol,
                             last_id: null,
                             resources,
                             base_version,

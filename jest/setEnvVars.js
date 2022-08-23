@@ -16,3 +16,4 @@ process.env.COLLECTIONS_ACCESS_INDEX = 'AuditEvent_4_0_0';
 process.env.LOG_STREAM_STEPS = '1';
 process.env.STREAMING_BATCH_COUNT = '10';
 process.env.ENABLE_PATIENT_FILTERING = '1';
+process.env.ENVIRONMENT = 'test';
