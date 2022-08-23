@@ -4,8 +4,6 @@
 
 const Sentry = require('@sentry/node');
 
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
-
 Sentry.init({
   dsn: process.env.SENTRY_DSN_SERVER,
   environment: process.env.NODE_ENV,
@@ -13,13 +11,13 @@ Sentry.init({
 });
 
 process.on('uncaughtException', (err) => {
-  logger.error('UNCAUGHT EXCEPTION: ', err);
+    console.log(JSON.stringify({message: JSON.stringify(err)}));
   Sentry.captureException(err);
   process.exitCode = 1;
 });
 
 process.on('unhandledRejection', (err) => {
-  logger.error('UNHANDLED REJECTION: ', err);
+    console.log(JSON.stringify({message: JSON.stringify(err)}));
   Sentry.captureException(err);
   process.exitCode = 1;
 });
