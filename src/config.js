@@ -13,17 +13,18 @@ if (env.MONGO_USERNAME !== undefined) {
 }
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
+// noinspection JSValidateTypes
 /**
- * https://mongodb.github.io/node-mongodb-native/3.6/api/global.html#MongoClientOptions
+ * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
  * @type {import('mongodb').MongoClientOptions}
  */
 const options = {
-    appname: 'fhir',
-    socketOptions: {
+        appName: 'fhir',
         keepAlive: true,
         connectTimeoutMS: 60000,
-        socketTimeoutMS: 60000
-    }
+        socketTimeoutMS: 60000,
+        retryReads: true,
+        // minPoolSize: 100,
 };
 /**
  * @name mongoConfig

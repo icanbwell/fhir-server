@@ -1,10 +1,13 @@
-FROM node:16.16.0-bullseye-slim as build
+FROM node:16.17.0-bullseye-slim as build
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
 
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y install curl autoconf build-essential && apt-get clean
+
+# update npm
+RUN npm install -g npm@latest
 
 RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
@@ -17,13 +20,16 @@ RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd 
 RUN curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
 
 
-FROM node:16.16.0-bullseye-slim
+FROM node:16.17.0-bullseye-slim
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
 
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y install curl && apt-get clean
+
+# update npm
+RUN npm install -g npm@latest
 
 # Set the working directory
 RUN mkdir -p /srv/src && chown node:node /srv/src
