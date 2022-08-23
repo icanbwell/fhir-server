@@ -57,7 +57,7 @@ services:
       - ./src:/srv/src/src
       - ./package.json:/srv/src/package.json
       - ./yarn.lock:/srv/src/yarn.lock
-    command: npm run dev 2>&1
+    command: yarn start
     healthcheck:
       test: [ "CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1" ]
 

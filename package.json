@@ -136,7 +136,6 @@
     "passport-jwt": "^4.0.0",
     "prom-client": "^14.0.1",
     "response-time": "^2.3.2",
-    "shell-quote": "^1.7.3",
     "snyk": "^1.990.0",
     "superagent": "^8.0.0",
     "swagger-ui-express": "^4.5.0",

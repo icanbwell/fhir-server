@@ -11,14 +11,34 @@ process.on('uncaughtException', async (err) => {
     console.log(JSON.stringify({method: 'sentryMiddleware.uncaughtException', message: JSON.stringify(err)}));
     Sentry.captureException(err);
     await new ErrorReporter().reportErrorAsync('uncaughtException', err);
-    process.exit(1);
+    // process.exit(1);
 });
 
-process.on('unhandledRejection', async (err) => {
-    console.log(JSON.stringify({method: 'sentryMiddleware.unhandledRejection', message: JSON.stringify(err)}));
-    Sentry.captureException(err);
-    await new ErrorReporter().reportErrorAsync('unhandledRejection', err);
-    process.exit(1);
+process.on('unhandledRejection', async (reason, promise) => {
+    console.log(JSON.stringify(
+            {
+                method: 'sentryMiddleware.unhandledRejection',
+                promise: promise,
+                reason: reason,
+                stack: reason.stack
+            }
+        )
+    );
+    // Sentry.captureException(err);
+    // await new ErrorReporter().reportErrorAsync('unhandledRejection', err);
+    // process.exit(1);
+});
+
+process.on('warning', (warning) => {
+    console.log(JSON.stringify(
+            {
+                method: 'sentryMiddleware.warning',
+                name: warning.name,
+                message: warning.message,
+                stack: warning.stack
+            }
+        )
+    );
 });
 
 process.on('exit', function (code) {
