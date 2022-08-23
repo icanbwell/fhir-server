@@ -43,6 +43,8 @@ const {FhirLoggingManager} = require('./operations/common/fhirLoggingManager');
 const {ScopesManager} = require('./operations/security/scopesManager');
 const {ScopesValidator} = require('./operations/security/scopesValidator');
 const {ResourcePreparer} = require('./operations/common/resourcePreparer');
+const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
+const {isTrue} = require('./utils/isTrue');
 
 /**
  * Creates a container and sets up all the services
@@ -67,12 +69,15 @@ const createContainer = function () {
     container.register('fhirLoggingManager', c => new FhirLoggingManager({
         scopesManager: c.scopesManager
     }));
-    container.register('kafkaClient', () => new KafkaClient(
-            {
-                clientId: env.KAFKA_CLIENT_ID,
-                brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : ''
-            }
-        )
+    container.register('kafkaClient', () =>
+        isTrue(env.ENABLE_EVENTS_KAFKA) ?
+            new KafkaClient(
+                {
+                    clientId: env.KAFKA_CLIENT_ID,
+                    brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : ''
+                }
+            ) :
+            new DummyKafkaClient({clientId: '', brokers: []})
     );
     container.register('changeEventProducer', c => new ChangeEventProducer(
         {
