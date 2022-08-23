@@ -156,7 +156,7 @@ services:
       - 3000
 
   zookeeper:
-    image: 'docker.io/bitnami/zookeeper:3-debian-10'
+    image: 'docker.io/bitnami/zookeeper:3.8.0'
     ports:
       - '2181:2181'
     environment:
@@ -166,7 +166,7 @@ services:
       test: [ "CMD-SHELL", "echo ruok | nc -w 2 zookeeper 2181" ]
 
   kafka:
-    image: 'docker.io/bitnami/kafka:2-debian-10'
+    image: 'docker.io/bitnami/kafka:3.2.1'
     ports:
       - '9092:9092'
     environment:
