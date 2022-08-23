@@ -233,12 +233,11 @@ class UpdateOperation {
                 // see if there are any changes
                 if (patchContent.length === 0) {
                     logDebug(user, 'No changes detected in updated resource');
-                    await this.fhirLoggingManager.logOperationAsync({
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
                         args,
                         resourceType,
                         startTime,
-                        message: 'operationCompleted',
                         action: currentOperationName
                     });
                     return {
@@ -339,15 +338,15 @@ class UpdateOperation {
                 created: res.created,
                 resource_version: doc.meta.versionId,
             };
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName,
-                result: JSON.stringify(result)
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result)
+                });
             await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
@@ -360,15 +359,15 @@ class UpdateOperation {
                 currentDate,
                 id,
                 currentOperationName);
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
     }

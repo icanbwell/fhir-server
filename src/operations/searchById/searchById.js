@@ -176,28 +176,28 @@ class SearchByIdOperation {
                     const currentDate = moment.utc().format('YYYY-MM-DD');
                     await this.auditLogger.flushAsync(requestId, currentDate);
                 }
-                await this.fhirLoggingManager.logOperationAsync({
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime,
-                    message: 'operationCompleted',
-                    action: currentOperationName
-                });
+                await this.fhirLoggingManager.logOperationSuccessAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
                 return new Resource(resource);
             } else {
                 throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
     }

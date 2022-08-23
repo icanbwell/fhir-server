@@ -106,28 +106,28 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await enrich([resource], resourceType))[0];
-                await this.fhirLoggingManager.logOperationAsync({
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime,
-                    message: 'operationCompleted',
-                    action: currentOperationName
-                });
+                await this.fhirLoggingManager.logOperationSuccessAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
                 return (new Resource(resource));
             } else {
                 throw new NotFoundError();
             }
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
     }

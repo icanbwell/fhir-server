@@ -120,25 +120,26 @@ class HistoryByIdOperation {
             if (resources.length === 0) {
                 throw new NotFoundError();
             }
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                }
+            );
             return resources;
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
     }

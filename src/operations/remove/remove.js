@@ -177,25 +177,25 @@ class RemoveOperation {
                 throw new NotAllowedError(e.message);
             }
 
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
             return {deleted: res.deletedCount};
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
     }

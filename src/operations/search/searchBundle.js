@@ -142,15 +142,15 @@ class SearchBundleOperation {
                     user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
                 }));
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         }
 
@@ -289,15 +289,15 @@ class SearchBundleOperation {
                     useAtlas
                 }
             );
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName,
-                query: mongoQueryAndOptionsStringify(collectionName, query, options)
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                });
             return bundle;
 
         } catch (e) {
@@ -305,16 +305,16 @@ class SearchBundleOperation {
              * @type {string}
              */
             const collectionName = resourceLocator.getFirstCollectionNameForQuery();
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName,
-                error: e,
-                query: mongoQueryAndOptionsStringify(collectionName, query, options)
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e,
+                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {
             timer({action: currentOperationName, resourceType});

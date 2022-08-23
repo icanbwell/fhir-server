@@ -291,23 +291,23 @@ class MergeOperation {
                     requestInfo, requestId, base_version, args, mergeResults
                 });
 
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName,
-                result: JSON.stringify(mergeResults)
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(mergeResults)
+                });
             return wasIncomingAList ? mergeResults : mergeResults[0];
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationFailed',
                 action: currentOperationName,
                 error: e
             });

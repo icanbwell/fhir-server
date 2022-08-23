@@ -108,12 +108,11 @@ class ExpandOperation {
             resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
                 .findOneAsync({id: id.toString()});
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationFailed',
                 action: currentOperationName,
                 error: e
             });
@@ -125,12 +124,11 @@ class ExpandOperation {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationFailed',
                     action: currentOperationName,
                     error: forbiddenError
                 });
@@ -145,11 +143,12 @@ class ExpandOperation {
             resource = (await enrich([resource], resourceType))[0];
 
             const result = new Resource(resource);
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo, args, resourceType, startTime,
-                message: 'operationCompleted', action: currentOperationName,
-                result: JSON.stringify(result)
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo, args, resourceType, startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result)
+                });
             return result;
         } else {
             throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

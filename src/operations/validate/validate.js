@@ -54,14 +54,14 @@ class ValidateOperation {
         const currentOperationName = 'validate';
         if (operationOutcome && operationOutcome.statusCode === 400) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-            await this.fh.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
             return operationOutcome;
         }
 
@@ -83,14 +83,14 @@ class ValidateOperation {
                 ]
             };
         }
-        await this.fhirLoggingManager.logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationCompleted',
-            action: currentOperationName
-        });
+        await this.fhirLoggingManager.logOperationSuccessAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName
+            });
         return {
             resourceType: 'OperationOutcome',
             issue: [

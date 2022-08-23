@@ -72,36 +72,33 @@ class EverythingOperation {
             if (resourceType === 'Practitioner') {
                 requestInfo.body = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationCompleted',
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Organization') {
                 requestInfo.body = organizationEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationCompleted',
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Slot') {
                 requestInfo.body = slotEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationCompleted',
                     action: currentOperationName
                 });
                 return result;
@@ -110,15 +107,15 @@ class EverythingOperation {
                 throw new Error('$everything is not supported for resource: ' + resourceType);
             }
         } catch (err) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: err
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: err
+                });
             throw new BadRequestError(err);
         }
     }

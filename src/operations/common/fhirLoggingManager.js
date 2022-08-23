@@ -24,13 +24,94 @@ class FhirLoggingManager {
      * @param {string} resourceType
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
-     * @param {string} message
+     * @param {string} action
+     * @param {string|undefined} [query]
+     * @param {string|undefined} [result]
+     */
+    async logOperationSuccessAsync(
+        {
+            /** @type {FhirRequestInfo} */ requestInfo,
+            args = [],
+            resourceType,
+            startTime,
+            stopTime = Date.now(),
+            action,
+            query,
+            result
+        }
+    ) {
+        await this.internalLogOperationAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                stopTime,
+                message: 'operationCompleted',
+                action,
+                error: null,
+                query,
+                result
+            }
+        );
+    }
+
+    /**
+     * Logs a FHIR operation
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {number|null} startTime
+     * @param {number|null|undefined} [stopTime]
      * @param {string} action
      * @param {Error|undefined} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
-    async logOperationAsync(
+    async logOperationFailureAsync(
+        {
+            /** @type {FhirRequestInfo} */ requestInfo,
+            args = [],
+            resourceType,
+            startTime,
+            stopTime = Date.now(),
+            action,
+            error,
+            query,
+            result
+        }
+    ) {
+        await this.internalLogOperationAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                stopTime,
+                message: 'operationFailed',
+                action,
+                error,
+                query,
+                result
+            }
+        );
+    }
+
+    /**
+     * Logs a FHIR operation
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {number|null} startTime
+     * @param {number|null|undefined} [stopTime]
+     * @param {string} message
+     * @param {string} action
+     * @param {Error|undefined} error
+     * @param {string|undefined} [query]
+     * @param {string|undefined} [result]
+     * @private
+     */
+    async internalLogOperationAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = [],

@@ -101,12 +101,11 @@ class GraphOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(operationOutcome);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationFailed',
                     action: currentOperationName,
                     error: notValidatedError
                 });
@@ -131,25 +130,25 @@ class GraphOperation {
             // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
             //     return operationOutcomeResult;
             // }
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
             return result;
         } catch (err) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: err
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: err
+                });
             throw new BadRequestError(err);
         }
     }

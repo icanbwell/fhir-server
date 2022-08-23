@@ -104,15 +104,15 @@ class HistoryOperation {
             cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .findAsync(query);
         } catch (e) {
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationFailed',
-                action: currentOperationName,
-                error: e
-            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw new NotFoundError(e.message);
         }
         const resources = [];
@@ -126,14 +126,15 @@ class HistoryOperation {
         if (resources.length === 0) {
             throw new NotFoundError();
         }
-        await this.fhirLoggingManager.logOperationAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            message: 'operationCompleted',
-            action: currentOperationName
-        });
+        await this.fhirLoggingManager.logOperationSuccessAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName
+            }
+        );
         return resources;
     }
 }

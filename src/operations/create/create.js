@@ -159,12 +159,11 @@ class CreateOperation {
                  * @type {Error}
                  */
                 const notValidatedError = new NotValidatedError(operationOutcome);
-                await this.fhirLoggingManager.logOperationAsync({
+                await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args,
                     resourceType,
                     startTime,
-                    message: 'operationFailed',
                     action: currentOperationName,
                     error: notValidatedError
                 });
@@ -264,15 +263,15 @@ class CreateOperation {
             await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
                 .insertOneAsync(history_doc);
             const result = {id: doc.id, resource_version: doc.meta.versionId};
-            await this.fhirLoggingManager.logOperationAsync({
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                message: 'operationCompleted',
-                action: currentOperationName,
-                result: JSON.stringify(result)
-            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result)
+                });
             await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
@@ -285,12 +284,11 @@ class CreateOperation {
                 currentDate,
                 uuid,
                 currentOperationName);
-            await this.fhirLoggingManager.logOperationAsync({
+            await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args,
                 resourceType,
                 startTime,
-                message: 'operationFailed',
                 action: currentOperationName,
                 error: e
             });

@@ -61,29 +61,29 @@ class ScopesValidator {
                 let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                 const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
                 authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-                await this.fhirLoggingManager.logOperationAsync({
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime: startTime,
-                    message: 'AuthorizationFailed',
-                    action: action,
-                    error: forbiddenError
-                });
+                await this.fhirLoggingManager.logOperationFailureAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime: startTime,
+                        action: action,
+                        error: forbiddenError
+                    });
                 throw forbiddenError;
             } else {
                 let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
                 const forbiddenError1 = new ForbiddenError(errorMessage);
                 authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-                await this.fhirLoggingManager.logOperationAsync({
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime: startTime,
-                    message: 'AuthorizationFailed',
-                    action: action,
-                    error: forbiddenError1
-                });
+                await this.fhirLoggingManager.logOperationFailureAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime: startTime,
+                        action: action,
+                        error: forbiddenError1
+                    });
                 throw forbiddenError1;
             }
         }
