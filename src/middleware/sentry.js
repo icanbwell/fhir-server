@@ -8,14 +8,14 @@ Sentry.init({dsn: process.env.SENTRY_DSN});
 
 
 process.on('uncaughtException', async (err) => {
-    console.log(JSON.stringify({message: JSON.stringify(err)}));
+    console.log(JSON.stringify({method: 'sentryMiddleware.uncaughtException', message: JSON.stringify(err)}));
     Sentry.captureException(err);
     await new ErrorReporter().reportErrorAsync('uncaughtException', err);
     process.exit(1);
 });
 
 process.on('unhandledRejection', async (err) => {
-    console.log(JSON.stringify({message: JSON.stringify(err)}));
+    console.log(JSON.stringify({method: 'sentryMiddleware.unhandledRejection', message: JSON.stringify(err)}));
     Sentry.captureException(err);
     await new ErrorReporter().reportErrorAsync('unhandledRejection', err);
     process.exit(1);
@@ -24,7 +24,7 @@ process.on('unhandledRejection', async (err) => {
 process.on('exit', function (code) {
     if (code !== 0) {
         const stack = new Error().stack;
-        console.log(JSON.stringify({message: `PROCESS EXIT: exit code: ${code}`}));
+        console.log(JSON.stringify({method: 'sentryMiddleware.exit', message: `PROCESS EXIT: exit code: ${code}`}));
         console.log(JSON.stringify({message: JSON.stringify(stack)}));
     }
 });
