@@ -115,8 +115,11 @@ class SearchByIdOperation {
             query = {id: id.toString()};
             if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
                 const allPatients = patients.concat(
-                    await this.searchManager.getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId));
-                query = getQueryWithPatientFilter(allPatients, query, resourceType);
+                    await this.searchManager.getPatientIdsByPersonIdentifiersAsync(
+                        {
+                            base_version, useAtlas, fhirPersonId
+                        }));
+                query = getQueryWithPatientFilter({patients: allPatients, query, resourceType});
             }
             try {
                 resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);

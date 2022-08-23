@@ -243,7 +243,7 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
+        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
         /**
          * @type {Object}
          */
@@ -255,7 +255,10 @@ class GraphHelper {
         if (filterProperty) {
             query[`${filterProperty}`] = filterValue;
         }
-        query = getQueryWithSecurityTags(resourceType, securityTags, query);
+        query = getQueryWithSecurityTags(
+            {
+                resourceType, securityTags, query
+            });
         /**
          * @type {number}
          */
@@ -363,8 +366,11 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
-        query = getQueryWithSecurityTags(relatedResourceType, securityTags, query);
+        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
+        query = getQueryWithSecurityTags(
+            {
+                resourceType: relatedResourceType, securityTags, query
+            });
 
         const options = {};
         const projection = {};
@@ -805,8 +811,11 @@ class GraphHelper {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope(requestInfo.user, requestInfo.scope);
-        query = getQueryWithSecurityTags(resourceType, securityTags, query);
+        let securityTags = getSecurityTagsFromScope({user: requestInfo.user, scope: requestInfo.scope});
+        query = getQueryWithSecurityTags(
+            {
+                resourceType, securityTags, query
+            });
 
         const options = {};
         const projection = {};

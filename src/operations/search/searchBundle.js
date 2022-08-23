@@ -111,7 +111,10 @@ class SearchBundleOperation {
                 query,
                 /** @type {Set} **/
                 columns
-            } = this.searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+            } = this.searchManager.constructQuery(
+                {
+                    user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
+                }));
         } catch (e) {
             await logOperationAsync({
                 requestInfo,
@@ -148,9 +151,11 @@ class SearchBundleOperation {
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
-                resourceType, base_version, useAtlas,
-                args, columns, options, query,
-                maxMongoTimeMS, user, false, useAccessIndex);
+                {
+                    resourceType, base_version, useAtlas,
+                    args, columns, options, query,
+                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex
+                });
             /**
              * @type {Set}
              */

@@ -65,13 +65,20 @@ class SearchManager {
      * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
-    constructQuery(user, scope, isUser, patients, args,
-                   resourceType,
-                   useAccessIndex, filter = true) {
+    constructQuery(
+        {
+            user, scope,
+            isUser,
+            patients,
+            args,
+            resourceType,
+            useAccessIndex, filter = true
+        }
+    ) {
         /**
          * @type {string[]}
          */
-        let securityTags = getSecurityTagsFromScope(user, scope);
+        let securityTags = getSecurityTagsFromScope({user, scope});
         /**
          * @type {string}
          */
@@ -98,9 +105,12 @@ class SearchManager {
         } catch (e) {
             throw e;
         }
-        query = getQueryWithSecurityTags(resourceType, securityTags, query, useAccessIndex);
+        query = getQueryWithSecurityTags(
+            {
+                resourceType, securityTags, query, useAccessIndex
+            });
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-            query = getQueryWithPatientFilter(patients, query, resourceType);
+            query = getQueryWithPatientFilter({patients, query, resourceType});
         }
         return {base_version, query, columns};
     }
@@ -126,25 +136,26 @@ class SearchManager {
      * @param {boolean | null} useAtlas
      * @return {{entry: {resource: Resource}[]}}
      */
-    createBundle({
-                     url,
-                     last_id,
-                     resources,
-                     base_version,
-                     total_count,
-                     args,
-                     originalQuery,
-                     collectionName,
-                     originalOptions,
-                     columns,
-                     stopTime,
-                     startTime,
-                     useTwoStepSearchOptimization,
-                     indexHint,
-                     cursorBatchSize,
-                     user,
-                     useAtlas
-                 }) {
+    createBundle(
+        {
+            url,
+            last_id,
+            resources,
+            base_version,
+            total_count,
+            args,
+            originalQuery,
+            collectionName,
+            originalOptions,
+            columns,
+            stopTime,
+            startTime,
+            useTwoStepSearchOptimization,
+            indexHint,
+            cursorBatchSize,
+            user,
+            useAtlas
+        }) {
         /**
          * array of links
          * @type {[{relation:string, url: string}]}
@@ -294,12 +305,20 @@ class SearchManager {
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync(
-        resourceType, base_version, useAtlas,
-        args, columns, options,
-        query,
-        maxMongoTimeMS,
-        user,
-        isStreaming, useAccessIndex) {
+        {
+            resourceType,
+            base_version,
+            useAtlas,
+            args,
+            columns,
+            options,
+            query,
+            maxMongoTimeMS,
+            user,
+            isStreaming,
+            useAccessIndex
+        }
+    ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
         if (args['_elements']) {
             const __ret = this.handleElementsQuery(args, columns, resourceType, options, useAccessIndex);
@@ -482,10 +501,12 @@ class SearchManager {
      * @return {Promise<string[]>}
      */
     async getPatientIdsByPersonIdentifiersAsync(
-        base_version, useAtlas, fhirPersonId,
-        // eslint-disable-next-line no-unused-vars
-        personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
-        patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM) {
+        {
+            base_version, useAtlas, fhirPersonId,
+            // eslint-disable-next-line no-unused-vars
+            personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
+            patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM
+        }) {
         /**
          * @type {string[]}
          */
@@ -1075,7 +1096,10 @@ class SearchManager {
      */
     async getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId) {
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
-            return await this.getPatientIdsByPersonIdentifiersAsync(base_version, useAtlas, fhirPersonId);
+            return await this.getPatientIdsByPersonIdentifiersAsync(
+                {
+                    base_version, useAtlas, fhirPersonId
+                });
         }
         return [];
     }

@@ -9,7 +9,7 @@ const {profiles} = require('../../profiles');
  * @param {string} scope
  * @return {string[]}
  */
-const getSecurityTagsFromScope = (user, scope) => {
+const getSecurityTagsFromScope = ({user, scope}) => {
     /**
      * @type {string[]}
      */
@@ -57,7 +57,11 @@ const appendAndQuery = (query, andQuery) => {
  * @param {boolean} useAccessIndex
  * @return {Object}
  */
-const getQueryWithSecurityTags = (resourceType, securityTags, query, useAccessIndex = false) => {
+const getQueryWithSecurityTags = (
+    {
+        resourceType, securityTags, query, useAccessIndex = false
+    }
+) => {
     if (securityTags && securityTags.length > 0) {
         let securityTagQuery;
         // special handling for large collections for performance
@@ -107,7 +111,7 @@ const getQueryWithSecurityTags = (resourceType, securityTags, query, useAccessIn
  * @param {string} resourceType
  * @return {{$and}|*|{$and: [*,*]}}
  */
-const getQueryWithPatientFilter = (patients, query, resourceType) => {
+const getQueryWithPatientFilter = ({patients, query, resourceType}) => {
     if (patients) {
         const inQuery = {
             '$in': resourceType === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
@@ -126,7 +130,7 @@ const getQueryWithPatientFilter = (patients, query, resourceType) => {
 };
 
 module.exports = {
-    getSecurityTagsFromScope: getSecurityTagsFromScope,
-    getQueryWithSecurityTags: getQueryWithSecurityTags,
-    getQueryWithPatientFilter: getQueryWithPatientFilter,
+    getSecurityTagsFromScope,
+    getQueryWithSecurityTags,
+    getQueryWithPatientFilter,
 };

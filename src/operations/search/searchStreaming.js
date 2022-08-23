@@ -108,7 +108,10 @@ class SearchStreamingOperation {
                 query,
                 /** @type {Set} **/
                 columns
-            } = this.searchManager.constructQuery(user, scope, isUser, allPatients, args, resourceType, useAccessIndex, filter));
+            } = this.searchManager.constructQuery(
+                {
+                    user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
+                }));
         } catch (e) {
             await logOperationAsync({
                 requestInfo,
@@ -144,9 +147,12 @@ class SearchStreamingOperation {
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
-                resourceType, base_version, useAtlas,
-                args, columns, options, query,
-                maxMongoTimeMS, user, true, useAccessIndex);
+                {
+                    resourceType, base_version, useAtlas,
+                    args, columns, options, query,
+                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex
+                }
+            );
             /**
              * @type {Set}
              */
@@ -207,19 +213,20 @@ class SearchStreamingOperation {
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
-                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync({
-                        requestId,
-                        cursor,
-                        res,
-                        user,
-                        scope,
-                        args,
-                        ResourceCreator,
-                        resourceType,
-                        useAccessIndex,
-                        contentType: fhirContentTypes.ndJson,
-                        batchObjectCount
-                    });
+                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                        {
+                            requestId,
+                            cursor,
+                            res,
+                            user,
+                            scope,
+                            args,
+                            ResourceCreator,
+                            resourceType,
+                            useAccessIndex,
+                            contentType: fhirContentTypes.ndJson,
+                            batchObjectCount
+                        });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
                     if (env.RETURN_BUNDLE || args['_bundle']) {
@@ -257,29 +264,31 @@ class SearchStreamingOperation {
                                 useAtlas
                             }
                         );
-                        resourceIds = await this.searchManager.streamBundleFromCursorAsync({
-                            requestId,
-                            cursor,
-                            url,
-                            fnBundle,
-                            res,
-                            user,
-                            scope,
-                            args,
-                            ResourceCreator,
-                            resourceType,
-                            useAccessIndex,
-                            batchObjectCount
-                        });
+                        resourceIds = await this.searchManager.streamBundleFromCursorAsync(
+                            {
+                                requestId,
+                                cursor,
+                                url,
+                                fnBundle,
+                                res,
+                                user,
+                                scope,
+                                args,
+                                ResourceCreator,
+                                resourceType,
+                                useAccessIndex,
+                                batchObjectCount
+                            });
                     } else {
-                        resourceIds = await this.searchManager.streamResourcesFromCursorAsync({
-                            requestId,
-                            cursor, res, user, scope, args,
-                            ResourceCreator, resourceType,
-                            useAccessIndex,
-                            contentType: fhirContentTypes.fhirJson,
-                            batchObjectCount
-                        });
+                        resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                            {
+                                requestId,
+                                cursor, res, user, scope, args,
+                                ResourceCreator, resourceType,
+                                useAccessIndex,
+                                contentType: fhirContentTypes.fhirJson,
+                                batchObjectCount
+                            });
                     }
                 }
                 if (resourceIds.length > 0) {
