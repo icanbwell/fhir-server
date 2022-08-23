@@ -8,6 +8,7 @@ const expectedInvalidPractitionerResponse = require('./expected/invalid_practiti
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {
@@ -79,7 +80,7 @@ describe('Practitioner Update Tests', () => {
                 .post('/4_0_0/Practitioner/$validate')
                 .send(invalidPractitionerResource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusCode(200));
             let body = resp.body;
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(body, null, 2));

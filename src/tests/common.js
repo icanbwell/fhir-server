@@ -48,13 +48,17 @@ module.exports.getTestContainer = () => {
 
 /**
  * Creates a test version of the app
+ * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
  * @return {import('express').Express}
  */
-module.exports.createTestApp = () => {
+module.exports.createTestApp = (fnUpdateContainer) => {
     /**
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer();
+    if (fnUpdateContainer !== undefined) {
+        testContainer = fnUpdateContainer(testContainer);
+    }
     return createApp(() => testContainer);
 };
 
@@ -66,11 +70,12 @@ module.exports.createTestServer = async () => {
 };
 
 /**
+ * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
  * @return {import('supertest').Test}
  */
-module.exports.createTestRequest = async () => {
+module.exports.createTestRequest = async (fnUpdateContainer) => {
     if (!app) {
-        app = await module.exports.createTestApp();
+        app = await module.exports.createTestApp(fnUpdateContainer);
     }
     // noinspection JSCheckFunctionSignatures
     tester = supertest(app);

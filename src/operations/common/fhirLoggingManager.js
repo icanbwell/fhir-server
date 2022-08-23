@@ -64,7 +64,7 @@ class FhirLoggingManager {
      * @param {number|null} startTime
      * @param {number|null|undefined} [stopTime]
      * @param {string} action
-     * @param {Error|undefined} error
+     * @param {Error} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
