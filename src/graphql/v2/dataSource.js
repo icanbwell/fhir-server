@@ -150,7 +150,7 @@ class FhirDataSource extends DataSource {
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
      * @param {import('../../utils/fhirRequestInfo').FhirRequestInfo} requestInfo
-     * @return {Promise<Resource[]>}>}
+     * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch(keys, requestInfo) {
         // separate by resourceType
@@ -244,6 +244,7 @@ class FhirDataSource extends DataSource {
             id
         } = ResourceWithId.getResourceTypeAndIdFromReference(reference.reference);
         try {
+            // noinspection JSValidateTypes
             return await this.dataLoader.load(
                 ResourceWithId.getReferenceKey(
                     resourceType,
