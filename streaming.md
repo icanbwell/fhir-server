@@ -19,7 +19,6 @@ https://www.oracle.com/technical-resources/articles/javame/chunking.html
 
 ## Client Implementation
 1. Client opens a connection and sends a request as in the non-streaming case.  
-2. Client sends a `_streamResponse=1` query parameter to request streaming.
 3. Server sends the data in chunks.  Client processes the chunk and waits for the next one.
 
 
