@@ -4,9 +4,7 @@ const {fhirServerConfig} = require('./config');
 const env = require('var');
 const {logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
-const {loggers} = require('@asymmetrik/node-fhir-server-core');
 const http = require('http');
-const logger = loggers.get('default');
 
 /**
  * Creates the http server
@@ -58,28 +56,28 @@ async function createServer(fnCreateContainer) {
     });
 
     process.on('SIGTERM', async function onSigterm() {
-        logger.info('Beginning shutdown of server');
+        console.log(JSON.stringify({message: 'Beginning shutdown of server'}));
         await logSystemEventAsync('SIGTERM', 'Beginning shutdown of server for SIGTERM', {});
         try {
             await httpTerminator.terminate();
-            logger.info('Successfully shut down server');
+            console.log(JSON.stringify({message: 'Successfully shut down server'}));
             process.exit(0);
         } catch (error) {
-            logger.error('Failed to shutdown server: ', error);
+            console.log(JSON.stringify({message: 'Failed to shutdown server', error}));
             process.exit(1);
         }
     });
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigInt() {
-        logger.info('Beginning shutdown of server for SIGINT');
+        console.log(JSON.stringify({message: 'Beginning shutdown of server for SIGINT'}));
         await logSystemEventAsync('SIGINT', 'Beginning shutdown of server for SIGINT', {});
         try {
             await httpTerminator.terminate();
-            logger.info('Successfully shut down server for SIGINT');
+            console.log(JSON.stringify({message: 'Successfully shut down server for SIGINT'}));
             process.exit(0);
         } catch (error) {
-            logger.error('Failed to shutdown server for SIGINT: ', error);
+            console.log(JSON.stringify({message: 'Failed to shutdown server for SIGINT: ', error}));
             process.exit(1);
         }
     });
