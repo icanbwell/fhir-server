@@ -96,7 +96,11 @@ class SearchStreamingOperation {
         const {/** @type {string} **/base_version} = args;
 
         const allPatients = patients.concat(await this.searchManager.getLinkedPatientsAsync(
-            base_version, useAtlas, isUser, fhirPersonId));
+                {
+                    base_version, useAtlas, isUser, fhirPersonId
+                }
+            )
+        );
 
         /** @type {import('mongodb').Document}**/
         let query = {};

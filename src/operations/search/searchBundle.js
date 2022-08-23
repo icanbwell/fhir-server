@@ -98,7 +98,10 @@ class SearchBundleOperation {
         const {/** @type {string} **/base_version} = args;
 
         const allPatients = patients.concat(
-            await this.searchManager.getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId));
+            await this.searchManager.getLinkedPatientsAsync(
+                {
+                    base_version, useAtlas, isUser, fhirPersonId
+                }));
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -195,18 +198,16 @@ class SearchBundleOperation {
              */
             let cursor = __ret.cursor;
 
-            /**
-             * @type {number}
-             */
-            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
-
             if (cursor !== null) { // usually means the two-step optimization found no results
                 logDebug(user,
                     mongoQueryAndOptionsStringify(
                         resourceLocator.getFirstCollectionNameForQuery(), originalQuery, originalOptions));
-                resources = await this.searchManager.readResourcesFromCursorAsync(cursor, user, scope, args,
-                    Resource, resourceType, batchObjectCount,
-                    useAccessIndex
+                resources = await this.searchManager.readResourcesFromCursorAsync(
+                    {
+                        cursor, user, scope, args,
+                        Resource, resourceType,
+                        useAccessIndex
+                    }
                 );
 
                 if (resources.length > 0) {

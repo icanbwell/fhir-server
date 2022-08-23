@@ -37,10 +37,12 @@ class SearchManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {SecurityTagManager} securityTagManager
      */
-    constructor({
-                    databaseQueryFactory, resourceLocatorFactory,
-                    securityTagManager
-                }) {
+    constructor(
+        {
+            databaseQueryFactory, resourceLocatorFactory,
+            securityTagManager
+        }
+    ) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -327,23 +329,26 @@ class SearchManager {
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
         if (args['_elements']) {
-            const __ret = this.handleElementsQuery(args, columns, resourceType, options, useAccessIndex);
+            const __ret = this.handleElementsQuery(
+                {
+                    args, columns, resourceType, options, useAccessIndex
+                });
             columns = __ret.columns;
             options = __ret.options;
         }
         // if _sort is specified then add sort criteria to mongo query
         if (args['_sort']) {
-            const __ret = this.handleSortQuery(args, columns, options);
+            const __ret = this.handleSortQuery({args, columns, options});
             columns = __ret.columns;
             options = __ret.options;
         }
 
         // if _count is specified then limit mongo query to that
         if (args['_count']) {
-            const __ret = this.handleCountOption(args, options, isStreaming);
+            const __ret = this.handleCountOption({args, options, isStreaming});
             options = __ret.options;
         } else {
-            this.setDefaultLimit(args, options, isStreaming);
+            this.setDefaultLimit({args, options});
         }
 
         // for consistency in results while paging, always sort by id
@@ -381,14 +386,16 @@ class SearchManager {
             (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
         if (isTrue(useTwoStepSearchOptimization)) {
             const __ret = await this.handleTwoStepSearchOptimizationAsync(
-                resourceType,
-                base_version,
-                useAtlas,
-                options,
-                originalQuery,
-                query,
-                originalOptions,
-                maxMongoTimeMS
+                {
+                    resourceType,
+                    base_version,
+                    useAtlas,
+                    options,
+                    originalQuery,
+                    query,
+                    originalOptions,
+                    maxMongoTimeMS
+                }
             );
             options = __ret.options;
             originalQuery = __ret.originalQuery;
@@ -456,7 +463,7 @@ class SearchManager {
         // set batch size if specified
         if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
-            const __ret = this.setCursorBatchSize(args, cursorQuery);
+            const __ret = this.setCursorBatchSize({args, cursorQuery});
             cursorBatchSize = __ret.cursorBatchSize;
             cursorQuery = __ret.cursorQuery;
         }
@@ -471,15 +478,26 @@ class SearchManager {
             const collectionNamesForQueryForResourceType = this.resourceLocatorFactory.createResourceLocator(
                 resourceType, base_version, useAtlas)
                 .getCollectionNamesForQuery();
-            const __ret = this.setIndexHint(indexHint, collectionNamesForQueryForResourceType[0], columns, cursor, user);
+            const __ret = this.setIndexHint(
+                {
+                    indexHint,
+                    mongoCollectionName: collectionNamesForQueryForResourceType[0],
+                    columns,
+                    cursor,
+                    user
+                }
+            );
             indexHint = __ret.indexHint;
             cursor = __ret.cursor;
         }
 
         // if _total is specified then ask mongo for the total else set total to 0
         if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
-            total_count = await this.handleGetTotalsAsync(resourceType, base_version,
-                useAtlas, args, query, maxMongoTimeMS);
+            total_count = await this.handleGetTotalsAsync(
+                {
+                    resourceType, base_version,
+                    useAtlas, args, query, maxMongoTimeMS
+                });
         }
 
         return {
@@ -512,7 +530,8 @@ class SearchManager {
             // eslint-disable-next-line no-unused-vars
             personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
             patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM
-        }) {
+        }
+    ) {
         /**
          * @type {string[]}
          */
@@ -561,7 +580,7 @@ class SearchManager {
      * @param {boolean} isStreaming
      * @return {{options: Object}} columns selected and changed options
      */
-    handleCountOption(args, options, isStreaming) {
+    handleCountOption({args, options, isStreaming}) {
         /**
          * @type {number}
          */
@@ -585,14 +604,17 @@ class SearchManager {
      * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
      * @param {Object} args
      * @param {Set} columns
-     * @param {string} resourceName
+     * @param {string} resourceType
      * @param {Object} options
      * @param {boolean} useAccessIndex
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleElementsQuery(args, columns, resourceName, options,
-                        // eslint-disable-next-line no-unused-vars
-                        useAccessIndex
+    handleElementsQuery(
+        {
+            args, columns, resourceType, options,
+            // eslint-disable-next-line no-unused-vars
+            useAccessIndex
+        }
     ) {
         // GET [base]/Observation?_elements=status,date,category
         /**
@@ -613,7 +635,7 @@ class SearchManager {
                 columns.add(property);
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-            if (resourceName === 'Library') {
+            if (resourceType === 'Library') {
                 projection['id'] = 1;
                 projection['url'] = 1;
             }
@@ -639,10 +661,14 @@ class SearchManager {
      * @param {Object} args
      * @param {Object} query
      * @param {number} maxMongoTimeMS
-     * @return {Promise<*>}
+     * @return {Promise<number>}
      */
-    async handleGetTotalsAsync(resourceType, base_version, useAtlas,
-                               args, query, maxMongoTimeMS) {
+    async handleGetTotalsAsync(
+        {
+            resourceType, base_version, useAtlas,
+            args, query, maxMongoTimeMS
+        }
+    ) {
         // https://www.hl7.org/fhir/search.html#total
         // if _total is passed then calculate the total count for matching records also
         // don't use the options since they set a limit and skip
@@ -662,7 +688,11 @@ class SearchManager {
      * @param {Object} options
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleSortQuery(args, columns, options) {
+    handleSortQuery(
+        {
+            args, columns, options
+        }
+    ) {
         // GET [base]/Observation?_sort=status,-date,category
         // Each item in the comma separated list is a search parameter, optionally with a '-' prefix.
         // The prefix indicates decreasing order; in its absence, the parameter is applied in increasing order.
@@ -709,14 +739,16 @@ class SearchManager {
      * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
      */
     async handleTwoStepSearchOptimizationAsync(
-        resourceType,
-        base_version,
-        useAtlas,
-        options,
-        originalQuery,
-        query,
-        originalOptions,
-        maxMongoTimeMS
+        {
+            resourceType,
+            base_version,
+            useAtlas,
+            options,
+            originalQuery,
+            query,
+            originalOptions,
+            maxMongoTimeMS
+        }
     ) {
         // first get just the ids
         const projection = {};
@@ -763,15 +795,17 @@ class SearchManager {
      * @param {string | null} scope
      * @param {Object?} args
      * @param {Function} Resource
-     * @param {string} resourceName
-     * @param {number} batchObjectCount
+     * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async readResourcesFromCursorAsync(cursor, user, scope,
-                                       args, Resource, resourceName,
-                                       batchObjectCount,
-                                       useAccessIndex) {
+    async readResourcesFromCursorAsync(
+        {
+            cursor, user, scope,
+            args, Resource, resourceType,
+            useAccessIndex
+        }
+    ) {
         /**
          * resources to return
          * @type {Resource[]}
@@ -806,7 +840,7 @@ class SearchManager {
             await pipeline(
                 readableMongoStream,
                 // new ObjectChunker(batchObjectCount),
-                new ResourcePreparerTransform(user, scope, args, Resource, resourceName, useAccessIndex, ac.signal),
+                new ResourcePreparerTransform(user, scope, args, Resource, resourceType, useAccessIndex, ac.signal),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
                 new Transform({
                     writableObjectMode: true,
@@ -836,7 +870,7 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
-    setCursorBatchSize(args, cursorQuery) {
+    setCursorBatchSize({args, cursorQuery}) {
         const cursorBatchSize = args['_cursorBatchSize'] ?
             parseInt(args['_cursorBatchSize']) :
             parseInt(env.MONGO_BATCH_SIZE);
@@ -850,11 +884,12 @@ class SearchManager {
      * set default sort options
      * @param {Object} args
      * @param {Object} options
-     * @param {boolean} isStreaming
      */
-    setDefaultLimit(args, options,
-                    // eslint-disable-next-line no-unused-vars
-                    isStreaming
+    setDefaultLimit(
+        {
+            args,
+            options
+        }
     ) {
         // set a limit so the server does not come down due to volume of data
         if (!args['id'] && !args['_elements']) {
@@ -873,7 +908,15 @@ class SearchManager {
      * @param {string | null} user
      * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
      */
-    setIndexHint(indexHint, mongoCollectionName, columns, cursor, user) {
+    setIndexHint(
+        {
+            indexHint,
+            mongoCollectionName,
+            columns,
+            cursor,
+            user
+        }
+    ) {
         indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
             cursor = cursor.hint(indexHint);
@@ -902,14 +945,16 @@ class SearchManager {
      * @param {number} batchObjectCount
      * @returns {Promise<string[]>}
      */
-    async streamBundleFromCursorAsync({
-                                          requestId,
-                                          cursor, url, fnBundle,
-                                          res, user, scope,
-                                          args, ResourceCreator, resourceType,
-                                          useAccessIndex,
-                                          batchObjectCount
-                                      }) {
+    async streamBundleFromCursorAsync(
+        {
+            requestId,
+            cursor, url, fnBundle,
+            res, user, scope,
+            args, ResourceCreator, resourceType,
+            useAccessIndex,
+            batchObjectCount
+        }
+    ) {
         assertIsValid(requestId);
         /**
          * @type {AbortController}
@@ -1000,7 +1045,6 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             contentType = 'application/fhir+json',
-            // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1
         }
     ) {
@@ -1100,7 +1144,11 @@ class SearchManager {
      * @param {string} fhirPersonId
      * @return {Promise<string[]>}
      */
-    async getLinkedPatientsAsync(base_version, useAtlas, isUser, fhirPersonId) {
+    async getLinkedPatientsAsync(
+        {
+            base_version, useAtlas, isUser, fhirPersonId
+        }
+    ) {
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
             return await this.getPatientIdsByPersonIdentifiersAsync(
                 {
