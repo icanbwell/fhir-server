@@ -11,7 +11,6 @@ const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
@@ -20,6 +19,7 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class CreateOperation {
     /**
@@ -31,6 +31,7 @@ class CreateOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
@@ -40,7 +41,8 @@ class CreateOperation {
             auditLogger,
             postRequestProcessor,
             scopesManager,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -78,6 +80,12 @@ class CreateOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -98,14 +106,16 @@ class CreateOperation {
         const startTime = Date.now();
         const {user, body, requestId} = requestInfo;
 
-        await verifyHasValidScopesAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            action: currentOperationName,
-            accessRequested: 'write'
-        });
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'write'
+            }
+        );
 
         let resource_incoming = body;
 

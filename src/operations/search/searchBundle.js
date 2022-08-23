@@ -5,7 +5,6 @@ const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
@@ -13,6 +12,7 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ErrorReporter} = require('../../utils/slack.logger');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class SearchBundleOperation {
     /**
@@ -22,6 +22,7 @@ class SearchBundleOperation {
      * @param {AuditLogger} auditLogger
      * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
@@ -29,7 +30,8 @@ class SearchBundleOperation {
             resourceLocatorFactory,
             auditLogger,
             errorReporter,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         this.searchManager = searchManager;
@@ -48,6 +50,12 @@ class SearchBundleOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -91,7 +99,7 @@ class SearchBundleOperation {
             requestId
         } = requestInfo;
 
-        await verifyHasValidScopesAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,

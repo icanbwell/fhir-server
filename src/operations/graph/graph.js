@@ -6,20 +6,22 @@ const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class GraphOperation {
     /**
      * @param {GraphHelper} graphHelper
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
             graphHelper,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -32,6 +34,12 @@ class GraphOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -53,7 +61,7 @@ class GraphOperation {
         const startTime = Date.now();
         const {user, path, body} = requestInfo;
 
-        await verifyHasValidScopesAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,

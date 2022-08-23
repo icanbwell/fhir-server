@@ -3,12 +3,12 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ValueSetManager} = require('../../utils/valueSet.util');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class ExpandOperation {
     /**
@@ -17,13 +17,15 @@ class ExpandOperation {
      * @param {ValueSetManager} valueSetManager
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
             databaseQueryFactory,
             valueSetManager,
             scopesManager,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -47,6 +49,12 @@ class ExpandOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -68,7 +76,7 @@ class ExpandOperation {
 
         const {user, scope} = requestInfo;
 
-        await verifyHasValidScopesAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,

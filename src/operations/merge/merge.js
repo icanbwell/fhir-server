@@ -3,7 +3,6 @@ const {validateResource} = require('../../utils/validator.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
@@ -13,6 +12,7 @@ const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class MergeOperation {
     /**
@@ -24,6 +24,7 @@ class MergeOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
@@ -34,7 +35,8 @@ class MergeOperation {
             collectionManager,
             postRequestProcessor,
             scopesManager,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -79,6 +81,12 @@ class MergeOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -149,14 +157,16 @@ class MergeOperation {
          * @type {string}
          */
         const requestId = requestInfo.requestId;
-        await verifyHasValidScopesAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            action: currentOperationName,
-            accessRequested: 'write'
-        });
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'write'
+            }
+        );
 
         /**
          * @type {string}

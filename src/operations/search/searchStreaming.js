@@ -5,7 +5,6 @@ const {isTrue} = require('../../utils/isTrue');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const moment = require('moment-timezone');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
@@ -13,6 +12,7 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {ErrorReporter} = require('../../utils/slack.logger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 
 class SearchStreamingOperation {
@@ -23,6 +23,7 @@ class SearchStreamingOperation {
      * @param {AuditLogger} auditLogger
      * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
@@ -30,7 +31,8 @@ class SearchStreamingOperation {
             resourceLocatorFactory,
             auditLogger,
             errorReporter,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -61,6 +63,12 @@ class SearchStreamingOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -100,14 +108,16 @@ class SearchStreamingOperation {
             requestId
         } = requestInfo;
 
-        await verifyHasValidScopesAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            action: currentOperationName,
-            accessRequested: 'read'
-        });
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'read'
+            }
+        );
 
         /**
          * @type {boolean}

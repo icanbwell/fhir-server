@@ -3,7 +3,7 @@ const organizationEverythingGraph = require('../../graphs/organization/everythin
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
+const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 
@@ -12,18 +12,31 @@ class EverythingOperation {
      * constructor
      * @param {GraphOperation} graphOperation
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
-    constructor({graphOperation, fhirLoggingManager}) {
+    constructor(
+        {
+            graphOperation,
+            fhirLoggingManager,
+            scopesValidator
+        }
+    ) {
         /**
          * @type {GraphOperation}
          */
         this.graphOperation = graphOperation;
         assertTypeEquals(graphOperation, GraphOperation);
-                /**
+        /**
          * @type {FhirLoggingManager}
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
     }
 
     /**
@@ -32,7 +45,7 @@ class EverythingOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async everything( requestInfo, args, resourceType) {
+    async everything(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -41,7 +54,7 @@ class EverythingOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        await verifyHasValidScopesAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,
@@ -59,7 +72,7 @@ class EverythingOperation {
             if (resourceType === 'Practitioner') {
                 requestInfo.body = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
-                await this.fhirLoggingManager. logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,
@@ -71,7 +84,7 @@ class EverythingOperation {
             } else if (resourceType === 'Organization') {
                 requestInfo.body = organizationEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
-                await this.fhirLoggingManager. logOperationAsync({
+                await this.fhirLoggingManager.logOperationAsync({
                     requestInfo,
                     args,
                     resourceType,

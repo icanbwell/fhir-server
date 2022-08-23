@@ -8,13 +8,13 @@ const moment = require('moment-timezone');
 const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
 const {ScopesManager} = require('../security/scopesManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 /**
  * This class helps with creating graph responses
@@ -24,9 +24,16 @@ class GraphHelper {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SecurityTagManager} securityTagManager
      * @param {ScopesManager} scopesManager
+     * @param {ScopesValidator} scopesValidator
      */
-    constructor({databaseQueryFactory, securityTagManager,
-                scopesManager}) {
+    constructor(
+        {
+            databaseQueryFactory,
+            securityTagManager,
+            scopesManager,
+            scopesValidator
+        }
+    ) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -43,6 +50,12 @@ class GraphHelper {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -552,7 +565,7 @@ class GraphHelper {
                     {
                         entities: parentEntities, property, filterProperty, filterValue
                     })) {
-                    await verifyHasValidScopesAsync({
+                    await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
                         args: {},
                         resourceType,
@@ -602,7 +615,7 @@ class GraphHelper {
             } else if (target.params) { // reverse link
                 if (target.type) { // if caller has requested this entity or just wants a nested entity
                     // reverse link
-                    await verifyHasValidScopesAsync({
+                    await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
                         args: {},
                         resourceType,

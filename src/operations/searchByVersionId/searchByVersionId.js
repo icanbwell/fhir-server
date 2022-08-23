@@ -5,11 +5,11 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class SearchByVersionIdOperation {
     /**
@@ -17,12 +17,14 @@ class SearchByVersionIdOperation {
      * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
             databaseHistoryFactory,
             scopesManager,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -41,6 +43,11 @@ class SearchByVersionIdOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
     }
 
     /**
@@ -60,14 +67,16 @@ class SearchByVersionIdOperation {
         const startTime = Date.now();
         const {user, scope} = requestInfo;
 
-        await verifyHasValidScopesAsync({
-            requestInfo,
-            args,
-            resourceType,
-            startTime,
-            action: currentOperationName,
-            accessRequested: 'read'
-        });
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'read'
+            }
+        );
 
         try {
 

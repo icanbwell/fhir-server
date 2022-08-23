@@ -168,7 +168,8 @@ const createContainer = function () {
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 securityTagManager: c.securityTagManager,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                scopesValidator: c.scopesValidator
             }
         )
     );
@@ -180,7 +181,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
                 errorReporter: c.errorReporter,
-                fhirLoggingManager: c.fhirLoggingManager
+                fhirLoggingManager: c.fhirLoggingManager,
+                scopesValidator: c.scopesValidator
             }
         )
     );
@@ -190,7 +192,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
                 errorReporter: c.errorReporter,
-                fhirLoggingManager: c.fhirLoggingManager
+                fhirLoggingManager: c.fhirLoggingManager,
+                scopesValidator: c.scopesValidator
             }
         )
     );
@@ -201,7 +204,8 @@ const createContainer = function () {
             auditLogger: c.auditLogger,
             securityTagManager: c.securityTagManager,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('createOperation', c => new CreateOperation(
@@ -212,7 +216,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 databaseHistoryFactory: c.databaseHistoryFactory,
                 scopesManager: c.scopesManager,
-                fhirLoggingManager: c.fhirLoggingManager
+                fhirLoggingManager: c.fhirLoggingManager,
+                scopesValidator: c.scopesValidator
             }
         )
     );
@@ -224,7 +229,8 @@ const createContainer = function () {
                 databaseHistoryFactory: c.databaseHistoryFactory,
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
-                fhirLoggingManager: c.fhirLoggingManager
+                fhirLoggingManager: c.fhirLoggingManager,
+                scopesValidator: c.scopesValidator
             }
         )
     );
@@ -237,12 +243,14 @@ const createContainer = function () {
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
         graphOperation: c.graphOperation,
-        fhirLoggingManager: c.fhirLoggingManager
+        fhirLoggingManager: c.fhirLoggingManager,
+        scopesValidator: c.scopesValidator
     }));
 
     container.register('removeOperation', c => new RemoveOperation(
@@ -250,28 +258,32 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             auditLogger: c.auditLogger,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('searchByVersionIdOperation', c => new SearchByVersionIdOperation(
         {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('historyOperation', c => new HistoryOperation(
         {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('historyByIdOperation', c => new HistoryByIdOperation(
         {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('patchOperation', c => new PatchOperation(
@@ -280,7 +292,8 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             changeEventProducer: c.changeEventProducer,
             postRequestProcessor: c.postRequestProcessor,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('validateOperation', c => new ValidateOperation(
@@ -292,7 +305,8 @@ const createContainer = function () {
     container.register('graphOperation', c => new GraphOperation(
         {
             graphHelper: c.graphHelper,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
     container.register('expandOperation', c => new ExpandOperation(
@@ -300,7 +314,8 @@ const createContainer = function () {
             valueSetManager: c.valueSetManager,
             databaseQueryFactory: c.databaseQueryFactory,
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            scopesValidator: c.scopesValidator
         }
     ));
 

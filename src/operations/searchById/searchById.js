@@ -6,7 +6,6 @@ const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
-const {verifyHasValidScopesAsync} = require('../security/scopesValidator');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
@@ -15,6 +14,7 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
 class SearchByIdOperation {
     /**
@@ -25,6 +25,7 @@ class SearchByIdOperation {
      * @param {SecurityTagManager} securityTagManager
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
     constructor(
         {
@@ -33,7 +34,8 @@ class SearchByIdOperation {
             auditLogger,
             securityTagManager,
             scopesManager,
-            fhirLoggingManager
+            fhirLoggingManager,
+            scopesValidator
         }
     ) {
         /**
@@ -66,6 +68,12 @@ class SearchByIdOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
     }
 
     /**
@@ -100,7 +108,7 @@ class SearchByIdOperation {
             requestId
         } = requestInfo;
 
-        await verifyHasValidScopesAsync({
+        await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
             resourceType,
