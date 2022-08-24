@@ -5,7 +5,7 @@
   "link": [
     {
       "relation": "self",
-      "url": "/4_0_0/Practitioner/?id:above=0&_count=10&_getpagesoffset=0&_bundle=true"
+      "url": "http://localhost:3000/4_0_0/Practitioner/?id:above=0&_count=10&_getpagesoffset=0&_bundle=true"
     },
     {
       "relation": "next",

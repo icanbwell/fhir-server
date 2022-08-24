@@ -16,6 +16,7 @@ const {get_all_args} = require('./common/get_all_args');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals} = require('../utils/assertType');
+const env = require('var');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -190,7 +191,7 @@ class FhirOperationsManager {
         /**
          * @type {string | null}
          */
-        const host = req.hostname;
+        const host = env.ENVIRONMENT === 'local' ? req.headers.host : req.hostname; // local will append port number to host
         /**
          * @type {Object | Object[] | null}
          */

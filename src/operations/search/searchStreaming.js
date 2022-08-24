@@ -97,7 +97,11 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             scope,
             /** @type {string | null} */
-            originalUrl: url,
+            originalUrl,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
             /** @type {string[] | null} */
             patients = [],
             /** @type {string} */
@@ -286,7 +290,9 @@ class SearchStreamingOperation {
                          * @return {{entry: {resource: Resource}[]}}
                          */
                         const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle({
-                                url,
+                                originalUrl,
+                                host,
+                                protocol,
                                 last_id,
                                 resources: resources1,
                                 base_version,
@@ -309,7 +315,7 @@ class SearchStreamingOperation {
                             {
                                 requestId,
                                 cursor,
-                                url,
+                                originalUrl,
                                 fnBundle,
                                 res,
                                 user,
@@ -364,7 +370,9 @@ class SearchStreamingOperation {
                          * @type {{entry: {resource: Resource}[]}}
                          */
                         const bundle = this.searchManager.createBundle({
-                                url,
+                                originalUrl,
+                                host,
+                                protocol,
                                 last_id: null,
                                 resources,
                                 base_version,
@@ -434,4 +442,3 @@ class SearchStreamingOperation {
 module.exports = {
     SearchStreamingOperation
 };
-

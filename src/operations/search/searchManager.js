@@ -135,7 +135,9 @@ class SearchManager {
 
     /**
      * creates a bundle from the given resources
-     * @param {string | null} url
+     * @param {string | null} originalUrl
+     * @param {string | null} host
+     * @param {string | null} protocol
      * @param {string | null} last_id
      * @param {Resource[]} resources
      * @param {string} base_version
@@ -156,7 +158,9 @@ class SearchManager {
      */
     createBundle(
         {
-            url,
+            originalUrl,
+            host,
+            protocol,
             last_id,
             resources,
             base_version,
@@ -180,7 +184,7 @@ class SearchManager {
          */
         let link = [];
         // find id of last resource
-        if (url) {
+        if (originalUrl) {
             if (last_id) {
                 // have to use a base url or URL() errors
                 const baseUrl = 'https://example.org';
@@ -188,7 +192,7 @@ class SearchManager {
                  * url to get next page
                  * @type {URL}
                  */
-                const nextUrl = new URL(url, baseUrl);
+                const nextUrl = new URL(originalUrl, baseUrl);
                 // add or update the id:above param
                 nextUrl.searchParams.set('id:above', `${last_id}`);
                 // remove the _getpagesoffset param since that will skip again from this id
@@ -196,7 +200,7 @@ class SearchManager {
                 link = [
                     {
                         relation: 'self',
-                        url: `${url}`,
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
                     },
                     {
                         relation: 'next',
@@ -207,7 +211,7 @@ class SearchManager {
                 link = [
                     {
                         relation: 'self',
-                        url: `${url}`,
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
                     },
                 ];
             }
