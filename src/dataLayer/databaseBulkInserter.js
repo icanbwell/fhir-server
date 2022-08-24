@@ -33,8 +33,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MongoCollectionManager} collectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor({resourceManager, postRequestProcessor, errorReporter,
-                collectionManager, resourceLocatorFactory}) {
+    constructor({
+                    resourceManager, postRequestProcessor, errorReporter,
+                    collectionManager, resourceLocatorFactory
+                }) {
         super();
         assertTypeEquals(resourceManager, ResourceManager);
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -232,9 +234,11 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
                 await this.errorReporter.reportErrorAsync(
-                    `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
-                    ` ${JSON.stringify(operationsForResourceType)}`,
-                    erroredMerge.error
+                    {
+                        message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
+                            ` ${JSON.stringify(operationsForResourceType)}`,
+                        error: erroredMerge.error
+                    }
                 );
             }
         }

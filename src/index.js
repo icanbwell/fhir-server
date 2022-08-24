@@ -12,7 +12,7 @@ const main = async function () {
     } catch (e) {
         console.log(JSON.stringify({method: 'main', message: JSON.stringify(e)}));
         Sentry.captureException(e);
-        await new ErrorReporter().reportErrorAsync('uncaughtException', e);
+        await new ErrorReporter().reportErrorAsync({message: 'uncaughtException', error: e});
     }
 };
 

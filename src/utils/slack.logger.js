@@ -30,17 +30,17 @@ class ErrorReporter {
     /**
      * logs error to Slack
      * @param {string} message
-     * @param {Error} [err]
+     * @param {Error} [error]
      * @returns {Promise<void>}
      */
-    async reportErrorAsync(message, err) {
+    async reportErrorAsync({message, error}) {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             const web = new WebClient(options.token);
             // Post a message to the channel, and await the result.
             // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
             await web.chat.postMessage({
-                text: message + err ? (':' + err.stack) : '',
+                text: message + error ? (':' + error.stack) : '',
                 channel: options.channel,
             });
         }
@@ -72,11 +72,11 @@ class ErrorReporter {
      * logs error and request to Slack
      * @param {string} token
      * @param {string} channel
-     * @param {Error} err
+     * @param {Error} error
      * @param {import('http').IncomingMessage} req
      * @returns {Promise<void>}
      */
-    async reportErrorAndRequestAsync(token, channel, err, req) {
+    async reportErrorAndRequestAsync({token, channel, error, req}) {
         const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
         const self = this;
         const request = {
@@ -115,22 +115,22 @@ class ErrorReporter {
             },
             {
                 title: 'Status Code',
-                value: err.statusCode,
+                value: error.statusCode,
                 short: true
             }
         ];
-        if (err.elapsedTimeInSecs) {
+        if (error.elapsedTimeInSecs) {
             fields.push(
                 {
                     title: 'Elapsed Time (secs)',
-                    value: err.elapsedTimeInSecs,
+                    value: error.elapsedTimeInSecs,
                     short: true
                 }
             );
         }
 
-        if (err.options) {
-            for (const [key, value] of Object.entries(err.options)) {
+        if (error.options) {
+            for (const [key, value] of Object.entries(error.options)) {
                 fields.push({
                     title: key,
                     value: value,
@@ -143,10 +143,10 @@ class ErrorReporter {
          */
         const text = [
             {
-                title: 'Error:', code: err.toString()
+                title: 'Error:', code: error.toString()
             },
             {
-                title: 'Stack trace:', code: err.stack
+                title: 'Stack trace:', code: error.stack
             },
             {
                 title: 'Request',
@@ -160,10 +160,10 @@ class ErrorReporter {
          * @type  {import('@slack/web-api').MessageAttachment}
          */
         const attachment = {
-            fallback: 'FHIR Server Error: ' + err.message,
-            color: err.statusCode < 500 ? 'warning' : 'danger',
+            fallback: 'FHIR Server Error: ' + error.message,
+            color: error.statusCode < 500 ? 'warning' : 'danger',
             author_name: Array.isArray(req.headers.host) ? req.headers.host[0] : req.headers.host,
-            title: 'FHIR Server Error: ' + err.message,
+            title: 'FHIR Server Error: ' + error.message,
             fields: fields,
             text: text,
             mrkdwn_in: ['text'],

@@ -333,22 +333,17 @@ class SearchStreamingOperation {
                     }
                 }
                 if (resourceIds.length > 0) {
-                    try {
-                        // log access to audit logs
-                        await this.auditLogger.logAuditEntryAsync(
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            'read',
-                            args,
-                            resourceIds
-                        );
-                        const currentDate = moment.utc().format('YYYY-MM-DD');
-                        await this.auditLogger.flushAsync(requestId, currentDate);
-                    } catch (e) {
-                        await this.errorReporter.reportErrorAsync(
-                            `searchStreaming: Error writing AuditEvent for resource ${resourceType}`, e);
-                    }
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync(
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        'read',
+                        args,
+                        resourceIds
+                    );
+                    const currentDate = moment.utc().format('YYYY-MM-DD');
+                    await this.auditLogger.flushAsync(requestId, currentDate);
                 }
             } else { // no records found
                 if (useNdJson) {

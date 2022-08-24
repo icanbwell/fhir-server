@@ -234,24 +234,17 @@ class SearchBundleOperation {
                 );
 
                 if (resources.length > 0) {
-                    if (resourceType !== 'AuditEvent') {
-                        try {
-                            // log access to audit logs
-                            await this.auditLogger.logAuditEntryAsync(
-                                requestInfo,
-                                base_version,
-                                resourceType,
-                                'read',
-                                args,
-                                resources.map((r) => r['id'])
-                            );
-                            const currentDate = moment.utc().format('YYYY-MM-DD');
-                            await this.auditLogger.flushAsync(requestId, currentDate);
-                        } catch (e) {
-                            await this.errorReporter.reportErrorAsync(
-                                `search: Error writing AuditEvent for resource ${resourceType}`, e);
-                        }
-                    }
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync(
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        'read',
+                        args,
+                        resources.map((r) => r['id'])
+                    );
+                    const currentDate = moment.utc().format('YYYY-MM-DD');
+                    await this.auditLogger.flushAsync(requestId, currentDate);
                 }
             }
 

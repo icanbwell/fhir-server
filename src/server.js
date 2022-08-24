@@ -19,7 +19,12 @@ async function createServer(fnCreateContainer) {
     const server = http.createServer(app).listen(fhirServerConfig.server.port, null, null,
         async () => {
             const image = env.DOCKER_IMAGE || '';
-            await logSystemEventAsync('serverStartup', 'Server is up and running', {image: image});
+            await logSystemEventAsync(
+                {
+                    event: 'serverStartup',
+                    message: 'Server is up and running',
+                    args: {image: image}
+                });
         }
     );
 
@@ -57,7 +62,13 @@ async function createServer(fnCreateContainer) {
 
     process.on('SIGTERM', async function onSigterm() {
         console.log(JSON.stringify({message: 'Beginning shutdown of server'}));
-        await logSystemEventAsync('SIGTERM', 'Beginning shutdown of server for SIGTERM', {});
+        await logSystemEventAsync(
+            {
+                event: 'SIGTERM',
+                message: 'Beginning shutdown of server for SIGTERM',
+                args: {}
+            }
+        );
         try {
             await httpTerminator.terminate();
             console.log(JSON.stringify({message: 'Successfully shut down server'}));
@@ -71,7 +82,12 @@ async function createServer(fnCreateContainer) {
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigInt() {
         console.log(JSON.stringify({message: 'Beginning shutdown of server for SIGINT'}));
-        await logSystemEventAsync('SIGINT', 'Beginning shutdown of server for SIGINT', {});
+        await logSystemEventAsync({
+                event: 'SIGINT',
+                message: 'Beginning shutdown of server for SIGINT',
+                args: {}
+            }
+        );
         try {
             await httpTerminator.terminate();
             console.log(JSON.stringify({message: 'Successfully shut down server for SIGINT'}));

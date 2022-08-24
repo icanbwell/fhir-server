@@ -22,10 +22,12 @@ class AuditLogger {
      * @param {ErrorReporter} errorReporter
      * @param {string} base_version
      */
-    constructor({postRequestProcessor,
-                databaseBulkInserter,
-                errorReporter,
-                base_version = '4_0_0'}) {
+    constructor({
+                    postRequestProcessor,
+                    databaseBulkInserter,
+                    errorReporter,
+                    base_version = '4_0_0'
+                }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         assertTypeEquals(errorReporter, ErrorReporter);
@@ -202,7 +204,11 @@ class AuditLogger {
         const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
         const mergeResultErrors = mergeResults.filter(m => m.issue);
         if (mergeResultErrors.length > 0) {
-            await this.errorReporter.reportErrorAsync(`Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`);
+            await this.errorReporter.reportErrorAsync(
+                {
+                    message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`
+                }
+            );
         }
     }
 }

@@ -4,7 +4,10 @@
  */
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
+
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -45,28 +48,54 @@ class PostRequestProcessor {
      * @return {Promise<void>}
      */
     async executeAsync() {
-        if (this.startedExecuting) {
+        if (this.startedExecuting || this.queue.length === 0) {
             return;
         }
-        this.startedExecuting = true;
-        const tasksInQueue = this.queue.length;
-        /**
-         * @type {function(): void}
-         */
-        let task = this.queue.shift();
-        while (task !== undefined) {
-            try {
-                await task();
-            } catch (e) {
-                await this.errorReporter.reportErrorAsync('Error running post request task', e);
+        const tasksInQueueBefore = this.queue.length;
+
+        await mutex.runExclusive(async () => {
+            if (this.queue.length === 0) {
+                return;
             }
-            task = this.queue.shift();
-        }
-        this.startedExecuting = false;
-        if (tasksInQueue > 0) {
-            await logSystemEventAsync('postRequestProcessorFinished', 'Finished', {
-                tasksInQueue: tasksInQueue
-            });
+            this.startedExecuting = true;
+            /**
+             * @type {function(): void}
+             */
+            let task = this.queue.shift();
+            while (task !== undefined) {
+                try {
+                    await task();
+                } catch (e) {
+                    await this.errorReporter.reportErrorAsync({
+                        message: 'Error running post request task',
+                        error: e
+                    });
+                    await logSystemErrorAsync(
+                        {
+                            event: 'postRequestProcessor',
+                            message: 'Error running task',
+                            args: {},
+                            error: e
+                        }
+                    );
+                    throw e;
+                }
+                task = this.queue.shift();
+            }
+            this.startedExecuting = false;
+        });
+        // If we processed any tasks then log it
+        if (tasksInQueueBefore > 0) {
+            await logSystemEventAsync(
+                {
+                    event: 'postRequestProcessor',
+                    message: 'Finished',
+                    args: {
+                        tasksInQueueBefore: tasksInQueueBefore,
+                        tasksInQueueAfter: this.queue.length
+                    }
+                }
+            );
         }
     }
 
