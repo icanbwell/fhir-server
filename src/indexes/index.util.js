@@ -9,7 +9,7 @@ const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals} = require('../utils/assertType');
 
@@ -28,6 +28,7 @@ class IndexManager {
          */
         this.errorReporter = errorReporter;
     }
+
     /**
      * creates a multi key index if it does not exist
      * @param {import('mongodb').Db} db
@@ -48,11 +49,17 @@ class IndexManager {
         try {
             if (!await db.collection(collection_name).indexExists(index_name)) {
                 const message = 'Creating index ' + index_name + ' with columns: [' + columns + ']' + ' in ' + collection_name;
-                await logSystemEventAsync('createIndex', message, {
-                    index: index_name,
-                    columns: columns,
-                    collection: collection_name
-                });
+                await logSystemEventAsync(
+                    {
+                        event: 'createIndex',
+                        message,
+                        args: {
+                            index: index_name,
+                            columns: columns,
+                            collection: collection_name
+                        }
+                    }
+                );
                 await this.errorReporter.reportMessageAsync(message);
                 const my_dict = {};
                 for (const property_to_index of properties_to_index) {
@@ -63,12 +70,15 @@ class IndexManager {
             }
         } catch (e) {
             const message1 = 'Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e);
-            await logSystemEventAsync('createIndex', message1, {
-                    index: index_name,
-                    columns: columns,
-                    collection: collection_name
-                },
-                JSON.stringify(e)
+            await logSystemErrorAsync(
+                {
+                    event: 'createIndex', message: message1, args: {
+                        index: index_name,
+                        columns: columns,
+                        collection: collection_name
+                    },
+                    error: e
+                }
             );
             await this.errorReporter.reportMessageAsync(message1);
         }

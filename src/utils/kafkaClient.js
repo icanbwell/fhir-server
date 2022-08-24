@@ -1,5 +1,6 @@
 const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
+const {logSystemErrorAsync} = require('../operations/common/logging');
 
 /**
  * @typedef KafkaClientMessage
@@ -33,6 +34,8 @@ class KafkaClient {
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
         assertIsValid(brokers.length > 0);
+        this.clientId = clientId;
+        this.brokers = brokers;
         /**
          * @type {Kafka}
          */
@@ -69,7 +72,16 @@ class KafkaClient {
                     };
                 }),
             });
-        } finally {
+        } catch (e) {
+            await logSystemErrorAsync({
+                event: 'kafkaClient',
+                message: 'Error sending message',
+                args: {clientId: this.clientId, brokers: this.brokers},
+                error: e
+            });
+            throw e;
+        }
+        finally {
             await producer.disconnect();
         }
     }

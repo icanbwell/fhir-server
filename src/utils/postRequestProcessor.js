@@ -4,7 +4,7 @@
  */
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
@@ -59,14 +59,30 @@ class PostRequestProcessor {
                 await task();
             } catch (e) {
                 await this.errorReporter.reportErrorAsync('Error running post request task', e);
+                await logSystemErrorAsync(
+                    {
+                        event: 'postRequestProcessor',
+                        message: 'Error running task',
+                        args: {},
+                        error: e
+                    }
+                );
+                throw e;
             }
             task = this.queue.shift();
         }
         this.startedExecuting = false;
         if (tasksInQueue > 0) {
-            await logSystemEventAsync('postRequestProcessorFinished', 'Finished', {
-                tasksInQueue: tasksInQueue
-            });
+            await logSystemEventAsync(
+                {
+                    event: 'postRequestProcessor',
+                    message: 'Finished',
+                    args: {
+                        tasksInQueueBefore: tasksInQueue,
+                        tasksInQueueAfter: this.queue.length
+                    }
+                }
+            );
         }
     }
 
