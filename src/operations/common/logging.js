@@ -130,7 +130,7 @@ module.exports.logSystemErrorAsync = async ({event, message, args, error}) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: error ? 'Error' : 'Success',
-        message: message + error ? (' : ' + JSON.stringify(error)) : '',
+        message: message + (error ? (' : ' + JSON.stringify(error)) : ''),
         entity: [
             {
                 name: 'system',
