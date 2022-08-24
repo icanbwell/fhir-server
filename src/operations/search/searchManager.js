@@ -204,7 +204,7 @@ class SearchManager {
                     },
                     {
                         relation: 'next',
-                        url: `${nextUrl.toString().replace(baseUrl, '')}`,
+                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`),
                     },
                 ];
             } else {
