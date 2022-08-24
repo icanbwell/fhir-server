@@ -29,7 +29,14 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
-            await new ErrorReporter().reportErrorAndRequestAsync(options.token, options.channel, err, req);
+            await new ErrorReporter().reportErrorAndRequestAsync(
+                {
+                    token: options.token,
+                    channel: options.channel,
+                    error: err,
+                    req
+                }
+            );
         }
     } catch (e) {
         console.error(JSON.stringify({message: `Error sending slack message: ${e}`}));
