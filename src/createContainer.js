@@ -74,7 +74,8 @@ const createContainer = function () {
             new KafkaClient(
                 {
                     clientId: env.KAFKA_CLIENT_ID,
-                    brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : ''
+                    brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '',
+                    ssl: isTrue(env.KAFKA_SSL)
                 }
             ) :
             new DummyKafkaClient({clientId: '', brokers: []})

@@ -19,30 +19,34 @@ class KafkaClient {
      * constructor
      * @param {string|undefined} clientId
      * @param {string[]|undefined} brokers
+     * @param {boolean} ssl
      */
-    constructor({clientId, brokers}) {
-        this.init(clientId, brokers);
+    constructor({clientId, brokers, ssl}) {
+        this.init(clientId, brokers, ssl);
     }
 
     /**
      * init
      * @param {string} clientId
      * @param {string[]} brokers
+     * @param {boolean} ssl
      */
-    init(clientId, brokers) {
+    init(clientId, brokers, ssl) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
         assertIsValid(brokers.length > 0);
         this.clientId = clientId;
         this.brokers = brokers;
+        const config = {
+            clientId: clientId,
+            brokers: brokers,
+            ssl: ssl
+        };
         /**
          * @type {Kafka}
          */
-        this.client = new Kafka({
-            clientId: clientId,
-            brokers: brokers,
-        });
+        this.client = new Kafka(config);
     }
 
     /**

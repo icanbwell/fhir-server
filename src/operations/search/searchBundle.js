@@ -93,6 +93,10 @@ class SearchBundleOperation {
             fhirPersonId,
             /** @type {boolean} */
             isUser,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
             /**
              * @type {string}
              */
@@ -262,8 +266,11 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = this.searchManager.createBundle({
-                    url,
+            const bundle = this.searchManager.createBundle(
+                {
+                    originalUrl: url,
+                    host,
+                    protocol,
                     last_id,
                     resources,
                     base_version,

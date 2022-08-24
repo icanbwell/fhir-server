@@ -285,11 +285,12 @@ class SearchStreamingOperation {
                         const resources1 = [];
                         /**
                          * bundle
-                         * @param last_id
-                         * @param stopTime1
+                         * @param {string|null} last_id
+                         * @param {number} stopTime1
                          * @return {{entry: {resource: Resource}[]}}
                          */
-                        const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle({
+                        const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle(
+                            {
                                 originalUrl,
                                 host,
                                 protocol,
@@ -315,7 +316,7 @@ class SearchStreamingOperation {
                             {
                                 requestId,
                                 cursor,
-                                originalUrl,
+                                url: originalUrl,
                                 fnBundle,
                                 res,
                                 user,
