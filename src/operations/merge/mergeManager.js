@@ -24,6 +24,9 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
 
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
 class MergeManager {
     /**
      * Constructor
@@ -324,80 +327,83 @@ class MergeManager {
                 'merge_' + requestId);
         }
 
-        try {
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS));
+        // use mutex so multiple requests are not in here at the same time
+        await mutex.runExclusive(async () => {
+            try {
+                /**
+                 * @type {boolean}
+                 */
+                const useAtlas = (isTrue(env.USE_ATLAS));
 
-            // Query our collection for this id
-            /**
-             * @type {Object}
-             */
-            let data = this.databaseBulkLoader ?
-                this.databaseBulkLoader.getResourceFromExistingList(resourceToMerge.resourceType, id.toString()) :
-                await this.databaseQueryFactory.createQuery(
-                    resourceToMerge.resourceType, base_version, useAtlas)
-                    .findOneAsync({id: id.toString()});
+                // Query our collection for this id
+                /**
+                 * @type {Object}
+                 */
+                let data = this.databaseBulkLoader ?
+                    this.databaseBulkLoader.getResourceFromExistingList(resourceToMerge.resourceType, id.toString()) :
+                    await this.databaseQueryFactory.createQuery(
+                        resourceToMerge.resourceType, base_version, useAtlas)
+                        .findOneAsync({id: id.toString()});
 
-            logDebug('test?', '------- data -------');
-            logDebug('test?', `${resourceToMerge.resourceType}_${base_version}`);
-            logDebug('test?', JSON.stringify(data));
-            logDebug('test?', '------- end data -------');
+                logDebug('test?', '------- data -------');
+                logDebug('test?', `${resourceToMerge.resourceType}_${base_version}`);
+                logDebug('test?', JSON.stringify(data));
+                logDebug('test?', '------- end data -------');
 
-            // check if resource was found in database or not
-            if (data && data.meta) {
-                this.databaseBulkLoader.updateResourceInExistingList(resourceToMerge);
-                await this.mergeExistingAsync(
-                    {
-                        resourceToMerge, data, base_version, user, scope, currentDate, requestId
-                    }
-                );
-            } else {
-                this.databaseBulkLoader.addResourceToExistingList(resourceToMerge);
-                await this.mergeInsertAsync({
-                    resourceToMerge, base_version, user
-                });
+                // check if resource was found in database or not
+                if (data && data.meta) {
+                    this.databaseBulkLoader.updateResourceInExistingList(resourceToMerge);
+                    await this.mergeExistingAsync(
+                        {
+                            resourceToMerge, data, base_version, user, scope, currentDate, requestId
+                        }
+                    );
+                } else {
+                    this.databaseBulkLoader.addResourceToExistingList(resourceToMerge);
+                    await this.mergeInsertAsync({
+                        resourceToMerge, base_version, user
+                    });
+                }
+            } catch (e) {
+                logError(`Error with merging resource ${resourceToMerge.resourceType}.merge with id: ${id} `, e);
+                const operationOutcome = {
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        {
+                            severity: 'error',
+                            code: 'exception',
+                            details: {
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                            },
+                            diagnostics: e.toString(),
+                            expression: [
+                                resourceToMerge.resourceType + '/' + id
+                            ]
+                        }
+                    ]
+                };
+                await sendToS3('errors',
+                    resourceToMerge.resourceType,
+                    resourceToMerge,
+                    currentDate,
+                    id,
+                    'merge');
+                await sendToS3('errors',
+                    resourceToMerge.resourceType,
+                    operationOutcome,
+                    currentDate,
+                    id,
+                    'merge_error');
+                return {
+                    id: id,
+                    resourceType: resourceType,
+                    created: false,
+                    updated: false,
+                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                    operationOutcome: operationOutcome
+                };
             }
-        } catch (e) {
-            logError(`Error with merging resource ${resourceToMerge.resourceType}.merge with id: ${id} `, e);
-            const operationOutcome = {
-                resourceType: 'OperationOutcome',
-                issue: [
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        details: {
-                            text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                        },
-                        diagnostics: e.toString(),
-                        expression: [
-                            resourceToMerge.resourceType + '/' + id
-                        ]
-                    }
-                ]
-            };
-            await sendToS3('errors',
-                resourceToMerge.resourceType,
-                resourceToMerge,
-                currentDate,
-                id,
-                'merge');
-            await sendToS3('errors',
-                resourceToMerge.resourceType,
-                operationOutcome,
-                currentDate,
-                id,
-                'merge_error');
-            return {
-                id: id,
-                resourceType: resourceType,
-                created: false,
-                updated: false,
-                issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                operationOutcome: operationOutcome
-            };
-        }
+        });
     }
 
     /**
