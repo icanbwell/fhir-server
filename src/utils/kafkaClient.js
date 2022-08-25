@@ -1,11 +1,12 @@
 const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
-const {logSystemErrorAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logSystemEventAsync} = require('../operations/common/logging');
+const env = require('var');
 
 /**
  * @typedef KafkaClientMessage
  * @type {object}
- * @property {string|null|undefined} key
+ * @property {string} key
  * @property {string} requestId
  * @property {string} fhirVersion
  * @property {string} value
@@ -38,6 +39,8 @@ class KafkaClient {
         assertIsValid(brokers.length > 0);
         this.clientId = clientId;
         this.brokers = brokers;
+        this.ssl = ssl;
+
         const config = {
             clientId: clientId,
             brokers: brokers,
@@ -63,29 +66,62 @@ class KafkaClient {
 
         await producer.connect();
         try {
-            await producer.send({
-                topic: topic,
-                messages: messages.map(m => {
-                    return {
-                        key: m.key,
-                        value: m.value,
-                        headers: {
-                            'b3': m.requestId,
-                            'version': m.fhirVersion,
-                        }
-                    };
-                }),
+            /**
+             * @type {import('kafkajs').Message[]}
+             */
+            const kafkaMessages = messages.map(m => {
+                return {
+                    key: m.key,
+                    value: m.value,
+                    headers: {
+                        'b3': m.requestId,
+                        'version': m.fhirVersion,
+                    }
+                };
             });
+            if (env.LOGLEVEL === 'DEBUG') {
+                await logSystemEventAsync({
+                    event: 'kafkaClient',
+                    message: 'Sending message',
+                    args: {
+                        clientId: this.clientId,
+                        brokers: this.brokers,
+                        ssl: this.ssl,
+                        topic: topic,
+                        messages: kafkaMessages
+                    }
+                });
+            }
+            /**
+             * @type {import('kafkajs').RecordMetadata[]}
+             */
+            const result = await producer.send({
+                topic: topic,
+                messages: kafkaMessages,
+            });
+            if (env.LOGLEVEL === 'DEBUG') {
+                await logSystemEventAsync({
+                    event: 'kafkaClient',
+                    message: 'Sent message',
+                    args: {
+                        clientId: this.clientId,
+                        brokers: this.brokers,
+                        ssl: this.ssl,
+                        topic: topic,
+                        messages: kafkaMessages,
+                        result: result
+                    }
+                });
+            }
         } catch (e) {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
                 message: 'Error sending message',
-                args: {clientId: this.clientId, brokers: this.brokers},
+                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
                 error: e
             });
             throw e;
-        }
-        finally {
+        } finally {
             await producer.disconnect();
         }
     }
