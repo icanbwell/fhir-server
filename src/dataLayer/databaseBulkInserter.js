@@ -235,6 +235,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
                 await this.errorReporter.reportErrorAsync(
                     {
+                        source: 'databaseBulkInserter',
                         message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                             ` ${JSON.stringify(operationsForResourceType)}`,
                         error: erroredMerge.error
@@ -467,6 +468,15 @@ class DatabaseBulkInserter extends EventEmitter {
                 //TODO: this only returns result from the last collection
                 mergeResult = result.result;
             } catch (e) {
+                await this.errorReporter.reportErrorAsync({
+                    source: 'databaseBulkInserter',
+                    message: 'databaseBulkInserter: Error bulkWrite',
+                    error: e,
+                    args: {
+                        operations: operationsByCollection,
+                        options: options
+                    }
+                });
                 return {resourceType: resourceType, mergeResult: null, error: e};
             }
         }

@@ -206,6 +206,7 @@ class AuditLogger {
         if (mergeResultErrors.length > 0) {
             await this.errorReporter.reportErrorAsync(
                 {
+                    source: 'flushAsync',
                     message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`
                 }
             );

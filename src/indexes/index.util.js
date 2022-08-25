@@ -60,7 +60,7 @@ class IndexManager {
                         }
                     }
                 );
-                await this.errorReporter.reportMessageAsync(message);
+                await this.errorReporter.reportMessageAsync({source: 'createIndex', message: message});
                 const my_dict = {};
                 for (const property_to_index of properties_to_index) {
                     my_dict[String(property_to_index)] = 1;
@@ -80,7 +80,7 @@ class IndexManager {
                     error: e
                 }
             );
-            await this.errorReporter.reportMessageAsync(message1);
+            await this.errorReporter.reportMessageAsync({source: 'createIndex', message: message1});
         }
         return false;
     }
