@@ -271,8 +271,10 @@ class MergeOperation {
              * @type {MergeResultEntry[]}
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync(
-                requestId, currentDate,
-                base_version, useAtlas);
+                {
+                    requestId, currentDate,
+                    base_version, useAtlas
+                });
 
             // flush any event handlers
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
@@ -304,13 +306,13 @@ class MergeOperation {
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                error: e
-            });
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
             throw e;
         } finally {
             this.databaseBulkInserter.removeListener('createPatient', onCreatePatient);

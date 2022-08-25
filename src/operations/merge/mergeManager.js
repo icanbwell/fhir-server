@@ -529,7 +529,13 @@ class MergeManager {
         //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
         //  */
         //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-        await this.databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
+        await this.databaseBulkInserter.replaceOneAsync(
+            {
+                resourceType: resourceToMerge.resourceType,
+                id: id.toString(),
+                doc
+            }
+        );
 
         /**
          * @type {import('mongodb').Document}
@@ -538,7 +544,10 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync(
+            {
+                resourceType: resourceToMerge.resourceType, doc
+            });
     }
 
     /**
@@ -559,7 +568,11 @@ class MergeManager {
         delete doc['_id'];
 
         // Insert/update our resource record
-        await this.databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneAsync({
+                resourceType: resourceToMerge.resourceType,
+                doc
+            }
+        );
 
         /**
          * @type {import('mongodb').Document}
@@ -568,7 +581,11 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync({
+                resourceType: resourceToMerge.resourceType,
+                doc
+            }
+        );
     }
 
     /**
@@ -814,18 +831,28 @@ class MergeManager {
                  */
                 const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
                 if (createdItems && createdItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                        'create', args, createdItems.map(r => r['id']));
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'create', args,
+                            ids: createdItems.map(r => r['id'])
+                        }
+                    );
                 }
                 if (updatedItems && updatedItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                        'update', args, updatedItems.map(r => r['id']));
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'update', args,
+                            ids: updatedItems.map(r => r['id'])
+                        }
+                    );
                 }
             }
         }
 
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        await this.auditLogger.flushAsync(requestId, currentDate);
+        await this.auditLogger.flushAsync({requestId, currentDate});
     }
 }
 

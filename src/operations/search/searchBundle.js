@@ -240,15 +240,17 @@ class SearchBundleOperation {
                 if (resources.length > 0) {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        'read',
-                        args,
-                        resources.map((r) => r['id'])
+                        {
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: 'read',
+                            args,
+                            ids: resources.map((r) => r['id'])
+                        }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync(requestId, currentDate);
+                    await this.auditLogger.flushAsync({requestId, currentDate});
                 }
             }
 

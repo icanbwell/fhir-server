@@ -171,10 +171,14 @@ class SearchByIdOperation {
                 resource = (await enrich([resource], resourceType))[0];
                 if (resourceType !== 'AuditEvent') {
                     // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                        'read', args, [resource['id']]);
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'read', args, ids: [resource['id']]
+                        }
+                    );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync(requestId, currentDate);
+                    await this.auditLogger.flushAsync({requestId, currentDate});
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
