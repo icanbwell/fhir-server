@@ -83,7 +83,8 @@ const createContainer = function () {
     container.register('changeEventProducer', c => new ChangeEventProducer(
         {
             kafkaClient: c.kafkaClient,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
         }
     ));
     container.register('errorReporter', () => new ErrorReporter());

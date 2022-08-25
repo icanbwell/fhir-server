@@ -1,9 +1,10 @@
 const env = require('var');
 const {generateUUID} = require('./uid.util');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('./assertType');
+const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {KafkaClient} = require('./kafkaClient');
 const {ResourceManager} = require('../operations/common/resourceManager');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -16,18 +17,24 @@ class ChangeEventProducer {
      * Constructor
      * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
+     * @param {string} patientChangeTopic
      */
-    constructor({kafkaClient, resourceManager}) {
-        assertTypeEquals(kafkaClient, KafkaClient);
-        assertTypeEquals(resourceManager, ResourceManager);
+    constructor({kafkaClient, resourceManager, patientChangeTopic}) {
         /**
          * @type {KafkaClient}
          */
         this.kafkaClient = kafkaClient;
+        assertTypeEquals(kafkaClient, KafkaClient);
         /**
          * @type {ResourceManager}
          */
         this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
+        /**
+         * @type {string}
+         */
+        this.patientChangeTopic = patientChangeTopic;
+        assertIsValid(patientChangeTopic);
         /**
          * @type {Map<string, Object>}
          */
@@ -149,9 +156,10 @@ class ChangeEventProducer {
 
         // find unique events
         const fhirVersion = 'R4';
-        const topic = 'business.events';
+        const topic = this.patientChangeTopic;
 
         await mutex.runExclusive(async () => {
+            const numberOfMessagesBefore = this.messageMap.size;
             /**
              * @type {{requestId: *, fhirVersion: string, value: string, key: *}[]}
              */
@@ -170,6 +178,20 @@ class ChangeEventProducer {
             await this.kafkaClient.sendMessagesAsync(topic, messages);
 
             this.messageMap.clear();
+
+            if (numberOfMessagesBefore > 0) {
+                await logSystemEventAsync(
+                    {
+                        event: 'changeEventProducer',
+                        message: 'Finished',
+                        args: {
+                            numberOfMessagesBefore: numberOfMessagesBefore,
+                            numberOfMessagesAfter: this.messageMap.size,
+                            topic: topic
+                        }
+                    }
+                );
+            }
         });
     }
 }
