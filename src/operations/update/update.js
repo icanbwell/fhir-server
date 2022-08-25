@@ -108,7 +108,7 @@ class UpdateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, path, body, requestId} = requestInfo;
+        const {user, scope, path, body, /** @type {string|null} */ requestId} = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -327,10 +327,14 @@ class UpdateOperation {
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
-                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                    currentOperationName, args, [resource_incoming['id']]);
+                await this.auditLogger.logAuditEntryAsync(
+                    {
+                        requestInfo, base_version, resourceType,
+                        operation: currentOperationName, args, ids: [resource_incoming['id']]
+                    }
+                );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync({requestId, currentDate});
             }
 
             const result = {

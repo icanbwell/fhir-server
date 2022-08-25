@@ -19,7 +19,7 @@ const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/assertType');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
@@ -296,7 +296,7 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {string | null} scope
-     * @return {Promise<MergeResultEntry|null>}
+     * @return {Promise<void>}
      */
     async mergeResourceAsync(
         {
@@ -394,14 +394,19 @@ class MergeManager {
                     currentDate,
                     id,
                     'merge_error');
-                return {
-                    id: id,
-                    resourceType: resourceType,
-                    created: false,
-                    updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                    operationOutcome: operationOutcome
-                };
+                assertFail({
+                    source: 'MergeManager',
+                    message: 'Failed to load data',
+                    args: {
+                        id: id,
+                        resourceType: resourceType,
+                        created: false,
+                        updated: false,
+                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                        operationOutcome: operationOutcome
+                    },
+                    error: e
+                });
             }
         });
     }
@@ -415,7 +420,7 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {string} scope
-     * @returns {Promise<MergeResultEntry[]>}
+     * @returns {Promise<void>}
      */
     async mergeResourceListAsync(
         {
@@ -459,7 +464,7 @@ class MergeManager {
                         user, currentDate, requestId, base_version, scope
                     }
                 )), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await this.mergeResourceWithRetryAsync(
+            async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x, resourceType,
                     user, currentDate, requestId, base_version, scope
@@ -529,7 +534,13 @@ class MergeManager {
         //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
         //  */
         //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
-        await this.databaseBulkInserter.replaceOneAsync(resourceToMerge.resourceType, id.toString(), doc);
+        await this.databaseBulkInserter.replaceOneAsync(
+            {
+                resourceType: resourceToMerge.resourceType,
+                id: id.toString(),
+                doc
+            }
+        );
 
         /**
          * @type {import('mongodb').Document}
@@ -538,7 +549,10 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync(
+            {
+                resourceType: resourceToMerge.resourceType, doc
+            });
     }
 
     /**
@@ -559,7 +573,11 @@ class MergeManager {
         delete doc['_id'];
 
         // Insert/update our resource record
-        await this.databaseBulkInserter.insertOneAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneAsync({
+                resourceType: resourceToMerge.resourceType,
+                doc
+            }
+        );
 
         /**
          * @type {import('mongodb').Document}
@@ -568,7 +586,11 @@ class MergeManager {
         // Insert our resource record to history but don't assign _id
         delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync(resourceToMerge.resourceType, doc);
+        await this.databaseBulkInserter.insertOneHistoryAsync({
+                resourceType: resourceToMerge.resourceType,
+                doc
+            }
+        );
     }
 
     /**
@@ -814,18 +836,28 @@ class MergeManager {
                  */
                 const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
                 if (createdItems && createdItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                        'create', args, createdItems.map(r => r['id']));
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'create', args,
+                            ids: createdItems.map(r => r['id'])
+                        }
+                    );
                 }
                 if (updatedItems && updatedItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType,
-                        'update', args, updatedItems.map(r => r['id']));
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'update', args,
+                            ids: updatedItems.map(r => r['id'])
+                        }
+                    );
                 }
             }
         }
 
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        await this.auditLogger.flushAsync(requestId, currentDate);
+        await this.auditLogger.flushAsync({requestId, currentDate});
     }
 }
 

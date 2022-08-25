@@ -34,7 +34,10 @@ const errorReportingMiddleware = async (err, req, res, next) => {
                     token: options.token,
                     channel: options.channel,
                     error: err,
-                    req
+                    req,
+                    args: {
+                        requestId: req.id
+                    }
                 }
             );
         }

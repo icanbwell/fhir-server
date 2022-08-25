@@ -4,7 +4,7 @@ const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
-const {logVerboseAsync} = require('../operations/common/logging');
+const {logVerboseAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -130,7 +130,17 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync(resourceType, doc) {
+    async insertOneAsync({resourceType, doc}) {
+        // check to see if we already have this insert and if so use replace
+        if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
+            this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
+            return await this.replaceOneAsync(
+                {
+                    resourceType, id: doc.id, doc
+                }
+            );
+        }
+        // else insert it
         await logVerboseAsync('DatabaseBulkInserter.insertOneAsync',
             {
                 message: 'start',
@@ -152,7 +162,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync(resourceType, doc) {
+    async insertOneHistoryAsync({resourceType, doc}) {
         this.addHistoryOperationForResourceType(resourceType,
             {
                 insertOne: {
@@ -169,7 +179,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Object} doc
      * @returns {Promise<void>}
      */
-    async replaceOneAsync(resourceType, id, doc) {
+    async replaceOneAsync({resourceType, id, doc}) {
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType(resourceType,
@@ -192,7 +202,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} currentDate
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync(requestId, currentDate, base_version, useAtlas,) {
+    async executeAsync({requestId, currentDate, base_version, useAtlas}) {
         await logVerboseAsync('DatabaseBulkInserter.executeAsync',
             {
                 message: 'start',
@@ -205,8 +215,11 @@ class DatabaseBulkInserter extends EventEmitter {
         const resultsByResourceType = await async.map(
             this.operationsByResourceTypeMap.entries(),
             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                requestId, currentDate,
-                x, base_version, useAtlas, false
+                {
+                    requestId, currentDate,
+                    mapEntry: x, base_version, useAtlas,
+                    useHistoryCollection: false
+                }
             ));
 
         if (this.historyOperationsByResourceTypeMap.size > 0) {
@@ -214,8 +227,11 @@ class DatabaseBulkInserter extends EventEmitter {
                     await async.map(
                         this.historyOperationsByResourceTypeMap.entries(),
                         async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                            requestId, currentDate,
-                            x, base_version, useAtlas, true
+                            {
+                                requestId, currentDate,
+                                mapEntry: x, base_version, useAtlas,
+                                useHistoryCollection: true
+                            }
                         ));
                     this.historyOperationsByResourceTypeMap.clear();
                 }
@@ -235,9 +251,15 @@ class DatabaseBulkInserter extends EventEmitter {
                 const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
                 await this.errorReporter.reportErrorAsync(
                     {
+                        source: 'databaseBulkInserter',
                         message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
                             ` ${JSON.stringify(operationsForResourceType)}`,
-                        error: erroredMerge.error
+                        error: erroredMerge.error,
+                        args: {
+                            requestId: requestId,
+                            resourceType: erroredMerge.resourceType,
+                            operations: operationsForResourceType
+                        }
                     }
                 );
             }
@@ -373,18 +395,23 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync(
-        requestId,
-        currentDate,
-        mapEntry, base_version,
-        useAtlas, useHistoryCollection) {
+        {
+            requestId,
+            currentDate,
+            mapEntry, base_version,
+            useAtlas, useHistoryCollection
+        }
+    ) {
         const [
             /** @type {string} */resourceType,
             /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations
         ] = mapEntry;
 
         return await this.performBulkForResourceTypeAsync(
-            requestId, currentDate,
-            resourceType, base_version, useAtlas, useHistoryCollection, operations);
+            {
+                requestId, currentDate,
+                resourceType, base_version, useAtlas, useHistoryCollection, operations
+            });
     }
 
     /**
@@ -399,13 +426,15 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync(
-        requestId,
-        currentDate,
-        resourceType,
-        base_version,
-        useAtlas,
-        useHistoryCollection,
-        operations) {
+        {
+            requestId,
+            currentDate,
+            resourceType,
+            base_version,
+            useAtlas,
+            useHistoryCollection,
+            operations
+        }) {
         /**
          * @type {Map<string, *[]>}
          */
@@ -467,6 +496,26 @@ class DatabaseBulkInserter extends EventEmitter {
                 //TODO: this only returns result from the last collection
                 mergeResult = result.result;
             } catch (e) {
+                await this.errorReporter.reportErrorAsync({
+                    source: 'databaseBulkInserter',
+                    message: 'databaseBulkInserter: Error bulkWrite',
+                    error: e,
+                    args: {
+                        requestId: requestId,
+                        operations: operationsByCollection,
+                        options: options
+                    }
+                });
+                await logSystemErrorAsync({
+                    event: 'databaseBulkInserter',
+                    message: 'databaseBulkInserter: Error bulkWrite',
+                    error: e,
+                    args: {
+                        requestId: requestId,
+                        operations: operationsByCollection,
+                        options: options
+                    }
+                });
                 return {resourceType: resourceType, mergeResult: null, error: e};
             }
         }

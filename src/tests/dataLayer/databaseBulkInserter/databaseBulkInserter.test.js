@@ -28,11 +28,12 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
 
-            await databaseBulkInserter.insertOneAsync('Patient', patient);
-            await databaseBulkInserter.insertOneAsync('Observation', observation);
+            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: patient});
+            await databaseBulkInserter.insertOneAsync({resourceType: 'Observation', doc: observation});
 
             patient.birthDate = '2020-01-01';
-            await databaseBulkInserter.replaceOneAsync('Patient', patient.id, patient);
+            await databaseBulkInserter.replaceOneAsync(
+                {resourceType: 'Patient', id: patient.id, doc: patient});
 
             const patientCreateHandler = jest.fn();
 
@@ -44,7 +45,11 @@ describe('databaseBulkInserter Tests', () => {
             // now execute the bulk inserts
             const base_version = '4_0_0';
             const requestId1 = '1234';
-            await databaseBulkInserter.executeAsync(requestId1, currentDate, base_version, false);
+            await databaseBulkInserter.executeAsync(
+                {
+                    requestId: requestId1, currentDate, base_version, useAtlas: false
+                }
+            );
 
             // noinspection JSValidateTypes
             /**

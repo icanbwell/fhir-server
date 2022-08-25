@@ -67,6 +67,7 @@ class PostRequestProcessor {
                     await task();
                 } catch (e) {
                     await this.errorReporter.reportErrorAsync({
+                        source: 'PostRequestProcessor',
                         message: 'Error running post request task',
                         error: e
                     });

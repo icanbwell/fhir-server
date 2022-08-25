@@ -342,15 +342,17 @@ class SearchStreamingOperation {
                 if (resourceIds.length > 0) {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        'read',
-                        args,
-                        resourceIds
+                        {
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: 'read',
+                            args,
+                            ids: resourceIds
+                        }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync(requestId, currentDate);
+                    await this.auditLogger.flushAsync({requestId, currentDate});
                 }
             } else { // no records found
                 if (useNdJson) {

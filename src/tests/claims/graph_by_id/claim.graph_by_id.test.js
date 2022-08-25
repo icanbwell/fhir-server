@@ -12,6 +12,7 @@ const expectedResource_230916613369 = require('./fixtures/expected/expected-WPS-
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -38,10 +39,12 @@ describe('Claim Graph By Id Contained Tests', () => {
                 .post('/4_0_0/Practitioner/1376656959/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusCode(200));
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.issue).toBeUndefined();
             expect(resp.body['created']).toBe(true);
 
             resp = await request

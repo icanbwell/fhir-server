@@ -11,17 +11,49 @@ const env = require('var');
 class ErrorReporter {
     /**
      * logs message to Slack
+     * @param {string} source
      * @param {string} message
+     * @param {Object} [args]
      * @returns {Promise<void>}
      */
-    async reportMessageAsync(message) {
+    async reportMessageAsync({source, message, args}) {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             const web = new WebClient(options.token);
+            const fields = [
+                {
+                    title: 'source',
+                    value: source,
+                    short: true
+                }
+            ];
+            if (args) {
+                for (const [key, value] of Object.entries(args)) {
+                    fields.push({
+                        title: key,
+                        value: value,
+                        short: true
+                    });
+                }
+            }
+            /**
+             * @type  {import('@slack/web-api').MessageAttachment}
+             */
+            const attachment = {
+                fallback: 'FHIR Message: ' + message,
+                color: 'information',
+                title: 'FHIR Server Message: ' + message,
+                fields: fields,
+                text: message,
+                mrkdwn_in: ['text'],
+                footer: 'express-errors-to-slack',
+                ts: String(Date.now() / 1000)
+            };
             // Post a message to the channel, and await the result.
             // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
             await web.chat.postMessage({
                 text: message,
+                attachments: [attachment],
                 channel: options.channel,
             });
         }
@@ -29,18 +61,56 @@ class ErrorReporter {
 
     /**
      * logs error to Slack
+     * @param {string} source
      * @param {string} message
      * @param {Error} [error]
+     * @param {Object} [args]
      * @returns {Promise<void>}
      */
-    async reportErrorAsync({message, error}) {
+    async reportErrorAsync({source, message, error, args}) {
         if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
+            /**
+             * @type {{channel: string, token: string}}
+             */
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             const web = new WebClient(options.token);
+            /**
+             * @type {[{short: boolean, title: string, value: string}]}
+             */
+            const fields = [
+                {
+                    title: 'source',
+                    value: source,
+                    short: true
+                }
+            ];
+            if (args) {
+                for (const [key, value] of Object.entries(args)) {
+                    fields.push({
+                        title: key,
+                        value: value,
+                        short: true
+                    });
+                }
+            }
+            /**
+             * @type  {import('@slack/web-api').MessageAttachment}
+             */
+            const attachment = {
+                fallback: 'FHIR Error: ' + error.message,
+                color: error.statusCode < 500 ? 'warning' : 'danger',
+                title: 'FHIR Server Error: ' + error.message,
+                fields: fields,
+                text: message,
+                mrkdwn_in: ['text'],
+                footer: 'express-errors-to-slack',
+                ts: String(Date.now() / 1000)
+            };
             // Post a message to the channel, and await the result.
             // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
             await web.chat.postMessage({
-                text: message + error ? (':' + error.stack) : '',
+                text: message + (error ? (':' + error.stack) : ''),
+                attachments: [attachment],
                 channel: options.channel,
             });
         }
@@ -52,7 +122,7 @@ class ErrorReporter {
      * @returns {string | undefined}
      */
     getRemoteAddress(req) {
-        return req.headers['X-Forwarded-For'] || req['x-real-ip'] || req.ip || req._remoteAddress || req.connection && req.connection.remoteAddress || undefined;
+        return req.headers['X-Forwarded-For'] || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
     }
 
     /**
@@ -74,9 +144,17 @@ class ErrorReporter {
      * @param {string} channel
      * @param {Error} error
      * @param {import('http').IncomingMessage} req
+     * @param {Object} args
      * @returns {Promise<void>}
      */
-    async reportErrorAndRequestAsync({token, channel, error, req}) {
+    async reportErrorAndRequestAsync(
+        {
+            token, channel, error, req, args
+        }
+    ) {
+        /**
+         * @type {string|null}
+         */
         const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
         const self = this;
         const request = {
@@ -87,6 +165,9 @@ class ErrorReporter {
             body: req.body || {},
             user: user
         };
+        /**
+         * @type {[{short: boolean, title: string, value: string|null}]}
+         */
         const fields = [
             {
                 title: 'Request Id',
@@ -119,11 +200,21 @@ class ErrorReporter {
                 short: true
             }
         ];
+        if (args) {
+            for (const [key, value] of Object.entries(args)) {
+                fields.push({
+                    title: key,
+                    value: value,
+                    short: true
+                });
+            }
+        }
+
         if (error.elapsedTimeInSecs) {
             fields.push(
                 {
                     title: 'Elapsed Time (secs)',
-                    value: error.elapsedTimeInSecs,
+                    value: String(error.elapsedTimeInSecs),
                     short: true
                 }
             );

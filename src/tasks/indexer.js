@@ -1,5 +1,5 @@
 /**
- * This file implements a background long running task to apply indexes to mongo db
+ * This file implements a background long-running task to apply indexes to mongo db
  */
 const {ErrorReporter} = require('../utils/slack.logger');
 
@@ -22,29 +22,47 @@ process.on('message', async (params) => {
         const indexManager = new IndexManager({errorReporter: new ErrorReporter()});
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
-            await errorReporter.reportMessageAsync('Starting indexing in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Starting indexing in separate process'
+            });
             const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
-            await errorReporter.reportMessageAsync('Finished indexing in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Finished indexing in separate process'
+            });
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await errorReporter.reportMessageAsync(JSON.stringify(collection_stats));
+            await errorReporter.reportMessageAsync({source: 'indexerTask', message: JSON.stringify(collection_stats)});
         } else if (message === 'Rebuild Index') {
             console.log('==== Starting deleting indexes in separate process ====');
-            await errorReporter.reportMessageAsync('Starting deleting indexes in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Starting deleting indexes in separate process'
+            });
             await indexManager.deleteIndexesInAllCollectionsAsync(tableName);
-            await errorReporter.reportMessageAsync('Finished deleting index in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Finished deleting index in separate process'
+            });
             console.log('===== Finished deleting index in separate process ======');
-            await errorReporter.reportMessageAsync('Starting indexing in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Starting indexing in separate process'
+            });
             const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
-            await errorReporter.reportMessageAsync('Finished indexing in separate process');
+            await errorReporter.reportMessageAsync({
+                source: 'indexerTask',
+                message: 'Finished indexing in separate process'
+            });
             console.log(JSON.stringify(collection_stats));
             console.log('===== Done Indexing in separate process ======');
-            await errorReporter.reportMessageAsync(JSON.stringify(collection_stats));
+            await errorReporter.reportMessageAsync({source: 'indexerTask', message: JSON.stringify(collection_stats)});
         }
     } catch (e) {
         console.log('===== ERROR Indexing in separate process ======', e);
         console.log(JSON.stringify(e));
-        await errorReporter.reportMessageAsync(JSON.stringify(e));
+        await errorReporter.reportMessageAsync({source: 'indexerTask', message: JSON.stringify(e)});
     }
     //notify node, that we are done with this task
     process.disconnect();

@@ -76,7 +76,7 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, requestId} = requestInfo;
+        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
 
         if (args['id'] === '0') {
             delete args['id'];
@@ -169,9 +169,14 @@ class RemoveOperation {
                     .deleteManyAsync(query);
 
                 // log access to audit logs
-                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, 'delete', args, []);
+                await this.auditLogger.logAuditEntryAsync(
+                    {
+                        requestInfo, base_version, resourceType,
+                        operation: 'delete', args, ids: []
+                    }
+                );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync({requestId, currentDate});
 
             } catch (e) {
                 throw new NotAllowedError(e.message);

@@ -5,7 +5,7 @@ const env = require('var');
 const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
 const {getResource} = require('../operations/common/getResource');
-const {getUuid} = require('./uid.util');
+const {generateUUID} = require('./uid.util');
 const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
@@ -63,8 +63,12 @@ class AuditLogger {
      * @param {string[]} ids
      * @returns {Resource}
      */
-    createAuditEntry(base_version, requestInfo, operation,
-                     ids, resourceType, cleanedArgs) {
+    createAuditEntry(
+        {
+            base_version, requestInfo, operation,
+            ids, resourceType, cleanedArgs
+        }
+    ) {
         /**
          * @type {function({Object}): Meta}
          */
@@ -135,7 +139,7 @@ class AuditLogger {
         };
         let resource = new Resource(document);
 
-        let id = getUuid(resource);
+        let id = generateUUID();
 
         let doc = removeNull(resource.toJSON());
         Object.assign(doc, {id: id});
@@ -151,8 +155,11 @@ class AuditLogger {
      * @param {Object} args
      * @param {string[]} ids
      */
-    async logAuditEntryAsync(requestInfo, base_version, resourceType,
-                             operation, args, ids
+    async logAuditEntryAsync(
+        {
+            requestInfo, base_version, resourceType,
+            operation, args, ids
+        }
     ) {
         if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
             return;
@@ -177,7 +184,11 @@ class AuditLogger {
         /**
          * @type {Resource}
          */
-        let doc = this.createAuditEntry(base_version, requestInfo, operation, ids, resourceType, cleanedArgs);
+        let doc = this.createAuditEntry(
+            {
+                base_version, requestInfo, operation, ids, resourceType, cleanedArgs
+            }
+        );
 
         this.queue.push(doc);
     }
@@ -188,25 +199,37 @@ class AuditLogger {
      * @param {string} currentDate
      * @return {Promise<void>}
      */
-    async flushAsync(requestId, currentDate) {
+    async flushAsync({requestId, currentDate}) {
         /**
          * Audit entries are always of resource type AuditEvent
          * @type {string}
          */
         const resourceType = 'AuditEvent';
         for (const doc of this.queue) {
-            await this.databaseBulkInserter.insertOneAsync(resourceType, doc);
+            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
         }
         this.queue = [];
         /**
          * @type {MergeResultEntry[]}
          */
-        const mergeResults = await this.databaseBulkInserter.executeAsync(requestId, currentDate, this.base_version, false);
+        const mergeResults = await this.databaseBulkInserter.executeAsync(
+            {
+                requestId, currentDate, base_version: this.base_version, useAtlas: false
+            }
+        );
+        /**
+         * @type {MergeResultEntry[]}
+         */
         const mergeResultErrors = mergeResults.filter(m => m.issue);
         if (mergeResultErrors.length > 0) {
             await this.errorReporter.reportErrorAsync(
                 {
-                    message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`
+                    source: 'flushAsync',
+                    message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`,
+                    args: {
+                        requestId: requestId,
+                        errors: mergeResultErrors
+                    }
                 }
             );
         }

@@ -11,7 +11,12 @@ Sentry.init({dsn: process.env.SENTRY_DSN});
 process.on('uncaughtException', async (err) => {
     console.log(JSON.stringify({method: 'sentryMiddleware.uncaughtException', message: JSON.stringify(err)}));
     Sentry.captureException(err);
-    await new ErrorReporter().reportErrorAsync({message: 'uncaughtException', error: err});
+    await new ErrorReporter().reportErrorAsync({
+            source: 'uncaughtException',
+            message: 'uncaughtException',
+            error: err
+        }
+    );
     process.exit(1);
 });
 
@@ -26,7 +31,11 @@ process.on('unhandledRejection', async (reason, promise) => {
         )
     );
     Sentry.captureException(reason);
-    await new ErrorReporter().reportErrorAsync({message: 'unhandledRejection', error: reason});
+    await new ErrorReporter().reportErrorAsync({
+        source: 'unhandledRejection',
+        message: 'unhandledRejection',
+        error: reason
+    });
     process.exit(1);
 });
 

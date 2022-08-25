@@ -104,7 +104,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, requestId} = requestInfo;
+        const {user, body, /** @type {string} */ requestId} = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -233,9 +233,14 @@ class CreateOperation {
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
 
-                await this.auditLogger.logAuditEntryAsync(requestInfo, base_version, resourceType, currentOperationName, args, [resource['id']]);
+                await this.auditLogger.logAuditEntryAsync(
+                    {
+                        requestInfo, base_version, resourceType,
+                        operation: currentOperationName, args, ids: [resource['id']]
+                    }
+                );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync(requestId, currentDate);
+                await this.auditLogger.flushAsync({requestId, currentDate});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
