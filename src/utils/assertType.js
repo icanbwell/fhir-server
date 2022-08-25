@@ -56,7 +56,35 @@ function assertIsValid(obj, message) {
     }
 }
 
+/**
+ * fails assert
+ * @param {string} source
+ * @param {string} message
+ * @param {Object} args
+ * @param {Error|null} error
+ */
+function assertFail({source, message, args, error}) {
+    /**
+     * @type {string}
+     */
+    let text = `${source}: ${message}`;
+    if (args){
+        text += ' | ' + JSON.stringify(args);
+    }
+    if (error) {
+        text += '|' + JSON.stringify(error);
+    }
+    const assertionError = new AssertionError(text);
+    if (Error.captureStackTrace) {
+        Error.captureStackTrace(assertionError, assertIsValid);
+    } else {
+        assertionError.stack = new Error().stack;
+    }
+    throw assertionError;
+}
+
 module.exports = {
     assertTypeEquals,
-    assertIsValid
+    assertIsValid,
+    assertFail
 };

@@ -104,7 +104,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, requestId} = requestInfo;
+        const {user, body, /** @type {string} */ requestId} = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {

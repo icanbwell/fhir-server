@@ -19,7 +19,7 @@ const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/assertType');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
@@ -296,7 +296,7 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {string | null} scope
-     * @return {Promise<MergeResultEntry|null>}
+     * @return {Promise<void>}
      */
     async mergeResourceAsync(
         {
@@ -394,14 +394,19 @@ class MergeManager {
                     currentDate,
                     id,
                     'merge_error');
-                return {
-                    id: id,
-                    resourceType: resourceType,
-                    created: false,
-                    updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                    operationOutcome: operationOutcome
-                };
+                assertFail({
+                    source: 'MergeManager',
+                    message: 'Failed to load data',
+                    args: {
+                        id: id,
+                        resourceType: resourceType,
+                        created: false,
+                        updated: false,
+                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                        operationOutcome: operationOutcome
+                    },
+                    error: e
+                });
             }
         });
     }
@@ -415,7 +420,7 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {string} scope
-     * @returns {Promise<MergeResultEntry[]>}
+     * @returns {Promise<void>}
      */
     async mergeResourceListAsync(
         {
@@ -459,7 +464,7 @@ class MergeManager {
                         user, currentDate, requestId, base_version, scope
                     }
                 )), // run in parallel
-            async.mapSeries(duplicate_id_resources, async x => await this.mergeResourceWithRetryAsync(
+            async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x, resourceType,
                     user, currentDate, requestId, base_version, scope

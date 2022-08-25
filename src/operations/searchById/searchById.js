@@ -105,6 +105,7 @@ class SearchByIdOperation {
             user,
             /** @type {string | null} */
             scope,
+            /** @type {string} */
             requestId
         } = requestInfo;
 

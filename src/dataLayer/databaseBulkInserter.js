@@ -132,7 +132,8 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async insertOneAsync({resourceType, doc}) {
         // check to see if we already have this insert and if so use replace
-        if (this.this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
+        if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
+            this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
             return await this.replaceOneAsync(
                 {
                     resourceType, id: doc.id, doc
