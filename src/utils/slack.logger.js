@@ -144,9 +144,14 @@ class ErrorReporter {
      * @param {string} channel
      * @param {Error} error
      * @param {import('http').IncomingMessage} req
+     * @param {Object} args
      * @returns {Promise<void>}
      */
-    async reportErrorAndRequestAsync({token, channel, error, req}) {
+    async reportErrorAndRequestAsync(
+        {
+            token, channel, error, req, args
+        }
+    ) {
         /**
          * @type {string|null}
          */
@@ -195,6 +200,16 @@ class ErrorReporter {
                 short: true
             }
         ];
+        if (args) {
+            for (const [key, value] of Object.entries(args)) {
+                fields.push({
+                    title: key,
+                    value: value,
+                    short: true
+                });
+            }
+        }
+
         if (error.elapsedTimeInSecs) {
             fields.push(
                 {
