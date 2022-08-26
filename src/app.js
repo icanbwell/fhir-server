@@ -236,6 +236,11 @@ function createApp(fnCreateContainer) {
         createFhirApp(fnCreateContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
+
+    // enables access to reverse proxy information
+    // https://expressjs.com/en/guide/behind-proxies.html
+    app.enable('trust proxy');
+
     return app;
 }
 
