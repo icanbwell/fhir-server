@@ -12,6 +12,9 @@ const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
+
 /**
  * @typedef BulkResultEntry
  * @type {object}
@@ -131,6 +134,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
+        // remove _id to prevent duplicate keys in mongo
+        delete doc['_id'];
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -435,91 +440,93 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection,
             operations
         }) {
-        /**
-         * @type {Map<string, *[]>}
-         */
-        const operationsByCollectionNames = new Map();
-        /**
-         * @type {ResourceLocator}
-         */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
-        for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
-            // noinspection JSValidateTypes
+        return await mutex.runExclusive(async () => {
             /**
-             * @type {Resource}
+             * @type {Map<string, *[]>}
              */
-            const resource = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+            const operationsByCollectionNames = new Map();
             /**
-             * @type {string}
+             * @type {ResourceLocator}
              */
-            const collectionName = useHistoryCollection ?
-                resourceLocator.getHistoryCollectionName(resource) :
-                resourceLocator.getCollectionName(resource);
-            if (!(operationsByCollectionNames.has(collectionName))) {
-                operationsByCollectionNames.set(`${collectionName}`, []);
-            }
-            operationsByCollectionNames.get(collectionName).push(operation);
-        }
-
-        // preserve order so inserts come before updates
-        /**
-         * @type {import('mongodb').CollectionBulkWriteOptions|null}
-         */
-        const options = {ordered: true};
-        /**
-         * @type {import('mongodb').BulkWriteOpResultObject|null}
-         */
-        let mergeResult;
-        for (const operationsByCollectionName of operationsByCollectionNames) {
-            const [
-                /** @type {string} */collectionName,
-                /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
-                operationsByCollection] = operationsByCollectionName;
-
-            if (env.LOG_ALL_MERGES) {
-                await sendToS3('bulk_inserter',
-                    resourceType,
-                    operations,
-                    currentDate,
-                    requestId,
-                    'merge');
-            }
-            try {
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+            for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
+                // noinspection JSValidateTypes
                 /**
-                 * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                 * @type {Resource}
                  */
-                const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                const resource = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
                 /**
-                 * @type {import('mongodb').BulkWriteOpResultObject}
+                 * @type {string}
                  */
-                const result = await collection.bulkWrite(operationsByCollection, options);
-                //TODO: this only returns result from the last collection
-                mergeResult = result.result;
-            } catch (e) {
-                await this.errorReporter.reportErrorAsync({
-                    source: 'databaseBulkInserter',
-                    message: 'databaseBulkInserter: Error bulkWrite',
-                    error: e,
-                    args: {
-                        requestId: requestId,
-                        operations: operationsByCollection,
-                        options: options
-                    }
-                });
-                await logSystemErrorAsync({
-                    event: 'databaseBulkInserter',
-                    message: 'databaseBulkInserter: Error bulkWrite',
-                    error: e,
-                    args: {
-                        requestId: requestId,
-                        operations: operationsByCollection,
-                        options: options
-                    }
-                });
-                return {resourceType: resourceType, mergeResult: null, error: e};
+                const collectionName = useHistoryCollection ?
+                    resourceLocator.getHistoryCollectionName(resource) :
+                    resourceLocator.getCollectionName(resource);
+                if (!(operationsByCollectionNames.has(collectionName))) {
+                    operationsByCollectionNames.set(`${collectionName}`, []);
+                }
+                operationsByCollectionNames.get(collectionName).push(operation);
             }
-        }
-        return {resourceType: resourceType, mergeResult: mergeResult, error: null};
+
+            // preserve order so inserts come before updates
+            /**
+             * @type {import('mongodb').CollectionBulkWriteOptions|null}
+             */
+            const options = {ordered: true};
+            /**
+             * @type {import('mongodb').BulkWriteOpResultObject|null}
+             */
+            let mergeResult;
+            for (const operationsByCollectionName of operationsByCollectionNames) {
+                const [
+                    /** @type {string} */collectionName,
+                    /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
+                    operationsByCollection] = operationsByCollectionName;
+
+                if (env.LOG_ALL_MERGES) {
+                    await sendToS3('bulk_inserter',
+                        resourceType,
+                        operations,
+                        currentDate,
+                        requestId,
+                        'merge');
+                }
+                try {
+                    /**
+                     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                     */
+                    const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                    /**
+                     * @type {import('mongodb').BulkWriteOpResultObject}
+                     */
+                    const result = await collection.bulkWrite(operationsByCollection, options);
+                    //TODO: this only returns result from the last collection
+                    mergeResult = result.result;
+                } catch (e) {
+                    await this.errorReporter.reportErrorAsync({
+                        source: 'databaseBulkInserter',
+                        message: 'databaseBulkInserter: Error bulkWrite',
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                            operations: operationsByCollection,
+                            options: options
+                        }
+                    });
+                    await logSystemErrorAsync({
+                        event: 'databaseBulkInserter',
+                        message: 'databaseBulkInserter: Error bulkWrite',
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                            operations: operationsByCollection,
+                            options: options
+                        }
+                    });
+                    return {resourceType: resourceType, mergeResult: null, error: e};
+                }
+            }
+            return {resourceType: resourceType, mergeResult: mergeResult, error: null};
+        });
     }
 }
 

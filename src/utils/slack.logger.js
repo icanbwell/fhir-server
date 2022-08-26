@@ -31,7 +31,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: value,
+                        value: (typeof value === 'string') ? value : JSON.stringify(value),
                         short: true
                     });
                 }
@@ -88,7 +88,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: value,
+                        value: (typeof value === 'string') ? value : JSON.stringify(value),
                         short: true
                     });
                 }
@@ -204,7 +204,7 @@ class ErrorReporter {
             for (const [key, value] of Object.entries(args)) {
                 fields.push({
                     title: key,
-                    value: value,
+                    value: (typeof value === 'string') ? value : JSON.stringify(value),
                     short: true
                 });
             }
