@@ -440,7 +440,7 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection,
             operations
         }) {
-        await mutex.runExclusive(async () => {
+        return await mutex.runExclusive(async () => {
             /**
              * @type {Map<string, *[]>}
              */
