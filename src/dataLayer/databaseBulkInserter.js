@@ -185,6 +185,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync({resourceType, id, doc}) {
+        // remove _id to prevent duplicate keys in mongo
+        delete doc['_id'];
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType(resourceType,
