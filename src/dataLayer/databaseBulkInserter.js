@@ -131,6 +131,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
+        // remove _id to prevent duplicate keys in mongo
+        delete doc['_id'];
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
