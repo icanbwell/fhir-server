@@ -169,7 +169,7 @@ class BundleManager {
             bundle['meta'] = {
                 tag: tag,
             };
-            logDebug(user, JSON.stringify(bundle));
+            logDebug({user, args: bundle});
         }
         return bundle;
     }

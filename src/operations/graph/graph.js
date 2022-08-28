@@ -95,7 +95,7 @@ class GraphOperation {
             const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                logDebug(user, 'GraphDefinition schema failed validation');
+                logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}

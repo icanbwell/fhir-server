@@ -187,8 +187,6 @@ class CreateOperation {
              */
             const resource = new ResourceCreator(resource_incoming);
 
-            logDebug(user, `resource: ${resource.toJSON()}`);
-
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
@@ -201,7 +199,6 @@ class CreateOperation {
              * @type {string}
              */
             let id = resource_incoming.id || getUuid(resource);
-            logDebug(user, `id: ${id}`);
 
             // Create the resource's metadata
             /**
@@ -250,9 +247,7 @@ class CreateOperation {
             let history_doc = Object.assign({}, doc);
             Object.assign(doc, {_id: id});
 
-            logDebug(user, '---- inserting doc ---');
-            logDebug(user, doc);
-            logDebug(user, '----------------------');
+            logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
             try {

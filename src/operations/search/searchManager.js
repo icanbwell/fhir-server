@@ -781,9 +781,14 @@ class SearchManager {
         if (indexHint) {
             cursor = cursor.hint({indexHint});
             logDebug(
-                user,
-                `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`
-            );
+                {
+                    user,
+                    args: {
+                        message: 'Using index hint',
+                        indexHint: indexHint,
+                        columns: Array.from(columns)
+                    }
+                });
         }
         return {indexHint, cursor};
     }

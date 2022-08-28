@@ -234,9 +234,13 @@ class SearchBundleOperation {
             let cursor = __ret.cursor;
 
             if (cursor !== null) { // usually means the two-step optimization found no results
-                logDebug(user,
-                    mongoQueryAndOptionsStringify(
-                        resourceLocator.getFirstCollectionNameForQuery(), originalQuery, originalOptions));
+                logDebug({
+                    user, args: {
+                        query:
+                            mongoQueryAndOptionsStringify(
+                                resourceLocator.getFirstCollectionNameForQuery(), originalQuery, originalOptions)
+                    }
+                });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
                         cursor, user, scope, args,

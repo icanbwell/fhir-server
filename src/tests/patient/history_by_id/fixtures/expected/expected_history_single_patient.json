@@ -1,7 +1,7 @@
 {
   "resourceType": "Bundle",
   "total": 1,
-  "type": "searchset",
+  "type": "history",
   "entry": [
     {
       "resource": {

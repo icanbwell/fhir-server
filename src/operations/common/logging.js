@@ -20,11 +20,11 @@ module.exports.logRequest = (user, msg) => {
 /**
  * Logs as info if env.IS_PRODUCTION is not set
  * @param {string} user
- * @param {*} msg
+ * @param {Object} args
  */
-module.exports.logDebug = (user, msg) => {
+module.exports.logDebug = ({user, args}) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
-        logger.debug(user + ': ' + msg);
+        logger.debug(JSON.stringify({user, args}));
     }
 };
 
