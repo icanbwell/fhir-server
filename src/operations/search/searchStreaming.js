@@ -365,7 +365,7 @@ class SearchStreamingOperation {
                 }
             } else { // no records found
                 if (useNdJson) {
-                    if (requestId) {
+                    if (requestId && !res.headersSent) {
                         res.setHeader('X-Request-ID', String(requestId));
                     }
                     // empty response
@@ -405,13 +405,13 @@ class SearchStreamingOperation {
                                 useAtlas
                             }
                         );
-                        if (requestId) {
+                        if (requestId && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(requestId));
                         }
                         // noinspection JSUnresolvedFunction
                         res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                     } else {
-                        if (requestId) {
+                        if (requestId && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(requestId));
                         }
                         res.type(fhirContentTypes.fhirJson).json([]);

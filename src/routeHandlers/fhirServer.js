@@ -264,7 +264,7 @@ class MyFHIRServer extends FHIRServer.Server {
                         // next();
                         res.end();
                     } else {
-                        if (req.id) {
+                        if (req.id && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(req.id));
                         }
                         // If there is an error and it is an OperationOutcome
@@ -327,7 +327,7 @@ class MyFHIRServer extends FHIRServer.Server {
                     },
                 ],
             });
-            if (req.id) {
+            if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(req.id));
             }
             logger.error(error);

@@ -30,7 +30,7 @@ function read(req, res, json) {
     res.type(getContentType(fhirVersion));
 
     // assert(req.id);
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(200).json(json);
@@ -52,7 +52,7 @@ function readOne(req, res, resource) {
     }
 
     res.type(getContentType(fhirVersion));
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     if (!resource) {
@@ -86,7 +86,7 @@ function create(req, res, json, options) {
         res.set('Content-Location', `${baseUrl}/${pathname}`);
         res.set('ETag', json.resource_version);
     }
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.set('Location', location);
@@ -116,7 +116,7 @@ function update(req, res, json, options) {
     res.set('Last-Modified', date.toISOString());
     res.type(getContentType(fhirVersion));
     res.set('Location', location);
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(status).end();
@@ -133,7 +133,7 @@ function remove(req, res, json) {
     if (json && json.deleted) {
         res.set('ETag', json.deleted);
     }
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(204).end();
@@ -149,7 +149,7 @@ function remove(req, res, json) {
 function history(req, res, json) {
     let version = req.params.base_version;
     res.type(getContentType(version));
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(200).json(json);
