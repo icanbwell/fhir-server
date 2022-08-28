@@ -118,6 +118,18 @@ class HistoryByIdOperation {
 
         query.id = `${id}`;
 
+        // noinspection JSValidateTypes
+        /**
+         * @type {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>>}
+         */
+        const options = {
+            sort: [
+                {
+                    'meta.versionId': -1
+                }
+            ]
+        };
+
         /**
          * @type {boolean}
          */
@@ -132,7 +144,7 @@ class HistoryByIdOperation {
             let cursor;
             try {
                 cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                    .findAsync(query);
+                    .findAsync(query, options);
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -177,6 +189,7 @@ class HistoryByIdOperation {
             // return resources;
             return this.bundleManager.createBundle(
                 {
+                    type: 'history',
                     originalUrl: url,
                     host,
                     protocol,

@@ -122,6 +122,18 @@ class HistoryOperation {
 
         let Resource = getResource(base_version, resourceType);
 
+        // noinspection JSValidateTypes
+        /**
+         * @type {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>>}
+         */
+        const options = {
+            sort: [
+                {
+                    'meta.versionId': -1
+                }
+            ]
+        };
+
         // Query our collection for this observation
         /**
          * @type {DatabasePartitionedCursor}
@@ -129,7 +141,7 @@ class HistoryOperation {
         let cursor;
         try {
             cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .findAsync(query);
+                .findAsync(query, options);
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
@@ -186,6 +198,7 @@ class HistoryOperation {
         // return resources;
         return this.bundleManager.createBundle(
             {
+                type: 'history',
                 originalUrl: url,
                 host,
                 protocol,

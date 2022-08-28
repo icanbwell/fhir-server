@@ -13,6 +13,7 @@ class BundleManager {
 
     /**
      * creates a bundle from the given resources
+     * @param {string} type
      * @param {string | null} originalUrl
      * @param {string | null} host
      * @param {string | null} protocol
@@ -36,6 +37,7 @@ class BundleManager {
      */
     createBundle(
         {
+            type,
             originalUrl,
             host,
             protocol,
@@ -109,7 +111,7 @@ class BundleManager {
          * @type {{entry: {resource: Resource}[]}}
          */
         const bundle = new Bundle({
-            type: 'searchset',
+            type: type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries,
             total: total_count,

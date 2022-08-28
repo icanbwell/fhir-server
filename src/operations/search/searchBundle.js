@@ -278,6 +278,7 @@ class SearchBundleOperation {
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             const bundle = this.bundleManager.createBundle(
                 {
+                    type: 'searchset',
                     originalUrl: url,
                     host,
                     protocol,
