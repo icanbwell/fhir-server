@@ -13,6 +13,7 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {ErrorReporter} = require('../../utils/slack.logger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
 
 
 class SearchStreamingOperation {
@@ -24,6 +25,7 @@ class SearchStreamingOperation {
      * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
      */
     constructor(
         {
@@ -32,7 +34,8 @@ class SearchStreamingOperation {
             auditLogger,
             errorReporter,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager
         }
     ) {
         /**
@@ -69,6 +72,11 @@ class SearchStreamingOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
 
     /**
@@ -289,7 +297,7 @@ class SearchStreamingOperation {
                          * @param {number} stopTime1
                          * @return {{entry: {resource: Resource}[]}}
                          */
-                        const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle(
+                        const fnBundle = (last_id, stopTime1) => this.bundlManager.createBundle(
                             {
                                 originalUrl,
                                 host,
@@ -372,7 +380,7 @@ class SearchStreamingOperation {
                         /**
                          * @type {{entry: {resource: Resource}[]}}
                          */
-                        const bundle = this.searchManager.createBundle({
+                        const bundle = this.bundleManager.createBundle({
                                 originalUrl,
                                 host,
                                 protocol,

@@ -204,7 +204,8 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                bundleManager: c.bundleManager
             }
         )
     );
