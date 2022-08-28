@@ -297,9 +297,9 @@ class SearchManager {
         ).findAsync({query, options});
 
         if (isStreaming) {
-            cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
+            cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
         } else {
-            cursorQuery = cursorQuery.maxTimeMS(maxMongoTimeMS);
+            cursorQuery = cursorQuery.maxTimeMS({milliSecs: maxMongoTimeMS});
         }
 
         // avoid double sorting since Mongo gives you different results
@@ -307,7 +307,7 @@ class SearchManager {
             const sortOption =
                 originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
             if (sortOption !== null) {
-                cursorQuery = cursorQuery.sort(sortOption);
+                cursorQuery = cursorQuery.sort({sortOption});
             }
         }
 
@@ -419,8 +419,8 @@ class SearchManager {
                                 }
                         }
                     );
-                cursor = cursor.project(idProjection);
-                result = await cursor.map(p => p.id).toArray();
+                cursor = cursor.project({projection: idProjection});
+                result = await cursor.map({mapping: p => p.id}).toArray();
             }
         }
         return result;
@@ -624,8 +624,8 @@ class SearchManager {
          * @type {import('mongodb').DefaultSchema[]}
          */
         let idResults = await cursor
-            .sort(sortOption)
-            .maxTimeMS(maxMongoTimeMS)
+            .sort({sortOption})
+            .maxTimeMS({milliSecs: maxMongoTimeMS})
             .toArray();
         if (idResults.length > 0) {
             // now get the documents for those ids.  We can clear all the other query parameters
@@ -735,7 +735,7 @@ class SearchManager {
             parseInt(args['_cursorBatchSize']) :
             parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
-            cursorQuery = cursorQuery.batchSize(cursorBatchSize);
+            cursorQuery = cursorQuery.batchSize({size: cursorBatchSize});
         }
         return {cursorBatchSize, cursorQuery};
     }
@@ -779,7 +779,7 @@ class SearchManager {
     ) {
         indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
-            cursor = cursor.hint(indexHint);
+            cursor = cursor.hint({indexHint});
             logDebug(
                 user,
                 `Using index hint ${indexHint} for columns [${Array.from(columns).join(',')}]`

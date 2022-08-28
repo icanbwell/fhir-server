@@ -6,7 +6,7 @@ class DatabasePartitionedCursor {
      * Constructor
      * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]} cursors
      */
-    constructor(cursors) {
+    constructor({cursors}) {
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          * @private
@@ -19,7 +19,7 @@ class DatabasePartitionedCursor {
      * @param {number} milliSecs
      * @return {DatabasePartitionedCursor}
      */
-    maxTimeMS(milliSecs) {
+    maxTimeMS({milliSecs}) {
         for (const index in this._cursors) {
             this._cursors[`${index}`] = this._cursors[`${index}`].maxTimeMS(milliSecs);
         }
@@ -63,7 +63,7 @@ class DatabasePartitionedCursor {
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabasePartitionedCursor}
      */
-    project(projection) {
+    project({projection}) {
         for (const index in this._cursors) {
             this._cursors[`${index}`] = this._cursors[`${index}`].project(projection);
         }
@@ -75,7 +75,7 @@ class DatabasePartitionedCursor {
      * @param {function({Object}): Object} mapping
      * @return {DatabasePartitionedCursor}
      */
-    map(mapping) {
+    map({mapping}) {
         for (const index in this._cursors) {
             this._cursors[`${index}`] = this._cursors[`${index}`].map(mapping);
         }
@@ -105,7 +105,7 @@ class DatabasePartitionedCursor {
      * @param {string | [string, number][] | import('mongodb').SortOptionObject<import('mongodb').DefaultSchema>} sortOption
      * @return {DatabasePartitionedCursor}
      */
-    sort(sortOption) {
+    sort({sortOption}) {
         for (const index in this._cursors) {
             // noinspection JSCheckFunctionSignatures
             this._cursors[`${index}`] = this._cursors[`${index}`].sort(sortOption, 1);
@@ -118,7 +118,7 @@ class DatabasePartitionedCursor {
      * @param {number} size
      * @return {DatabasePartitionedCursor}
      */
-    batchSize(size) {
+    batchSize({size}) {
         for (const index in this._cursors) {
             this._cursors[`${index}`] = this._cursors[`${index}`].batchSize(size);
         }
@@ -130,7 +130,7 @@ class DatabasePartitionedCursor {
      * @param {string|null} indexHint
      * @return {DatabasePartitionedCursor}
      */
-    hint(indexHint) {
+    hint({indexHint}) {
         for (const index in this._cursors) {
             this._cursors[`${index}`] = this._cursors[`${index}`].hint(indexHint);
         }

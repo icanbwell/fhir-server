@@ -10,7 +10,7 @@ const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -104,6 +104,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @private
      */
     addOperationForResourceType({resourceType, operation}) {
+        assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
+        assertIsValid(operation, `operation: ${operation} is null`);
         // If there is no entry for this collection then create one
         if (!(this.operationsByResourceTypeMap.has(resourceType))) {
             this.operationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -195,12 +197,14 @@ class DatabaseBulkInserter extends EventEmitter {
         delete doc['_id'];
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
-        this.addOperationForResourceType(resourceType,
-            {
-                replaceOne: {
-                    filter: {id: id.toString()},
-                    // upsert: true,
-                    replacement: doc
+        this.addOperationForResourceType({
+                resourceType,
+                operation: {
+                    replaceOne: {
+                        filter: {id: id.toString()},
+                        // upsert: true,
+                        replacement: doc
+                    }
                 }
             }
         );

@@ -103,7 +103,7 @@ class DatabaseHistoryManager {
             const cursor = collection.find(query, options);
             cursors.push(cursor);
         }
-        return new DatabasePartitionedCursor(cursors);
+        return new DatabasePartitionedCursor({cursors});
     }
 }
 

@@ -30,6 +30,7 @@ const expectedHealthcareServiceResource = require('./fixtures/expected/expected_
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Practitioner Complex Merge Tests', () => {
     beforeEach(async () => {
@@ -135,10 +136,7 @@ describe('Practitioner Complex Merge Tests', () => {
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(insurancePractitionerResource)
                 .set(getHeaders());
-            console.log('------- response insurancePractitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(false);
+            assertMergeIsSuccessful(resp.body, false);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1679033641-AETNA-AetnaElectChoiceEPO/$merge')

@@ -229,7 +229,7 @@ class GraphHelper {
             {resourceType, base_version, useAtlas: requestInfo.useAtlas}
         ).findAsync({query, options});
 
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         while (await cursor.hasNext()) {
             const element = await cursor.next();
@@ -354,12 +354,12 @@ class GraphHelper {
         const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
         /**
          * mongo db cursor
-         * @type {Promise<Cursor<Document>> | *}
+         * @type {DatabasePartitionedCursor}
          */
         let cursor = await this.databaseQueryFactory.createQuery(
             {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
         ).findAsync({query, options});
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         // find matching field name in searchParameter list.  We will use this to match up to parent
         /**
@@ -373,58 +373,60 @@ class GraphHelper {
 
         while (await cursor.hasNext()) {
             /**
-             * @type {Resource}
+             * @type {Resource|null}
              */
             const relatedResourcePropertyCurrent = await cursor.next();
-            if (filterProperty !== null) {
-                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                    continue;
+            if (relatedResourcePropertyCurrent) {
+                if (filterProperty !== null) {
+                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                        continue;
+                    }
                 }
-            }
-            // create the entry
-            const resourceEntityAndContained = new ResourceEntityAndContained(
-                {
-                    entityId: relatedResourcePropertyCurrent.id,
-                    entityResourceType: relatedResourcePropertyCurrent.resourceType,
-                    fullUrl: this.getFullUrlForResource(
-                        {
-                            requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
-                        }),
-                    includeInOutput: true,
-                    resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
-                    containedEntries: []
-                }
-            );
-            // now match to parent entity, so we can put under correct contained property
-            const properties = this.getPropertiesForEntity(
-                {
-                    entity: resourceEntityAndContained, property: fieldForSearchParameter
-                }
-            );
-            // the reference property can be a single item or an array.
-            /**
-             * @type {string[]}
-             */
-            const references = properties
-                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                .filter(r => r !== undefined);
-            const matchingParentEntities = parentEntities.filter(
-                p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
-            );
-
-            if (matchingParentEntities.length === 0) {
-                throw new Error(
-                    'Reverse Reference: No match found for parent entities' +
-                    ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                    ` using property ${fieldForSearchParameter}` +
-                    ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                // create the entry
+                const resourceEntityAndContained = new ResourceEntityAndContained(
+                    {
+                        entityId: relatedResourcePropertyCurrent.id,
+                        entityResourceType: relatedResourcePropertyCurrent.resourceType,
+                        fullUrl: this.getFullUrlForResource(
+                            {
+                                requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
+                            }),
+                        includeInOutput: true,
+                        resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                        containedEntries: []
+                    }
                 );
-            }
-
-            for (const matchingParentEntity of matchingParentEntities) {
-                matchingParentEntity.containedEntries.push(
-                    resourceEntityAndContained
+                // now match to parent entity, so we can put under correct contained property
+                const properties = this.getPropertiesForEntity(
+                    {
+                        entity: resourceEntityAndContained, property: fieldForSearchParameter
+                    }
                 );
+                // the reference property can be a single item or an array.
+                /**
+                 * @type {string[]}
+                 */
+                const references = properties
+                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                    .filter(r => r !== undefined);
+                const matchingParentEntities = parentEntities.filter(
+                    p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
+                );
+
+                if (matchingParentEntities.length === 0) {
+                    throw new Error(
+                        'Reverse Reference: No match found for parent entities' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using property ${fieldForSearchParameter}` +
+                        ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                    );
+                }
+
+                for (const matchingParentEntity of matchingParentEntities) {
+                    matchingParentEntity.containedEntries.push(
+                        resourceEntityAndContained
+                    );
+                }
             }
         }
     }
@@ -860,7 +862,7 @@ class GraphHelper {
         let cursor = await this.databaseQueryFactory.createQuery(
             {resourceType, base_version, useAtlas}
         ).findAsync({query, options});
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         /**
          * @type {{resource: Resource, fullUrl: string}[]}
