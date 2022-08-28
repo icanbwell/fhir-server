@@ -1,4 +1,5 @@
 const {expect} = require('@jest/globals');
+const {assertFail} = require('../utils/assertType');
 
 /**
  * confirms that object was created
@@ -139,8 +140,63 @@ function assertStatusCode(expectedStatusCode) {
     };
 }
 
+/**
+ * Asserts that count of resources in the response matches
+ * @param {number} count
+ * @return {(function(*): void)|*}
+ */
+function assertResourceCount(count) {
+    return (resp) => {
+        try {
+            expect(resp.status).toBe(200);
+            expect(resp.body.length).toBe(count);
+        } catch (e) {
+            assertFail({
+                    source: 'assertResourceCount',
+                    message: `Resource count ${resp.body.length} != ${count}: ${JSON.stringify(resp.body)}`,
+                    args: {
+                        expected: count,
+                        actual: resp.body.length,
+                        responseBody: resp.body
+                    },
+                    error: e
+                }
+            );
+        }
+    };
+}
+
+/**
+ * Asserts that merge is successfull
+ * @return {(function(*): void)|*}
+ */
+function assertMerge() {
+    return (resp) => {
+        try {
+            assertMergeIsSuccessful(resp.body);
+        } catch (e) {
+            throw new Error(`Merge failed: ${JSON.stringify(resp.body)}`);
+        }
+    };
+}
+
+/**
+ * Asserts that merge is successfull
+ * @param {Object|Object[]} expected
+ * @return {(function(*): void)|*}
+ */
+function assertResponse(expected) {
+    return (resp) => {
+        expect(resp.body).toStrictEqual(expected);
+    };
+}
+
+
 module.exports = {
     assertCompareBundles,
     assertMergeIsSuccessful,
-    assertStatusCode
+    assertStatusCode,
+    assertResourceCount,
+    assertResponse,
+    assertMerge
 };

@@ -23,13 +23,14 @@
  * @property {string} severity
  * @property {string} code
  * @property {{text: string}} details
- * @property {string|null} diagnostics
- * @property {string[]|null} expression
+ * @property {string|undefined} [diagnostics]
+ * @property {string[]|undefined} [expression]
  */
 
 /**
  * @typedef OperationOutcome
  * @type {object}
+ * @property {string} [id]
  * @property {string} resourceType
  * @property {OperationOutcomeIssue[]} issue
  */
