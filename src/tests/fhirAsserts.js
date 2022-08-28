@@ -56,7 +56,9 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
     expect(body.entry).not.toBeNull();
     expect(body.entry).not.toBeUndefined();
     body.entry.forEach(element => {
-        delete element['resource']['meta']['lastUpdated'];
+        if (element['resource'] && element['resource']['meta']) {
+            delete element['resource']['meta']['lastUpdated'];
+        }
     });
     delete expected['link'];
 
@@ -84,15 +86,19 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
 
     body.entry.forEach(element => {
         delete element['fullUrl'];
-        delete element['resource']['meta']['lastUpdated'];
-        if (element['resource']['contained']) {
-            element['resource']['contained'].forEach(containedElement => {
-                delete containedElement['meta']['lastUpdated'];
-            });
-            // sort the list
-            element['resource']['contained'] = element['resource']['contained'].sort(
-                (a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
-            );
+        if (element['resource']) {
+            if (element['resource']['meta']) {
+                delete element['resource']['meta']['lastUpdated'];
+            }
+            if (element['resource']['contained']) {
+                element['resource']['contained'].forEach(containedElement => {
+                    delete containedElement['meta']['lastUpdated'];
+                });
+                // sort the list
+                element['resource']['contained'] = element['resource']['contained'].sort(
+                    (a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+                );
+            }
         }
     });
     expected.entry.forEach(element => {

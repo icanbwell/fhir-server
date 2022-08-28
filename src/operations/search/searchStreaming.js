@@ -297,7 +297,7 @@ class SearchStreamingOperation {
                          * @param {number} stopTime1
                          * @return {{entry: {resource: Resource}[]}}
                          */
-                        const fnBundle = (last_id, stopTime1) => this.bundlManager.createBundle(
+                        const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
                             {
                                 type: 'searchset',
                                 originalUrl,

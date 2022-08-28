@@ -1,5 +1,6 @@
 const {Transform} = require('stream');
 const {removeNull} = require('../../utils/nullRemover');
+const {assertIsValid} = require('../../utils/assertType');
 
 class FhirBundleWriter extends Transform {
     /**
@@ -15,6 +16,7 @@ class FhirBundleWriter extends Transform {
          * @private
          */
         this._fnBundle = fnBundle;
+        assertIsValid(fnBundle);
         /**
          * @type {string|null}
          * @private
@@ -106,7 +108,30 @@ class FhirBundleWriter extends Transform {
             // write ending json
             this.push('],' + bundleJson.substring(1)); // skip the first "}"
         } catch (e) {
-            throw new AggregateError([e], 'FhirBundleWriter _flush: error');
+            // don't let error past this since we're streaming so we can't send errors to http client
+            const operationOutcome = {
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        details: {
+                            text: 'Error streaming bundle'
+                        },
+                        diagnostics: e.toString()
+                    }
+                ]
+            };
+            const operationOutcomeJson = JSON.stringify({resource: operationOutcome});
+            if (this._first) {
+                // write the beginning json
+                this._first = false;
+                this.push(operationOutcomeJson);
+            } else {
+                // add comma at the beginning to make it legal json
+                this.push(',' + operationOutcomeJson);
+            }
+            this.push(']}');
         }
         callback();
     }
