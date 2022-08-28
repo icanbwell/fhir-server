@@ -14,11 +14,11 @@ class DatabaseHistoryManager {
      * @param {boolean} useAtlas
      */
     constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
          * @private

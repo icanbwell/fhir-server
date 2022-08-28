@@ -10,6 +10,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class HistoryOperation {
@@ -20,6 +21,7 @@ class HistoryOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -27,7 +29,8 @@ class HistoryOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            bundleManager
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -57,6 +60,12 @@ class HistoryOperation {
          */
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -74,8 +83,18 @@ class HistoryOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const user = requestInfo.user;
-        const scope = requestInfo.scope;
+        const {
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string | null} */
+            originalUrl: url,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -123,6 +142,9 @@ class HistoryOperation {
                 });
             throw new NotFoundError(e.message);
         }
+        /**
+         * @type {Resource[]}
+         */
         const resources = [];
         while (await cursor.hasNext()) {
             const element = await cursor.next();
@@ -143,6 +165,14 @@ class HistoryOperation {
                 action: currentOperationName
             }
         );
+        /**
+         * @type {number}
+         */
+        const stopTime = Date.now();
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,
         // sorted with oldest versions last, and including deleted resources.
@@ -153,7 +183,30 @@ class HistoryOperation {
         //    reason a resource might be missing is that the resource was changed by some other channel
         //    rather than via the RESTful interface.
         //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
-        return resources;
+        // return resources;
+        return this.bundleManager.createBundle(
+            {
+                originalUrl: url,
+                host,
+                protocol,
+                last_id: null,
+                resources,
+                base_version,
+                total_count: resources.length,
+                args,
+                originalQuery: {},
+                collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionName(resources[0]) : null,
+                originalOptions: {},
+                columns: null,
+                stopTime,
+                startTime,
+                useTwoStepSearchOptimization: false,
+                indexHint: null,
+                cursorBatchSize: null,
+                user,
+                useAtlas
+            }
+        );
     }
 }
 

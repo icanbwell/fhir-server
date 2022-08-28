@@ -288,7 +288,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            bundleManager: c.bundleManager
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('historyByIdOperation', c => new HistoryByIdOperation(
@@ -296,7 +297,9 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('patchOperation', c => new PatchOperation(

@@ -7,20 +7,26 @@ const {expect} = require('@jest/globals');
  */
 function assertMergeIsSuccessful(body, expectCreate = true) {
     console.log(JSON.stringify(body, null, 2));
-    if (Array.isArray(body)) {
-        for (const bodyItem of body) {
+    try {
+
+        if (Array.isArray(body)) {
+            for (const bodyItem of body) {
+                if (expectCreate) {
+                    expect(bodyItem['created']).toBe(true);
+                } else {
+                    expect(bodyItem['updated']).toBe(true);
+                }
+            }
+        } else {
             if (expectCreate) {
-                expect(bodyItem['created']).toBe(true);
+                expect(body['created']).toBe(true);
             } else {
-                expect(bodyItem['updated']).toBe(true);
+                expect(body['updated']).toBe(true);
             }
         }
-    } else {
-        if (expectCreate) {
-            expect(body['created']).toBe(true);
-        } else {
-            expect(body['updated']).toBe(true);
-        }
+    } catch (e) {
+        e.message += `, body: ${JSON.stringify(body)}`;
+        throw e;
     }
 }
 
