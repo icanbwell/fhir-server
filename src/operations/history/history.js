@@ -9,6 +9,7 @@ const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class HistoryOperation {
@@ -18,13 +19,15 @@ class HistoryOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
      */
     constructor(
         {
             databaseHistoryFactory,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager
         }
     ) {
         /**
@@ -49,6 +52,11 @@ class HistoryOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
 
     /**

@@ -287,7 +287,8 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager
         }
     ));
     container.register('historyByIdOperation', c => new HistoryByIdOperation(
