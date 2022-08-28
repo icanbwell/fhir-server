@@ -19,7 +19,7 @@ https://www.oracle.com/technical-resources/articles/javame/chunking.html
 
 ## Client Implementation
 1. Client opens a connection and sends a request as in the non-streaming case.  
-3. Server sends the data in chunks.  Client processes the chunk and waits for the next one.
+2. Server sends the data in chunks.  Client processes the chunk and waits for the next one.
 
 
 Clients can use the chunk transfer mechanism in their client requests library.

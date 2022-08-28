@@ -7,10 +7,10 @@ You access FHIR server using REST API requests which are just standard HTTP call
 Typically, this is done via:
 1. A tool like Postman (https://www.postman.com/) to do the calls manually for testing
 2. A command line tool like curl (https://curl.se/)
-```shell
-curl --location --request GET 'https://fhir.icanbwell.com/4_0_0/Patient' \
---header 'Authorization: Bearer {token here}' --header 'Content-Type: application/fhir+json'
-```
+   ```shell
+   curl --location --request GET 'https://fhir.icanbwell.com/4_0_0/Patient' \
+   --header 'Authorization: Bearer {token here}' --header 'Content-Type: application/fhir+json'
+   ```
 3. Code in Javascript or Python or other programming language
 
 Javascript Example:

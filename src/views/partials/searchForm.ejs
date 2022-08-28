@@ -1,5 +1,5 @@
 <!-- prettier-ignore -->
-<% 
+<%
 const hasResource = typeof(resourceDefinition) !== 'undefined';
 const resourceName = hasResource ? resourceDefinition.name : '';
 %>
@@ -83,18 +83,18 @@ const resourceName = hasResource ? resourceDefinition.name : '';
             />
         </div>
     </div>
-    <% for (var i = 0; i < formData.length; i++) { %> <% if(formData[i].name === 'date'){ %>
+    <% for (var j = 0; j < formData.length; j++) { %> <% if(formData[j].name === 'date'){ %>
     <div class="form-group">
-        <label for="<%= formData[i].name %>"><small><%= formData[i].label %></small></label>
+        <label for="<%= formData[j].name %>"><small><%= formData[j].label %></small></label>
         <input
             id="datePicker"
             type="text"
             class="form-control clear-allowed"
-            name="<%= formData[i].name %>"
-            value="<%= formData[i].value %>"
+            name="<%= formData[j].name %>"
+            value="<%= formData[j].value %>"
             autocomplete="off"
             placeholder="YYYY-MM-DD"
-            title="<%= formData[i].label %>"
+            title="<%= formData[j].label %>"
         />
     </div>
 
