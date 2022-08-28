@@ -13,6 +13,7 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {getResource} = require('../common/getResource');
 
 class MergeOperation {
     /**
@@ -136,27 +137,19 @@ class MergeOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        /**
-         * @type {string|null}
-         */
-        const user = requestInfo.user;
-        /**
-         * @type {string}
-         */
-        const scope = requestInfo.scope;
-        /**
-         * @type {string|null}
-         */
-        const path = requestInfo.path;
-        /**
-         * @type {Object|Object[]|null}
-         */
-        const body = requestInfo.body;
-        // Assign a random number to this batch request
-        /**
-         * @type {string}
-         */
-        const requestId = requestInfo.requestId;
+        const {
+            /** @type {string|null} */
+            user,
+            /** @type {string} */
+            scope,
+            /** @type {string|null} */
+            path,
+            /** @type {Object|Object[]|null} */
+            body,
+            /** @type {string} */
+            requestId
+        } = requestInfo;
+
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -185,19 +178,73 @@ class MergeOperation {
 
         try {
             /**
-             * @type {string[]}
-             */
-            const scopes = this.scopesManager.parseScopes(scope);
-
-            // read the incoming resource from request body
-            /**
-             * @type {Resource|Resource[]}
-             */
-            let resourcesIncoming = body;
-            /**
              * @type {string}
              */
             let {base_version} = args;
+
+            /**
+             * @type {string[]}
+             */
+            const scopes = this.scopesManager.parseScopes(scope);
+            /**
+             * @type {function(OperationOutcome): Resource}
+             */
+            const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
+
+            // read the incoming resource from request body
+            /**
+             * @type {Resource|Resource[]|undefined}
+             */
+            let resourcesIncoming = args.resource ? args.resource : body;
+
+            // see if the resources were passed as parameters
+            if (resourcesIncoming.resourceType === 'Parameters') {
+                // Unfortunately our FHIR schema resource creator does not support Parameters
+                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
+                // const parametersResource = new ParametersResourceCreator(resource_incoming);
+                const parametersResource = resourcesIncoming;
+                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
+                    /**
+                     * @type {OperationOutcome}
+                     */
+                    const operationOutcome = {
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'structure',
+                                details: {
+                                    text: 'Invalid parameter list'
+                                }
+                            }
+                        ]
+                    };
+                    return new OperationOutcomeResourceCreator(operationOutcome);
+                }
+                // find the actual resource in the parameter called resource
+                const resourceParameters = parametersResource.parameter.filter(p => p.name === 'resource');
+                if (!resourceParameters || resourceParameters.length === 0) {
+                    /**
+                     * @type {OperationOutcome}
+                     */
+                    const operationOutcome = {
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'structure',
+                                details: {
+                                    text: 'Invalid parameter list'
+                                }
+                            }
+                        ]
+                    };
+                    return new OperationOutcomeResourceCreator(operationOutcome);
+                }
+                resourcesIncoming = resourceParameters.map(r => r.resource);
+            }
 
             // if the incoming request is a bundle then unwrap the bundle
             if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {

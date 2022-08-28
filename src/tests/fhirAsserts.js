@@ -9,7 +9,6 @@ const {assertFail} = require('../utils/assertType');
 function assertMergeIsSuccessful(body, expectCreate = true) {
     console.log(JSON.stringify(body, null, 2));
     try {
-
         if (Array.isArray(body)) {
             for (const bodyItem of body) {
                 if (expectCreate) {
@@ -168,12 +167,25 @@ function assertResourceCount(count) {
 
 /**
  * Asserts that merge is successfull
+ * @param {Object[]|Object} checks
  * @return {(function(*): void)|*}
  */
-function assertMerge() {
+function assertMerge(checks) {
     return (resp) => {
         try {
-            assertMergeIsSuccessful(resp.body);
+            expect(resp.status).toBe(200);
+            const body = resp.body;
+            if (Array.isArray(body)) {
+                for (const bodyItemIndex in body) {
+                    const bodyItem = body[`${bodyItemIndex}`];
+                    const expectedItem = checks[`${bodyItemIndex}`];
+                    expect(bodyItem).toBe(expectedItem);
+                }
+            } else {
+                const firstCheck = Array.isArray(checks) ? checks[0] : checks;
+                expect(body).toEqual(expect.objectContaining(firstCheck));
+            }
+            // assertMergeIsSuccessful(resp.body);
         } catch (e) {
             throw new Error(`Merge failed: ${JSON.stringify(resp.body)}`);
         }
@@ -186,7 +198,37 @@ function assertMerge() {
  * @return {(function(*): void)|*}
  */
 function assertResponse(expected) {
-    return (resp) => {
+    return (/** @type {import('http').ServerResponse} */ resp) => {
+        if (Array.isArray(resp.body) && !Array.isArray(expected)) {
+            expected = [expected];
+        }
+        if (!Array.isArray(resp.body) && Array.isArray(expected)) {
+            expected = expected[0];
+        }
+        if (Array.isArray(resp.body)) {
+            resp.body.forEach(element => {
+                // clean out stuff that changes
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+            });
+        } else {
+            if ('meta' in resp.body) {
+                delete resp.body['meta']['lastUpdated'];
+            }
+        }
+        if (Array.isArray(expected)) {
+            expected.forEach(element => {
+                // clean out stuff that changes
+                if ('meta' in element) {
+                    delete element['meta']['lastUpdated'];
+                }
+            });
+        } else {
+            if ('meta' in expected) {
+                delete expected['meta']['lastUpdated'];
+            }
+        }
         expect(resp.body).toStrictEqual(expected);
     };
 }
