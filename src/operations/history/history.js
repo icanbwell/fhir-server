@@ -135,6 +135,16 @@ class HistoryOperation {
                 action: currentOperationName
             }
         );
+        // https://hl7.org/fhir/http.html#history
+        // The return content is a Bundle with type set to history containing the specified version history,
+        // sorted with oldest versions last, and including deleted resources.
+        // Each entry SHALL minimally contain at least one of: a resource which holds the resource as it is at
+        // the conclusion of the interaction, or a request with entry.request.method The request provides information
+        //  about the result of the interaction that led to this new version, and allows, for instance, a subscriber
+        //   system to differentiate between newly created resources and updates to existing resources. The principal
+        //    reason a resource might be missing is that the resource was changed by some other channel
+        //    rather than via the RESTful interface.
+        //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
         return resources;
     }
 }

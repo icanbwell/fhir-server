@@ -13,6 +13,7 @@ const {ErrorReporter} = require('../../utils/slack.logger');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
 
 class SearchBundleOperation {
     /**
@@ -23,6 +24,7 @@ class SearchBundleOperation {
      * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
      */
     constructor(
         {
@@ -31,7 +33,8 @@ class SearchBundleOperation {
             auditLogger,
             errorReporter,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager
         }
     ) {
         this.searchManager = searchManager;
@@ -56,6 +59,11 @@ class SearchBundleOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
 
     /**
@@ -268,7 +276,7 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            const bundle = this.searchManager.createBundle(
+            const bundle = this.bundleManager.createBundle(
                 {
                     originalUrl: url,
                     host,
