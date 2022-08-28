@@ -296,7 +296,7 @@ class MyFHIRServer extends FHIRServer.Server {
                         }
                     }
                 } catch (e) {
-                    console.log(e);
+                    logger.error(e);
                     next();
                 }
             });
