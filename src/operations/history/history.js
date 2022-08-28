@@ -140,8 +140,11 @@ class HistoryOperation {
          */
         let cursor;
         try {
-            cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .findAsync(query, options);
+            cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                {
+                    resourceType, base_version, useAtlas
+                }
+            ).findAsync({query, options});
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {

@@ -225,8 +225,9 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, requestInfo.useAtlas)
-            .findAsync(query, options);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas: requestInfo.useAtlas}
+        ).findAsync({query, options});
 
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
@@ -355,8 +356,9 @@ class GraphHelper {
          * mongo db cursor
          * @type {Promise<Cursor<Document>> | *}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(relatedResourceType, base_version,
-            requestInfo.useAtlas).findAsync(query, options);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
+        ).findAsync({query, options});
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
         // find matching field name in searchParameter list.  We will use this to match up to parent
@@ -855,8 +857,9 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findAsync(query, options);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findAsync({query, options});
         cursor = cursor.maxTimeMS(maxMongoTimeMS);
 
         /**

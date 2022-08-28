@@ -247,9 +247,11 @@ class MergeOperation {
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
-                base_version,
-                useAtlas,
-                incomingResourceTypeAndIds
+                {
+                    base_version,
+                    useAtlas,
+                    requestedResources: incomingResourceTypeAndIds
+                }
             );
 
             // merge the resources

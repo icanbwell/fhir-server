@@ -256,8 +256,9 @@ class CreateOperation {
 
             // Insert our resource record
             try {
-                await this.databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
-                    .insertOneAsync(doc);
+                await this.databaseUpdateFactory.createDatabaseUpdateManager(
+                    {resourceType, base_version, useAtlas}
+                ).insertOneAsync({doc});
             } catch (e) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(e);
@@ -265,8 +266,9 @@ class CreateOperation {
             // Save the resource to history
 
             // Insert our resource record to history but don't assign _id
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .insertOneAsync(history_doc);
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                {resourceType, base_version, useAtlas}
+            ).insertOneAsync({doc: history_doc});
             const result = {id: doc.id, resource_version: doc.meta.versionId};
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

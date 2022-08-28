@@ -101,8 +101,9 @@ class DatabaseBulkInserter extends EventEmitter {
      * Adds an operation
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
+     * @private
      */
-    addOperationForResourceType(resourceType, operation) {
+    addOperationForResourceType({resourceType, operation}) {
         // If there is no entry for this collection then create one
         if (!(this.operationsByResourceTypeMap.has(resourceType))) {
             this.operationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -117,8 +118,9 @@ class DatabaseBulkInserter extends EventEmitter {
      * Adds a history operation
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
+     * @private
      */
-    addHistoryOperationForResourceType(resourceType, operation) {
+    addHistoryOperationForResourceType({resourceType, operation}) {
         // If there is no entry for this collection then create one
         if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
             this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -151,10 +153,12 @@ class DatabaseBulkInserter extends EventEmitter {
                 message: 'start',
                 bufferLength: this.operationsByResourceTypeMap.size
             });
-        this.addOperationForResourceType(resourceType,
-            {
-                insertOne: {
-                    document: doc
+        this.addOperationForResourceType({
+                resourceType,
+                operation: {
+                    insertOne: {
+                        document: doc
+                    }
                 }
             }
         );
@@ -168,10 +172,12 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
-        this.addHistoryOperationForResourceType(resourceType,
-            {
-                insertOne: {
-                    document: doc
+        this.addHistoryOperationForResourceType({
+                resourceType,
+                operation: {
+                    insertOne: {
+                        document: doc
+                    }
                 }
             }
         );

@@ -28,8 +28,9 @@ class ValueSetManager {
      * @return {Promise<{system, code, display, version: string}[]>}
      */
     async getContentsOfValueSetAsync(resourceType, base_version, useAtlas, valueSetUrl) {
-        const valueSet = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findOneAsync({url: valueSetUrl.toString()});
+        const valueSet = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findOneAsync({query: {url: valueSetUrl.toString()}});
         return await this.getValueSetConceptsAsync(resourceType, base_version, useAtlas, valueSet);
     }
 

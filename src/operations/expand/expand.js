@@ -105,8 +105,9 @@ class ExpandOperation {
          */
         let resource;
         try {
-            resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .findOneAsync({id: id.toString()});
+            resource = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findOneAsync({query: {id: id.toString()}});
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

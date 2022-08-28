@@ -108,8 +108,9 @@ class PatchOperation {
             // Query our collection for this observation
             let data;
             try {
-                data = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                    .findOneAsync({id: id.toString()});
+                data = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).findOneAsync({query: {id: id.toString()}});
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -154,8 +155,11 @@ class PatchOperation {
             let res;
             try {
                 delete doc['_id'];
-                res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                    .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
+                res = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).findOneAndUpdateAsync({
+                    query: {id: id}, update: {$set: doc}, options: {upsert: true}
+                });
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -168,8 +172,11 @@ class PatchOperation {
 
             // Insert our resource record to history but don't assign _id
             try {
-                await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                    .insertOneAsync(history_resource);
+                await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                    {
+                        resourceType, base_version, useAtlas
+                    }
+                ).insertOneAsync({doc: history_resource});
             } catch (e) {
                 throw new BadRequestError(e);
             }

@@ -340,10 +340,15 @@ class MergeManager {
                  * @type {Object}
                  */
                 let data = this.databaseBulkLoader ?
-                    this.databaseBulkLoader.getResourceFromExistingList(resourceToMerge.resourceType, id.toString()) :
+                    this.databaseBulkLoader.getResourceFromExistingList(
+                        {
+                            resourceType: resourceToMerge.resourceType,
+                            id: id.toString()
+                        }
+                    ) :
                     await this.databaseQueryFactory.createQuery(
-                        resourceToMerge.resourceType, base_version, useAtlas)
-                        .findOneAsync({id: id.toString()});
+                        {resourceType: resourceToMerge.resourceType, base_version, useAtlas}
+                    ).findOneAsync({query: {id: id.toString()}});
 
                 logDebug('test?', '------- data -------');
                 logDebug('test?', `${resourceToMerge.resourceType}_${base_version}`);
@@ -352,14 +357,14 @@ class MergeManager {
 
                 // check if resource was found in database or not
                 if (data && data.meta) {
-                    this.databaseBulkLoader.updateResourceInExistingList(resourceToMerge);
+                    this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                     await this.mergeExistingAsync(
                         {
                             resourceToMerge, data, base_version, user, scope, currentDate, requestId
                         }
                     );
                 } else {
-                    this.databaseBulkLoader.addResourceToExistingList(resourceToMerge);
+                    this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                     await this.mergeInsertAsync({
                         resourceToMerge, base_version, user
                     });

@@ -170,8 +170,9 @@ class UpdateOperation {
             /**
              * @type {Resource | null}
              */
-            let data = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .findOneAsync({id: id.toString()});
+            let data = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findOneAsync({query: {id: id.toString()}});
             // create a resource with incoming data
             /**
              * @type {function(?Object): Resource}
@@ -310,8 +311,10 @@ class UpdateOperation {
             /**
              * @type {FindOneAndUpdateResult|null}
              */
-            const res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
+            const res = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findOneAndUpdateAsync(
+                {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
             // save to history
 
             // let history_resource = Object.assign(cleaned, {id: id});
@@ -322,8 +325,11 @@ class UpdateOperation {
             // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
             // Insert our resource record to history but don't assign _id
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .insertOneAsync(history_resource);
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                {
+                    resourceType, base_version, useAtlas
+                }
+            ).insertOneAsync({doc: history_resource});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs

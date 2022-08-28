@@ -22,8 +22,15 @@ class DatabaseUpdateFactory {
      * @param {boolean} useAtlas
      * @return {DatabaseUpdateManager}
      */
-    createDatabaseUpdateManager(resourceType, base_version, useAtlas) {
-        return new DatabaseUpdateManager(this.resourceLocatorFactory, resourceType, base_version, useAtlas);
+    createDatabaseUpdateManager({resourceType, base_version, useAtlas}) {
+        return new DatabaseUpdateManager(
+            {
+                resourceLocatorFactory: this.resourceLocatorFactory,
+                resourceType,
+                base_version,
+                useAtlas
+            }
+        );
     }
 }
 

@@ -292,8 +292,9 @@ class SearchManager {
         /**
          * @type {DatabasePartitionedCursor}
          */
-        let cursorQuery = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findAsync(query, options);
+        let cursorQuery = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findAsync({query, options});
 
         if (isStreaming) {
             cursorQuery = cursorQuery.maxTimeMS(60 * 60 * 1000); // if streaming then set time out to an hour
@@ -391,8 +392,8 @@ class SearchManager {
              * @type {Resource | null}
              */
             let person = await this.databaseQueryFactory.createQuery(
-                'Person', base_version, useAtlas)
-                .findOneAsync({id: fhirPersonId});
+                {resourceType: 'Person', base_version, useAtlas})
+                .findOneAsync({query: {id: fhirPersonId}});
             // Finds Patients by platform member ids and returns an array with the found patient ids
             if (person.identifier && person.identifier.length > 0) {
                 let memberId = person.identifier.filter(identifier => {
@@ -405,16 +406,18 @@ class SearchManager {
                  * @type {DatabasePartitionedCursor}
                  */
                 let cursor = await this.databaseQueryFactory.createQuery(
-                    'Patient', base_version, useAtlas)
-                    .findAsync(
-                        {
-                            identifier: {
-                                $elemMatch: {
-                                    'system': patientSystem,
-                                    'value': {$in: memberId.map(id => id.value)}
+                    {resourceType: 'Patient', base_version, useAtlas})
+                    .findAsync({
+                            query:
+                                {
+                                    identifier: {
+                                        $elemMatch: {
+                                            'system': patientSystem,
+                                            'value': {$in: memberId.map(id => id.value)}
+                                        }
+                                    }
                                 }
-                            }
-                        },
+                        }
                     );
                 cursor = cursor.project(idProjection);
                 result = await cursor.map(p => p.id).toArray();
@@ -523,11 +526,13 @@ class SearchManager {
         // if _total is passed then calculate the total count for matching records also
         // don't use the options since they set a limit and skip
         if (args['_total'] === 'estimate') {
-            return await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .estimatedDocumentCountAsync(query, {maxTimeMS: maxMongoTimeMS});
+            return await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).estimatedDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
         } else {
-            return await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .exactDocumentCountAsync(query, {maxTimeMS: maxMongoTimeMS});
+            return await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
         }
     }
 
@@ -613,8 +618,8 @@ class SearchManager {
          * @type {DatabasePartitionedCursor}
          */
         const cursor = await this.databaseQueryFactory.createQuery(
-            resourceType, base_version, useAtlas)
-            .findAsync(query, options);
+            {resourceType, base_version, useAtlas}
+        ).findAsync({query, options});
         /**
          * @type {import('mongodb').DefaultSchema[]}
          */

@@ -92,8 +92,11 @@ class SearchByVersionIdOperation {
             // Query our collection for this observation
             let resource;
             try {
-                resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                    .findOneAsync({id: id.toString(), 'meta.versionId': `${version_id}`});
+                resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                    {
+                        resourceType, base_version, useAtlas
+                    }
+                ).findOneAsync({query: {id: id.toString(), 'meta.versionId': `${version_id}`}});
             } catch (e) {
                 throw new BadRequestError(e);
             }
