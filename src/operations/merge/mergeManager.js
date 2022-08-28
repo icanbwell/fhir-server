@@ -347,7 +347,15 @@ class MergeManager {
                     });
                 }
             } catch (e) {
-                logError(`Error with merging resource ${resourceToMerge.resourceType}.merge with id: ${id} `, e);
+                logError({
+                    user: user,
+                    args: {
+                        message: 'Error with merging resource',
+                        resourceType: resourceToMerge.resourceType,
+                        id: id,
+                        error: e
+                    }
+                });
                 const operationOutcome = {
                     resourceType: 'OperationOutcome',
                     issue: [

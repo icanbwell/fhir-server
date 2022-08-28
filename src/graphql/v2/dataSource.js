@@ -256,11 +256,16 @@ class FhirDataSource extends DataSource {
             );
         } catch (e) {
             if (e.name === 'NotFound') {
-                logWarn(
-                    context.user,
-                    `findResourceByReference: Resource ${resourceType}/${id} not found` +
-                    ` for parent:${parent.resourceType}/${parent.id} `
-                );
+                logWarn({
+                    user: context.user,
+                    args: {
+                        message: 'findResourcesByReference: Resource not found for parent',
+                        resourceType,
+                        id,
+                        parentResourceType: parent.resourceType,
+                        parentId: parent.id
+                    }
+                });
                 return null;
             } else {
                 throw e;

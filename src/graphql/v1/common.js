@@ -73,7 +73,16 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
         );
     } catch (e) {
         if (e.name === 'NotFound') {
-            logWarn(context.user, `findResourceByReference: Resource ${typeOfReference}/${idOfReference} not found for parent:${parent.resourceType}/${parent.id} `);
+            logWarn({
+                user: context.user,
+                args: {
+                    message: 'findResourcesByReference: Resource not found for parent',
+                    resourceType: typeOfReference,
+                    id: idOfReference,
+                    parentResourceType: parent.resourceType,
+                    parentId: parent.id
+                }
+            });
             return null;
         }
     }
@@ -125,7 +134,16 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
             );
         } catch (e) {
             if (e.name === 'NotFound') {
-                logWarn(context.user, `findResourcesByReference: Resource ${typeOfReference}/${idOfReference} not found for parent:${parent.resourceType}/${parent.id}`);
+                logWarn({
+                    user: context.user,
+                    args: {
+                        message: 'findResourcesByReference: Resource not found for parent',
+                        resourceType: typeOfReference,
+                        id: idOfReference,
+                        parentResourceType: parent.resourceType,
+                        parentId: parent.id
+                    }
+                });
                 return null;
             }
         }

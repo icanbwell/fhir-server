@@ -150,11 +150,14 @@ class DatabaseBulkInserter extends EventEmitter {
             );
         }
         // else insert it
-        await logVerboseAsync('DatabaseBulkInserter.insertOneAsync',
-            {
-                message: 'start',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.insertOneAsync',
+            args:
+                {
+                    message: 'start',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
         this.addOperationForResourceType({
                 resourceType,
                 operation: {
@@ -220,11 +223,14 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync({requestId, currentDate, base_version, useAtlas}) {
-        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
-            {
-                message: 'start',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.executeAsync',
+            args:
+                {
+                    message: 'start',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
         // run both the operations on the main tables and the history tables in parallel
         /**
          * @type {BulkResultEntry[]}
@@ -393,11 +399,14 @@ class DatabaseBulkInserter extends EventEmitter {
         this.insertedIdsByResourceTypeMap.clear();
         this.updatedIdsByResourceTypeMap.clear();
 
-        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
-            {
-                message: 'end',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.executeAsync',
+            args:
+                {
+                    message: 'end',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
         return mergeResultEntries;
     }
 

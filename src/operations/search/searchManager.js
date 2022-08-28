@@ -716,7 +716,7 @@ class SearchManager {
                 }),
             );
         } catch (e) {
-            logError(user, e);
+            logError({user, args: {error: e}});
             ac.abort();
             throw e;
         }
@@ -880,7 +880,7 @@ class SearchManager {
                 responseWriter
             );
         } catch (e) {
-            logError(user, e);
+            logError({user, args: {error: e}});
             ac.abort();
             throw e;
         } finally {
@@ -1009,7 +1009,7 @@ class SearchManager {
                 // res.type(contentType)
             );
         } catch (e) {
-            logError(user, e);
+            logError({user, args: {error: e}});
             ac.abort();
             throw e;
         } finally {
