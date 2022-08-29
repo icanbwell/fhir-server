@@ -32,8 +32,12 @@ class DatabaseUpdateManager {
         /**
          * @type {ResourceLocator}
          */
-        this.resourceLocator = resourceLocatorFactory.createResourceLocator(this._resourceType,
-            this._base_version, this._useAtlas);
+        this.resourceLocator = resourceLocatorFactory.createResourceLocator(
+            {
+                resourceType: this._resourceType,
+                base_version: this._base_version,
+                useAtlas: this._useAtlas
+            });
     }
 
     /**
