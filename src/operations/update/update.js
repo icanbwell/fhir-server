@@ -21,6 +21,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {omitProperty} = require('../../utils/omitProperties');
 
 /**
  * Update Operation
@@ -295,7 +296,7 @@ class UpdateOperation {
                 doc = cleaned;
             }
 
-            delete doc['_id'];
+            doc = omitProperty(doc, '_id');
 
             // Insert/update our resource record
             // When using the $set operator, only the specified fields are updated

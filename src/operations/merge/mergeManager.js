@@ -23,6 +23,7 @@ const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/asser
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
+const {omitProperty} = require('../../utils/omitProperties');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -128,7 +129,7 @@ class MergeManager {
 
         await preSaveAsync(my_data);
 
-        delete my_data['_id']; // remove _id since that is an internal
+        my_data = omitProperty(my_data, '_id'); // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that
         my_data = removeNull(my_data);
         resourceToMerge = removeNull(resourceToMerge);
@@ -539,12 +540,10 @@ class MergeManager {
          * @type {import('mongodb').Document}
          */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-        // Insert our resource record to history but don't assign _id
-        delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
         await this.databaseBulkInserter.insertOneHistoryAsync(
             {
-                resourceType: resourceToMerge.resourceType, doc
+                resourceType: resourceToMerge.resourceType, doc: history_resource
             });
     }
 
@@ -563,7 +562,7 @@ class MergeManager {
 
         await preSaveAsync(doc);
 
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
 
         // Insert/update our resource record
         await this.databaseBulkInserter.insertOneAsync({
@@ -576,12 +575,10 @@ class MergeManager {
          * @type {import('mongodb').Document}
          */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-        // Insert our resource record to history but don't assign _id
-        delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
         await this.databaseBulkInserter.insertOneHistoryAsync({
                 resourceType: resourceToMerge.resourceType,
-                doc
+                doc: history_resource
             }
         );
     }

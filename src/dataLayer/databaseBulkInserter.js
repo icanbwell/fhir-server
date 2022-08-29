@@ -11,6 +11,7 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
+const {omitProperty} = require('../utils/omitProperties');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -139,7 +140,7 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async insertOneAsync({resourceType, doc}) {
         // remove _id to prevent duplicate keys in mongo
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -197,7 +198,7 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async replaceOneAsync({resourceType, id, doc}) {
         // remove _id to prevent duplicate keys in mongo
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType({
