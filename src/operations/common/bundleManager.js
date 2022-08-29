@@ -25,15 +25,15 @@ class BundleManager {
      * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
      * @param {string} collectionName
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
-     * @param {Set} columns
+     * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime
-     * @param {boolean} useTwoStepSearchOptimization
-     * @param {string|null} indexHint
-     * @param {number | null} cursorBatchSize
+     * @param {boolean|undefined} [useTwoStepSearchOptimization]
+     * @param {string|undefined} [indexHint]
+     * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
      * @param {boolean | null} useAtlas
-     * @return {{entry: {resource: Resource}[]}}
+     * @return {Resource}
      */
     createBundle(
         {
@@ -108,7 +108,7 @@ class BundleManager {
         });
         // noinspection JSValidateTypes
         /**
-         * @type {{entry: {resource: Resource}[]}}
+         * @type {Resource}
          */
         const bundle = new Bundle({
             type: type,

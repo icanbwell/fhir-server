@@ -77,6 +77,7 @@ const graphql = async (fnCreateContainer) => {
                 body: req.body,
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
                 fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
+                headers: req.headers
             });
         return {
             req,

@@ -62,6 +62,7 @@ const graphql = async (fnCreateContainer) => {
                     path: req.path,
                     host: req.hostname,
                     body: req.body,
+                    headers: req.headers,
                     container: fnCreateContainer()
                 };
             }

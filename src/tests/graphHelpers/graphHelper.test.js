@@ -43,6 +43,7 @@ describe('graphHelper Tests', () => {
             protocol: 'https',
             originalUrl: '',
             host: 'host',
+            headers: {}
         }
     );
 

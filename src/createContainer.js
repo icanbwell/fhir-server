@@ -256,7 +256,9 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({

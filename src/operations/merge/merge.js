@@ -14,6 +14,8 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {getResource} = require('../common/getResource');
+const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 
 class MergeOperation {
     /**
@@ -26,6 +28,8 @@ class MergeOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -37,7 +41,9 @@ class MergeOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -87,7 +93,16 @@ class MergeOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -124,7 +139,7 @@ class MergeOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
+     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
     async merge(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -138,17 +153,26 @@ class MergeOperation {
          */
         const startTime = Date.now();
         const {
-            /** @type {string|null} */
+            /** @type {string | null} */
             user,
-            /** @type {string} */
+            /** @type {string | null} */
             scope,
+            /** @type {string | null} */
+            originalUrl: url,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
+            /** @type {string} */
+            requestId,
+            /** @type {Object} */
+            headers,
             /** @type {string|null} */
             path,
-            /** @type {Object|Object[]|null} */
-            body,
-            /** @type {string} */
-            requestId
+            /** @type {Object | Object[] | null} */
+            body
         } = requestInfo;
+
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -177,10 +201,7 @@ class MergeOperation {
         }
 
         try {
-            /**
-             * @type {string}
-             */
-            let {base_version} = args;
+            let {/** @type {string} */ base_version} = args;
 
             /**
              * @type {string[]}
@@ -351,7 +372,78 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults)
                 });
-            return wasIncomingAList ? mergeResults : mergeResults[0];
+
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+            if (headers.Prefer && headers.Prefer === 'return=OperationOutcome') {
+                // https://hl7.org/fhir/http.html#ops
+                // Client is requesting the result as OperationOutcome
+                // Create a bundle of OperationOutcomes
+                // create an OperationOutcome out of results
+                /**
+                 * @type {OperationOutcome[]}
+                 */
+                const operationOutcomes = mergeResults.map(m => {
+                        return m.issue ? {
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: [
+                                {
+                                    severity: 'information',
+                                    code: 'informational',
+                                    details: {
+                                        text: 'OK'
+                                    },
+                                    expression: [
+                                        `${m.resourceType}/${m.id}`
+                                    ]
+                                }
+                            ]
+                        } : {
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: m.issue
+                        };
+                    }
+                );
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+                const firstCollectionNameForQuery = resourceLocator.getFirstCollectionNameForQuery();
+                /**
+                 * id of last resource in the list
+                 * @type {string|null}
+                 */
+                const last_id = operationOutcomes.length > 0 ? operationOutcomes[operationOutcomes.length - 1].id : null;
+                // noinspection JSValidateTypes
+                /**
+                 * @type {Resource[]}
+                 */
+                const resources = operationOutcomes;
+                const bundle = this.bundleManager.createBundle(
+                    {
+                        type: 'batch-response',
+                        originalUrl: url,
+                        host,
+                        protocol,
+                        last_id,
+                        resources: resources,
+                        base_version,
+                        total_count: operationOutcomes.length,
+                        args,
+                        originalQuery: {},
+                        collectionName: firstCollectionNameForQuery,
+                        originalOptions: {},
+                        stopTime,
+                        startTime,
+                        user,
+                        useAtlas
+                    }
+                );
+                return bundle;
+            } else {
+                return wasIncomingAList ? mergeResults : mergeResults[0];
+            }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
