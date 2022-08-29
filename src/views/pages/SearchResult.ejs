@@ -1,61 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('../partials/head'); %>
-    </head>
-    <body class="container-fluid p-0">
-        <%- include('../partials/header', {resources: resources}); %>
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
 
-        <main class="d-flex align-items-start">
-            <%- include('../partials/searchForm'); %>
-            <div class="search-results">
-                <% if(Object.keys(body).length > 0 && resources.length > 0){ %>
-                <table class="table sticky-table table-striped table-hover table-sortable">
-                    <thead>
-                        <tr>
-                            <% formData.forEach(function(field){%>
-                            <th data-field="<%= field.sortField %>">
-                                <%= field.columnHeader ? field.columnHeader : field.label %><i
+<main class="d-flex align-items-start">
+    <%- include('../partials/searchForm'); %>
+    <div class="search-results">
+        <% if(Object.keys(body).length > 0 && resources.length > 0){ %>
+            <table class="table sticky-table table-striped table-hover table-sortable">
+                <thead>
+                <tr>
+                    <% formData.forEach(function(field){ %>
+                        <th data-field="<%= field.sortField %>">
+                            <%= field.columnHeader ? field.columnHeader : field.label %><i
                                     class="fa<%= searchUtils.sortIcon(field.sortField, body._sort) %>"
-                                ></i>
-                            </th>
-                            <%})%>
-                            <th data-field="meta.lastUpdated">
-                                Last Updated
-                                <i
-                                    class="fa<%= searchUtils.sortIcon('meta.lastUpdated', body._sort) %>"
-                                ></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- prettier-ignore -->
-                        <% resources.forEach(function(res, index){%>
-                        <tr class="row-click" data-identifier="<%=res.id%>">
-                            <% formData.forEach(function(field){%>
-                            <td>
-                                <!-- prettier-ignore -->
-                                <% if(field.columnHeader === 'Period' && res.period){ %>
-                                    <%= res.period.start ? searchUtils.formatDate(res.period.start) : '' %>
-                                    <%= res.period.start && res.period.end ? 'to' : '' %>
-                                    <%= res.period.end ? searchUtils.formatDate(res.period.end) : '' %>
-                                <% } else { %>
-                                    <%= searchUtils.fieldValue(res,field.name) %>
-                                <% } %>
-                            </td>
-                            <%})%>
-                            <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
-                        </tr>
-                        <%})%>
-                    </tbody>
-                </table>
+                            ></i>
+                        </th>
+                    <% }) %>
+                    <th data-field="id">
+                        Id
+                    </th>
+                    <th data-field="meta.lastUpdated">
+                        Last Updated
+                        <i
+                                class="fa<%= searchUtils.sortIcon('meta.lastUpdated', body._sort) %>"
+                        ></i>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
                 <!-- prettier-ignore -->
-                <% } %>
-                <%- include('../partials/noResults', {options: locals}); %>
-            </div>
-        </main>
+                <% resources.forEach(function(res, index){ %>
+                <tr class="row-click" data-identifier="<%= res.id %>">
+                    <% formData.forEach(function(field){ %>
+                        <td>
+                            <!-- prettier-ignore -->
+                            <% if(field.columnHeader === 'Period' && res.period){ %>
+                                <%= res.period.start ? searchUtils.formatDate(res.period.start) : '' %>
+                                <%= res.period.start && res.period.end ? 'to' : '' %>
+                                <%= res.period.end ? searchUtils.formatDate(res.period.end) : '' %>
+                            <% } else { %>
+                                <%= searchUtils.fieldValue(res, field.name) %>
+                            <% } %>
+                        </td>
+                    <% }) %>
+                    <td><%= searchUtils.fieldValue(res, 'id') %></td>
+                    <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
+                </tr>
+                <% }) %>
+                </tbody>
+            </table>
+            <!-- prettier-ignore -->
+        <% } %>
+        <%- include('../partials/noResults', {options: locals}); %>
+    </div>
+</main>
 
-        <%- include('../partials/footer', {url: url, meta: meta}) %>
-        <script type="text/javascript" src="/js/searchResults.js"></script>
-    </body>
+<%- include('../partials/footer', {url: url, meta: meta}) %>
+<script type="text/javascript" src="/js/searchResults.js"></script>
+</body>
 </html>

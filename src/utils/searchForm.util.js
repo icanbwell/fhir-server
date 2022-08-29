@@ -199,6 +199,8 @@ const getFieldValue = (res, name) => {
             return res.name ? res.name.map((n) => n.family).join(', ') : '';
         case 'name':
             return res.name ? res.name : '';
+        case 'id':
+            return res.id ? res.id : '';
     }
     return '';
 };
