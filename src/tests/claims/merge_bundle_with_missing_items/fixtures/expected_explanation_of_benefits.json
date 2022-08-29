@@ -162,6 +162,15 @@
       {
         "id": "WPS-Claim-429017018331-1",
         "sequence": 2,
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "revenue": {
           "coding": [
             {
@@ -284,6 +293,15 @@
       {
         "id": "WPS-Claim-429017018331-2",
         "sequence": 2,
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "revenue": {
           "coding": [
             {

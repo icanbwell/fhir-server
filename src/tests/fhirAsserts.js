@@ -208,11 +208,15 @@ function assertMerge(checks) {
                 for (const bodyItemIndex in body) {
                     const bodyItem = body[`${bodyItemIndex}`];
                     const expectedItem = checks[`${bodyItemIndex}`];
-                    expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                    if (expectedItem) {
+                        expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                    }
                 }
             } else {
                 const firstCheck = Array.isArray(checks) ? checks[0] : checks;
-                expect(body).toEqual(expect.objectContaining(firstCheck));
+                if (firstCheck) {
+                    expect(body).toEqual(expect.objectContaining(firstCheck));
+                }
             }
             // assertMergeIsSuccessful(resp.body);
         } catch (e) {
