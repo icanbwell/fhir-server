@@ -58,6 +58,20 @@ describe('Patient UI Tests', () => {
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
             expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+
+
+            // resp = await request
+            //     .get('/4_0_0/Patient/_search')
+            //     .set(getHtmlHeaders())
+            //     .expect(assertStatusOk());
+            //
+            // console.log('------- response Patient sorted ------------');
+            // console.log(JSON.stringify(resp, null, 2));
+            // console.log('------- end response sort ------------');
+            // expect(resp.type).toStrictEqual('text/html');
+            // expect(resp.body).toStrictEqual({});
+            // expect(resp.text).not.toBeNull();
+            // expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
         });
     });
 });
