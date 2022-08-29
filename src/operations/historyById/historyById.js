@@ -197,7 +197,6 @@ class HistoryByIdOperation {
                     originalUrl: url,
                     host,
                     protocol,
-                    last_id: null,
                     resources,
                     base_version,
                     total_count: resources.length,
@@ -205,12 +204,8 @@ class HistoryByIdOperation {
                     originalQuery: {},
                     collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionName(resources[0]) : null,
                     originalOptions: {},
-                    columns: null,
                     stopTime,
                     startTime,
-                    useTwoStepSearchOptimization: false,
-                    indexHint: null,
-                    cursorBatchSize: null,
                     user,
                     useAtlas
                 }
