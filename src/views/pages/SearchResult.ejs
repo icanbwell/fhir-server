@@ -20,9 +20,6 @@
                             ></i>
                         </th>
                     <% }) %>
-                    <th data-field="id">
-                        Id
-                    </th>
                     <th data-field="meta.lastUpdated">
                         Last Updated
                         <i
@@ -47,7 +44,6 @@
                             <% } %>
                         </td>
                     <% }) %>
-                    <td><%= searchUtils.fieldValue(res, 'id') %></td>
                     <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
                 </tr>
                 <% }) %>

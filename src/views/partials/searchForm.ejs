@@ -36,7 +36,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
                             <input
                                     type="text"
                                     id="<%= advSearchFormData[i].name %>"
-                                    name="<%= advSearchFormData[i].name %>:contains"
+                                    name="<%= advSearchFormData[i].name %><%= !(advSearchFormData[i].useExactMatch) ? ':contains' : '' %>"
                                     value="<%= advSearchFormData[i].value %>"
                                     class="form-control form-control-sm clear-allowed"
                                     autocomplete="nope"
@@ -107,7 +107,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
                             id="<%= formData[j].name %>"
                             type="text"
                             class="form-control clear-allowed"
-                            name="<%= formData[j].name %>:contains"
+                            name="<%= formData[j].name %><%= !(formData[j].useExactMatch) ? ':contains' : '' %>"
                             value="<%= formData[j].value %>"
                             placeholder="<%= formData[j].label %>"
                             autocomplete="off"
