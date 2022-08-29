@@ -34,9 +34,10 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * compares two bundles
  * @param {Object} body
  * @param {Object} expected
+ * @param {(Resource) => Resource} [fnCleanResource]
  * @param {Boolean} ignoreMetaTags
  */
-function assertCompareBundles(body, expected, ignoreMetaTags = false) {
+function assertCompareBundles(body, expected, fnCleanResource, ignoreMetaTags = false) {
     // console.log(JSON.stringify(body, null, 2));
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -59,6 +60,9 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
         if (element['resource'] && element['resource']['meta']) {
             delete element['resource']['meta']['lastUpdated'];
         }
+        if (fnCleanResource) {
+            fnCleanResource(element['resource']);
+        }
     });
     delete expected['link'];
 
@@ -78,6 +82,9 @@ function assertCompareBundles(body, expected, ignoreMetaTags = false) {
             delete element['resource']['meta']['lastUpdated'];
         }
         delete element['resource']['$schema'];
+        if (fnCleanResource) {
+            fnCleanResource(element['resource']);
+        }
     });
 
     // now sort the two lists so the comparison is agnostic to order
@@ -134,7 +141,17 @@ function assertStatusCode(expectedStatusCode) {
         try {
             expect(resp.status).toBe(expectedStatusCode);
         } catch (e) {
-            throw new Error(`Status ${expectedStatusCode} != ${resp.status}: ${JSON.stringify(resp.body)}`);
+            assertFail({
+                    source: 'assertStatusCode',
+                    message: `Status Code did not match: ${JSON.stringify(resp.body)}`,
+                    args: {
+                        expected: expectedStatusCode,
+                        actual: resp.status,
+                        responseBody: resp.body
+                    },
+                    error: e
+                }
+            );
         }
     };
 }
@@ -195,7 +212,16 @@ function assertMerge(checks) {
             }
             // assertMergeIsSuccessful(resp.body);
         } catch (e) {
-            throw new Error(`Merge failed: Expected: ${JSON.stringify(checks)}.  Actual: ${JSON.stringify(resp.body)}`);
+            assertFail({
+                    source: 'assertMerge',
+                    message: `Merge failed: Expected: ${JSON.stringify(checks)}.  Actual: ${JSON.stringify(resp.body)}`,
+                    args: {
+                        expected: checks,
+                        actual: resp.body,
+                    },
+                    error: e
+                }
+            );
         }
     };
 }
@@ -203,9 +229,10 @@ function assertMerge(checks) {
 /**
  * Asserts that merge is successfull
  * @param {Object|Object[]} expected
+ * @param {(Resource) => Resource} [fnCleanResource]
  * @return {(function(*): void)|*}
  */
-function assertResponse(expected) {
+function assertResponse(expected, fnCleanResource) {
     return (/** @type {import('http').ServerResponse} */ resp) => {
         if (Array.isArray(resp.body) && !Array.isArray(expected)) {
             expected = [expected];
@@ -223,7 +250,7 @@ function assertResponse(expected) {
                     })
                 };
             }
-            assertCompareBundles(resp.body, expected);
+            assertCompareBundles(resp.body, expected, fnCleanResource);
             return;
         } else {
             if (Array.isArray(resp.body)) {

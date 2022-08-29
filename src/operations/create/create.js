@@ -1,5 +1,5 @@
 const {logDebug} = require('../common/logging');
-const {getUuid} = require('../../utils/uid.util');
+const {generateUUID} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
@@ -121,7 +121,7 @@ class CreateOperation {
 
         let {base_version} = args;
 
-        const uuid = resource_incoming.id || getUuid(resource_incoming);
+        const uuid = generateUUID();
 
         if (env.LOG_ALL_SAVES) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -198,7 +198,7 @@ class CreateOperation {
             /**
              * @type {string}
              */
-            let id = resource_incoming.id || getUuid(resource);
+            let id = uuid;
 
             // Create the resource's metadata
             /**
