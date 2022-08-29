@@ -17,7 +17,7 @@ class BundleManager {
      * @param {string | null} originalUrl
      * @param {string | null} host
      * @param {string | null} protocol
-     * @param {string | null} last_id
+     * @param {string | null} [last_id]
      * @param {Resource[]} resources
      * @param {string} base_version
      * @param {number|null} total_count

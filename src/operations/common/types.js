@@ -16,13 +16,31 @@
  * @property {Object} _access
  */
 
-// from https://www.hl7.org/fhir/operationoutcome.html
+/**
+ * @typedef Coding
+ * @description from https://www.hl7.org/fhir/operationoutcome.html
+ * @type {object}
+ * @property {string} [system]
+ * @property {string} [code]
+ * @property {string} [version]
+ * @property {string} [display]
+ */
+
+/**
+ * @typedef CodeableConcept
+ * @description from https://www.hl7.org/fhir/datatypes.html#CodeableConcept
+ * @type {object}
+ * @property {Coding[]} [coding]
+ * @property {string} [text]
+ */
+
 /**
  * @typedef OperationOutcomeIssue
+ * @description from https://www.hl7.org/fhir/operationoutcome.html
  * @type {object}
  * @property {string} severity
  * @property {string} code
- * @property {{text: string}} details
+ * @property {CodeableConcept} [details]
  * @property {string|undefined} [diagnostics]
  * @property {string[]|undefined} [expression]
  */

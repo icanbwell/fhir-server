@@ -377,7 +377,7 @@ class MergeOperation {
              * @type {number}
              */
             const stopTime = Date.now();
-            if (headers.Prefer && headers.Prefer === 'return=OperationOutcome') {
+            if (headers.prefer && headers.prefer === 'return=OperationOutcome') {
                 // https://hl7.org/fhir/http.html#ops
                 // Client is requesting the result as OperationOutcome
                 // Create a bundle of OperationOutcomes
@@ -389,32 +389,37 @@ class MergeOperation {
                         return m.issue ? {
                             id: m.id,
                             resourceType: m.resourceType,
+                            issue: m.issue
+                        } : {
+                            id: m.id,
+                            resourceType: m.resourceType,
                             issue: [
                                 {
                                     severity: 'information',
                                     code: 'informational',
                                     details: {
-                                        text: 'OK'
+                                        coding: [
+                                            {
+                                                // https://hl7.org/fhir/http.html#update
+                                                // The server SHALL return either a 200 OK HTTP status code if the
+                                                // resource was updated, or a 201 Created status code if the
+                                                // resource was created
+                                                system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                                code: m.created ? '201' : m.updated ? '200' : '304',
+                                                display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                            }
+                                        ]
                                     },
                                     expression: [
                                         `${m.resourceType}/${m.id}`
                                     ]
                                 }
                             ]
-                        } : {
-                            id: m.id,
-                            resourceType: m.resourceType,
-                            issue: m.issue
                         };
                     }
                 );
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
                 const firstCollectionNameForQuery = resourceLocator.getFirstCollectionNameForQuery();
-                /**
-                 * id of last resource in the list
-                 * @type {string|null}
-                 */
-                const last_id = operationOutcomes.length > 0 ? operationOutcomes[operationOutcomes.length - 1].id : null;
                 // noinspection JSValidateTypes
                 /**
                  * @type {Resource[]}
@@ -426,7 +431,6 @@ class MergeOperation {
                         originalUrl: url,
                         host,
                         protocol,
-                        last_id,
                         resources: resources,
                         base_version,
                         total_count: operationOutcomes.length,

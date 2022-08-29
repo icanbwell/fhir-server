@@ -310,6 +310,16 @@ module.exports.getHtmlHeaders = (scope) => {
     };
 };
 
+module.exports.getHeadersPreferOperationOutcome = (scope) => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        'Accept': 'application/fhir+json',
+        'Authorization': `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        'Host': 'localhost:3000',
+        'Prefer': 'return=OperationOutcome'
+    };
+};
+
 /**
  * wraps a single resource into a bundle
  * @param {Object} resource
