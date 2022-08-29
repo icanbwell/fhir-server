@@ -61,7 +61,7 @@ function assertIsValid(obj, message) {
  * @param {string} source
  * @param {string} message
  * @param {Object} args
- * @param {Error|null} error
+ * @param {Error|undefined} [error]
  */
 function assertFail({source, message, args, error}) {
     /**

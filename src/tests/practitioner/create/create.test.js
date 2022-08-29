@@ -39,7 +39,7 @@ describe('Practitioner Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             await request
-                .get('/4_0_0/Practitioner/?_bundle=1')
+                .get('/4_0_0/Practitioner/?_bundle=1&sort=')
                 .set(getHeaders())
                 .expect(assertResponse({
                             expected: expectedPractitionerResources,

@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "active": true,
+        "active": false,
         "communication": [
           {
             "coding": [
@@ -14,7 +14,6 @@
           }
         ],
         "gender": "unknown",
-        "id": "64e65f9a-b660-4652-b391-8a65f87e8540",
         "identifier": [
           {
             "system": "http://medstarhealth.org",
@@ -103,7 +102,7 @@
     },
     {
       "resource": {
-        "active": false,
+        "active": true,
         "communication": [
           {
             "coding": [
@@ -115,7 +114,6 @@
           }
         ],
         "gender": "unknown",
-        "id": "8e611fbf-909e-4417-b05d-f28a30026242",
         "identifier": [
           {
             "system": "http://medstarhealth.org",

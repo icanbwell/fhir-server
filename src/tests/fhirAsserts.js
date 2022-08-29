@@ -1,5 +1,6 @@
 const {expect} = require('@jest/globals');
 const {assertFail} = require('../utils/assertType');
+const {validateResource} = require('../utils/validator.util');
 
 /**
  * confirms that object was created
@@ -263,6 +264,21 @@ function assertResponse({expected, fnCleanResource}) {
             } else {
                 if ('meta' in resp.body) {
                     delete resp.body['meta']['lastUpdated'];
+                }
+                if (resp.body.resourceType) {
+                    const operationOutcome = validateResource(resp.body, resp.body.resourceType, '');
+                    if (operationOutcome && operationOutcome.statusCode === 400) {
+                        assertFail({
+                            source: 'assertResponse',
+                            message: 'FHIR validation failed',
+                            args: {
+                                resourceType: resp.body.resourceType,
+                                resource: resp.body,
+                                operationOutcome: operationOutcome
+                            }
+                        });
+                    }
+
                 }
             }
             if (Array.isArray(expected)) {
