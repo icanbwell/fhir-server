@@ -56,7 +56,7 @@ class ValueSetManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean|null} useAtlas
-     * @param {{valueSet:string[],system:string,version:string,concept:{code:string,display:string}[] }} include
+     * @param {{valueSet:string[],system:string,version:string,concept:Coding[] }} include
      * @return {Promise<{system, code, display, version: string}[]>}
      */
     async getIncludeAsync(resourceType, base_version, useAtlas, include) {

@@ -1,24 +1,6 @@
 /**
- * @typedef Meta
- * @type {object}
- * @property {string} versionId - an ID.
- * @property {Date} lastUpdated
- * @property {string} source
- * @property {{system: string, code: string, display: string}[]} tag
- */
-
-/**
- * @typedef Resource
- * @type {object}
- * @property {string} id - an ID.
- * @property {Meta} meta
- * @property {string} resourceType
- * @property {Object} _access
- */
-
-/**
  * @typedef Coding
- * @description from https://www.hl7.org/fhir/operationoutcome.html
+ * @description https://www.hl7.org/fhir/datatypes.html#Coding
  * @type {object}
  * @property {string} [system]
  * @property {string} [code]
@@ -32,6 +14,26 @@
  * @type {object}
  * @property {Coding[]} [coding]
  * @property {string} [text]
+ */
+
+/**
+ * @typedef Meta
+ * @type {object}
+ * @description https://www.hl7.org/fhir/resource.html#Meta
+ * @property {string} [versionId] - an ID.
+ * @property {Date} [lastUpdated]
+ * @property {string} [source]
+ * @property {Coding[]} [tag]
+ * @property {Coding[]} [security]
+ */
+
+/**
+ * @typedef Resource
+ * @type {object}
+ * @property {string} [id] - an ID.
+ * @property {Meta} [meta]
+ * @property {string} resourceType
+ * @property {Object} _access
  */
 
 /**
