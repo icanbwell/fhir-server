@@ -94,6 +94,7 @@ class CreateOperation {
      * @param {Object} args
      * @param {string} path
      * @param {string} resourceType
+     * @returns {Resource}
      */
     async create(requestInfo, args, path, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -264,7 +265,6 @@ class CreateOperation {
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {resourceType, base_version, useAtlas}
             ).insertOneAsync({doc: history_doc});
-            const result = {id: doc.id, resource_version: doc.meta.versionId};
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -272,12 +272,12 @@ class CreateOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(result)
+                    result: JSON.stringify(doc)
                 });
             await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
-            return result;
+            return doc;
         } catch (/** @type {Error} */ e) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('errors',

@@ -283,6 +283,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Resource}
      */
     async create(args, {req}, resourceType) {
         /**

@@ -143,7 +143,7 @@ function assertStatusCode(expectedStatusCode) {
         } catch (e) {
             assertFail({
                     source: 'assertStatusCode',
-                    message: `Status Code did not match: ${JSON.stringify(resp.body)}`,
+                    message: `Status Code did not match: ${JSON.stringify(resp)}`,
                     args: {
                         expected: expectedStatusCode,
                         actual: resp.status,

@@ -22,20 +22,26 @@ describe('Practitioner Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            await request
+            const resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders())
                 .expect(assertStatusCode(201));
 
+            // get generated id from response
+            const location = resp.headers['content-location'];
+            const id = location.split('/').splice(5, 1)[0];
+
+            practitioner1Resource['id'] = id;
             practitioner1Resource['active'] = false;
 
             await request
-                .put('/4_0_0/Practitioner/1679033641')
+                .put(`/4_0_0/Practitioner/${id}`)
                 .send(practitioner1Resource)
                 .set(getHeaders())
                 .expect(assertStatusOk());
 
+            expectedPractitionerResources.entry[0].resource.id = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             await request

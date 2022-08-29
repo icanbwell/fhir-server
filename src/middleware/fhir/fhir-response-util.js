@@ -1,4 +1,5 @@
 const path = require('path');
+
 // const assert = require('node:assert/strict');
 
 /**
@@ -74,6 +75,7 @@ function create(req, res, json, options) {
     let fhirVersion = req.params.base_version ? req.params.base_version : '';
     let baseUrl = `${req.protocol}://${req.get('host')}`;
 
+    // https://hl7.org/fhir/http.html#create
     let location;
     if (fhirVersion === '') {
         location = `${options.type}/${json.id}`;
@@ -81,16 +83,21 @@ function create(req, res, json, options) {
         location = `${fhirVersion}/${options.type}/${json.id}`;
     }
 
-    if (json.resource_version) {
-        let pathname = path.posix.join(location, '_history', json.resource_version);
+    if (json.meta.versionId) {
+        let pathname = path.posix.join(location, '_history', json.meta.versionId);
         res.set('Content-Location', `${baseUrl}/${pathname}`);
-        res.set('ETag', json.resource_version);
+        res.set('ETag', json.meta.versionId);
     }
     if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.set('Location', location);
-    res.status(201).end();
+    // https://hl7.org/fhir/http.html#ops
+    if (req.headers.prefer && req.headers.prefer === 'return=representation') {
+        res.status(201).json(json).end();
+    } else {
+        res.status(201).end();
+    }
 }
 
 /**

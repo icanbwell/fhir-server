@@ -155,13 +155,16 @@ class GenericController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
+                /**
+                 * @type {Resource}
+                 */
                 const json = await this.fhirOperationsManager.create(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType
                 );
-                handler.create(req, res, json, {});
+                handler.create(req, res, json, { type: resourceType});
             } catch (e) {
                 next(e);
             } finally {
