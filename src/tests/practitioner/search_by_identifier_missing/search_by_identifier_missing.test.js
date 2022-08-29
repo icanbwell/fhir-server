@@ -44,13 +44,17 @@ describe('Practitioner Tests', () => {
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier:missing=false')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerIdentifierMissingFalse);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPractitionerIdentifierMissingFalse
+            });
 
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier:missing=true')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerIdentifierMissingTrue);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPractitionerIdentifierMissingTrue
+            });
         });
     });
 });

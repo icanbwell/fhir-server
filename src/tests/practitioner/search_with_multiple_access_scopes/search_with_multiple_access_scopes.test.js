@@ -52,14 +52,18 @@ describe('Practitioner Tests', () => {
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders('user/Practitioner.read access/medstar.* access/nppes.*'))
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerWithLimitedAccessScopes);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPractitionerWithLimitedAccessScopes
+            });
 
             // now search by full access token and make sure we get all three back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerWithUnlimitedAccessScopes);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPractitionerWithUnlimitedAccessScopes
+            });
         });
     });
 });

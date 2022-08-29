@@ -45,7 +45,10 @@ describe('ValueSet Tests', () => {
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
-            assertCompareBundles(wrapResourceInBundle(resp.body), expectedValueSetResources);
+            assertCompareBundles({
+                body: wrapResourceInBundle(resp.body),
+                expected: expectedValueSetResources
+            });
 
             // ACT & ASSERT
             resp = await request
@@ -57,7 +60,9 @@ describe('ValueSet Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
             // clear out the lastUpdated column since that changes
-            assertCompareBundles(wrapResourceInBundle(resp.body), expectedValueSetExpandResources);
+            assertCompareBundles({
+                body: wrapResourceInBundle(resp.body), expected: expectedValueSetExpandResources
+            });
         });
     });
 });

@@ -53,7 +53,9 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(resp.body, expectedHistorySinglePatient);
+            assertCompareBundles({
+                body: resp.body, expected: expectedHistorySinglePatient
+            });
 
             // now merge the same patient.  There should be no additional history record created
             resp = await request
@@ -70,7 +72,10 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(resp.body, expectedHistorySinglePatient);
+            assertCompareBundles(
+                {
+                    body: resp.body, expected: expectedHistorySinglePatient
+                });
 
             // now merge the modified patient.  There should be an additional history record created
             patient1Resource.birthDate = '2015-01-01';
@@ -88,7 +93,9 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(resp.body, expectedHistorySinglePatientMultipleChanges);
+            assertCompareBundles({
+                body: resp.body, expected: expectedHistorySinglePatientMultipleChanges
+            });
         });
     });
 });

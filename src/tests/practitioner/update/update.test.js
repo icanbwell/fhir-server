@@ -47,7 +47,7 @@ describe('Practitioner Tests', () => {
             await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
-                .expect(assertResponse(expectedPractitionerResources));
+                .expect(assertResponse({expected: expectedPractitionerResources}));
         });
     });
 });

@@ -37,7 +37,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @param {Boolean} ignoreMetaTags
  */
-function assertCompareBundles(body, expected, fnCleanResource, ignoreMetaTags = false) {
+function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
     // console.log(JSON.stringify(body, null, 2));
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -232,7 +232,7 @@ function assertMerge(checks) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @return {(function(*): void)|*}
  */
-function assertResponse(expected, fnCleanResource) {
+function assertResponse({expected, fnCleanResource}) {
     return (/** @type {import('http').ServerResponse} */ resp) => {
         if (Array.isArray(resp.body) && !Array.isArray(expected)) {
             expected = [expected];
@@ -250,7 +250,7 @@ function assertResponse(expected, fnCleanResource) {
                     })
                 };
             }
-            assertCompareBundles(resp.body, expected, fnCleanResource);
+            assertCompareBundles({body: resp.body, expected, fnCleanResource});
             return;
         } else {
             if (Array.isArray(resp.body)) {

@@ -51,7 +51,9 @@ describe('Medication Tests', () => {
                 .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedMedicationResources);
+            assertCompareBundles({
+                body: resp.body, expected: expectedMedicationResources
+            });
         });
     });
 });

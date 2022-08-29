@@ -87,7 +87,9 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.statusCode).toStrictEqual(200);
             let body = resp.body;
-            assertCompareBundles(body, expectedResource);
+            assertCompareBundles({
+                body: body, expected: expectedResource
+            });
 
             resp = await request
                 .post('/4_0_0/Organization/$graph?contained=true&id=Medstar-Alias-MPF-MPCR&_hash_references=true')
@@ -99,7 +101,10 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             body = resp.body;
-            assertCompareBundles(body, expectedHashReferencesResource);
+            assertCompareBundles({
+                body,
+                expected: expectedHashReferencesResource
+            });
         });
     });
 });

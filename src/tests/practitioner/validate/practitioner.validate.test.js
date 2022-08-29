@@ -34,7 +34,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse(expectedValidPractitionerResponse));
+                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
         });
         test('Valid resource with resource parameter', async () => {
             const request = await createTestRequest();
@@ -57,7 +57,7 @@ describe('Practitioner Update Tests', () => {
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse(expectedValidPractitionerResponse));
+                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
         });
         test('Valid resource but no security code', async () => {
             const request = await createTestRequest();
@@ -72,7 +72,9 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerNoSecurityCodeResource)
                 .set(getHeaders())
                 .expect(200)
-                .expect(assertResponse(expectedValidPractitionerNoSecurityCodeResponse));
+                .expect(assertResponse({
+                    expected: expectedValidPractitionerNoSecurityCodeResponse
+                }));
         });
         test('Invalid resource', async () => {
             const request = await createTestRequest();
@@ -87,7 +89,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse(expectedInvalidPractitionerResponse));
+                .expect(assertResponse({expected: expectedInvalidPractitionerResponse}));
         });
         test('Invalid resource with resource parameter', async () => {
             const request = await createTestRequest();
@@ -109,7 +111,7 @@ describe('Practitioner Update Tests', () => {
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse(expectedInvalidPractitionerNoParametersResponse));
+                .expect(assertResponse({expected: expectedInvalidPractitionerNoParametersResponse}));
         });
     });
 });

@@ -116,7 +116,9 @@ describe('Person Tests', () => {
                 .get('/4_0_0/Person?name=singhal&_bundle=1&')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPersonResources);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPersonResources
+            });
         });
     });
 });

@@ -41,9 +41,12 @@ describe('Practitioner Tests', () => {
             await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
-                .expect(assertResponse(expectedPractitionerResources, (r) => {
-                            delete r['id'];
-                            return r;
+                .expect(assertResponse({
+                            expected: expectedPractitionerResources,
+                            fnCleanResource: (r) => {
+                                delete r['id'];
+                                return r;
+                            }
                         }
                     )
                 );

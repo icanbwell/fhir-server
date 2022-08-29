@@ -70,14 +70,14 @@ describe('Practitioner Graph Contained Tests', () => {
                 .send(graphDefinitionResource)
                 .set(getHeaders())
                 .expect(assertStatusOk())
-                .expect(assertResponse(expectedResource));
+                .expect(assertResponse({expected: expectedResource}));
 
             const resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders())
                 .expect(assertStatusOk())
-                .expect(assertResponse(expectedHashReferencesResource));
+                .expect(assertResponse({expected: expectedHashReferencesResource}));
 
             const body = resp.body;
             const expected = expectedHashReferencesResource;
@@ -89,7 +89,7 @@ describe('Practitioner Graph Contained Tests', () => {
                 body.entry.map(e => e.resource)
             );
             expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-            assertCompareBundles(body, expected);
+            assertCompareBundles({body: body, expected});
         });
         test('Graph contained works properly with parameters', async () => {
             const request = await createTestRequest();
@@ -137,14 +137,14 @@ describe('Practitioner Graph Contained Tests', () => {
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusOk())
-                .expect(assertResponse(expectedResource));
+                .expect(assertResponse({expected: expectedResource}));
 
             const resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true')
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusOk())
-                .expect(assertResponse(expectedHashReferencesResource));
+                .expect(assertResponse({expected: expectedHashReferencesResource}));
 
             const body = resp.body;
             const expected = expectedHashReferencesResource;
@@ -156,7 +156,7 @@ describe('Practitioner Graph Contained Tests', () => {
                 body.entry.map(e => e.resource)
             );
             expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-            assertCompareBundles(body, expected);
+            assertCompareBundles({body, expected});
         });
     });
 });

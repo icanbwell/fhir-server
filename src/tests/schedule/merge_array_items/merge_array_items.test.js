@@ -43,7 +43,9 @@ describe('Schedule Tests', () => {
                 .get('/4_0_0/Schedule/?_bundle=1')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedScheduleResources);
+            assertCompareBundles({
+                body: resp.body, expected: expectedScheduleResources
+            });
         });
     });
 });

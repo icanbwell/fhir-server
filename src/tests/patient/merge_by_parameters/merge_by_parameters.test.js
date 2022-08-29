@@ -52,7 +52,7 @@ describe('Merge By Parameters Tests', () => {
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHeaders())
                 .expect(200)
-                .expect(assertResponse(expectedSinglePatientResource));
+                .expect(assertResponse({expected: expectedSinglePatientResource}));
         });
     });
 });

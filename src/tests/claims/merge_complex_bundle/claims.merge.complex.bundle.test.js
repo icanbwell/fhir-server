@@ -2,7 +2,13 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 const expectedExplanationOfBenefitOperationOutcomeBundleResource = require('./fixtures/expected_explanation_of_benefits_operation_outcome_bundle.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersPreferOperationOutcome} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getHeadersPreferOperationOutcome
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {assertResourceCount, assertMerge, assertResponse} = require('../../fhirAsserts');
 
@@ -33,7 +39,7 @@ describe('Claim Merge Tests', () => {
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
                 .expect(assertResourceCount(1))
-                .expect(assertResponse(expectedExplanationOfBenefitBundleResource));
+                .expect(assertResponse({expected: expectedExplanationOfBenefitBundleResource}));
         });
         test('Complex Claims with merge properly (with Prefer header)', async () => {
             const request = await createTestRequest();
@@ -46,13 +52,17 @@ describe('Claim Merge Tests', () => {
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeadersPreferOperationOutcome())
-                .expect(assertResponse(expectedExplanationOfBenefitOperationOutcomeBundleResource));
+                .expect(assertResponse({
+                    expected: expectedExplanationOfBenefitOperationOutcomeBundleResource
+                }));
 
             await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
                 .expect(assertResourceCount(1))
-                .expect(assertResponse(expectedExplanationOfBenefitBundleResource));
+                .expect(assertResponse({
+                    expected: expectedExplanationOfBenefitBundleResource
+                }));
         });
     });
 });
