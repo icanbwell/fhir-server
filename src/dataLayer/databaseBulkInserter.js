@@ -150,6 +150,15 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             );
         }
+        if (doc._id) {
+            this.errorReporter.reportErrorAsync({
+                source: 'DatabaseBulkInserter.insertOneAsync',
+                message: '_id still present',
+                args: {
+                    doc: doc
+                }
+            });
+        }
         // else insert it
         await logVerboseAsync({
             source: 'DatabaseBulkInserter.insertOneAsync',
@@ -490,6 +499,16 @@ class DatabaseBulkInserter extends EventEmitter {
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
+                if (resource._id) {
+                    this.errorReporter.reportErrorAsync({
+                        source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                        message: '_id still present',
+                        args: {
+                            doc: resource
+                        }
+                    });
+                }
+
                 operationsByCollectionNames.get(collectionName).push(operation);
             }
 
