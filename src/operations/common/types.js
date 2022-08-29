@@ -1,7 +1,7 @@
 /**
  * @typedef Coding
  * @description https://www.hl7.org/fhir/datatypes.html#Coding
- * @type {object}
+ * @type {Object}
  * @property {string} [system]
  * @property {string} [code]
  * @property {string} [version]
@@ -11,14 +11,14 @@
 /**
  * @typedef CodeableConcept
  * @description from https://www.hl7.org/fhir/datatypes.html#CodeableConcept
- * @type {object}
+ * @type {Object}
  * @property {Coding[]} [coding]
  * @property {string} [text]
  */
 
 /**
  * @typedef Meta
- * @type {object}
+ * @type {Object}
  * @description https://www.hl7.org/fhir/resource.html#Meta
  * @property {string} [versionId] - an ID.
  * @property {Date} [lastUpdated]
@@ -29,7 +29,7 @@
 
 /**
  * @typedef Resource
- * @type {object}
+ * @type {Object}
  * @property {string} [id] - an ID.
  * @property {Meta} [meta]
  * @property {string} resourceType
@@ -39,7 +39,7 @@
 /**
  * @typedef OperationOutcomeIssue
  * @description from https://www.hl7.org/fhir/operationoutcome.html
- * @type {object}
+ * @type {Object}
  * @property {string} severity
  * @property {string} code
  * @property {CodeableConcept} [details]
@@ -49,7 +49,7 @@
 
 /**
  * @typedef OperationOutcome
- * @type {object}
+ * @type {Object}
  * @property {string} [id]
  * @property {string} resourceType
  * @property {OperationOutcomeIssue[]} issue
@@ -58,7 +58,7 @@
 
 /**
  * @typedef SearchParameterDefinition
- * @type {object}
+ * @type {Object}
  * @property {string | null} field
  * @property {string[] | null} fields
  * @property {string | null} fieldFilter
@@ -69,7 +69,7 @@
 
 /**
  * @typedef MergeResultEntry
- * @type {object}
+ * @type {Object}
  * @property {OperationOutcome|null|undefined} operationOutcome
  * @property {OperationOutcomeIssue|null|undefined} issue
  * @property {boolean} created
@@ -80,7 +80,7 @@
 
 /**
  * @typedef GraphQLContext
- * @type {object}
+ * @type {Object}
  * @property {import('http').IncomingMessage} req
  * @property {import('http').ServerResponse} res
  * @property {FhirRequestInfo} fhirRequestInfo
@@ -90,7 +90,7 @@
 /**
  * @typedef BundleEntry
  * @description https://www.hl7.org/fhir/bundle.html
- * @type {object}
+ * @type {Object}
  * @property {Resource} resource
  * @property {string} [fullUrl]
  */
@@ -99,7 +99,7 @@
 /**
  * @typedef Bundle
  * @description https://www.hl7.org/fhir/bundle.html
- * @type {object}
+ * @type {Object}
  * @extends Resource
  * @property {string} [id] - an ID.
  * @property {string} type

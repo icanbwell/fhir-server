@@ -15,7 +15,7 @@ const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {omitProperty} = require('../../utils/omitProperties');
+const {omitPropertyFromResource} = require('../../utils/omitProperties');
 
 class PatchOperation {
     /**
@@ -155,7 +155,7 @@ class PatchOperation {
             // Insert/update our resource record
             let res;
             try {
-                doc = omitProperty(doc, '_id');
+                doc = omitPropertyFromResource(doc, '_id');
                 res = await this.databaseQueryFactory.createQuery(
                     {resourceType, base_version, useAtlas}
                 ).findOneAndUpdateAsync({

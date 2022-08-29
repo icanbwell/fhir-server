@@ -13,6 +13,22 @@ function omitProperty(obj, omitKey) {
     }, {});
 }
 
+/**
+ * gets all properties from obj EXCEPT for omitKey property
+ * @param {Resource} obj
+ * @param {string} omitKey
+ * @return {Resource}
+ */
+function omitPropertyFromResource(obj, omitKey) {
+    // noinspection JSValidateTypes
+    /**
+     * @type {Resource}
+     */
+    const result = omitProperty(obj, omitKey);
+    return result;
+}
+
 module.exports = {
-    omitProperty
+    omitProperty,
+    omitPropertyFromResource
 };
