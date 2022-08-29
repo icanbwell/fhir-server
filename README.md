@@ -72,7 +72,7 @@ The FHIR server implements OAuth.  You can set these environment variables:
 4. REDIRECT_TO_LOGIN: whether to redirect a GET call from a web browser to the OAuth Provider login page
 
 ## Change Events
-The FHIR server can optionally send change events to a Kafka queue. 
+The FHIR server can optionally send change events to a Kafka queue: 
 [Change Events](changeEvents.md)
 
 
