@@ -202,6 +202,9 @@ function assertMerge(checks) {
             expect(resp.status).toBe(200);
             const body = resp.body;
             if (Array.isArray(body)) {
+                if (!Array.isArray(checks)) {
+                    checks = [checks];
+                }
                 for (const bodyItemIndex in body) {
                     const bodyItem = body[`${bodyItemIndex}`];
                     const expectedItem = checks[`${bodyItemIndex}`];
