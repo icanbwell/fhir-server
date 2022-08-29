@@ -33,7 +33,7 @@ class BundleManager {
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
      * @param {boolean | null} useAtlas
-     * @return {Resource}
+     * @return {Bundle}
      */
     createBundle(
         {
@@ -101,14 +101,14 @@ class BundleManager {
          */
         const Bundle = getResource(base_version, 'bundle');
         /**
-         * @type {{resource: Resource}[]}
+         * @type {BundleEntry[]}
          */
         const entries = resources.map((resource) => {
             return {resource: resource};
         });
         // noinspection JSValidateTypes
         /**
-         * @type {Resource}
+         * @type {Bundle}
          */
         const bundle = new Bundle({
             type: type,

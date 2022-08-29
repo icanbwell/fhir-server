@@ -100,6 +100,7 @@
  * @typedef Bundle
  * @description https://www.hl7.org/fhir/bundle.html
  * @type {object}
+ * @extends Resource
  * @property {string} [id] - an ID.
  * @property {string} type
  * @property {Meta} [meta]

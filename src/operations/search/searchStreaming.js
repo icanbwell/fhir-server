@@ -296,7 +296,7 @@ class SearchStreamingOperation {
                          * bundle
                          * @param {string|null} last_id
                          * @param {number} stopTime1
-                         * @return {{entry: {resource: Resource}[]}}
+                         * @return {Bundle}
                          */
                         const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
                             {
@@ -380,7 +380,7 @@ class SearchStreamingOperation {
                          */
                         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                         /**
-                         * @type {{entry: {resource: Resource}[]}}
+                         * @type {Bundle}
                          */
                         const bundle = this.bundleManager.createBundle(
                             {
