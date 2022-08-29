@@ -469,7 +469,11 @@ class DatabaseBulkInserter extends EventEmitter {
             /**
              * @type {ResourceLocator}
              */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {
+                    resourceType, base_version, useAtlas
+                }
+            );
             for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
                 // noinspection JSValidateTypes
                 /**

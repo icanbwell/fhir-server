@@ -178,7 +178,8 @@ class HistoryByIdOperation {
             /**
              * @type {ResourceLocator}
              */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {resourceType, base_version, useAtlas});
             // https://hl7.org/fhir/http.html#history
             // The return content is a Bundle with type set to history containing the specified version history,
             // sorted with oldest versions last, and including deleted resources.

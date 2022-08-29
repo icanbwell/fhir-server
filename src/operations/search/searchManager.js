@@ -327,7 +327,7 @@ class SearchManager {
         if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
             // TODO: handle index hints for multiple collections
             const collectionNamesForQueryForResourceType = this.resourceLocatorFactory.createResourceLocator(
-                resourceType, base_version, useAtlas)
+                {resourceType, base_version, useAtlas})
                 .getCollectionNamesForQuery();
             const __ret = this.setIndexHint(
                 {

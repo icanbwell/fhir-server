@@ -196,7 +196,8 @@ class SearchStreamingOperation {
         /**
          * @type {ResourceLocator}
          */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+            {resourceType, base_version, useAtlas});
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(

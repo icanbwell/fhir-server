@@ -24,8 +24,12 @@ class ResourceLocatorFactory {
      * @param {boolean|null} useAtlas
      * @return {ResourceLocator}
      */
-    createResourceLocator(resourceType, base_version, useAtlas) {
-        return new ResourceLocator(this.collectionManager, resourceType, base_version, useAtlas);
+    createResourceLocator({resourceType, base_version, useAtlas}) {
+        return new ResourceLocator(
+            {
+                collectionManager: this.collectionManager, resourceType, base_version, useAtlas
+            }
+        );
     }
 }
 

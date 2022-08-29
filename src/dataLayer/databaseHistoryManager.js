@@ -44,8 +44,13 @@ class DatabaseHistoryManager {
         /**
          * @type {ResourceLocator}
          */
-        this.resourceLocator = this.resourceLocatorFactory.createResourceLocator(this._resourceType,
-            this._base_version, this._useAtlas);
+        this.resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+            {
+                resourceType: this._resourceType,
+                base_version: this._base_version,
+                useAtlas: this._useAtlas
+            }
+        );
     }
 
     /**

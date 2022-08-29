@@ -418,7 +418,8 @@ class MergeOperation {
                         };
                     }
                 );
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                    {resourceType, base_version, useAtlas});
                 const firstCollectionNameForQuery = resourceLocator.getFirstCollectionNameForQuery();
                 // noinspection JSValidateTypes
                 /**

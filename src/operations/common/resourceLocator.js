@@ -14,7 +14,7 @@ class ResourceLocator {
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      */
-    constructor(collectionManager, resourceType, base_version, useAtlas) {
+    constructor({collectionManager, resourceType, base_version, useAtlas}) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(collectionManager, MongoCollectionManager);
