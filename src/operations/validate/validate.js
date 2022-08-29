@@ -46,12 +46,13 @@ class ValidateOperation {
          */
         let {base_version} = args;
 
+        // Note: no auth check needed to call validate
+
         // We accept the resource in the two forms allowed in FHIR:
         // https://www.hl7.org/fhir/resource-operation-validate.html
         // 1. Resource is sent in the body
         // 2. Resource is sent inside a Parameters resource in the body
 
-        // Note: no auth check needed to call validate
         /**
          * @type {Object|null}
          */

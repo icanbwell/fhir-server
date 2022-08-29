@@ -10,6 +10,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {getFirstElementOrNull} = require('../../utils/list.util');
 
 class GraphOperation {
     /**
@@ -90,8 +91,33 @@ class GraphOperation {
              */
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-            // get GraphDefinition from body
-            const graphDefinitionRaw = body;
+            // We accept the resource in the two forms allowed in FHIR:
+            // https://www.hl7.org/fhir/resource-operation-validate.html
+            // 1. Resource is sent in the body
+            // 2. Resource is sent inside a Parameters resource in the body
+
+            /**
+             * @type {Object|null}
+             */
+            let graphDefinitionRaw = args.resource ? args.resource : body;
+
+            // check if this is a Parameters resourceType
+            if (graphDefinitionRaw.resourceType === 'Parameters') {
+                // Unfortunately our FHIR schema resource creator does not support Parameters
+                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
+                // const parametersResource = new ParametersResourceCreator(resource_incoming);
+                const parametersResource = graphDefinitionRaw;
+                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                }
+                // find the actual resource in the parameter called resource
+                const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
+                if (!resourceParameter || !resourceParameter.resource) {
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                }
+                graphDefinitionRaw = resourceParameter.resource;
+            }
+
             const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);

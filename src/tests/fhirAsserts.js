@@ -37,7 +37,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {Boolean} ignoreMetaTags
  */
 function assertCompareBundles(body, expected, ignoreMetaTags = false) {
-    console.log(JSON.stringify(body, null, 2));
+    // console.log(JSON.stringify(body, null, 2));
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];
@@ -140,6 +140,14 @@ function assertStatusCode(expectedStatusCode) {
 }
 
 /**
+ * Asserts that response has OK status
+ * @return {(function(*): void)|*}
+ */
+function assertStatusOk() {
+    return assertStatusCode(200);
+}
+
+/**
  * Asserts that count of resources in the response matches
  * @param {number} count
  * @return {(function(*): void)|*}
@@ -205,28 +213,42 @@ function assertResponse(expected) {
         if (!Array.isArray(resp.body) && Array.isArray(expected)) {
             expected = expected[0];
         }
-        if (Array.isArray(resp.body)) {
-            resp.body.forEach(element => {
-                // clean out stuff that changes
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-            });
-        } else {
-            if ('meta' in resp.body) {
-                delete resp.body['meta']['lastUpdated'];
+        if (!Array.isArray(resp.body) && resp.body.resourceType === 'Bundle') {
+            if (Array.isArray(expected)) { // make into a bundle if it is not
+                expected = {
+                    resourceType: 'Bundle',
+                    type: 'searchset',
+                    entry: expected.map(e => {
+                        return {resource: e};
+                    })
+                };
             }
-        }
-        if (Array.isArray(expected)) {
-            expected.forEach(element => {
-                // clean out stuff that changes
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-            });
+            assertCompareBundles(resp.body, expected);
+            return;
         } else {
-            if ('meta' in expected) {
-                delete expected['meta']['lastUpdated'];
+            if (Array.isArray(resp.body)) {
+                resp.body.forEach(element => {
+                    // clean out stuff that changes
+                    if ('meta' in element) {
+                        delete element['meta']['lastUpdated'];
+                    }
+                });
+            } else {
+                if ('meta' in resp.body) {
+                    delete resp.body['meta']['lastUpdated'];
+                }
+            }
+            if (Array.isArray(expected)) {
+                expected.forEach(element => {
+                    // clean out stuff that changes
+                    if ('meta' in element) {
+                        delete element['meta']['lastUpdated'];
+                    }
+                });
+            } else {
+                if ('meta' in expected) {
+                    delete expected['meta']['lastUpdated'];
+                }
             }
         }
         expect(resp.body).toStrictEqual(expected);
@@ -240,5 +262,6 @@ module.exports = {
     assertStatusCode,
     assertResourceCount,
     assertResponse,
-    assertMerge
+    assertMerge,
+    assertStatusOk
 };

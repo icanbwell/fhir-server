@@ -14,7 +14,13 @@ const expectedHashReferencesResource = require('./fixtures/expected/expected_has
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 
 const {findDuplicateResources} = require('../../../utils/list.util');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const {
+    assertCompareBundles,
+    assertStatusOk,
+    assertResourceCount,
+    assertMerge,
+    assertResponse
+} = require('../../fhirAsserts');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Graph Contained Tests', () => {
@@ -29,79 +35,52 @@ describe('Practitioner Graph Contained Tests', () => {
     describe('Graph Contained Tests', () => {
         test('Graph contained works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
+            await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .expect(assertStatusOk())
+                .expect(assertResourceCount(0));
 
-            resp = await request
+            await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .expect(assertMerge({created: true}));
 
-            resp = await request
+            await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .expect(assertMerge({created: true}));
 
-            resp = await request
+            await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .expect(assertMerge({created: true}));
 
-            resp = await request
+            await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertMerge({created: true}));
 
-            console.log('------- response organizationResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
-
-            resp = await request
+            await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(graphDefinitionResource)
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(assertStatusOk())
+                .expect(assertResponse(expectedResource));
 
-            console.log('------- response Practitioner 1679033641 $graph ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            let body = resp.body;
-            let expected = expectedResource;
-            assertCompareBundles(body, expected);
-
-            resp = await request
+            const resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusOk())
+                .expect(assertResponse(expectedHashReferencesResource));
 
-            console.log('------- response Practitioner 1679033641 $graph ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            body = resp.body;
-            expected = expectedHashReferencesResource;
+            const body = resp.body;
+            const expected = expectedHashReferencesResource;
             console.log('----- Received resources ----');
             console.log(`${body.entry.map(e => e.resource).map(a => `${a.resourceType}/${a.id}`)}`);
             console.log('----- End of Received resources ----');
@@ -110,7 +89,6 @@ describe('Practitioner Graph Contained Tests', () => {
                 body.entry.map(e => e.resource)
             );
             expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-
             assertCompareBundles(body, expected);
         });
     });
