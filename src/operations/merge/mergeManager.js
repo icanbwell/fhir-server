@@ -23,6 +23,7 @@ const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/asser
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
+const {omitProperty} = require('../../utils/omitProperties');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -104,14 +105,10 @@ class MergeManager {
         let Resource = getResource(base_version, resourceToMerge.resourceType);
 
         // found an existing resource
-        logDebug(user, resourceToMerge.resourceType + ': merge found resource ' + '[' + data.id + ']: ' + JSON.stringify(data));
         /**
          * @type {Resource}
          */
         let foundResource = new Resource(data);
-        logDebug(user, '------ found document --------');
-        logDebug(user, JSON.stringify(data));
-        logDebug(user, '------ end found document --------');
         // use metadata of existing resource (overwrite any passed in metadata)
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -124,9 +121,6 @@ class MergeManager {
         resourceToMerge.meta.versionId = foundResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = foundResource.meta.lastUpdated;
         resourceToMerge.meta.source = foundResource.meta.source;
-        logDebug(user, '------ incoming document --------');
-        logDebug(user, JSON.stringify(resourceToMerge));
-        logDebug(user, '------ end incoming document --------');
 
         /**
          * @type {Object}
@@ -135,14 +129,13 @@ class MergeManager {
 
         await preSaveAsync(my_data);
 
-        delete my_data['_id']; // remove _id since that is an internal
+        my_data = omitProperty(my_data, '_id'); // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that
         my_data = removeNull(my_data);
         resourceToMerge = removeNull(resourceToMerge);
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(my_data, resourceToMerge) === true) {
-            logDebug(user, 'No changes detected in updated resource');
             return;
         }
 
@@ -160,12 +153,8 @@ class MergeManager {
         let patchContent = compare(my_data, resource_merged);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
-        logDebug(user, '------ patches --------');
-        logDebug(user, JSON.stringify(patchContent));
-        logDebug(user, '------ end patches --------');
         // see if there are any changes
         if (patchContent.length === 0) {
-            logDebug(user, 'No changes detected in updated resource');
             return;
         }
         if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
@@ -173,7 +162,6 @@ class MergeManager {
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 foundResource.resourceType + ' with id ' + id);
         }
-        logDebug(user, `${resourceToMerge.resourceType} >>> merging ${id}`);
         // now apply the patches to the found resource
         // noinspection JSCheckFunctionSignatures
         /**
@@ -204,9 +192,6 @@ class MergeManager {
         if (!(patched_resource_incoming.meta.security)) {
             patched_resource_incoming.meta.security = meta.security;
         }
-        logDebug(user, '------ patched document --------');
-        logDebug(user, JSON.stringify(patched_resource_incoming));
-        logDebug(user, '------ end patched document --------');
         // Same as update from this point on
         // const cleaned = JSON.parse(JSON.stringify(patched_resource_incoming));
         // check_fhir_mismatch(cleaned, patched_incoming_data);
@@ -251,12 +236,10 @@ class MergeManager {
     ) {
         let id = resourceToMerge.id;
         // not found so insert
-        logDebug(user,
-            resourceToMerge.resourceType +
-            ': merge new resource ' +
-            '[' + resourceToMerge.id + ']: ' +
-            JSON.stringify(resourceToMerge)
-        );
+        logDebug({
+            user,
+            args: {message: 'Merging new resource', id: resourceToMerge.id, resource: resourceToMerge}
+        });
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
@@ -340,32 +323,40 @@ class MergeManager {
                  * @type {Object}
                  */
                 let data = this.databaseBulkLoader ?
-                    this.databaseBulkLoader.getResourceFromExistingList(resourceToMerge.resourceType, id.toString()) :
+                    this.databaseBulkLoader.getResourceFromExistingList(
+                        {
+                            resourceType: resourceToMerge.resourceType,
+                            id: id.toString()
+                        }
+                    ) :
                     await this.databaseQueryFactory.createQuery(
-                        resourceToMerge.resourceType, base_version, useAtlas)
-                        .findOneAsync({id: id.toString()});
-
-                logDebug('test?', '------- data -------');
-                logDebug('test?', `${resourceToMerge.resourceType}_${base_version}`);
-                logDebug('test?', JSON.stringify(data));
-                logDebug('test?', '------- end data -------');
+                        {resourceType: resourceToMerge.resourceType, base_version, useAtlas}
+                    ).findOneAsync({query: {id: id.toString()}});
 
                 // check if resource was found in database or not
                 if (data && data.meta) {
-                    this.databaseBulkLoader.updateResourceInExistingList(resourceToMerge);
+                    this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                     await this.mergeExistingAsync(
                         {
                             resourceToMerge, data, base_version, user, scope, currentDate, requestId
                         }
                     );
                 } else {
-                    this.databaseBulkLoader.addResourceToExistingList(resourceToMerge);
+                    this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                     await this.mergeInsertAsync({
                         resourceToMerge, base_version, user
                     });
                 }
             } catch (e) {
-                logError(`Error with merging resource ${resourceToMerge.resourceType}.merge with id: ${id} `, e);
+                logError({
+                    user: user,
+                    args: {
+                        message: 'Error with merging resource',
+                        resourceType: resourceToMerge.resourceType,
+                        id: id,
+                        error: e
+                    }
+                });
                 const operationOutcome = {
                     resourceType: 'OperationOutcome',
                     issue: [
@@ -437,11 +428,14 @@ class MergeManager {
          * @type {string[]}
          */
         const ids_of_resources = resources_incoming.map(r => r.id);
-        logDebug(user,
-            '==================' + resourceType + ': Merge received array ' +
-            ', len= ' + resources_incoming.length +
-            ' [' + ids_of_resources.toString() + '] ' +
-            '===================='
+        logDebug({
+                user, args:
+                    {
+                        message: 'Merge received array',
+                        length: resources_incoming.length,
+                        id: ids_of_resources
+                    }
+            }
         );
         // find items without duplicates and run them in parallel
         // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
@@ -546,12 +540,10 @@ class MergeManager {
          * @type {import('mongodb').Document}
          */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-        // Insert our resource record to history but don't assign _id
-        delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
         await this.databaseBulkInserter.insertOneHistoryAsync(
             {
-                resourceType: resourceToMerge.resourceType, doc
+                resourceType: resourceToMerge.resourceType, doc: history_resource
             });
     }
 
@@ -570,7 +562,7 @@ class MergeManager {
 
         await preSaveAsync(doc);
 
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
 
         // Insert/update our resource record
         await this.databaseBulkInserter.insertOneAsync({
@@ -583,12 +575,10 @@ class MergeManager {
          * @type {import('mongodb').Document}
          */
         let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-        // Insert our resource record to history but don't assign _id
-        delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
         // await history_collection.insertOne(history_resource);
         await this.databaseBulkInserter.insertOneHistoryAsync({
                 resourceType: resourceToMerge.resourceType,
-                doc
+                doc: history_resource
             }
         );
     }

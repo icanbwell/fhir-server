@@ -46,7 +46,9 @@ describe('AuditEventRecordedTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(resp.body, expectedAuditEventResource);
+            assertCompareBundles({
+                body: resp.body, expected: expectedAuditEventResource
+            });
 
             // now check that we get the right record back
             resp = await request

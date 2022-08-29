@@ -163,9 +163,9 @@ class MyFHIRServer extends FHIRServer.Server {
     //     return this;
     // }
 
-     configurePassport() {
+    configurePassport() {
         return super.configurePassport();
-     }
+    }
 
     // configurePassport() {
     //     if (this.config.auth && this.config.auth.strategy) {
@@ -250,42 +250,53 @@ class MyFHIRServer extends FHIRServer.Server {
             (err,
              /** @type {import('http').IncomingMessage} */ req,
              /** @type {import('http').ServerResponse} */ res, next) => {
-                // get base from URL instead of params since it might not be forwarded
-                const base = req.url.split('/')[1];
+                try {
 
-                // Get an operation outcome for this instance
-                const OperationOutcome = resolveSchema(
-                    isValidVersion(base) ? base : VERSIONS['4_0_1'],
-                    'operationoutcome'
-                );
-                if (req.id) {
-                    res.setHeader('X-Request-ID', String(req.id));
-                }
-                // If there is an error and it is an OperationOutcome
-                if (err && err.resourceType === OperationOutcome.resourceType) {
-                    const status = err.statusCode || 500;
-                    res.status(status).json(err);
-                } else if (err instanceof ServerError) {
-                    const status = err.statusCode || 500;
-                    res.status(status).json(new OperationOutcome(err));
-                } else if (err) {
-                    const error = new OperationOutcome({
-                        statusCode: 500,
-                        issue: [
-                            {
-                                severity: 'error',
-                                code: 'internal',
-                                details: {
-                                    text: `Unexpected: ${err.message}`,
-                                },
-                                diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
-                            },
-                        ],
-                    });
+                    // get base from URL instead of params since it might not be forwarded
+                    const base = req.url.split('/')[1];
 
-                    logger.error(error);
-                    res.status(error.statusCode).json(error);
-                } else {
+                    // Get an operation outcome for this instance
+                    const OperationOutcome = resolveSchema(
+                        isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                        'operationoutcome'
+                    );
+                    if (res.headersSent) { // usually means we are streaming data so can't change headers
+                        // next();
+                        res.end();
+                    } else {
+                        if (req.id && !res.headersSent) {
+                            res.setHeader('X-Request-ID', String(req.id));
+                        }
+                        // If there is an error and it is an OperationOutcome
+                        if (err && err.resourceType === OperationOutcome.resourceType) {
+                            const status = err.statusCode || 500;
+                            res.status(status).json(err);
+                        } else if (err instanceof ServerError) {
+                            const status = err.statusCode || 500;
+                            res.status(status).json(new OperationOutcome(err));
+                        } else if (err) {
+                            const error = new OperationOutcome({
+                                statusCode: 500,
+                                issue: [
+                                    {
+                                        severity: 'error',
+                                        code: 'internal',
+                                        details: {
+                                            text: `Unexpected: ${err.message}`,
+                                        },
+                                        diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
+                                    },
+                                ],
+                            });
+
+                            logger.error(error);
+                            res.status(error.statusCode).json(error);
+                        } else {
+                            next();
+                        }
+                    }
+                } catch (e) {
+                    logger.error(e);
                     next();
                 }
             });
@@ -316,7 +327,7 @@ class MyFHIRServer extends FHIRServer.Server {
                     },
                 ],
             });
-            if (req.id) {
+            if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(req.id));
             }
             logger.error(error);

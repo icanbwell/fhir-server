@@ -13,12 +13,19 @@ class DatabaseHistoryManager {
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+    constructor(
+        {
+            resourceLocatorFactory,
+            resourceType,
+            base_version,
+            useAtlas
+        }
+    ) {
         /**
          * @type {ResourceLocatorFactory}
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
          * @private
@@ -37,8 +44,13 @@ class DatabaseHistoryManager {
         /**
          * @type {ResourceLocator}
          */
-        this.resourceLocator = this.resourceLocatorFactory.createResourceLocator(this._resourceType,
-            this._base_version, this._useAtlas);
+        this.resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+            {
+                resourceType: this._resourceType,
+                base_version: this._base_version,
+                useAtlas: this._useAtlas
+            }
+        );
     }
 
     /**
@@ -46,18 +58,18 @@ class DatabaseHistoryManager {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async insertOneAsync(doc) {
+    async insertOneAsync({doc}) {
         const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
         await collection.insertOne(doc);
     }
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
+     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
      * @param { import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {Promise<Resource|any>}
      */
-    async findOneAsync(filter, options = null) {
+    async findOneAsync({query, options = null}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -66,7 +78,7 @@ class DatabaseHistoryManager {
             /**
              * @type { Promise<Resource|null>}
              */
-            const resource = await collection.findOne(filter, options);
+            const resource = await collection.findOne(query, options);
             if (resource !== null) {
                 return resource;
             }
@@ -76,11 +88,11 @@ class DatabaseHistoryManager {
 
     /**
      * Returns a DatabasePartitionedCursor by executing the query
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} filter
+     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync(filter, options = null) {
+    async findAsync({query, options = null}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -93,10 +105,10 @@ class DatabaseHistoryManager {
             /**
              * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
              */
-            const cursor = collection.find(filter, options);
+            const cursor = collection.find(query, options);
             cursors.push(cursor);
         }
-        return new DatabasePartitionedCursor(cursors);
+        return new DatabasePartitionedCursor({cursors});
     }
 }
 

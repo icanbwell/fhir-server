@@ -11,39 +11,39 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 /**
  * Always logs regardless of env.IS_PRODUCTION
  * @param {string} user
- * @param {*} msg
+ * @param {Object} args
  */
-module.exports.logRequest = (user, msg) => {
-    logger.info(user + ': ' + msg);
+module.exports.logRequest = ({user, args}) => {
+    logger.info(JSON.stringify({user, args}));
 };
 
 /**
  * Logs as info if env.IS_PRODUCTION is not set
  * @param {string} user
- * @param {*} msg
+ * @param {Object} args
  */
-module.exports.logDebug = (user, msg) => {
+module.exports.logDebug = ({user, args}) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
-        logger.debug(user + ': ' + msg);
+        logger.debug(JSON.stringify({user, args}));
     }
 };
 
 /**
  * Logs as error
  * @param {string} user
- * @param {*} msg
+ * @param {Object} args
  */
-module.exports.logError = (user, msg) => {
-    logger.error(user + ': ' + msg);
+module.exports.logError = ({user, args}) => {
+    logger.error(JSON.stringify({user, args}));
 };
 
 /**
  * Logs as warning
  * @param {string} user
- * @param {*} msg
+ * @param {Object} args
  */
-module.exports.logWarn = (user, msg) => {
-    logger.warn(user + ': ' + msg);
+module.exports.logWarn = ({user, args}) => {
+    logger.warn(JSON.stringify({user, args}));
 };
 
 
@@ -147,11 +147,11 @@ module.exports.logSystemErrorAsync = async ({event, message, args, error}) => {
 /**
  * logs a verbose message
  * @param {string} source
- * @param {Object} messageJson
+ * @param {Object} args
  * @return {Promise<void>}
  */
-module.exports.logVerboseAsync = async (source, messageJson) => {
+module.exports.logVerboseAsync = async ({source, args: args}) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(messageJson)}`}));
+        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(args)}`}));
     }
 };

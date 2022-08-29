@@ -19,6 +19,7 @@ class FhirRequestInfo {
      * @param {boolean | null} [isUser]
      * @param {string[] | null} [patients]
      * @param {string | null} [fhirPersonId]
+     * @param {Object} headers
      */
     constructor(
         {
@@ -34,7 +35,8 @@ class FhirRequestInfo {
             accept,
             isUser,
             patients,
-            fhirPersonId
+            fhirPersonId,
+            headers
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -90,6 +92,10 @@ class FhirRequestInfo {
          * @type {string | null}
          */
         this.fhirPersonId = fhirPersonId;
+        /**
+         * @type {Object}
+         */
+        this.headers = headers;
     }
 }
 

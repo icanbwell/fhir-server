@@ -21,8 +21,15 @@ class DatabaseHistoryFactory {
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    createDatabaseHistoryManager(resourceType, base_version, useAtlas) {
-        return new DatabaseHistoryManager(this.resourceLocatorFactory, resourceType, base_version, useAtlas);
+    createDatabaseHistoryManager({resourceType, base_version, useAtlas}) {
+        return new DatabaseHistoryManager(
+            {
+                resourceLocatorFactory: this.resourceLocatorFactory,
+                resourceType,
+                base_version,
+                useAtlas
+            }
+        );
     }
 }
 

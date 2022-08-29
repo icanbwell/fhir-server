@@ -27,7 +27,7 @@ const {
     commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload,
     getCustomGraphQLHeaders, createTestRequest
 } = require('../../common');
-const {describe, expect} = require('@jest/globals');
+const {describe, beforeAll, afterAll, expect} = require('@jest/globals');
 const {assertStatusCode} = require('../../fhirAsserts');
 
 describe('patient Tests', () => {

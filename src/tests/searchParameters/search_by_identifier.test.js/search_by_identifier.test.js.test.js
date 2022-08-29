@@ -35,7 +35,9 @@ describe('Practitioner Tests', () => {
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://medstarhealth.org|4657')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerResources);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPractitionerResources
+            });
         });
     });
 });

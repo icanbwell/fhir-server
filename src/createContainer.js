@@ -45,6 +45,7 @@ const {ScopesValidator} = require('./operations/security/scopesValidator');
 const {ResourcePreparer} = require('./operations/common/resourcePreparer');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
+const {BundleManager} = require('./operations/common/bundleManager');
 
 /**
  * Creates a container and sets up all the services
@@ -181,6 +182,8 @@ const createContainer = function () {
         )
     );
 
+    container.register('bundleManager', () => new BundleManager());
+
     // register fhir operations
     container.register('searchBundleOperation', c => new SearchBundleOperation(
             {
@@ -189,7 +192,8 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                bundleManager: c.bundleManager
             }
         )
     );
@@ -200,7 +204,8 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                bundleManager: c.bundleManager
             }
         )
     );
@@ -251,7 +256,9 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
@@ -282,7 +289,9 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('historyByIdOperation', c => new HistoryByIdOperation(
@@ -290,7 +299,9 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            bundleManager: c.bundleManager,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('patchOperation', c => new PatchOperation(

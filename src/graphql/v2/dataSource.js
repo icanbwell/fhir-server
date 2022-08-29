@@ -256,11 +256,16 @@ class FhirDataSource extends DataSource {
             );
         } catch (e) {
             if (e.name === 'NotFound') {
-                logWarn(
-                    context.user,
-                    `findResourceByReference: Resource ${resourceType}/${id} not found` +
-                    ` for parent:${parent.resourceType}/${parent.id} `
-                );
+                logWarn({
+                    user: context.user,
+                    args: {
+                        message: 'findResourcesByReference: Resource not found for parent',
+                        resourceType,
+                        id,
+                        parentResourceType: parent.resourceType,
+                        parentId: parent.id
+                    }
+                });
                 return null;
             } else {
                 throw e;
@@ -357,7 +362,7 @@ class FhirDataSource extends DataSource {
         };
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
-            for (const /** @type {system: string, display: string, code: string} **/ metaTag of meta.tag) {
+            for (const /** @type Coding **/ metaTag of meta.tag) {
                 const foundCombinedMetaTag = combinedMeta.tag.find(tag => tag.system === metaTag.system);
                 if (!foundCombinedMetaTag) {
                     combinedMeta.tag.push(metaTag);
@@ -374,7 +379,7 @@ class FhirDataSource extends DataSource {
         }
 
         // wrap all tag codes and display in [] to make it valid json
-        for (const /** @type {system: string, display: string, code: string} **/ combinedMetaTag of combinedMeta.tag) {
+        for (const /** @type Coding **/ combinedMetaTag of combinedMeta.tag) {
             if (combinedMetaTag.display) {
                 combinedMetaTag.display = '[' + combinedMetaTag.display + ']';
             }

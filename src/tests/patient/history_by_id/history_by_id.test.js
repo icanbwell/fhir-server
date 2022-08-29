@@ -2,11 +2,12 @@
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
 // expected
-const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
+const expectedHistorySinglePatient = require('./fixtures/expected/expected_history_single_patient.json');
+const expectedHistorySinglePatientMultipleChanges = require('./fixtures/expected/expected_history_single_patient_multiple_changes.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusCode} = require('../../fhirAsserts');
+const {assertStatusCode, assertMergeIsSuccessful, assertCompareBundles} = require('../../fhirAsserts');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -30,9 +31,6 @@ describe('PractitionerReturnIdTests', () => {
                 .expect(assertStatusCode(200));
 
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
@@ -40,19 +38,14 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(assertStatusCode(200));
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            assertMergeIsSuccessful(resp.body, true);
 
             resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            expect(resp.body.length).toBe(1);
 
             await postRequestProcessor.waitTillDoneAsync();
             resp = await request
@@ -60,19 +53,9 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Patient sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            expect(resp.body.length).toBe(1);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body[0];
-            delete body['meta']['lastUpdated'];
-
-            let expected = expectedSinglePatientResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-
-            expect(body).toStrictEqual(expected);
+            assertCompareBundles({
+                body: resp.body, expected: expectedHistorySinglePatient
+            });
 
             // now merge the same patient.  There should be no additional history record created
             resp = await request
@@ -81,10 +64,7 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(assertStatusCode(200));
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(false);
+            // assertMergeIsSuccessful(resp.body, false);
 
             await postRequestProcessor.waitTillDoneAsync();
             resp = await request
@@ -92,19 +72,10 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Patient sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            expect(resp.body.length).toBe(1);
-            // clear out the lastUpdated column since that changes
-            body = resp.body[0];
-            delete body['meta']['lastUpdated'];
-
-            expected = expectedSinglePatientResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-
-            expect(body).toStrictEqual(expected);
+            assertCompareBundles(
+                {
+                    body: resp.body, expected: expectedHistorySinglePatient
+                });
 
             // now merge the modified patient.  There should be an additional history record created
             patient1Resource.birthDate = '2015-01-01';
@@ -114,10 +85,7 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(assertStatusCode(200));
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(false);
+            assertMergeIsSuccessful(resp.body, false);
 
             await postRequestProcessor.waitTillDoneAsync();
             resp = await request
@@ -125,30 +93,9 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Patient sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            expect(resp.body.length).toBe(2);
-            // clear out the lastUpdated column since that changes
-            body = resp.body[0];
-            delete body['meta']['lastUpdated'];
-
-            expected = expectedSinglePatientResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-
-            expect(body).toStrictEqual(expected);
-
-            body = resp.body[1];
-            delete body['meta']['lastUpdated'];
-
-            expected = expectedSinglePatientResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-            expected.birthDate = patient1Resource.birthDate;
-            expected.meta.versionId = '2';
-
-            expect(body).toStrictEqual(expected);
+            assertCompareBundles({
+                body: resp.body, expected: expectedHistorySinglePatientMultipleChanges
+            });
         });
     });
 });

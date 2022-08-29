@@ -21,6 +21,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {omitProperty} = require('../../utils/omitProperties');
 
 /**
  * Update Operation
@@ -170,8 +171,9 @@ class UpdateOperation {
             /**
              * @type {Resource | null}
              */
-            let data = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .findOneAsync({id: id.toString()});
+            let data = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findOneAsync({query: {id: id.toString()}});
             // create a resource with incoming data
             /**
              * @type {function(?Object): Resource}
@@ -195,7 +197,6 @@ class UpdateOperation {
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
                 // found an existing resource
-                logDebug(user, 'found resource: ' + data);
                 /**
                  * @type {Resource}
                  */
@@ -207,16 +208,9 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                logDebug(user, '------ found document --------');
-                logDebug(user, data);
-                logDebug(user, '------ end found document --------');
-
                 // use metadata of existing resource (overwrite any passed in metadata)
                 // noinspection JSPrimitiveTypeWrapperUsage
                 resource_incoming.meta = foundResource.meta;
-                logDebug(user, '------ incoming document --------');
-                logDebug(user, JSON.stringify(resource_incoming));
-                logDebug(user, '------ end incoming document --------');
 
                 await preSaveAsync(resource_incoming);
 
@@ -224,15 +218,15 @@ class UpdateOperation {
                 const resourceIncomingObject = removeNull(resource_incoming.toJSON());
                 // now create a patch between the document in db and the incoming document
                 //  this returns an array of patches
+                /**
+                 * @type {Operation[]}
+                 */
                 let patchContent = compare(foundResourceObject, resourceIncomingObject);
                 // ignore any changes to _id since that's an internal field
                 patchContent = patchContent.filter(item => item.path !== '/_id');
-                logDebug(user, '------ patches --------');
-                logDebug(user, patchContent);
-                logDebug(user, '------ end patches --------');
+                logDebug({user, args: {message: 'Update', patches: patchContent}});
                 // see if there are any changes
                 if (patchContent.length === 0) {
-                    logDebug(user, 'No changes detected in updated resource');
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
                         args,
@@ -273,7 +267,6 @@ class UpdateOperation {
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
             } else {
                 // not found so insert
-                logDebug(user, 'update: new resource: ' + JSON.stringify(resource_incoming));
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                     if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
                         // noinspection ExceptionCaughtLocallyJS
@@ -303,15 +296,17 @@ class UpdateOperation {
                 doc = cleaned;
             }
 
-            delete doc['_id'];
+            doc = omitProperty(doc, '_id');
 
             // Insert/update our resource record
             // When using the $set operator, only the specified fields are updated
             /**
              * @type {FindOneAndUpdateResult|null}
              */
-            const res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                .findOneAndUpdateAsync({id: id}, {$set: doc}, {upsert: true});
+            const res = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findOneAndUpdateAsync(
+                {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
             // save to history
 
             // let history_resource = Object.assign(cleaned, {id: id});
@@ -322,8 +317,11 @@ class UpdateOperation {
             // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
             // Insert our resource record to history but don't assign _id
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .insertOneAsync(history_resource);
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                {
+                    resourceType, base_version, useAtlas
+                }
+            ).insertOneAsync({doc: history_resource});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs

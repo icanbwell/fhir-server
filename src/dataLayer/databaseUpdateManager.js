@@ -12,7 +12,7 @@ class DatabaseUpdateManager {
      * @param {string} base_version
      * @param {boolean} useAtlas
      */
-    constructor(resourceLocatorFactory, resourceType, base_version, useAtlas) {
+    constructor({resourceLocatorFactory, resourceType, base_version, useAtlas}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -32,8 +32,12 @@ class DatabaseUpdateManager {
         /**
          * @type {ResourceLocator}
          */
-        this.resourceLocator = resourceLocatorFactory.createResourceLocator(this._resourceType,
-            this._base_version, this._useAtlas);
+        this.resourceLocator = resourceLocatorFactory.createResourceLocator(
+            {
+                resourceType: this._resourceType,
+                base_version: this._base_version,
+                useAtlas: this._useAtlas
+            });
     }
 
     /**
@@ -41,7 +45,7 @@ class DatabaseUpdateManager {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async insertOneAsync(doc) {
+    async insertOneAsync({doc}) {
         const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
         await collection.insertOne(doc);
     }

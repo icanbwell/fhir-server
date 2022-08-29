@@ -1,4 +1,5 @@
 const path = require('path');
+
 // const assert = require('node:assert/strict');
 
 /**
@@ -30,7 +31,7 @@ function read(req, res, json) {
     res.type(getContentType(fhirVersion));
 
     // assert(req.id);
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(200).json(json);
@@ -52,7 +53,7 @@ function readOne(req, res, resource) {
     }
 
     res.type(getContentType(fhirVersion));
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     if (!resource) {
@@ -74,6 +75,7 @@ function create(req, res, json, options) {
     let fhirVersion = req.params.base_version ? req.params.base_version : '';
     let baseUrl = `${req.protocol}://${req.get('host')}`;
 
+    // https://hl7.org/fhir/http.html#create
     let location;
     if (fhirVersion === '') {
         location = `${options.type}/${json.id}`;
@@ -81,16 +83,21 @@ function create(req, res, json, options) {
         location = `${fhirVersion}/${options.type}/${json.id}`;
     }
 
-    if (json.resource_version) {
-        let pathname = path.posix.join(location, '_history', json.resource_version);
+    if (json.meta.versionId) {
+        let pathname = path.posix.join(location, '_history', json.meta.versionId);
         res.set('Content-Location', `${baseUrl}/${pathname}`);
-        res.set('ETag', json.resource_version);
+        res.set('ETag', json.meta.versionId);
     }
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.set('Location', location);
-    res.status(201).end();
+    // https://hl7.org/fhir/http.html#ops
+    if (req.headers.prefer && req.headers.prefer === 'return=representation') {
+        res.status(201).json(json).end();
+    } else {
+        res.status(201).end();
+    }
 }
 
 /**
@@ -116,7 +123,7 @@ function update(req, res, json, options) {
     res.set('Last-Modified', date.toISOString());
     res.type(getContentType(fhirVersion));
     res.set('Location', location);
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(status).end();
@@ -133,7 +140,7 @@ function remove(req, res, json) {
     if (json && json.deleted) {
         res.set('ETag', json.deleted);
     }
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(204).end();
@@ -149,7 +156,7 @@ function remove(req, res, json) {
 function history(req, res, json) {
     let version = req.params.base_version;
     res.type(getContentType(version));
-    if (req.id) {
+    if (req.id && !res.headersSent) {
         res.setHeader('X-Request-ID', String(req.id));
     }
     res.status(200).json(json);

@@ -13,6 +13,9 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {getResource} = require('../common/getResource');
+const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 
 class MergeOperation {
     /**
@@ -25,6 +28,8 @@ class MergeOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -36,7 +41,9 @@ class MergeOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -86,7 +93,16 @@ class MergeOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -123,7 +139,7 @@ class MergeOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>}
+     * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
     async merge(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -136,27 +152,28 @@ class MergeOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        /**
-         * @type {string|null}
-         */
-        const user = requestInfo.user;
-        /**
-         * @type {string}
-         */
-        const scope = requestInfo.scope;
-        /**
-         * @type {string|null}
-         */
-        const path = requestInfo.path;
-        /**
-         * @type {Object|Object[]|null}
-         */
-        const body = requestInfo.body;
-        // Assign a random number to this batch request
-        /**
-         * @type {string}
-         */
-        const requestId = requestInfo.requestId;
+        const {
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string | null} */
+            originalUrl: url,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
+            /** @type {string} */
+            requestId,
+            /** @type {Object} */
+            headers,
+            /** @type {string|null} */
+            path,
+            /** @type {Object | Object[] | null} */
+            body
+        } = requestInfo;
+
+
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -184,20 +201,71 @@ class MergeOperation {
         }
 
         try {
+            let {/** @type {string} */ base_version} = args;
+
             /**
              * @type {string[]}
              */
             const scopes = this.scopesManager.parseScopes(scope);
+            /**
+             * @type {function(OperationOutcome): Resource}
+             */
+            const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
 
             // read the incoming resource from request body
             /**
-             * @type {Resource|Resource[]}
+             * @type {Resource|Resource[]|undefined}
              */
-            let resourcesIncoming = body;
-            /**
-             * @type {string}
-             */
-            let {base_version} = args;
+            let resourcesIncoming = args.resource ? args.resource : body;
+
+            // see if the resources were passed as parameters
+            if (resourcesIncoming.resourceType === 'Parameters') {
+                // Unfortunately our FHIR schema resource creator does not support Parameters
+                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
+                // const parametersResource = new ParametersResourceCreator(resource_incoming);
+                const parametersResource = resourcesIncoming;
+                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
+                    /**
+                     * @type {OperationOutcome}
+                     */
+                    const operationOutcome = {
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'structure',
+                                details: {
+                                    text: 'Invalid parameter list'
+                                }
+                            }
+                        ]
+                    };
+                    return new OperationOutcomeResourceCreator(operationOutcome);
+                }
+                // find the actual resource in the parameter called resource
+                const resourceParameters = parametersResource.parameter.filter(p => p.resource);
+                if (!resourceParameters || resourceParameters.length === 0) {
+                    /**
+                     * @type {OperationOutcome}
+                     */
+                    const operationOutcome = {
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'structure',
+                                details: {
+                                    text: 'Invalid parameter list'
+                                }
+                            }
+                        ]
+                    };
+                    return new OperationOutcomeResourceCreator(operationOutcome);
+                }
+                resourcesIncoming = resourceParameters.map(r => r.resource);
+            }
 
             // if the incoming request is a bundle then unwrap the bundle
             if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
@@ -247,9 +315,11 @@ class MergeOperation {
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
-                base_version,
-                useAtlas,
-                incomingResourceTypeAndIds
+                {
+                    base_version,
+                    useAtlas,
+                    requestedResources: incomingResourceTypeAndIds
+                }
             );
 
             // merge the resources
@@ -302,7 +372,83 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults)
                 });
-            return wasIncomingAList ? mergeResults : mergeResults[0];
+
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+            if (headers.prefer && headers.prefer === 'return=OperationOutcome') {
+                // https://hl7.org/fhir/http.html#ops
+                // Client is requesting the result as OperationOutcome
+                // Create a bundle of OperationOutcomes
+                // create an OperationOutcome out of results
+                /**
+                 * @type {OperationOutcome[]}
+                 */
+                const operationOutcomes = mergeResults.map(m => {
+                        return m.issue ? {
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: m.issue
+                        } : {
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: [
+                                {
+                                    severity: 'information',
+                                    code: 'informational',
+                                    details: {
+                                        coding: [
+                                            {
+                                                // https://hl7.org/fhir/http.html#update
+                                                // The server SHALL return either a 200 OK HTTP status code if the
+                                                // resource was updated, or a 201 Created status code if the
+                                                // resource was created
+                                                system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                                code: m.created ? '201' : m.updated ? '200' : '304',
+                                                display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                            }
+                                        ]
+                                    },
+                                    expression: [
+                                        `${m.resourceType}/${m.id}`
+                                    ]
+                                }
+                            ]
+                        };
+                    }
+                );
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                    {resourceType, base_version, useAtlas});
+                const firstCollectionNameForQuery = resourceLocator.getFirstCollectionNameForQuery();
+                // noinspection JSValidateTypes
+                /**
+                 * @type {Resource[]}
+                 */
+                const resources = operationOutcomes;
+                const bundle = this.bundleManager.createBundle(
+                    {
+                        type: 'batch-response',
+                        originalUrl: url,
+                        host,
+                        protocol,
+                        resources: resources,
+                        base_version,
+                        total_count: operationOutcomes.length,
+                        args,
+                        originalQuery: {},
+                        collectionName: firstCollectionNameForQuery,
+                        originalOptions: {},
+                        stopTime,
+                        startTime,
+                        user,
+                        useAtlas
+                    }
+                );
+                return bundle;
+            } else {
+                return wasIncomingAList ? mergeResults : mergeResults[0];
+            }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {

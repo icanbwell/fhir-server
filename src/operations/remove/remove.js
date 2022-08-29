@@ -165,8 +165,9 @@ class RemoveOperation {
                 /**
                  * @type {DeleteManyResult}
                  */
-                res = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-                    .deleteManyAsync(query);
+                res = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).deleteManyAsync({query});
 
                 // log access to audit logs
                 await this.auditLogger.logAuditEntryAsync(

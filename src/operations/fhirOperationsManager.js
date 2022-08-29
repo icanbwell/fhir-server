@@ -196,6 +196,11 @@ class FhirOperationsManager {
          * @type {Object | Object[] | null}
          */
         const body = req.body;
+
+        /**
+         * @type {Object}
+         */
+        const headers = req.headers;
         return new FhirRequestInfo(
             {
                 user,
@@ -210,7 +215,8 @@ class FhirOperationsManager {
                 accept,
                 isUser,
                 patients,
-                fhirPersonId
+                fhirPersonId,
+                headers
             }
         );
     }
@@ -277,6 +283,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {Resource}
      */
     async create(args, {req}, resourceType) {
         /**

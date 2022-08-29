@@ -1,0 +1,13 @@
+{
+  "id": "validationfail",
+  "issue": [
+    {
+      "code": "structure",
+      "details": {
+        "text": "Invalid parameter list"
+      },
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
+}

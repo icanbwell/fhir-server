@@ -46,7 +46,9 @@ describe('AuditEventLastUpdatedTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(resp.body, expectedAuditEventResource);
+            assertCompareBundles({
+                body: resp.body, expected: expectedAuditEventResource
+            });
         });
     });
 });

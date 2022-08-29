@@ -152,7 +152,9 @@ class SearchByIdOperation {
                 query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
             }
             try {
-                resource = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas).findOneAsync(query);
+                resource = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).findOneAsync({query});
             } catch (e) {
                 throw new BadRequestError(e);
             }

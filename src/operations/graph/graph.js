@@ -10,6 +10,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {getFirstElementOrNull} = require('../../utils/list.util');
 
 class GraphOperation {
     /**
@@ -47,7 +48,7 @@ class GraphOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     * @return {Promise<Bundle>}
      */
     async graph(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -90,12 +91,37 @@ class GraphOperation {
              */
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-            // get GraphDefinition from body
-            const graphDefinitionRaw = body;
+            // We accept the resource in the two forms allowed in FHIR:
+            // https://www.hl7.org/fhir/operation-resource-graph.json.html
+            // 1. Resource is sent in the body
+            // 2. Resource is sent inside a Parameters resource in the body
+
+            /**
+             * @type {Object|null}
+             */
+            let graphDefinitionRaw = args.resource ? args.resource : body;
+
+            // check if this is a Parameters resourceType
+            if (graphDefinitionRaw.resourceType === 'Parameters') {
+                // Unfortunately our FHIR schema resource creator does not support Parameters
+                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
+                // const parametersResource = new ParametersResourceCreator(resource_incoming);
+                const parametersResource = graphDefinitionRaw;
+                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                }
+                // find the actual resource in the parameter called resource
+                const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
+                if (!resourceParameter || !resourceParameter.resource) {
+                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                }
+                graphDefinitionRaw = resourceParameter.resource;
+            }
+
             const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
             if (operationOutcome && operationOutcome.statusCode === 400) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                logDebug(user, 'GraphDefinition schema failed validation');
+                logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -112,9 +138,9 @@ class GraphOperation {
                 throw notValidatedError;
             }
             /**
-             * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
+             * @type {Bundle}
              */
-            const result = await this.graphHelper.processGraphAsync(
+            const resultBundle = await this.graphHelper.processGraphAsync(
                 {
                     requestInfo,
                     base_version,
@@ -126,7 +152,7 @@ class GraphOperation {
                     hash_references
                 }
             );
-            // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
+            // const operationOutcomeResult = validateResource(resultBundle, 'Bundle', req.path);
             // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
             //     return operationOutcomeResult;
             // }
@@ -138,7 +164,7 @@ class GraphOperation {
                     startTime,
                     action: currentOperationName
                 });
-            return result;
+            return resultBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {

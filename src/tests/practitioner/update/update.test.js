@@ -6,7 +6,7 @@ const expectedPractitionerResources = require('./fixtures/expected/expected_Prac
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const {assertStatusOk, assertStatusCode, assertResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -22,27 +22,32 @@ describe('Practitioner Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            await request
+            const resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders())
-                .expect(201);
+                .expect(assertStatusCode(201));
 
+            // get generated id from response
+            const location = resp.headers['content-location'];
+            const id = location.split('/').splice(5, 1)[0];
+
+            practitioner1Resource['id'] = id;
             practitioner1Resource['active'] = false;
 
             await request
-                .put('/4_0_0/Practitioner/1679033641')
+                .put(`/4_0_0/Practitioner/${id}`)
                 .send(practitioner1Resource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertStatusOk());
 
+            expectedPractitionerResources.entry[0].resource.id = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
-            let resp = await request
+            await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
-                .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerResources);
+                .expect(assertResponse({expected: expectedPractitionerResources}));
         });
     });
 });

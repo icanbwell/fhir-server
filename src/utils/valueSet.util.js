@@ -28,8 +28,9 @@ class ValueSetManager {
      * @return {Promise<{system, code, display, version: string}[]>}
      */
     async getContentsOfValueSetAsync(resourceType, base_version, useAtlas, valueSetUrl) {
-        const valueSet = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findOneAsync({url: valueSetUrl.toString()});
+        const valueSet = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findOneAsync({query: {url: valueSetUrl.toString()}});
         return await this.getValueSetConceptsAsync(resourceType, base_version, useAtlas, valueSet);
     }
 
@@ -55,7 +56,7 @@ class ValueSetManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {boolean|null} useAtlas
-     * @param {{valueSet:string[],system:string,version:string,concept:{code:string,display:string}[] }} include
+     * @param {{valueSet:string[],system:string,version:string,concept:Coding[] }} include
      * @return {Promise<{system, code, display, version: string}[]>}
      */
     async getIncludeAsync(resourceType, base_version, useAtlas, include) {

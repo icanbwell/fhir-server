@@ -14,7 +14,7 @@ class ResourceLocator {
      * @param {string} base_version
      * @param {boolean|null} useAtlas
      */
-    constructor(collectionManager, resourceType, base_version, useAtlas) {
+    constructor({collectionManager, resourceType, base_version, useAtlas}) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(collectionManager, MongoCollectionManager);
@@ -110,7 +110,8 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync(
+            {db, collection_name: collectionName});
     }
 
     /**
@@ -141,7 +142,8 @@ class ResourceLocator {
          */
         const db = this.getDatabaseConnection();
         return async.map(collectionNames,
-            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
+                {db, collection_name: collectionName}));
     }
 
     /**
@@ -159,7 +161,8 @@ class ResourceLocator {
          */
         const db = this.getDatabaseConnection();
         return async.map(collectionNames,
-            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(db, collectionName));
+            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
+                {db, collection_name: collectionName}));
     }
 
     /**
@@ -177,7 +180,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = this.getDatabaseConnection();
-        return await this.collectionManager.getOrCreateCollectionAsync(db, collectionName);
+        return await this.collectionManager.getOrCreateCollectionAsync({db, collection_name: collectionName});
     }
 }
 

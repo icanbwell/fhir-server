@@ -1,5 +1,5 @@
 const {logDebug} = require('../common/logging');
-const {getUuid} = require('../../utils/uid.util');
+const {generateUUID} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
@@ -94,6 +94,7 @@ class CreateOperation {
      * @param {Object} args
      * @param {string} path
      * @param {string} resourceType
+     * @returns {Resource}
      */
     async create(requestInfo, args, path, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -121,7 +122,7 @@ class CreateOperation {
 
         let {base_version} = args;
 
-        const uuid = resource_incoming.id || getUuid(resource_incoming);
+        const uuid = generateUUID();
 
         if (env.LOG_ALL_SAVES) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -187,8 +188,6 @@ class CreateOperation {
              */
             const resource = new ResourceCreator(resource_incoming);
 
-            logDebug(user, `resource: ${resource.toJSON()}`);
-
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
@@ -200,8 +199,7 @@ class CreateOperation {
             /**
              * @type {string}
              */
-            let id = resource_incoming.id || getUuid(resource);
-            logDebug(user, `id: ${id}`);
+            let id = uuid;
 
             // Create the resource's metadata
             /**
@@ -250,14 +248,13 @@ class CreateOperation {
             let history_doc = Object.assign({}, doc);
             Object.assign(doc, {_id: id});
 
-            logDebug(user, '---- inserting doc ---');
-            logDebug(user, doc);
-            logDebug(user, '----------------------');
+            logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
             try {
-                await this.databaseUpdateFactory.createDatabaseUpdateManager(resourceType, base_version, useAtlas)
-                    .insertOneAsync(doc);
+                await this.databaseUpdateFactory.createDatabaseUpdateManager(
+                    {resourceType, base_version, useAtlas}
+                ).insertOneAsync({doc});
             } catch (e) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(e);
@@ -265,9 +262,9 @@ class CreateOperation {
             // Save the resource to history
 
             // Insert our resource record to history but don't assign _id
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                .insertOneAsync(history_doc);
-            const result = {id: doc.id, resource_version: doc.meta.versionId};
+            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                {resourceType, base_version, useAtlas}
+            ).insertOneAsync({doc: history_doc});
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -275,12 +272,12 @@ class CreateOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(result)
+                    result: JSON.stringify(doc)
                 });
             await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
-            return result;
+            return doc;
         } catch (/** @type {Error} */ e) {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('errors',

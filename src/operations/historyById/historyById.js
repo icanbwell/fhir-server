@@ -11,6 +11,8 @@ const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
 
 class HistoryByIdOperation {
@@ -20,13 +22,17 @@ class HistoryByIdOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
             databaseHistoryFactory,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -51,6 +57,17 @@ class HistoryByIdOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -68,8 +85,18 @@ class HistoryByIdOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const user = requestInfo.user;
-        const scope = requestInfo.scope;
+        const {
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string | null} */
+            originalUrl: url,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -91,6 +118,18 @@ class HistoryByIdOperation {
 
         query.id = `${id}`;
 
+        // noinspection JSValidateTypes
+        /**
+         * @type {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>>}
+         */
+        const options = {
+            sort: [
+                {
+                    'meta.versionId': -1
+                }
+            ]
+        };
+
         /**
          * @type {boolean}
          */
@@ -104,8 +143,11 @@ class HistoryByIdOperation {
              */
             let cursor;
             try {
-                cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(resourceType, base_version, useAtlas)
-                    .findAsync(query);
+                cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                    {
+                        resourceType, base_version, useAtlas
+                    }
+                ).findAsync({query, options});
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -129,7 +171,45 @@ class HistoryByIdOperation {
                     action: currentOperationName
                 }
             );
-            return resources;
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+            /**
+             * @type {ResourceLocator}
+             */
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {resourceType, base_version, useAtlas});
+            // https://hl7.org/fhir/http.html#history
+            // The return content is a Bundle with type set to history containing the specified version history,
+            // sorted with oldest versions last, and including deleted resources.
+            // Each entry SHALL minimally contain at least one of: a resource which holds the resource as it is at
+            // the conclusion of the interaction, or a request with entry.request.method The request provides information
+            //  about the result of the interaction that led to this new version, and allows, for instance, a subscriber
+            //   system to differentiate between newly created resources and updates to existing resources. The principal
+            //    reason a resource might be missing is that the resource was changed by some other channel
+            //    rather than via the RESTful interface.
+            //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
+            // return resources;
+            return this.bundleManager.createBundle(
+                {
+                    type: 'history',
+                    originalUrl: url,
+                    host,
+                    protocol,
+                    resources,
+                    base_version,
+                    total_count: resources.length,
+                    args,
+                    originalQuery: {},
+                    collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionName(resources[0]) : null,
+                    originalOptions: {},
+                    stopTime,
+                    startTime,
+                    user,
+                    useAtlas
+                }
+            );
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {

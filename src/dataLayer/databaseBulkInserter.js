@@ -10,7 +10,8 @@ const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
+const {omitProperty} = require('../utils/omitProperties');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -101,8 +102,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * Adds an operation
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
+     * @private
      */
-    addOperationForResourceType(resourceType, operation) {
+    addOperationForResourceType({resourceType, operation}) {
+        assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
+        assertIsValid(operation, `operation: ${operation} is null`);
         // If there is no entry for this collection then create one
         if (!(this.operationsByResourceTypeMap.has(resourceType))) {
             this.operationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -117,8 +121,9 @@ class DatabaseBulkInserter extends EventEmitter {
      * Adds a history operation
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
+     * @private
      */
-    addHistoryOperationForResourceType(resourceType, operation) {
+    addHistoryOperationForResourceType({resourceType, operation}) {
         // If there is no entry for this collection then create one
         if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
             this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -135,7 +140,7 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async insertOneAsync({resourceType, doc}) {
         // remove _id to prevent duplicate keys in mongo
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -146,15 +151,20 @@ class DatabaseBulkInserter extends EventEmitter {
             );
         }
         // else insert it
-        await logVerboseAsync('DatabaseBulkInserter.insertOneAsync',
-            {
-                message: 'start',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
-        this.addOperationForResourceType(resourceType,
-            {
-                insertOne: {
-                    document: doc
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.insertOneAsync',
+            args:
+                {
+                    message: 'start',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
+        this.addOperationForResourceType({
+                resourceType,
+                operation: {
+                    insertOne: {
+                        document: doc
+                    }
                 }
             }
         );
@@ -168,10 +178,12 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
-        this.addHistoryOperationForResourceType(resourceType,
-            {
-                insertOne: {
-                    document: doc
+        this.addHistoryOperationForResourceType({
+                resourceType,
+                operation: {
+                    insertOne: {
+                        document: doc
+                    }
                 }
             }
         );
@@ -186,15 +198,17 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async replaceOneAsync({resourceType, id, doc}) {
         // remove _id to prevent duplicate keys in mongo
-        delete doc['_id'];
+        doc = omitProperty(doc, '_id');
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
-        this.addOperationForResourceType(resourceType,
-            {
-                replaceOne: {
-                    filter: {id: id.toString()},
-                    // upsert: true,
-                    replacement: doc
+        this.addOperationForResourceType({
+                resourceType,
+                operation: {
+                    replaceOne: {
+                        filter: {id: id.toString()},
+                        // upsert: true,
+                        replacement: doc
+                    }
                 }
             }
         );
@@ -210,11 +224,14 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync({requestId, currentDate, base_version, useAtlas}) {
-        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
-            {
-                message: 'start',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.executeAsync',
+            args:
+                {
+                    message: 'start',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
         // run both the operations on the main tables and the history tables in parallel
         /**
          * @type {BulkResultEntry[]}
@@ -383,11 +400,14 @@ class DatabaseBulkInserter extends EventEmitter {
         this.insertedIdsByResourceTypeMap.clear();
         this.updatedIdsByResourceTypeMap.clear();
 
-        await logVerboseAsync('DatabaseBulkInserter.executeAsync',
-            {
-                message: 'end',
-                bufferLength: this.operationsByResourceTypeMap.size
-            });
+        await logVerboseAsync({
+            source: 'DatabaseBulkInserter.executeAsync',
+            args:
+                {
+                    message: 'end',
+                    bufferLength: this.operationsByResourceTypeMap.size
+                }
+        });
         return mergeResultEntries;
     }
 
@@ -450,7 +470,11 @@ class DatabaseBulkInserter extends EventEmitter {
             /**
              * @type {ResourceLocator}
              */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {
+                    resourceType, base_version, useAtlas
+                }
+            );
             for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
                 // noinspection JSValidateTypes
                 /**

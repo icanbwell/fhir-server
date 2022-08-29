@@ -60,7 +60,7 @@ class ChangeEventProducer {
      * @param {string} patientId
      * @param {string} timestamp
      * @param {boolean} isCreate
-     * @return {{period: {start, end}, agent: [{who: {reference: string}}], action: (string), id: string, purposeOfEvent: [{coding: [{system: string, code: string}]}], resourceType: string}}
+     * @return {{period: {start, end}, agent: [{who: {reference: string}}], action: (string), id: string, purposeOfEvent: [{coding: Coding[]}], resourceType: string}}
      * @private
      */
     _createMessage(patientId, timestamp, isCreate) {

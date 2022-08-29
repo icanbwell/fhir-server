@@ -31,7 +31,7 @@ class DatabaseBulkLoader {
      * @param {{resourceType: string, id: string}[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesByResourceTypeAndIdAsync(base_version, useAtlas, requestedResources) {
+    async loadResourcesByResourceTypeAndIdAsync({base_version, useAtlas, requestedResources}) {
         /**
          * merge results grouped by resourceType
          * @type {Object}
@@ -46,7 +46,13 @@ class DatabaseBulkLoader {
          */
         const result = await async.map(
             Object.entries(groupByResourceType),
-            async x => await this.getResourcesByIdAsync(base_version, useAtlas, x[0], x[1])
+            async x => await this.getResourcesByIdAsync(
+                {
+                    base_version, useAtlas,
+                    resourceType: x[0],
+                    resourceAndIdList: x[1]
+                }
+            )
         );
         // Now add them to our cache
         for (const {resourceType, resources} of result) {
@@ -63,7 +69,7 @@ class DatabaseBulkLoader {
      * @param {{resource:string, id: string}[]} resourceAndIdList
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesByIdAsync(base_version, useAtlas, resourceType, resourceAndIdList) {
+    async getResourcesByIdAsync({base_version, useAtlas, resourceType, resourceAndIdList}) {
         const query = {
             id: {$in: resourceAndIdList.map(r => r.id)}
         };
@@ -71,24 +77,28 @@ class DatabaseBulkLoader {
          * cursor
          * @type {DatabasePartitionedCursor}
          */
-        const cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findAsync(query);
+        const cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findAsync({query});
 
         /**
          * @type {Resource[]}
          */
-        const resources = await this.cursorToResourcesAsync(base_version, resourceType, cursor);
+        const resources = await this.cursorToResourcesAsync({base_version, resourceType, cursor});
         return {resourceType, resources: resources};
     }
 
     /**
-     *
+     * Reads resources from cursor
      * @param {string} base_version
      * @param {string} resourceType
      * @param {DatabasePartitionedCursor} cursor
      * @returns {Promise<Resource[]>}
      */
-    async cursorToResourcesAsync(base_version, resourceType, cursor) {
+    async cursorToResourcesAsync({base_version, resourceType, cursor}) {
+        /**
+         * @type {Resource[]}
+         */
         const result = [];
         while (await cursor.hasNext()) {
             /**
@@ -112,7 +122,7 @@ class DatabaseBulkLoader {
      * @param {string} id
      * @return {null|Resource}
      */
-    getResourceFromExistingList(resourceType, id) {
+    getResourceFromExistingList({resourceType, id}) {
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
@@ -131,7 +141,7 @@ class DatabaseBulkLoader {
      * Adds a new resource to the cache
      * @param {Resource} resource
      */
-    addResourceToExistingList(resource) {
+    addResourceToExistingList({resource}) {
         /**
          * @type {Resource[]}
          */
@@ -148,7 +158,7 @@ class DatabaseBulkLoader {
      * Updates an existing resource in the cache
      * @param {Resource} resource
      */
-    updateResourceInExistingList(resource) {
+    updateResourceInExistingList({resource}) {
         /**
          * @type {Resource[]}
          */

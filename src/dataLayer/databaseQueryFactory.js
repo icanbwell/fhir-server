@@ -21,9 +21,14 @@ class DatabaseQueryFactory {
      * @param {boolean} useAtlas
      * @return {DatabaseQueryManager}
      */
-    createQuery(resourceType, base_version, useAtlas) {
+    createQuery({resourceType, base_version, useAtlas}) {
         return new DatabaseQueryManager(
-            this.resourceLocatorFactory, resourceType, base_version, useAtlas
+            {
+                resourceLocatorFactory: this.resourceLocatorFactory,
+                resourceType,
+                base_version,
+                useAtlas
+            }
         );
     }
 }

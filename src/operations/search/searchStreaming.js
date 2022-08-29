@@ -13,6 +13,7 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {ErrorReporter} = require('../../utils/slack.logger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
 
 
 class SearchStreamingOperation {
@@ -24,6 +25,7 @@ class SearchStreamingOperation {
      * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
      */
     constructor(
         {
@@ -32,7 +34,8 @@ class SearchStreamingOperation {
             auditLogger,
             errorReporter,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            bundleManager
         }
     ) {
         /**
@@ -69,6 +72,11 @@ class SearchStreamingOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
 
     /**
@@ -188,7 +196,8 @@ class SearchStreamingOperation {
         /**
          * @type {ResourceLocator}
          */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(resourceType, base_version, useAtlas);
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+            {resourceType, base_version, useAtlas});
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
@@ -287,10 +296,11 @@ class SearchStreamingOperation {
                          * bundle
                          * @param {string|null} last_id
                          * @param {number} stopTime1
-                         * @return {{entry: {resource: Resource}[]}}
+                         * @return {Bundle}
                          */
-                        const fnBundle = (last_id, stopTime1) => this.searchManager.createBundle(
+                        const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
                             {
+                                type: 'searchset',
                                 originalUrl,
                                 host,
                                 protocol,
@@ -356,7 +366,7 @@ class SearchStreamingOperation {
                 }
             } else { // no records found
                 if (useNdJson) {
-                    if (requestId) {
+                    if (requestId && !res.headersSent) {
                         res.setHeader('X-Request-ID', String(requestId));
                     }
                     // empty response
@@ -370,9 +380,11 @@ class SearchStreamingOperation {
                          */
                         const collectionName = resourceLocator.getFirstCollectionNameForQuery();
                         /**
-                         * @type {{entry: {resource: Resource}[]}}
+                         * @type {Bundle}
                          */
-                        const bundle = this.searchManager.createBundle({
+                        const bundle = this.bundleManager.createBundle(
+                            {
+                                type: 'searchset',
                                 originalUrl,
                                 host,
                                 protocol,
@@ -394,13 +406,13 @@ class SearchStreamingOperation {
                                 useAtlas
                             }
                         );
-                        if (requestId) {
+                        if (requestId && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(requestId));
                         }
                         // noinspection JSUnresolvedFunction
                         res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                     } else {
-                        if (requestId) {
+                        if (requestId && !res.headersSent) {
                             res.setHeader('X-Request-ID', String(requestId));
                         }
                         res.type(fhirContentTypes.fhirJson).json([]);

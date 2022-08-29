@@ -48,7 +48,9 @@ describe('Claim Merge Tests', () => {
             console.log('------- response 5 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
-            assertCompareBundles(resp.body, expectedExplanationOfBenefitBundleResource);
+            assertCompareBundles({
+                body: resp.body, expected: expectedExplanationOfBenefitBundleResource
+            });
 
             resp = await request
                 .get('/4_0_0/Patient?_bundle=1')
@@ -59,7 +61,8 @@ describe('Claim Merge Tests', () => {
             console.log('------- response 6 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 6  ------------');
-            assertCompareBundles(resp.body, expectedPatientBundleResource);
+            assertCompareBundles({
+                body: resp.body, expected: expectedPatientBundleResource});
         });
     });
 });

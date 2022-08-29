@@ -1,10 +1,19 @@
 /**
  * Class for assertion errors
  */
-class AssertionError extends Error {
-}
+const {RethrownError} = require('./rethrownError');
 
-AssertionError.prototype.name = 'AssertionError';
+
+class AssertionError extends Error {
+    /**
+     * Constructor
+     * @param {string} message
+     */
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}
 
 /**
  * asserts if the object is null/undefined or not an instance of the passed in type
@@ -15,14 +24,13 @@ AssertionError.prototype.name = 'AssertionError';
  */
 function assertTypeEquals(obj, type, message) {
     if (!obj) {
-        const assertionError = new AssertionError(
-            message ?
-                message :
-                `obj of type ${type.name} is null or undefined`
-        );
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(assertionError, assertTypeEquals);
-        }
+        /**
+         * @type {string}
+         */
+        const message1 = message ?
+            message :
+            `obj of type ${type.name} is null or undefined`;
+        const assertionError = new AssertionError(message1);
         throw assertionError;
     }
     if (!(obj instanceof type)) {
@@ -31,9 +39,6 @@ function assertTypeEquals(obj, type, message) {
                 message :
                 `Type of obj ${typeof obj} is not the expected type ${type.name}`
         );
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(assertionError, assertTypeEquals);
-        }
         throw assertionError;
     }
 }
@@ -47,11 +52,6 @@ function assertTypeEquals(obj, type, message) {
 function assertIsValid(obj, message) {
     if (!obj) {
         const assertionError = new AssertionError(message ? message : 'obj is null or undefined');
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(assertionError, assertIsValid);
-        } else {
-            assertionError.stack = new Error().stack;
-        }
         throw assertionError;
     }
 }
@@ -61,26 +61,25 @@ function assertIsValid(obj, message) {
  * @param {string} source
  * @param {string} message
  * @param {Object} args
- * @param {Error|null} error
+ * @param {Error|undefined} [error]
  */
 function assertFail({source, message, args, error}) {
     /**
      * @type {string}
      */
     let text = `${source}: ${message}`;
-    if (args){
-        text += ' | ' + JSON.stringify(args);
-    }
     if (error) {
-        text += '|' + JSON.stringify(error);
-    }
-    const assertionError = new AssertionError(text);
-    if (Error.captureStackTrace) {
-        Error.captureStackTrace(assertionError, assertIsValid);
+        throw new RethrownError({message: text, error});
     } else {
-        assertionError.stack = new Error().stack;
+        if (args) {
+            text += ' | ' + JSON.stringify(args);
+        }
+        if (error) {
+            text += '|' + JSON.stringify(error);
+        }
+        const assertionError = new AssertionError(text);
+        throw assertionError;
     }
-    throw assertionError;
 }
 
 module.exports = {

@@ -62,7 +62,8 @@ describe('Claim Merge Tests', () => {
                 .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
                 .set(getHeaders());
 
-            assertCompareBundles(resp.body, expectedExplanationOfBenefitBundleResource);
+            assertCompareBundles(
+                {body: resp.body, expected: expectedExplanationOfBenefitBundleResource});
         });
     });
 });

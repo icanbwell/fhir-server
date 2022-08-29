@@ -30,7 +30,7 @@ class MongoCollectionManager {
      * @param {string} collection_name
      * @return {Promise<import('mongodb').Collection>}
      */
-    async getOrCreateCollectionAsync(db, collection_name) {
+    async getOrCreateCollectionAsync({db, collection_name}) {
         assertIsValid(db !== undefined);
         assertIsValid(collection_name !== undefined);
         // use mutex to prevent parallel async calls from trying to create the collection at the same time

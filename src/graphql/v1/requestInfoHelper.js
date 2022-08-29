@@ -18,7 +18,8 @@ module.exports.getRequestInfo = (context) => {
             accept: context.accept,
             isUser: context.isUser,
             patients: context.patients,
-            fhirPersonId: context.fhirPersonId
+            fhirPersonId: context.fhirPersonId,
+            headers: context.headers
         }
     );
 };

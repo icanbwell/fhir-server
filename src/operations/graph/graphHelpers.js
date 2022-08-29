@@ -225,10 +225,11 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, requestInfo.useAtlas)
-            .findAsync(query, options);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas: requestInfo.useAtlas}
+        ).findAsync({query, options});
 
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         while (await cursor.hasNext()) {
             const element = await cursor.next();
@@ -353,11 +354,12 @@ class GraphHelper {
         const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
         /**
          * mongo db cursor
-         * @type {Promise<Cursor<Document>> | *}
+         * @type {DatabasePartitionedCursor}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(relatedResourceType, base_version,
-            requestInfo.useAtlas).findAsync(query, options);
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
+        ).findAsync({query, options});
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         // find matching field name in searchParameter list.  We will use this to match up to parent
         /**
@@ -371,58 +373,60 @@ class GraphHelper {
 
         while (await cursor.hasNext()) {
             /**
-             * @type {Resource}
+             * @type {Resource|null}
              */
             const relatedResourcePropertyCurrent = await cursor.next();
-            if (filterProperty !== null) {
-                if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                    continue;
+            if (relatedResourcePropertyCurrent) {
+                if (filterProperty !== null) {
+                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                        continue;
+                    }
                 }
-            }
-            // create the entry
-            const resourceEntityAndContained = new ResourceEntityAndContained(
-                {
-                    entityId: relatedResourcePropertyCurrent.id,
-                    entityResourceType: relatedResourcePropertyCurrent.resourceType,
-                    fullUrl: this.getFullUrlForResource(
-                        {
-                            requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
-                        }),
-                    includeInOutput: true,
-                    resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
-                    containedEntries: []
-                }
-            );
-            // now match to parent entity, so we can put under correct contained property
-            const properties = this.getPropertiesForEntity(
-                {
-                    entity: resourceEntityAndContained, property: fieldForSearchParameter
-                }
-            );
-            // the reference property can be a single item or an array.
-            /**
-             * @type {string[]}
-             */
-            const references = properties
-                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                .filter(r => r !== undefined);
-            const matchingParentEntities = parentEntities.filter(
-                p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
-            );
-
-            if (matchingParentEntities.length === 0) {
-                throw new Error(
-                    'Reverse Reference: No match found for parent entities' +
-                    ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                    ` using property ${fieldForSearchParameter}` +
-                    ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                // create the entry
+                const resourceEntityAndContained = new ResourceEntityAndContained(
+                    {
+                        entityId: relatedResourcePropertyCurrent.id,
+                        entityResourceType: relatedResourcePropertyCurrent.resourceType,
+                        fullUrl: this.getFullUrlForResource(
+                            {
+                                requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
+                            }),
+                        includeInOutput: true,
+                        resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                        containedEntries: []
+                    }
                 );
-            }
-
-            for (const matchingParentEntity of matchingParentEntities) {
-                matchingParentEntity.containedEntries.push(
-                    resourceEntityAndContained
+                // now match to parent entity, so we can put under correct contained property
+                const properties = this.getPropertiesForEntity(
+                    {
+                        entity: resourceEntityAndContained, property: fieldForSearchParameter
+                    }
                 );
+                // the reference property can be a single item or an array.
+                /**
+                 * @type {string[]}
+                 */
+                const references = properties
+                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                    .filter(r => r !== undefined);
+                const matchingParentEntities = parentEntities.filter(
+                    p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
+                );
+
+                if (matchingParentEntities.length === 0) {
+                    throw new Error(
+                        'Reverse Reference: No match found for parent entities' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using property ${fieldForSearchParameter}` +
+                        ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                    );
+                }
+
+                for (const matchingParentEntity of matchingParentEntities) {
+                    matchingParentEntity.containedEntries.push(
+                        resourceEntityAndContained
+                    );
+                }
             }
         }
     }
@@ -761,11 +765,11 @@ class GraphHelper {
     /**
      * get all the contained entities recursively
      * @param {EntityAndContainedBase} entityAndContained
-     * @returns {{resource: Resource, fullUrl: string}[]}
+     * @returns {BundleEntry[]}
      */
     getRecursiveContainedEntities(entityAndContained) {
         /**
-         * @type {{resource: Resource, fullUrl: string}[]}
+         * @type {BundleEntry[]}
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
@@ -805,7 +809,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {string[]} idList
-     * @return {Promise<{resource: Resource, fullUrl: string}[]>}
+     * @return {Promise<BundleEntry[]>}
      */
     async processMultipleIdsAsync(
         {
@@ -820,7 +824,7 @@ class GraphHelper {
          */
         const StartResource = getResource(base_version, resourceType);
         /**
-         * @type {[{resource: Resource, fullUrl: string}]}
+         * @type {BundleEntry[]}
          */
         let entries = [];
         let query = {
@@ -855,12 +859,13 @@ class GraphHelper {
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
-        let cursor = await this.databaseQueryFactory.createQuery(resourceType, base_version, useAtlas)
-            .findAsync(query, options);
-        cursor = cursor.maxTimeMS(maxMongoTimeMS);
+        let cursor = await this.databaseQueryFactory.createQuery(
+            {resourceType, base_version, useAtlas}
+        ).findAsync({query, options});
+        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         /**
-         * @type {{resource: Resource, fullUrl: string}[]}
+         * @type {BundleEntry[]}
          */
         const topLevelBundleEntries = [];
 
@@ -876,7 +881,7 @@ class GraphHelper {
              */
             const startResource = new StartResource(element);
             /**
-             * @type {{resource: Resource, fullUrl: string}}
+             * @type {BundleEntry}
              */
             let current_entity = {
                 fullUrl: this.getFullUrlForResource(
@@ -937,7 +942,7 @@ class GraphHelper {
                 }
             }
             /**
-             * @type {{resource: Resource, fullUrl: string}[]}
+             * @type {BundleEntry[]}
              */
             const relatedEntities = related_entries
                 .flatMap(r => this.getRecursiveContainedEntities(r))
@@ -966,7 +971,7 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
-     * @return {Promise<{entry: [{resource: Resource, fullUrl: string}], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     * @return {Promise<Bundle>}
      */
     async processGraphAsync(
         {
@@ -994,7 +999,7 @@ class GraphHelper {
         //     useAtlas
         // );
         /**
-         * @type {[{resource: Resource, fullUrl: string}]}
+         * @type {BundleEntry[]}
          */
         const entries = await this.processMultipleIdsAsync(
             {
@@ -1011,11 +1016,14 @@ class GraphHelper {
 
         // remove duplicate resources
         /**
-         * @type {[{resource: Resource, fullUrl: string}]}
+         * @type {BundleEntry[]}
          */
         let uniqueEntries = this.removeDuplicatesWithLambda(entries,
             (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
 
+        /**
+         * @type {string[]}
+         */
         const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
         uniqueEntries = uniqueEntries.filter(
             e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
@@ -1023,14 +1031,13 @@ class GraphHelper {
             )
         );
         // create a bundle
-        return (
-            {
-                resourceType: 'Bundle',
-                id: 'bundle-example',
-                type: 'collection',
-                timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-                entry: uniqueEntries
-            });
+        return {
+            resourceType: 'Bundle',
+            id: 'bundle-example',
+            type: 'collection',
+            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+            entry: uniqueEntries
+        };
     }
 }
 
