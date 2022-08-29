@@ -88,7 +88,7 @@ class ValidateOperation {
                 return new OperationOutcomeResourceCreator(operationOutcome);
             }
             // find the actual resource in the parameter called resource
-            const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.name === 'resource'));
+            const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
             if (!resourceParameter || !resourceParameter.resource) {
                 /**
                  * @type {OperationOutcome}

@@ -223,7 +223,7 @@ class MergeOperation {
                     return new OperationOutcomeResourceCreator(operationOutcome);
                 }
                 // find the actual resource in the parameter called resource
-                const resourceParameters = parametersResource.parameter.filter(p => p.name === 'resource');
+                const resourceParameters = parametersResource.parameter.filter(p => p.resource);
                 if (!resourceParameters || resourceParameters.length === 0) {
                     /**
                      * @type {OperationOutcome}
