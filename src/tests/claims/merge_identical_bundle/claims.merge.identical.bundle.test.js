@@ -3,6 +3,7 @@ const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertMerge, assertResourceCount, assertResponse} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -19,26 +20,19 @@ describe('Claim Merge Tests', () => {
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .expect(assertResourceCount(0));
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .expect(assertMerge({created: true}));
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
-                .expect(200);
+                .expect(assertResourceCount(1))
+                .expect(assertResponse({expected: expectedExplanationOfBenefitBundleResource}));
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             console.log('------- response 5 ------------');
