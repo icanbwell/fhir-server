@@ -66,3 +66,24 @@
  * @property {FhirRequestInfo} fhirRequestInfo
  * @property {FhirDataSource} dataApi
  */
+
+/**
+ * @typedef BundleEntry
+ * @description https://www.hl7.org/fhir/bundle.html
+ * @type {object}
+ * @property {Resource} resource
+ * @property {string} [fullUrl]
+ */
+
+
+/**
+ * @typedef Bundle
+ * @description https://www.hl7.org/fhir/bundle.html
+ * @type {object}
+ * @property {string} [id] - an ID.
+ * @property {string} type
+ * @property {Meta} [meta]
+ * @property {string} resourceType
+ * @property {BundleEntry[]} entry
+ * @property {string} [timestamp]
+ */

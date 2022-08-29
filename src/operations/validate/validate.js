@@ -153,6 +153,10 @@ class ValidateOperation {
                 startTime,
                 action: currentOperationName
             });
+
+        // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
+        // Note: as this is the only out parameter, it is a resource, and it has the name 'return',
+        // the result of this operation is returned directly as a resource
         return new OperationOutcomeResourceCreator({
             resourceType: 'OperationOutcome',
             issue: [

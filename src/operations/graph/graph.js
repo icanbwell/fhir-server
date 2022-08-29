@@ -48,7 +48,7 @@ class GraphOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     * @return {Promise<Bundle>}
      */
     async graph(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -92,7 +92,7 @@ class GraphOperation {
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
             // We accept the resource in the two forms allowed in FHIR:
-            // https://www.hl7.org/fhir/resource-operation-validate.html
+            // https://www.hl7.org/fhir/operation-resource-graph.json.html
             // 1. Resource is sent in the body
             // 2. Resource is sent inside a Parameters resource in the body
 
@@ -138,9 +138,9 @@ class GraphOperation {
                 throw notValidatedError;
             }
             /**
-             * @type {{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}}
+             * @type {Bundle}
              */
-            const result = await this.graphHelper.processGraphAsync(
+            const resultBundle = await this.graphHelper.processGraphAsync(
                 {
                     requestInfo,
                     base_version,
@@ -152,7 +152,7 @@ class GraphOperation {
                     hash_references
                 }
             );
-            // const operationOutcomeResult = validateResource(result, 'Bundle', req.path);
+            // const operationOutcomeResult = validateResource(resultBundle, 'Bundle', req.path);
             // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
             //     return operationOutcomeResult;
             // }
@@ -164,7 +164,7 @@ class GraphOperation {
                     startTime,
                     action: currentOperationName
                 });
-            return result;
+            return resultBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
