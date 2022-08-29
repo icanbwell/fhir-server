@@ -26,9 +26,18 @@ describe('Merge By Parameters Tests', () => {
                 .expect(assertStatusCode(200))
                 .expect(assertResourceCount(0));
 
+            /**
+             * http://www.hl7.org/fhir/parameters-example.json.html
+             * @type {{parameter: [{resource: {resourceType: string, id: string, meta: {security: {}}, identifier: {}, active: boolean, name: {}, telecom: {}, address: {}, gender: string}, name: string}], resourceType: string}}
+             */
+            const parametersResource = {
+                resourceType: 'Parameters',
+                parameter: [{name: 'resource', resource: patient1Resource}]
+            };
+
             await request
                 .post('/4_0_0/Patient/1679033641/$merge')
-                .send(patient1Resource)
+                .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
                 .expect(assertMerge([{created: true}]));

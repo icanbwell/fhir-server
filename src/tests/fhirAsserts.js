@@ -179,7 +179,7 @@ function assertMerge(checks) {
                 for (const bodyItemIndex in body) {
                     const bodyItem = body[`${bodyItemIndex}`];
                     const expectedItem = checks[`${bodyItemIndex}`];
-                    expect(bodyItem).toBe(expectedItem);
+                    expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
                 }
             } else {
                 const firstCheck = Array.isArray(checks) ? checks[0] : checks;
@@ -187,7 +187,7 @@ function assertMerge(checks) {
             }
             // assertMergeIsSuccessful(resp.body);
         } catch (e) {
-            throw new Error(`Merge failed: ${JSON.stringify(resp.body)}`);
+            throw new Error(`Merge failed: Expected: ${JSON.stringify(checks)}.  Actual: ${JSON.stringify(resp.body)}`);
         }
     };
 }
