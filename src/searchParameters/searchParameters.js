@@ -7209,7 +7209,7 @@ const searchParameterQueries = {
 		},
 		'questionnaire': {
 			'description': 'The questionnaire the answers are provided for',
-			'type': 'reference',
+			'type': 'canonical',
 			'field': 'questionnaire',
 			'target': ['Questionnaire'],
 		},

@@ -241,6 +241,7 @@ function assertMerge(checks) {
  * @return {(function(*): void)|*}
  */
 function assertResponse({expected, fnCleanResource}) {
+    expect(expected).not.toBeUndefined();
     return (/** @type {import('http').ServerResponse} */ resp) => {
         if (Array.isArray(resp.body) && !Array.isArray(expected)) {
             expected = [expected];

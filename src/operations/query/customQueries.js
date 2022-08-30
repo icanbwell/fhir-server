@@ -52,7 +52,11 @@ const fhirFilterTypes = {
     /**
      * usage: ?param=4086669999
      */
-    phone: 'phone'
+    phone: 'phone',
+    /**
+     * usage: ?param=url
+     */
+    canonical: 'canonical'
 };
 /**
  Try to keep this in list in alphabetical order to make it easier to search

@@ -11,6 +11,7 @@ const { filterByContains } = require('./filters/contains');
 const { filterByAboveAndBelow, filterByAbove, filterByBelow } = require('./filters/aboveAndBelow');
 const { convertGraphQLParameters } = require('./convertGraphQLParameters');
 const { filterByPartialText } = require('./filters/partialText');
+const {filterByCanonical} = require('./filters/canonical');
 
 // /**
 //  * @type {import('winston').logger}
@@ -97,6 +98,9 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                         continue; // skip processing rest of this loop
                     }
                     switch (propertyObj.type) {
+                        case fhirFilterTypes.canonical:
+                            filterByCanonical(and_segments, propertyObj, queryParameterValue, columns);
+                            break;
                         case fhirFilterTypes.string:
                             filterByString(queryParameterValue, and_segments, propertyObj, columns);
                             break;

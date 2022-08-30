@@ -13,14 +13,14 @@ from src.graphql.v2.generator.fhir_xml_schema_parser import FhirEntity
 
 
 def my_copytree(
-    src: Union[Path, str],
-    dst: Union[Path, str],
-    symlinks: bool = False,
-    # ignore: Union[
-    #     None,
-    #     Callable[[str, List[str]], Iterable[str]],
-    #     Callable[[Union[str, os.PathLike[str]], List[str]], Iterable[str]],
-    # ] = None,
+        src: Union[Path, str],
+        dst: Union[Path, str],
+        symlinks: bool = False,
+        # ignore: Union[
+        #     None,
+        #     Callable[[str, List[str]], Iterable[str]],
+        #     Callable[[Union[str, os.PathLike[str]], List[str]], Iterable[str]],
+        # ] = None,
 ) -> None:
     for item in os.listdir(src):
         s = os.path.join(src, item)
@@ -203,9 +203,27 @@ def main() -> int:
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
                     file2.write(result)
+            # write Javascript classes
+            with open(data_dir.joinpath("classes").joinpath("template.javascript.class.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
+
+                file_path = resources_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing domain resource: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                    search_parameters_for_all_resources=search_parameters_for_all_resources,
+                    search_parameters_for_current_resource=search_parameters_for_current_resource
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
         elif fhir_entity.type_ == "BackboneElement" or fhir_entity.is_back_bone_element:
             with open(
-                data_dir.joinpath("template.backbone_element.jinja2"), "r"
+                    data_dir.joinpath("template.backbone_element.jinja2"), "r"
             ) as file:
                 template_contents = file.read()
                 from jinja2 import Template
