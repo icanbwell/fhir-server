@@ -505,12 +505,19 @@ class DatabaseBulkInserter extends EventEmitter {
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
-                if (resource._id) {
+                // remove _id if present so mongo can insert properly
+                if (!useHistoryCollection && operation.insertOne)
+                {
+                    delete operation.insertOne.document['_id'];
+                }
+                if (!useHistoryCollection && resource._id) {
                     this.errorReporter.reportMessageAsync({
                         source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
                         message: '_id still present',
                         args: {
-                            doc: resource
+                            doc: resource,
+                            collection: collectionName,
+                            insert: operation.insertOne
                         }
                     });
                 }
@@ -560,7 +567,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         args: {
                             requestId: requestId,
                             operations: operationsByCollection,
-                            options: options
+                            options: options,
+                            collection: collectionName
                         }
                     });
                     await logSystemErrorAsync({
@@ -570,7 +578,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         args: {
                             requestId: requestId,
                             operations: operationsByCollection,
-                            options: options
+                            options: options,
+                            collection: collectionName
                         }
                     });
                     return {resourceType: resourceType, mergeResult: null, error: e};
