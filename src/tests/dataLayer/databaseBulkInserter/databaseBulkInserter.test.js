@@ -69,6 +69,14 @@ describe('databaseBulkInserter Tests', () => {
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
                 .mockImplementation(() => {
                 });
+            const onObservationCreateAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
+                .mockImplementation(() => {
+                });
+            const onObservationChangeAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
+                .mockImplementation(() => {
+                });
             /**
              * @type {DatabaseBulkInserter}
              */
@@ -109,6 +117,8 @@ describe('databaseBulkInserter Tests', () => {
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
             expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
+            expect(onObservationCreateAsync).toBeCalledTimes(1);
+            expect(onObservationChangeAsync).toBeCalledTimes(0);
 
         });
     });
