@@ -18,8 +18,14 @@ class ChangeEventProducer {
      * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
+     * @param {string} taskChangeTopic
      */
-    constructor({kafkaClient, resourceManager, patientChangeTopic}) {
+    constructor({
+                    kafkaClient,
+                    resourceManager,
+                    patientChangeTopic,
+                    taskChangeTopic
+                }) {
         /**
          * @type {KafkaClient}
          */
@@ -36,40 +42,42 @@ class ChangeEventProducer {
         this.patientChangeTopic = patientChangeTopic;
         assertIsValid(patientChangeTopic);
         /**
+         * @type {string}
+         */
+        this.taskChangeTopic = taskChangeTopic;
+        assertIsValid(taskChangeTopic);
+        /**
+         * id, resource
          * @type {Map<string, Object>}
          */
-        this.messageMap = new Map();
-    }
-
-    /**
-     * Fire event for patient create
-     * @param {string} requestId
-     * @param {string} patientId
-     * @param {string} timestamp
-     * @return {Promise<void>}
-     */
-    async onPatientCreateAsync({requestId, patientId, timestamp}) {
-        const isCreate = true;
-
-        const messageJson = this._createMessage({
-            requestId,
-            patientId,
-            timestamp,
-            isCreate
-        });
-        this.messageMap.set(patientId, messageJson);
+        this.patientMessageMap = new Map();
+        /**
+         * resourceType/id, resource
+         * @type {Map<string, Object>}
+         */
+        this.taskMessageMap = new Map();
     }
 
     /**
      * Creates a message
      * @param {string} requestId
-     * @param {string} patientId
+     * @param {string} id
      * @param {string} timestamp
      * @param {boolean} isCreate
+     * @param {string} resourceType
+     * @param {string} eventName
      * @return {{period: {start, end}, agent: [{who: {reference: string}}], action: (string), id: string, purposeOfEvent: [{coding: Coding[]}], resourceType: string}}
      * @private
      */
-    _createMessage({requestId, patientId, timestamp, isCreate}) {
+    _createMessage({
+                       requestId,
+                       id,
+                       timestamp,
+                       isCreate,
+                       resourceType,
+                       eventName
+                   }
+    ) {
         return {
             'resourceType': 'AuditEvent',
             'id': generateUUID(),
@@ -86,7 +94,7 @@ class ChangeEventProducer {
                             [
                                 {
                                     'system': 'https://www.icanbwell.com/event-purpose',
-                                    'code': 'Patient Change'
+                                    'code': eventName
                                 }
                             ]
                     }
@@ -96,7 +104,7 @@ class ChangeEventProducer {
                     {
                         'who':
                             {
-                                'reference': `Patient/${patientId}`
+                                'reference': `${resourceType}/${id}`
                             }
                     }
                 ],
@@ -104,6 +112,29 @@ class ChangeEventProducer {
                 'site': requestId
             }
         };
+    }
+
+    /**
+     * Fire event for patient create
+     * @param {string} requestId
+     * @param {string} patientId
+     * @param {string} timestamp
+     * @return {Promise<void>}
+     */
+    async onPatientCreateAsync({requestId, patientId, timestamp}) {
+        const isCreate = true;
+
+        const resourceType = 'Patient';
+        const messageJson = this._createMessage({
+            requestId,
+            id: patientId,
+            timestamp,
+            isCreate,
+            resourceType: resourceType,
+            eventName: 'Patient Create'
+        });
+        const key = `${patientId}`;
+        this.patientMessageMap.set(key, messageJson);
     }
 
     /**
@@ -116,15 +147,69 @@ class ChangeEventProducer {
     async onPatientChangeAsync({requestId, patientId, timestamp}) {
         const isCreate = false;
 
+        const resourceType = 'Patient';
         const messageJson = this._createMessage({
-                requestId, patientId, timestamp, isCreate
-            }
-        );
+            requestId, id: patientId, timestamp, isCreate,
+            resourceType: resourceType,
+            eventName: 'Patient Change'
+        });
 
-        const existingMessageEntry = this.messageMap.get(patientId);
+        const key = `${patientId}`;
+        const existingMessageEntry = this.patientMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
-            this.messageMap.set(patientId, messageJson);
+            this.patientMessageMap.set(key, messageJson);
+        }
+    }
+
+    /**
+     * Fire event for patient create
+     * @param {string} requestId
+     * @param {string} id
+     * @param {string} resourceType
+     * @param {string} timestamp
+     * @return {Promise<void>}
+     */
+    async onTaskCreateAsync({requestId, id, resourceType, timestamp}) {
+        const isCreate = true;
+
+        const messageJson = this._createMessage({
+            requestId,
+            id,
+            timestamp,
+            isCreate,
+            resourceType: resourceType,
+            eventName: 'Task Create'
+        });
+        const key = `${id}`;
+        this.taskMessageMap.set(key, messageJson);
+    }
+
+    /**
+     * Fire event for patient change
+     * @param {string} requestId
+     * @param {string} id
+     * @param {string} resourceType
+     * @param {string} timestamp
+     * @return {Promise<void>}
+     */
+    async onTaskChangeAsync({requestId, id, resourceType, timestamp}) {
+        const isCreate = false;
+
+        const messageJson = this._createMessage({
+            requestId,
+            id,
+            timestamp,
+            isCreate,
+            resourceType: resourceType,
+            eventName: 'Task Change'
+        });
+
+        const key = `${id}`;
+        const existingMessageEntry = this.patientMessageMap.get(key);
+        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
+            // if existing entry is a 'create' then leave it alone
+            this.patientMessageMap.set(key, messageJson);
         }
     }
 
@@ -138,79 +223,111 @@ class ChangeEventProducer {
      */
     async fireEventsAsync({requestId, eventType, resourceType, doc}) {
         /**
-         * @type {string|null}
-         */
-        const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
-        /**
          * @type {string}
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        if (eventType === 'C' && resourceType === 'Patient') {
-            await this.onPatientCreateAsync(
-                {
-                    requestId, patientId, timestamp: currentDate
+        /**
+         * @type {string|null}
+         */
+        const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        if (patientId) {
+            if (eventType === 'C' && resourceType === 'Patient') {
+                await this.onPatientCreateAsync(
+                    {
+                        requestId, patientId, timestamp: currentDate
+                    });
+            } else {
+                await this.onPatientChangeAsync({
+                        requestId, patientId, timestamp: currentDate
+                    }
+                );
+            }
+        }
+        if (resourceType === 'Task') {
+            if (eventType === 'C') {
+                await this.onTaskCreateAsync({
+                    requestId, id: doc.id, resourceType, timestamp: currentDate
                 });
-        } else {
-            await this.onPatientChangeAsync({
-                    requestId, patientId, timestamp: currentDate
-                }
-            );
+            } else {
+                await this.onTaskChangeAsync({
+                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                });
+            }
         }
     }
 
     /**
      * flushes the change event buffer
-     * @param requestId
+     * @param {string} requestId
      * @return {Promise<void>}
      */
     async flushAsync(requestId) {
         if (!env.ENABLE_EVENTS_KAFKA) {
-            this.messageMap.clear();
+            this.patientMessageMap.clear();
             return;
         }
-        if (this.messageMap.size === 0) {
+        if (this.patientMessageMap.size === 0) {
             return;
         }
 
         // find unique events
         const fhirVersion = 'R4';
-        const topic = this.patientChangeTopic;
-
         await mutex.runExclusive(async () => {
-            const numberOfMessagesBefore = this.messageMap.size;
-            /**
-             * @type {{requestId: *, fhirVersion: string, value: string, key: *}[]}
-             */
-            const messages = Array.from(
-                this.messageMap.entries(),
-                ([/** @type {string} */ patientId, /** @type {Object} */ messageJson]) => {
-                    return {
-                        key: patientId,
-                        fhirVersion: fhirVersion,
-                        requestId: requestId,
-                        value: JSON.stringify(messageJson)
-                    };
-                }
-            );
-
-            await this.kafkaClient.sendMessagesAsync(topic, messages);
-
-            this.messageMap.clear();
-
-            if (numberOfMessagesBefore > 0) {
-                await logSystemEventAsync(
-                    {
-                        event: 'changeEventProducer',
-                        message: 'Finished',
-                        args: {
-                            numberOfMessagesBefore: numberOfMessagesBefore,
-                            numberOfMessagesAfter: this.messageMap.size,
-                            topic: topic
-                        }
+                const numberOfMessagesBefore = this.patientMessageMap.size + this.taskMessageMap.size;
+                /**
+                 * @type {KafkaClientMessage[]}
+                 */
+                const patientMessages = Array.from(
+                    this.patientMessageMap.entries(),
+                    ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                        return {
+                            key: id,
+                            fhirVersion: fhirVersion,
+                            requestId: requestId,
+                            value: JSON.stringify(messageJson)
+                        };
                     }
                 );
+
+                await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
+
+                this.patientMessageMap.clear();
+
+                /**
+                 * @type {KafkaClientMessage[]}
+                 */
+                const taskMessages = Array.from(
+                    this.taskMessageMap.entries(),
+                    ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                        return {
+                            key: id,
+                            fhirVersion: fhirVersion,
+                            requestId: requestId,
+                            value: JSON.stringify(messageJson)
+                        };
+                    }
+                );
+
+                await this.kafkaClient.sendMessagesAsync(this.taskChangeTopic, taskMessages);
+
+                this.taskMessageMap.clear();
+
+                if (numberOfMessagesBefore > 0) {
+                    await logSystemEventAsync(
+                        {
+                            event: 'changeEventProducer',
+                            message: 'Finished',
+                            args: {
+                                numberOfMessagesBefore: numberOfMessagesBefore,
+                                numberOfMessagesAfter: this.patientMessageMap.size + this.taskMessageMap.size,
+                                patientTopic: this.patientChangeTopic,
+                                taskTopic: this.taskChangeTopic
+                            }
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 }
 

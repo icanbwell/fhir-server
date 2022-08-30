@@ -88,7 +88,8 @@ const createContainer = function () {
         {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
-            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
+            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+            taskChangeTopic: env.KAFKA_TASK_CHANGE_TOPIC || 'business.events',
         }
     ));
 
