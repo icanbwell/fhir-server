@@ -47,6 +47,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {ResourceCleaner} = require('./operations/common/resourceCleaner');
+const {getImageVersion} = require('./utils/getImageVersion');
 
 /**
  * Creates a container and sets up all the services
@@ -69,7 +70,8 @@ const createContainer = function () {
     }));
 
     container.register('fhirLoggingManager', c => new FhirLoggingManager({
-        scopesManager: c.scopesManager
+        scopesManager: c.scopesManager,
+        imageVersion: getImageVersion()
     }));
     container.register('kafkaClient', () =>
         isTrue(env.ENABLE_EVENTS_KAFKA) ?
@@ -86,10 +88,13 @@ const createContainer = function () {
         {
             kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
-            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
+            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+            taskChangeTopic: env.KAFKA_TASK_CHANGE_TOPIC || 'business.events',
+            observationChangeTopic: env.KAFKA_OBSERVATION_CHANGE_TOPIC || 'business.events',
         }
     ));
-    container.register('errorReporter', () => new ErrorReporter());
+
+    container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
     container.register('indexManager', c => new IndexManager(
         {
             errorReporter: c.errorReporter
@@ -153,7 +158,8 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 errorReporter: c.errorReporter,
                 collectionManager: c.collectionManager,
-                resourceLocatorFactory: c.resourceLocatorFactory
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                changeEventProducer: c.changeEventProducer
             }
         )
     );

@@ -190,7 +190,9 @@ class PatchOperation {
                     action: currentOperationName
                 });
 
-            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            await this.changeEventProducer.fireEventsAsync({
+                requestId, eventType: 'U', resourceType, doc
+            });
 
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 

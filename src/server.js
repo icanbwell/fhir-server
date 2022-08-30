@@ -5,6 +5,7 @@ const env = require('var');
 const {logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
 const http = require('http');
+const {getImageVersion} = require('./utils/getImageVersion');
 
 /**
  * Creates the http server
@@ -23,7 +24,7 @@ async function createServer(fnCreateContainer) {
                 {
                     event: 'serverStartup',
                     message: 'Server is up and running',
-                    args: {image: image}
+                    args: {image: image, version: getImageVersion()}
                 });
         }
     );

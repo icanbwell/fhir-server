@@ -199,16 +199,6 @@ class MergeOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        const self = this;
-
-        async function onCreatePatient(event) {
-            await self.changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
-        }
-
-        async function onChangePatient(event) {
-            await self.changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
-        }
-
         try {
             let {/** @type {string} */ base_version} = args;
 
@@ -287,9 +277,6 @@ class MergeOperation {
                 resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
             }
 
-            // add event handlers
-            this.databaseBulkInserter.on('createPatient', onCreatePatient);
-            this.databaseBulkInserter.on('changePatient', onChangePatient);
             /**
              * @type {boolean}
              */
@@ -472,8 +459,6 @@ class MergeOperation {
                 });
             throw e;
         } finally {
-            this.databaseBulkInserter.removeListener('createPatient', onCreatePatient);
-            this.databaseBulkInserter.removeListener('changePatient', onChangePatient);
             timer({action: currentOperationName, resourceType});
         }
     }

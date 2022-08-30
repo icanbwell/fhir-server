@@ -55,10 +55,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
     /**
      * @type {SimpleContainer}
      */
-    testContainer = createTestContainer();
-    if (fnUpdateContainer !== undefined) {
-        testContainer = fnUpdateContainer(testContainer);
-    }
+    testContainer = createTestContainer(fnUpdateContainer);
     return createApp(() => testContainer);
 };
 

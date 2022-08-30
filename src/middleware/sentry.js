@@ -4,6 +4,7 @@
 const process = require('node:process');
 const Sentry = require('@sentry/node');
 const {ErrorReporter} = require('../utils/slack.logger');
+const {getImageVersion} = require('../utils/getImageVersion');
 
 Sentry.init({dsn: process.env.SENTRY_DSN});
 
@@ -11,7 +12,7 @@ Sentry.init({dsn: process.env.SENTRY_DSN});
 process.on('uncaughtException', async (err) => {
     console.log(JSON.stringify({method: 'sentryMiddleware.uncaughtException', message: JSON.stringify(err)}));
     Sentry.captureException(err);
-    await new ErrorReporter().reportErrorAsync({
+    await new ErrorReporter(getImageVersion()).reportErrorAsync({
             source: 'uncaughtException',
             message: 'uncaughtException',
             error: err
@@ -31,7 +32,7 @@ process.on('unhandledRejection', async (reason, promise) => {
         )
     );
     Sentry.captureException(reason);
-    await new ErrorReporter().reportErrorAsync({
+    await new ErrorReporter(getImageVersion()).reportErrorAsync({
         source: 'unhandledRejection',
         message: 'unhandledRejection',
         error: reason

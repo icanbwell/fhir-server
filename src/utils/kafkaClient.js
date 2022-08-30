@@ -14,6 +14,7 @@ const env = require('var');
 
 /**
  * This class implements a client to Kafka
+ * https://icanbwell.atlassian.net/wiki/spaces/ENTARCH/pages/3812556821/Health+Programs+Team+Event+Strategy+Proposal
  */
 class KafkaClient {
     /**

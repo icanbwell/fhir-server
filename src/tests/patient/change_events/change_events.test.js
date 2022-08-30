@@ -5,6 +5,7 @@ const observation1Resource = require('./fixtures/observation/observation1.json')
 // expected
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertResourceCount, assertMerge} = require('../../fhirAsserts');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -69,24 +70,16 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            let resp = await request
+            await request
                 .get('/4_0_0/Observation')
-                .set(getHeaders());
+                .set(getHeaders())
+                .expect(assertResourceCount(0));
 
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
-
-            resp = await request
+            await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
-                .set(getHeaders());
-
-            console.log('------- response observation1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders())
+                .expect(assertMerge({created: true}));
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -94,11 +87,51 @@ describe('Patient Change Event Tests', () => {
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(1);
+            expect(messages.length).toBe(2);
             const messageValue = JSON.parse(messages[0].value);
             expect(messageValue.resourceType).toBe('AuditEvent');
             expect(messageValue.action).toBe('U');
             expect(messageValue.agent[0].who.reference).toBe('Patient/2354');
+        });
+    });
+    describe('Observation Change Event Tests', () => {
+        test('creating a new observation works', async () => {
+            const request = await createTestRequest();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {MockKafkaClient}
+             */
+            const mockKafkaClient = getTestContainer().kafkaClient;
+            mockKafkaClient.clear();
+            await request
+                .get('/4_0_0/Observation')
+                .set(getHeaders())
+                .expect(assertResourceCount(0));
+
+            await request
+                .post('/4_0_0/Observation/0/$merge')
+                .send(observation1Resource)
+                .set(getHeaders())
+                .expect(assertMerge({created: true}));
+
+            // wait for post request processing to finish
+            await postRequestProcessor.waitTillDoneAsync();
+            /**
+             * @type {KafkaClientMessage[]}
+             */
+            const messages = mockKafkaClient.getMessages();
+            expect(messages.length).toBe(2);
+            const messageValue = JSON.parse(messages[0].value);
+            expect(messageValue.resourceType).toBe('AuditEvent');
+            expect(messageValue.action).toBe('U');
+            expect(messageValue.agent[0].who.reference).toBe('Patient/2354');
+            const messageValue2 = JSON.parse(messages[1].value);
+            expect(messageValue2.resourceType).toBe('AuditEvent');
+            expect(messageValue2.action).toBe('C');
+            expect(messageValue2.agent[0].who.reference).toBe('Observation/2354-InAgeCohort');
         });
     });
 });
