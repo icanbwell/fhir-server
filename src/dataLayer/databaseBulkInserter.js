@@ -578,7 +578,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         args: {
                             requestId: requestId,
                             operations: operationsByCollection,
-                            options: options
+                            options: options,
+                            collection: collectionName
                         }
                     });
                     return {resourceType: resourceType, mergeResult: null, error: e};
