@@ -2,7 +2,7 @@
   "entry": [
     {
       "resource": {
-        "active": false,
+        "active": true,
         "communication": [
           {
             "coding": [
@@ -102,7 +102,7 @@
     },
     {
       "resource": {
-        "active": true,
+        "active": false,
         "communication": [
           {
             "coding": [
