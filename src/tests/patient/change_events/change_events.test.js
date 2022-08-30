@@ -87,7 +87,7 @@ describe('Patient Change Event Tests', () => {
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(1);
+            expect(messages.length).toBe(2);
             const messageValue = JSON.parse(messages[0].value);
             expect(messageValue.resourceType).toBe('AuditEvent');
             expect(messageValue.action).toBe('U');
