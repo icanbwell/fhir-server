@@ -89,7 +89,17 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
         }
     ));
-    container.register('errorReporter', () => new ErrorReporter());
+
+    /**
+     * @type {string}
+     */
+    const image = env.DOCKER_IMAGE || '';
+    /**
+     * @type {string|null}
+     */
+    const version = image ? image.slice(image.lastIndexOf(':') + 1) : null;
+
+    container.register('errorReporter', () => new ErrorReporter(version));
     container.register('indexManager', c => new IndexManager(
         {
             errorReporter: c.errorReporter

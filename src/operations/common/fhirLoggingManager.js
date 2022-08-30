@@ -8,13 +8,18 @@ class FhirLoggingManager {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
+     * @param {string|null} imageVersion
      */
-    constructor({scopesManager}) {
+    constructor({scopesManager, imageVersion}) {
         /**
          * @type {ScopesManager}
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {string|null}
+         */
+        this.imageVersion = imageVersion;
     }
 
     /**
@@ -137,6 +142,10 @@ class FhirLoggingManager {
                 };
             }
         );
+        detail.push({
+            type: 'version',
+            valueString: String(this.imageVersion)
+        });
         if (os.hostname()) {
             const hostname = os.hostname();
             detail.push({

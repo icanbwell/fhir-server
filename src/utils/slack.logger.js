@@ -10,6 +10,17 @@ const env = require('var');
  */
 class ErrorReporter {
     /**
+     * constructor
+     * @param {string|null} imageVersion
+     */
+    constructor(imageVersion) {
+        /**
+         * @type {string|null}
+         */
+        this.imageVersion = imageVersion;
+    }
+
+    /**
      * logs message to Slack
      * @param {string} source
      * @param {string} message
@@ -24,6 +35,11 @@ class ErrorReporter {
                 {
                     title: 'source',
                     value: source,
+                    short: true
+                },
+                {
+                    title: 'version',
+                    value: this.imageVersion,
                     short: true
                 }
             ];
@@ -81,6 +97,11 @@ class ErrorReporter {
                 {
                     title: 'source',
                     value: source,
+                    short: true
+                },
+                {
+                    title: 'version',
+                    value: this.imageVersion,
                     short: true
                 }
             ];
