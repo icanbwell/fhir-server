@@ -12,6 +12,7 @@ const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {omitProperty} = require('../utils/omitProperties');
+const {ChangeEventProducer} = require('../utils/changeEventProducer');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -36,38 +37,50 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ErrorReporter} errorReporter
      * @param {MongoCollectionManager} collectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ChangeEventProducer} changeEventProducer
      */
     constructor({
                     resourceManager, postRequestProcessor, errorReporter,
-                    collectionManager, resourceLocatorFactory
+                    collectionManager, resourceLocatorFactory,
+                    changeEventProducer
                 }) {
         super();
-        assertTypeEquals(resourceManager, ResourceManager);
-        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-        assertTypeEquals(errorReporter, ErrorReporter);
-        assertTypeEquals(collectionManager, MongoCollectionManager);
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
         /**
          * @type {ResourceManager}
          */
         this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
+
         /**
          * @type {PostRequestProcessor}
          */
         this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
         /**
          * @type {ErrorReporter}
          */
         this.errorReporter = errorReporter;
+        assertTypeEquals(errorReporter, ErrorReporter);
+
         /**
          * @type {MongoCollectionManager}
          */
         this.collectionManager = collectionManager;
+        assertTypeEquals(collectionManager, MongoCollectionManager);
+
         /**
          * @type {ResourceLocatorFactory}
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {ChangeEventProducer}
+         */
+        this.changeEventProducer = changeEventProducer;
+        assertTypeEquals(changeEventProducer, ChangeEventProducer);
 
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
@@ -347,8 +360,22 @@ class DatabaseBulkInserter extends EventEmitter {
                     const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
                     if (patientId) {
                         if (resourceType === 'Patient') {
+                            this.changeEventProducer.onPatientCreateAsync(
+                                {
+                                    requestId,
+                                    patientId,
+                                    timestamp: currentDate
+                                }
+                            );
                             this.emit('createPatient', {id: patientId, resourceType: resourceType, resource: resource});
                         } else {
+                            this.changeEventProducer.onPatientChangeAsync(
+                                {
+                                    requestId,
+                                    patientId,
+                                    timestamp: currentDate
+                                }
+                            );
                             this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
                         }
                     }

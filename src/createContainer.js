@@ -156,7 +156,8 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 errorReporter: c.errorReporter,
                 collectionManager: c.collectionManager,
-                resourceLocatorFactory: c.resourceLocatorFactory
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                changeEventProducer: c.changeEventProducer
             }
         )
     );
