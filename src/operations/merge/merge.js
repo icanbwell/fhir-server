@@ -202,11 +202,17 @@ class MergeOperation {
         const self = this;
 
         async function onCreatePatient(event) {
-            await self.changeEventProducer.onPatientCreateAsync(requestId, event.id, currentDate);
+            await self.changeEventProducer.onPatientCreateAsync(
+                {
+                    requestId, patientId: event.id, timestamp: currentDate
+                });
         }
 
         async function onChangePatient(event) {
-            await self.changeEventProducer.onPatientChangeAsync(requestId, event.id, currentDate);
+            await self.changeEventProducer.onPatientChangeAsync({
+                    requestId, patientId: event.id, timestamp: currentDate
+                }
+            );
         }
 
         try {

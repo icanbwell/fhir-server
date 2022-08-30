@@ -47,6 +47,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {ResourceCleaner} = require('./operations/common/resourceCleaner');
+const {getImageVersion} = require('./utils/getImageVersion');
 
 /**
  * Creates a container and sets up all the services
@@ -69,7 +70,8 @@ const createContainer = function () {
     }));
 
     container.register('fhirLoggingManager', c => new FhirLoggingManager({
-        scopesManager: c.scopesManager
+        scopesManager: c.scopesManager,
+        imageVersion: getImageVersion()
     }));
     container.register('kafkaClient', () =>
         isTrue(env.ENABLE_EVENTS_KAFKA) ?
@@ -90,16 +92,7 @@ const createContainer = function () {
         }
     ));
 
-    /**
-     * @type {string}
-     */
-    const image = env.DOCKER_IMAGE || '';
-    /**
-     * @type {string|null}
-     */
-    const version = image ? image.slice(image.lastIndexOf(':') + 1) : null;
-
-    container.register('errorReporter', () => new ErrorReporter(version));
+    container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
     container.register('indexManager', c => new IndexManager(
         {
             errorReporter: c.errorReporter

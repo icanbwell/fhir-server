@@ -274,7 +274,9 @@ class CreateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(doc)
                 });
-            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            await this.changeEventProducer.fireEventsAsync({
+                requestId, eventType: 'U', resourceType, doc
+            });
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return doc;

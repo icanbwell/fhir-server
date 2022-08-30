@@ -349,7 +349,9 @@ class UpdateOperation {
                     action: currentOperationName,
                     result: JSON.stringify(result)
                 });
-            await this.changeEventProducer.fireEventsAsync(requestId, 'U', resourceType, doc);
+            await this.changeEventProducer.fireEventsAsync({
+                requestId, eventType: 'U', resourceType, doc
+            });
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return result;

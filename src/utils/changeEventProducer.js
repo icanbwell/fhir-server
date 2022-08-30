@@ -48,22 +48,28 @@ class ChangeEventProducer {
      * @param {string} timestamp
      * @return {Promise<void>}
      */
-    async onPatientCreateAsync(requestId, patientId, timestamp) {
+    async onPatientCreateAsync({requestId, patientId, timestamp}) {
         const isCreate = true;
 
-        const messageJson = this._createMessage(patientId, timestamp, isCreate);
+        const messageJson = this._createMessage({
+            requestId,
+            patientId,
+            timestamp,
+            isCreate
+        });
         this.messageMap.set(patientId, messageJson);
     }
 
     /**
      * Creates a message
+     * @param {string} requestId
      * @param {string} patientId
      * @param {string} timestamp
      * @param {boolean} isCreate
      * @return {{period: {start, end}, agent: [{who: {reference: string}}], action: (string), id: string, purposeOfEvent: [{coding: Coding[]}], resourceType: string}}
      * @private
      */
-    _createMessage(patientId, timestamp, isCreate) {
+    _createMessage({requestId, patientId, timestamp, isCreate}) {
         return {
             'resourceType': 'AuditEvent',
             'id': generateUUID(),
@@ -93,7 +99,10 @@ class ChangeEventProducer {
                                 'reference': `Patient/${patientId}`
                             }
                     }
-                ]
+                ],
+            'source': {
+                'site': requestId
+            }
         };
     }
 
@@ -104,10 +113,13 @@ class ChangeEventProducer {
      * @param {string} timestamp
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync(requestId, patientId, timestamp) {
+    async onPatientChangeAsync({requestId, patientId, timestamp}) {
         const isCreate = false;
 
-        const messageJson = this._createMessage(patientId, timestamp, isCreate);
+        const messageJson = this._createMessage({
+                requestId, patientId, timestamp, isCreate
+            }
+        );
 
         const existingMessageEntry = this.messageMap.get(patientId);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
@@ -124,7 +136,7 @@ class ChangeEventProducer {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async fireEventsAsync(requestId, eventType, resourceType, doc) {
+    async fireEventsAsync({requestId, eventType, resourceType, doc}) {
         /**
          * @type {string|null}
          */
@@ -134,9 +146,15 @@ class ChangeEventProducer {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
         if (eventType === 'C' && resourceType === 'Patient') {
-            await this.onPatientCreateAsync(requestId, patientId, currentDate);
+            await this.onPatientCreateAsync(
+                {
+                    requestId, patientId, timestamp: currentDate
+                });
         } else {
-            await this.onPatientChangeAsync(requestId, patientId, currentDate);
+            await this.onPatientChangeAsync({
+                    requestId, patientId, timestamp: currentDate
+                }
+            );
         }
     }
 

@@ -4,6 +4,7 @@
 
 const env = require('var');
 const {ErrorReporter} = require('../utils/slack.logger');
+const {getImageVersion} = require('../utils/getImageVersion');
 
 /**
  * Middleware for logging errors to Slack
@@ -29,7 +30,7 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
-            await new ErrorReporter().reportErrorAndRequestAsync(
+            await new ErrorReporter(getImageVersion()).reportErrorAndRequestAsync(
                 {
                     token: options.token,
                     channel: options.channel,
