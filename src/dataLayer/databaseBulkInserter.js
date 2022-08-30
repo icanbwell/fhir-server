@@ -164,7 +164,7 @@ class DatabaseBulkInserter extends EventEmitter {
             );
         }
         if (doc._id) {
-            this.errorReporter.reportErrorAsync({
+            this.errorReporter.reportMessageAsync({
                 source: 'DatabaseBulkInserter.insertOneAsync',
                 message: '_id still present',
                 args: {
@@ -506,7 +506,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
                 if (resource._id) {
-                    this.errorReporter.reportErrorAsync({
+                    this.errorReporter.reportMessageAsync({
                         source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
                         message: '_id still present',
                         args: {
