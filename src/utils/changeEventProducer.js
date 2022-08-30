@@ -19,14 +19,14 @@ class ChangeEventProducer {
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
      * @param {string} taskChangeTopic
-     * @param {string} observationTopic
+     * @param {string} observationChangeTopic
      */
     constructor({
                     kafkaClient,
                     resourceManager,
                     patientChangeTopic,
                     taskChangeTopic,
-                    observationTopic
+                    observationChangeTopic
                 }) {
         /**
          * @type {KafkaClient}
@@ -51,8 +51,8 @@ class ChangeEventProducer {
         /**
          * @type {string}
          */
-        this.observationTopic = observationTopic;
-        assertIsValid(observationTopic);
+        this.observationChangeTopic = observationChangeTopic;
+        assertIsValid(observationChangeTopic);
         /**
          * id, resource
          * @type {Map<string, Object>}
@@ -546,7 +546,7 @@ class ChangeEventProducer {
                                 numberOfMessagesAfter: this.patientMessageMap.size + this.taskMessageMap.size + this.observationMessageMap.size,
                                 patientTopic: this.patientChangeTopic,
                                 taskTopic: this.taskChangeTopic,
-                                observationTopic: this.observationTopic
+                                observationTopic: this.observationChangeTopic
                             }
                         }
                     );

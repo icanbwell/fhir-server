@@ -10,10 +10,26 @@ const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
 
 class MockChangeEventProducer extends ChangeEventProducer {
-    constructor({kafkaClient, resourceManager, patientChangeTopic}) {
-        super({kafkaClient, resourceManager, patientChangeTopic});
-        // this.patientCreateHandler = jest.fn();
-        // this.patientChangeHandler = jest.fn();
+    /**
+     * Constructor
+     * @param {KafkaClient} kafkaClient
+     * @param {ResourceManager} resourceManager
+     * @param {string} patientChangeTopic
+     * @param {string} taskChangeTopic
+     * @param {string} observationChangeTopic
+     */
+    constructor({
+                    kafkaClient,
+                    resourceManager,
+                    patientChangeTopic,
+                    taskChangeTopic,
+                    observationChangeTopic
+                }
+    ) {
+        super({
+            kafkaClient, resourceManager, patientChangeTopic,
+            taskChangeTopic, observationChangeTopic
+        });
     }
 }
 
@@ -38,7 +54,9 @@ describe('databaseBulkInserter Tests', () => {
                         c => new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
-                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
+                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            observationChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                         }));
                     return container1;
                 });
