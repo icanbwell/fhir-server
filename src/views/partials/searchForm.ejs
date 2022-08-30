@@ -1,145 +1,145 @@
 <!-- prettier-ignore -->
 <%
-const hasResource = typeof(resourceDefinition) !== 'undefined';
+const hasResource = typeof (resourceDefinition) !== 'undefined';
 const resourceName = hasResource ? resourceDefinition.name : '';
 %>
 
 <% if(url && url.includes('/_search')){ %>
-<form
-    class="search-form ps-3"
-    action="/4_0_0/<%= resourceName %>/_search"
-    id="searchForm"
-    method="post"
->
-    <div class="dropdown dropstart">
-        <button
-            class="btn btn-light fa fa-ellipsis-v"
-            type="button"
-            id="advSearchDropdown"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        ></button>
+    <form
+            class="search-form ps-3"
+            action="/4_0_0/<%= resourceName %>/_search"
+            id="searchForm"
+            method="post"
+    >
+        <div class="dropdown dropstart">
+            <button
+                    class="btn btn-light fa fa-ellipsis-v"
+                    type="button"
+                    id="advSearchDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+            ></button>
 
-        <div
-            class="dropdown-menu adv-search-dropdown px-2 ms-1 bg-light shadow"
-            aria-labelledby="advSearchDropdown"
-        >
-            <h5>Advanced Search</h5>
-            <% for (var i = 0; i < advSearchFormData.length; i++) { %>
-            <div class="row mb-2 flex-nowrap">
-                <label
-                    for="<%= advSearchFormData[i].name %>"
-                    class="col-sm col-form-label col-form-label-sm text-nowrap"
-                    ><%= advSearchFormData[i].label %></label
-                >
-                <div class="col-auto flex-grow-1 form-group-clear">
-                    <input
+            <div
+                    class="dropdown-menu adv-search-dropdown px-2 ms-1 bg-light shadow"
+                    aria-labelledby="advSearchDropdown"
+            >
+                <h5>Advanced Search</h5>
+                <% for (var i = 0; i < advSearchFormData.length; i++) { %>
+                    <div class="row mb-2 flex-nowrap">
+                        <label
+                                for="<%= advSearchFormData[i].name %>"
+                                class="col-sm col-form-label col-form-label-sm text-nowrap"
+                        ><%= advSearchFormData[i].label %></label
+                        >
+                        <div class="col-auto flex-grow-1 form-group-clear">
+                            <input
+                                    type="text"
+                                    id="<%= advSearchFormData[i].name %>"
+                                    name="<%= advSearchFormData[i].name %><%= !(advSearchFormData[i].useExactMatch) ? ':contains' : '' %>"
+                                    value="<%= advSearchFormData[i].value %>"
+                                    class="form-control form-control-sm clear-allowed"
+                                    autocomplete="nope"
+                            />
+                            <span
+                                    class="fa fa-times clear-input <%= advSearchFormData[i].value !== '' ? 'showInputClearLink' : '' %>"
+                            ></span>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <h5 class="mt-3">
+            <%= hasResource ? resourceDefinition.name : '' %>
+            <a
+                    href="<%= hasResource ? resourceDefinition.url : '' %>"
+                    target="_blank"
+                    title="<%= hasResource ? resourceDefinition.description : '' %>"
+                    class="fa fa-external-link resource-link"
+            ></a>
+        </h5>
+        <div class="form-group">
+            <label for="last"><small>Last Updated</small></label>
+            <div class="input-group mb-3" id="_lastUpdateRange">
+                <input
                         type="text"
-                        id="<%= advSearchFormData[i].name %>"
-                        name="<%= advSearchFormData[i].name %>:contains"
-                        value="<%= advSearchFormData[i].value %>"
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
+                        class="form-control"
+                        name="_lastUpdated"
+                        placeholder="YYYY-MM-DD"
+                        aria-label="Start Date"
+                        value="<%= lastUpdateStart %>"
+                        autocomplete="off"
+                />
+                <span class="input-group-text">to</span>
+                <input
+                        type="text"
+                        class="form-control"
+                        name="_lastUpdated"
+                        placeholder="YYYY-MM-DD"
+                        aria-label="End Date"
+                        value="<%= lastUpdateEnd %>"
+                        autocomplete="off"
+                />
+            </div>
+        </div>
+        <% for (var j = 0; j < formData.length; j++) { %>
+            <% if(formData[j].name === 'date'){ %>
+                <div class="form-group">
+                    <label for="<%= formData[j].name %>"><small><%= formData[j].label %></small></label>
+                    <input
+                            id="datePicker"
+                            type="text"
+                            class="form-control clear-allowed"
+                            name="<%= formData[j].name %>"
+                            value="<%= formData[j].value %>"
+                            autocomplete="off"
+                            placeholder="YYYY-MM-DD"
+                            title="<%= formData[j].label %>"
+                    />
+                </div>
+            <% } else { %>
+                <div class="form-group form-group-clear">
+                    <label for="<%= formData[j].name %>" class="visually-hidden"
+                    ><%= formData[j].label %></label
+                    >
+                    <input
+                            id="<%= formData[j].name %>"
+                            type="text"
+                            class="form-control clear-allowed"
+                            name="<%= formData[j].name %><%= !(formData[j].useExactMatch) ? ':contains' : '' %>"
+                            value="<%= formData[j].value %>"
+                            placeholder="<%= formData[j].label %>"
+                            autocomplete="off"
+                            title="<%= formData[j].label %>"
                     />
                     <span
-                        class="fa fa-times clear-input <%= advSearchFormData[i].value !== '' ? 'showInputClearLink' : '' %>"
+                            class="fa fa-times clear-input <%= formData[j].value !== '' ? 'showInputClearLink' : '' %>"
                     ></span>
                 </div>
-            </div>
             <% } %>
+
+            <!-- prettier-ignore -->
+        <% } %>
+        <input type="hidden" name="identifier"/>
+
+        <div class="form-group">
+            <button type="button" id="resetFormButton" class="btn btn-light mb-3">Reset</button>
+            <button type="submit" class="btn btn-primary mb-3">
+                <i class="fa fa-search"></i>
+                Search
+            </button>
         </div>
-    </div>
-
-    <h5 class="mt-3">
-        <%= hasResource ? resourceDefinition.name : '' %>
-        <a
-            href="<%= hasResource ? resourceDefinition.url : '' %>"
-            target="_blank"
-            title="<%= hasResource ? resourceDefinition.description : '' %>"
-            class="fa fa-external-link resource-link"
-        ></a>
-    </h5>
-    <div class="form-group">
-        <label for="last"><small>Last Updated</small></label>
-        <div class="input-group mb-3" id="_lastUpdateRange">
-            <input
-                type="text"
-                class="form-control"
-                name="_lastUpdated"
-                placeholder="YYYY-MM-DD"
-                aria-label="Start Date"
-                value="<%= lastUpdateStart %>"
-                autocomplete="off"
-            />
-            <span class="input-group-text">to</span>
-            <input
-                type="text"
-                class="form-control"
-                name="_lastUpdated"
-                placeholder="YYYY-MM-DD"
-                aria-label="End Date"
-                value="<%= lastUpdateEnd %>"
-                autocomplete="off"
-            />
-        </div>
-    </div>
-    <% for (var j = 0; j < formData.length; j++) { %> <% if(formData[j].name === 'date'){ %>
-    <div class="form-group">
-        <label for="<%= formData[j].name %>"><small><%= formData[j].label %></small></label>
         <input
-            id="datePicker"
-            type="text"
-            class="form-control clear-allowed"
-            name="<%= formData[j].name %>"
-            value="<%= formData[j].value %>"
-            autocomplete="off"
-            placeholder="YYYY-MM-DD"
-            title="<%= formData[j].label %>"
+                type="hidden"
+                class="search-pagination"
+                name="_getpagesoffset"
+                value="<%= searchUtils.pageIndex(body._getpagesoffset) %>"
         />
-    </div>
+        <input type="hidden" class="search-pagination" name="_sort" value="<%= body._sort %>"/>
+        <input type="hidden" class="search-pagination" name="_count" value="<%= limit %>"/>
+    </form>
 
-    <% } else { %>
-    <div class="form-group form-group-clear">
-        <label for="<%= formData[i].name %>" class="visually-hidden"
-            ><%= formData[i].label %></label
-        >
-        <input
-            id="<%= formData[i].name %>"
-            type="text"
-            class="form-control clear-allowed"
-            name="<%= formData[i].name %>:contains"
-            value="<%= formData[i].value %>"
-            placeholder="<%= formData[i].label %>"
-            autocomplete="off"
-            title="<%= formData[i].label %>"
-        />
-        <span
-            class="fa fa-times clear-input <%= formData[i].value !== '' ? 'showInputClearLink' : '' %>"
-        ></span>
-    </div>
-    <% } %>
-
-    <!-- prettier-ignore -->
-    <% } %>
-    <input type="hidden" name="identifier" />
-
-    <div class="form-group">
-        <button type="button" id="resetFormButton" class="btn btn-light mb-3">Reset</button>
-        <button type="submit" class="btn btn-primary mb-3">
-            <i class="fa fa-search"></i>
-            Search
-        </button>
-    </div>
-    <input
-        type="hidden"
-        class="search-pagination"
-        name="_getpagesoffset"
-        value="<%= searchUtils.pageIndex(body._getpagesoffset) %>"
-    />
-    <input type="hidden" class="search-pagination" name="_sort" value="<%= body._sort %>" />
-    <input type="hidden" class="search-pagination" name="_count" value="<%= limit %>" />
-</form>
-
-<script type="text/javascript" src="/js/datepicker-full.min.js"></script>
-<script type="text/javascript" src="/js/search.js"></script>
+    <script type="text/javascript" src="/js/datepicker-full.min.js"></script>
+    <script type="text/javascript" src="/js/search.js"></script>
 <% } %>

@@ -114,7 +114,15 @@
       {
         "id": "WPS-Claim-20A078097100-1",
         "sequence": 1,
-        "productOrService": {},
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "modifier": [],
         "servicedPeriod": {},
         "locationCodeableConcept": {
@@ -523,8 +531,9 @@
         "productOrService": {
           "coding": [
             {
-              "system": "http://hl7.org/fhir/sid/icd-10",
-              "code": "80061"
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
             }
           ]
         },

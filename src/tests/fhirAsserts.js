@@ -202,14 +202,21 @@ function assertMerge(checks) {
             expect(resp.status).toBe(200);
             const body = resp.body;
             if (Array.isArray(body)) {
+                if (!Array.isArray(checks)) {
+                    checks = [checks];
+                }
                 for (const bodyItemIndex in body) {
                     const bodyItem = body[`${bodyItemIndex}`];
                     const expectedItem = checks[`${bodyItemIndex}`];
-                    expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                    if (expectedItem) {
+                        expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                    }
                 }
             } else {
                 const firstCheck = Array.isArray(checks) ? checks[0] : checks;
-                expect(body).toEqual(expect.objectContaining(firstCheck));
+                if (firstCheck) {
+                    expect(body).toEqual(expect.objectContaining(firstCheck));
+                }
             }
             // assertMergeIsSuccessful(resp.body);
         } catch (e) {

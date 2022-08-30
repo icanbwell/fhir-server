@@ -170,7 +170,15 @@
             }
           ]
         },
-        "productOrService": {},
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "modifier": [],
         "servicedPeriod": {},
         "locationCodeableConcept": {
@@ -295,7 +303,15 @@
             }
           ]
         },
-        "productOrService": {},
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "modifier": [],
         "servicedPeriod": {},
         "locationCodeableConcept": {
@@ -577,7 +593,15 @@
             }
           ]
         },
-        "productOrService": {},
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        },
         "modifier": [],
         "servicedPeriod": {},
         "locationCodeableConcept": {

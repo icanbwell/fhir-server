@@ -12,7 +12,6 @@
           "code": "medstar"
         }
       ]
-
     },
     "identifier": [
       {
@@ -280,7 +279,16 @@
               "value": 127.82
             }
           }
-        ]
+        ],
+        "productOrService": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "260385009",
+              "display": "Negative"
+            }
+          ]
+        }
       }
     ]
   }

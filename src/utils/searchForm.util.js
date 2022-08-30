@@ -112,6 +112,14 @@ const getFormData = (req, resourceName) => {
         value: params._source ? params._source : '',
     });
 
+    formData.push({
+        label: 'Id',
+        name: 'id',
+        sortField: 'id',
+        value: params.id ? params.id : '',
+        useExactMatch: true
+    });
+
     return formData;
 };
 
@@ -199,6 +207,8 @@ const getFieldValue = (res, name) => {
             return res.name ? res.name.map((n) => n.family).join(', ') : '';
         case 'name':
             return res.name ? res.name : '';
+        case 'id':
+            return res.id ? res.id : '';
     }
     return '';
 };

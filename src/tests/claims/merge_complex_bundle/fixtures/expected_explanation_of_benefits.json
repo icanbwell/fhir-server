@@ -224,8 +224,9 @@
         "productOrService": {
           "coding": [
             {
-              "code": "80061",
-              "system": "http://hl7.org/fhir/sid/icd-10"
+              "code": "260385009",
+              "display": "Negative",
+              "system": "http://snomed.info/sct"
             }
           ]
         },

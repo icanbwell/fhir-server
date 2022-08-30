@@ -3,6 +3,7 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, getHtmlHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {assertStatusOk} = require('../../fhirAsserts');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -50,6 +51,19 @@ describe('Patient UI Tests', () => {
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHtmlHeaders())
                 .expect(200);
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp, null, 2));
+            console.log('------- end response sort ------------');
+            expect(resp.type).toStrictEqual('text/html');
+            expect(resp.body).toStrictEqual({});
+            expect(resp.text).not.toBeNull();
+            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+
+            resp = await request
+                .post('/4_0_0/Patient/_search')
+                .set(getHtmlHeaders())
+                .expect(assertStatusOk());
 
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp, null, 2));

@@ -16,6 +16,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {getResource} = require('../common/getResource');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {ResourceCleaner} = require('../common/resourceCleaner');
 
 class MergeOperation {
     /**
@@ -30,6 +31,7 @@ class MergeOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ResourceCleaner} resourceCleaner
      */
     constructor(
         {
@@ -43,7 +45,8 @@ class MergeOperation {
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            resourceCleaner
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class MergeOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {ResourceCleaner}
+         */
+        this.resourceCleaner = resourceCleaner;
+        assertTypeEquals(resourceCleaner, ResourceCleaner);
     }
 
     /**
@@ -294,6 +303,8 @@ class MergeOperation {
              * @type {Resource[]}
              */
             let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+
+            resourcesIncomingArray = resourcesIncomingArray.map(r => this.resourceCleaner.clean(base_version, r));
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,

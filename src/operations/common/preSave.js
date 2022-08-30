@@ -41,5 +41,5 @@ const preSaveAsync = async function (resource) {
 };
 
 module.exports = {
-    preSaveAsync: preSaveAsync,
+    preSaveAsync
 };

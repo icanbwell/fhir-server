@@ -46,6 +46,7 @@ const {ResourcePreparer} = require('./operations/common/resourcePreparer');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
+const {ResourceCleaner} = require('./operations/common/resourceCleaner');
 
 /**
  * Creates a container and sets up all the services
@@ -183,6 +184,7 @@ const createContainer = function () {
     );
 
     container.register('bundleManager', () => new BundleManager());
+    container.register('resourceCleaner', () => new ResourceCleaner());
 
     // register fhir operations
     container.register('searchBundleOperation', c => new SearchBundleOperation(
@@ -258,7 +260,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            resourceCleaner: c.resourceCleaner
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
