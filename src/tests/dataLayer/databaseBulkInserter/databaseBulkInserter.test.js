@@ -119,7 +119,6 @@ describe('databaseBulkInserter Tests', () => {
             expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
             expect(onObservationCreateAsync).toBeCalledTimes(1);
             expect(onObservationChangeAsync).toBeCalledTimes(0);
-
         });
     });
 });
