@@ -11,13 +11,17 @@ const person9Resource = require('./fixtures/Person/person9.json');
 const person10Resource = require('./fixtures/Person/person10.json');
 const person11Resource = require('./fixtures/Person/person11.json');
 
-
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -117,7 +121,8 @@ describe('Person Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPersonResources
+                body: resp.body,
+                expected: expectedPersonResources,
             });
         });
     });

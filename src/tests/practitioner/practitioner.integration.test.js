@@ -3,9 +3,9 @@ const locationResource = require('./fixtures/providers/location.json');
 const practitionerRoleResource = require('./fixtures/providers/practitioner_role.json');
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusCode} = require('../fhirAsserts');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertStatusCode } = require('../fhirAsserts');
 
 describe('Practitioner Integration Tests', () => {
     beforeEach(async () => {
@@ -19,10 +19,7 @@ describe('Practitioner Integration Tests', () => {
     describe('Practitioner Integration Tests', () => {
         test('Provider Files Loads', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -52,10 +49,7 @@ describe('Practitioner Integration Tests', () => {
             console.log('------- response 4 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 4  ------------');
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             expect(body.length).toBe(1);

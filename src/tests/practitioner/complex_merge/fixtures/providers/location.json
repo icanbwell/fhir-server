@@ -2,16 +2,16 @@
     "resourceType": "Location",
     "id": "UF3-UADM",
     "meta": {
-      "versionId": "1",
-      "lastUpdated": "2021-01-21T03:54:38+00:00",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
-        }
-      ]
+        "versionId": "1",
+        "lastUpdated": "2021-01-21T03:54:38+00:00",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            }
+        ]
     },
-  "identifier": [
+    "identifier": [
         {
             "type": {
                 "coding": [
@@ -44,10 +44,7 @@
     "status": "active",
     "name": "UMH 33RD ST PROF BLDG 3RD FL",
     "address": {
-        "line": [
-            "33RD STREET PROFESSIONAL BLDG,G",
-            "200 EAST 33RD STREET"
-        ],
+        "line": ["33RD STREET PROFESSIONAL BLDG,G", "200 EAST 33RD STREET"],
         "city": "BALTIMORE",
         "state": "MD",
         "postalCode": "21218"

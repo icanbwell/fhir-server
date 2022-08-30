@@ -3,9 +3,15 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
 
 // expected
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertResourceCount, assertMerge} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertResourceCount, assertMerge } = require('../../fhirAsserts');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -28,9 +34,7 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            let resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders());
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -79,7 +83,7 @@ describe('Patient Change Event Tests', () => {
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
                 .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .expect(assertMerge({ created: true }));
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -115,7 +119,7 @@ describe('Patient Change Event Tests', () => {
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
                 .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .expect(assertMerge({ created: true }));
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();

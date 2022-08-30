@@ -1,196 +1,211 @@
 version: '3'
 
 services:
-  fhir:
-    depends_on:
-      - mongo
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: development
-    environment:
-      SERVER_PORT: 3000
-      MONGO_DB_NAME: fhir
-      MONGO_URL: mongodb://mongo:27017
-      AUDIT_EVENT_MONGO_DB_NAME: fhir
-      AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
-      RESOURCE_SERVER: http://localhost:3000/
-      AUTH_SERVER_URI: http://myauthzserver.com
-      CLIENT_ID: client
-      CLIENT_SECRET: secret
-      AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
-      AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
-      AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD
-      AUTH_ENABLED: 1
-      CHECK_ACCESS_TAG_ON_SAVE: 1
-      RENDER_HTML: 1
-      REDIRECT_TO_LOGIN: 1
-      SLACK_STATUS_CODES_TO_IGNORE: "401,404"
-      MAX_INDEX_NAME_LENGTH: 65
-      ENV: local
-      MONGO_TIMEOUT: 30000
-      LOGLEVEL: "INFO"
-      ENABLE_GRAPHQL: 1
-      NODE_ENV: "development"
-      EXTERNAL_AUTH_JWKS_URLS: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json"
-      SET_INDEX_HINTS: 0
-      CREATE_INDEX_ON_COLLECTION_CREATION: 1
-      #      SLACK_TOKEN: ""
-      #      SLACK_CHANNEL: "#helix_pipeline_notifications_dev"
-      #      HASH_REFERENCE: 1
-      RETURN_BUNDLE: "1"
-      USE_TWO_STEP_SEARCH_OPTIMIZATION: "1"
-      STREAM_RESPONSE: "1"
-      LOG_ELASTIC_SEARCH_ENABLE: "1"
-      LOG_ELASTIC_SEARCH_URL: "https://elasticsearch:9200/"
-      LOG_ELASTIC_SEARCH_USERNAME: "admin"
-      LOG_ELASTIC_SEARCH_PASSWORD: "admin"
-      LOG_ELASTIC_SEARCH_PREFIX: "fhir-logs"
-      LOG_STREAM_STEPS: "0"
-      ENABLE_EVENTS_KAFKA: "1"
-      KAFKA_CLIENT_ID: "fhir-server"
-      KAFKA_URLS: "kafka:9092"
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./src:/srv/src/src
-      - ./package.json:/srv/src/package.json
-      - ./yarn.lock:/srv/src/yarn.lock
-    command: yarn start
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail localhost:3000/health || exit 1" ]
+    fhir:
+        depends_on:
+            - mongo
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                NODE_ENV: development
+        environment:
+            SERVER_PORT: 3000
+            MONGO_DB_NAME: fhir
+            MONGO_URL: mongodb://mongo:27017
+            AUDIT_EVENT_MONGO_DB_NAME: fhir
+            AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
+            RESOURCE_SERVER: http://localhost:3000/
+            AUTH_SERVER_URI: http://myauthzserver.com
+            CLIENT_ID: client
+            CLIENT_SECRET: secret
+            AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
+            AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
+            AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD
+            AUTH_ENABLED: 1
+            CHECK_ACCESS_TAG_ON_SAVE: 1
+            RENDER_HTML: 1
+            REDIRECT_TO_LOGIN: 1
+            SLACK_STATUS_CODES_TO_IGNORE: '401,404'
+            MAX_INDEX_NAME_LENGTH: 65
+            ENV: local
+            MONGO_TIMEOUT: 30000
+            LOGLEVEL: 'INFO'
+            ENABLE_GRAPHQL: 1
+            NODE_ENV: 'development'
+            EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json'
+            SET_INDEX_HINTS: 0
+            CREATE_INDEX_ON_COLLECTION_CREATION: 1
+            #      SLACK_TOKEN: ""
+            #      SLACK_CHANNEL: "#helix_pipeline_notifications_dev"
+            #      HASH_REFERENCE: 1
+            RETURN_BUNDLE: '1'
+            USE_TWO_STEP_SEARCH_OPTIMIZATION: '1'
+            STREAM_RESPONSE: '1'
+            LOG_ELASTIC_SEARCH_ENABLE: '1'
+            LOG_ELASTIC_SEARCH_URL: 'https://elasticsearch:9200/'
+            LOG_ELASTIC_SEARCH_USERNAME: 'admin'
+            LOG_ELASTIC_SEARCH_PASSWORD: 'admin'
+            LOG_ELASTIC_SEARCH_PREFIX: 'fhir-logs'
+            LOG_STREAM_STEPS: '0'
+            ENABLE_EVENTS_KAFKA: '1'
+            KAFKA_CLIENT_ID: 'fhir-server'
+            KAFKA_URLS: 'kafka:9092'
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./src:/srv/src/src
+            - ./package.json:/srv/src/package.json
+            - ./yarn.lock:/srv/src/yarn.lock
+        command: yarn start
+        healthcheck:
+            test: ['CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1']
 
-  mongo:
-    image: mongo:5.0.11
-    ports:
-      - '27017:27017'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+    mongo:
+        image: mongo:5.0.11
+        ports:
+            - '27017:27017'
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+        volumes:
+            - mongo_data:/data/db
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
-  #  mongoclient:
-  #    image: imranq2/mongoclient-aws:0.1.8
-  #    ports:
-  #      - '3010:3000'
-  #    environment:
-  #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
+    #  mongoclient:
+    #    image: imranq2/mongoclient-aws:0.1.8
+    #    ports:
+    #      - '3010:3000'
+    #    environment:
+    #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
 
-  elasticsearch:
-    #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
-    # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
-    # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:1.3.2
-    container_name: elasticsearch
-    environment:
-      - cluster.name=odfe-cluster
-      - node.name=elasticsearch
-      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
-      - network.host=0.0.0.0 # required if not using the demo security configuration
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      #      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
-      #      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
-      - "discovery.type=single-node" # disables bootstrap checks that are enabled when network.host is set to a non-loopback address
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
-        hard: 65536
-    volumes:
-      - es_data:/usr/share/opensearch/data:delegated
-      - es_cert:/usr/share/opensearch/config/certs:delegated
-    #      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
-    ports:
-      - '9200:9200'
-      - '9600:9600' # required for Performance Analyzer
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1" ]
+    elasticsearch:
+        #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
+        # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
+        # https://opendistro.github.io/for-elasticsearch/downloads.html
+        image: opensearchproject/opensearch:1.3.2
+        container_name: elasticsearch
+        environment:
+            - cluster.name=odfe-cluster
+            - node.name=elasticsearch
+            - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+            - network.host=0.0.0.0 # required if not using the demo security configuration
+            - 'OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m' # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+            #      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
+            #      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
+            - 'discovery.type=single-node' # disables bootstrap checks that are enabled when network.host is set to a non-loopback address
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+                hard: 65536
+        volumes:
+            - es_data:/usr/share/opensearch/data:delegated
+            - es_cert:/usr/share/opensearch/config/certs:delegated
+        #      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
+        ports:
+            - '9200:9200'
+            - '9600:9600' # required for Performance Analyzer
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    'curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1',
+                ]
 
-  kibana:
-    #    image: bitnami/kibana:7.9.3 # AWS Elastic Search supports upto 7.9
-    # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
-    # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch-dashboards:1.3.2
-    depends_on:
-      - elasticsearch
-    container_name: kibana
-    ports:
-      - '5601:5601'
-    environment:
-      - OPENSEARCH_URL=https://elasticsearch:9200
-      - OPENSEARCH_HOSTS=https://elasticsearch:9200
-    #      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --silent --fail localhost:5601/login || exit 1" ]
+    kibana:
+        #    image: bitnami/kibana:7.9.3 # AWS Elastic Search supports upto 7.9
+        # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
+        # https://opendistro.github.io/for-elasticsearch/downloads.html
+        image: opensearchproject/opensearch-dashboards:1.3.2
+        depends_on:
+            - elasticsearch
+        container_name: kibana
+        ports:
+            - '5601:5601'
+        environment:
+            - OPENSEARCH_URL=https://elasticsearch:9200
+            - OPENSEARCH_HOSTS=https://elasticsearch:9200
+        #      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
+        healthcheck:
+            test: ['CMD-SHELL', 'curl --silent --fail localhost:5601/login || exit 1']
 
-  prometheus:
-    # Following https://github.com/StackAbuse/node-prometheus-grafana
-    image: prom/prometheus:v2.38.0
-    container_name: prometheus
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    expose:
-      - 9090
+    prometheus:
+        # Following https://github.com/StackAbuse/node-prometheus-grafana
+        image: prom/prometheus:v2.38.0
+        container_name: prometheus
+        volumes:
+            - ./prometheus:/etc/prometheus
+            - prometheus_data:/prometheus
+        ports:
+            - '9090:9090'
+        expose:
+            - 9090
 
-  grafana:
-    image: grafana/grafana:9.1.0
-    container_name: grafana
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    ports:
-      - "3010:3000"
-    expose:
-      - 3000
+    grafana:
+        image: grafana/grafana:9.1.0
+        container_name: grafana
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ./grafana/provisioning:/etc/grafana/provisioning
+        environment:
+            - GF_AUTH_DISABLE_LOGIN_FORM=true
+            - GF_AUTH_ANONYMOUS_ENABLED=true
+            - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+        ports:
+            - '3010:3000'
+        expose:
+            - 3000
 
-  zookeeper:
-    image: 'docker.io/bitnami/zookeeper:3.8.0'
-    ports:
-      - '2181:2181'
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    restart: on-failure
-    healthcheck:
-      test: [ "CMD-SHELL", "echo ruok | nc -w 2 zookeeper 2181" ]
+    zookeeper:
+        image: 'docker.io/bitnami/zookeeper:3.8.0'
+        ports:
+            - '2181:2181'
+        environment:
+            - ALLOW_ANONYMOUS_LOGIN=yes
+        restart: on-failure
+        healthcheck:
+            test: ['CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181']
 
-  kafka:
-    image: 'docker.io/bitnami/kafka:3.2.1'
-    ports:
-      - '9092:9092'
-    environment:
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKAJS_NO_PARTITIONER_WARNING=1
-    depends_on:
-      - zookeeper
-    healthcheck:
-      test: [ "CMD", "bash", "-c", "unset" , "JMX_PORT" ,";" ,"kafka-topics.sh","--zookeeper","zookeeper:2181","--list" ]
+    kafka:
+        image: 'docker.io/bitnami/kafka:3.2.1'
+        ports:
+            - '9092:9092'
+        environment:
+            - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+            - ALLOW_PLAINTEXT_LISTENER=yes
+            - KAFKAJS_NO_PARTITIONER_WARNING=1
+        depends_on:
+            - zookeeper
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'bash',
+                    '-c',
+                    'unset',
+                    'JMX_PORT',
+                    ';',
+                    'kafka-topics.sh',
+                    '--zookeeper',
+                    'zookeeper:2181',
+                    '--list',
+                ]
 
-  kafkaUI:
-    image: 'obsidiandynamics/kafdrop:3.30.0'
-    ports:
-      - '9000:9000'
-    environment:
-      - KAFKA_BROKERCONNECT=kafka:9092
-      - "JVM_OPTS=-Xms32M -Xmx64M"
-      - SERVER_SERVLET_CONTEXTPATH=/
-
+    kafkaUI:
+        image: 'obsidiandynamics/kafdrop:3.30.0'
+        ports:
+            - '9000:9000'
+        environment:
+            - KAFKA_BROKERCONNECT=kafka:9092
+            - 'JVM_OPTS=-Xms32M -Xmx64M'
+            - SERVER_SERVLET_CONTEXTPATH=/
 
 volumes:
-  mongo_data:
-  es_data:
-  es_cert:
-  prometheus_data: { }
-  grafana_data: { }
+    mongo_data:
+    es_data:
+    es_cert:
+    prometheus_data: {}
+    grafana_data: {}

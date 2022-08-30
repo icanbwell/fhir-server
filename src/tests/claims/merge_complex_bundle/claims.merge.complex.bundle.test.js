@@ -7,10 +7,10 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersPreferOperationOutcome
+    getHeadersPreferOperationOutcome,
 } = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, assertMerge, assertResponse} = require('../../fhirAsserts');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertResourceCount, assertMerge, assertResponse } = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -33,13 +33,13 @@ describe('Claim Merge Tests', () => {
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {updated: true}]));
+                .expect(assertMerge([{ created: true }, { updated: true }]));
 
             await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
                 .expect(assertResourceCount(1))
-                .expect(assertResponse({expected: expectedExplanationOfBenefitBundleResource}));
+                .expect(assertResponse({ expected: expectedExplanationOfBenefitBundleResource }));
         });
         test('Complex Claims with merge properly (with Prefer header)', async () => {
             const request = await createTestRequest();
@@ -52,17 +52,21 @@ describe('Claim Merge Tests', () => {
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeadersPreferOperationOutcome())
-                .expect(assertResponse({
-                    expected: expectedExplanationOfBenefitOperationOutcomeBundleResource
-                }));
+                .expect(
+                    assertResponse({
+                        expected: expectedExplanationOfBenefitOperationOutcomeBundleResource,
+                    })
+                );
 
             await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
                 .expect(assertResourceCount(1))
-                .expect(assertResponse({
-                    expected: expectedExplanationOfBenefitBundleResource
-                }));
+                .expect(
+                    assertResponse({
+                        expected: expectedExplanationOfBenefitBundleResource,
+                    })
+                );
         });
     });
 });

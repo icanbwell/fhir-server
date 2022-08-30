@@ -21,20 +21,30 @@ const desireeAllergyIntoleranceResource = require('./fixtures/patient/desiree.al
 // const expectedAllergyIntoleranceBundleResource = require('./fixtures/expected/expected_allergy_intolerances.json');
 
 // const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/allergy.graphql'), 'utf8');
-const allergyIntoleranceQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'), 'utf8');
+const allergyIntoleranceQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/patient/desiree.allergy.graphql'),
+    'utf8'
+);
 
 const {
-    commonBeforeEach, commonAfterEach, getHeaders, getHeadersWithCustomPayload,
-    getCustomGraphQLHeaders, createTestRequest
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    getHeadersWithCustomPayload,
+    getCustomGraphQLHeaders,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeAll, afterAll, expect} = require('@jest/globals');
-const {assertStatusCode} = require('../../fhirAsserts');
+const { describe, beforeAll, afterAll, expect } = require('@jest/globals');
+const { assertStatusCode } = require('../../fhirAsserts');
 
 describe('patient Tests', () => {
     beforeAll(async () => {
         await commonBeforeEach();
         const request = await createTestRequest();
-        let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(assertStatusCode(200));
+        let resp = await request
+            .get('/4_0_0/Patient')
+            .set(getHeaders())
+            .expect(assertStatusCode(200));
         expect(resp.body.length).toBe(0);
         console.log('------- response 0 ------------');
         console.log(JSON.stringify(resp.body, null, 2));
@@ -61,7 +71,6 @@ describe('patient Tests', () => {
         console.log('------- response 2 ------------');
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response 2 ------------');
-
 
         resp = await request
             .post('/4_0_0/patient/other-patient/$merge?validate=true')
@@ -135,10 +144,7 @@ describe('patient Tests', () => {
         console.log(JSON.stringify(resp.body, null, 2));
         console.log('------- end response 2 ------------');
 
-        resp = await request
-            .get('/4_0_0/Person?_bundle=1')
-            .set(getHeaders())
-            .expect(200);
+        resp = await request.get('/4_0_0/Person?_bundle=1').set(getHeaders()).expect(200);
 
         console.log('------- response 2 ------------');
         console.log(JSON.stringify(resp.body, null, 2));
@@ -157,7 +163,9 @@ describe('patient Tests', () => {
         console.log('------- end response 2 ------------');
 
         resp = await request
-            .put('/4_0_0/AllergyIntolerance/eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t')
+            .put(
+                '/4_0_0/AllergyIntolerance/eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t'
+            )
             .send(desireeAllergyIntoleranceResource)
             .set(getHeaders())
             .expect(201);
@@ -222,70 +230,60 @@ describe('patient Tests', () => {
     });
 
     describe('patient search_with_patient_filtering Tests', () => {
-        let patient_123_payload =
-            {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_id': 'patient-123-a',
-                'custom:bwell_fhir_person_id': 'root-person',
-                'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'patient-123@example.com',
-            };
-        let only_fhir_person_payload =
-            {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_person_id': 'root-person',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'patient-123@example.com',
-            };
-        let no_ids_user_payload =
-            {
-                'cognito:username': 'patient-123@example.com',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'patient-123@example.com',
-            };
-        let other_patient_payload =
-            {
-                'cognito:username': 'other-patient@example.com',
-                'custom:bwell_fhir_id': 'other-patient',
-                'custom:bwell_fhir_ids': 'other-patient',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'other-patient@example.com',
-            };
+        let patient_123_payload = {
+            'cognito:username': 'patient-123@example.com',
+            'custom:bwell_fhir_id': 'patient-123-a',
+            'custom:bwell_fhir_person_id': 'root-person',
+            'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'patient-123@example.com',
+        };
+        let only_fhir_person_payload = {
+            'cognito:username': 'patient-123@example.com',
+            'custom:bwell_fhir_person_id': 'root-person',
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'patient-123@example.com',
+        };
+        let no_ids_user_payload = {
+            'cognito:username': 'patient-123@example.com',
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'patient-123@example.com',
+        };
+        let other_patient_payload = {
+            'cognito:username': 'other-patient@example.com',
+            'custom:bwell_fhir_id': 'other-patient',
+            'custom:bwell_fhir_ids': 'other-patient',
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'other-patient@example.com',
+        };
         // Legacy payload represents a user that registered before FHIR person support was added
-        let patient_123_legacy_payload =
-            {
-                'cognito:username': 'patient-123@example.com',
-                'custom:bwell_fhir_id': 'patient-123-a',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'patient-123@example.com',
-            };
-        let patient_123_legacy_bad_id_payload =
-            {
-                'custom:bwell_fhir_id': '-',
-                'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
-                'custom:scope': 'patient/*.read user/*.* access/*.*',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'patient': '-',
-                'email': 'test+devb2c@icanbwell.com'
-            };
-        let app_client_payload =
-            {
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'username': 'Some App',
-            };
-        let desiree_payload =
-            {
-                'custom:bwell_fhir_person_id': 'desiree-root-person',
-                'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
-                'custom:scope': 'patient/*.read user/*.* access/*.*',
-                'scope': 'patient/*.read user/*.* access/*.*',
-                'email': 'test+devb2c@icanbwell.com'
-            };
-
+        let patient_123_legacy_payload = {
+            'cognito:username': 'patient-123@example.com',
+            'custom:bwell_fhir_id': 'patient-123-a',
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'patient-123@example.com',
+        };
+        let patient_123_legacy_bad_id_payload = {
+            'custom:bwell_fhir_id': '-',
+            'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
+            'custom:scope': 'patient/*.read user/*.* access/*.*',
+            scope: 'patient/*.read user/*.* access/*.*',
+            patient: '-',
+            email: 'test+devb2c@icanbwell.com',
+        };
+        let app_client_payload = {
+            scope: 'patient/*.read user/*.* access/*.*',
+            username: 'Some App',
+        };
+        let desiree_payload = {
+            'custom:bwell_fhir_person_id': 'desiree-root-person',
+            'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
+            'custom:scope': 'patient/*.read user/*.* access/*.*',
+            scope: 'patient/*.read user/*.* access/*.*',
+            email: 'test+devb2c@icanbwell.com',
+        };
 
         describe('User security filtering', () => {
-
             test('Legacy users can only access a single patient', async () => {
                 const request = await createTestRequest();
                 let resp = await request
@@ -419,7 +417,6 @@ describe('patient Tests', () => {
 
                 expect(resp.body.id).toBe('patient-123-a');
 
-
                 resp = await request
                     .get('/4_0_0/patient/other-patient?_bundle=1')
                     .set(getHeadersWithCustomPayload(other_patient_payload))
@@ -445,9 +442,7 @@ describe('patient Tests', () => {
                 console.log('------- end response  ------------');
 
                 expect(resp.body.id).toBe('patient-123-c');
-
             });
-
 
             test('A user cannot access another patient by id', async () => {
                 const request = await createTestRequest();
@@ -523,8 +518,7 @@ describe('patient Tests', () => {
                 expect(resp.body.id).toBe('patient-123-b-allergy-intolerance');
             });
 
-
-            test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
+            test("A user cannot access another patient's patient-filtered resources by id", async () => {
                 const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
@@ -538,7 +532,6 @@ describe('patient Tests', () => {
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
             //Make sure patient 123 can only access his Conditions
-
 
             test('A user can access their subject-filtered resources by id', async () => {
                 const request = await createTestRequest();
@@ -554,7 +547,7 @@ describe('patient Tests', () => {
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
 
-            test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
+            test("A user cannot access another patients's subject-filtered resources by id", async () => {
                 const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
@@ -568,7 +561,6 @@ describe('patient Tests', () => {
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
         });
-
 
         describe('App clients security filtering', () => {
             //Make sure app clients can access all patients
@@ -627,9 +619,9 @@ describe('patient Tests', () => {
                 // .set(getHeaders())
                 .post('/graphqlv2')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getCustomGraphQLHeaders(payload))
                 .expect(200);
@@ -641,7 +633,9 @@ describe('patient Tests', () => {
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry.length).toBe(1);
 
-            expect(body.data.allergyIntolerance.entry[0].resource.id).toBe('eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t');
+            expect(body.data.allergyIntolerance.entry[0].resource.id).toBe(
+                'eARZpey6BWRZxRZkRpc8OFJ46j3QOFrduk77hYQKWRQmlt9PoMWmqTzLFagJe8t'
+            );
             expect(body.data.allergyIntolerance.entry[0].resource.code.text).toBe('Not on File');
             expect(body.data.errors).toBeUndefined();
         });

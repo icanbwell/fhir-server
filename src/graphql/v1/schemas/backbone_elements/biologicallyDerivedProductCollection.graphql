@@ -18,7 +18,7 @@ type BiologicallyDerivedProductCollection {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -26,7 +26,7 @@ type BiologicallyDerivedProductCollection {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,27 +37,27 @@ type BiologicallyDerivedProductCollection {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Healthcare professional who is performing the collection.
     """
-    collector: BiologicallyDerivedProductCollectionCollector        
+    collector: BiologicallyDerivedProductCollectionCollector
     """
     The patient or entity, such as a hospital or vendor in the case of a
     processed/manipulated/manufactured product, providing the product.
     """
-    source: BiologicallyDerivedProductCollectionSource        
+    source: BiologicallyDerivedProductCollectionSource
     """
     None
     """
-    collectedDateTime: dateTime        
+    collectedDateTime: dateTime
     """
     None
     """
-    collectedPeriod: Period        
+    collectedPeriod: Period
 }

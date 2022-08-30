@@ -1,4 +1,4 @@
-const {getResources} = require('../../common');
+const { getResources } = require('../../common');
 
 module.exports = {
     MedicationRequest: {
@@ -7,12 +7,12 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'prescription': parent.id,
+                    prescription: parent.id,
                 },
                 context,
                 info,
                 'MedicationDispense'
             );
         },
-    }
+    },
 };

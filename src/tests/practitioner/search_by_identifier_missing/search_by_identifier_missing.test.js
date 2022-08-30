@@ -6,9 +6,14 @@ const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.jso
 const expectedPractitionerIdentifierMissingFalse = require('./fixtures/expected/expected_practitioner_identifier_missing_false.json');
 const expectedPractitionerIdentifierMissingTrue = require('./fixtures/expected/expected_practitioner_identifier_missing_true.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -45,7 +50,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPractitionerIdentifierMissingFalse
+                body: resp.body,
+                expected: expectedPractitionerIdentifierMissingFalse,
             });
 
             resp = await request
@@ -53,7 +59,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPractitionerIdentifierMissingTrue
+                body: resp.body,
+                expected: expectedPractitionerIdentifierMissingTrue,
             });
         });
     });

@@ -12,12 +12,12 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'prescription': parent.id,
+                    prescription: parent.id,
                 },
                 context,
                 info,
                 'MedicationDispense'
             );
         },
-    }
+    },
 };

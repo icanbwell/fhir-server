@@ -4,9 +4,19 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResourceCount, assertMerge, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const {
+    assertStatusCode,
+    assertResourceCount,
+    assertMerge,
+    assertResponse,
+} = require('../../fhirAsserts');
 
 describe('Merge By Parameters Tests', () => {
     beforeEach(async () => {
@@ -32,7 +42,7 @@ describe('Merge By Parameters Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: patient1Resource}]
+                parameter: [{ name: 'resource', resource: patient1Resource }],
             };
 
             await request
@@ -40,7 +50,7 @@ describe('Merge By Parameters Tests', () => {
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertMerge([{created: true}]));
+                .expect(assertMerge([{ created: true }]));
 
             await request
                 .get('/4_0_0/Patient')
@@ -52,7 +62,7 @@ describe('Merge By Parameters Tests', () => {
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHeaders())
                 .expect(200)
-                .expect(assertResponse({expected: expectedSinglePatientResource}));
+                .expect(assertResponse({ expected: expectedSinglePatientResource }));
         });
     });
 });

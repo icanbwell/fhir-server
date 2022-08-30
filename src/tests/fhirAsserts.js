@@ -1,6 +1,6 @@
-const {expect} = require('@jest/globals');
-const {assertFail} = require('../utils/assertType');
-const {validateResource} = require('../utils/validator.util');
+const { expect } = require('@jest/globals');
+const { assertFail } = require('../utils/assertType');
+const { validateResource } = require('../utils/validator.util');
 
 /**
  * confirms that object was created
@@ -38,7 +38,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @param {Boolean} ignoreMetaTags
  */
-function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
+function assertCompareBundles({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
     // console.log(JSON.stringify(body, null, 2));
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -49,7 +49,7 @@ function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags =
         if (ignoreMetaTags) {
             body.meta.tag = [];
         }
-        body.meta.tag.forEach(tag => {
+        body.meta.tag.forEach((tag) => {
             if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
                 delete tag['display'];
             }
@@ -57,7 +57,7 @@ function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags =
     }
     expect(body.entry).not.toBeNull();
     expect(body.entry).not.toBeUndefined();
-    body.entry.forEach(element => {
+    body.entry.forEach((element) => {
         if (element['resource'] && element['resource']['meta']) {
             delete element['resource']['meta']['lastUpdated'];
         }
@@ -71,14 +71,13 @@ function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags =
         if (ignoreMetaTags) {
             expected.meta.tag = [];
         }
-        expected.meta.tag.forEach(tag => {
+        expected.meta.tag.forEach((tag) => {
             if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
                 delete tag['display'];
             }
-
         });
     }
-    expected.entry.forEach(element => {
+    expected.entry.forEach((element) => {
         if (element['resource']['meta']) {
             delete element['resource']['meta']['lastUpdated'];
         }
@@ -89,27 +88,31 @@ function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags =
     });
 
     // now sort the two lists so the comparison is agnostic to order
-    body.entry = body.entry.sort((a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`));
-    expected.entry = expected.entry.sort((a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`));
+    body.entry = body.entry.sort((a, b) =>
+        `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+    );
+    expected.entry = expected.entry.sort((a, b) =>
+        `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+    );
 
-    body.entry.forEach(element => {
+    body.entry.forEach((element) => {
         delete element['fullUrl'];
         if (element['resource']) {
             if (element['resource']['meta']) {
                 delete element['resource']['meta']['lastUpdated'];
             }
             if (element['resource']['contained']) {
-                element['resource']['contained'].forEach(containedElement => {
+                element['resource']['contained'].forEach((containedElement) => {
                     delete containedElement['meta']['lastUpdated'];
                 });
                 // sort the list
-                element['resource']['contained'] = element['resource']['contained'].sort(
-                    (a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+                element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                    `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                 );
             }
         }
     });
-    expected.entry.forEach(element => {
+    expected.entry.forEach((element) => {
         delete element['fullUrl'];
         if ('meta' in element['resource']) {
             delete element['resource']['meta']['lastUpdated'];
@@ -119,12 +122,12 @@ function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags =
             delete element['$schema'];
         }
         if (element['resource']['contained']) {
-            element['resource']['contained'].forEach(containedElement => {
+            element['resource']['contained'].forEach((containedElement) => {
                 delete containedElement['meta']['lastUpdated'];
             });
             // sort the list
-            element['resource']['contained'] = element['resource']['contained'].sort(
-                (a, b) => `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+            element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
             );
         }
     });
@@ -143,16 +146,15 @@ function assertStatusCode(expectedStatusCode) {
             expect(resp.status).toBe(expectedStatusCode);
         } catch (e) {
             assertFail({
-                    source: 'assertStatusCode',
-                    message: `Status Code did not match: ${JSON.stringify(resp)}`,
-                    args: {
-                        expected: expectedStatusCode,
-                        actual: resp.status,
-                        responseBody: resp.body
-                    },
-                    error: e
-                }
-            );
+                source: 'assertStatusCode',
+                message: `Status Code did not match: ${JSON.stringify(resp)}`,
+                args: {
+                    expected: expectedStatusCode,
+                    actual: resp.status,
+                    responseBody: resp.body,
+                },
+                error: e,
+            });
         }
     };
 }
@@ -177,16 +179,17 @@ function assertResourceCount(count) {
             expect(resp.body.length).toBe(count);
         } catch (e) {
             assertFail({
-                    source: 'assertResourceCount',
-                    message: `Resource count ${resp.body.length} != ${count}: ${JSON.stringify(resp.body)}`,
-                    args: {
-                        expected: count,
-                        actual: resp.body.length,
-                        responseBody: resp.body
-                    },
-                    error: e
-                }
-            );
+                source: 'assertResourceCount',
+                message: `Resource count ${resp.body.length} != ${count}: ${JSON.stringify(
+                    resp.body
+                )}`,
+                args: {
+                    expected: count,
+                    actual: resp.body.length,
+                    responseBody: resp.body,
+                },
+                error: e,
+            });
         }
     };
 }
@@ -221,15 +224,16 @@ function assertMerge(checks) {
             // assertMergeIsSuccessful(resp.body);
         } catch (e) {
             assertFail({
-                    source: 'assertMerge',
-                    message: `Merge failed: Expected: ${JSON.stringify(checks)}.  Actual: ${JSON.stringify(resp.body)}`,
-                    args: {
-                        expected: checks,
-                        actual: resp.body,
-                    },
-                    error: e
-                }
-            );
+                source: 'assertMerge',
+                message: `Merge failed: Expected: ${JSON.stringify(
+                    checks
+                )}.  Actual: ${JSON.stringify(resp.body)}`,
+                args: {
+                    expected: checks,
+                    actual: resp.body,
+                },
+                error: e,
+            });
         }
     };
 }
@@ -240,7 +244,7 @@ function assertMerge(checks) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @return {(function(*): void)|*}
  */
-function assertResponse({expected, fnCleanResource}) {
+function assertResponse({ expected, fnCleanResource }) {
     expect(expected).not.toBeUndefined();
     return (/** @type {import('http').ServerResponse} */ resp) => {
         if (Array.isArray(resp.body) && !Array.isArray(expected)) {
@@ -250,20 +254,21 @@ function assertResponse({expected, fnCleanResource}) {
             expected = expected[0];
         }
         if (!Array.isArray(resp.body) && resp.body.resourceType === 'Bundle') {
-            if (Array.isArray(expected)) { // make into a bundle if it is not
+            if (Array.isArray(expected)) {
+                // make into a bundle if it is not
                 expected = {
                     resourceType: 'Bundle',
                     type: 'searchset',
-                    entry: expected.map(e => {
-                        return {resource: e};
-                    })
+                    entry: expected.map((e) => {
+                        return { resource: e };
+                    }),
                 };
             }
-            assertCompareBundles({body: resp.body, expected, fnCleanResource});
+            assertCompareBundles({ body: resp.body, expected, fnCleanResource });
             return;
         } else {
             if (Array.isArray(resp.body)) {
-                resp.body.forEach(element => {
+                resp.body.forEach((element) => {
                     // clean out stuff that changes
                     if ('meta' in element) {
                         delete element['meta']['lastUpdated'];
@@ -274,7 +279,11 @@ function assertResponse({expected, fnCleanResource}) {
                     delete resp.body['meta']['lastUpdated'];
                 }
                 if (resp.body.resourceType) {
-                    const operationOutcome = validateResource(resp.body, resp.body.resourceType, '');
+                    const operationOutcome = validateResource(
+                        resp.body,
+                        resp.body.resourceType,
+                        ''
+                    );
                     if (operationOutcome && operationOutcome.statusCode === 400) {
                         assertFail({
                             source: 'assertResponse',
@@ -282,15 +291,14 @@ function assertResponse({expected, fnCleanResource}) {
                             args: {
                                 resourceType: resp.body.resourceType,
                                 resource: resp.body,
-                                operationOutcome: operationOutcome
-                            }
+                                operationOutcome: operationOutcome,
+                            },
                         });
                     }
-
                 }
             }
             if (Array.isArray(expected)) {
-                expected.forEach(element => {
+                expected.forEach((element) => {
                     // clean out stuff that changes
                     if ('meta' in element) {
                         delete element['meta']['lastUpdated'];
@@ -306,7 +314,6 @@ function assertResponse({expected, fnCleanResource}) {
     };
 }
 
-
 module.exports = {
     assertCompareBundles,
     assertMergeIsSuccessful,
@@ -314,5 +321,5 @@ module.exports = {
     assertResourceCount,
     assertResponse,
     assertMerge,
-    assertStatusOk
+    assertStatusOk,
 };

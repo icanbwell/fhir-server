@@ -47,7 +47,6 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import Meta from "../complex_types/meta.graphql"
 
-
 """
 StructureMap.Source
     A Map of relationships between 2 structures that can be used to transform
@@ -57,7 +56,7 @@ type StructureMapSource {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -65,7 +64,7 @@ type StructureMapSource {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -76,256 +75,256 @@ type StructureMapSource {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Type or variable this rule applies to.
     """
-    context: id!        
+    context: id!
     """
     Specified minimum cardinality for the element. This is optional; if present,
     it acts an implicit check on the input content.
     """
-    min: Int        
+    min: Int
     """
     Specified maximum cardinality for the element - a number or a "*". This is
     optional; if present, it acts an implicit check on the input content (* just
     serves as documentation; it's the default value).
     """
-    max: String        
+    max: String
     """
     Specified type for the element. This works as a condition on the mapping - use
     for polymorphic elements.
     """
-    type: String        
+    type: String
     """
     None
     """
-    defaultValueBase64Binary: base64Binary        
+    defaultValueBase64Binary: base64Binary
     """
     None
     """
-    defaultValueBoolean: Boolean        
+    defaultValueBoolean: Boolean
     """
     None
     """
-    defaultValueCanonical: canonical        
+    defaultValueCanonical: canonical
     """
     None
     """
-    defaultValueCode: code        
+    defaultValueCode: code
     """
     None
     """
-    defaultValueDate: date        
+    defaultValueDate: date
     """
     None
     """
-    defaultValueDateTime: dateTime        
+    defaultValueDateTime: dateTime
     """
     None
     """
-    defaultValueDecimal: decimal        
+    defaultValueDecimal: decimal
     """
     None
     """
-    defaultValueId: id        
+    defaultValueId: id
     """
     None
     """
-    defaultValueInstant: instant        
+    defaultValueInstant: instant
     """
     None
     """
-    defaultValueInteger: Int        
+    defaultValueInteger: Int
     """
     None
     """
-    defaultValueMarkdown: markdown        
+    defaultValueMarkdown: markdown
     """
     None
     """
-    defaultValueOid: oid        
+    defaultValueOid: oid
     """
     None
     """
-    defaultValuePositiveInt: Int        
+    defaultValuePositiveInt: Int
     """
     None
     """
-    defaultValueString: String        
+    defaultValueString: String
     """
     None
     """
-    defaultValueTime: time        
+    defaultValueTime: time
     """
     None
     """
-    defaultValueUnsignedInt: unsignedInt        
+    defaultValueUnsignedInt: unsignedInt
     """
     None
     """
-    defaultValueUri: uri        
+    defaultValueUri: uri
     """
     None
     """
-    defaultValueUrl: url        
+    defaultValueUrl: url
     """
     None
     """
-    defaultValueUuid: uuid        
+    defaultValueUuid: uuid
     """
     None
     """
-    defaultValueAddress: Address        
+    defaultValueAddress: Address
     """
     None
     """
-    defaultValueAge: Quantity        
+    defaultValueAge: Quantity
     """
     None
     """
-    defaultValueAnnotation: Annotation        
+    defaultValueAnnotation: Annotation
     """
     None
     """
-    defaultValueAttachment: Attachment        
+    defaultValueAttachment: Attachment
     """
     None
     """
-    defaultValueCodeableConcept: CodeableConcept        
+    defaultValueCodeableConcept: CodeableConcept
     """
     None
     """
-    defaultValueCoding: Coding        
+    defaultValueCoding: Coding
     """
     None
     """
-    defaultValueContactPoint: ContactPoint        
+    defaultValueContactPoint: ContactPoint
     """
     None
     """
-    defaultValueCount: Quantity        
+    defaultValueCount: Quantity
     """
     None
     """
-    defaultValueDistance: Quantity        
+    defaultValueDistance: Quantity
     """
     None
     """
-    defaultValueDuration: Quantity        
+    defaultValueDuration: Quantity
     """
     None
     """
-    defaultValueHumanName: HumanName        
+    defaultValueHumanName: HumanName
     """
     None
     """
-    defaultValueIdentifier: Identifier        
+    defaultValueIdentifier: Identifier
     """
     None
     """
-    defaultValueMoney: Money        
+    defaultValueMoney: Money
     """
     None
     """
-    defaultValuePeriod: Period        
+    defaultValuePeriod: Period
     """
     None
     """
-    defaultValueQuantity: Quantity        
+    defaultValueQuantity: Quantity
     """
     None
     """
-    defaultValueRange: Range        
+    defaultValueRange: Range
     """
     None
     """
-    defaultValueRatio: Ratio        
+    defaultValueRatio: Ratio
     """
     None
     """
-    defaultValueReference: Resource        
+    defaultValueReference: Resource
     """
     None
     """
-    defaultValueSampledData: SampledData        
+    defaultValueSampledData: SampledData
     """
     None
     """
-    defaultValueSignature: Signature        
+    defaultValueSignature: Signature
     """
     None
     """
-    defaultValueTiming: Timing        
+    defaultValueTiming: Timing
     """
     None
     """
-    defaultValueContactDetail: ContactDetail        
+    defaultValueContactDetail: ContactDetail
     """
     None
     """
-    defaultValueContributor: Contributor        
+    defaultValueContributor: Contributor
     """
     None
     """
-    defaultValueDataRequirement: DataRequirement        
+    defaultValueDataRequirement: DataRequirement
     """
     None
     """
-    defaultValueExpression: Expression        
+    defaultValueExpression: Expression
     """
     None
     """
-    defaultValueParameterDefinition: ParameterDefinition        
+    defaultValueParameterDefinition: ParameterDefinition
     """
     None
     """
-    defaultValueRelatedArtifact: RelatedArtifact        
+    defaultValueRelatedArtifact: RelatedArtifact
     """
     None
     """
-    defaultValueTriggerDefinition: TriggerDefinition        
+    defaultValueTriggerDefinition: TriggerDefinition
     """
     None
     """
-    defaultValueUsageContext: UsageContext        
+    defaultValueUsageContext: UsageContext
     """
     None
     """
-    defaultValueDosage: Dosage        
+    defaultValueDosage: Dosage
     """
     None
     """
-    defaultValueMeta: Meta        
+    defaultValueMeta: Meta
     """
     Optional field for this source.
     """
-    element: String        
+    element: String
     """
     How to handle the list mode for this element.
     """
-    listMode: code        
+    listMode: code
     """
     Named context for field, if a field is specified.
     """
-    variable: id        
+    variable: id
     """
     FHIRPath expression  - must be true or the rule does not apply.
     """
-    condition: String        
+    condition: String
     """
     FHIRPath expression  - must be true or the mapping engine throws an error
     instead of completing.
     """
-    check: String        
+    check: String
     """
     A FHIRPath expression which specifies a message to put in the transform log
     when content matching the source rule is found.
     """
-    logMessage: String        
+    logMessage: String
 }

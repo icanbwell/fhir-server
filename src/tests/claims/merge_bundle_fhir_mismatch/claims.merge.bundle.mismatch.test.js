@@ -3,9 +3,14 @@ const explanationOfBenefitBundleResource2 = require('./fixtures/explanation_of_b
 const explanationOfBenefitBundleResource3 = require('./fixtures/explanation_of_benefits3.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -19,9 +24,7 @@ describe('Claim Merge Tests', () => {
     describe('Claim Merge with overlapping items', () => {
         test('Claims with same claim number in different bundles and similar items merge properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders());
+            let resp = await request.get('/4_0_0/ExplanationOfBenefit').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -48,7 +51,6 @@ describe('Claim Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3  ------------');
 
-
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource3)
@@ -58,12 +60,12 @@ describe('Claim Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 4  ------------');
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/ExplanationOfBenefit?_bundle=1').set(getHeaders());
 
-            assertCompareBundles(
-                {body: resp.body, expected: expectedExplanationOfBenefitBundleResource});
+            assertCompareBundles({
+                body: resp.body,
+                expected: expectedExplanationOfBenefitBundleResource,
+            });
         });
     });
 });

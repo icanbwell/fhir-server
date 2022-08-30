@@ -1,70 +1,70 @@
 [
-  {
-    "resourceType": "MedicationDispense",
-    "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
-    "meta": {
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "mps-api"
-        }
-      ]
+    {
+        "resourceType": "MedicationDispense",
+        "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
+        "meta": {
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
+                }
+            ]
+        },
+        "status": "completed",
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "display": "Lipitor"
+                }
+            ],
+            "text": "Lipitor"
+        },
+        "subject": {
+            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        },
+        "authorizingPrescription": [
+            {
+                "reference": "MedicationRequest/6891e039-fa2a-42e4-bab8-d79d7ed94d68"
+            }
+        ],
+        "quantity": {
+            "value": 20,
+            "unit": "tablets"
+        },
+        "whenHandedOver": "2022-07-01"
     },
-    "status": "completed",
-    "medicationCodeableConcept": {
-      "coding": [
-        {
-          "display": "Lipitor"
-        }
-      ],
-      "text": "Lipitor"
-    },
-    "subject": {
-      "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
-    },
-    "authorizingPrescription": [
-      {
-        "reference": "MedicationRequest/6891e039-fa2a-42e4-bab8-d79d7ed94d68"
-      }
-    ],
-    "quantity": {
-      "value": 20,
-      "unit": "tablets"
-    },
-    "whenHandedOver": "2022-07-01"
-  },
-  {
-    "resourceType": "MedicationDispense",
-    "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
-    "meta": {
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "mps-api"
-        }
-      ]
-    },
-    "status": "completed",
-    "medicationCodeableConcept": {
-      "coding": [
-        {
-          "display": "Lipitor"
-        }
-      ],
-      "text": "Lipitor"
-    },
-    "subject": {
-      "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
-    },
-    "authorizingPrescription": [
-      {
-        "reference": "MedicationRequest/6891e039-fa2a-42e4-bab8-d79d7ed94d68"
-      }
-    ],
-    "quantity": {
-      "value": 30,
-      "unit": "tablets"
-    },
-    "whenHandedOver": "2022-07-05"
-  }
+    {
+        "resourceType": "MedicationDispense",
+        "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+        "meta": {
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
+                }
+            ]
+        },
+        "status": "completed",
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "display": "Lipitor"
+                }
+            ],
+            "text": "Lipitor"
+        },
+        "subject": {
+            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        },
+        "authorizingPrescription": [
+            {
+                "reference": "MedicationRequest/6891e039-fa2a-42e4-bab8-d79d7ed94d68"
+            }
+        ],
+        "quantity": {
+            "value": 30,
+            "unit": "tablets"
+        },
+        "whenHandedOver": "2022-07-05"
+    }
 ]

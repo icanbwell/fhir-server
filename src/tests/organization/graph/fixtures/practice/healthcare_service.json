@@ -1,36 +1,36 @@
 {
-  "resourceType": "HealthcareService",
-  "meta": {
-    "versionId": "1",
-    "lastUpdated": "2021-01-14T23:42:00+00:00",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      }
-    ]
-  },
-  "id": "-733797173",
-  "identifier": [
-    {
-      "use": "usual",
-      "system": "bwell",
-      "value": "-733797173"
-    }
-  ],
-  "type": [],
-  "providedBy": {
-    "reference": "Organization/733797173"
-  },
-  "specialty": [
-    {
-      "coding": [
+    "resourceType": "HealthcareService",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2021-01-14T23:42:00+00:00",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            }
+        ]
+    },
+    "id": "-733797173",
+    "identifier": [
         {
-          "system": "http://nucc.org/provider-taxonomy",
-          "code": "261QP2300X",
-          "display": "Primary Care and Student Health"
+            "use": "usual",
+            "system": "bwell",
+            "value": "-733797173"
         }
-      ]
-    }
-  ]
+    ],
+    "type": [],
+    "providedBy": {
+        "reference": "Organization/733797173"
+    },
+    "specialty": [
+        {
+            "coding": [
+                {
+                    "system": "http://nucc.org/provider-taxonomy",
+                    "code": "261QP2300X",
+                    "display": "Primary Care and Student Health"
+                }
+            ]
+        }
+    ]
 }

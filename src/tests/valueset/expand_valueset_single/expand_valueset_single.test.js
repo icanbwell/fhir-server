@@ -10,10 +10,14 @@ const {
     commonAfterEach,
     getHeaders,
     wrapResourceInBundle,
-    createTestRequest
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful, assertStatusCode} = require('../../fhirAsserts');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const {
+    assertCompareBundles,
+    assertMergeIsSuccessful,
+    assertStatusCode,
+} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
@@ -47,7 +51,7 @@ describe('ValueSet Tests', () => {
             console.log('------- end response sort ------------');
             assertCompareBundles({
                 body: wrapResourceInBundle(resp.body),
-                expected: expectedValueSetResources
+                expected: expectedValueSetResources,
             });
 
             // ACT & ASSERT
@@ -61,7 +65,8 @@ describe('ValueSet Tests', () => {
             console.log('------- end response sort ------------');
             // clear out the lastUpdated column since that changes
             assertCompareBundles({
-                body: wrapResourceInBundle(resp.body), expected: expectedValueSetExpandResources
+                body: wrapResourceInBundle(resp.body),
+                expected: expectedValueSetExpandResources,
             });
         });
     });

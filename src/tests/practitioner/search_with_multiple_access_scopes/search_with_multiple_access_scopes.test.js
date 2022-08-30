@@ -7,9 +7,14 @@ const practitioner3Resource = require('./fixtures/Practitioner/practitioner3.jso
 const expectedPractitionerWithLimitedAccessScopes = require('./fixtures/expected/expected_practitioner_with_limited_access_scopes.json');
 const expectedPractitionerWithUnlimitedAccessScopes = require('./fixtures/expected/expected_practitioner_with_unlimited_access_scopes.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -53,7 +58,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders('user/Practitioner.read access/medstar.* access/nppes.*'))
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPractitionerWithLimitedAccessScopes
+                body: resp.body,
+                expected: expectedPractitionerWithLimitedAccessScopes,
             });
 
             // now search by full access token and make sure we get all three back
@@ -62,7 +68,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPractitionerWithUnlimitedAccessScopes
+                body: resp.body,
+                expected: expectedPractitionerWithUnlimitedAccessScopes,
             });
         });
     });

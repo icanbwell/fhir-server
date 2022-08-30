@@ -1,91 +1,85 @@
 [
-  {
-    "resourceType": "Person",
-    "id": "aba5bcf41cf64435839cf0568c121843",
-    "meta": {
-      "versionId": "1",
-      "profile": [
-        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
-      ],
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "bwell"
+    {
+        "resourceType": "Person",
+        "id": "aba5bcf41cf64435839cf0568c121843",
+        "meta": {
+            "versionId": "1",
+            "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"],
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "bwell"
+                },
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "bwell"
+                }
+            ],
+            "lastUpdated": "2022-08-28T22:12:13.000Z"
         },
-        {
-          "system": "https://www.icanbwell.com/owner",
-          "code": "bwell"
-        }
-      ],
-      "lastUpdated": "2022-08-28T22:12:13.000Z"
-    },
-    "identifier": [
-      {
-        "type": {
-          "coding": [
+        "identifier": [
             {
-              "system": "https://www.icanbwell.com",
-              "code": "FHIR_id",
-              "display": "bWell FHIR id"
+                "type": {
+                    "coding": [
+                        {
+                            "system": "https://www.icanbwell.com",
+                            "code": "FHIR_id",
+                            "display": "bWell FHIR id"
+                        }
+                    ]
+                },
+                "system": "https://www.icanbwell.com",
+                "value": "bwell-aba5bcf41cf64435839cf0568c121843"
             }
-          ]
-        },
-        "system": "https://www.icanbwell.com",
-        "value": "bwell-aba5bcf41cf64435839cf0568c121843"
-      }
-    ],
-    "name": [
-      {
-        "use": "official",
-        "family": "essnhlmvgt",
-        "given": [
-          "Sweetie"
-        ]
-      }
-    ],
-    "telecom": [
-      {
-        "system": "phone",
-        "value": "+15125550156",
-        "use": "home"
-      },
-      {
-        "system": "email",
-        "value": "bwell+62365zoakm@mailinator.com",
-        "use": "home"
-      }
-    ],
-    "gender": "male",
-    "birthDate": "1991-09-10",
-    "address": [
-      {
-        "line": [
-          "801 W 5th St"
         ],
-        "city": "Austin",
-        "state": "TX",
-        "postalCode": "78703"
-      }
-    ],
-    "link": [
-      {
-        "target": {
-          "reference": "Person/a58e50292d79469691d3048e787434cc",
-          "type": "Person"
+        "name": [
+            {
+                "use": "official",
+                "family": "essnhlmvgt",
+                "given": ["Sweetie"]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "phone",
+                "value": "+15125550156",
+                "use": "home"
+            },
+            {
+                "system": "email",
+                "value": "bwell+62365zoakm@mailinator.com",
+                "use": "home"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1991-09-10",
+        "address": [
+            {
+                "line": ["801 W 5th St"],
+                "city": "Austin",
+                "state": "TX",
+                "postalCode": "78703"
+            }
+        ],
+        "link": [
+            {
+                "target": {
+                    "reference": "Person/a58e50292d79469691d3048e787434cc",
+                    "type": "Person"
+                },
+                "assurance": "level4"
+            },
+            {
+                "target": {
+                    "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+                    "type": "Patient"
+                },
+                "assurance": "level4"
+            }
+        ],
+        "_access": {
+            "bwell": 1
         },
-        "assurance": "level4"
-      },
-      {
-        "target": {
-          "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
-          "type": "Patient"
-        },
-        "assurance": "level4"
-      }
-    ],
-    "_access": {
-      "bwell": 1
-    },
-    "_id": "630be83db0fb3dc74a4f4651"
-  }
+        "_id": "630be83db0fb3dc74a4f4651"
+    }
 ]

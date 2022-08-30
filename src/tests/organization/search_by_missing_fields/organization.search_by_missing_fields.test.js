@@ -4,8 +4,13 @@ const organizationResponseBundle3 = require('./fixtures/organization3.json');
 const expectedOrganizationResponseBundle = require('./fixtures/expected_organization_responses.json');
 const expectedOrganizationResponseBundle2 = require('./fixtures/expected_organization_responses_2.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Organization Response Tests', () => {
     beforeEach(async () => {
@@ -19,10 +24,7 @@ describe('Organization Response Tests', () => {
     describe('OrganizationResponse Bundles', () => {
         test('OrganizationResponse can search by null', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Organization')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -61,11 +63,11 @@ describe('Organization Response Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedOrganizationResponseBundle;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -85,11 +87,11 @@ describe('Organization Response Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 6  ------------');
             expect(body.length).toBe(1);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedOrganizationResponseBundle2;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

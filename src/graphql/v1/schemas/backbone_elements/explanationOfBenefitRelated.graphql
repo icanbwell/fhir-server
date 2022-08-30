@@ -4,7 +4,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 
-
 """
 ExplanationOfBenefit.Related
     This resource provides: the claim details; adjudication details from the
@@ -15,7 +14,7 @@ type ExplanationOfBenefitRelated {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +22,7 @@ type ExplanationOfBenefitRelated {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -34,23 +33,23 @@ type ExplanationOfBenefitRelated {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Reference to a related claim.
     """
-    claim: Claim        
+    claim: Claim
     """
     A code to convey how the claims are related.
     """
-    relationship: CodeableConcept        
+    relationship: CodeableConcept
     """
     An alternate organizational reference to the case or file to which this
     particular claim pertains.
     """
-    reference: Identifier        
+    reference: Identifier
 }

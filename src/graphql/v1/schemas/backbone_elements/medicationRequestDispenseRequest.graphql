@@ -7,7 +7,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Organization from "../resources/organization.graphql"
 
-
 """
 MedicationRequest.DispenseRequest
     An order or request for both supply of the medication and the instructions for
@@ -20,7 +19,7 @@ type MedicationRequestDispenseRequest {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -28,7 +27,7 @@ type MedicationRequestDispenseRequest {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -39,26 +38,26 @@ type MedicationRequestDispenseRequest {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Indicates the quantity or duration for the first dispense of the medication.
     """
-    initialFill: MedicationRequestInitialFill        
+    initialFill: MedicationRequestInitialFill
     """
     The minimum period of time that must occur between dispenses of the
     medication.
     """
-    dispenseInterval: Quantity        
+    dispenseInterval: Quantity
     """
     This indicates the validity period of a prescription (stale dating the
     Prescription).
     """
-    validityPeriod: Period        
+    validityPeriod: Period
     """
     An integer indicating the number of times, in addition to the original
     dispense, (aka refills or repeats) that the patient can receive the prescribed
@@ -68,18 +67,18 @@ type MedicationRequestDispenseRequest {
     can receive a total of 120 tablets.  A prescriber may explicitly say that zero
     refills are permitted after the initial dispense.
     """
-    numberOfRepeatsAllowed: unsignedInt        
+    numberOfRepeatsAllowed: unsignedInt
     """
     The amount that is to be dispensed for one fill.
     """
-    quantity: Quantity        
+    quantity: Quantity
     """
     Identifies the period time over which the supplied product is expected to be
     used, or the length of time the dispense is expected to last.
     """
-    expectedSupplyDuration: Quantity        
+    expectedSupplyDuration: Quantity
     """
     Indicates the intended dispensing Organization specified by the prescriber.
     """
-    performer: Organization        
+    performer: Organization
 }

@@ -1,6 +1,5 @@
-const {MockKafkaClient} = require('./mocks/mockKafkaClient');
-const {createContainer} = require('../createContainer');
-
+const { MockKafkaClient } = require('./mocks/mockKafkaClient');
+const { createContainer } = require('../createContainer');
 
 /**
  * Creates a container and sets up all the services
@@ -20,5 +19,5 @@ const createTestContainer = function (fnUpdateContainer) {
     return container;
 };
 module.exports = {
-    createTestContainer
+    createTestContainer,
 };

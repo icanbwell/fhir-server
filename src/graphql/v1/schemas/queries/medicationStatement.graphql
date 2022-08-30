@@ -13,7 +13,7 @@ extend type Query {
     a patient visit or stay.   The medication information may come from sources
     such as the patient's memory, from a prescription bottle,  or from a list of
     medications the patient, clinician or other party maintains.
-    
+
     The primary difference between a medication statement and a medication
     administration is that the medication administration has complete
     administration information and is based on actual administration information
@@ -29,7 +29,6 @@ extend type Query {
         If the element is present, it must have either a @value, an @id, or extensions
     """
     medicationStatement(
-
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
         list of ids to retrieve.  DEPRECATED: Use `_id`

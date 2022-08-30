@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-
 """
 ResearchStudy.Arm
     A process where a researcher or organization plans and then executes a series
@@ -16,7 +15,7 @@ type ResearchStudyArm {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +23,7 @@ type ResearchStudyArm {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,24 +34,24 @@ type ResearchStudyArm {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Unique, human-readable label for this arm of the study.
     """
-    name: String!        
+    name: String!
     """
     Categorization of study arm, e.g. experimental, active comparator, placebo
     comparater.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     A succinct description of the path through the study that would be followed by
     a subject adhering to this arm.
     """
-    description: String        
+    description: String
 }

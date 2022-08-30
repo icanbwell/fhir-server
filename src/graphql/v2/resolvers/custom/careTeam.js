@@ -1,7 +1,7 @@
-const {getUuid} = require('../../../../utils/uid.util');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {SimpleContainer} = require('../../../../utils/simpleContainer');
+const { getUuid } = require('../../../../utils/uid.util');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { SimpleContainer } = require('../../../../utils/simpleContainer');
 
 function mapParticipants(members) {
     const result = [];
@@ -9,8 +9,8 @@ function mapParticipants(members) {
         result.push({
             id: m.id,
             role: m.role,
-            member: {reference: m.member},
-            onBehalfOf: {reference: m.onBehalfOf},
+            member: { reference: m.member },
+            onBehalfOf: { reference: m.onBehalfOf },
             period: m.period,
         });
     });
@@ -21,7 +21,7 @@ function mapManagingOrganization(organizations) {
     const result = [];
     organizations.forEach((org) => {
         result.push({
-            reference: org
+            reference: org,
         });
     });
 
@@ -40,8 +40,8 @@ function mapCareTeam(team) {
         status: team.code,
         category: team.category,
         name: team.name,
-        subject: {reference: team.subject},
-        encounter: {reference: team.encounter},
+        subject: { reference: team.subject },
+        encounter: { reference: team.encounter },
         period: team.period,
         participant: mapParticipants(team.participant),
         reasonCode: team.reasonCode,
@@ -108,7 +108,7 @@ module.exports = {
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
                     requestInfo,
-                    {...args, base_version: '4_0_0'},
+                    { ...args, base_version: '4_0_0' },
                     'CareTeam'
                 );
                 if (result && result[0].operationOutcome) {

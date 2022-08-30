@@ -28,9 +28,14 @@ const expectedOrganizationResource = require('./fixtures/expected/expected_organ
 const expectedInsurancePlanResource = require('./fixtures/expected/expected_insurance_plan.json');
 const expectedHealthcareServiceResource = require('./fixtures/expected/expected_healthcare_service.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Practitioner Complex Merge Tests', () => {
     beforeEach(async () => {
@@ -44,9 +49,7 @@ describe('Practitioner Complex Merge Tests', () => {
     describe('Practitioner Merges', () => {
         test('Multiple calls to Practitioner merge properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -214,9 +217,7 @@ describe('Practitioner Complex Merge Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             console.log('------- response Practitioner ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
@@ -230,9 +231,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expected[0]['meta']['versionId'] = '2';
             expect(body).toStrictEqual(expected);
 
-            resp = await request
-                .get('/4_0_0/PractitionerRole')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/PractitionerRole').set(getHeaders());
             console.log('------- response PractitionerRole ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
@@ -240,11 +239,11 @@ describe('Practitioner Complex Merge Tests', () => {
             body = resp.body;
             expect(body.length).toBe(3);
             delete body[0]['meta']['lastUpdated'];
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedPractitionerRoleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -256,9 +255,7 @@ describe('Practitioner Complex Merge Tests', () => {
 
             expect(body).toStrictEqual(expected);
 
-            resp = await request
-                .get('/4_0_0/Location')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Location').set(getHeaders());
 
             console.log('------- response Location ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -267,11 +264,11 @@ describe('Practitioner Complex Merge Tests', () => {
             body = resp.body;
             expect(body.length).toBe(3);
             delete body[0]['meta']['lastUpdated'];
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedLocationResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -283,9 +280,7 @@ describe('Practitioner Complex Merge Tests', () => {
 
             expect(body).toStrictEqual(expected);
 
-            resp = await request
-                .get('/4_0_0/Organization')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Organization').set(getHeaders());
             console.log('------- response Organization ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
@@ -293,11 +288,11 @@ describe('Practitioner Complex Merge Tests', () => {
             body = resp.body;
             expect(body.length).toBe(5);
             delete body[0]['meta']['lastUpdated'];
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta'];
             });
             expected = expectedOrganizationResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta'];
                 }
@@ -308,9 +303,7 @@ describe('Practitioner Complex Merge Tests', () => {
 
             expect(body).toStrictEqual(expected);
 
-            resp = await request
-                .get('/4_0_0/InsurancePlan')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/InsurancePlan').set(getHeaders());
 
             console.log('------- response InsurancePlan ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -319,11 +312,11 @@ describe('Practitioner Complex Merge Tests', () => {
             body = resp.body;
             expect(body.length).toBe(1);
             delete body[0]['meta']['lastUpdated'];
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedInsurancePlanResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -335,10 +328,7 @@ describe('Practitioner Complex Merge Tests', () => {
 
             expect(body).toStrictEqual(expected);
 
-            resp = await request
-                .get('/4_0_0/HealthcareService')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/HealthcareService').set(getHeaders()).expect(200);
 
             console.log('------- response HealthcareService ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -347,11 +337,11 @@ describe('Practitioner Complex Merge Tests', () => {
             body = resp.body;
             expect(body.length).toBe(3);
             delete body[0]['meta']['lastUpdated'];
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedHealthcareServiceResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

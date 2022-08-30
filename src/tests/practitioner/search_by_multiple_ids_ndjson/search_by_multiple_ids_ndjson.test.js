@@ -11,10 +11,12 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getHeadersNdJson, getHeadersNdJsonFormUrlEncoded, createTestRequest
+    getHeadersNdJson,
+    getHeadersNdJsonFormUrlEncoded,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {ndjsonToJsonText} = require('ndjson-to-json-text');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { ndjsonToJsonText } = require('ndjson-to-json-text');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -80,11 +82,11 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(body, null, 2));
             console.log('------- end response sort ------------');
             expect(body.length).toBe(1);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedSinglePractitionerResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 delete element['meta']['lastUpdated'];
                 delete element['$schema'];
             });
@@ -152,11 +154,11 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(body, null, 2));
             console.log('------- end response sort ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 delete element['meta']['lastUpdated'];
                 delete element['$schema'];
             });
@@ -197,7 +199,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({id: '0,1679033641'})
+                .send({ id: '0,1679033641' })
                 .set(getHeadersNdJson())
                 .expect(200);
 
@@ -206,11 +208,11 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(body, null, 2));
             console.log('------- end response sort ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 delete element['meta']['lastUpdated'];
                 delete element['$schema'];
             });
@@ -260,11 +262,11 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(body, null, 2));
             console.log('------- end response sort ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 delete element['meta']['lastUpdated'];
                 delete element['$schema'];
             });

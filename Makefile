@@ -145,7 +145,9 @@ graphqlv1:
 
 .PHONY:graphql
 graphql:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	python3 src/graphql/v2/generator/generate_classes.py && \
+	eslint --fix "src/graphql/v2/**/*.js" && \
 	graphql-schema-linter src/graphql/v2/**/*.graphql
 
 

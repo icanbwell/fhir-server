@@ -22,7 +22,6 @@ union ConditionSubject = Patient | Group
 union ConditionRecorder = Practitioner | PractitionerRole | Patient | RelatedPerson
 union ConditionAsserter = Practitioner | PractitionerRole | Patient | RelatedPerson
 
-
 """
 Condition
     A clinical condition, problem, diagnosis, or other event, situation, issue, or
@@ -35,24 +34,24 @@ type Condition {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -61,13 +60,13 @@ type Condition {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -75,7 +74,7 @@ type Condition {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -86,118 +85,118 @@ type Condition {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Business identifiers assigned to this condition by the performer or other
     systems which remain constant as the resource is updated and propagates from
     server to server.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     The clinical status of the condition.
     """
-    clinicalStatus: CodeableConcept        
+    clinicalStatus: CodeableConcept
     """
     The verification status to support the clinical status of the condition.
     """
-    verificationStatus: CodeableConcept        
+    verificationStatus: CodeableConcept
     """
     A category assigned to the condition.
     """
-    category: [CodeableConcept]        
+    category: [CodeableConcept]
     """
     A subjective assessment of the severity of the condition as evaluated by the
     clinician.
     """
-    severity: CodeableConcept        
+    severity: CodeableConcept
     """
     Identification of the condition, problem or diagnosis.
     """
-    code: CodeableConcept        
+    code: CodeableConcept
     """
     The anatomical location where this condition manifests itself.
     """
-    bodySite: [CodeableConcept]        
+    bodySite: [CodeableConcept]
     """
     Indicates the patient or group who the condition record is associated with.
     """
-    subject: ConditionSubject!        
+    subject: ConditionSubject!
     """
     The Encounter during which this Condition was created or to which the creation
     of this record is tightly associated.
     """
-    encounter: Encounter        
+    encounter: Encounter
     """
     None
     """
-    onsetDateTime: dateTime        
+    onsetDateTime: dateTime
     """
     None
     """
-    onsetAge: Quantity        
+    onsetAge: Quantity
     """
     None
     """
-    onsetPeriod: Period        
+    onsetPeriod: Period
     """
     None
     """
-    onsetRange: Range        
+    onsetRange: Range
     """
     None
     """
-    onsetString: String        
+    onsetString: String
     """
     None
     """
-    abatementDateTime: dateTime        
+    abatementDateTime: dateTime
     """
     None
     """
-    abatementAge: Quantity        
+    abatementAge: Quantity
     """
     None
     """
-    abatementPeriod: Period        
+    abatementPeriod: Period
     """
     None
     """
-    abatementRange: Range        
+    abatementRange: Range
     """
     None
     """
-    abatementString: String        
+    abatementString: String
     """
     The recordedDate represents when this particular Condition record was created
     in the system, which is often a system-generated date.
     """
-    recordedDate: dateTime        
+    recordedDate: dateTime
     """
     Individual who recorded the record and takes responsibility for its content.
     """
-    recorder: ConditionRecorder        
+    recorder: ConditionRecorder
     """
     Individual who is making the condition statement.
     """
-    asserter: ConditionAsserter        
+    asserter: ConditionAsserter
     """
     Clinical stage or grade of a condition. May include formal severity
     assessments.
     """
-    stage: [ConditionStage]        
+    stage: [ConditionStage]
     """
     Supporting evidence / manifestations that are the basis of the Condition's
     verification status, such as evidence that confirmed or refuted the condition.
     """
-    evidence: [ConditionEvidence]        
+    evidence: [ConditionEvidence]
     """
     Additional information about the Condition. This is a general notes/comments
     entry  for description of the Condition, its diagnosis and prognosis.
     """
-    note: [Annotation]        
+    note: [Annotation]
 }

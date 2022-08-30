@@ -1,4 +1,4 @@
-const {GraphQLScalarType, Kind} = require('graphql');
+const { GraphQLScalarType, Kind } = require('graphql');
 
 const decimalScalar = new GraphQLScalarType({
     name: 'decimal',

@@ -9,16 +9,20 @@ const fs = require('fs');
 const path = require('path');
 
 // eslint-disable-next-line security/detect-non-literal-fs-filename
-const explanationOfBenefitQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
+const explanationOfBenefitQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query.graphql'),
+    'utf8'
+);
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, createTestRequest
+    getGraphQLHeaders,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertCompareBundles } = require('../../fhirAsserts');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
     beforeEach(async () => {
@@ -78,18 +82,12 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
             console.log('------- response patient ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response patient  ------------');
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
@@ -99,9 +97,9 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 // .set(getHeaders())
                 .post('/graphqlv2')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
@@ -115,8 +113,9 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 expect(body.errors).toBeUndefined();
             }
             assertCompareBundles({
-                body: body.data.explanationOfBenefit, expected: expectedGraphQLResponse[0],
-                ignoreMetaTags: true
+                body: body.data.explanationOfBenefit,
+                expected: expectedGraphQLResponse[0],
+                ignoreMetaTags: true,
             });
         });
     });

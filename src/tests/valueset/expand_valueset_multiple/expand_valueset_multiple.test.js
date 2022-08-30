@@ -7,10 +7,14 @@ const valueset4Resource = require('./fixtures/ValueSet/valueset4.json');
 // expected
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertMergeIsSuccessful} = require('../../fhirAsserts');
-
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('ValueSet Multiple Tests', () => {
     beforeEach(async () => {

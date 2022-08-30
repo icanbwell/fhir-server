@@ -27,10 +27,15 @@ const expectedEverythingResource = require('./fixtures/expected/expected_everyth
 /**
  * @type {Test}
  */
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {findDuplicateResources} = require('../../../utils/list.util');
-const {assertStatusCode} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { findDuplicateResources } = require('../../../utils/list.util');
+const { assertStatusCode } = require('../../fhirAsserts');
 
 describe('Practitioner Everything Tests', () => {
     beforeEach(async () => {
@@ -44,10 +49,7 @@ describe('Practitioner Everything Tests', () => {
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -128,7 +130,9 @@ describe('Practitioner Everything Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request
-                .post('/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He/$merge')
+                .post(
+                    '/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He/$merge'
+                )
                 .send(insurancePlanResource)
                 .set(getHeaders())
                 .expect(200);
@@ -236,10 +240,7 @@ describe('Practitioner Everything Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
 
             console.log('------- response Practitioner ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -264,13 +265,13 @@ describe('Practitioner Everything Tests', () => {
             console.log('------- end response  ------------');
             body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['versionId'];
                 delete element['resource']['meta']['lastUpdated'];
             });
             expected = expectedEverythingResource;
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete expected['timestamp'];
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
@@ -282,13 +283,13 @@ describe('Practitioner Everything Tests', () => {
                 }
             });
             console.log('----- Received resources ----');
-            console.log(`${body.entry.map(e => e.resource).map(a => `${a.resourceType}/${a.id}`)}`);
+            console.log(
+                `${body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
+            );
             console.log('----- End of Received resources ----');
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(
-                body.entry.map(e => e.resource)
-            );
-            expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
+            const duplicates = findDuplicateResources(body.entry.map((e) => e.resource));
+            expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
             expect(body).toStrictEqual(expected);
         });
     });

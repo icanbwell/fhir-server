@@ -4,9 +4,14 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 // expected
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertStatusCode, assertResponse } = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -33,7 +38,7 @@ describe('Practitioner Tests', () => {
             expectedPractitionerResources.entry[0].resource.id = id1;
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise((resolve) => setTimeout(resolve, 3000));
             resp = await request
                 .post('/4_0_0/Practitioner')
                 .send(practitioner1Resource)
@@ -48,10 +53,10 @@ describe('Practitioner Tests', () => {
             await request
                 .get('/4_0_0/Practitioner?_bundle=1&_sort=meta.lastUpdated')
                 .set(getHeaders())
-                .expect(assertResponse({
-                            expected: expectedPractitionerResources
-                        }
-                    )
+                .expect(
+                    assertResponse({
+                        expected: expectedPractitionerResources,
+                    })
                 );
         });
     });

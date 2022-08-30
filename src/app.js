@@ -2,30 +2,30 @@
  * Main entrypoint that sets up the app
  */
 const express = require('express');
-const {fhirServerConfig} = require('./config');
+const { fhirServerConfig } = require('./config');
 const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const {graphqlv1} = require('./middleware/graphql/graphqlServer1');
-const {graphql} = require('./middleware/graphql/graphqlServer');
-const {resourceDefinitions} = require('./utils/resourceDefinitions');
+const { graphqlv1 } = require('./middleware/graphql/graphqlServer1');
+const { graphql } = require('./middleware/graphql/graphqlServer');
+const { resourceDefinitions } = require('./utils/resourceDefinitions');
 
 const passport = require('passport');
-const {strategy} = require('./strategies/jwt.bearer.strategy');
+const { strategy } = require('./strategies/jwt.bearer.strategy');
 
-const {handleAlert} = require('./routeHandlers/alert');
-const {MyFHIRServer} = require('./routeHandlers/fhirServer');
-const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
-const {handleVersion} = require('./routeHandlers/version');
-const {handleLogout} = require('./routeHandlers/logout');
-const {handleClean} = require('./routeHandlers/clean');
-const {handleIndex} = require('./routeHandlers/index');
-const {handleStats} = require('./routeHandlers/stats');
-const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
-const {isTrue} = require('./utils/isTrue');
+const { handleAlert } = require('./routeHandlers/alert');
+const { MyFHIRServer } = require('./routeHandlers/fhirServer');
+const { handleSecurityPolicy } = require('./routeHandlers/contentSecurityPolicy');
+const { handleVersion } = require('./routeHandlers/version');
+const { handleLogout } = require('./routeHandlers/logout');
+const { handleClean } = require('./routeHandlers/clean');
+const { handleIndex } = require('./routeHandlers/index');
+const { handleStats } = require('./routeHandlers/stats');
+const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
+const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 
 if (isTrue(env.TRACING_ENABLED)) {
@@ -58,7 +58,7 @@ function createFhirApp(fnCreateContainer, app1) {
  */
 function createApp(fnCreateContainer) {
     const swaggerUi = require('swagger-ui-express');
-// eslint-disable-next-line security/detect-non-literal-require
+    // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**
@@ -68,33 +68,33 @@ function createApp(fnCreateContainer) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
-// middleware to parse cookies
+    // middleware to parse cookies
     app.use(cookieParser());
 
-// middleware to parse user agent string
+    // middleware to parse user agent string
     app.use(useragent.express());
 
-// middleware for oAuth
+    // middleware for oAuth
     app.use(passport.initialize({}));
 
-// helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
+    // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
 
-// prometheus tracks the metrics
+    // prometheus tracks the metrics
     app.use(Prometheus.requestCounters);
-// noinspection JSCheckFunctionSignatures
+    // noinspection JSCheckFunctionSignatures
     app.use(Prometheus.responseCounters);
     app.use(Prometheus.httpRequestTimer);
     Prometheus.injectMetricsRoute(app);
     Prometheus.startCollection();
 
-// Set EJS as templating engine
+    // Set EJS as templating engine
     app.set('views', path.join(__dirname, '/views'));
     app.set('view engine', 'ejs');
 
     app.use(handleSecurityPolicy);
 
-// noinspection SpellCheckingInspection
+    // noinspection SpellCheckingInspection
     const options = {
         explorer: true,
         swaggerOptions: {
@@ -106,12 +106,12 @@ function createApp(fnCreateContainer) {
         },
     };
 
-// noinspection JSCheckFunctionSignatures
+    // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
     app.use(express.static(path.join(__dirname, 'oauth')));
 
-// handles when the user is redirected by the OpenIDConnect/OAuth provider
+    // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
         res.redirect(
             `/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
@@ -124,7 +124,7 @@ function createApp(fnCreateContainer) {
         res.redirect(redirectUrl);
     });
 
-    app.get('/health', (req, res) => res.json({status: 'ok'}));
+    app.get('/health', (req, res) => res.json({ status: 'ok' }));
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
@@ -132,7 +132,7 @@ function createApp(fnCreateContainer) {
         res.redirect(logoutUrl);
     });
 
-// render the home page
+    // render the home page
     app.get('/', (req, res) => {
         const home_options = {
             resources: resourceDefinitions,
@@ -166,13 +166,16 @@ function createApp(fnCreateContainer) {
     );
     app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
     app.use('/css', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/css')));
-    app.use('/fonts', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts')));
+    app.use(
+        '/fonts',
+        express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
+    );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
-// noinspection JSCheckFunctionSignatures
+    // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);
 
-// enable middleware for graphql
+    // enable middleware for graphql
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
         const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
@@ -182,7 +185,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -194,7 +197,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    router1.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
@@ -210,7 +213,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -220,7 +223,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    router1.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
@@ -258,4 +261,4 @@ function unmountRoutes(app) {
     app.use('/graphqlv2', express.Router());
 }
 
-module.exports = {createApp, unmountRoutes};
+module.exports = { createApp, unmountRoutes };

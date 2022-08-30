@@ -16,8 +16,6 @@
 # import ImplementationGuideDefinition from "../backbone_elements/implementationGuideDefinition.graphql"
 # import ImplementationGuideManifest from "../backbone_elements/implementationGuideManifest.graphql"
 
-
-
 """
 ImplementationGuide
     A set of rules of how a particular interoperability or standards problem is
@@ -32,24 +30,24 @@ type ImplementationGuide {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -58,13 +56,13 @@ type ImplementationGuide {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -72,7 +70,7 @@ type ImplementationGuide {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -83,12 +81,12 @@ type ImplementationGuide {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     An absolute URI that is used to identify this implementation guide when it is
     referenced in a specification, model, design or an instance; also called its
@@ -98,7 +96,7 @@ type ImplementationGuide {
     reference. It SHALL remain the same when the implementation guide is stored on
     different servers.
     """
-    url: uri!        
+    url: uri!
     """
     The identifier that is used to identify this version of the implementation
     guide when it is referenced in a specification, model, design or instance.
@@ -107,50 +105,50 @@ type ImplementationGuide {
     yyyymmdd) if a managed version is not available. There is also no expectation
     that versions can be placed in a lexicographical sequence.
     """
-    version: String        
+    version: String
     """
     A natural language name identifying the implementation guide. This name should
     be usable as an identifier for the module by machine processing applications
     such as code generation.
     """
-    name: String!        
+    name: String!
     """
     A short, descriptive, user-friendly title for the implementation guide.
     """
-    title: String        
+    title: String
     """
     The status of this implementation guide. Enables tracking the life-cycle of
     the content.
     """
-    status: code!        
+    status: code!
     """
     A Boolean value to indicate that this implementation guide is authored for
     testing purposes (or education/evaluation/marketing) and is not intended to be
     used for genuine usage.
     """
-    experimental: Boolean        
+    experimental: Boolean
     """
     The date  (and optionally time) when the implementation guide was published.
     The date must change when the business version changes and it must change if
     the status code changes. In addition, it should change when the substantive
     content of the implementation guide changes.
     """
-    date: dateTime        
+    date: dateTime
     """
     The name of the organization or individual that published the implementation
     guide.
     """
-    publisher: String        
+    publisher: String
     """
     Contact details to assist a user in finding and communicating with the
     publisher.
     """
-    contact: [ContactDetail]        
+    contact: [ContactDetail]
     """
     A free text natural language description of the implementation guide from a
     consumer's perspective.
     """
-    description: markdown        
+    description: markdown
     """
     The content was developed with a focus and intent of supporting the contexts
     that are listed. These contexts may be general categories (gender, age, ...)
@@ -158,56 +156,56 @@ type ImplementationGuide {
     may be used to assist with indexing and searching for appropriate
     implementation guide instances.
     """
-    useContext: [UsageContext]        
+    useContext: [UsageContext]
     """
     A legal or geographic region in which the implementation guide is intended to
     be used.
     """
-    jurisdiction: [CodeableConcept]        
+    jurisdiction: [CodeableConcept]
     """
     A copyright statement relating to the implementation guide and/or its
     contents. Copyright statements are generally legal restrictions on the use and
     publishing of the implementation guide.
     """
-    copyright: markdown        
+    copyright: markdown
     """
     The NPM package name for this Implementation Guide, used in the NPM package
     distribution, which is the primary mechanism by which FHIR based tooling
     manages IG dependencies. This value must be globally unique, and should be
     assigned with care.
     """
-    packageId: id!        
+    packageId: id!
     """
     The license that applies to this Implementation Guide, using an SPDX license
     code, or 'not-open-source'.
     """
-    license: code        
+    license: code
     """
     The version(s) of the FHIR specification that this ImplementationGuide targets
     - e.g. describes how to use. The value of this element is the formal version
     of the specification, without the revision number, e.g.
     [publication].[major].[minor], which is 4.0.1. for this version.
     """
-    fhirVersion: [code]!        
+    fhirVersion: [code]!
     """
     Another implementation guide that this implementation depends on. Typically,
     an implementation guide uses value sets, profiles etc.defined in other
     implementation guides.
     """
-    dependsOn: [ImplementationGuideDependsOn]        
+    dependsOn: [ImplementationGuideDependsOn]
     """
     A set of profiles that all resources covered by this implementation guide must
     conform to.
     """
-    global: [ImplementationGuideGlobal]        
+    global: [ImplementationGuideGlobal]
     """
     The information needed by an IG publisher tool to publish the whole
     implementation guide.
     """
-    definition: ImplementationGuideDefinition        
+    definition: ImplementationGuideDefinition
     """
     Information about an assembled implementation guide, created by the
     publication tooling.
     """
-    manifest: ImplementationGuideManifest        
+    manifest: ImplementationGuideManifest
 }

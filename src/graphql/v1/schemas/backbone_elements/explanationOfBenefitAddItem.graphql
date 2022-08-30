@@ -25,7 +25,7 @@ type ExplanationOfBenefitAddItem {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -33,7 +33,7 @@ type ExplanationOfBenefitAddItem {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -44,105 +44,105 @@ type ExplanationOfBenefitAddItem {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Claim items which this service line is intended to replace.
     """
-    itemSequence: [Int]        
+    itemSequence: [Int]
     """
     The sequence number of the details within the claim item which this line is
     intended to replace.
     """
-    detailSequence: [Int]        
+    detailSequence: [Int]
     """
     The sequence number of the sub-details woithin the details within the claim
     item which this line is intended to replace.
     """
-    subDetailSequence: [Int]        
+    subDetailSequence: [Int]
     """
     The providers who are authorized for the services rendered to the patient.
     """
-    provider: [ExplanationOfBenefitAddItemProvider]        
+    provider: [ExplanationOfBenefitAddItemProvider]
     """
     When the value is a group code then this item collects a set of related claim
     details, otherwise this contains the product, service, drug or other billing
     code for the item.
     """
-    productOrService: CodeableConcept!        
+    productOrService: CodeableConcept!
     """
     Item typification or modifiers codes to convey additional context for the
     product or service.
     """
-    modifier: [CodeableConcept]        
+    modifier: [CodeableConcept]
     """
     Identifies the program under which this may be recovered.
     """
-    programCode: [CodeableConcept]        
+    programCode: [CodeableConcept]
     """
     None
     """
-    servicedDate: date        
+    servicedDate: date
     """
     None
     """
-    servicedPeriod: Period        
+    servicedPeriod: Period
     """
     None
     """
-    locationCodeableConcept: CodeableConcept        
+    locationCodeableConcept: CodeableConcept
     """
     None
     """
-    locationAddress: Address        
+    locationAddress: Address
     """
     None
     """
-    locationReference: Location        
+    locationReference: Location
     """
     The number of repetitions of a service or product.
     """
-    quantity: Quantity        
+    quantity: Quantity
     """
     If the item is not a group then this is the fee for the product or service,
     otherwise this is the total of the fees for the details of the group.
     """
-    unitPrice: Money        
+    unitPrice: Money
     """
     A real number that represents a multiplier used in determining the overall
     value of services delivered and/or goods received. The concept of a Factor
     allows for a discount or surcharge multiplier to be applied to a monetary
     amount.
     """
-    factor: decimal        
+    factor: decimal
     """
     The quantity times the unit price for an additional service or product or
     charge.
     """
-    net: Money        
+    net: Money
     """
     Physical service site on the patient (limb, tooth, etc.).
     """
-    bodySite: CodeableConcept        
+    bodySite: CodeableConcept
     """
     A region or surface of the bodySite, e.g. limb region or tooth surface(s).
     """
-    subSite: [CodeableConcept]        
+    subSite: [CodeableConcept]
     """
     The numbers associated with notes below which apply to the adjudication of
     this item.
     """
-    noteNumber: [Int]        
+    noteNumber: [Int]
     """
     The adjudication results.
     """
-    adjudication: [ExplanationOfBenefitAdjudication]        
+    adjudication: [ExplanationOfBenefitAdjudication]
     """
     The second-tier service adjudications for payor added services.
     """
-    detail: [ExplanationOfBenefitDetail1]        
+    detail: [ExplanationOfBenefitDetail1]
 }

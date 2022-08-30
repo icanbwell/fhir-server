@@ -1,9 +1,9 @@
-const {getResources} = require('../../common');
-const {RemoveOperation} = require('../../../../operations/remove/remove');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {getRequestInfo} = require('../../requestInfoHelper');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {SimpleContainer} = require('../../../../utils/simpleContainer');
+const { getResources } = require('../../common');
+const { RemoveOperation } = require('../../../../operations/remove/remove');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { getRequestInfo } = require('../../requestInfoHelper');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { SimpleContainer } = require('../../../../utils/simpleContainer');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -34,7 +34,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'patient': parent.id,
+                    patient: parent.id,
                 },
                 context,
                 info,
@@ -47,7 +47,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'patient': parent.id,
+                    patient: parent.id,
                 },
                 context,
                 info,
@@ -60,7 +60,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'patient': parent.id,
+                    patient: parent.id,
                 },
                 context,
                 info,
@@ -73,7 +73,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'patient': parent.id,
+                    patient: parent.id,
                 },
                 context,
                 info,
@@ -85,7 +85,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    'patient': parent.id,
+                    patient: parent.id,
                 },
                 context,
                 info,
@@ -95,7 +95,7 @@ module.exports = {
     },
     Mutation: {
         updateGeneralPractitioner:
-        // eslint-disable-next-line no-unused-vars
+            // eslint-disable-next-line no-unused-vars
             async (parent, args, context, info) => {
                 /**
                  * @type {SimpleContainer}
@@ -120,7 +120,10 @@ module.exports = {
                 if (deletePractitioner && patientToChange.generalPractitioner === null) {
                     return patientToChange;
                 } else if (deletePractitioner) {
-                    patientToChange.generalPractitioner = removeAllGeneralPractitioner(patientToChange.generalPractitioner, args.practitionerId);
+                    patientToChange.generalPractitioner = removeAllGeneralPractitioner(
+                        patientToChange.generalPractitioner,
+                        args.practitionerId
+                    );
                     const requestInfo = getRequestInfo(context);
                     /**
                      * @type {RemoveOperation}
@@ -130,8 +133,9 @@ module.exports = {
                     await removeOperation.remove(
                         requestInfo,
                         {
-                            ...args, base_version: '4_0_0',
-                            id: args.patientId
+                            ...args,
+                            base_version: '4_0_0',
+                            id: args.patientId,
                         },
                         'Patient'
                     );
@@ -149,7 +153,9 @@ module.exports = {
                     if (practitioners && practitioners.length === 0) {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
-                    patientToChange.generalPractitioner = [{reference: `Practitioner/${practitioners[0].id}`}];
+                    patientToChange.generalPractitioner = [
+                        { reference: `Practitioner/${practitioners[0].id}` },
+                    ];
                 }
                 /**
                  * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
@@ -163,7 +169,7 @@ module.exports = {
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
                     requestInfo,
-                    {...args, base_version: '4_0_0'},
+                    { ...args, base_version: '4_0_0' },
                     'Patient'
                 );
                 if (result && result[0].operationOutcome) {

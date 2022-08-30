@@ -10,8 +10,6 @@
 # import instant from "../simple_types/instant.graphql"
 # import SubscriptionChannel from "../backbone_elements/subscriptionChannel.graphql"
 
-
-
 """
 Subscription
     The subscription resource is used to define a push-based subscription from a
@@ -27,24 +25,24 @@ type Subscription {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -53,13 +51,13 @@ type Subscription {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -67,7 +65,7 @@ type Subscription {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -78,43 +76,43 @@ type Subscription {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The status of the subscription, which marks the server state for managing the
     subscription.
     """
-    status: code!        
+    status: code!
     """
     Contact details for a human to contact about the subscription. The primary use
     of this for system administrator troubleshooting.
     """
-    contact: [ContactPoint]        
+    contact: [ContactPoint]
     """
     The time for the server to turn the subscription off.
     """
-    end: instant        
+    end: instant
     """
     A description of why this subscription is defined.
     """
-    reason: String!        
+    reason: String!
     """
     The rules that the server should use to determine when to generate
     notifications for this subscription.
     """
-    criteria: String!        
+    criteria: String!
     """
     A record of the last error that occurred when the server processed a
     notification.
     """
-    error: String        
+    error: String
     """
     Details where to send notifications when resources are received that meet the
     criteria.
     """
-    channel: SubscriptionChannel!        
+    channel: SubscriptionChannel!
 }

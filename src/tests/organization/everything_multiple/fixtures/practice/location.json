@@ -2,15 +2,15 @@
     "resourceType": "Location",
     "id": "UHG-MDER",
     "meta": {
-      "source": "https://www.foo.com",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
-        }
-      ]
+        "source": "https://www.foo.com",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            }
+        ]
     },
-  "identifier": [
+    "identifier": [
         {
             "type": {
                 "coding": [

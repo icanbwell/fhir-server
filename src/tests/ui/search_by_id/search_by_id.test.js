@@ -1,9 +1,15 @@
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, getHtmlHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusOk} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    getHtmlHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertStatusOk } = require('../../fhirAsserts');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -17,10 +23,7 @@ describe('Patient UI Tests', () => {
     describe('Patient Search By Id Tests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -38,10 +41,7 @@ describe('Patient UI Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));

@@ -10,8 +10,13 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Organization Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -25,10 +30,7 @@ describe('Organization Graph Contained Tests', () => {
     describe('Graph Contained Tests', () => {
         test('Graph contained works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -89,18 +91,18 @@ describe('Organization Graph Contained Tests', () => {
             console.log('------- end response  ------------');
             let body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
             });
             let expected = expectedResource;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -110,7 +112,7 @@ describe('Organization Graph Contained Tests', () => {
                     delete element['$schema'];
                 }
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }

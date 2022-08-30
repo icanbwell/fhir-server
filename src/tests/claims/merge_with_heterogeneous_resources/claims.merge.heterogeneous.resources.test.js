@@ -3,9 +3,14 @@ const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected/
 const expectedMergeResponse = require('./fixtures/expected/expected_merge_response.json');
 const expectedPatientBundleResource = require('./fixtures/expected/expected_patients.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertCompareBundles } = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -49,20 +54,20 @@ describe('Claim Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             assertCompareBundles({
-                body: resp.body, expected: expectedExplanationOfBenefitBundleResource
+                body: resp.body,
+                expected: expectedExplanationOfBenefitBundleResource,
             });
 
-            resp = await request
-                .get('/4_0_0/Patient?_bundle=1')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient?_bundle=1').set(getHeaders()).expect(200);
 
             // clear out the lastUpdated column since that changes
             console.log('------- response 6 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 6  ------------');
             assertCompareBundles({
-                body: resp.body, expected: expectedPatientBundleResource});
+                body: resp.body,
+                expected: expectedPatientBundleResource,
+            });
         });
     });
 });

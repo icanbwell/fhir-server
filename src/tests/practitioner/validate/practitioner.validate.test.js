@@ -7,9 +7,14 @@ const expectedValidPractitionerNoSecurityCodeResponse = require('./expected/vali
 const expectedInvalidPractitionerResponse = require('./expected/invalid_practitioner_response.json');
 const expectedInvalidPractitionerNoParametersResponse = require('./expected/invalid_practitioner_response_no_parameters.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResourceCount, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertStatusCode, assertResourceCount, assertResponse } = require('../../fhirAsserts');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {
@@ -34,7 +39,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
+                .expect(assertResponse({ expected: expectedValidPractitionerResponse }));
         });
         test('Valid resource with resource parameter', async () => {
             const request = await createTestRequest();
@@ -50,14 +55,14 @@ describe('Practitioner Update Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: validPractitionerResource}]
+                parameter: [{ name: 'resource', resource: validPractitionerResource }],
             };
             await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
+                .expect(assertResponse({ expected: expectedValidPractitionerResponse }));
         });
         test('Valid resource but no security code', async () => {
             const request = await createTestRequest();
@@ -72,9 +77,11 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerNoSecurityCodeResource)
                 .set(getHeaders())
                 .expect(200)
-                .expect(assertResponse({
-                    expected: expectedValidPractitionerNoSecurityCodeResponse
-                }));
+                .expect(
+                    assertResponse({
+                        expected: expectedValidPractitionerNoSecurityCodeResponse,
+                    })
+                );
         });
         test('Invalid resource', async () => {
             const request = await createTestRequest();
@@ -89,7 +96,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedInvalidPractitionerResponse}));
+                .expect(assertResponse({ expected: expectedInvalidPractitionerResponse }));
         });
         test('Invalid resource with resource parameter', async () => {
             const request = await createTestRequest();
@@ -104,14 +111,16 @@ describe('Practitioner Update Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameterBad: [{name: 'resource', resource: validPractitionerResource}]
+                parameterBad: [{ name: 'resource', resource: validPractitionerResource }],
             };
             await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedInvalidPractitionerNoParametersResponse}));
+                .expect(
+                    assertResponse({ expected: expectedInvalidPractitionerNoParametersResponse })
+                );
         });
     });
 });

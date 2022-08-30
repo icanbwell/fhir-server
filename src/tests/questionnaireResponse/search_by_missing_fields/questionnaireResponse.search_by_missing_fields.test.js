@@ -2,9 +2,14 @@ const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
 const expectedQuestionnaireResponseBundle2 = require('./fixtures/expected_questionnaire_responses_2.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusCode} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertStatusCode } = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -46,11 +51,11 @@ describe('Questionnaire Response Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(1);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedQuestionnaireResponseBundle;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -71,11 +76,11 @@ describe('Questionnaire Response Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(1);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             expected = expectedQuestionnaireResponseBundle2;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

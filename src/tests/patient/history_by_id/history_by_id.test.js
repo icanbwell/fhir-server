@@ -5,9 +5,19 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const expectedHistorySinglePatient = require('./fixtures/expected/expected_history_single_patient.json');
 const expectedHistorySinglePatientMultipleChanges = require('./fixtures/expected/expected_history_single_patient_multiple_changes.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusCode, assertMergeIsSuccessful, assertCompareBundles} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const {
+    assertStatusCode,
+    assertMergeIsSuccessful,
+    assertCompareBundles,
+} = require('../../fhirAsserts');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -40,10 +50,7 @@ describe('PractitionerReturnIdTests', () => {
 
             assertMergeIsSuccessful(resp.body, true);
 
-            resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(1);
 
@@ -54,7 +61,8 @@ describe('PractitionerReturnIdTests', () => {
                 .expect(200);
 
             assertCompareBundles({
-                body: resp.body, expected: expectedHistorySinglePatient
+                body: resp.body,
+                expected: expectedHistorySinglePatient,
             });
 
             // now merge the same patient.  There should be no additional history record created
@@ -72,10 +80,10 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertCompareBundles(
-                {
-                    body: resp.body, expected: expectedHistorySinglePatient
-                });
+            assertCompareBundles({
+                body: resp.body,
+                expected: expectedHistorySinglePatient,
+            });
 
             // now merge the modified patient.  There should be an additional history record created
             patient1Resource.birthDate = '2015-01-01';
@@ -94,7 +102,8 @@ describe('PractitionerReturnIdTests', () => {
                 .expect(200);
 
             assertCompareBundles({
-                body: resp.body, expected: expectedHistorySinglePatientMultipleChanges
+                body: resp.body,
+                expected: expectedHistorySinglePatientMultipleChanges,
             });
         });
     });

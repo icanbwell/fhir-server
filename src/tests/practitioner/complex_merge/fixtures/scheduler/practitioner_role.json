@@ -2,16 +2,16 @@
     "resourceType": "PractitionerRole",
     "id": "MAX-MALX",
     "meta": {
-      "versionId": "1",
-      "lastUpdated": "2021-01-21T03:54:38+00:00",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
-        }
-      ]
+        "versionId": "1",
+        "lastUpdated": "2021-01-21T03:54:38+00:00",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            }
+        ]
     },
-  "identifier": [
+    "identifier": [
         {
             "use": "usual",
             "type": {

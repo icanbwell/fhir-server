@@ -4,7 +4,6 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 
-
 """
 MessageDefinition.Focus
     Defines the characteristics of a message that can be shared between systems,
@@ -15,7 +14,7 @@ type MessageDefinitionFocus {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +22,7 @@ type MessageDefinitionFocus {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -34,29 +33,29 @@ type MessageDefinitionFocus {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The kind of resource that must be the focus for this message.
     """
-    code: code!        
+    code: code!
     """
     A profile that reflects constraints for the focal resource (and potentially
     for related resources).
     """
-    profile: canonical        
+    profile: canonical
     """
     Identifies the minimum number of resources of this type that must be pointed
     to by a message in order for it to be valid against this MessageDefinition.
     """
-    min: unsignedInt!        
+    min: unsignedInt!
     """
     Identifies the maximum number of resources of this type that must be pointed
     to by a message in order for it to be valid against this MessageDefinition.
     """
-    max: String        
+    max: String
 }

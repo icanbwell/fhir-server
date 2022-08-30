@@ -4,9 +4,14 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 // expected
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusOk, assertStatusCode, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertStatusOk, assertStatusCode, assertResponse } = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -47,7 +52,7 @@ describe('Practitioner Tests', () => {
             await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders())
-                .expect(assertResponse({expected: expectedPractitionerResources}));
+                .expect(assertResponse({ expected: expectedPractitionerResources }));
         });
     });
 });

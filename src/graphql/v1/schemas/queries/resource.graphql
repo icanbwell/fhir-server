@@ -7,7 +7,6 @@ extend type Query {
         This is the base resource type for everything.
     """
     resource(
-
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
         list of ids to retrieve.  DEPRECATED: Use `_id`

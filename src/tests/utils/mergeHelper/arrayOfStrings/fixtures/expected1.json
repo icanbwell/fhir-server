@@ -1,15 +1,13 @@
 {
-  "address": [
-    {
-      "id": "1",
-      "use": "home",
-      "type": "both",
-      "line": [
-        "Line A"
-      ],
-      "city": "City",
-      "state": "MD",
-      "postalCode": "12345"
-    }
-  ]
+    "address": [
+        {
+            "id": "1",
+            "use": "home",
+            "type": "both",
+            "line": ["Line A"],
+            "city": "City",
+            "state": "MD",
+            "postalCode": "12345"
+        }
+    ]
 }

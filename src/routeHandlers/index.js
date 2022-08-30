@@ -3,9 +3,9 @@
  */
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
-const {IndexManager} = require('../indexes/index.util');
-const {ErrorReporter} = require('../utils/slack.logger');
-const {getImageVersion} = require('../utils/getImageVersion');
+const { IndexManager } = require('../indexes/index.util');
+const { ErrorReporter } = require('../utils/slack.logger');
+const { getImageVersion } = require('../utils/getImageVersion');
 
 module.exports.handleIndex = async (req, res) => {
     // console.info('Running index');
@@ -23,7 +23,7 @@ module.exports.handleIndex = async (req, res) => {
         //send some params to our separate task
         const params = {
             message: 'Start Index',
-            tableName: tableName
+            tableName: tableName,
         };
         taskProcessor.send(params);
         message = 'Started indexing in separate process.  Check logs or Slack for output.';
@@ -34,13 +34,15 @@ module.exports.handleIndex = async (req, res) => {
         //send some params to our separate task
         const params = {
             message: 'Rebuild Index',
-            table: tableName
+            table: tableName,
         };
         taskProcessor.send(params);
-        message = 'Started rebuilding indexes in separate process.  Check logs or Slack for output.';
+        message =
+            'Started rebuilding indexes in separate process.  Check logs or Slack for output.';
     } else {
-        collection_stats = await new IndexManager({errorReporter: new ErrorReporter(getImageVersion())})
-            .getIndexesInAllCollectionsAsync();
+        collection_stats = await new IndexManager({
+            errorReporter: new ErrorReporter(getImageVersion()),
+        }).getIndexesInAllCollectionsAsync();
         message = 'Listing current indexes.  Use /index/run if you want to run index creation';
     }
 
@@ -49,6 +51,6 @@ module.exports.handleIndex = async (req, res) => {
     res.status(200).json({
         success: true,
         collections: collection_stats,
-        message: message
+        message: message,
     });
 };

@@ -7,7 +7,6 @@
 # import date from "../simple_types/date.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 
-
 """
 Goal.Target
     Describes the intended objective(s) for a patient, group or organization care,
@@ -18,7 +17,7 @@ type GoalTarget {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -26,7 +25,7 @@ type GoalTarget {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -37,51 +36,51 @@ type GoalTarget {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The parameter whose value is being tracked, e.g. body weight, blood pressure,
     or hemoglobin A1c level.
     """
-    measure: CodeableConcept        
+    measure: CodeableConcept
     """
     None
     """
-    detailQuantity: Quantity        
+    detailQuantity: Quantity
     """
     None
     """
-    detailRange: Range        
+    detailRange: Range
     """
     None
     """
-    detailCodeableConcept: CodeableConcept        
+    detailCodeableConcept: CodeableConcept
     """
     None
     """
-    detailString: String        
+    detailString: String
     """
     None
     """
-    detailBoolean: Boolean        
+    detailBoolean: Boolean
     """
     None
     """
-    detailInteger: Int        
+    detailInteger: Int
     """
     None
     """
-    detailRatio: Ratio        
+    detailRatio: Ratio
     """
     None
     """
-    dueDate: date        
+    dueDate: date
     """
     None
     """
-    dueDuration: Quantity        
+    dueDuration: Quantity
 }

@@ -4,7 +4,6 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Composition from "../resources/composition.graphql"
 
-
 """
 Composition.RelatesTo
     A set of healthcare-related information that is assembled together into a
@@ -21,7 +20,7 @@ type CompositionRelatesTo {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -29,7 +28,7 @@ type CompositionRelatesTo {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -40,23 +39,23 @@ type CompositionRelatesTo {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The type of relationship that this composition has with anther composition or
     document.
     """
-    code: code!        
+    code: code!
     """
     None
     """
-    targetIdentifier: Identifier        
+    targetIdentifier: Identifier
     """
     None
     """
-    targetReference: Composition        
+    targetReference: Composition
 }

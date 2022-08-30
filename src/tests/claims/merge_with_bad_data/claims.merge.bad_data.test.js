@@ -2,9 +2,14 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected/expected_explanation_of_benefits.json');
 const expectedMergeResponse = require('./fixtures/expected/expected_merge_response.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertResourceCount, assertResponse } = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -27,12 +32,12 @@ describe('Claim Merge Tests', () => {
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders())
-                .expect(assertResponse({expected: expectedMergeResponse}));
+                .expect(assertResponse({ expected: expectedMergeResponse }));
 
             await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
-                .expect(assertResponse({expected: expectedExplanationOfBenefitBundleResource}));
+                .expect(assertResponse({ expected: expectedExplanationOfBenefitBundleResource }));
         });
     });
 });

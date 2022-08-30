@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import Coverage from "../resources/coverage.graphql"
 
-
 """
 Account.Coverage
     A financial tool for tracking value accrued for a particular purpose.  In the
@@ -12,7 +11,7 @@ type AccountCoverage {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -20,7 +19,7 @@ type AccountCoverage {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -31,23 +30,23 @@ type AccountCoverage {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The party(s) that contribute to payment (or part of) of the charges applied to
     this account (including self-pay).
-    
+
     A coverage may only be responsible for specific types of charges, and the
     sequence of the coverages in the account could be important when processing
     billing.
     """
-    coverage: Coverage!        
+    coverage: Coverage!
     """
     The priority of the coverage in the context of this account.
     """
-    priority: Int        
+    priority: Int
 }

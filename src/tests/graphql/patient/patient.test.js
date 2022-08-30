@@ -12,16 +12,21 @@ const fs = require('fs');
 const path = require('path');
 
 // eslint-disable-next-line security/detect-non-literal-fs-filename
-const explanationOfBenefitQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
+const explanationOfBenefitQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query.graphql'),
+    'utf8'
+);
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, getUnAuthenticatedGraphQLHeaders, createTestRequest
+    getGraphQLHeaders,
+    getUnAuthenticatedGraphQLHeaders,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertResourceCount, assertMerge} = require('../../fhirAsserts');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { assertResourceCount, assertMerge } = require('../../fhirAsserts');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -51,31 +56,31 @@ describe('GraphQL Patient Tests', () => {
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {created: true}]));
+                .expect(assertMerge([{ created: true }, { created: true }]));
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {created: true}]));
+                .expect(assertMerge([{ created: true }, { created: true }]));
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {created: true}]));
+                .expect(assertMerge([{ created: true }, { created: true }]));
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {created: true}]));
+                .expect(assertMerge([{ created: true }, { created: true }]));
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge([{created: true}, {created: true}]));
+                .expect(assertMerge([{ created: true }, { created: true }]));
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -92,9 +97,9 @@ describe('GraphQL Patient Tests', () => {
                 // .set(getHeaders())
                 .post('/graphql')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
@@ -109,7 +114,7 @@ describe('GraphQL Patient Tests', () => {
             }
             expect(body.data.patient.length).toBe(2);
             let expected = expectedGraphQlResponse;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -133,10 +138,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
 
-            resp = await request
-                .get('/4_0_0/AllergyIntolerance')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -191,19 +193,13 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
 
             console.log('------- response patient ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response patient  ------------');
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
 
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -214,9 +210,9 @@ describe('GraphQL Patient Tests', () => {
                 // .set(getHeaders())
                 .post('/graphql')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getUnAuthenticatedGraphQLHeaders())
                 .expect(401);
@@ -234,10 +230,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
 
-            resp = await request
-                .get('/4_0_0/AllergyIntolerance')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -292,19 +285,13 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
 
             console.log('------- response patient ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response patient  ------------');
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
 
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -315,9 +302,9 @@ describe('GraphQL Patient Tests', () => {
                 // .set(getHeaders())
                 .post('/graphql')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders('user/Practitioner.read access/medstar.*'))
                 .expect(200);
@@ -341,10 +328,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
 
-            resp = await request
-                .get('/4_0_0/AllergyIntolerance')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -399,19 +383,13 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
 
             console.log('------- response patient ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response patient  ------------');
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
 
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -422,9 +400,9 @@ describe('GraphQL Patient Tests', () => {
                 // .set(getHeaders())
                 .post('/graphql')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders('user/Patient.read access/fake.*'))
                 .expect(200);

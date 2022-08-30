@@ -34,10 +34,7 @@
         {
             "use": "official",
             "family": "Test1",
-            "given": [
-                "Test1",
-              "Test2"
-            ]
+            "given": ["Test1", "Test2"]
         }
     ],
     "telecom": [
@@ -56,10 +53,7 @@
     "birthDate": "1950-10-10",
     "address": [
         {
-            "line": [
-                "123 Main St.",
-                "Suite 102"
-            ],
+            "line": ["123 Main St.", "Suite 102"],
             "city": "Berea",
             "state": "IA",
             "postalCode": "50002"

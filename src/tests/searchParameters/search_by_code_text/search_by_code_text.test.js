@@ -6,9 +6,14 @@ const medication3Resource = require('./fixtures/Medication/medication3.json');
 // expected
 const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Medication Tests', () => {
     beforeEach(async () => {
@@ -52,7 +57,8 @@ describe('Medication Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedMedicationResources
+                body: resp.body,
+                expected: expectedMedicationResources,
             });
         });
     });

@@ -1,7 +1,7 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
-const {describe, expect} = require('@jest/globals');
-const {ResourceManager} = require('../../../operations/common/resourceManager');
+const { describe, expect } = require('@jest/globals');
+const { ResourceManager } = require('../../../operations/common/resourceManager');
 
 describe('resourceManager Tests', () => {
     describe('resourceManager Tests', () => {
@@ -10,7 +10,10 @@ describe('resourceManager Tests', () => {
             const patientFieldName = resourceManager.getPatientFieldNameFromResource('Patient');
             expect(patientFieldName).toStrictEqual('id');
 
-            const patientId = await resourceManager.getPatientIdFromResourceAsync('Patient', patient);
+            const patientId = await resourceManager.getPatientIdFromResourceAsync(
+                'Patient',
+                patient
+            );
             expect(patientId).toStrictEqual('00100000000');
         });
         test('getPatientIdFromResourceAsync works for Observation', async () => {
@@ -18,7 +21,10 @@ describe('resourceManager Tests', () => {
             const patientFieldName = resourceManager.getPatientFieldNameFromResource('Observation');
             expect(patientFieldName).toStrictEqual('subject');
 
-            const patientId = await resourceManager.getPatientIdFromResourceAsync('Observation', observation);
+            const patientId = await resourceManager.getPatientIdFromResourceAsync(
+                'Observation',
+                observation
+            );
             expect(patientId).toStrictEqual('2354');
         });
     });

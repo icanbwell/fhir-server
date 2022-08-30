@@ -11,7 +11,7 @@ module.exports.handleSmartConfiguration = async (req, res) => {
          * @type {*}
          */
         const response = await superagent.get(env.AUTH_CONFIGURATION_URI).set({
-            'Accept': 'application/json'
+            Accept: 'application/json',
         });
         /**
          * @type {Object}

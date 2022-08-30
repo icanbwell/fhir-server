@@ -5,8 +5,13 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 // expected
 const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -21,10 +26,7 @@ describe('PractitionerReturnIdTests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
             // first confirm there are no practitioners
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -53,10 +55,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             // now check that we get the right record back
-            resp = await request
-                .get('/4_0_0/Practitioner/0')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner/0').set(getHeaders()).expect(200);
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
@@ -72,10 +71,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by single id fails if there is no access', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -101,10 +97,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.body['created']).toBe(true);
 
             // check access with proper permissions
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -118,10 +111,7 @@ describe('PractitionerReturnIdTests', () => {
         test('search by single id fails if access does not match', async () => {
             const request = await createTestRequest();
             // first confirm there are no practitioners
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -147,10 +137,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');

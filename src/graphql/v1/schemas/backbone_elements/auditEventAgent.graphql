@@ -11,7 +11,13 @@
 # import Coding from "../complex_types/coding.graphql"
 # import AuditEventNetwork from "../backbone_elements/auditEventNetwork.graphql"
 
-union AuditEventAgentWho = PractitionerRole | Practitioner | Organization | Device | Patient | RelatedPerson
+union AuditEventAgentWho =
+      PractitionerRole
+    | Practitioner
+    | Organization
+    | Device
+    | Patient
+    | RelatedPerson
 
 """
 AuditEvent.Agent
@@ -23,7 +29,7 @@ type AuditEventAgent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -31,7 +37,7 @@ type AuditEventAgent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -42,66 +48,66 @@ type AuditEventAgent {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Specification of the participation type the user plays when performing the
     event.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     The security role that the user was acting under, that come from local codes
     defined by the access control security system (e.g. RBAC, ABAC) used in the
     local context.
     """
-    role: [CodeableConcept]        
+    role: [CodeableConcept]
     """
     Reference to who this agent is that was involved in the event.
     """
-    who: AuditEventAgentWho        
+    who: AuditEventAgentWho
     """
     Alternative agent Identifier. For a human, this should be a user identifier
     text string from authentication system. This identifier would be one known to
     a common authentication system (e.g. single sign-on), if available.
     """
-    altId: String        
+    altId: String
     """
     Human-meaningful name for the agent.
     """
-    name: String        
+    name: String
     """
     Indicator that the user is or is not the requestor, or initiator, for the
     event being audited.
     """
-    requestor: Boolean!        
+    requestor: Boolean!
     """
     Where the event occurred.
     """
-    location: Location        
+    location: Location
     """
     The policy or plan that authorized the activity being recorded. Typically, a
     single activity may have multiple applicable policies, such as patient
     consent, guarantor funding, etc. The policy would also indicate the security
     token used.
     """
-    policy: [uri]        
+    policy: [uri]
     """
     Type of media involved. Used when the event is about exporting/importing onto
     media.
     """
-    media: Coding        
+    media: Coding
     """
     Logical network location for application activity, if the activity has a
     network location.
     """
-    network: AuditEventNetwork        
+    network: AuditEventNetwork
     """
     The reason (purpose of use), specific to this agent, that was used during the
     event being recorded.
     """
-    purposeOfUse: [CodeableConcept]        
+    purposeOfUse: [CodeableConcept]
 }

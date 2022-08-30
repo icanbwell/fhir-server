@@ -7,7 +7,7 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
      * @return {boolean}
      */
     canEnrich(resourceType) {
-        return (resourceType === 'ExplanationOfBenefit');
+        return resourceType === 'ExplanationOfBenefit';
     }
 
     /**

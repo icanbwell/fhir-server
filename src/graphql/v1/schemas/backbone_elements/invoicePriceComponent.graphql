@@ -5,7 +5,6 @@
 # import decimal from "../simple_types/decimal.graphql"
 # import Money from "../complex_types/money.graphql"
 
-
 """
 Invoice.PriceComponent
     Invoice containing collected ChargeItems from an Account with calculated
@@ -15,7 +14,7 @@ type InvoicePriceComponent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +22,7 @@ type InvoicePriceComponent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -34,28 +33,28 @@ type InvoicePriceComponent {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     This code identifies the type of the component.
     """
-    type: code!        
+    type: code!
     """
     A code that identifies the component. Codes may be used to differentiate
     between kinds of taxes, surcharges, discounts etc.
     """
-    code: CodeableConcept        
+    code: CodeableConcept
     """
     The factor that has been applied on the base price for calculating this
     component.
     """
-    factor: decimal        
+    factor: decimal
     """
     The amount calculated for this component.
     """
-    amount: Money        
+    amount: Money
 }

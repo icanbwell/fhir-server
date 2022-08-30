@@ -9,7 +9,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Resource from "../resources/resource.graphql"
 
-
 """
 Questionnaire.EnableWhen
     A structured set of questions intended to guide the collection of answers from
@@ -20,7 +19,7 @@ type QuestionnaireEnableWhen {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -28,7 +27,7 @@ type QuestionnaireEnableWhen {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -39,59 +38,59 @@ type QuestionnaireEnableWhen {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The linkId for the question whose answer (or lack of answer) governs whether
     this item is enabled.
     """
-    question: String!        
+    question: String!
     """
     Specifies the criteria by which the question is enabled.
     """
-    operator: code!        
+    operator: code!
     """
     None
     """
-    answerBoolean: Boolean        
+    answerBoolean: Boolean
     """
     None
     """
-    answerDecimal: decimal        
+    answerDecimal: decimal
     """
     None
     """
-    answerInteger: Int        
+    answerInteger: Int
     """
     None
     """
-    answerDate: date        
+    answerDate: date
     """
     None
     """
-    answerDateTime: dateTime        
+    answerDateTime: dateTime
     """
     None
     """
-    answerTime: time        
+    answerTime: time
     """
     None
     """
-    answerString: String        
+    answerString: String
     """
     None
     """
-    answerCoding: Coding        
+    answerCoding: Coding
     """
     None
     """
-    answerQuantity: Quantity        
+    answerQuantity: Quantity
     """
     None
     """
-    answerReference: Resource        
+    answerReference: Resource
 }

@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import decimal from "../simple_types/decimal.graphql"
 
-
 """
 MolecularSequence.Roc
     Raw data describing a biological sequence.
@@ -11,7 +10,7 @@ type MolecularSequenceRoc {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -19,7 +18,7 @@ type MolecularSequenceRoc {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -30,42 +29,42 @@ type MolecularSequenceRoc {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Invidual data point representing the GQ (genotype quality) score threshold.
     """
-    score: [Int]        
+    score: [Int]
     """
     The number of true positives if the GQ score threshold was set to "score"
     field value.
     """
-    numTP: [Int]        
+    numTP: [Int]
     """
     The number of false positives if the GQ score threshold was set to "score"
     field value.
     """
-    numFP: [Int]        
+    numFP: [Int]
     """
     The number of false negatives if the GQ score threshold was set to "score"
     field value.
     """
-    numFN: [Int]        
+    numFN: [Int]
     """
     Calculated precision if the GQ score threshold was set to "score" field value.
     """
-    precision: [decimal]        
+    precision: [decimal]
     """
     Calculated sensitivity if the GQ score threshold was set to "score" field
     value.
     """
-    sensitivity: [decimal]        
+    sensitivity: [decimal]
     """
     Calculated fScore if the GQ score threshold was set to "score" field value.
     """
-    fMeasure: [decimal]        
+    fMeasure: [decimal]
 }

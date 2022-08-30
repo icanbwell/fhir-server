@@ -6,7 +6,6 @@
 # import Period from "../complex_types/period.graphql"
 # import Annotation from "../complex_types/annotation.graphql"
 
-
 """
 FamilyMemberHistory.Condition
     Significant health conditions for a person related to the patient relevant in
@@ -16,7 +15,7 @@ type FamilyMemberHistoryCondition {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +23,7 @@ type FamilyMemberHistoryCondition {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,46 +34,46 @@ type FamilyMemberHistoryCondition {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The actual condition specified. Could be a coded condition (like MI or
     Diabetes) or a less specific string like 'cancer' depending on how much is
     known about the condition and the capabilities of the creating system.
     """
-    code: CodeableConcept!        
+    code: CodeableConcept!
     """
     Indicates what happened following the condition.  If the condition resulted in
     death, deceased date is captured on the relation.
     """
-    outcome: CodeableConcept        
+    outcome: CodeableConcept
     """
     This condition contributed to the cause of death of the related person. If
     contributedToDeath is not populated, then it is unknown.
     """
-    contributedToDeath: Boolean        
+    contributedToDeath: Boolean
     """
     None
     """
-    onsetAge: Quantity        
+    onsetAge: Quantity
     """
     None
     """
-    onsetRange: Range        
+    onsetRange: Range
     """
     None
     """
-    onsetPeriod: Period        
+    onsetPeriod: Period
     """
     None
     """
-    onsetString: String        
+    onsetString: String
     """
     An area where general notes can be placed about this specific condition.
     """
-    note: [Annotation]        
+    note: [Annotation]
 }

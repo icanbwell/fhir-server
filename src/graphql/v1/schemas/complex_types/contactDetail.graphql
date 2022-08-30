@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 
-
 """
 ContactDetail
     Specifies contact information for a person or organization.
@@ -13,7 +12,7 @@ type ContactDetail {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,14 +20,14 @@ type ContactDetail {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     The name of an individual to contact.
     """
-    name: String        
+    name: String
     """
     The contact details for the individual (if a name was provided) or the
     organization.
     """
-    telecom: [ContactPoint]        
+    telecom: [ContactPoint]
 }

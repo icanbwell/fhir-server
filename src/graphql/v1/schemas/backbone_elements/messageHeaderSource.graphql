@@ -3,7 +3,6 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import url from "../simple_types/url.graphql"
 
-
 """
 MessageHeader.Source
     The header for a message exchange that is either requesting or responding to
@@ -16,7 +15,7 @@ type MessageHeaderSource {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +23,7 @@ type MessageHeaderSource {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,32 +34,32 @@ type MessageHeaderSource {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Human-readable name for the source system.
     """
-    name: String        
+    name: String
     """
     May include configuration or other information useful in debugging.
     """
-    software: String        
+    software: String
     """
     Can convey versions of multiple systems in situations where a message passes
     through multiple hands.
     """
-    version: String        
+    version: String
     """
     An e-mail, phone, website or other contact point to use to resolve issues with
     message communications.
     """
-    contact: ContactPoint        
+    contact: ContactPoint
     """
     Identifies the routing target to send acknowledgements to.
     """
-    endpoint: url!        
+    endpoint: url!
 }

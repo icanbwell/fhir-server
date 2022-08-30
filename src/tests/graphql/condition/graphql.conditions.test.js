@@ -13,9 +13,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, createTestRequest
+    getGraphQLHeaders,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
@@ -30,10 +31,7 @@ describe('GraphQL Condition Tests', () => {
         test('GraphQL Condition properly', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = conditionQuery.replace(/\\n/g, '');
-            let resp = await request
-                .get('/4_0_0/Condition')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Condition').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -56,17 +54,11 @@ describe('GraphQL Condition Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
             console.log('------- response patient ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response patient  ------------');
-            resp = await request
-                .get('/4_0_0/Condition/')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Condition/').set(getHeaders()).expect(200);
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
@@ -75,9 +67,9 @@ describe('GraphQL Condition Tests', () => {
                 // .set(getHeaders())
                 .post('/graphql')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
@@ -89,7 +81,7 @@ describe('GraphQL Condition Tests', () => {
             expect(body.errors).toBeUndefined();
             expect(body.data.condition.length).toBe(10);
             let expected = expectedConditionBundleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

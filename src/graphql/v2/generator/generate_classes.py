@@ -9,7 +9,7 @@ from typing import Union, List, Dict, Any
 
 from fhir_xml_schema_parser import FhirXmlSchemaParser
 from search_parameters import search_parameter_queries
-from src.graphql.v2.generator.fhir_xml_schema_parser import FhirEntity
+from fhir_xml_schema_parser import FhirEntity
 
 
 def my_copytree(
@@ -50,6 +50,7 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
     parent_schema_dir = Path(__file__).parent.joinpath("../")
+    classes_dir: Path = parent_schema_dir.joinpath("classes")
     graphql_schema_dir: Path = parent_schema_dir.joinpath("schemas")
     graphql_resolvers_dir: Path = parent_schema_dir.joinpath("resolvers")
 
@@ -58,6 +59,16 @@ def main() -> int:
     if os.path.exists(resources_folder):
         shutil.rmtree(resources_folder)
     os.mkdir(resources_folder)
+
+    classes_resources_folder = classes_dir.joinpath("resources")
+    if os.path.exists(classes_resources_folder):
+        shutil.rmtree(classes_resources_folder)
+    os.mkdir(classes_resources_folder)
+
+    classes_complex_types_folder = classes_dir.joinpath("complex_types")
+    if os.path.exists(classes_complex_types_folder):
+        shutil.rmtree(classes_complex_types_folder)
+    os.mkdir(classes_complex_types_folder)
 
     queries_folder = graphql_schema_dir.joinpath("queries")
     if os.path.exists(queries_folder):
@@ -93,6 +104,11 @@ def main() -> int:
     if os.path.exists(backbone_elements_folder):
         shutil.rmtree(backbone_elements_folder)
     os.mkdir(backbone_elements_folder)
+
+    classes_backbone_elements_folder = classes_dir.joinpath("backbone_elements")
+    if os.path.exists(classes_backbone_elements_folder):
+        shutil.rmtree(classes_backbone_elements_folder)
+    os.mkdir(classes_backbone_elements_folder)
 
     backbone_elements_resolvers_folder = graphql_resolvers_dir.joinpath("backbone_elements")
     if os.path.exists(backbone_elements_resolvers_folder):
@@ -204,11 +220,11 @@ def main() -> int:
                 with open(file_path, "w") as file2:
                     file2.write(result)
             # write Javascript classes
-            with open(data_dir.joinpath("classes").joinpath("template.javascript.class.jinja2"), "r") as file:
+            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
                 template_contents = file.read()
                 from jinja2 import Template
 
-                file_path = resources_folder.joinpath(f"{entity_file_name}.js")
+                file_path = classes_resources_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing domain resource: {entity_file_name} to {file_path}...")
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True
@@ -259,6 +275,22 @@ def main() -> int:
                 with open(file_path, "w") as file2:
                     file2.write(result)
 
+            # write resolvers
+            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
+
+                file_path = classes_backbone_elements_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing back bone class: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
         elif fhir_entity.is_extension:  # valueset
             with open(data_dir.joinpath("template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
@@ -291,7 +323,22 @@ def main() -> int:
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
                     file2.write(result)
+            # write Javascript classes
+            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
 
+                file_path = classes_complex_types_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing complex type: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
         elif fhir_entity.type_ == "Element":  # valueset
             with open(data_dir.joinpath("template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
@@ -325,13 +372,44 @@ def main() -> int:
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
                     file2.write(result)
+            # write Javascript classes
+            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
 
+                file_path = classes_complex_types_folder.joinpath(f"{entity_file_name}.js")
+                print(f"Writing complex type: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
         elif fhir_entity.type_ in ["Quantity"]:  # valueset
             with open(data_dir.joinpath("template.complex_type.jinja2"), "r") as file:
                 template_contents = file.read()
                 from jinja2 import Template
 
                 file_path = complex_types_folder.joinpath(f"{entity_file_name}.graphql")
+                print(f"Writing complex_type: {entity_file_name} to {file_path}...")
+                template = Template(
+                    template_contents, trim_blocks=True, lstrip_blocks=True
+                )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                )
+
+            if not path.exists(file_path):
+                with open(file_path, "w") as file2:
+                    file2.write(result)
+            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
+                template_contents = file.read()
+                from jinja2 import Template
+
+                file_path = classes_complex_types_folder.joinpath(f"{entity_file_name}.js")
                 print(f"Writing complex_type: {entity_file_name} to {file_path}...")
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True

@@ -1,32 +1,32 @@
 query Allergies($patient: String, $FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
-  allergyIntolerance(
-    patient: {value: $patient}
-    _sort: "code.text"
-    _count: $FHIR_DEFAULT_COUNT
-    date: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
-  ) {
-    entry {
-      resource {
-        id
-        type
-        category
-        criticality
-        code {
-          text
-          __typename
-        }
-        reaction {
-          severity
-          __typename
-        }
-        note {
-          text
-          __typename
+    allergyIntolerance(
+        patient: { value: $patient }
+        _sort: "code.text"
+        _count: $FHIR_DEFAULT_COUNT
+        date: { values: [{ greaterThanOrEqualTo: $from_date }, { lessThanOrEqualTo: $to_date }] }
+    ) {
+        entry {
+            resource {
+                id
+                type
+                category
+                criticality
+                code {
+                    text
+                    __typename
+                }
+                reaction {
+                    severity
+                    __typename
+                }
+                note {
+                    text
+                    __typename
+                }
+                __typename
+            }
+            __typename
         }
         __typename
-      }
-      __typename
     }
-    __typename
-  }
 }

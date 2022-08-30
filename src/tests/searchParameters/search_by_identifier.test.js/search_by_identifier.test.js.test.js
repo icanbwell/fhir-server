@@ -4,9 +4,14 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 // expected
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach } = require('@jest/globals');
+const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -36,7 +41,8 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             assertCompareBundles({
-                body: resp.body, expected: expectedPractitionerResources
+                body: resp.body,
+                expected: expectedPractitionerResources,
             });
         });
     });

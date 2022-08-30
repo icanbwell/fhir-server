@@ -2,11 +2,11 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 
-const {mongoConfig} = require('../config');
+const { mongoConfig } = require('../config');
 const async = require('async');
 const env = require('var');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
-const {CLIENT_DB} = require('../constants');
+const { createClientAsync, disconnectClientAsync } = require('../utils/connect');
+const { CLIENT_DB } = require('../constants');
 
 module.exports.handleStats = async (req, res) => {
     console.info('Running stats');
@@ -21,7 +21,7 @@ module.exports.handleStats = async (req, res) => {
         console.log(collection_name);
         const count = await db.collection(collection_name).estimatedDocumentCount();
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
-        return {name: collection_name, count: count};
+        return { name: collection_name, count: count };
     }
 
     /**
@@ -46,13 +46,13 @@ module.exports.handleStats = async (req, res) => {
         console.info('Collection_names:' + collection_names);
         const collection_stats = await async.map(
             collection_names,
-            async collection_name => await getStatsForCollectionAsync(collection_name, db)
+            async (collection_name) => await getStatsForCollectionAsync(collection_name, db)
         );
         res.status(200).json({
             success: true,
             image: env.DOCKER_IMAGE || '',
             database: mongoConfig.db_name,
-            collections: collection_stats
+            collections: collection_stats,
         });
     } finally {
         await disconnectClientAsync(client);
