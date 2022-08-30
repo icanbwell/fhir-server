@@ -6,6 +6,16 @@ const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');
 const {CLIENT_DB} = require('../../../constants');
 const {createTestContainer} = require('../../createTestContainer');
+const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
+const env = require('var');
+
+class MockChangeEventProducer extends ChangeEventProducer {
+    constructor({kafkaClient, resourceManager, patientChangeTopic}) {
+        super({kafkaClient, resourceManager, patientChangeTopic});
+        // this.patientCreateHandler = jest.fn();
+        // this.patientChangeHandler = jest.fn();
+    }
+}
 
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
@@ -22,7 +32,25 @@ describe('databaseBulkInserter Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const container = createTestContainer();
+            const container = createTestContainer(
+                container1 => {
+                    container1.register('changeEventProducer',
+                        c => new MockChangeEventProducer({
+                            kafkaClient: c.kafkaClient,
+                            resourceManager: c.resourceManager,
+                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events'
+                        }));
+                    return container1;
+                });
+
+            const onPatientCreateAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
+                .mockImplementation(() => {
+                });
+            const onPatientChangeAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
+                .mockImplementation(() => {
+                });
             /**
              * @type {DatabaseBulkInserter}
              */
@@ -34,13 +62,6 @@ describe('databaseBulkInserter Tests', () => {
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.replaceOneAsync(
                 {resourceType: 'Patient', id: patient.id, doc: patient});
-
-            const patientCreateHandler = jest.fn();
-
-            const patientChangeHandler = jest.fn();
-
-            databaseBulkInserter.on('createPatient', patientCreateHandler);
-            databaseBulkInserter.on('changePatient', patientChangeHandler);
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
@@ -68,11 +89,9 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
-            expect(patientCreateHandler).toBeCalledTimes(1);
-            expect(patientChangeHandler).toBeCalledTimes(2);
+            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
 
-            databaseBulkInserter.removeListener('createPatient', patientCreateHandler);
-            databaseBulkInserter.removeListener('changePatient', patientChangeHandler);
         });
     });
 });

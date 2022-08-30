@@ -354,32 +354,13 @@ class DatabaseBulkInserter extends EventEmitter {
                     const resource = this.operationsByResourceTypeMap
                         .get(resourceType)
                         .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
-                    /**
-                     * @type {string|null}
-                     */
-                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
-                    if (patientId) {
-                        if (resourceType === 'Patient') {
-                            this.changeEventProducer.onPatientCreateAsync(
-                                {
-                                    requestId,
-                                    patientId,
-                                    timestamp: currentDate
-                                }
-                            );
-                            this.emit('createPatient', {id: patientId, resourceType: resourceType, resource: resource});
-                        } else {
-                            this.changeEventProducer.onPatientChangeAsync(
-                                {
-                                    requestId,
-                                    patientId,
-                                    timestamp: currentDate
-                                }
-                            );
-                            this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
-                        }
-                    }
-                    this.emit('insertResource', {id: id, resourceType: resourceType, resource: resource});
+
+                    await this.changeEventProducer.fireEventsAsync({
+                        requestId,
+                        eventType: 'C',
+                        resourceType: resourceType,
+                        doc: resource
+                    });
                 }
             }
         }
@@ -420,14 +401,12 @@ class DatabaseBulkInserter extends EventEmitter {
                     const resource = this.operationsByResourceTypeMap
                         .get(resourceType)
                         .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
-                    /**
-                     * @type {string|null}
-                     */
-                    const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, resource);
-                    if (patientId) {
-                        this.emit('changePatient', {id: patientId, resourceType: resourceType, resource: resource});
-                    }
-                    this.emit('updateResource', {id: id, resourceType: resourceType, resource: resource});
+                    await this.changeEventProducer.fireEventsAsync({
+                        requestId,
+                        eventType: 'U',
+                        resourceType: resourceType,
+                        doc: resource
+                    });
                 }
             }
         }
