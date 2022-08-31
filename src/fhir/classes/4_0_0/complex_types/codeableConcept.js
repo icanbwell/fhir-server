@@ -10,10 +10,10 @@ CodeableConcept
 */
 class CodeableConcept {
     /**
-     * @param {String|undefined} [id],
+     * @param {string|undefined} [id],
      * @param {Extension[]|undefined} [extension],
      * @param {Coding[]|undefined} [coding],
-     * @param {String|undefined} [text],
+     * @param {string|undefined} [text],
     */
     constructor(
         {
