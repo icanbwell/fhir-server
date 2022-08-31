@@ -72,7 +72,7 @@ class DatabaseHistoryManager {
      * @param { import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({ query, options = null}) {
+    async findOneAsync({query, options = null}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -96,7 +96,7 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync({ query, options = null}) {
+    async findAsync({query, options = null}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -112,7 +112,9 @@ class DatabaseHistoryManager {
             const cursor = collection.find(query, options);
             cursors.push(cursor);
         }
-        return new DatabasePartitionedCursor({base_version: this._base_version, cursors});
+        return new DatabasePartitionedCursor({
+            base_version: this._base_version, resourceType: this._resourceType, cursors
+        });
     }
 }
 

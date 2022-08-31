@@ -155,7 +155,9 @@ class DatabaseQueryManager {
             const cursor = collection.find(query, options);
             cursors.push(cursor);
         }
-        return new DatabasePartitionedCursor({base_version: this._base_version, cursors});
+        return new DatabasePartitionedCursor({
+            base_version: this._base_version, resourceType: this._resourceType, cursors
+        });
     }
 
     /**

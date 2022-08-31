@@ -1,24 +1,36 @@
 /**
  * This class provides a cursor that can span multiple partitioned collections
  */
-const {assertIsValid} = require('../utils/assertType');
+const {assertIsValid, assertFail} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
 
 class DatabasePartitionedCursor {
     /**
      * Constructor
      * @param {string} base_version
+     * @param {string} resourceType
      * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]} cursors
      */
-    constructor({base_version, cursors}) {
+    constructor({base_version, resourceType, cursors}) {
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          * @private
          */
         this._cursors = cursors;
         assertIsValid(cursors);
+        assertIsValid(cursors.length > 0);
+        /**
+         * @type {string}
+         * @private
+         */
         this.base_version = base_version;
         assertIsValid(base_version);
+        /**
+         * @type {string}
+         * @private
+         */
+        this.resourceType = resourceType;
+        assertIsValid(resourceType);
     }
 
     /**
@@ -57,9 +69,15 @@ class DatabasePartitionedCursor {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
             const result = await this._cursors[0].next();
-            if (result !== null && result.resourceType) {
-                const ResourceCreator = getResource(this.base_version, result.resourceType);
+            if (result !== null) {
+                const ResourceCreator = getResource(this.base_version, this.resourceType);
                 return new ResourceCreator(result);
+            } else {
+                assertFail({
+                    source: 'DatabasePartitionedCursor.next',
+                    message: 'Data is null',
+                    args: {value: result}
+                });
             }
             this._cursors.shift();
         }
