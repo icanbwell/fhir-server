@@ -49,7 +49,9 @@ class SubstanceAmount extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class SubstanceAmount extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class SubstanceAmount extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +118,9 @@ class SubstanceAmount extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'amountQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +136,9 @@ class SubstanceAmount extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'amountRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class SubstanceAmount extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'amountString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -165,7 +177,9 @@ class SubstanceAmount extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'amountType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -181,7 +195,9 @@ class SubstanceAmount extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'amountText', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountText,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -196,7 +212,9 @@ class SubstanceAmount extends Element {
          * @property {SubstanceAmountReferenceRange|undefined}
         */
         Object.defineProperty(this, 'referenceRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -207,6 +225,7 @@ class SubstanceAmount extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -219,13 +238,6 @@ class SubstanceAmount extends Element {
             referenceRange,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceAmount',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

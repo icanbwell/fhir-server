@@ -35,7 +35,9 @@ class EncounterStatusHistory extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -54,7 +56,9 @@ class EncounterStatusHistory extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -82,7 +86,9 @@ class EncounterStatusHistory extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +104,9 @@ class EncounterStatusHistory extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class EncounterStatusHistory extends Element {
          * @property {Period}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,6 +134,7 @@ class EncounterStatusHistory extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -132,13 +143,6 @@ class EncounterStatusHistory extends Element {
             period,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'EncounterStatusHistory',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -44,7 +44,9 @@ class CompositionAttester extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class CompositionAttester extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class CompositionAttester extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class CompositionAttester extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'mode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.mode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +130,9 @@ class CompositionAttester extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'time', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.time,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class CompositionAttester extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'party', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.party,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,6 +160,7 @@ class CompositionAttester extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -157,13 +170,6 @@ class CompositionAttester extends Element {
             party,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CompositionAttester',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

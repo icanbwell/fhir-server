@@ -38,7 +38,9 @@ class CommunicationRequestPayload extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -57,7 +59,9 @@ class CommunicationRequestPayload extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class CommunicationRequestPayload extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class CommunicationRequestPayload extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'contentString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +124,9 @@ class CommunicationRequestPayload extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'contentAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class CommunicationRequestPayload extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'contentReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,6 +155,7 @@ class CommunicationRequestPayload extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -152,13 +165,6 @@ class CommunicationRequestPayload extends Element {
             contentReference,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CommunicationRequestPayload',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

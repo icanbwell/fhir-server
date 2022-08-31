@@ -47,7 +47,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -111,7 +117,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'outcome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,7 +135,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'probabilityDecimal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.probabilityDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +152,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'probabilityRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.probabilityRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'qualitativeRisk', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.qualitativeRisk,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'relativeRisk', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relativeRisk,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +209,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'whenPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.whenPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'whenRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.whenRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +245,9 @@ class RiskAssessmentPrediction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'rationale', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.rationale,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,6 +257,7 @@ class RiskAssessmentPrediction extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -249,13 +272,6 @@ class RiskAssessmentPrediction extends Element {
             rationale,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'RiskAssessmentPrediction',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

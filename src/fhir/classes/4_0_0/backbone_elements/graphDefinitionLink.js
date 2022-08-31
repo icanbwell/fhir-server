@@ -44,7 +44,9 @@ class GraphDefinitionLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class GraphDefinitionLink extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class GraphDefinitionLink extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class GraphDefinitionLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'path', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +130,9 @@ class GraphDefinitionLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'sliceName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sliceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class GraphDefinitionLink extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'min', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +164,9 @@ class GraphDefinitionLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'max', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +181,9 @@ class GraphDefinitionLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +198,9 @@ class GraphDefinitionLink extends Element {
          * @property {GraphDefinitionTarget[]|undefined}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,6 +211,7 @@ class GraphDefinitionLink extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -205,13 +224,6 @@ class GraphDefinitionLink extends Element {
             target,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'GraphDefinitionLink',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

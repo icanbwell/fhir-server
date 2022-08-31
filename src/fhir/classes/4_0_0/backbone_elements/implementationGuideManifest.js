@@ -43,7 +43,9 @@ class ImplementationGuideManifest extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -62,7 +64,9 @@ class ImplementationGuideManifest extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +94,9 @@ class ImplementationGuideManifest extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class ImplementationGuideManifest extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'rendering', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.rendering,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +133,9 @@ class ImplementationGuideManifest extends Element {
          * @property {ImplementationGuideResource1[]}
         */
         Object.defineProperty(this, 'resource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +151,9 @@ class ImplementationGuideManifest extends Element {
          * @property {ImplementationGuidePage1[]|undefined}
         */
         Object.defineProperty(this, 'page', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +169,9 @@ class ImplementationGuideManifest extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'image', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.image,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class ImplementationGuideManifest extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'other', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.other,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,6 +200,7 @@ class ImplementationGuideManifest extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -195,13 +212,6 @@ class ImplementationGuideManifest extends Element {
             other,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImplementationGuideManifest',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

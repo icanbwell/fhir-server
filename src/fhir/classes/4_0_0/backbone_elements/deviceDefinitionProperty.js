@@ -37,7 +37,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -56,7 +58,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +88,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +106,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +124,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {Quantity[]|undefined}
         */
         Object.defineProperty(this, 'valueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class DeviceDefinitionProperty extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'valueCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,6 +155,7 @@ class DeviceDefinitionProperty extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -152,13 +165,6 @@ class DeviceDefinitionProperty extends Element {
             valueCode,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DeviceDefinitionProperty',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

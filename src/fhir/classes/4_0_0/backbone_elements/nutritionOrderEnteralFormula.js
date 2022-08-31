@@ -49,7 +49,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +119,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'baseFormulaType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.baseFormulaType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +138,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'baseFormulaProductName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.baseFormulaProductName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'additiveType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.additiveType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,7 +175,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'additiveProductName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.additiveProductName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -181,7 +195,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'caloricDensity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.caloricDensity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'routeofAdministration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.routeofAdministration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -218,7 +236,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {NutritionOrderAdministration[]|undefined}
         */
         Object.defineProperty(this, 'administration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.administration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +255,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxVolumeToDeliver', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxVolumeToDeliver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +274,9 @@ class NutritionOrderEnteralFormula extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'administrationInstruction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.administrationInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -262,6 +286,7 @@ class NutritionOrderEnteralFormula extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -277,13 +302,6 @@ class NutritionOrderEnteralFormula extends Element {
             administrationInstruction,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'NutritionOrderEnteralFormula',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

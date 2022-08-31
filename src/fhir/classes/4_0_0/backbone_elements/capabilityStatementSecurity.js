@@ -39,7 +39,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +90,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'cors', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cors,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +126,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'service', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.service,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +144,9 @@ class CapabilityStatementSecurity extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,6 +156,7 @@ class CapabilityStatementSecurity extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -153,13 +166,6 @@ class CapabilityStatementSecurity extends Element {
             description,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CapabilityStatementSecurity',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

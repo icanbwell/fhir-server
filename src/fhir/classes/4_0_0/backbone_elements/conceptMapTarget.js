@@ -44,7 +44,9 @@ class ConceptMapTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class ConceptMapTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class ConceptMapTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class ConceptMapTarget extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +131,9 @@ class ConceptMapTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'display', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +150,9 @@ class ConceptMapTarget extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'equivalence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.equivalence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +168,9 @@ class ConceptMapTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'comment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +187,9 @@ class ConceptMapTarget extends Element {
          * @property {ConceptMapDependsOn[]|undefined}
         */
         Object.defineProperty(this, 'dependsOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dependsOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +209,9 @@ class ConceptMapTarget extends Element {
          * @property {ConceptMapDependsOn[]|undefined}
         */
         Object.defineProperty(this, 'product', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.product,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,6 +222,7 @@ class ConceptMapTarget extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -216,13 +235,6 @@ class ConceptMapTarget extends Element {
             product,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ConceptMapTarget',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

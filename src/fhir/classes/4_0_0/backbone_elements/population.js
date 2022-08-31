@@ -42,7 +42,9 @@ class Population extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class Population extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class Population extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class Population extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'ageRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.ageRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class Population extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'ageCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.ageCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class Population extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'gender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class Population extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'race', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.race,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +184,9 @@ class Population extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'physiologicalCondition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.physiologicalCondition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -181,6 +197,7 @@ class Population extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -192,13 +209,6 @@ class Population extends Element {
             physiologicalCondition,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Population',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

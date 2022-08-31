@@ -42,7 +42,9 @@ class MessageHeaderDestination extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class MessageHeaderDestination extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class MessageHeaderDestination extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class MessageHeaderDestination extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class MessageHeaderDestination extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class MessageHeaderDestination extends Element {
          * @property {url}
         */
         Object.defineProperty(this, 'endpoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class MessageHeaderDestination extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'receiver', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.receiver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,6 +178,7 @@ class MessageHeaderDestination extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -174,13 +189,6 @@ class MessageHeaderDestination extends Element {
             receiver,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MessageHeaderDestination',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

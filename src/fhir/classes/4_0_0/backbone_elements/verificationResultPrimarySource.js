@@ -45,7 +45,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -64,7 +66,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -92,7 +96,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'who', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +152,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'communicationMethod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.communicationMethod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'validationStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validationStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +189,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'validationDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +206,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'canPushUpdates', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.canPushUpdates,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -207,7 +225,9 @@ class VerificationResultPrimarySource extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'pushTypeAvailable', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.pushTypeAvailable,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -218,6 +238,7 @@ class VerificationResultPrimarySource extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -231,13 +252,6 @@ class VerificationResultPrimarySource extends Element {
             pushTypeAvailable,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'VerificationResultPrimarySource',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

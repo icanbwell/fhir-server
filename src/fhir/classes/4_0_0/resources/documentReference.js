@@ -78,7 +78,9 @@ class DocumentReference extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +97,9 @@ class DocumentReference extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +118,9 @@ class DocumentReference extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +135,9 @@ class DocumentReference extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +157,9 @@ class DocumentReference extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +177,9 @@ class DocumentReference extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +198,9 @@ class DocumentReference extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,7 +228,9 @@ class DocumentReference extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -232,7 +248,9 @@ class DocumentReference extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'masterIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.masterIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,7 +267,9 @@ class DocumentReference extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -265,7 +285,9 @@ class DocumentReference extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +302,9 @@ class DocumentReference extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'docStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.docStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +321,9 @@ class DocumentReference extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -315,7 +341,9 @@ class DocumentReference extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -334,7 +362,9 @@ class DocumentReference extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -350,7 +380,9 @@ class DocumentReference extends Resource {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -365,7 +397,9 @@ class DocumentReference extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -381,7 +415,9 @@ class DocumentReference extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'authenticator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authenticator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -398,7 +434,9 @@ class DocumentReference extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'custodian', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.custodian,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -415,7 +453,9 @@ class DocumentReference extends Resource {
          * @property {DocumentReferenceRelatesTo[]|undefined}
         */
         Object.defineProperty(this, 'relatesTo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatesTo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -431,7 +471,9 @@ class DocumentReference extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -450,7 +492,9 @@ class DocumentReference extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'securityLabel', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.securityLabel,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -467,7 +511,9 @@ class DocumentReference extends Resource {
          * @property {DocumentReferenceContent[]}
         */
         Object.defineProperty(this, 'content', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.content,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -483,7 +529,9 @@ class DocumentReference extends Resource {
          * @property {DocumentReferenceContext|undefined}
         */
         Object.defineProperty(this, 'context', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -494,6 +542,7 @@ class DocumentReference extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -526,7 +575,8 @@ class DocumentReference extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'DocumentReference',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

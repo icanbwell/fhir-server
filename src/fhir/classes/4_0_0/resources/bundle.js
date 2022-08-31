@@ -48,7 +48,9 @@ class Bundle extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -65,7 +67,9 @@ class Bundle extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +88,9 @@ class Bundle extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -99,7 +105,9 @@ class Bundle extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -115,7 +123,9 @@ class Bundle extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +141,9 @@ class Bundle extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +159,9 @@ class Bundle extends Resource {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'timestamp', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timestamp,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -165,7 +179,9 @@ class Bundle extends Resource {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'total', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.total,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -180,7 +196,9 @@ class Bundle extends Resource {
          * @property {BundleLink[]|undefined}
         */
         Object.defineProperty(this, 'link', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +215,9 @@ class Bundle extends Resource {
          * @property {BundleEntry[]|undefined}
         */
         Object.defineProperty(this, 'entry', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.entry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -213,7 +233,9 @@ class Bundle extends Resource {
          * @property {Signature|undefined}
         */
         Object.defineProperty(this, 'signature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.signature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -224,6 +246,7 @@ class Bundle extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -243,7 +266,8 @@ class Bundle extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Bundle',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

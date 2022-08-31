@@ -43,7 +43,9 @@ class ValueSetInclude extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -62,7 +64,9 @@ class ValueSetInclude extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +94,9 @@ class ValueSetInclude extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class ValueSetInclude extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'system', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +131,9 @@ class ValueSetInclude extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +148,9 @@ class ValueSetInclude extends Element {
          * @property {ValueSetConcept[]|undefined}
         */
         Object.defineProperty(this, 'concept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +168,9 @@ class ValueSetInclude extends Element {
          * @property {ValueSetFilter[]|undefined}
         */
         Object.defineProperty(this, 'filter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.filter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +189,9 @@ class ValueSetInclude extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'valueSet', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,6 +201,7 @@ class ValueSetInclude extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -196,13 +213,6 @@ class ValueSetInclude extends Element {
             valueSet,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ValueSetInclude',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

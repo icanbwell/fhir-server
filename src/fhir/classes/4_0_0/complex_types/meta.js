@@ -44,7 +44,9 @@ class Meta extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class Meta extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -80,7 +84,9 @@ class Meta extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'versionId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.versionId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +101,9 @@ class Meta extends Element {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'lastUpdated', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastUpdated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class Meta extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +140,9 @@ class Meta extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'profile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +158,9 @@ class Meta extends Element {
          * @property {Coding[]|undefined}
         */
         Object.defineProperty(this, 'security', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.security,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +178,9 @@ class Meta extends Element {
          * @property {Coding[]|undefined}
         */
         Object.defineProperty(this, 'tag', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.tag,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,6 +191,7 @@ class Meta extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -186,13 +203,6 @@ class Meta extends Element {
             tag,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Meta',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -47,7 +47,9 @@ class SubstanceSourceMaterialAuthor extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class SubstanceSourceMaterialAuthor extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class SubstanceSourceMaterialAuthor extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class SubstanceSourceMaterialAuthor extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'authorType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authorType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +141,9 @@ class SubstanceSourceMaterialAuthor extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'authorDescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authorDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,6 +153,7 @@ class SubstanceSourceMaterialAuthor extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -151,13 +162,6 @@ class SubstanceSourceMaterialAuthor extends Element {
             authorDescription,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceSourceMaterialAuthor',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

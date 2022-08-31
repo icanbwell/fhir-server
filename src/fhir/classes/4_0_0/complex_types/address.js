@@ -54,7 +54,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -73,7 +75,9 @@ class Address extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class Address extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'use', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class Address extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +148,9 @@ class Address extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'line', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.line,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +166,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'city', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.city,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,7 +183,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'district', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.district,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +202,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'state', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.state,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +219,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'postalCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.postalCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +236,9 @@ class Address extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'country', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +253,9 @@ class Address extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,6 +266,7 @@ class Address extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -257,13 +282,6 @@ class Address extends Element {
             period,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Address',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

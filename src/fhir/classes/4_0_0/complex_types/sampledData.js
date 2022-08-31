@@ -45,7 +45,9 @@ class SampledData extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -64,7 +66,9 @@ class SampledData extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +85,9 @@ class SampledData extends Element {
          * @property {Quantity}
         */
         Object.defineProperty(this, 'origin', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +103,9 @@ class SampledData extends Element {
          * @property {decimal}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class SampledData extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'factor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.factor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +139,9 @@ class SampledData extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'lowerLimit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lowerLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -145,7 +157,9 @@ class SampledData extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'upperLimit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.upperLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,7 +176,9 @@ class SampledData extends Element {
          * @property {Int}
         */
         Object.defineProperty(this, 'dimensions', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dimensions,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +195,9 @@ class SampledData extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'data', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -189,6 +207,7 @@ class SampledData extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -201,13 +220,6 @@ class SampledData extends Element {
             data,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SampledData',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

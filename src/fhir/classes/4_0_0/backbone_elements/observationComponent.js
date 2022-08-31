@@ -61,7 +61,9 @@ class ObservationComponent extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -80,7 +82,9 @@ class ObservationComponent extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +112,9 @@ class ObservationComponent extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +130,9 @@ class ObservationComponent extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +148,9 @@ class ObservationComponent extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +166,9 @@ class ObservationComponent extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'valueCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +184,9 @@ class ObservationComponent extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'valueString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -187,7 +201,9 @@ class ObservationComponent extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'valueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -202,7 +218,9 @@ class ObservationComponent extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'valueInteger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,7 +235,9 @@ class ObservationComponent extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'valueRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +253,9 @@ class ObservationComponent extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'valueRatio', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,7 +271,9 @@ class ObservationComponent extends Element {
          * @property {SampledData|undefined}
         */
         Object.defineProperty(this, 'valueSampledData', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -265,7 +289,9 @@ class ObservationComponent extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'valueTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +306,9 @@ class ObservationComponent extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'valueDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +323,9 @@ class ObservationComponent extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'valuePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -312,7 +342,9 @@ class ObservationComponent extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'dataAbsentReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dataAbsentReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -329,7 +361,9 @@ class ObservationComponent extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'interpretation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.interpretation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -346,7 +380,9 @@ class ObservationComponent extends Element {
          * @property {ObservationReferenceRange[]|undefined}
         */
         Object.defineProperty(this, 'referenceRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -357,6 +393,7 @@ class ObservationComponent extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -378,13 +415,6 @@ class ObservationComponent extends Element {
             referenceRange,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ObservationComponent',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

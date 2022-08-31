@@ -54,7 +54,9 @@ class AuditEventAgent extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -73,7 +75,9 @@ class AuditEventAgent extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +105,9 @@ class AuditEventAgent extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +124,9 @@ class AuditEventAgent extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +144,9 @@ class AuditEventAgent extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'role', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.role,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +162,9 @@ class AuditEventAgent extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'who', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +182,9 @@ class AuditEventAgent extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'altId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.altId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +199,9 @@ class AuditEventAgent extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +217,9 @@ class AuditEventAgent extends Element {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'requestor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requestor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +234,9 @@ class AuditEventAgent extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +255,9 @@ class AuditEventAgent extends Element {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'policy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.policy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -251,7 +273,9 @@ class AuditEventAgent extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'media', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.media,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -268,7 +292,9 @@ class AuditEventAgent extends Element {
          * @property {AuditEventNetwork|undefined}
         */
         Object.defineProperty(this, 'network', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.network,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +311,9 @@ class AuditEventAgent extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'purposeOfUse', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purposeOfUse,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -296,6 +324,7 @@ class AuditEventAgent extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -313,13 +342,6 @@ class AuditEventAgent extends Element {
             purposeOfUse,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'AuditEventAgent',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

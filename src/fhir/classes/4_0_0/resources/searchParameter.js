@@ -95,7 +95,9 @@ class SearchParameter extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +114,9 @@ class SearchParameter extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +135,9 @@ class SearchParameter extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +152,9 @@ class SearchParameter extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +174,9 @@ class SearchParameter extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +194,9 @@ class SearchParameter extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +215,9 @@ class SearchParameter extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +245,9 @@ class SearchParameter extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +269,9 @@ class SearchParameter extends Resource {
          * @property {uri}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +291,9 @@ class SearchParameter extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,7 +310,9 @@ class SearchParameter extends Resource {
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -309,7 +331,9 @@ class SearchParameter extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'derivedFrom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.derivedFrom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -325,7 +349,9 @@ class SearchParameter extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,7 +368,9 @@ class SearchParameter extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'experimental', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -360,7 +388,9 @@ class SearchParameter extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +406,9 @@ class SearchParameter extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -392,7 +424,9 @@ class SearchParameter extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -408,7 +442,9 @@ class SearchParameter extends Resource {
          * @property {markdown}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -427,7 +463,9 @@ class SearchParameter extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -444,7 +482,9 @@ class SearchParameter extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -461,7 +501,9 @@ class SearchParameter extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'purpose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -477,7 +519,9 @@ class SearchParameter extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -492,7 +536,9 @@ class SearchParameter extends Resource {
          * @property {code[]}
         */
         Object.defineProperty(this, 'base', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.base,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -508,7 +554,9 @@ class SearchParameter extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -523,7 +571,9 @@ class SearchParameter extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'expression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -538,7 +588,9 @@ class SearchParameter extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'xpath', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.xpath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -554,7 +606,9 @@ class SearchParameter extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'xpathUsage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.xpathUsage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -569,7 +623,9 @@ class SearchParameter extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -585,7 +641,9 @@ class SearchParameter extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'multipleOr', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.multipleOr,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -601,7 +659,9 @@ class SearchParameter extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'multipleAnd', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.multipleAnd,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -616,7 +676,9 @@ class SearchParameter extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'comparator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comparator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -631,7 +693,9 @@ class SearchParameter extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'modifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -651,7 +715,9 @@ class SearchParameter extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'chain', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.chain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -666,7 +732,9 @@ class SearchParameter extends Resource {
          * @property {SearchParameterComponent[]|undefined}
         */
         Object.defineProperty(this, 'component', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.component,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -677,6 +745,7 @@ class SearchParameter extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -719,7 +788,8 @@ class SearchParameter extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'SearchParameter',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

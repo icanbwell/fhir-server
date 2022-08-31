@@ -41,7 +41,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -60,7 +62,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +92,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +110,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {Reference}
         */
         Object.defineProperty(this, 'reference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'exampleBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exampleBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +145,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'exampleCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exampleCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +162,9 @@ class ImplementationGuideResource1 extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'relativePath', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relativePath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,6 +174,7 @@ class ImplementationGuideResource1 extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -170,13 +185,6 @@ class ImplementationGuideResource1 extends Element {
             relativePath,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImplementationGuideResource1',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

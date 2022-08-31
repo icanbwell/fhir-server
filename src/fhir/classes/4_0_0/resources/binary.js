@@ -42,7 +42,9 @@ class Binary extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class Binary extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -78,7 +82,9 @@ class Binary extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -93,7 +99,9 @@ class Binary extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +116,9 @@ class Binary extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'contentType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class Binary extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'securityContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.securityContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +160,9 @@ class Binary extends Resource {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'data', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,6 +172,7 @@ class Binary extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -173,7 +188,8 @@ class Binary extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Binary',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

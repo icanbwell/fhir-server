@@ -42,7 +42,9 @@ class Expression extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class Expression extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -78,7 +82,9 @@ class Expression extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +100,9 @@ class Expression extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -109,7 +117,9 @@ class Expression extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +134,9 @@ class Expression extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'expression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +151,9 @@ class Expression extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'reference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,6 +163,7 @@ class Expression extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -159,13 +174,6 @@ class Expression extends Element {
             reference,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Expression',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

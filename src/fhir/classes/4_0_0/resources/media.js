@@ -89,7 +89,9 @@ class Media extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +108,9 @@ class Media extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +129,9 @@ class Media extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +146,9 @@ class Media extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +168,9 @@ class Media extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +188,9 @@ class Media extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +209,9 @@ class Media extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +239,9 @@ class Media extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -243,7 +259,9 @@ class Media extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +278,9 @@ class Media extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -276,7 +296,9 @@ class Media extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -292,7 +314,9 @@ class Media extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -308,7 +332,9 @@ class Media extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -326,7 +352,9 @@ class Media extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'modality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,7 +370,9 @@ class Media extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'view', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.view,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -358,7 +388,9 @@ class Media extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -374,7 +406,9 @@ class Media extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -390,7 +424,9 @@ class Media extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'createdDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.createdDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -405,7 +441,9 @@ class Media extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'createdPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.createdPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -422,7 +460,9 @@ class Media extends Resource {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'issued', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.issued,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -437,7 +477,9 @@ class Media extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'operator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.operator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -453,7 +495,9 @@ class Media extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -470,7 +514,9 @@ class Media extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'bodySite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -487,7 +533,9 @@ class Media extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'deviceName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.deviceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -502,7 +550,9 @@ class Media extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'device', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,7 +568,9 @@ class Media extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'height', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.height,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -533,7 +585,9 @@ class Media extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'width', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.width,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -552,7 +606,9 @@ class Media extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'frames', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.frames,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -567,7 +623,9 @@ class Media extends Resource {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'duration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -583,7 +641,9 @@ class Media extends Resource {
          * @property {Attachment}
         */
         Object.defineProperty(this, 'content', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.content,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -599,7 +659,9 @@ class Media extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -610,6 +672,7 @@ class Media extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -649,7 +712,8 @@ class Media extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Media',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

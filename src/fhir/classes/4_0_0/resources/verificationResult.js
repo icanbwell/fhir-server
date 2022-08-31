@@ -71,7 +71,9 @@ class VerificationResult extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +90,9 @@ class VerificationResult extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +111,9 @@ class VerificationResult extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +128,9 @@ class VerificationResult extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +150,9 @@ class VerificationResult extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +170,9 @@ class VerificationResult extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +191,9 @@ class VerificationResult extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -207,7 +221,9 @@ class VerificationResult extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -223,7 +239,9 @@ class VerificationResult extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -239,7 +257,9 @@ class VerificationResult extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'targetLocation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.targetLocation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -255,7 +275,9 @@ class VerificationResult extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'need', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.need,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -272,7 +294,9 @@ class VerificationResult extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -287,7 +311,9 @@ class VerificationResult extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'statusDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -303,7 +329,9 @@ class VerificationResult extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'validationType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validationType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -320,7 +348,9 @@ class VerificationResult extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'validationProcess', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validationProcess,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -336,7 +366,9 @@ class VerificationResult extends Resource {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'frequency', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.frequency,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -352,7 +384,9 @@ class VerificationResult extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'lastPerformed', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastPerformed,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -367,7 +401,9 @@ class VerificationResult extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'nextScheduled', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nextScheduled,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -382,7 +418,9 @@ class VerificationResult extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'failureAction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.failureAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -398,7 +436,9 @@ class VerificationResult extends Resource {
          * @property {VerificationResultPrimarySource[]|undefined}
         */
         Object.defineProperty(this, 'primarySource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.primarySource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -414,7 +454,9 @@ class VerificationResult extends Resource {
          * @property {VerificationResultAttestation|undefined}
         */
         Object.defineProperty(this, 'attestation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.attestation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -430,7 +472,9 @@ class VerificationResult extends Resource {
          * @property {VerificationResultValidator[]|undefined}
         */
         Object.defineProperty(this, 'validator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -441,6 +485,7 @@ class VerificationResult extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -471,7 +516,8 @@ class VerificationResult extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'VerificationResult',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

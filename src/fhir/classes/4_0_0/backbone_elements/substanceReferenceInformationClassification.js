@@ -38,7 +38,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -57,7 +59,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'domain', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.domain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'classification', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.classification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +143,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'subtype', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subtype,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +161,9 @@ class SubstanceReferenceInformationClassification extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,6 +174,7 @@ class SubstanceReferenceInformationClassification extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -170,13 +185,6 @@ class SubstanceReferenceInformationClassification extends Element {
             source,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceReferenceInformationClassification',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

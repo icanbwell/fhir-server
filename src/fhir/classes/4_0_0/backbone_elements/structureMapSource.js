@@ -151,7 +151,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +172,9 @@ class StructureMapSource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +202,9 @@ class StructureMapSource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,7 +220,9 @@ class StructureMapSource extends Element {
          * @property {id}
         */
         Object.defineProperty(this, 'context', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,7 +238,9 @@ class StructureMapSource extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'min', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +257,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'max', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -263,7 +275,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -278,7 +292,9 @@ class StructureMapSource extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'defaultValueBase64Binary', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -293,7 +309,9 @@ class StructureMapSource extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'defaultValueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -308,7 +326,9 @@ class StructureMapSource extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'defaultValueCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -323,7 +343,9 @@ class StructureMapSource extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'defaultValueCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -338,7 +360,9 @@ class StructureMapSource extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'defaultValueDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +377,9 @@ class StructureMapSource extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'defaultValueDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -368,7 +394,9 @@ class StructureMapSource extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'defaultValueDecimal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +411,9 @@ class StructureMapSource extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'defaultValueId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -398,7 +428,9 @@ class StructureMapSource extends Element {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'defaultValueInstant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -413,7 +445,9 @@ class StructureMapSource extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'defaultValueInteger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -428,7 +462,9 @@ class StructureMapSource extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'defaultValueMarkdown', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -443,7 +479,9 @@ class StructureMapSource extends Element {
          * @property {oid|undefined}
         */
         Object.defineProperty(this, 'defaultValueOid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -458,7 +496,9 @@ class StructureMapSource extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'defaultValuePositiveInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -473,7 +513,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'defaultValueString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -488,7 +530,9 @@ class StructureMapSource extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'defaultValueTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -503,7 +547,9 @@ class StructureMapSource extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'defaultValueUnsignedInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,7 +564,9 @@ class StructureMapSource extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'defaultValueUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -533,7 +581,9 @@ class StructureMapSource extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'defaultValueUrl', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -548,7 +598,9 @@ class StructureMapSource extends Element {
          * @property {uuid|undefined}
         */
         Object.defineProperty(this, 'defaultValueUuid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -563,7 +615,9 @@ class StructureMapSource extends Element {
          * @property {Address|undefined}
         */
         Object.defineProperty(this, 'defaultValueAddress', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -579,7 +633,9 @@ class StructureMapSource extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'defaultValueAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -595,7 +651,9 @@ class StructureMapSource extends Element {
          * @property {Annotation|undefined}
         */
         Object.defineProperty(this, 'defaultValueAnnotation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -611,7 +669,9 @@ class StructureMapSource extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'defaultValueAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -627,7 +687,9 @@ class StructureMapSource extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'defaultValueCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -643,7 +705,9 @@ class StructureMapSource extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'defaultValueCoding', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -659,7 +723,9 @@ class StructureMapSource extends Element {
          * @property {ContactPoint|undefined}
         */
         Object.defineProperty(this, 'defaultValueContactPoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -675,7 +741,9 @@ class StructureMapSource extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'defaultValueCount', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -691,7 +759,9 @@ class StructureMapSource extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'defaultValueDistance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -707,7 +777,9 @@ class StructureMapSource extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'defaultValueDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -723,7 +795,9 @@ class StructureMapSource extends Element {
          * @property {HumanName|undefined}
         */
         Object.defineProperty(this, 'defaultValueHumanName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -739,7 +813,9 @@ class StructureMapSource extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'defaultValueIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -755,7 +831,9 @@ class StructureMapSource extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'defaultValueMoney', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -771,7 +849,9 @@ class StructureMapSource extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'defaultValuePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -787,7 +867,9 @@ class StructureMapSource extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'defaultValueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -803,7 +885,9 @@ class StructureMapSource extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'defaultValueRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -819,7 +903,9 @@ class StructureMapSource extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'defaultValueRatio', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -835,7 +921,9 @@ class StructureMapSource extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'defaultValueReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -851,7 +939,9 @@ class StructureMapSource extends Element {
          * @property {SampledData|undefined}
         */
         Object.defineProperty(this, 'defaultValueSampledData', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -867,7 +957,9 @@ class StructureMapSource extends Element {
          * @property {Signature|undefined}
         */
         Object.defineProperty(this, 'defaultValueSignature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -883,7 +975,9 @@ class StructureMapSource extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'defaultValueTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -899,7 +993,9 @@ class StructureMapSource extends Element {
          * @property {ContactDetail|undefined}
         */
         Object.defineProperty(this, 'defaultValueContactDetail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -915,7 +1011,9 @@ class StructureMapSource extends Element {
          * @property {Contributor|undefined}
         */
         Object.defineProperty(this, 'defaultValueContributor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -931,7 +1029,9 @@ class StructureMapSource extends Element {
          * @property {DataRequirement|undefined}
         */
         Object.defineProperty(this, 'defaultValueDataRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -947,7 +1047,9 @@ class StructureMapSource extends Element {
          * @property {Expression|undefined}
         */
         Object.defineProperty(this, 'defaultValueExpression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -963,7 +1065,9 @@ class StructureMapSource extends Element {
          * @property {ParameterDefinition|undefined}
         */
         Object.defineProperty(this, 'defaultValueParameterDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -979,7 +1083,9 @@ class StructureMapSource extends Element {
          * @property {RelatedArtifact|undefined}
         */
         Object.defineProperty(this, 'defaultValueRelatedArtifact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -995,7 +1101,9 @@ class StructureMapSource extends Element {
          * @property {TriggerDefinition|undefined}
         */
         Object.defineProperty(this, 'defaultValueTriggerDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1011,7 +1119,9 @@ class StructureMapSource extends Element {
          * @property {UsageContext|undefined}
         */
         Object.defineProperty(this, 'defaultValueUsageContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1027,7 +1137,9 @@ class StructureMapSource extends Element {
          * @property {Dosage|undefined}
         */
         Object.defineProperty(this, 'defaultValueDosage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1043,7 +1155,9 @@ class StructureMapSource extends Element {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'defaultValueMeta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.defaultValueMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1059,7 +1173,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'element', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.element,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1074,7 +1190,9 @@ class StructureMapSource extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'listMode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.listMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1089,7 +1207,9 @@ class StructureMapSource extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'variable', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variable,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1104,7 +1224,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'condition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1120,7 +1242,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'check', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.check,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1136,7 +1260,9 @@ class StructureMapSource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'logMessage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.logMessage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1146,6 +1272,7 @@ class StructureMapSource extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -1212,13 +1339,6 @@ class StructureMapSource extends Element {
             logMessage,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'StructureMapSource',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

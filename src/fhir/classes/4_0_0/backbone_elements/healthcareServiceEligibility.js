@@ -34,7 +34,9 @@ class HealthcareServiceEligibility extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -53,7 +55,9 @@ class HealthcareServiceEligibility extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +85,9 @@ class HealthcareServiceEligibility extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +103,9 @@ class HealthcareServiceEligibility extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class HealthcareServiceEligibility extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'comment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,6 +133,7 @@ class HealthcareServiceEligibility extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -131,13 +142,6 @@ class HealthcareServiceEligibility extends Element {
             comment,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'HealthcareServiceEligibility',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

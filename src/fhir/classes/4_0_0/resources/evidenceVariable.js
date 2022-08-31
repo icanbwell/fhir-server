@@ -97,7 +97,9 @@ class EvidenceVariable extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +116,9 @@ class EvidenceVariable extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +137,9 @@ class EvidenceVariable extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +154,9 @@ class EvidenceVariable extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +176,9 @@ class EvidenceVariable extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +196,9 @@ class EvidenceVariable extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -205,7 +217,9 @@ class EvidenceVariable extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +247,9 @@ class EvidenceVariable extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -255,7 +271,9 @@ class EvidenceVariable extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -272,7 +290,9 @@ class EvidenceVariable extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +317,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +336,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -329,7 +353,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -345,7 +371,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'shortTitle', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.shortTitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -361,7 +389,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'subtitle', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subtitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -377,7 +407,9 @@ class EvidenceVariable extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -395,7 +427,9 @@ class EvidenceVariable extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -411,7 +445,9 @@ class EvidenceVariable extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -427,7 +463,9 @@ class EvidenceVariable extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -444,7 +482,9 @@ class EvidenceVariable extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -459,7 +499,9 @@ class EvidenceVariable extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -479,7 +521,9 @@ class EvidenceVariable extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -496,7 +540,9 @@ class EvidenceVariable extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -514,7 +560,9 @@ class EvidenceVariable extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'copyright', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -530,7 +578,9 @@ class EvidenceVariable extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'approvalDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.approvalDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -546,7 +596,9 @@ class EvidenceVariable extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'lastReviewDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastReviewDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -562,7 +614,9 @@ class EvidenceVariable extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'effectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -580,7 +634,9 @@ class EvidenceVariable extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'topic', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -597,7 +653,9 @@ class EvidenceVariable extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -614,7 +672,9 @@ class EvidenceVariable extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'editor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.editor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -631,7 +691,9 @@ class EvidenceVariable extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'reviewer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reviewer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -648,7 +710,9 @@ class EvidenceVariable extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'endorser', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.endorser,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -665,7 +729,9 @@ class EvidenceVariable extends Resource {
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'relatedArtifact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -681,7 +747,9 @@ class EvidenceVariable extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -697,7 +765,9 @@ class EvidenceVariable extends Resource {
          * @property {EvidenceVariableCharacteristic[]}
         */
         Object.defineProperty(this, 'characteristic', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.characteristic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -708,6 +778,7 @@ class EvidenceVariable extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -751,7 +822,8 @@ class EvidenceVariable extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'EvidenceVariable',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

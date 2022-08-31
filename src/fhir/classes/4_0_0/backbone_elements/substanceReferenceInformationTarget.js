@@ -50,7 +50,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -69,7 +71,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +101,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +119,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +137,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -145,7 +155,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'interaction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.interaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +173,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'organism', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organism,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -177,7 +191,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'organismType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organismType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +209,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'amountQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'amountRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +245,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'amountString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -240,7 +262,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'amountType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -256,7 +280,9 @@ class SubstanceReferenceInformationTarget extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,6 +293,7 @@ class SubstanceReferenceInformationTarget extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -283,13 +310,6 @@ class SubstanceReferenceInformationTarget extends Element {
             source,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceReferenceInformationTarget',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

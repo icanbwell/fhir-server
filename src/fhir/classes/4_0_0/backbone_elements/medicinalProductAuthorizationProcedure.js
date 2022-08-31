@@ -40,7 +40,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +91,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +127,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +145,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'datePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.datePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +163,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'dateDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dateDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +180,9 @@ class MedicinalProductAuthorizationProcedure extends Element {
          * @property {MedicinalProductAuthorizationProcedure[]|undefined}
         */
         Object.defineProperty(this, 'application', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.application,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,6 +192,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -187,13 +204,6 @@ class MedicinalProductAuthorizationProcedure extends Element {
             application,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductAuthorizationProcedure',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

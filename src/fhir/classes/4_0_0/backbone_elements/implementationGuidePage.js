@@ -43,7 +43,9 @@ class ImplementationGuidePage extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -62,7 +64,9 @@ class ImplementationGuidePage extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +94,9 @@ class ImplementationGuidePage extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +112,9 @@ class ImplementationGuidePage extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'nameUrl', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nameUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class ImplementationGuidePage extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'nameReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nameReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +148,9 @@ class ImplementationGuidePage extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class ImplementationGuidePage extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'generation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.generation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +182,9 @@ class ImplementationGuidePage extends Element {
          * @property {ImplementationGuidePage[]|undefined}
         */
         Object.defineProperty(this, 'page', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,6 +194,7 @@ class ImplementationGuidePage extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -189,13 +206,6 @@ class ImplementationGuidePage extends Element {
             page,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImplementationGuidePage',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

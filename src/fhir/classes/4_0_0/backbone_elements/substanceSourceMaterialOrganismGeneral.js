@@ -51,7 +51,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -70,7 +72,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +102,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'kingdom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.kingdom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +138,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'phylum', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.phylum,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'class', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.class,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,7 +174,9 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'order', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.order,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,6 +187,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -183,13 +198,6 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             order,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceSourceMaterialOrganismGeneral',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

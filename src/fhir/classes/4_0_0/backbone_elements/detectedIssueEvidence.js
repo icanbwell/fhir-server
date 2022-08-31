@@ -36,7 +36,9 @@ class DetectedIssueEvidence extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -55,7 +57,9 @@ class DetectedIssueEvidence extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +87,9 @@ class DetectedIssueEvidence extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -99,7 +105,9 @@ class DetectedIssueEvidence extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +124,9 @@ class DetectedIssueEvidence extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'detail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,6 +137,7 @@ class DetectedIssueEvidence extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -135,13 +146,6 @@ class DetectedIssueEvidence extends Element {
             detail,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DetectedIssueEvidence',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

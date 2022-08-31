@@ -35,7 +35,9 @@ class RequestGroupCondition extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -54,7 +56,9 @@ class RequestGroupCondition extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -82,7 +86,9 @@ class RequestGroupCondition extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +104,9 @@ class RequestGroupCondition extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'kind', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.kind,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +122,9 @@ class RequestGroupCondition extends Element {
          * @property {Expression|undefined}
         */
         Object.defineProperty(this, 'expression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,6 +135,7 @@ class RequestGroupCondition extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -133,13 +144,6 @@ class RequestGroupCondition extends Element {
             expression,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'RequestGroupCondition',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

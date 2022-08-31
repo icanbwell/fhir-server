@@ -44,7 +44,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +133,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'firstDose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.firstDose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxSingleDose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxSingleDose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +173,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxDosePerDay', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxDosePerDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'maxDosePerTreatmentPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxDosePerTreatmentPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -196,7 +212,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxTreatmentPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxTreatmentPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -212,7 +230,9 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
          * @property {MedicinalProductPharmaceuticalTargetSpecies[]|undefined}
         */
         Object.defineProperty(this, 'targetSpecies', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.targetSpecies,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -223,6 +243,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -236,13 +257,6 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             targetSpecies,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductPharmaceuticalRouteOfAdministration',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

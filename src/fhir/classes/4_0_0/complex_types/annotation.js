@@ -39,7 +39,9 @@ class Annotation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class Annotation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -74,7 +78,9 @@ class Annotation extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'authorReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authorReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +96,9 @@ class Annotation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'authorString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authorString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +113,9 @@ class Annotation extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'time', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.time,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +130,9 @@ class Annotation extends Element {
          * @property {markdown}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,6 +142,7 @@ class Annotation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -139,13 +152,6 @@ class Annotation extends Element {
             text,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Annotation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

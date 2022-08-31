@@ -34,7 +34,9 @@ class Money extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -53,7 +55,9 @@ class Money extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -69,7 +73,9 @@ class Money extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'value', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +90,9 @@ class Money extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'currency', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.currency,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,6 +102,7 @@ class Money extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -101,13 +110,6 @@ class Money extends Element {
             currency,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Money',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

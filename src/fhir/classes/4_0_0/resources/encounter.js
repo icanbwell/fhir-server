@@ -89,7 +89,9 @@ class Encounter extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +108,9 @@ class Encounter extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +129,9 @@ class Encounter extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +146,9 @@ class Encounter extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +168,9 @@ class Encounter extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +188,9 @@ class Encounter extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +209,9 @@ class Encounter extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +239,9 @@ class Encounter extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -241,7 +257,9 @@ class Encounter extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -257,7 +275,9 @@ class Encounter extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -274,7 +294,9 @@ class Encounter extends Resource {
          * @property {EncounterStatusHistory[]|undefined}
         */
         Object.defineProperty(this, 'statusHistory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -292,7 +314,9 @@ class Encounter extends Resource {
          * @property {Coding}
         */
         Object.defineProperty(this, 'class', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.class,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +338,9 @@ class Encounter extends Resource {
          * @property {EncounterClassHistory[]|undefined}
         */
         Object.defineProperty(this, 'classHistory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.classHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -331,7 +357,9 @@ class Encounter extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -347,7 +375,9 @@ class Encounter extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'serviceType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.serviceType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -363,7 +393,9 @@ class Encounter extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -379,7 +411,9 @@ class Encounter extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -401,7 +435,9 @@ class Encounter extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'episodeOfCare', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.episodeOfCare,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -418,7 +454,9 @@ class Encounter extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -434,7 +472,9 @@ class Encounter extends Resource {
          * @property {EncounterParticipant[]|undefined}
         */
         Object.defineProperty(this, 'participant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -450,7 +490,9 @@ class Encounter extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'appointment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.appointment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -466,7 +508,9 @@ class Encounter extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -483,7 +527,9 @@ class Encounter extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'length', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -500,7 +546,9 @@ class Encounter extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -517,7 +565,9 @@ class Encounter extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'reasonReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -533,7 +583,9 @@ class Encounter extends Resource {
          * @property {EncounterDiagnosis[]|undefined}
         */
         Object.defineProperty(this, 'diagnosis', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.diagnosis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -549,7 +601,9 @@ class Encounter extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'account', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.account,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -565,7 +619,9 @@ class Encounter extends Resource {
          * @property {EncounterHospitalization|undefined}
         */
         Object.defineProperty(this, 'hospitalization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.hospitalization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -581,7 +637,9 @@ class Encounter extends Resource {
          * @property {EncounterLocation[]|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -602,7 +660,9 @@ class Encounter extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'serviceProvider', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.serviceProvider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -619,7 +679,9 @@ class Encounter extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -630,6 +692,7 @@ class Encounter extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -669,7 +732,8 @@ class Encounter extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Encounter',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

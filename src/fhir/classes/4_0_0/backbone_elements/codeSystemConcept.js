@@ -44,7 +44,9 @@ class CodeSystemConcept extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class CodeSystemConcept extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class CodeSystemConcept extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class CodeSystemConcept extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +132,9 @@ class CodeSystemConcept extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'display', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +152,9 @@ class CodeSystemConcept extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'definition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,7 +170,9 @@ class CodeSystemConcept extends Element {
          * @property {CodeSystemDesignation[]|undefined}
         */
         Object.defineProperty(this, 'designation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.designation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class CodeSystemConcept extends Element {
          * @property {CodeSystemProperty1[]|undefined}
         */
         Object.defineProperty(this, 'property', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -192,7 +208,9 @@ class CodeSystemConcept extends Element {
          * @property {CodeSystemConcept[]|undefined}
         */
         Object.defineProperty(this, 'concept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -202,6 +220,7 @@ class CodeSystemConcept extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -214,13 +233,6 @@ class CodeSystemConcept extends Element {
             concept,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CodeSystemConcept',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

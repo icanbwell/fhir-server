@@ -36,7 +36,9 @@ class SubstanceInstance extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -55,7 +57,9 @@ class SubstanceInstance extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +87,9 @@ class SubstanceInstance extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +106,9 @@ class SubstanceInstance extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class SubstanceInstance extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'expiry', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expiry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class SubstanceInstance extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,6 +155,7 @@ class SubstanceInstance extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -152,13 +165,6 @@ class SubstanceInstance extends Element {
             quantity,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceInstance',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

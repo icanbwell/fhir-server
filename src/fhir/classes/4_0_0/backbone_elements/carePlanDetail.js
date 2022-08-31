@@ -72,7 +72,9 @@ class CarePlanDetail extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +93,9 @@ class CarePlanDetail extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +123,9 @@ class CarePlanDetail extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +145,9 @@ class CarePlanDetail extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'kind', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.kind,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +163,9 @@ class CarePlanDetail extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +182,9 @@ class CarePlanDetail extends Element {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -188,7 +200,9 @@ class CarePlanDetail extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -205,7 +219,9 @@ class CarePlanDetail extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -223,7 +239,9 @@ class CarePlanDetail extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'reasonReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -240,7 +258,9 @@ class CarePlanDetail extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'goal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.goal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -256,7 +276,9 @@ class CarePlanDetail extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -272,7 +294,9 @@ class CarePlanDetail extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,7 +314,9 @@ class CarePlanDetail extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'doNotPerform', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doNotPerform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +331,9 @@ class CarePlanDetail extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'scheduledTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.scheduledTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +349,9 @@ class CarePlanDetail extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'scheduledPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.scheduledPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -337,7 +367,9 @@ class CarePlanDetail extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'scheduledString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.scheduledString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +385,9 @@ class CarePlanDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -369,7 +403,9 @@ class CarePlanDetail extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -385,7 +421,9 @@ class CarePlanDetail extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'productCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -401,7 +439,9 @@ class CarePlanDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'productReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -417,7 +457,9 @@ class CarePlanDetail extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'dailyAmount', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dailyAmount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -434,7 +476,9 @@ class CarePlanDetail extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -453,7 +497,9 @@ class CarePlanDetail extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -463,6 +509,7 @@ class CarePlanDetail extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -489,13 +536,6 @@ class CarePlanDetail extends Element {
             description,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CarePlanDetail',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

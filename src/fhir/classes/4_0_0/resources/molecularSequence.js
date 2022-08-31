@@ -74,7 +74,9 @@ class MolecularSequence extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +93,9 @@ class MolecularSequence extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -110,7 +114,9 @@ class MolecularSequence extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +131,9 @@ class MolecularSequence extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -145,7 +153,9 @@ class MolecularSequence extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,7 +173,9 @@ class MolecularSequence extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +194,9 @@ class MolecularSequence extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -210,7 +224,9 @@ class MolecularSequence extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -227,7 +243,9 @@ class MolecularSequence extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -243,7 +261,9 @@ class MolecularSequence extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +280,9 @@ class MolecularSequence extends Resource {
          * @property {Int}
         */
         Object.defineProperty(this, 'coordinateSystem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.coordinateSystem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -275,7 +297,9 @@ class MolecularSequence extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -291,7 +315,9 @@ class MolecularSequence extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'specimen', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specimen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -307,7 +333,9 @@ class MolecularSequence extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'device', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -323,7 +351,9 @@ class MolecularSequence extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -339,7 +369,9 @@ class MolecularSequence extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,7 +388,9 @@ class MolecularSequence extends Resource {
          * @property {MolecularSequenceReferenceSeq|undefined}
         */
         Object.defineProperty(this, 'referenceSeq', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceSeq,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +410,9 @@ class MolecularSequence extends Resource {
          * @property {MolecularSequenceVariant[]|undefined}
         */
         Object.defineProperty(this, 'variant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -394,7 +430,9 @@ class MolecularSequence extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'observedSeq', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.observedSeq,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -411,7 +449,9 @@ class MolecularSequence extends Resource {
          * @property {MolecularSequenceQuality[]|undefined}
         */
         Object.defineProperty(this, 'quality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -428,7 +468,9 @@ class MolecularSequence extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'readCoverage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.readCoverage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -444,7 +486,9 @@ class MolecularSequence extends Resource {
          * @property {MolecularSequenceRepository[]|undefined}
         */
         Object.defineProperty(this, 'repository', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.repository,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -460,7 +504,9 @@ class MolecularSequence extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'pointer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.pointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -476,7 +522,9 @@ class MolecularSequence extends Resource {
          * @property {MolecularSequenceStructureVariant[]|undefined}
         */
         Object.defineProperty(this, 'structureVariant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.structureVariant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -487,6 +535,7 @@ class MolecularSequence extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -519,7 +568,8 @@ class MolecularSequence extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'MolecularSequence',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

@@ -50,7 +50,9 @@ class AuditEventEntity extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -69,7 +71,9 @@ class AuditEventEntity extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +101,9 @@ class AuditEventEntity extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class AuditEventEntity extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'what', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.what,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +138,9 @@ class AuditEventEntity extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class AuditEventEntity extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'role', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.role,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,7 +174,9 @@ class AuditEventEntity extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'lifecycle', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lifecycle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class AuditEventEntity extends Element {
          * @property {Coding[]|undefined}
         */
         Object.defineProperty(this, 'securityLabel', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.securityLabel,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -194,7 +210,9 @@ class AuditEventEntity extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class AuditEventEntity extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -224,7 +244,9 @@ class AuditEventEntity extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'query', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.query,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -239,7 +261,9 @@ class AuditEventEntity extends Element {
          * @property {AuditEventDetail[]|undefined}
         */
         Object.defineProperty(this, 'detail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,6 +274,7 @@ class AuditEventEntity extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -265,13 +290,6 @@ class AuditEventEntity extends Element {
             detail,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'AuditEventEntity',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

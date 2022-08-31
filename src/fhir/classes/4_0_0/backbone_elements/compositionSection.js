@@ -58,7 +58,9 @@ class CompositionSection extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -77,7 +79,9 @@ class CompositionSection extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +109,9 @@ class CompositionSection extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +128,9 @@ class CompositionSection extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +146,9 @@ class CompositionSection extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +165,9 @@ class CompositionSection extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +190,9 @@ class CompositionSection extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'focus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +211,9 @@ class CompositionSection extends Element {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +232,9 @@ class CompositionSection extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'mode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.mode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +249,9 @@ class CompositionSection extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'orderedBy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.orderedBy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -248,7 +268,9 @@ class CompositionSection extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'entry', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.entry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -265,7 +287,9 @@ class CompositionSection extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'emptyReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.emptyReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -281,7 +305,9 @@ class CompositionSection extends Element {
          * @property {CompositionSection[]|undefined}
         */
         Object.defineProperty(this, 'section', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.section,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -291,6 +317,7 @@ class CompositionSection extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -307,13 +334,6 @@ class CompositionSection extends Element {
             section,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CompositionSection',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

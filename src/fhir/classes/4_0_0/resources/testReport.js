@@ -66,7 +66,9 @@ class TestReport extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +85,9 @@ class TestReport extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +106,9 @@ class TestReport extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +123,9 @@ class TestReport extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +145,9 @@ class TestReport extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +165,9 @@ class TestReport extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +186,9 @@ class TestReport extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -202,7 +216,9 @@ class TestReport extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +235,9 @@ class TestReport extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +253,9 @@ class TestReport extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,7 +270,9 @@ class TestReport extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -266,7 +288,9 @@ class TestReport extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'testScript', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.testScript,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +306,9 @@ class TestReport extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'result', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.result,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -298,7 +324,9 @@ class TestReport extends Resource {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'score', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.score,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -313,7 +341,9 @@ class TestReport extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'tester', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.tester,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -328,7 +358,9 @@ class TestReport extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'issued', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.issued,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +376,9 @@ class TestReport extends Resource {
          * @property {TestReportParticipant[]|undefined}
         */
         Object.defineProperty(this, 'participant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -361,7 +395,9 @@ class TestReport extends Resource {
          * @property {TestReportSetup|undefined}
         */
         Object.defineProperty(this, 'setup', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.setup,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -377,7 +413,9 @@ class TestReport extends Resource {
          * @property {TestReportTest[]|undefined}
         */
         Object.defineProperty(this, 'test', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.test,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -394,7 +432,9 @@ class TestReport extends Resource {
          * @property {TestReportTeardown|undefined}
         */
         Object.defineProperty(this, 'teardown', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.teardown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -405,6 +445,7 @@ class TestReport extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -433,7 +474,8 @@ class TestReport extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'TestReport',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

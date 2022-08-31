@@ -73,7 +73,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -92,7 +94,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +124,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +142,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'definitionCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +160,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'definitionCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +177,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Expression|undefined}
         */
         Object.defineProperty(this, 'definitionExpression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,7 +195,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {DataRequirement|undefined}
         */
         Object.defineProperty(this, 'definitionDataRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -200,7 +214,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'usageContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +232,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'exclude', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +249,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'unitOfMeasure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unitOfMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +267,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveDescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -262,7 +284,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -277,7 +301,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'studyEffectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -293,7 +319,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -309,7 +337,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -325,7 +355,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveTimeFromStart', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveTimeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -341,7 +373,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'studyEffectiveGroupMeasure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.studyEffectiveGroupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,7 +390,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveDescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -371,7 +407,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -386,7 +424,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'participantEffectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -402,7 +442,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -418,7 +460,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -434,7 +478,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveTimeFromStart', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveTimeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -450,7 +496,9 @@ class ResearchElementDefinitionCharacteristic extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveGroupMeasure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveGroupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -460,6 +508,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -487,13 +536,6 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveGroupMeasure,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ResearchElementDefinitionCharacteristic',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

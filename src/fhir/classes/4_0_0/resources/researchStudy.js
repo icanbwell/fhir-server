@@ -95,7 +95,9 @@ class ResearchStudy extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +114,9 @@ class ResearchStudy extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +135,9 @@ class ResearchStudy extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +152,9 @@ class ResearchStudy extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +174,9 @@ class ResearchStudy extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +194,9 @@ class ResearchStudy extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +215,9 @@ class ResearchStudy extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +245,9 @@ class ResearchStudy extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +263,9 @@ class ResearchStudy extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -263,7 +281,9 @@ class ResearchStudy extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -279,7 +299,9 @@ class ResearchStudy extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'protocol', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.protocol,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +317,9 @@ class ResearchStudy extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -311,7 +335,9 @@ class ResearchStudy extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -327,7 +353,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'primaryPurposeType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.primaryPurposeType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +372,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'phase', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.phase,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -362,7 +392,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -379,7 +411,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'focus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -397,7 +431,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'condition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -414,7 +450,9 @@ class ResearchStudy extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -430,7 +468,9 @@ class ResearchStudy extends Resource {
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'relatedArtifact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -446,7 +486,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'keyword', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.keyword,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -462,7 +504,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -478,7 +522,9 @@ class ResearchStudy extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -495,7 +541,9 @@ class ResearchStudy extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'enrollment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enrollment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -512,7 +560,9 @@ class ResearchStudy extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -529,7 +579,9 @@ class ResearchStudy extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'sponsor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sponsor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -548,7 +600,9 @@ class ResearchStudy extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'principalInvestigator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.principalInvestigator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -564,7 +618,9 @@ class ResearchStudy extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'site', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -580,7 +636,9 @@ class ResearchStudy extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'reasonStopped', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonStopped,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -596,7 +654,9 @@ class ResearchStudy extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -614,7 +674,9 @@ class ResearchStudy extends Resource {
          * @property {ResearchStudyArm[]|undefined}
         */
         Object.defineProperty(this, 'arm', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.arm,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -631,7 +693,9 @@ class ResearchStudy extends Resource {
          * @property {ResearchStudyObjective[]|undefined}
         */
         Object.defineProperty(this, 'objective', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.objective,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -642,6 +706,7 @@ class ResearchStudy extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -682,7 +747,8 @@ class ResearchStudy extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ResearchStudy',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

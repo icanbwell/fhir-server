@@ -59,7 +59,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -78,7 +80,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +110,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +129,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'product', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.product,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +147,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'eye', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.eye,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +164,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'sphere', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sphere,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,7 +181,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'cylinder', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cylinder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +198,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'axis', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.axis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {VisionPrescriptionPrism[]|undefined}
         */
         Object.defineProperty(this, 'prism', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prism,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +233,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'add', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.add,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,7 +250,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'power', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.power,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -245,7 +267,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'backCurve', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.backCurve,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +284,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'diameter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.diameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -275,7 +301,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'duration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -291,7 +319,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'color', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.color,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -306,7 +336,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'brand', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.brand,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +353,9 @@ class VisionPrescriptionLensSpecification extends Element {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -332,6 +366,7 @@ class VisionPrescriptionLensSpecification extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -352,13 +387,6 @@ class VisionPrescriptionLensSpecification extends Element {
             note,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'VisionPrescriptionLensSpecification',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

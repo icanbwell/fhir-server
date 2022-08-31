@@ -54,7 +54,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -73,7 +75,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +105,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +123,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +141,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +160,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Quantity}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +178,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'material', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.material,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +196,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'alternateMaterial', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.alternateMaterial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +214,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'device', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,7 +232,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'manufacturedItem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manufacturedItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,7 +250,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {MedicinalProductPackagedPackageItem[]|undefined}
         */
         Object.defineProperty(this, 'packageItem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.packageItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -245,7 +267,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {ProdCharacteristic|undefined}
         */
         Object.defineProperty(this, 'physicalCharacteristics', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.physicalCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -261,7 +285,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'otherCharacteristics', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.otherCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -277,7 +303,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {ProductShelfLife[]|undefined}
         */
         Object.defineProperty(this, 'shelfLifeStorage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.shelfLifeStorage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -293,7 +321,9 @@ class MedicinalProductPackagedPackageItem extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'manufacturer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manufacturer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -304,6 +334,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -322,13 +353,6 @@ class MedicinalProductPackagedPackageItem extends Element {
             manufacturer,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductPackagedPackageItem',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

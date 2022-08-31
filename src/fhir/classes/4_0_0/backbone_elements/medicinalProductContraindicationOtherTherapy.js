@@ -37,7 +37,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -56,7 +58,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +88,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'therapyRelationshipType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.therapyRelationshipType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'medicationCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.medicationCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +143,9 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'medicationReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.medicationReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,6 +156,7 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -153,13 +166,6 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             medicationReference,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductContraindicationOtherTherapy',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

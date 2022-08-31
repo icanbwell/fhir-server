@@ -40,7 +40,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +91,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'collector', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.collector,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +146,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'collectedDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.collectedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +163,9 @@ class BiologicallyDerivedProductCollection extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'collectedPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.collectedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,6 +176,7 @@ class BiologicallyDerivedProductCollection extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -172,13 +187,6 @@ class BiologicallyDerivedProductCollection extends Element {
             collectedPeriod,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'BiologicallyDerivedProductCollection',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

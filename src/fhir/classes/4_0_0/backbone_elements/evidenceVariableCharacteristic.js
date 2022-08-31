@@ -61,7 +61,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -80,7 +82,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +112,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +131,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +148,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'definitionReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +166,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'definitionCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -171,7 +183,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'definitionCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -187,7 +201,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Expression|undefined}
         */
         Object.defineProperty(this, 'definitionExpression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +219,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {DataRequirement|undefined}
         */
         Object.defineProperty(this, 'definitionDataRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +237,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {TriggerDefinition|undefined}
         */
         Object.defineProperty(this, 'definitionTriggerDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -236,7 +256,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'usageContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +274,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'exclude', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +291,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +308,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'participantEffectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -298,7 +326,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +344,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'participantEffectiveTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participantEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -330,7 +362,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timeFromStart', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -346,7 +380,9 @@ class EvidenceVariableCharacteristic extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'groupMeasure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.groupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,6 +392,7 @@ class EvidenceVariableCharacteristic extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -377,13 +414,6 @@ class EvidenceVariableCharacteristic extends Element {
             groupMeasure,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'EvidenceVariableCharacteristic',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

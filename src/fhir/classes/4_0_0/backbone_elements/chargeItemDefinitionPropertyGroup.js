@@ -37,7 +37,9 @@ class ChargeItemDefinitionPropertyGroup extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -56,7 +58,9 @@ class ChargeItemDefinitionPropertyGroup extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +88,9 @@ class ChargeItemDefinitionPropertyGroup extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +106,9 @@ class ChargeItemDefinitionPropertyGroup extends Element {
          * @property {ChargeItemDefinitionApplicability[]|undefined}
         */
         Object.defineProperty(this, 'applicability', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.applicability,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class ChargeItemDefinitionPropertyGroup extends Element {
          * @property {ChargeItemDefinitionPriceComponent[]|undefined}
         */
         Object.defineProperty(this, 'priceComponent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priceComponent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,6 +142,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -140,13 +151,6 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             priceComponent,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ChargeItemDefinitionPropertyGroup',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

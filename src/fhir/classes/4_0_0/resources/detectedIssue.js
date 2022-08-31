@@ -70,7 +70,9 @@ class DetectedIssue extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +89,9 @@ class DetectedIssue extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +110,9 @@ class DetectedIssue extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +127,9 @@ class DetectedIssue extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +149,9 @@ class DetectedIssue extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +169,9 @@ class DetectedIssue extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +190,9 @@ class DetectedIssue extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +220,9 @@ class DetectedIssue extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -222,7 +238,9 @@ class DetectedIssue extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -238,7 +256,9 @@ class DetectedIssue extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +273,9 @@ class DetectedIssue extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -270,7 +292,9 @@ class DetectedIssue extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'severity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +309,9 @@ class DetectedIssue extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -301,7 +327,9 @@ class DetectedIssue extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'identifiedDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifiedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -316,7 +344,9 @@ class DetectedIssue extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'identifiedPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifiedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -333,7 +363,9 @@ class DetectedIssue extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -350,7 +382,9 @@ class DetectedIssue extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'implicated', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -367,7 +401,9 @@ class DetectedIssue extends Resource {
          * @property {DetectedIssueEvidence[]|undefined}
         */
         Object.defineProperty(this, 'evidence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.evidence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +419,9 @@ class DetectedIssue extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'detail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -399,7 +437,9 @@ class DetectedIssue extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'reference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -417,7 +457,9 @@ class DetectedIssue extends Resource {
          * @property {DetectedIssueMitigation[]|undefined}
         */
         Object.defineProperty(this, 'mitigation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.mitigation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -428,6 +470,7 @@ class DetectedIssue extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -457,7 +500,8 @@ class DetectedIssue extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'DetectedIssue',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

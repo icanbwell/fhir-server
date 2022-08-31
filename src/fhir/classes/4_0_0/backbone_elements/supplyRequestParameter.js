@@ -41,7 +41,9 @@ class SupplyRequestParameter extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -60,7 +62,9 @@ class SupplyRequestParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +92,9 @@ class SupplyRequestParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +110,9 @@ class SupplyRequestParameter extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class SupplyRequestParameter extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'valueCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +146,9 @@ class SupplyRequestParameter extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +164,9 @@ class SupplyRequestParameter extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'valueRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +182,9 @@ class SupplyRequestParameter extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'valueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,6 +194,7 @@ class SupplyRequestParameter extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -189,13 +206,6 @@ class SupplyRequestParameter extends Element {
             valueBoolean,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SupplyRequestParameter',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

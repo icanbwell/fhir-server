@@ -90,7 +90,9 @@ class ClinicalImpression extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +109,9 @@ class ClinicalImpression extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +130,9 @@ class ClinicalImpression extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +147,9 @@ class ClinicalImpression extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +169,9 @@ class ClinicalImpression extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +189,9 @@ class ClinicalImpression extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +210,9 @@ class ClinicalImpression extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,7 +240,9 @@ class ClinicalImpression extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +260,9 @@ class ClinicalImpression extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +278,9 @@ class ClinicalImpression extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -275,7 +295,9 @@ class ClinicalImpression extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -291,7 +313,9 @@ class ClinicalImpression extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -308,7 +332,9 @@ class ClinicalImpression extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -323,7 +349,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -340,7 +368,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,7 +386,9 @@ class ClinicalImpression extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'effectiveDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -371,7 +403,9 @@ class ClinicalImpression extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'effectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -387,7 +421,9 @@ class ClinicalImpression extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -402,7 +438,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'assessor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.assessor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -421,7 +459,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'previous', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.previous,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -437,7 +477,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'problem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.problem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -457,7 +499,9 @@ class ClinicalImpression extends Resource {
          * @property {ClinicalImpressionInvestigation[]|undefined}
         */
         Object.defineProperty(this, 'investigation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.investigation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -474,7 +518,9 @@ class ClinicalImpression extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'protocol', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.protocol,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -489,7 +535,9 @@ class ClinicalImpression extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'summary', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.summary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -505,7 +553,9 @@ class ClinicalImpression extends Resource {
          * @property {ClinicalImpressionFinding[]|undefined}
         */
         Object.defineProperty(this, 'finding', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.finding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -521,7 +571,9 @@ class ClinicalImpression extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'prognosisCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prognosisCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -537,7 +589,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'prognosisReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prognosisReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -553,7 +607,9 @@ class ClinicalImpression extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'supportingInfo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -571,7 +627,9 @@ class ClinicalImpression extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -582,6 +640,7 @@ class ClinicalImpression extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -619,7 +678,8 @@ class ClinicalImpression extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ClinicalImpression',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

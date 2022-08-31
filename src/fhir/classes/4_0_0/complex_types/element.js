@@ -20,6 +20,10 @@ class Element {
             extension,
         }
     ) {
+        // Create an object to store all props
+        Object.defineProperty(this, '__data', {
+            value: {},
+        });
 
         // ---- Define getters and setters as enumerable ---
 
@@ -28,7 +32,9 @@ class Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -47,7 +53,9 @@ class Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,18 +66,12 @@ class Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Element',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

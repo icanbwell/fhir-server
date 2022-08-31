@@ -70,7 +70,9 @@ class MessageHeader extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +89,9 @@ class MessageHeader extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +110,9 @@ class MessageHeader extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +127,9 @@ class MessageHeader extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +149,9 @@ class MessageHeader extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +169,9 @@ class MessageHeader extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +190,9 @@ class MessageHeader extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +220,9 @@ class MessageHeader extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -222,7 +238,9 @@ class MessageHeader extends Resource {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'eventCoding', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.eventCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -238,7 +256,9 @@ class MessageHeader extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'eventUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.eventUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +273,9 @@ class MessageHeader extends Resource {
          * @property {MessageHeaderDestination[]|undefined}
         */
         Object.defineProperty(this, 'destination', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,7 +291,9 @@ class MessageHeader extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'sender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -287,7 +311,9 @@ class MessageHeader extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'enterer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enterer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +331,9 @@ class MessageHeader extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +349,9 @@ class MessageHeader extends Resource {
          * @property {MessageHeaderSource}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -339,7 +369,9 @@ class MessageHeader extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'responsible', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.responsible,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,7 +388,9 @@ class MessageHeader extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'reason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -373,7 +407,9 @@ class MessageHeader extends Resource {
          * @property {MessageHeaderResponse|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -390,7 +426,9 @@ class MessageHeader extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'focus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -406,7 +444,9 @@ class MessageHeader extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'definition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -416,6 +456,7 @@ class MessageHeader extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -444,7 +485,8 @@ class MessageHeader extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'MessageHeader',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

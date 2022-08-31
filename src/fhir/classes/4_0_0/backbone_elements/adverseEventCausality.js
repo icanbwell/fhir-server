@@ -41,7 +41,9 @@ class AdverseEventCausality extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -60,7 +62,9 @@ class AdverseEventCausality extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +92,9 @@ class AdverseEventCausality extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +110,9 @@ class AdverseEventCausality extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'assessment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.assessment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class AdverseEventCausality extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'productRelatedness', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productRelatedness,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +145,9 @@ class AdverseEventCausality extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +163,9 @@ class AdverseEventCausality extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'method', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,6 +176,7 @@ class AdverseEventCausality extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -172,13 +187,6 @@ class AdverseEventCausality extends Element {
             method,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'AdverseEventCausality',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

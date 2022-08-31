@@ -48,7 +48,9 @@ class Signature extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -67,7 +69,9 @@ class Signature extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class Signature extends Element {
          * @property {Coding[]}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class Signature extends Element {
          * @property {instant}
         */
         Object.defineProperty(this, 'when', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.when,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class Signature extends Element {
          * @property {Reference}
         */
         Object.defineProperty(this, 'who', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +144,9 @@ class Signature extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'onBehalfOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onBehalfOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +163,9 @@ class Signature extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'targetFormat', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.targetFormat,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +182,9 @@ class Signature extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'sigFormat', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sigFormat,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +200,9 @@ class Signature extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'data', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -194,6 +212,7 @@ class Signature extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -206,13 +225,6 @@ class Signature extends Element {
             data,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Signature',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

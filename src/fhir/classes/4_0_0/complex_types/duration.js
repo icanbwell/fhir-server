@@ -40,7 +40,9 @@ class Duration extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class Duration extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -76,7 +80,9 @@ class Duration extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'value', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -93,7 +99,9 @@ class Duration extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'comparator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comparator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +116,9 @@ class Duration extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'unit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +133,9 @@ class Duration extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'system', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +150,9 @@ class Duration extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,6 +162,7 @@ class Duration extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -158,13 +173,6 @@ class Duration extends Element {
             code,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Duration',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

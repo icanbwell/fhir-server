@@ -67,7 +67,9 @@ class CapabilityStatementResource extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +88,9 @@ class CapabilityStatementResource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +118,9 @@ class CapabilityStatementResource extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +136,9 @@ class CapabilityStatementResource extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +156,9 @@ class CapabilityStatementResource extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'profile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,7 +179,9 @@ class CapabilityStatementResource extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'supportedProfile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportedProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +196,9 @@ class CapabilityStatementResource extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'documentation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +213,9 @@ class CapabilityStatementResource extends Element {
          * @property {CapabilityStatementInteraction[]|undefined}
         */
         Object.defineProperty(this, 'interaction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.interaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -220,7 +236,9 @@ class CapabilityStatementResource extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'versioning', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.versioning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -236,7 +254,9 @@ class CapabilityStatementResource extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'readHistory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.readHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -254,7 +274,9 @@ class CapabilityStatementResource extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'updateCreate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.updateCreate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,7 +291,9 @@ class CapabilityStatementResource extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'conditionalCreate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conditionalCreate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,7 +308,9 @@ class CapabilityStatementResource extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'conditionalRead', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conditionalRead,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -299,7 +325,9 @@ class CapabilityStatementResource extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'conditionalUpdate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conditionalUpdate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +342,9 @@ class CapabilityStatementResource extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'conditionalDelete', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conditionalDelete,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -329,7 +359,9 @@ class CapabilityStatementResource extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'referencePolicy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referencePolicy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +376,9 @@ class CapabilityStatementResource extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'searchInclude', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.searchInclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +393,9 @@ class CapabilityStatementResource extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'searchRevInclude', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.searchRevInclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +412,9 @@ class CapabilityStatementResource extends Element {
          * @property {CapabilityStatementSearchParam[]|undefined}
         */
         Object.defineProperty(this, 'searchParam', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.searchParam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -394,7 +432,9 @@ class CapabilityStatementResource extends Element {
          * @property {CapabilityStatementOperation[]|undefined}
         */
         Object.defineProperty(this, 'operation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.operation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -405,6 +445,7 @@ class CapabilityStatementResource extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -428,13 +469,6 @@ class CapabilityStatementResource extends Element {
             operation,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CapabilityStatementResource',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

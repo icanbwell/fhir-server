@@ -49,7 +49,9 @@ class ValueSetParameter extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class ValueSetParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class ValueSetParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class ValueSetParameter extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +137,9 @@ class ValueSetParameter extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'valueString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class ValueSetParameter extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'valueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class ValueSetParameter extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'valueInteger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class ValueSetParameter extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'valueDecimal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -189,7 +205,9 @@ class ValueSetParameter extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'valueUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +222,9 @@ class ValueSetParameter extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'valueCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +239,9 @@ class ValueSetParameter extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'valueDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -229,6 +251,7 @@ class ValueSetParameter extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -243,13 +266,6 @@ class ValueSetParameter extends Element {
             valueDateTime,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ValueSetParameter',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -39,7 +39,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +90,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'daysOfWeek', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.daysOfWeek,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +126,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'allDay', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +144,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'availableStartTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.availableStartTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +162,9 @@ class PractitionerRoleAvailableTime extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'availableEndTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.availableEndTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,6 +174,7 @@ class PractitionerRoleAvailableTime extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -170,13 +185,6 @@ class PractitionerRoleAvailableTime extends Element {
             availableEndTime,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'PractitionerRoleAvailableTime',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

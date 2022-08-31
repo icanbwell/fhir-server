@@ -63,7 +63,9 @@ class DeviceMetric extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -80,7 +82,9 @@ class DeviceMetric extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -99,7 +103,9 @@ class DeviceMetric extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class DeviceMetric extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +142,9 @@ class DeviceMetric extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +162,9 @@ class DeviceMetric extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -171,7 +183,9 @@ class DeviceMetric extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +213,9 @@ class DeviceMetric extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,7 +233,9 @@ class DeviceMetric extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +251,9 @@ class DeviceMetric extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,7 +270,9 @@ class DeviceMetric extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'unit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -268,7 +290,9 @@ class DeviceMetric extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -289,7 +313,9 @@ class DeviceMetric extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'parent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -306,7 +332,9 @@ class DeviceMetric extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'operationalStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.operationalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -325,7 +353,9 @@ class DeviceMetric extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'color', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.color,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -341,7 +371,9 @@ class DeviceMetric extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -363,7 +395,9 @@ class DeviceMetric extends Resource {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'measurementPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.measurementPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -380,7 +414,9 @@ class DeviceMetric extends Resource {
          * @property {DeviceMetricCalibration[]|undefined}
         */
         Object.defineProperty(this, 'calibration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.calibration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -391,6 +427,7 @@ class DeviceMetric extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -417,7 +454,8 @@ class DeviceMetric extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'DeviceMetric',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

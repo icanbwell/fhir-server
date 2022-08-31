@@ -81,7 +81,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +100,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +121,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +138,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +160,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +180,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -189,7 +201,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,7 +231,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -234,7 +250,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'sourceMaterialClass', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceMaterialClass,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +270,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'sourceMaterialType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceMaterialType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -268,7 +288,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'sourceMaterialState', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceMaterialState,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +307,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'organismId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organismId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -302,7 +326,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'organismName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organismName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -318,7 +344,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'parentSubstanceId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parentSubstanceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -334,7 +362,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'parentSubstanceName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parentSubstanceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +383,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'countryOfOrigin', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.countryOfOrigin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -370,7 +402,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'geographicalLocation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.geographicalLocation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -387,7 +421,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'developmentStage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.developmentStage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -410,7 +446,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {SubstanceSourceMaterialFractionDescription[]|undefined}
         */
         Object.defineProperty(this, 'fractionDescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fractionDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -429,7 +467,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {SubstanceSourceMaterialOrganism|undefined}
         */
         Object.defineProperty(this, 'organism', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organism,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -445,7 +485,9 @@ class SubstanceSourceMaterial extends Resource {
          * @property {SubstanceSourceMaterialPartDescription[]|undefined}
         */
         Object.defineProperty(this, 'partDescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -456,6 +498,7 @@ class SubstanceSourceMaterial extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -485,7 +528,8 @@ class SubstanceSourceMaterial extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'SubstanceSourceMaterial',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

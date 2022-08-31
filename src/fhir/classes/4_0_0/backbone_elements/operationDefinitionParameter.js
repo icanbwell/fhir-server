@@ -53,7 +53,9 @@ class OperationDefinitionParameter extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -72,7 +74,9 @@ class OperationDefinitionParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +104,9 @@ class OperationDefinitionParameter extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +122,9 @@ class OperationDefinitionParameter extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +139,9 @@ class OperationDefinitionParameter extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'use', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +157,9 @@ class OperationDefinitionParameter extends Element {
          * @property {Int}
         */
         Object.defineProperty(this, 'min', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,7 +175,9 @@ class OperationDefinitionParameter extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'max', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class OperationDefinitionParameter extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'documentation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +209,9 @@ class OperationDefinitionParameter extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +233,9 @@ class OperationDefinitionParameter extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'targetProfile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.targetProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +251,9 @@ class OperationDefinitionParameter extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'searchType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.searchType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +269,9 @@ class OperationDefinitionParameter extends Element {
          * @property {OperationDefinitionBinding|undefined}
         */
         Object.defineProperty(this, 'binding', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.binding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -264,7 +288,9 @@ class OperationDefinitionParameter extends Element {
          * @property {OperationDefinitionReferencedFrom[]|undefined}
         */
         Object.defineProperty(this, 'referencedFrom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referencedFrom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +306,9 @@ class OperationDefinitionParameter extends Element {
          * @property {OperationDefinitionParameter[]|undefined}
         */
         Object.defineProperty(this, 'part', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.part,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,6 +318,7 @@ class OperationDefinitionParameter extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -307,13 +336,6 @@ class OperationDefinitionParameter extends Element {
             part,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'OperationDefinitionParameter',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

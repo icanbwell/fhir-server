@@ -34,7 +34,9 @@ class CatalogEntryRelatedEntry extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -53,7 +55,9 @@ class CatalogEntryRelatedEntry extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +85,9 @@ class CatalogEntryRelatedEntry extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +104,9 @@ class CatalogEntryRelatedEntry extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'relationtype', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relationtype,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class CatalogEntryRelatedEntry extends Element {
          * @property {Reference}
         */
         Object.defineProperty(this, 'item', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,6 +134,7 @@ class CatalogEntryRelatedEntry extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -132,13 +143,6 @@ class CatalogEntryRelatedEntry extends Element {
             item,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CatalogEntryRelatedEntry',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

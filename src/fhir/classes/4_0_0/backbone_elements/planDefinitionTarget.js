@@ -43,7 +43,9 @@ class PlanDefinitionTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -62,7 +64,9 @@ class PlanDefinitionTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +94,9 @@ class PlanDefinitionTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class PlanDefinitionTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'measure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.measure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +131,9 @@ class PlanDefinitionTarget extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'detailQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detailQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +149,9 @@ class PlanDefinitionTarget extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'detailRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detailRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +167,9 @@ class PlanDefinitionTarget extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'detailCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detailCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +186,9 @@ class PlanDefinitionTarget extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'due', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.due,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,6 +199,7 @@ class PlanDefinitionTarget extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -194,13 +211,6 @@ class PlanDefinitionTarget extends Element {
             due,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'PlanDefinitionTarget',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

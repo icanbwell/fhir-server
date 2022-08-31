@@ -34,7 +34,9 @@ class BundleLink extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -53,7 +55,9 @@ class BundleLink extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +85,9 @@ class BundleLink extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +106,9 @@ class BundleLink extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'relation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -115,7 +123,9 @@ class BundleLink extends Element {
          * @property {uri}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,6 +135,7 @@ class BundleLink extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -133,13 +144,6 @@ class BundleLink extends Element {
             url,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'BundleLink',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

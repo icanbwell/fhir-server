@@ -95,7 +95,9 @@ class OperationDefinition extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +114,9 @@ class OperationDefinition extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +135,9 @@ class OperationDefinition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +152,9 @@ class OperationDefinition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +174,9 @@ class OperationDefinition extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +194,9 @@ class OperationDefinition extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +215,9 @@ class OperationDefinition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +245,9 @@ class OperationDefinition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +269,9 @@ class OperationDefinition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +291,9 @@ class OperationDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,7 +310,9 @@ class OperationDefinition extends Resource {
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +327,9 @@ class OperationDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +345,9 @@ class OperationDefinition extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -336,7 +362,9 @@ class OperationDefinition extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'kind', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.kind,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +381,9 @@ class OperationDefinition extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'experimental', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -371,7 +401,9 @@ class OperationDefinition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -387,7 +419,9 @@ class OperationDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -403,7 +437,9 @@ class OperationDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -420,7 +456,9 @@ class OperationDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -439,7 +477,9 @@ class OperationDefinition extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -456,7 +496,9 @@ class OperationDefinition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -473,7 +515,9 @@ class OperationDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'purpose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -489,7 +533,9 @@ class OperationDefinition extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'affectsState', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.affectsState,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -504,7 +550,9 @@ class OperationDefinition extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -519,7 +567,9 @@ class OperationDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'comment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -535,7 +585,9 @@ class OperationDefinition extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'base', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.base,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -550,7 +602,9 @@ class OperationDefinition extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'resource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -566,7 +620,9 @@ class OperationDefinition extends Resource {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'system', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -583,7 +639,9 @@ class OperationDefinition extends Resource {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -599,7 +657,9 @@ class OperationDefinition extends Resource {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'instance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -616,7 +676,9 @@ class OperationDefinition extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'inputProfile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.inputProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -633,7 +695,9 @@ class OperationDefinition extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'outputProfile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outputProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -648,7 +712,9 @@ class OperationDefinition extends Resource {
          * @property {OperationDefinitionParameter[]|undefined}
         */
         Object.defineProperty(this, 'parameter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -666,7 +732,9 @@ class OperationDefinition extends Resource {
          * @property {OperationDefinitionOverload[]|undefined}
         */
         Object.defineProperty(this, 'overload', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.overload,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -677,6 +745,7 @@ class OperationDefinition extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -719,7 +788,8 @@ class OperationDefinition extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'OperationDefinition',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

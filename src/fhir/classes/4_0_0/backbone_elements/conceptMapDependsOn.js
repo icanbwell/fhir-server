@@ -40,7 +40,9 @@ class ConceptMapDependsOn extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class ConceptMapDependsOn extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +91,9 @@ class ConceptMapDependsOn extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class ConceptMapDependsOn extends Element {
          * @property {uri}
         */
         Object.defineProperty(this, 'property', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +129,9 @@ class ConceptMapDependsOn extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'system', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class ConceptMapDependsOn extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'value', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class ConceptMapDependsOn extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'display', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,6 +177,7 @@ class ConceptMapDependsOn extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -173,13 +188,6 @@ class ConceptMapDependsOn extends Element {
             display,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ConceptMapDependsOn',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

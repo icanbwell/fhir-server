@@ -36,7 +36,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -55,7 +57,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +87,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -99,7 +105,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {Quantity[]|undefined}
         */
         Object.defineProperty(this, 'areaUnderCurve', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.areaUnderCurve,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -115,7 +123,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {Quantity[]|undefined}
         */
         Object.defineProperty(this, 'lethalDose50', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lethalDose50,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class MedicationKnowledgeKinetics extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'halfLifePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.halfLifePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,6 +155,7 @@ class MedicationKnowledgeKinetics extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -152,13 +165,6 @@ class MedicationKnowledgeKinetics extends Element {
             halfLifePeriod,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicationKnowledgeKinetics',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

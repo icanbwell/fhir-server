@@ -39,7 +39,9 @@ class ContractSecurityLabel extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class ContractSecurityLabel extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +90,9 @@ class ContractSecurityLabel extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class ContractSecurityLabel extends Element {
          * @property {unsignedInt[]|undefined}
         */
         Object.defineProperty(this, 'number', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +127,9 @@ class ContractSecurityLabel extends Element {
          * @property {Coding}
         */
         Object.defineProperty(this, 'classification', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.classification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +146,9 @@ class ContractSecurityLabel extends Element {
          * @property {Coding[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class ContractSecurityLabel extends Element {
          * @property {Coding[]|undefined}
         */
         Object.defineProperty(this, 'control', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.control,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,6 +178,7 @@ class ContractSecurityLabel extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -174,13 +189,6 @@ class ContractSecurityLabel extends Element {
             control,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ContractSecurityLabel',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

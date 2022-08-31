@@ -96,7 +96,9 @@ class Device extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +115,9 @@ class Device extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +136,9 @@ class Device extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +153,9 @@ class Device extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +175,9 @@ class Device extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +195,9 @@ class Device extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +216,9 @@ class Device extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -232,7 +246,9 @@ class Device extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,7 +265,9 @@ class Device extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -265,7 +283,9 @@ class Device extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'definition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,7 +304,9 @@ class Device extends Resource {
          * @property {DeviceUdiCarrier[]|undefined}
         */
         Object.defineProperty(this, 'udiCarrier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.udiCarrier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -300,7 +322,9 @@ class Device extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -315,7 +339,9 @@ class Device extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -332,7 +358,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'distinctIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.distinctIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -347,7 +375,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'manufacturer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manufacturer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -362,7 +392,9 @@ class Device extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'manufactureDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manufactureDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -378,7 +410,9 @@ class Device extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'expirationDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expirationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +427,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'lotNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lotNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -409,7 +445,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'serialNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.serialNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -427,7 +465,9 @@ class Device extends Resource {
          * @property {DeviceDeviceName[]|undefined}
         */
         Object.defineProperty(this, 'deviceName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.deviceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -443,7 +483,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'modelNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -458,7 +500,9 @@ class Device extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'partNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -473,7 +517,9 @@ class Device extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -490,7 +536,9 @@ class Device extends Resource {
          * @property {DeviceSpecialization[]|undefined}
         */
         Object.defineProperty(this, 'specialization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specialization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -506,7 +554,9 @@ class Device extends Resource {
          * @property {DeviceVersion[]|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -523,7 +573,9 @@ class Device extends Resource {
          * @property {DeviceProperty[]|undefined}
         */
         Object.defineProperty(this, 'property', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -539,7 +591,9 @@ class Device extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -556,7 +610,9 @@ class Device extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'owner', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.owner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -573,7 +629,9 @@ class Device extends Resource {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -589,7 +647,9 @@ class Device extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -605,7 +665,9 @@ class Device extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -621,7 +683,9 @@ class Device extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -638,7 +702,9 @@ class Device extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'safety', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.safety,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -654,7 +720,9 @@ class Device extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'parent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -665,6 +733,7 @@ class Device extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -707,7 +776,8 @@ class Device extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Device',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

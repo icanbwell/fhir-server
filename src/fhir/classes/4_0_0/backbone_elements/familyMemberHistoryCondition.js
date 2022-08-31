@@ -47,7 +47,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +118,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +137,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'outcome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'contributedToDeath', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contributedToDeath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +173,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'onsetAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -177,7 +191,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'onsetRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +209,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'onsetPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'onsetString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -224,7 +244,9 @@ class FamilyMemberHistoryCondition extends Element {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,6 +257,7 @@ class FamilyMemberHistoryCondition extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -249,13 +272,6 @@ class FamilyMemberHistoryCondition extends Element {
             note,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'FamilyMemberHistoryCondition',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

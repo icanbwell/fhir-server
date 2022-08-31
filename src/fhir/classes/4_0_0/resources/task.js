@@ -104,7 +104,9 @@ class Task extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +123,9 @@ class Task extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +144,9 @@ class Task extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +161,9 @@ class Task extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +183,9 @@ class Task extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +203,9 @@ class Task extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -212,7 +224,9 @@ class Task extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -240,7 +254,9 @@ class Task extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -256,7 +272,9 @@ class Task extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +291,9 @@ class Task extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'instantiatesCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -289,7 +309,9 @@ class Task extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'instantiatesUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -310,7 +332,9 @@ class Task extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -327,7 +351,9 @@ class Task extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'groupIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.groupIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -343,7 +369,9 @@ class Task extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +387,9 @@ class Task extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -374,7 +404,9 @@ class Task extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -390,7 +422,9 @@ class Task extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'businessStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.businessStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -407,7 +441,9 @@ class Task extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'intent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -423,7 +459,9 @@ class Task extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -438,7 +476,9 @@ class Task extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -454,7 +494,9 @@ class Task extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -469,7 +511,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'focus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -486,7 +530,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'for', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.for,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -503,7 +549,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -521,7 +569,9 @@ class Task extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'executionPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.executionPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -537,7 +587,9 @@ class Task extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'authoredOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.authoredOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -552,7 +604,9 @@ class Task extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'lastModified', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastModified,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -567,7 +621,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'requester', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requester,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -583,7 +639,9 @@ class Task extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'performerType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performerType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -599,7 +657,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'owner', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.owner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -615,7 +675,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -631,7 +693,9 @@ class Task extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -647,7 +711,9 @@ class Task extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'reasonReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -664,7 +730,9 @@ class Task extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'insurance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.insurance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -680,7 +748,9 @@ class Task extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -698,7 +768,9 @@ class Task extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'relevantHistory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relevantHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -716,7 +788,9 @@ class Task extends Resource {
          * @property {TaskRestriction|undefined}
         */
         Object.defineProperty(this, 'restriction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.restriction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -732,7 +806,9 @@ class Task extends Resource {
          * @property {TaskInput[]|undefined}
         */
         Object.defineProperty(this, 'input', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.input,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -748,7 +824,9 @@ class Task extends Resource {
          * @property {TaskOutput[]|undefined}
         */
         Object.defineProperty(this, 'output', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.output,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -759,6 +837,7 @@ class Task extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -806,7 +885,8 @@ class Task extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Task',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

@@ -39,7 +39,9 @@ class ImmunizationEducation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class ImmunizationEducation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +90,9 @@ class ImmunizationEducation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +108,9 @@ class ImmunizationEducation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'documentType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.documentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +126,9 @@ class ImmunizationEducation extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'reference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +143,9 @@ class ImmunizationEducation extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'publicationDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publicationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +160,9 @@ class ImmunizationEducation extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'presentationDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.presentationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,6 +172,7 @@ class ImmunizationEducation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -168,13 +183,6 @@ class ImmunizationEducation extends Element {
             presentationDate,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImmunizationEducation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

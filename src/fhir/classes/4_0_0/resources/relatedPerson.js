@@ -68,7 +68,9 @@ class RelatedPerson extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +87,9 @@ class RelatedPerson extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +108,9 @@ class RelatedPerson extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +125,9 @@ class RelatedPerson extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +147,9 @@ class RelatedPerson extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +167,9 @@ class RelatedPerson extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,7 +188,9 @@ class RelatedPerson extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +218,9 @@ class RelatedPerson extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -220,7 +236,9 @@ class RelatedPerson extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -236,7 +254,9 @@ class RelatedPerson extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'active', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.active,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -251,7 +271,9 @@ class RelatedPerson extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +289,9 @@ class RelatedPerson extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'relationship', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -283,7 +307,9 @@ class RelatedPerson extends Resource {
          * @property {HumanName[]|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -299,7 +325,9 @@ class RelatedPerson extends Resource {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'telecom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -316,7 +344,9 @@ class RelatedPerson extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'gender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -331,7 +361,9 @@ class RelatedPerson extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'birthDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.birthDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -346,7 +378,9 @@ class RelatedPerson extends Resource {
          * @property {Address[]|undefined}
         */
         Object.defineProperty(this, 'address', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -362,7 +396,9 @@ class RelatedPerson extends Resource {
          * @property {Attachment[]|undefined}
         */
         Object.defineProperty(this, 'photo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.photo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -379,7 +415,9 @@ class RelatedPerson extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -395,7 +433,9 @@ class RelatedPerson extends Resource {
          * @property {RelatedPersonCommunication[]|undefined}
         */
         Object.defineProperty(this, 'communication', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.communication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -406,6 +446,7 @@ class RelatedPerson extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -434,7 +475,8 @@ class RelatedPerson extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'RelatedPerson',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

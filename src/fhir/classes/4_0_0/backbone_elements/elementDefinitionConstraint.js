@@ -47,7 +47,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +118,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {id}
         */
         Object.defineProperty(this, 'key', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.key,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,7 +135,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'requirements', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requirements,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'severity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'human', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.human,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +189,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'expression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -191,7 +207,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'xpath', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.xpath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -207,7 +225,9 @@ class ElementDefinitionConstraint extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,6 +237,7 @@ class ElementDefinitionConstraint extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -230,13 +251,6 @@ class ElementDefinitionConstraint extends Element {
             source,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ElementDefinitionConstraint',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

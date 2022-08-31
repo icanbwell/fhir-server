@@ -51,7 +51,9 @@ class ContractOffer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -70,7 +72,9 @@ class ContractOffer extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +102,9 @@ class ContractOffer extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class ContractOffer extends Element {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +138,9 @@ class ContractOffer extends Element {
          * @property {ContractParty[]|undefined}
         */
         Object.defineProperty(this, 'party', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.party,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +158,9 @@ class ContractOffer extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'topic', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -165,7 +177,9 @@ class ContractOffer extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +196,9 @@ class ContractOffer extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'decision', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.decision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +214,9 @@ class ContractOffer extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'decisionMode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.decisionMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,7 +232,9 @@ class ContractOffer extends Element {
          * @property {ContractAnswer[]|undefined}
         */
         Object.defineProperty(this, 'answer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.answer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,7 +250,9 @@ class ContractOffer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -246,7 +268,9 @@ class ContractOffer extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'linkId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -261,7 +285,9 @@ class ContractOffer extends Element {
          * @property {unsignedInt[]|undefined}
         */
         Object.defineProperty(this, 'securityLabelNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.securityLabelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -271,6 +297,7 @@ class ContractOffer extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -287,13 +314,6 @@ class ContractOffer extends Element {
             securityLabelNumber,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ContractOffer',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

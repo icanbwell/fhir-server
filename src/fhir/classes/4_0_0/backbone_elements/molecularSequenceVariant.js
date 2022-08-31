@@ -42,7 +42,9 @@ class MolecularSequenceVariant extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class MolecularSequenceVariant extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class MolecularSequenceVariant extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +112,9 @@ class MolecularSequenceVariant extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'start', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.start,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +132,9 @@ class MolecularSequenceVariant extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'end', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.end,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class MolecularSequenceVariant extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'observedAllele', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.observedAllele,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +176,9 @@ class MolecularSequenceVariant extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'referenceAllele', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceAllele,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +196,9 @@ class MolecularSequenceVariant extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'cigar', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cigar,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +213,9 @@ class MolecularSequenceVariant extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'variantPointer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variantPointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -208,6 +226,7 @@ class MolecularSequenceVariant extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -220,13 +239,6 @@ class MolecularSequenceVariant extends Element {
             variantPointer,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MolecularSequenceVariant',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

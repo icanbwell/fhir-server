@@ -38,7 +38,9 @@ class ExampleScenarioStep extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -57,7 +59,9 @@ class ExampleScenarioStep extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class ExampleScenarioStep extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class ExampleScenarioStep extends Element {
          * @property {ExampleScenarioProcess[]|undefined}
         */
         Object.defineProperty(this, 'process', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.process,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class ExampleScenarioStep extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'pause', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.pause,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class ExampleScenarioStep extends Element {
          * @property {ExampleScenarioOperation|undefined}
         */
         Object.defineProperty(this, 'operation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.operation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +161,9 @@ class ExampleScenarioStep extends Element {
          * @property {ExampleScenarioAlternative[]|undefined}
         */
         Object.defineProperty(this, 'alternative', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.alternative,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,6 +174,7 @@ class ExampleScenarioStep extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -170,13 +185,6 @@ class ExampleScenarioStep extends Element {
             alternative,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ExampleScenarioStep',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

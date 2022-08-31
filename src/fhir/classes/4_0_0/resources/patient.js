@@ -79,7 +79,9 @@ class Patient extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +98,9 @@ class Patient extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -115,7 +119,9 @@ class Patient extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +136,9 @@ class Patient extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +158,9 @@ class Patient extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +178,9 @@ class Patient extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -187,7 +199,9 @@ class Patient extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +229,9 @@ class Patient extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +247,9 @@ class Patient extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -255,7 +273,9 @@ class Patient extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'active', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.active,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -270,7 +290,9 @@ class Patient extends Resource {
          * @property {HumanName[]|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -287,7 +309,9 @@ class Patient extends Resource {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'telecom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -304,7 +328,9 @@ class Patient extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'gender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -319,7 +345,9 @@ class Patient extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'birthDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.birthDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -334,7 +362,9 @@ class Patient extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'deceasedBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.deceasedBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -349,7 +379,9 @@ class Patient extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'deceasedDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.deceasedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -364,7 +396,9 @@ class Patient extends Resource {
          * @property {Address[]|undefined}
         */
         Object.defineProperty(this, 'address', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -380,7 +414,9 @@ class Patient extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'maritalStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maritalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -396,7 +432,9 @@ class Patient extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'multipleBirthBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.multipleBirthBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -411,7 +449,9 @@ class Patient extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'multipleBirthInteger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.multipleBirthInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -426,7 +466,9 @@ class Patient extends Resource {
          * @property {Attachment[]|undefined}
         */
         Object.defineProperty(this, 'photo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.photo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -442,7 +484,9 @@ class Patient extends Resource {
          * @property {PatientContact[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -459,7 +503,9 @@ class Patient extends Resource {
          * @property {PatientCommunication[]|undefined}
         */
         Object.defineProperty(this, 'communication', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.communication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -475,7 +521,9 @@ class Patient extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'generalPractitioner', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.generalPractitioner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -491,7 +539,9 @@ class Patient extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'managingOrganization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.managingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -507,7 +557,9 @@ class Patient extends Resource {
          * @property {PatientLink[]|undefined}
         */
         Object.defineProperty(this, 'link', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,6 +570,7 @@ class Patient extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -552,7 +605,8 @@ class Patient extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Patient',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

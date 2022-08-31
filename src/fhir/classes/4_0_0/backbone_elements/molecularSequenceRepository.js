@@ -42,7 +42,9 @@ class MolecularSequenceRepository extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class MolecularSequenceRepository extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class MolecularSequenceRepository extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +112,9 @@ class MolecularSequenceRepository extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +130,9 @@ class MolecularSequenceRepository extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +148,9 @@ class MolecularSequenceRepository extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +166,9 @@ class MolecularSequenceRepository extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'datasetId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.datasetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -171,7 +185,9 @@ class MolecularSequenceRepository extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'variantsetId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variantsetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +202,9 @@ class MolecularSequenceRepository extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'readsetId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.readsetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -196,6 +214,7 @@ class MolecularSequenceRepository extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -208,13 +227,6 @@ class MolecularSequenceRepository extends Element {
             readsetId,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MolecularSequenceRepository',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

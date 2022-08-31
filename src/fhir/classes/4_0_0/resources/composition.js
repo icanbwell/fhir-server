@@ -80,7 +80,9 @@ class Composition extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +99,9 @@ class Composition extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +120,9 @@ class Composition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +137,9 @@ class Composition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +159,9 @@ class Composition extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,7 +179,9 @@ class Composition extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -188,7 +200,9 @@ class Composition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +230,9 @@ class Composition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +249,9 @@ class Composition extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,7 +268,9 @@ class Composition extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +287,9 @@ class Composition extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +307,9 @@ class Composition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -304,7 +328,9 @@ class Composition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +347,9 @@ class Composition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -338,7 +366,9 @@ class Composition extends Resource {
          * @property {dateTime}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -354,7 +384,9 @@ class Composition extends Resource {
          * @property {Reference[]}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -370,7 +402,9 @@ class Composition extends Resource {
          * @property {String}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -385,7 +419,9 @@ class Composition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'confidentiality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.confidentiality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -400,7 +436,9 @@ class Composition extends Resource {
          * @property {CompositionAttester[]|undefined}
         */
         Object.defineProperty(this, 'attester', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.attester,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -417,7 +455,9 @@ class Composition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'custodian', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.custodian,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -434,7 +474,9 @@ class Composition extends Resource {
          * @property {CompositionRelatesTo[]|undefined}
         */
         Object.defineProperty(this, 'relatesTo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatesTo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -451,7 +493,9 @@ class Composition extends Resource {
          * @property {CompositionEvent[]|undefined}
         */
         Object.defineProperty(this, 'event', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.event,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -467,7 +511,9 @@ class Composition extends Resource {
          * @property {CompositionSection[]|undefined}
         */
         Object.defineProperty(this, 'section', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.section,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -478,6 +524,7 @@ class Composition extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -509,7 +556,8 @@ class Composition extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Composition',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

@@ -47,7 +47,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -111,7 +117,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,7 +135,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'range', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.range,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'context', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +172,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'appliesTo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.appliesTo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,7 +190,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'gender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -192,7 +208,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'age', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.age,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'gestationalAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gestationalAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +245,9 @@ class ObservationDefinitionQualifiedInterval extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'condition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,6 +257,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -249,13 +272,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
             condition,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ObservationDefinitionQualifiedInterval',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

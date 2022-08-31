@@ -69,7 +69,12 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% endfor %}
         }
     ) {
-{% if fhir_entity.cleaned_name != 'Element' %}
+{% if fhir_entity.cleaned_name == 'Element' %}
+        // Create an object to store all props
+        Object.defineProperty(this, '__data', {
+            value: {},
+        });
+{%  else %}
         super({});
 {% endif %}
 
@@ -95,7 +100,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {{- '}' }}
         {{ '*/' }}
         Object.defineProperty(this, '{{ property.name -}}', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.{{ property.name -}},
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,6 +145,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         });
 
 {% endfor %}
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
 {% for property in fhir_entity.properties %}
     {%  if property.name != property.javascript_clean_name %}
@@ -148,18 +156,23 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% endfor %}
         });
 
+{% if fhir_entity.is_resource %}
         // Define a default non-writable resourceType property
 
         Object.defineProperty(this, 'resourceType', {
             value: '{{ fhir_entity.cleaned_name }}',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
+{%  endif %}
     }
 
+{% if fhir_entity.is_resource %}
     static get resourceType() {
         return '{{ fhir_entity.cleaned_name }}';
     }
+{%  endif %}
 
     toJSON() {
         return {

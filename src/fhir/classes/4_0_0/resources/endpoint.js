@@ -66,7 +66,9 @@ class Endpoint extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +85,9 @@ class Endpoint extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +106,9 @@ class Endpoint extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +123,9 @@ class Endpoint extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +145,9 @@ class Endpoint extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +165,9 @@ class Endpoint extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +186,9 @@ class Endpoint extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -202,7 +216,9 @@ class Endpoint extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +235,9 @@ class Endpoint extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +253,9 @@ class Endpoint extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +272,9 @@ class Endpoint extends Resource {
          * @property {Coding}
         */
         Object.defineProperty(this, 'connectionType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.connectionType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -268,7 +290,9 @@ class Endpoint extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +309,9 @@ class Endpoint extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'managingOrganization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.managingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -302,7 +328,9 @@ class Endpoint extends Resource {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -318,7 +346,9 @@ class Endpoint extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -335,7 +365,9 @@ class Endpoint extends Resource {
          * @property {CodeableConcept[]}
         */
         Object.defineProperty(this, 'payloadType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payloadType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +385,9 @@ class Endpoint extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'payloadMimeType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payloadMimeType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -368,7 +402,9 @@ class Endpoint extends Resource {
          * @property {url}
         */
         Object.defineProperty(this, 'address', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +419,9 @@ class Endpoint extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'header', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.header,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,6 +431,7 @@ class Endpoint extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -420,7 +459,8 @@ class Endpoint extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Endpoint',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

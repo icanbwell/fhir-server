@@ -75,7 +75,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +96,9 @@ class TestScriptAssert extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +126,9 @@ class TestScriptAssert extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +144,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'label', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +162,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,7 +179,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'direction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.direction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +197,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'compareToSourceId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.compareToSourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -202,7 +216,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'compareToSourceExpression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.compareToSourceExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +235,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'compareToSourcePath', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.compareToSourcePath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +253,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'contentType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -251,7 +271,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'expression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -266,7 +288,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'headerField', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.headerField,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +306,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'minimumId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.minimumId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -298,7 +324,9 @@ class TestScriptAssert extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'navigationLinks', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.navigationLinks,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +342,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'operator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.operator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -330,7 +360,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'path', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -346,7 +378,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'requestMethod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requestMethod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -361,7 +395,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'requestURL', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requestURL,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +412,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'resource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -392,7 +430,9 @@ class TestScriptAssert extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -407,7 +447,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'responseCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.responseCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -422,7 +464,9 @@ class TestScriptAssert extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'sourceId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -437,7 +481,9 @@ class TestScriptAssert extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'validateProfileId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validateProfileId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -452,7 +498,9 @@ class TestScriptAssert extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'value', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -468,7 +516,9 @@ class TestScriptAssert extends Element {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'warningOnly', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.warningOnly,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -478,6 +528,7 @@ class TestScriptAssert extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -506,13 +557,6 @@ class TestScriptAssert extends Element {
             warningOnly,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'TestScriptAssert',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

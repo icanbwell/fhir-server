@@ -48,7 +48,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -67,7 +69,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +99,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'chromosome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.chromosome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +140,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'genomeBuild', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.genomeBuild,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +159,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'orientation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.orientation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +179,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'referenceSeqId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceSeqId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,7 +197,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'referenceSeqPointer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceSeqPointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'referenceSeqString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceSeqString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +234,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'strand', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.strand,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -232,7 +252,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'windowStart', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.windowStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,7 +272,9 @@ class MolecularSequenceReferenceSeq extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'windowEnd', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.windowEnd,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,6 +284,7 @@ class MolecularSequenceReferenceSeq extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -275,13 +300,6 @@ class MolecularSequenceReferenceSeq extends Element {
             windowEnd,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MolecularSequenceReferenceSeq',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

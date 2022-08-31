@@ -101,7 +101,9 @@ class Immunization extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +120,9 @@ class Immunization extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +141,9 @@ class Immunization extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +158,9 @@ class Immunization extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +180,9 @@ class Immunization extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +200,9 @@ class Immunization extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +221,9 @@ class Immunization extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -237,7 +251,9 @@ class Immunization extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +269,9 @@ class Immunization extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,7 +287,9 @@ class Immunization extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,7 +304,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -300,7 +322,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'vaccineCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.vaccineCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -316,7 +340,9 @@ class Immunization extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -333,7 +359,9 @@ class Immunization extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -349,7 +377,9 @@ class Immunization extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'occurrenceDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -364,7 +394,9 @@ class Immunization extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'occurrenceString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -380,7 +412,9 @@ class Immunization extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'recorded', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -397,7 +431,9 @@ class Immunization extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'primarySource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.primarySource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -413,7 +449,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'reportOrigin', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reportOrigin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -429,7 +467,9 @@ class Immunization extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -445,7 +485,9 @@ class Immunization extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'manufacturer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manufacturer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -461,7 +503,9 @@ class Immunization extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'lotNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lotNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -476,7 +520,9 @@ class Immunization extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'expirationDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expirationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -491,7 +537,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'site', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -507,7 +555,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'route', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.route,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -523,7 +573,9 @@ class Immunization extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'doseQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doseQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -539,7 +591,9 @@ class Immunization extends Resource {
          * @property {ImmunizationPerformer[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -556,7 +610,9 @@ class Immunization extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -572,7 +628,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -589,7 +647,9 @@ class Immunization extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'reasonReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -606,7 +666,9 @@ class Immunization extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'isSubpotent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.isSubpotent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -621,7 +683,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'subpotentReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subpotentReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -638,7 +702,9 @@ class Immunization extends Resource {
          * @property {ImmunizationEducation[]|undefined}
         */
         Object.defineProperty(this, 'education', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.education,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -654,7 +720,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'programEligibility', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.programEligibility,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -673,7 +741,9 @@ class Immunization extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'fundingSource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fundingSource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -690,7 +760,9 @@ class Immunization extends Resource {
          * @property {ImmunizationReaction[]|undefined}
         */
         Object.defineProperty(this, 'reaction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -707,7 +779,9 @@ class Immunization extends Resource {
          * @property {ImmunizationProtocolApplied[]|undefined}
         */
         Object.defineProperty(this, 'protocolApplied', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.protocolApplied,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -718,6 +792,7 @@ class Immunization extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -763,7 +838,8 @@ class Immunization extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Immunization',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

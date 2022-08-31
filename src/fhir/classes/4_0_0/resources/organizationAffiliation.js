@@ -67,7 +67,9 @@ class OrganizationAffiliation extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +86,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +107,9 @@ class OrganizationAffiliation extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +124,9 @@ class OrganizationAffiliation extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +146,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +166,9 @@ class OrganizationAffiliation extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +187,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +217,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +235,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +253,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'active', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.active,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -251,7 +271,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +289,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'organization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,7 +308,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'participatingOrganization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participatingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -302,7 +328,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'network', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.network,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -318,7 +346,9 @@ class OrganizationAffiliation extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -335,7 +365,9 @@ class OrganizationAffiliation extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'specialty', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specialty,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -351,7 +383,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -367,7 +401,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'healthcareService', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.healthcareService,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +419,9 @@ class OrganizationAffiliation extends Resource {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'telecom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -399,7 +437,9 @@ class OrganizationAffiliation extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'endpoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -410,6 +450,7 @@ class OrganizationAffiliation extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -438,7 +479,8 @@ class OrganizationAffiliation extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'OrganizationAffiliation',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

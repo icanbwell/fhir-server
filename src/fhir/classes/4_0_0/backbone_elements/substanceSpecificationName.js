@@ -53,7 +53,9 @@ class SubstanceSpecificationName extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -72,7 +74,9 @@ class SubstanceSpecificationName extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +104,9 @@ class SubstanceSpecificationName extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +122,9 @@ class SubstanceSpecificationName extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +139,9 @@ class SubstanceSpecificationName extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +157,9 @@ class SubstanceSpecificationName extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,7 +175,9 @@ class SubstanceSpecificationName extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'preferred', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.preferred,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class SubstanceSpecificationName extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -195,7 +211,9 @@ class SubstanceSpecificationName extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'domain', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.domain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -211,7 +229,9 @@ class SubstanceSpecificationName extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -227,7 +247,9 @@ class SubstanceSpecificationName extends Element {
          * @property {SubstanceSpecificationName[]|undefined}
         */
         Object.defineProperty(this, 'synonym', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.synonym,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,7 +264,9 @@ class SubstanceSpecificationName extends Element {
          * @property {SubstanceSpecificationName[]|undefined}
         */
         Object.defineProperty(this, 'translation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.translation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -257,7 +281,9 @@ class SubstanceSpecificationName extends Element {
          * @property {SubstanceSpecificationOfficial[]|undefined}
         */
         Object.defineProperty(this, 'official', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.official,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +299,9 @@ class SubstanceSpecificationName extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'source', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,6 +312,7 @@ class SubstanceSpecificationName extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -301,13 +330,6 @@ class SubstanceSpecificationName extends Element {
             source,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceSpecificationName',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

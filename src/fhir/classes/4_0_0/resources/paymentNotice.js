@@ -67,7 +67,9 @@ class PaymentNotice extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -84,7 +86,9 @@ class PaymentNotice extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +107,9 @@ class PaymentNotice extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -118,7 +124,9 @@ class PaymentNotice extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +146,9 @@ class PaymentNotice extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +166,9 @@ class PaymentNotice extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +187,9 @@ class PaymentNotice extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +217,9 @@ class PaymentNotice extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +235,9 @@ class PaymentNotice extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +253,9 @@ class PaymentNotice extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -250,7 +270,9 @@ class PaymentNotice extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'request', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -266,7 +288,9 @@ class PaymentNotice extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +306,9 @@ class PaymentNotice extends Resource {
          * @property {dateTime}
         */
         Object.defineProperty(this, 'created', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.created,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +323,9 @@ class PaymentNotice extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'provider', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -313,7 +341,9 @@ class PaymentNotice extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'payment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -329,7 +359,9 @@ class PaymentNotice extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'paymentDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.paymentDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -345,7 +377,9 @@ class PaymentNotice extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'payee', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payee,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -361,7 +395,9 @@ class PaymentNotice extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'recipient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recipient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -377,7 +413,9 @@ class PaymentNotice extends Resource {
          * @property {Money}
         */
         Object.defineProperty(this, 'amount', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +431,9 @@ class PaymentNotice extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'paymentStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.paymentStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -404,6 +444,7 @@ class PaymentNotice extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -432,7 +473,8 @@ class PaymentNotice extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'PaymentNotice',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

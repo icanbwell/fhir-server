@@ -53,7 +53,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -72,7 +74,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +104,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +125,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'maternalOrganismId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maternalOrganismId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +144,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'maternalOrganismName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maternalOrganismName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -152,7 +162,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'paternalOrganismId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.paternalOrganismId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -168,7 +180,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'paternalOrganismName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.paternalOrganismName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,7 +197,9 @@ class SubstanceSourceMaterialHybrid extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'hybridType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.hybridType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -194,6 +210,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -205,13 +222,6 @@ class SubstanceSourceMaterialHybrid extends Element {
             hybridType,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceSourceMaterialHybrid',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

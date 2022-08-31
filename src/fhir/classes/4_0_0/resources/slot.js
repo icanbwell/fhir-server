@@ -64,7 +64,9 @@ class Slot extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +83,9 @@ class Slot extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +104,9 @@ class Slot extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -115,7 +121,9 @@ class Slot extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +143,9 @@ class Slot extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +163,9 @@ class Slot extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +184,9 @@ class Slot extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -200,7 +214,9 @@ class Slot extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +232,9 @@ class Slot extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +251,9 @@ class Slot extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'serviceCategory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.serviceCategory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +272,9 @@ class Slot extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'serviceType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.serviceType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,7 +291,9 @@ class Slot extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'specialty', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specialty,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -286,7 +310,9 @@ class Slot extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'appointmentType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.appointmentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -303,7 +329,9 @@ class Slot extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'schedule', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.schedule,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -319,7 +347,9 @@ class Slot extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -334,7 +364,9 @@ class Slot extends Resource {
          * @property {instant}
         */
         Object.defineProperty(this, 'start', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.start,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -349,7 +381,9 @@ class Slot extends Resource {
          * @property {instant}
         */
         Object.defineProperty(this, 'end', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.end,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -365,7 +399,9 @@ class Slot extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'overbooked', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.overbooked,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -381,7 +417,9 @@ class Slot extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'comment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -391,6 +429,7 @@ class Slot extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -418,7 +457,8 @@ class Slot extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Slot',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

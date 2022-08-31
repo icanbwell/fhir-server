@@ -90,7 +90,9 @@ class CarePlan extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +109,9 @@ class CarePlan extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +130,9 @@ class CarePlan extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +147,9 @@ class CarePlan extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +169,9 @@ class CarePlan extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +189,9 @@ class CarePlan extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +210,9 @@ class CarePlan extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,7 +240,9 @@ class CarePlan extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +260,9 @@ class CarePlan extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -261,7 +279,9 @@ class CarePlan extends Resource {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -278,7 +298,9 @@ class CarePlan extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -293,7 +315,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -310,7 +334,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'replaces', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.replaces,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -326,7 +352,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -343,7 +371,9 @@ class CarePlan extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +389,9 @@ class CarePlan extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'intent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +408,9 @@ class CarePlan extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -392,7 +426,9 @@ class CarePlan extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -407,7 +443,9 @@ class CarePlan extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -422,7 +460,9 @@ class CarePlan extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -439,7 +479,9 @@ class CarePlan extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -455,7 +497,9 @@ class CarePlan extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -472,7 +516,9 @@ class CarePlan extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'created', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.created,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -488,7 +534,9 @@ class CarePlan extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -505,7 +553,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'contributor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -522,7 +572,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'careTeam', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.careTeam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -539,7 +591,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'addresses', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.addresses,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -557,7 +611,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'supportingInfo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -573,7 +629,9 @@ class CarePlan extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'goal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.goal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -590,7 +648,9 @@ class CarePlan extends Resource {
          * @property {CarePlanActivity[]|undefined}
         */
         Object.defineProperty(this, 'activity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.activity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -606,7 +666,9 @@ class CarePlan extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -617,6 +679,7 @@ class CarePlan extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -656,7 +719,8 @@ class CarePlan extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'CarePlan',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

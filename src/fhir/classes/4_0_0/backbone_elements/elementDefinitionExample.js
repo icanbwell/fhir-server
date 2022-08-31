@@ -135,7 +135,9 @@ class ElementDefinitionExample extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +156,9 @@ class ElementDefinitionExample extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +186,9 @@ class ElementDefinitionExample extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +204,9 @@ class ElementDefinitionExample extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'label', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -213,7 +221,9 @@ class ElementDefinitionExample extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'valueBase64Binary', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -228,7 +238,9 @@ class ElementDefinitionExample extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'valueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -243,7 +255,9 @@ class ElementDefinitionExample extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'valueCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,7 +272,9 @@ class ElementDefinitionExample extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'valueCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +289,9 @@ class ElementDefinitionExample extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'valueDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -288,7 +306,9 @@ class ElementDefinitionExample extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'valueDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -303,7 +323,9 @@ class ElementDefinitionExample extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'valueDecimal', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -318,7 +340,9 @@ class ElementDefinitionExample extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'valueId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -333,7 +357,9 @@ class ElementDefinitionExample extends Element {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'valueInstant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -348,7 +374,9 @@ class ElementDefinitionExample extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'valueInteger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -363,7 +391,9 @@ class ElementDefinitionExample extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'valueMarkdown', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -378,7 +408,9 @@ class ElementDefinitionExample extends Element {
          * @property {oid|undefined}
         */
         Object.defineProperty(this, 'valueOid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +425,9 @@ class ElementDefinitionExample extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'valuePositiveInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -408,7 +442,9 @@ class ElementDefinitionExample extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'valueString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -423,7 +459,9 @@ class ElementDefinitionExample extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'valueTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -438,7 +476,9 @@ class ElementDefinitionExample extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'valueUnsignedInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -453,7 +493,9 @@ class ElementDefinitionExample extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'valueUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -468,7 +510,9 @@ class ElementDefinitionExample extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'valueUrl', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -483,7 +527,9 @@ class ElementDefinitionExample extends Element {
          * @property {uuid|undefined}
         */
         Object.defineProperty(this, 'valueUuid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -498,7 +544,9 @@ class ElementDefinitionExample extends Element {
          * @property {Address|undefined}
         */
         Object.defineProperty(this, 'valueAddress', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -514,7 +562,9 @@ class ElementDefinitionExample extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -530,7 +580,9 @@ class ElementDefinitionExample extends Element {
          * @property {Annotation|undefined}
         */
         Object.defineProperty(this, 'valueAnnotation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -546,7 +598,9 @@ class ElementDefinitionExample extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'valueAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -562,7 +616,9 @@ class ElementDefinitionExample extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'valueCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -578,7 +634,9 @@ class ElementDefinitionExample extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'valueCoding', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -594,7 +652,9 @@ class ElementDefinitionExample extends Element {
          * @property {ContactPoint|undefined}
         */
         Object.defineProperty(this, 'valueContactPoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -610,7 +670,9 @@ class ElementDefinitionExample extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueCount', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -626,7 +688,9 @@ class ElementDefinitionExample extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueDistance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -642,7 +706,9 @@ class ElementDefinitionExample extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -658,7 +724,9 @@ class ElementDefinitionExample extends Element {
          * @property {HumanName|undefined}
         */
         Object.defineProperty(this, 'valueHumanName', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -674,7 +742,9 @@ class ElementDefinitionExample extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'valueIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -690,7 +760,9 @@ class ElementDefinitionExample extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'valueMoney', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -706,7 +778,9 @@ class ElementDefinitionExample extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'valuePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -722,7 +796,9 @@ class ElementDefinitionExample extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -738,7 +814,9 @@ class ElementDefinitionExample extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'valueRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -754,7 +832,9 @@ class ElementDefinitionExample extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'valueRatio', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -770,7 +850,9 @@ class ElementDefinitionExample extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'valueReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -786,7 +868,9 @@ class ElementDefinitionExample extends Element {
          * @property {SampledData|undefined}
         */
         Object.defineProperty(this, 'valueSampledData', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -802,7 +886,9 @@ class ElementDefinitionExample extends Element {
          * @property {Signature|undefined}
         */
         Object.defineProperty(this, 'valueSignature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -818,7 +904,9 @@ class ElementDefinitionExample extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'valueTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -834,7 +922,9 @@ class ElementDefinitionExample extends Element {
          * @property {ContactDetail|undefined}
         */
         Object.defineProperty(this, 'valueContactDetail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -850,7 +940,9 @@ class ElementDefinitionExample extends Element {
          * @property {Contributor|undefined}
         */
         Object.defineProperty(this, 'valueContributor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -866,7 +958,9 @@ class ElementDefinitionExample extends Element {
          * @property {DataRequirement|undefined}
         */
         Object.defineProperty(this, 'valueDataRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -882,7 +976,9 @@ class ElementDefinitionExample extends Element {
          * @property {Expression|undefined}
         */
         Object.defineProperty(this, 'valueExpression', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -898,7 +994,9 @@ class ElementDefinitionExample extends Element {
          * @property {ParameterDefinition|undefined}
         */
         Object.defineProperty(this, 'valueParameterDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -914,7 +1012,9 @@ class ElementDefinitionExample extends Element {
          * @property {RelatedArtifact|undefined}
         */
         Object.defineProperty(this, 'valueRelatedArtifact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -930,7 +1030,9 @@ class ElementDefinitionExample extends Element {
          * @property {TriggerDefinition|undefined}
         */
         Object.defineProperty(this, 'valueTriggerDefinition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -946,7 +1048,9 @@ class ElementDefinitionExample extends Element {
          * @property {UsageContext|undefined}
         */
         Object.defineProperty(this, 'valueUsageContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -962,7 +1066,9 @@ class ElementDefinitionExample extends Element {
          * @property {Dosage|undefined}
         */
         Object.defineProperty(this, 'valueDosage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -978,7 +1084,9 @@ class ElementDefinitionExample extends Element {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'valueMeta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -989,6 +1097,7 @@ class ElementDefinitionExample extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -1046,13 +1155,6 @@ class ElementDefinitionExample extends Element {
             valueMeta,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ElementDefinitionExample',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

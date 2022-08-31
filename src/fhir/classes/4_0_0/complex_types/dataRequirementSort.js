@@ -35,7 +35,9 @@ class DataRequirementSort extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -54,7 +56,9 @@ class DataRequirementSort extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -73,7 +77,9 @@ class DataRequirementSort extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'path', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +94,9 @@ class DataRequirementSort extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'direction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.direction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,6 +106,7 @@ class DataRequirementSort extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -105,13 +114,6 @@ class DataRequirementSort extends Element {
             direction,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DataRequirementSort',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

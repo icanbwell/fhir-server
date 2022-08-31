@@ -44,7 +44,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Ratio}
         */
         Object.defineProperty(this, 'presentation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.presentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'presentationLowLimit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.presentationLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +152,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'concentration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.concentration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'concentrationLowLimit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.concentrationLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +189,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'measurementPoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.measurementPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +206,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'country', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +224,9 @@ class MedicinalProductIngredientStrength extends Element {
          * @property {MedicinalProductIngredientReferenceStrength[]|undefined}
         */
         Object.defineProperty(this, 'referenceStrength', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceStrength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,6 +237,7 @@ class MedicinalProductIngredientStrength extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -230,13 +251,6 @@ class MedicinalProductIngredientStrength extends Element {
             referenceStrength,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductIngredientStrength',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

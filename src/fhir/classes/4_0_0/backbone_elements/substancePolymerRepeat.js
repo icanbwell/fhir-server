@@ -38,7 +38,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -57,7 +59,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'numberOfUnits', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numberOfUnits,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +124,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'averageMolecularFormula', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.averageMolecularFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +141,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'repeatUnitAmountType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.repeatUnitAmountType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +159,9 @@ class SubstancePolymerRepeat extends Element {
          * @property {SubstancePolymerRepeatUnit[]|undefined}
         */
         Object.defineProperty(this, 'repeatUnit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.repeatUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,6 +172,7 @@ class SubstancePolymerRepeat extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -168,13 +183,6 @@ class SubstancePolymerRepeat extends Element {
             repeatUnit,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstancePolymerRepeat',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

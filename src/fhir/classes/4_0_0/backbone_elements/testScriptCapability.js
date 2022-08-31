@@ -45,7 +45,9 @@ class TestScriptCapability extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -64,7 +66,9 @@ class TestScriptCapability extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -92,7 +96,9 @@ class TestScriptCapability extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -109,7 +115,9 @@ class TestScriptCapability extends Element {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'required', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.required,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +133,9 @@ class TestScriptCapability extends Element {
          * @property {Boolean}
         */
         Object.defineProperty(this, 'validated', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +151,9 @@ class TestScriptCapability extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +168,9 @@ class TestScriptCapability extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'origin', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -171,7 +185,9 @@ class TestScriptCapability extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'destination', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -187,7 +203,9 @@ class TestScriptCapability extends Element {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'link', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +222,9 @@ class TestScriptCapability extends Element {
          * @property {canonical}
         */
         Object.defineProperty(this, 'capabilities', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.capabilities,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,6 +234,7 @@ class TestScriptCapability extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -227,13 +248,6 @@ class TestScriptCapability extends Element {
             capabilities,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'TestScriptCapability',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

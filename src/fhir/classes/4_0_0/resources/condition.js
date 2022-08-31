@@ -93,7 +93,9 @@ class Condition extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -110,7 +112,9 @@ class Condition extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +133,9 @@ class Condition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +150,9 @@ class Condition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +172,9 @@ class Condition extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +192,9 @@ class Condition extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +213,9 @@ class Condition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -229,7 +243,9 @@ class Condition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +263,9 @@ class Condition extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -263,7 +281,9 @@ class Condition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'clinicalStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.clinicalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -279,7 +299,9 @@ class Condition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'verificationStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.verificationStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +317,9 @@ class Condition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -312,7 +336,9 @@ class Condition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'severity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -328,7 +354,9 @@ class Condition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +372,9 @@ class Condition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'bodySite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -360,7 +390,9 @@ class Condition extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -377,7 +409,9 @@ class Condition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +427,9 @@ class Condition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'onsetDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -408,7 +444,9 @@ class Condition extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'onsetAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -424,7 +462,9 @@ class Condition extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'onsetPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -440,7 +480,9 @@ class Condition extends Resource {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'onsetRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -456,7 +498,9 @@ class Condition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'onsetString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -471,7 +515,9 @@ class Condition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'abatementDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.abatementDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -486,7 +532,9 @@ class Condition extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'abatementAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.abatementAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -502,7 +550,9 @@ class Condition extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'abatementPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.abatementPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,7 +568,9 @@ class Condition extends Resource {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'abatementRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.abatementRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -534,7 +586,9 @@ class Condition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'abatementString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.abatementString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -550,7 +604,9 @@ class Condition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'recordedDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recordedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -565,7 +621,9 @@ class Condition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'recorder', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -581,7 +639,9 @@ class Condition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'asserter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.asserter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -598,7 +658,9 @@ class Condition extends Resource {
          * @property {ConditionStage[]|undefined}
         */
         Object.defineProperty(this, 'stage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.stage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -615,7 +677,9 @@ class Condition extends Resource {
          * @property {ConditionEvidence[]|undefined}
         */
         Object.defineProperty(this, 'evidence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.evidence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -632,7 +696,9 @@ class Condition extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -643,6 +709,7 @@ class Condition extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -684,7 +751,8 @@ class Condition extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Condition',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

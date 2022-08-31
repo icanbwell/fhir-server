@@ -77,7 +77,9 @@ class NutritionOrder extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +96,9 @@ class NutritionOrder extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +117,9 @@ class NutritionOrder extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +134,9 @@ class NutritionOrder extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +156,9 @@ class NutritionOrder extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +176,9 @@ class NutritionOrder extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +197,9 @@ class NutritionOrder extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -213,7 +227,9 @@ class NutritionOrder extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,7 +246,9 @@ class NutritionOrder extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +265,9 @@ class NutritionOrder extends Resource {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -264,7 +284,9 @@ class NutritionOrder extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +302,9 @@ class NutritionOrder extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'instantiates', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiates,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +319,9 @@ class NutritionOrder extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -311,7 +337,9 @@ class NutritionOrder extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'intent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -327,7 +355,9 @@ class NutritionOrder extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +374,9 @@ class NutritionOrder extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -360,7 +392,9 @@ class NutritionOrder extends Resource {
          * @property {dateTime}
         */
         Object.defineProperty(this, 'dateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +410,9 @@ class NutritionOrder extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'orderer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.orderer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +429,9 @@ class NutritionOrder extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'allergyIntolerance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allergyIntolerance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -413,7 +451,9 @@ class NutritionOrder extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'foodPreferenceModifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.foodPreferenceModifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -438,7 +478,9 @@ class NutritionOrder extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'excludeFoodModifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.excludeFoodModifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -454,7 +496,9 @@ class NutritionOrder extends Resource {
          * @property {NutritionOrderOralDiet|undefined}
         */
         Object.defineProperty(this, 'oralDiet', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.oralDiet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -471,7 +515,9 @@ class NutritionOrder extends Resource {
          * @property {NutritionOrderSupplement[]|undefined}
         */
         Object.defineProperty(this, 'supplement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supplement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -488,7 +534,9 @@ class NutritionOrder extends Resource {
          * @property {NutritionOrderEnteralFormula|undefined}
         */
         Object.defineProperty(this, 'enteralFormula', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enteralFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -505,7 +553,9 @@ class NutritionOrder extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -516,6 +566,7 @@ class NutritionOrder extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -549,7 +600,8 @@ class NutritionOrder extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'NutritionOrder',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

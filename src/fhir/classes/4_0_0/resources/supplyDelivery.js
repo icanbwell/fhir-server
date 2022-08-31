@@ -68,7 +68,9 @@ class SupplyDelivery extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +87,9 @@ class SupplyDelivery extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +108,9 @@ class SupplyDelivery extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +125,9 @@ class SupplyDelivery extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +147,9 @@ class SupplyDelivery extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +167,9 @@ class SupplyDelivery extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,7 +188,9 @@ class SupplyDelivery extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +218,9 @@ class SupplyDelivery extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -221,7 +237,9 @@ class SupplyDelivery extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -237,7 +255,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +273,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,7 +291,9 @@ class SupplyDelivery extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -284,7 +308,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -301,7 +327,9 @@ class SupplyDelivery extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -317,7 +345,9 @@ class SupplyDelivery extends Resource {
          * @property {SupplyDeliverySuppliedItem|undefined}
         */
         Object.defineProperty(this, 'suppliedItem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.suppliedItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -333,7 +363,9 @@ class SupplyDelivery extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'occurrenceDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -348,7 +380,9 @@ class SupplyDelivery extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'occurrencePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrencePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -364,7 +398,9 @@ class SupplyDelivery extends Resource {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'occurrenceTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -380,7 +416,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'supplier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supplier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -397,7 +435,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'destination', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -413,7 +453,9 @@ class SupplyDelivery extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'receiver', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.receiver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -424,6 +466,7 @@ class SupplyDelivery extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -453,7 +496,8 @@ class SupplyDelivery extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'SupplyDelivery',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

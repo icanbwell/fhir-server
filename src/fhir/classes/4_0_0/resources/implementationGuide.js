@@ -85,7 +85,9 @@ class ImplementationGuide extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +104,9 @@ class ImplementationGuide extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +125,9 @@ class ImplementationGuide extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +142,9 @@ class ImplementationGuide extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +164,9 @@ class ImplementationGuide extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +184,9 @@ class ImplementationGuide extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +205,9 @@ class ImplementationGuide extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -221,7 +235,9 @@ class ImplementationGuide extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -243,7 +259,9 @@ class ImplementationGuide extends Resource {
          * @property {uri}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -263,7 +281,9 @@ class ImplementationGuide extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +300,9 @@ class ImplementationGuide extends Resource {
          * @property {String}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +317,9 @@ class ImplementationGuide extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -311,7 +335,9 @@ class ImplementationGuide extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -328,7 +354,9 @@ class ImplementationGuide extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'experimental', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -346,7 +374,9 @@ class ImplementationGuide extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -362,7 +392,9 @@ class ImplementationGuide extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -378,7 +410,9 @@ class ImplementationGuide extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -395,7 +429,9 @@ class ImplementationGuide extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -414,7 +450,9 @@ class ImplementationGuide extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -431,7 +469,9 @@ class ImplementationGuide extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -449,7 +489,9 @@ class ImplementationGuide extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'copyright', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -467,7 +509,9 @@ class ImplementationGuide extends Resource {
          * @property {id}
         */
         Object.defineProperty(this, 'packageId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.packageId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -483,7 +527,9 @@ class ImplementationGuide extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'license', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.license,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -501,7 +547,9 @@ class ImplementationGuide extends Resource {
          * @property {code[]}
         */
         Object.defineProperty(this, 'fhirVersion', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fhirVersion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,7 +566,9 @@ class ImplementationGuide extends Resource {
          * @property {ImplementationGuideDependsOn[]|undefined}
         */
         Object.defineProperty(this, 'dependsOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dependsOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -535,7 +585,9 @@ class ImplementationGuide extends Resource {
          * @property {ImplementationGuideGlobal[]|undefined}
         */
         Object.defineProperty(this, 'global', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.global,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -552,7 +604,9 @@ class ImplementationGuide extends Resource {
          * @property {ImplementationGuideDefinition|undefined}
         */
         Object.defineProperty(this, 'definition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -569,7 +623,9 @@ class ImplementationGuide extends Resource {
          * @property {ImplementationGuideManifest|undefined}
         */
         Object.defineProperty(this, 'manifest', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.manifest,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -580,6 +636,7 @@ class ImplementationGuide extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -616,7 +673,8 @@ class ImplementationGuide extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ImplementationGuide',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

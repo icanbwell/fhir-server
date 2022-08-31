@@ -46,7 +46,9 @@ class Attachment extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -65,7 +67,9 @@ class Attachment extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -83,7 +87,9 @@ class Attachment extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'contentType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -99,7 +105,9 @@ class Attachment extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +122,9 @@ class Attachment extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'data', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -129,7 +139,9 @@ class Attachment extends Element {
          * @property {url|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -145,7 +157,9 @@ class Attachment extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'size', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.size,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +174,9 @@ class Attachment extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'hash', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.hash,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +191,9 @@ class Attachment extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +208,9 @@ class Attachment extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'creation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.creation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -200,6 +220,7 @@ class Attachment extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -213,13 +234,6 @@ class Attachment extends Element {
             creation,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Attachment',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -43,7 +43,9 @@ class MarketingStatus extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -62,7 +64,9 @@ class MarketingStatus extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -90,7 +94,9 @@ class MarketingStatus extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class MarketingStatus extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'country', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class MarketingStatus extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class MarketingStatus extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +176,9 @@ class MarketingStatus extends Element {
          * @property {Period}
         */
         Object.defineProperty(this, 'dateRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dateRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +199,9 @@ class MarketingStatus extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'restoreDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.restoreDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -195,6 +211,7 @@ class MarketingStatus extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -206,13 +223,6 @@ class MarketingStatus extends Element {
             restoreDate,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MarketingStatus',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

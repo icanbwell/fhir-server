@@ -72,7 +72,9 @@ class Provenance extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +91,9 @@ class Provenance extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +112,9 @@ class Provenance extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +129,9 @@ class Provenance extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +151,9 @@ class Provenance extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +171,9 @@ class Provenance extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -180,7 +192,9 @@ class Provenance extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -208,7 +222,9 @@ class Provenance extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,7 +242,9 @@ class Provenance extends Resource {
          * @property {Reference[]}
         */
         Object.defineProperty(this, 'target', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,7 +260,9 @@ class Provenance extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'occurredPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurredPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,7 +278,9 @@ class Provenance extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'occurredDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurredDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +295,9 @@ class Provenance extends Resource {
          * @property {instant}
         */
         Object.defineProperty(this, 'recorded', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,7 +314,9 @@ class Provenance extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'policy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.policy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +331,9 @@ class Provenance extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +349,9 @@ class Provenance extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -339,7 +369,9 @@ class Provenance extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'activity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.activity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -356,7 +388,9 @@ class Provenance extends Resource {
          * @property {ProvenanceAgent[]}
         */
         Object.defineProperty(this, 'agent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.agent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -372,7 +406,9 @@ class Provenance extends Resource {
          * @property {ProvenanceEntity[]|undefined}
         */
         Object.defineProperty(this, 'entity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.entity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -389,7 +425,9 @@ class Provenance extends Resource {
          * @property {Signature[]|undefined}
         */
         Object.defineProperty(this, 'signature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.signature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -400,6 +438,7 @@ class Provenance extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -427,7 +466,8 @@ class Provenance extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Provenance',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

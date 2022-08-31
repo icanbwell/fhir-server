@@ -45,7 +45,9 @@ class PatientContact extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -64,7 +66,9 @@ class PatientContact extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -92,7 +96,9 @@ class PatientContact extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class PatientContact extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'relationship', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +132,9 @@ class PatientContact extends Element {
          * @property {HumanName|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +150,9 @@ class PatientContact extends Element {
          * @property {ContactPoint[]|undefined}
         */
         Object.defineProperty(this, 'telecom', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +168,9 @@ class PatientContact extends Element {
          * @property {Address|undefined}
         */
         Object.defineProperty(this, 'address', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +187,9 @@ class PatientContact extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'gender', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -189,7 +205,9 @@ class PatientContact extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'organization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.organization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +224,9 @@ class PatientContact extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -217,6 +237,7 @@ class PatientContact extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -230,13 +251,6 @@ class PatientContact extends Element {
             period,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'PatientContact',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

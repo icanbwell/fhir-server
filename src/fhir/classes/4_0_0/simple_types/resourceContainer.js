@@ -3,13 +3,16 @@ class ResourceContainer {
         // Create an object to store all props
         Object.defineProperty(this, '__data', {
             value: {},
-        }); // Define getters and setters as enumerable
+        });
+
+        // Define getters and setters as enumerable
 
         /**
          * @description None
          * @property {String|undefined}
          */
         Object.defineProperty(this, 'id', {
+            configurable: true,
             enumerable: true,
             get: () => this.__data.id,
             set: (value) => {
@@ -27,6 +30,7 @@ class ResourceContainer {
          */
         Object.defineProperty(this, 'meta', {
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: (value) => {
                 if (value === undefined || value === null) {

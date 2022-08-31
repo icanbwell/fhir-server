@@ -44,7 +44,9 @@ class DeviceUdiCarrier extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class DeviceUdiCarrier extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class DeviceUdiCarrier extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class DeviceUdiCarrier extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'deviceIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.deviceIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +140,9 @@ class DeviceUdiCarrier extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'issuer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.issuer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +161,9 @@ class DeviceUdiCarrier extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +182,9 @@ class DeviceUdiCarrier extends Element {
          * @property {base64Binary|undefined}
         */
         Object.defineProperty(this, 'carrierAIDC', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.carrierAIDC,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +200,9 @@ class DeviceUdiCarrier extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'carrierHRF', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.carrierHRF,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +217,9 @@ class DeviceUdiCarrier extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'entryType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.entryType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -211,6 +229,7 @@ class DeviceUdiCarrier extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -223,13 +242,6 @@ class DeviceUdiCarrier extends Element {
             entryType,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DeviceUdiCarrier',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

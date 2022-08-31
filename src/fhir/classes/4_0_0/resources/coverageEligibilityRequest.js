@@ -76,7 +76,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -93,7 +95,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +116,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,7 +133,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +155,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -165,7 +175,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -184,7 +196,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -212,7 +226,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -228,7 +244,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +262,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -259,7 +279,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -279,7 +301,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {code[]}
         */
         Object.defineProperty(this, 'purpose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +319,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -311,7 +337,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'servicedDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.servicedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -326,7 +354,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'servicedPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.servicedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,7 +372,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {dateTime}
         */
         Object.defineProperty(this, 'created', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.created,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -357,7 +389,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'enterer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enterer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -373,7 +407,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'provider', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -390,7 +426,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'insurer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.insurer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -406,7 +444,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'facility', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.facility,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -423,7 +463,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {CoverageEligibilityRequestSupportingInfo[]|undefined}
         */
         Object.defineProperty(this, 'supportingInfo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -440,7 +482,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {CoverageEligibilityRequestInsurance[]|undefined}
         */
         Object.defineProperty(this, 'insurance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.insurance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -457,7 +501,9 @@ class CoverageEligibilityRequest extends Resource {
          * @property {CoverageEligibilityRequestItem[]|undefined}
         */
         Object.defineProperty(this, 'item', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -468,6 +514,7 @@ class CoverageEligibilityRequest extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -499,7 +546,8 @@ class CoverageEligibilityRequest extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'CoverageEligibilityRequest',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

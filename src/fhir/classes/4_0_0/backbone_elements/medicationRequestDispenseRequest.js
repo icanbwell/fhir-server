@@ -48,7 +48,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -67,7 +69,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +99,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -111,7 +117,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {MedicationRequestInitialFill|undefined}
         */
         Object.defineProperty(this, 'initialFill', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.initialFill,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +136,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'dispenseInterval', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dispenseInterval,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -145,7 +155,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'validityPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.validityPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +179,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'numberOfRepeatsAllowed', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numberOfRepeatsAllowed,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +196,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'expectedSupplyDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.expectedSupplyDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +233,9 @@ class MedicationRequestDispenseRequest extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,6 +246,7 @@ class MedicationRequestDispenseRequest extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -239,13 +260,6 @@ class MedicationRequestDispenseRequest extends Element {
             performer,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicationRequestDispenseRequest',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -96,7 +96,9 @@ class CodeSystem extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +115,9 @@ class CodeSystem extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +136,9 @@ class CodeSystem extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +153,9 @@ class CodeSystem extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +175,9 @@ class CodeSystem extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +195,9 @@ class CodeSystem extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +216,9 @@ class CodeSystem extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -232,7 +246,9 @@ class CodeSystem extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -254,7 +270,9 @@ class CodeSystem extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -271,7 +289,9 @@ class CodeSystem extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -293,7 +313,9 @@ class CodeSystem extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -310,7 +332,9 @@ class CodeSystem extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -325,7 +349,9 @@ class CodeSystem extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -341,7 +367,9 @@ class CodeSystem extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -358,7 +386,9 @@ class CodeSystem extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'experimental', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +406,9 @@ class CodeSystem extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -391,7 +423,9 @@ class CodeSystem extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -407,7 +441,9 @@ class CodeSystem extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -424,7 +460,9 @@ class CodeSystem extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -443,7 +481,9 @@ class CodeSystem extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -459,7 +499,9 @@ class CodeSystem extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -476,7 +518,9 @@ class CodeSystem extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'purpose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -493,7 +537,9 @@ class CodeSystem extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'copyright', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -509,7 +555,9 @@ class CodeSystem extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'caseSensitive', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.caseSensitive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -524,7 +572,9 @@ class CodeSystem extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'valueSet', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -539,7 +589,9 @@ class CodeSystem extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'hierarchyMeaning', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.hierarchyMeaning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -554,7 +606,9 @@ class CodeSystem extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'compositional', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.compositional,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -571,7 +625,9 @@ class CodeSystem extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'versionNeeded', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.versionNeeded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -587,7 +643,9 @@ class CodeSystem extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'content', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.content,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -603,7 +661,9 @@ class CodeSystem extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'supplements', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supplements,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -620,7 +680,9 @@ class CodeSystem extends Resource {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'count', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.count,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -636,7 +698,9 @@ class CodeSystem extends Resource {
          * @property {CodeSystemFilter[]|undefined}
         */
         Object.defineProperty(this, 'filter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.filter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -653,7 +717,9 @@ class CodeSystem extends Resource {
          * @property {CodeSystemProperty[]|undefined}
         */
         Object.defineProperty(this, 'property', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -671,7 +737,9 @@ class CodeSystem extends Resource {
          * @property {CodeSystemConcept[]|undefined}
         */
         Object.defineProperty(this, 'concept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -682,6 +750,7 @@ class CodeSystem extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -724,7 +793,8 @@ class CodeSystem extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'CodeSystem',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

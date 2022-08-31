@@ -54,7 +54,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -73,7 +75,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +105,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +123,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Int}
         */
         Object.defineProperty(this, 'sequence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +141,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +161,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +179,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'timingDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -182,7 +196,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'timingPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +214,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'valueBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -213,7 +231,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'valueString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -228,7 +248,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'valueQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +266,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'valueAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +284,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'valueReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.valueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -277,7 +303,9 @@ class ExplanationOfBenefitSupportingInfo extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'reason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -288,6 +316,7 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -305,13 +334,6 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             reason,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ExplanationOfBenefitSupportingInfo',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

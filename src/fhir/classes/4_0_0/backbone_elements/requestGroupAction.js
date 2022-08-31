@@ -79,7 +79,9 @@ class RequestGroupAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +100,9 @@ class RequestGroupAction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +130,9 @@ class RequestGroupAction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +148,9 @@ class RequestGroupAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'prefix', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prefix,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +165,9 @@ class RequestGroupAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +183,9 @@ class RequestGroupAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +202,9 @@ class RequestGroupAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'textEquivalent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.textEquivalent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +220,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -222,7 +238,9 @@ class RequestGroupAction extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -240,7 +258,9 @@ class RequestGroupAction extends Element {
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'documentation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -257,7 +277,9 @@ class RequestGroupAction extends Element {
          * @property {RequestGroupCondition[]|undefined}
         */
         Object.defineProperty(this, 'condition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -274,7 +296,9 @@ class RequestGroupAction extends Element {
          * @property {RequestGroupRelatedAction[]|undefined}
         */
         Object.defineProperty(this, 'relatedAction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatedAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -290,7 +314,9 @@ class RequestGroupAction extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'timingDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +331,9 @@ class RequestGroupAction extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +349,9 @@ class RequestGroupAction extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'timingPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -337,7 +367,9 @@ class RequestGroupAction extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +385,9 @@ class RequestGroupAction extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'timingRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -369,7 +403,9 @@ class RequestGroupAction extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'timingTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -385,7 +421,9 @@ class RequestGroupAction extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'participant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -401,7 +439,9 @@ class RequestGroupAction extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -417,7 +457,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'groupingBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.groupingBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -432,7 +474,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'selectionBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.selectionBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -447,7 +491,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'requiredBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requiredBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -462,7 +508,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'precheckBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.precheckBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -477,7 +525,9 @@ class RequestGroupAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'cardinalityBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cardinalityBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -492,7 +542,9 @@ class RequestGroupAction extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'resource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -508,7 +560,9 @@ class RequestGroupAction extends Element {
          * @property {RequestGroupAction[]|undefined}
         */
         Object.defineProperty(this, 'action', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,6 +572,7 @@ class RequestGroupAction extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -548,13 +603,6 @@ class RequestGroupAction extends Element {
             action,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'RequestGroupAction',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

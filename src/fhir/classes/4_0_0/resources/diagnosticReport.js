@@ -84,7 +84,9 @@ class DiagnosticReport extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +103,9 @@ class DiagnosticReport extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +124,9 @@ class DiagnosticReport extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +141,9 @@ class DiagnosticReport extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +163,9 @@ class DiagnosticReport extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +183,9 @@ class DiagnosticReport extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -192,7 +204,9 @@ class DiagnosticReport extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -220,7 +234,9 @@ class DiagnosticReport extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -236,7 +252,9 @@ class DiagnosticReport extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +270,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -268,7 +288,9 @@ class DiagnosticReport extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -285,7 +307,9 @@ class DiagnosticReport extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -301,7 +325,9 @@ class DiagnosticReport extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -319,7 +345,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -336,7 +364,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -352,7 +382,9 @@ class DiagnosticReport extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'effectiveDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -367,7 +399,9 @@ class DiagnosticReport extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'effectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -384,7 +418,9 @@ class DiagnosticReport extends Resource {
          * @property {instant|undefined}
         */
         Object.defineProperty(this, 'issued', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.issued,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -399,7 +435,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -416,7 +454,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'resultsInterpreter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resultsInterpreter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -432,7 +472,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'specimen', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specimen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -448,7 +490,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'result', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.result,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -467,7 +511,9 @@ class DiagnosticReport extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'imagingStudy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.imagingStudy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -485,7 +531,9 @@ class DiagnosticReport extends Resource {
          * @property {DiagnosticReportMedia[]|undefined}
         */
         Object.defineProperty(this, 'media', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.media,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -502,7 +550,9 @@ class DiagnosticReport extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'conclusion', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conclusion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -518,7 +568,9 @@ class DiagnosticReport extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'conclusionCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conclusionCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -536,7 +588,9 @@ class DiagnosticReport extends Resource {
          * @property {Attachment[]|undefined}
         */
         Object.defineProperty(this, 'presentedForm', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.presentedForm,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -547,6 +601,7 @@ class DiagnosticReport extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -582,7 +637,8 @@ class DiagnosticReport extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'DiagnosticReport',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

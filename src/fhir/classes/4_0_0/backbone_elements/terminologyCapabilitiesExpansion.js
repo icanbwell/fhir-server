@@ -42,7 +42,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'hierarchical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.hierarchical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'paging', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.paging,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +145,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'incomplete', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.incomplete,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +162,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {TerminologyCapabilitiesParameter[]|undefined}
         */
         Object.defineProperty(this, 'parameter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +180,9 @@ class TerminologyCapabilitiesExpansion extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'textFilter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.textFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,6 +192,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -187,13 +204,6 @@ class TerminologyCapabilitiesExpansion extends Element {
             textFilter,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'TerminologyCapabilitiesExpansion',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -40,7 +40,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +91,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'variantType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variantType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'exact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -135,7 +145,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'length', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +162,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {MolecularSequenceOuter|undefined}
         */
         Object.defineProperty(this, 'outer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +180,9 @@ class MolecularSequenceStructureVariant extends Element {
          * @property {MolecularSequenceInner|undefined}
         */
         Object.defineProperty(this, 'inner', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.inner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -177,6 +193,7 @@ class MolecularSequenceStructureVariant extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -188,13 +205,6 @@ class MolecularSequenceStructureVariant extends Element {
             inner,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MolecularSequenceStructureVariant',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

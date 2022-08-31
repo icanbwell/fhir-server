@@ -50,7 +50,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -69,7 +71,9 @@ class ExampleScenarioOperation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +101,9 @@ class ExampleScenarioOperation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +119,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String}
         */
         Object.defineProperty(this, 'number', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +136,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,7 +170,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'initiator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.initiator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +187,9 @@ class ExampleScenarioOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'receiver', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.receiver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -188,7 +204,9 @@ class ExampleScenarioOperation extends Element {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +221,9 @@ class ExampleScenarioOperation extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'initiatorActive', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.initiatorActive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -218,7 +238,9 @@ class ExampleScenarioOperation extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'receiverActive', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.receiverActive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +255,9 @@ class ExampleScenarioOperation extends Element {
          * @property {ExampleScenarioContainedInstance|undefined}
         */
         Object.defineProperty(this, 'request', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,7 +273,9 @@ class ExampleScenarioOperation extends Element {
          * @property {ExampleScenarioContainedInstance|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,6 +286,7 @@ class ExampleScenarioOperation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -276,13 +303,6 @@ class ExampleScenarioOperation extends Element {
             response,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ExampleScenarioOperation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

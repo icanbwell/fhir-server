@@ -34,7 +34,9 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -53,7 +55,9 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -81,7 +85,9 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -97,7 +103,9 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
          * @property {Identifier}
         */
         Object.defineProperty(this, 'outerPackaging', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outerPackaging,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -113,7 +121,9 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'immediatePackaging', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.immediatePackaging,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,6 +134,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -132,13 +143,6 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             immediatePackaging,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicinalProductPackagedBatchIdentifier',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

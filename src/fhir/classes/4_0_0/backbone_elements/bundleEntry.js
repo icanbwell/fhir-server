@@ -42,7 +42,9 @@ class BundleEntry extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -61,7 +63,9 @@ class BundleEntry extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +93,9 @@ class BundleEntry extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +111,9 @@ class BundleEntry extends Element {
          * @property {BundleLink[]|undefined}
         */
         Object.defineProperty(this, 'link', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +136,9 @@ class BundleEntry extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'fullUrl', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fullUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class BundleEntry extends Element {
          * @property {ResourceContainer|undefined}
         */
         Object.defineProperty(this, 'resource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class BundleEntry extends Element {
          * @property {BundleSearch|undefined}
         */
         Object.defineProperty(this, 'search', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.search,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -177,7 +191,9 @@ class BundleEntry extends Element {
          * @property {BundleRequest|undefined}
         */
         Object.defineProperty(this, 'request', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -195,7 +211,9 @@ class BundleEntry extends Element {
          * @property {BundleResponse|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,6 +224,7 @@ class BundleEntry extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -218,13 +237,6 @@ class BundleEntry extends Element {
             response,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'BundleEntry',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

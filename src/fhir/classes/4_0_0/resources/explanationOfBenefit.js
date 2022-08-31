@@ -130,7 +130,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +149,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -166,7 +170,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -181,7 +187,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +209,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +229,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -238,7 +250,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -266,7 +280,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +298,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -298,7 +316,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -314,7 +334,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -331,7 +353,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'subType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -351,7 +375,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'use', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -368,7 +394,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -384,7 +412,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'billablePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.billablePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -400,7 +430,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {dateTime}
         */
         Object.defineProperty(this, 'created', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.created,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -415,7 +447,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'enterer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enterer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -431,7 +465,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'insurer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.insurer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -448,7 +484,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'provider', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -465,7 +503,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -482,7 +522,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'fundsReserveRequested', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fundsReserveRequested,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -499,7 +541,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'fundsReserve', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fundsReserve,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -516,7 +560,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitRelated[]|undefined}
         */
         Object.defineProperty(this, 'related', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.related,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -532,7 +578,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'prescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -549,7 +597,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'originalPrescription', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.originalPrescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -566,7 +616,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitPayee|undefined}
         */
         Object.defineProperty(this, 'payee', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payee,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -582,7 +634,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'referral', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referral,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -598,7 +652,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'facility', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.facility,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -615,7 +671,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'claim', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.claim,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -632,7 +690,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'claimResponse', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.claimResponse,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -648,7 +708,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'outcome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -663,7 +725,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'disposition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.disposition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -679,7 +743,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'preAuthRef', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.preAuthRef,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -695,7 +761,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Period[]|undefined}
         */
         Object.defineProperty(this, 'preAuthRefPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.preAuthRefPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -711,7 +779,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitCareTeam[]|undefined}
         */
         Object.defineProperty(this, 'careTeam', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.careTeam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -728,7 +798,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitSupportingInfo[]|undefined}
         */
         Object.defineProperty(this, 'supportingInfo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -744,7 +816,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitDiagnosis[]|undefined}
         */
         Object.defineProperty(this, 'diagnosis', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.diagnosis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -761,7 +835,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitProcedure[]|undefined}
         */
         Object.defineProperty(this, 'procedure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.procedure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -778,7 +854,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'precedence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.precedence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -794,7 +872,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitInsurance[]}
         */
         Object.defineProperty(this, 'insurance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.insurance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -811,7 +891,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitAccident|undefined}
         */
         Object.defineProperty(this, 'accident', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.accident,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -828,7 +910,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitItem[]|undefined}
         */
         Object.defineProperty(this, 'item', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -844,7 +928,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitAddItem[]|undefined}
         */
         Object.defineProperty(this, 'addItem', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.addItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -861,7 +947,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitAdjudication[]|undefined}
         */
         Object.defineProperty(this, 'adjudication', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.adjudication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -877,7 +965,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitTotal[]|undefined}
         */
         Object.defineProperty(this, 'total', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.total,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -893,7 +983,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitPayment|undefined}
         */
         Object.defineProperty(this, 'payment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -909,7 +1001,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'formCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.formCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -926,7 +1020,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'form', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.form,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -943,7 +1039,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitProcessNote[]|undefined}
         */
         Object.defineProperty(this, 'processNote', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.processNote,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -959,7 +1057,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'benefitPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.benefitPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -975,7 +1075,9 @@ class ExplanationOfBenefit extends Resource {
          * @property {ExplanationOfBenefitBenefitBalance[]|undefined}
         */
         Object.defineProperty(this, 'benefitBalance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.benefitBalance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -986,6 +1088,7 @@ class ExplanationOfBenefit extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -1045,7 +1148,8 @@ class ExplanationOfBenefit extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ExplanationOfBenefit',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

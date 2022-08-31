@@ -108,7 +108,9 @@ class Procedure extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +127,9 @@ class Procedure extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +148,9 @@ class Procedure extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +165,9 @@ class Procedure extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +187,9 @@ class Procedure extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +207,9 @@ class Procedure extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +228,9 @@ class Procedure extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +258,9 @@ class Procedure extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -262,7 +278,9 @@ class Procedure extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -279,7 +297,9 @@ class Procedure extends Resource {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +315,9 @@ class Procedure extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'instantiatesUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -311,7 +333,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'basedOn', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -327,7 +351,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +370,9 @@ class Procedure extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +387,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'statusReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -376,7 +406,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -393,7 +425,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -409,7 +443,9 @@ class Procedure extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -426,7 +462,9 @@ class Procedure extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -442,7 +480,9 @@ class Procedure extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'performedDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -457,7 +497,9 @@ class Procedure extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'performedPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -473,7 +515,9 @@ class Procedure extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'performedString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performedString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -488,7 +532,9 @@ class Procedure extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'performedAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performedAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -504,7 +550,9 @@ class Procedure extends Resource {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'performedRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performedRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -520,7 +568,9 @@ class Procedure extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'recorder', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -536,7 +586,9 @@ class Procedure extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'asserter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.asserter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -552,7 +604,9 @@ class Procedure extends Resource {
          * @property {ProcedurePerformer[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -569,7 +623,9 @@ class Procedure extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -586,7 +642,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reasonCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -602,7 +660,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'reasonReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -619,7 +679,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'bodySite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -636,7 +698,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'outcome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -652,7 +716,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'report', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.report,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -671,7 +737,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'complication', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.complication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -688,7 +756,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'complicationDetail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.complicationDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -706,7 +776,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'followUp', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.followUp,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -722,7 +794,9 @@ class Procedure extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -740,7 +814,9 @@ class Procedure extends Resource {
          * @property {ProcedureFocalDevice[]|undefined}
         */
         Object.defineProperty(this, 'focalDevice', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.focalDevice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -757,7 +833,9 @@ class Procedure extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'usedReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usedReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -773,7 +851,9 @@ class Procedure extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'usedCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usedCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -784,6 +864,7 @@ class Procedure extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -832,7 +913,8 @@ class Procedure extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'Procedure',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

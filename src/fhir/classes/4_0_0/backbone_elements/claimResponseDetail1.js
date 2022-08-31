@@ -49,7 +49,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'productOrService', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productOrService,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +139,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'modifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -147,7 +157,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +176,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'unitPrice', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unitPrice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,7 +197,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'factor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.factor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'net', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.net,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +234,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'noteNumber', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.noteNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +251,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {ClaimResponseAdjudication[]}
         */
         Object.defineProperty(this, 'adjudication', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.adjudication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -247,7 +269,9 @@ class ClaimResponseDetail1 extends Element {
          * @property {ClaimResponseSubDetail1[]|undefined}
         */
         Object.defineProperty(this, 'subDetail', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,6 +282,7 @@ class ClaimResponseDetail1 extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -273,13 +298,6 @@ class ClaimResponseDetail1 extends Element {
             subDetail,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ClaimResponseDetail1',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

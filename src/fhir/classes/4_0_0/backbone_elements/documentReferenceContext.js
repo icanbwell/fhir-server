@@ -48,7 +48,9 @@ class DocumentReferenceContext extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -67,7 +69,9 @@ class DocumentReferenceContext extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +99,9 @@ class DocumentReferenceContext extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +118,9 @@ class DocumentReferenceContext extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +139,9 @@ class DocumentReferenceContext extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'event', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.event,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +158,9 @@ class DocumentReferenceContext extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +176,9 @@ class DocumentReferenceContext extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'facilityType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.facilityType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -181,7 +195,9 @@ class DocumentReferenceContext extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'practiceSetting', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.practiceSetting,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -198,7 +214,9 @@ class DocumentReferenceContext extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'sourcePatientInfo', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourcePatientInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -214,7 +232,9 @@ class DocumentReferenceContext extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'related', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.related,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,6 +245,7 @@ class DocumentReferenceContext extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -238,13 +259,6 @@ class DocumentReferenceContext extends Element {
             related,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DocumentReferenceContext',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

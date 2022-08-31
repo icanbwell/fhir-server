@@ -40,7 +40,9 @@ class LocationHoursOfOperation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -59,7 +61,9 @@ class LocationHoursOfOperation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -87,7 +91,9 @@ class LocationHoursOfOperation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -104,7 +110,9 @@ class LocationHoursOfOperation extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'daysOfWeek', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.daysOfWeek,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +127,9 @@ class LocationHoursOfOperation extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'allDay', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +144,9 @@ class LocationHoursOfOperation extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'openingTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.openingTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +161,9 @@ class LocationHoursOfOperation extends Element {
          * @property {time|undefined}
         */
         Object.defineProperty(this, 'closingTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.closingTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,6 +173,7 @@ class LocationHoursOfOperation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -169,13 +184,6 @@ class LocationHoursOfOperation extends Element {
             closingTime,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'LocationHoursOfOperation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -55,7 +55,9 @@ class ProdCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -74,7 +76,9 @@ class ProdCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +106,9 @@ class ProdCharacteristic extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +127,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'height', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.height,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +148,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'width', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.width,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +169,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'depth', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.depth,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +190,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'weight', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.weight,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -197,7 +211,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'nominalVolume', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nominalVolume,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -216,7 +232,9 @@ class ProdCharacteristic extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'externalDiameter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.externalDiameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -233,7 +251,9 @@ class ProdCharacteristic extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'shape', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.shape,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,7 +269,9 @@ class ProdCharacteristic extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'color', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.color,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -264,7 +286,9 @@ class ProdCharacteristic extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'imprint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.imprint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -280,7 +304,9 @@ class ProdCharacteristic extends Element {
          * @property {Attachment[]|undefined}
         */
         Object.defineProperty(this, 'image', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.image,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +323,9 @@ class ProdCharacteristic extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'scoring', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.scoring,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -308,6 +336,7 @@ class ProdCharacteristic extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -325,13 +354,6 @@ class ProdCharacteristic extends Element {
             scoring,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ProdCharacteristic',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

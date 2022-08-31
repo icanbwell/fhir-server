@@ -48,7 +48,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -67,7 +69,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -95,7 +99,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -111,7 +117,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'material', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.material,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -127,7 +135,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'cap', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cap,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'capacity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.capacity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +206,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'minimumVolumeQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.minimumVolumeQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +224,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'minimumVolumeString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.minimumVolumeString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -222,7 +242,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {SpecimenDefinitionAdditive[]|undefined}
         */
         Object.defineProperty(this, 'additive', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.additive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -239,7 +261,9 @@ class SpecimenDefinitionContainer extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'preparation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.preparation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -249,6 +273,7 @@ class SpecimenDefinitionContainer extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -264,13 +289,6 @@ class SpecimenDefinitionContainer extends Element {
             preparation,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SpecimenDefinitionContainer',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

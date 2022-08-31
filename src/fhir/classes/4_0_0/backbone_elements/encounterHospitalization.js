@@ -49,7 +49,9 @@ class EncounterHospitalization extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class EncounterHospitalization extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class EncounterHospitalization extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -112,7 +118,9 @@ class EncounterHospitalization extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'preAdmissionIdentifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.preAdmissionIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -128,7 +136,9 @@ class EncounterHospitalization extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'origin', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -144,7 +154,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'admitSource', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.admitSource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -160,7 +172,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'reAdmission', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reAdmission,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,7 +190,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'dietPreference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dietPreference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -192,7 +208,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'specialCourtesy', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specialCourtesy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'specialArrangement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specialArrangement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -225,7 +245,9 @@ class EncounterHospitalization extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'destination', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -241,7 +263,9 @@ class EncounterHospitalization extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'dischargeDisposition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dischargeDisposition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,6 +276,7 @@ class EncounterHospitalization extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -267,13 +292,6 @@ class EncounterHospitalization extends Element {
             dischargeDisposition,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'EncounterHospitalization',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

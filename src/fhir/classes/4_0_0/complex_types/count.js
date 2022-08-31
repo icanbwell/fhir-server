@@ -39,7 +39,9 @@ class Count extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'value', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -56,7 +58,9 @@ class Count extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'comparator', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.comparator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -71,7 +75,9 @@ class Count extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'unit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +92,9 @@ class Count extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'system', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +109,9 @@ class Count extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -111,6 +121,7 @@ class Count extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             value,
             comparator,
@@ -119,13 +130,6 @@ class Count extends Element {
             code,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Count',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

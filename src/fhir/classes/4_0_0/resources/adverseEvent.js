@@ -85,7 +85,9 @@ class AdverseEvent extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -102,7 +104,9 @@ class AdverseEvent extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +125,9 @@ class AdverseEvent extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +142,9 @@ class AdverseEvent extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -156,7 +164,9 @@ class AdverseEvent extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +184,9 @@ class AdverseEvent extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +205,9 @@ class AdverseEvent extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -221,7 +235,9 @@ class AdverseEvent extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -239,7 +255,9 @@ class AdverseEvent extends Resource {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -256,7 +274,9 @@ class AdverseEvent extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'actuality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.actuality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -271,7 +291,9 @@ class AdverseEvent extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -288,7 +310,9 @@ class AdverseEvent extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'event', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.event,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -304,7 +328,9 @@ class AdverseEvent extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -321,7 +347,9 @@ class AdverseEvent extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -337,7 +365,9 @@ class AdverseEvent extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -353,7 +383,9 @@ class AdverseEvent extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'detected', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.detected,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -368,7 +400,9 @@ class AdverseEvent extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'recordedDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recordedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -384,7 +418,9 @@ class AdverseEvent extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'resultingCondition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.resultingCondition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -400,7 +436,9 @@ class AdverseEvent extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -416,7 +454,9 @@ class AdverseEvent extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'seriousness', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.seriousness,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -434,7 +474,9 @@ class AdverseEvent extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'severity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -450,7 +492,9 @@ class AdverseEvent extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'outcome', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -467,7 +511,9 @@ class AdverseEvent extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'recorder', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -488,7 +534,9 @@ class AdverseEvent extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'contributor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -504,7 +552,9 @@ class AdverseEvent extends Resource {
          * @property {AdverseEventSuspectEntity[]|undefined}
         */
         Object.defineProperty(this, 'suspectEntity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.suspectEntity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -520,7 +570,9 @@ class AdverseEvent extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'subjectMedicalHistory', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectMedicalHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -536,7 +588,9 @@ class AdverseEvent extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'referenceDocument', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.referenceDocument,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -552,7 +606,9 @@ class AdverseEvent extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'study', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.study,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -563,6 +619,7 @@ class AdverseEvent extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -599,7 +656,8 @@ class AdverseEvent extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'AdverseEvent',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

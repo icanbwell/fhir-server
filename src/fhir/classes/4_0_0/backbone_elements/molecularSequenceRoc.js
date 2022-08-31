@@ -44,7 +44,9 @@ class MolecularSequenceRoc extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -63,7 +65,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -91,7 +95,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +113,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'score', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.score,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -123,7 +131,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'numTP', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numTP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +149,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'numFP', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numFP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +167,9 @@ class MolecularSequenceRoc extends Element {
          * @property {Int[]|undefined}
         */
         Object.defineProperty(this, 'numFN', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numFN,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +184,9 @@ class MolecularSequenceRoc extends Element {
          * @property {decimal[]|undefined}
         */
         Object.defineProperty(this, 'precision', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.precision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +202,9 @@ class MolecularSequenceRoc extends Element {
          * @property {decimal[]|undefined}
         */
         Object.defineProperty(this, 'sensitivity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sensitivity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +219,9 @@ class MolecularSequenceRoc extends Element {
          * @property {decimal[]|undefined}
         */
         Object.defineProperty(this, 'fMeasure', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -211,6 +231,7 @@ class MolecularSequenceRoc extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -224,13 +245,6 @@ class MolecularSequenceRoc extends Element {
             fMeasure,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MolecularSequenceRoc',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

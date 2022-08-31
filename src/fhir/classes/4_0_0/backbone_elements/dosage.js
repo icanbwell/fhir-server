@@ -60,7 +60,9 @@ class Dosage extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -79,7 +81,9 @@ class Dosage extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -107,7 +111,9 @@ class Dosage extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +130,9 @@ class Dosage extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'sequence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +147,9 @@ class Dosage extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +167,9 @@ class Dosage extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'additionalInstruction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.additionalInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +185,9 @@ class Dosage extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'patientInstruction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patientInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -188,7 +202,9 @@ class Dosage extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'timing', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timing,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +220,9 @@ class Dosage extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'asNeededBoolean', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.asNeededBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +237,9 @@ class Dosage extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'asNeededCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.asNeededCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,7 +255,9 @@ class Dosage extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'site', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -251,7 +273,9 @@ class Dosage extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'route', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.route,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +291,9 @@ class Dosage extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'method', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -283,7 +309,9 @@ class Dosage extends Element {
          * @property {DosageDoseAndRate[]|undefined}
         */
         Object.defineProperty(this, 'doseAndRate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doseAndRate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -299,7 +327,9 @@ class Dosage extends Element {
          * @property {Ratio|undefined}
         */
         Object.defineProperty(this, 'maxDosePerPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxDosePerPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -315,7 +345,9 @@ class Dosage extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxDosePerAdministration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxDosePerAdministration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -331,7 +363,9 @@ class Dosage extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'maxDosePerLifetime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.maxDosePerLifetime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,6 +376,7 @@ class Dosage extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -362,13 +397,6 @@ class Dosage extends Element {
             maxDosePerLifetime,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'Dosage',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

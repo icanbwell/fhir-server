@@ -101,7 +101,9 @@ class PlanDefinitionAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +122,9 @@ class PlanDefinitionAction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -148,7 +152,9 @@ class PlanDefinitionAction extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -164,7 +170,9 @@ class PlanDefinitionAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'prefix', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.prefix,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -179,7 +187,9 @@ class PlanDefinitionAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -195,7 +205,9 @@ class PlanDefinitionAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -212,7 +224,9 @@ class PlanDefinitionAction extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'textEquivalent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.textEquivalent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -228,7 +242,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -244,7 +260,9 @@ class PlanDefinitionAction extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -260,7 +278,9 @@ class PlanDefinitionAction extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -278,7 +298,9 @@ class PlanDefinitionAction extends Element {
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'documentation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -295,7 +317,9 @@ class PlanDefinitionAction extends Element {
          * @property {id[]|undefined}
         */
         Object.defineProperty(this, 'goalId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.goalId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -310,7 +334,9 @@ class PlanDefinitionAction extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'subjectCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -326,7 +352,9 @@ class PlanDefinitionAction extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subjectReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,7 +370,9 @@ class PlanDefinitionAction extends Element {
          * @property {TriggerDefinition[]|undefined}
         */
         Object.defineProperty(this, 'trigger', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.trigger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +389,9 @@ class PlanDefinitionAction extends Element {
          * @property {PlanDefinitionCondition[]|undefined}
         */
         Object.defineProperty(this, 'condition', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -375,7 +407,9 @@ class PlanDefinitionAction extends Element {
          * @property {DataRequirement[]|undefined}
         */
         Object.defineProperty(this, 'input', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.input,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -391,7 +425,9 @@ class PlanDefinitionAction extends Element {
          * @property {DataRequirement[]|undefined}
         */
         Object.defineProperty(this, 'output', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.output,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -408,7 +444,9 @@ class PlanDefinitionAction extends Element {
          * @property {PlanDefinitionRelatedAction[]|undefined}
         */
         Object.defineProperty(this, 'relatedAction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatedAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -424,7 +462,9 @@ class PlanDefinitionAction extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'timingDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -439,7 +479,9 @@ class PlanDefinitionAction extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -455,7 +497,9 @@ class PlanDefinitionAction extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'timingPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -471,7 +515,9 @@ class PlanDefinitionAction extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -487,7 +533,9 @@ class PlanDefinitionAction extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'timingRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -503,7 +551,9 @@ class PlanDefinitionAction extends Element {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'timingTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -519,7 +569,9 @@ class PlanDefinitionAction extends Element {
          * @property {PlanDefinitionParticipant[]|undefined}
         */
         Object.defineProperty(this, 'participant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -535,7 +587,9 @@ class PlanDefinitionAction extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -551,7 +605,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'groupingBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.groupingBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -566,7 +622,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'selectionBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.selectionBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -581,7 +639,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'requiredBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requiredBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -596,7 +656,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'precheckBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.precheckBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -611,7 +673,9 @@ class PlanDefinitionAction extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'cardinalityBehavior', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cardinalityBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -626,7 +690,9 @@ class PlanDefinitionAction extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'definitionCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -641,7 +707,9 @@ class PlanDefinitionAction extends Element {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'definitionUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -658,7 +726,9 @@ class PlanDefinitionAction extends Element {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'transform', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.transform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -676,7 +746,9 @@ class PlanDefinitionAction extends Element {
          * @property {PlanDefinitionDynamicValue[]|undefined}
         */
         Object.defineProperty(this, 'dynamicValue', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dynamicValue,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -695,7 +767,9 @@ class PlanDefinitionAction extends Element {
          * @property {PlanDefinitionAction[]|undefined}
         */
         Object.defineProperty(this, 'action', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -705,6 +779,7 @@ class PlanDefinitionAction extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -745,13 +820,6 @@ class PlanDefinitionAction extends Element {
             action,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'PlanDefinitionAction',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

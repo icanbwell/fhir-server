@@ -58,7 +58,9 @@ class ImagingStudySeries extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -77,7 +79,9 @@ class ImagingStudySeries extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -105,7 +109,9 @@ class ImagingStudySeries extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +127,9 @@ class ImagingStudySeries extends Element {
          * @property {id}
         */
         Object.defineProperty(this, 'uid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.uid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -136,7 +144,9 @@ class ImagingStudySeries extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'number', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -151,7 +161,9 @@ class ImagingStudySeries extends Element {
          * @property {Coding}
         */
         Object.defineProperty(this, 'modality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +179,9 @@ class ImagingStudySeries extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +199,9 @@ class ImagingStudySeries extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'numberOfInstances', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.numberOfInstances,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -203,7 +219,9 @@ class ImagingStudySeries extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'endpoint', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -223,7 +241,9 @@ class ImagingStudySeries extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'bodySite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,7 +262,9 @@ class ImagingStudySeries extends Element {
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'laterality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.laterality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,7 +280,9 @@ class ImagingStudySeries extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'specimen', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specimen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -274,7 +298,9 @@ class ImagingStudySeries extends Element {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'started', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.started,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -289,7 +315,9 @@ class ImagingStudySeries extends Element {
          * @property {ImagingStudyPerformer[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -305,7 +333,9 @@ class ImagingStudySeries extends Element {
          * @property {ImagingStudyInstance[]|undefined}
         */
         Object.defineProperty(this, 'instance', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.instance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -316,6 +346,7 @@ class ImagingStudySeries extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -334,13 +365,6 @@ class ImagingStudySeries extends Element {
             instance,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImagingStudySeries',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

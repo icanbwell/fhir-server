@@ -104,7 +104,9 @@ class ChargeItem extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -121,7 +123,9 @@ class ChargeItem extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +144,9 @@ class ChargeItem extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +161,9 @@ class ChargeItem extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -175,7 +183,9 @@ class ChargeItem extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +203,9 @@ class ChargeItem extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -212,7 +224,9 @@ class ChargeItem extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -240,7 +254,9 @@ class ChargeItem extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -256,7 +272,9 @@ class ChargeItem extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -273,7 +291,9 @@ class ChargeItem extends Resource {
          * @property {uri[]|undefined}
         */
         Object.defineProperty(this, 'definitionUri', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -289,7 +309,9 @@ class ChargeItem extends Resource {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'definitionCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -304,7 +326,9 @@ class ChargeItem extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -319,7 +343,9 @@ class ChargeItem extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'partOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -335,7 +361,9 @@ class ChargeItem extends Resource {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -351,7 +379,9 @@ class ChargeItem extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'subject', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -367,7 +397,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'context', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +415,9 @@ class ChargeItem extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'occurrenceDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -398,7 +432,9 @@ class ChargeItem extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'occurrencePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrencePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -414,7 +450,9 @@ class ChargeItem extends Resource {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'occurrenceTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.occurrenceTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -430,7 +468,9 @@ class ChargeItem extends Resource {
          * @property {ChargeItemPerformer[]|undefined}
         */
         Object.defineProperty(this, 'performer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -446,7 +486,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'performingOrganization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.performingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -462,7 +504,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'requestingOrganization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.requestingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -478,7 +522,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'costCenter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.costCenter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -494,7 +540,9 @@ class ChargeItem extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -510,7 +558,9 @@ class ChargeItem extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'bodysite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodysite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -526,7 +576,9 @@ class ChargeItem extends Resource {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'factorOverride', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.factorOverride,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -541,7 +593,9 @@ class ChargeItem extends Resource {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'priceOverride', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priceOverride,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -559,7 +613,9 @@ class ChargeItem extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'overrideReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.overrideReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -574,7 +630,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'enterer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enterer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -590,7 +648,9 @@ class ChargeItem extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'enteredDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.enteredDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -605,7 +665,9 @@ class ChargeItem extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'reason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -621,7 +683,9 @@ class ChargeItem extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'service', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.service,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -637,7 +701,9 @@ class ChargeItem extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'productReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -653,7 +719,9 @@ class ChargeItem extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'productCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -669,7 +737,9 @@ class ChargeItem extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'account', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.account,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -685,7 +755,9 @@ class ChargeItem extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -701,7 +773,9 @@ class ChargeItem extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'supportingInformation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -712,6 +786,7 @@ class ChargeItem extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -757,7 +832,8 @@ class ChargeItem extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ChargeItem',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

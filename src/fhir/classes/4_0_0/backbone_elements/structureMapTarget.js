@@ -47,7 +47,9 @@ class StructureMapTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class StructureMapTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class StructureMapTarget extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -110,7 +116,9 @@ class StructureMapTarget extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'context', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -125,7 +133,9 @@ class StructureMapTarget extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'contextType', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contextType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +150,9 @@ class StructureMapTarget extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'element', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.element,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +167,9 @@ class StructureMapTarget extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'variable', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.variable,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +184,9 @@ class StructureMapTarget extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'listMode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.listMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +201,9 @@ class StructureMapTarget extends Element {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'listRuleId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.listRuleId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -200,7 +218,9 @@ class StructureMapTarget extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'transform', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.transform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +235,9 @@ class StructureMapTarget extends Element {
          * @property {StructureMapParameter[]|undefined}
         */
         Object.defineProperty(this, 'parameter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,6 +248,7 @@ class StructureMapTarget extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -240,13 +263,6 @@ class StructureMapTarget extends Element {
             parameter,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'StructureMapTarget',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

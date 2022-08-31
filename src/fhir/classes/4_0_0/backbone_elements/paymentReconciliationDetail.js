@@ -51,7 +51,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -70,7 +72,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -98,7 +102,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -130,7 +138,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'predecessor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.predecessor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -162,7 +174,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'request', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -178,7 +192,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'submitter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.submitter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -194,7 +210,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'response', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -210,7 +228,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,7 +246,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'responsible', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.responsible,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,7 +264,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'payee', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.payee,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,7 +282,9 @@ class PaymentReconciliationDetail extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'amount', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -269,6 +295,7 @@ class PaymentReconciliationDetail extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -285,13 +312,6 @@ class PaymentReconciliationDetail extends Element {
             amount,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'PaymentReconciliationDetail',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

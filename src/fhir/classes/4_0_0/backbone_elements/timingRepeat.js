@@ -70,7 +70,9 @@ class TimingRepeat extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -89,7 +91,9 @@ class TimingRepeat extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +121,9 @@ class TimingRepeat extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +139,9 @@ class TimingRepeat extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'boundsDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.boundsDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -149,7 +157,9 @@ class TimingRepeat extends Element {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'boundsRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.boundsRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -165,7 +175,9 @@ class TimingRepeat extends Element {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'boundsPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.boundsPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -183,7 +195,9 @@ class TimingRepeat extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'count', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.count,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +213,9 @@ class TimingRepeat extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'countMax', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.countMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +231,9 @@ class TimingRepeat extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'duration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +249,9 @@ class TimingRepeat extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'durationMax', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.durationMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -246,7 +266,9 @@ class TimingRepeat extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'durationUnit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.durationUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -263,7 +285,9 @@ class TimingRepeat extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'frequency', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.frequency,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -279,7 +303,9 @@ class TimingRepeat extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'frequencyMax', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.frequencyMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +323,9 @@ class TimingRepeat extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'period', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -313,7 +341,9 @@ class TimingRepeat extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'periodMax', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.periodMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -328,7 +358,9 @@ class TimingRepeat extends Element {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'periodUnit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.periodUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -344,7 +376,9 @@ class TimingRepeat extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'dayOfWeek', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dayOfWeek,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -359,7 +393,9 @@ class TimingRepeat extends Element {
          * @property {time[]|undefined}
         */
         Object.defineProperty(this, 'timeOfDay', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timeOfDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -375,7 +411,9 @@ class TimingRepeat extends Element {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'when', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.when,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -392,7 +430,9 @@ class TimingRepeat extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'offset', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.offset,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -402,6 +442,7 @@ class TimingRepeat extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -425,13 +466,6 @@ class TimingRepeat extends Element {
             offset,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'TimingRepeat',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

@@ -45,7 +45,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -64,7 +66,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -92,7 +96,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -108,7 +114,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -124,7 +132,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'allowedUnsignedInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allowedUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -139,7 +149,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'allowedString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allowedString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +166,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'allowedMoney', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.allowedMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -170,7 +184,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {unsignedInt|undefined}
         */
         Object.defineProperty(this, 'usedUnsignedInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usedUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -185,7 +201,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'usedString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usedString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -200,7 +218,9 @@ class CoverageEligibilityResponseBenefit extends Element {
          * @property {Money|undefined}
         */
         Object.defineProperty(this, 'usedMoney', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usedMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -211,6 +231,7 @@ class CoverageEligibilityResponseBenefit extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -224,13 +245,6 @@ class CoverageEligibilityResponseBenefit extends Element {
             usedMoney,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'CoverageEligibilityResponseBenefit',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

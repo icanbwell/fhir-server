@@ -49,7 +49,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -96,7 +100,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -114,7 +120,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'subunit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subunit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -131,7 +139,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'sequence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -146,7 +156,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'length', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,7 +173,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'sequenceAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequenceAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -180,7 +194,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'fivePrime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.fivePrime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -199,7 +215,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'threePrime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.threePrime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -215,7 +233,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {SubstanceNucleicAcidLinkage[]|undefined}
         */
         Object.defineProperty(this, 'linkage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.linkage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -231,7 +251,9 @@ class SubstanceNucleicAcidSubunit extends Element {
          * @property {SubstanceNucleicAcidSugar[]|undefined}
         */
         Object.defineProperty(this, 'sugar', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sugar,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,6 +264,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -256,13 +279,6 @@ class SubstanceNucleicAcidSubunit extends Element {
             sugar,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceNucleicAcidSubunit',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

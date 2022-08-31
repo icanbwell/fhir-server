@@ -41,7 +41,9 @@ class ValueSetCompose extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -60,7 +62,9 @@ class ValueSetCompose extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -88,7 +92,9 @@ class ValueSetCompose extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +112,9 @@ class ValueSetCompose extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'lockedDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lockedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class ValueSetCompose extends Element {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'inactive', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.inactive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -141,7 +151,9 @@ class ValueSetCompose extends Element {
          * @property {ValueSetInclude[]}
         */
         Object.defineProperty(this, 'include', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.include,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -158,7 +170,9 @@ class ValueSetCompose extends Element {
          * @property {ValueSetInclude[]|undefined}
         */
         Object.defineProperty(this, 'exclude', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -169,6 +183,7 @@ class ValueSetCompose extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -179,13 +194,6 @@ class ValueSetCompose extends Element {
             exclude,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ValueSetCompose',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

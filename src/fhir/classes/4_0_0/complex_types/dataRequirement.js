@@ -49,7 +49,9 @@ class DataRequirement extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -68,7 +70,9 @@ class DataRequirement extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class DataRequirement extends Element {
          * @property {code}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class DataRequirement extends Element {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'profile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -116,7 +124,9 @@ class DataRequirement extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'subjectCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -132,7 +142,9 @@ class DataRequirement extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subjectReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +169,9 @@ class DataRequirement extends Element {
          * @property {String[]|undefined}
         */
         Object.defineProperty(this, 'mustSupport', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.mustSupport,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class DataRequirement extends Element {
          * @property {DataRequirementCodeFilter[]|undefined}
         */
         Object.defineProperty(this, 'codeFilter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.codeFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -192,7 +208,9 @@ class DataRequirement extends Element {
          * @property {DataRequirementDateFilter[]|undefined}
         */
         Object.defineProperty(this, 'dateFilter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dateFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -209,7 +227,9 @@ class DataRequirement extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'limit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.limit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -224,7 +244,9 @@ class DataRequirement extends Element {
          * @property {DataRequirementSort[]|undefined}
         */
         Object.defineProperty(this, 'sort', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sort,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -235,6 +257,7 @@ class DataRequirement extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -249,13 +272,6 @@ class DataRequirement extends Element {
             sort,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'DataRequirement',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

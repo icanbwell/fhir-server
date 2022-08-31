@@ -59,7 +59,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -78,7 +80,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -106,7 +110,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -122,7 +128,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'vaccineCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.vaccineCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -138,7 +146,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'targetDisease', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.targetDisease,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +164,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'contraindicatedVaccineCode', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contraindicatedVaccineCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -171,7 +183,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {CodeableConcept}
         */
         Object.defineProperty(this, 'forecastStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.forecastStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -187,7 +201,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'forecastReason', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.forecastReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +220,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {ImmunizationRecommendationDateCriterion[]|undefined}
         */
         Object.defineProperty(this, 'dateCriterion', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dateCriterion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -221,7 +239,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -237,7 +257,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'series', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.series,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,7 +274,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'doseNumberPositiveInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doseNumberPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -267,7 +291,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'doseNumberString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doseNumberString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -282,7 +308,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'seriesDosesPositiveInt', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.seriesDosesPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -297,7 +325,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'seriesDosesString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.seriesDosesString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -313,7 +343,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'supportingImmunization', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingImmunization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -331,7 +363,9 @@ class ImmunizationRecommendationRecommendation extends Element {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'supportingPatientInformation', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.supportingPatientInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -342,6 +376,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -362,13 +397,6 @@ class ImmunizationRecommendationRecommendation extends Element {
             supportingPatientInformation,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ImmunizationRecommendationRecommendation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

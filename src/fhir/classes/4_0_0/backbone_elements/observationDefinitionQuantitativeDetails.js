@@ -39,7 +39,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -58,7 +60,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -86,7 +90,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -103,7 +109,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'customaryUnit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.customaryUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -120,7 +128,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'unit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -137,7 +147,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {decimal|undefined}
         */
         Object.defineProperty(this, 'conversionFactor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.conversionFactor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -153,7 +165,9 @@ class ObservationDefinitionQuantitativeDetails extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'decimalPrecision', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.decimalPrecision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -163,6 +177,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -173,13 +188,6 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             decimalPrecision,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'ObservationDefinitionQuantitativeDetails',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

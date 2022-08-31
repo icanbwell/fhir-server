@@ -83,7 +83,9 @@ class AllergyIntolerance extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +102,9 @@ class AllergyIntolerance extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +123,9 @@ class AllergyIntolerance extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -134,7 +140,9 @@ class AllergyIntolerance extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -154,7 +162,9 @@ class AllergyIntolerance extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -172,7 +182,9 @@ class AllergyIntolerance extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -191,7 +203,9 @@ class AllergyIntolerance extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -219,7 +233,9 @@ class AllergyIntolerance extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -237,7 +253,9 @@ class AllergyIntolerance extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -253,7 +271,9 @@ class AllergyIntolerance extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'clinicalStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.clinicalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -270,7 +290,9 @@ class AllergyIntolerance extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'verificationStatus', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.verificationStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -287,7 +309,9 @@ class AllergyIntolerance extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'type', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -302,7 +326,9 @@ class AllergyIntolerance extends Resource {
          * @property {code[]|undefined}
         */
         Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -318,7 +344,9 @@ class AllergyIntolerance extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'criticality', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.criticality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -347,7 +375,9 @@ class AllergyIntolerance extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -363,7 +393,9 @@ class AllergyIntolerance extends Resource {
          * @property {Reference}
         */
         Object.defineProperty(this, 'patient', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -379,7 +411,9 @@ class AllergyIntolerance extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'encounter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -395,7 +429,9 @@ class AllergyIntolerance extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'onsetDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -410,7 +446,9 @@ class AllergyIntolerance extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'onsetAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -426,7 +464,9 @@ class AllergyIntolerance extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'onsetPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -442,7 +482,9 @@ class AllergyIntolerance extends Resource {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'onsetRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -458,7 +500,9 @@ class AllergyIntolerance extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'onsetString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onsetString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -474,7 +518,9 @@ class AllergyIntolerance extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'recordedDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recordedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -489,7 +535,9 @@ class AllergyIntolerance extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'recorder', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -505,7 +553,9 @@ class AllergyIntolerance extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'asserter', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.asserter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -522,7 +572,9 @@ class AllergyIntolerance extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'lastOccurrence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastOccurrence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -538,7 +590,9 @@ class AllergyIntolerance extends Resource {
          * @property {Annotation[]|undefined}
         */
         Object.defineProperty(this, 'note', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -555,7 +609,9 @@ class AllergyIntolerance extends Resource {
          * @property {AllergyIntoleranceReaction[]|undefined}
         */
         Object.defineProperty(this, 'reaction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -566,6 +622,7 @@ class AllergyIntolerance extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -602,7 +659,8 @@ class AllergyIntolerance extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'AllergyIntolerance',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

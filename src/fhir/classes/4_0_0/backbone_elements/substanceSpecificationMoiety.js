@@ -47,7 +47,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -110,7 +116,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'role', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.role,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -142,7 +152,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -157,7 +169,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'stereochemistry', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.stereochemistry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -173,7 +187,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'opticalActivity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.opticalActivity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -189,7 +205,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'molecularFormula', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.molecularFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -204,7 +222,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'amountQuantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -220,7 +240,9 @@ class SubstanceSpecificationMoiety extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'amountString', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.amountString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -230,6 +252,7 @@ class SubstanceSpecificationMoiety extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -244,13 +267,6 @@ class SubstanceSpecificationMoiety extends Element {
             amountString,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceSpecificationMoiety',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

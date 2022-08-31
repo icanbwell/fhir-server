@@ -38,7 +38,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -57,7 +59,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -85,7 +89,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -101,7 +107,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {MedicationKnowledgeDosage[]|undefined}
         */
         Object.defineProperty(this, 'dosage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -117,7 +125,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'indicationCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.indicationCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -133,7 +143,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'indicationReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.indicationReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -150,7 +162,9 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
          * @property {MedicationKnowledgePatientCharacteristics[]|undefined}
         */
         Object.defineProperty(this, 'patientCharacteristics', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.patientCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -161,6 +175,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -171,13 +186,6 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             patientCharacteristics,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'MedicationKnowledgeAdministrationGuidelines',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

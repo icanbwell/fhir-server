@@ -47,7 +47,9 @@ class VerificationResultAttestation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -66,7 +68,9 @@ class VerificationResultAttestation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -94,7 +98,9 @@ class VerificationResultAttestation extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -110,7 +116,9 @@ class VerificationResultAttestation extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'who', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -126,7 +134,9 @@ class VerificationResultAttestation extends Element {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'onBehalfOf', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.onBehalfOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -143,7 +153,9 @@ class VerificationResultAttestation extends Element {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'communicationMethod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.communicationMethod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -159,7 +171,9 @@ class VerificationResultAttestation extends Element {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -174,7 +188,9 @@ class VerificationResultAttestation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'sourceIdentityCertificate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceIdentityCertificate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -190,7 +206,9 @@ class VerificationResultAttestation extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'proxyIdentityCertificate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.proxyIdentityCertificate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -206,7 +224,9 @@ class VerificationResultAttestation extends Element {
          * @property {Signature|undefined}
         */
         Object.defineProperty(this, 'proxySignature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.proxySignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -223,7 +243,9 @@ class VerificationResultAttestation extends Element {
          * @property {Signature|undefined}
         */
         Object.defineProperty(this, 'sourceSignature', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sourceSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -234,6 +256,7 @@ class VerificationResultAttestation extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -248,13 +271,6 @@ class VerificationResultAttestation extends Element {
             sourceSignature,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'VerificationResultAttestation',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {

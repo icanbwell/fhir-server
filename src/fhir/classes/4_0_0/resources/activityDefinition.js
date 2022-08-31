@@ -150,7 +150,9 @@ class ActivityDefinition extends Resource {
          * @property {id|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -167,7 +169,9 @@ class ActivityDefinition extends Resource {
          * @property {Meta|undefined}
         */
         Object.defineProperty(this, 'meta', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -186,7 +190,9 @@ class ActivityDefinition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'implicitRules', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -201,7 +207,9 @@ class ActivityDefinition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'language', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -221,7 +229,9 @@ class ActivityDefinition extends Resource {
          * @property {Narrative|undefined}
         */
         Object.defineProperty(this, 'text', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -239,7 +249,9 @@ class ActivityDefinition extends Resource {
          * @property {ResourceContainer[]|undefined}
         */
         Object.defineProperty(this, 'contained', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -258,7 +270,9 @@ class ActivityDefinition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -286,7 +300,9 @@ class ActivityDefinition extends Resource {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -308,7 +324,9 @@ class ActivityDefinition extends Resource {
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'url', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -325,7 +343,9 @@ class ActivityDefinition extends Resource {
          * @property {Identifier[]|undefined}
         */
         Object.defineProperty(this, 'identifier', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -351,7 +371,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'version', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -368,7 +390,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'name', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -383,7 +407,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -399,7 +425,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'subtitle', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subtitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -415,7 +443,9 @@ class ActivityDefinition extends Resource {
          * @property {code}
         */
         Object.defineProperty(this, 'status', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -432,7 +462,9 @@ class ActivityDefinition extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'experimental', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -447,7 +479,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'subjectCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -463,7 +497,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'subjectReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -482,7 +518,9 @@ class ActivityDefinition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'date', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -498,7 +536,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'publisher', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -514,7 +554,9 @@ class ActivityDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -531,7 +573,9 @@ class ActivityDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'description', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -550,7 +594,9 @@ class ActivityDefinition extends Resource {
          * @property {UsageContext[]|undefined}
         */
         Object.defineProperty(this, 'useContext', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -567,7 +613,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'jurisdiction', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -584,7 +632,9 @@ class ActivityDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'purpose', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -600,7 +650,9 @@ class ActivityDefinition extends Resource {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'usage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.usage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -617,7 +669,9 @@ class ActivityDefinition extends Resource {
          * @property {markdown|undefined}
         */
         Object.defineProperty(this, 'copyright', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -633,7 +687,9 @@ class ActivityDefinition extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'approvalDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.approvalDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -649,7 +705,9 @@ class ActivityDefinition extends Resource {
          * @property {date|undefined}
         */
         Object.defineProperty(this, 'lastReviewDate', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.lastReviewDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -665,7 +723,9 @@ class ActivityDefinition extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'effectivePeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -683,7 +743,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'topic', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -700,7 +762,9 @@ class ActivityDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'author', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -717,7 +781,9 @@ class ActivityDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'editor', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.editor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -734,7 +800,9 @@ class ActivityDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'reviewer', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.reviewer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -751,7 +819,9 @@ class ActivityDefinition extends Resource {
          * @property {ContactDetail[]|undefined}
         */
         Object.defineProperty(this, 'endorser', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.endorser,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -768,7 +838,9 @@ class ActivityDefinition extends Resource {
          * @property {RelatedArtifact[]|undefined}
         */
         Object.defineProperty(this, 'relatedArtifact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.relatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -785,7 +857,9 @@ class ActivityDefinition extends Resource {
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'library', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.library,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -802,7 +876,9 @@ class ActivityDefinition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'kind', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.kind,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -818,7 +894,9 @@ class ActivityDefinition extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'profile', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -834,7 +912,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'code', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -851,7 +931,9 @@ class ActivityDefinition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'intent', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -867,7 +949,9 @@ class ActivityDefinition extends Resource {
          * @property {code|undefined}
         */
         Object.defineProperty(this, 'priority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -885,7 +969,9 @@ class ActivityDefinition extends Resource {
          * @property {Boolean|undefined}
         */
         Object.defineProperty(this, 'doNotPerform', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.doNotPerform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -900,7 +986,9 @@ class ActivityDefinition extends Resource {
          * @property {Timing|undefined}
         */
         Object.defineProperty(this, 'timingTiming', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -916,7 +1004,9 @@ class ActivityDefinition extends Resource {
          * @property {dateTime|undefined}
         */
         Object.defineProperty(this, 'timingDateTime', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -931,7 +1021,9 @@ class ActivityDefinition extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingAge', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -947,7 +1039,9 @@ class ActivityDefinition extends Resource {
          * @property {Period|undefined}
         */
         Object.defineProperty(this, 'timingPeriod', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -963,7 +1057,9 @@ class ActivityDefinition extends Resource {
          * @property {Range|undefined}
         */
         Object.defineProperty(this, 'timingRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -979,7 +1075,9 @@ class ActivityDefinition extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'timingDuration', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.timingDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -996,7 +1094,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'location', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1012,7 +1112,9 @@ class ActivityDefinition extends Resource {
          * @property {ActivityDefinitionParticipant[]|undefined}
         */
         Object.defineProperty(this, 'participant', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1028,7 +1130,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'productReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1044,7 +1148,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept|undefined}
         */
         Object.defineProperty(this, 'productCodeableConcept', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.productCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1061,7 +1167,9 @@ class ActivityDefinition extends Resource {
          * @property {Quantity|undefined}
         */
         Object.defineProperty(this, 'quantity', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1078,7 +1186,9 @@ class ActivityDefinition extends Resource {
          * @property {Dosage[]|undefined}
         */
         Object.defineProperty(this, 'dosage', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1095,7 +1205,9 @@ class ActivityDefinition extends Resource {
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'bodySite', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1112,7 +1224,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'specimenRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.specimenRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1129,7 +1243,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'observationRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.observationRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1145,7 +1261,9 @@ class ActivityDefinition extends Resource {
          * @property {Reference[]|undefined}
         */
         Object.defineProperty(this, 'observationResultRequirement', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.observationResultRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1163,7 +1281,9 @@ class ActivityDefinition extends Resource {
          * @property {canonical|undefined}
         */
         Object.defineProperty(this, 'transform', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.transform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1182,7 +1302,9 @@ class ActivityDefinition extends Resource {
          * @property {ActivityDefinitionDynamicValue[]|undefined}
         */
         Object.defineProperty(this, 'dynamicValue', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.dynamicValue,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -1193,6 +1315,7 @@ class ActivityDefinition extends Resource {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             meta,
@@ -1262,7 +1385,8 @@ class ActivityDefinition extends Resource {
         Object.defineProperty(this, 'resourceType', {
             value: 'ActivityDefinition',
             enumerable: true,
-            writable: false
+            writable: false,
+            configurable: true
         });
     }
 

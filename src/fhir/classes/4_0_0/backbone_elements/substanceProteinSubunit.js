@@ -53,7 +53,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -72,7 +74,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'extension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -100,7 +104,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Extension[]|undefined}
         */
         Object.defineProperty(this, 'modifierExtension', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -119,7 +125,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'subunit', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.subunit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -140,7 +148,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'sequence', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -155,7 +165,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Int|undefined}
         */
         Object.defineProperty(this, 'length', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -176,7 +188,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Attachment|undefined}
         */
         Object.defineProperty(this, 'sequenceAttachment', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.sequenceAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -193,7 +207,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'nTerminalModificationId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nTerminalModificationId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -210,7 +226,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'nTerminalModification', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.nTerminalModification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -226,7 +244,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {Identifier|undefined}
         */
         Object.defineProperty(this, 'cTerminalModificationId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cTerminalModificationId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -242,7 +262,9 @@ class SubstanceProteinSubunit extends Element {
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'cTerminalModification', {
+            // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
+            configurable: true,
             get: () => this.__data.cTerminalModification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null) {
@@ -252,6 +274,7 @@ class SubstanceProteinSubunit extends Element {
             }
         });
 
+        // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
@@ -266,13 +289,6 @@ class SubstanceProteinSubunit extends Element {
             cTerminalModification,
         });
 
-        // Define a default non-writable resourceType property
-
-        Object.defineProperty(this, 'resourceType', {
-            value: 'SubstanceProteinSubunit',
-            enumerable: true,
-            writable: false
-        });
     }
 
     static get resourceType() {
