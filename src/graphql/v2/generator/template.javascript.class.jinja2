@@ -9,8 +9,11 @@
 
 {% if fhir_entity.cleaned_name == 'Resource' %}
 const ResourceContainer = require('../simple_types/resourceContainer');
-{%  else %}
+{%  elif fhir_entity.is_resource %}
 const Resource = require('../resources/resource');
+{% elif fhir_entity.cleaned_name == 'Element' %}
+{%  else %}
+const Element = require('../complex_types/element');
 {%  endif %}
 
 
@@ -22,8 +25,12 @@ const Resource = require('../resources/resource');
 */
 {% if fhir_entity.cleaned_name == 'Resource' %}
 class {{ fhir_entity.cleaned_name }} extends ResourceContainer {
-{%  else %}
+{%  elif fhir_entity.is_resource %}
 class {{ fhir_entity.cleaned_name }} extends Resource {
+{% elif fhir_entity.cleaned_name == 'Element' %}
+class {{ fhir_entity.cleaned_name }} {
+{%  else %}
+class {{ fhir_entity.cleaned_name }} extends Element {
 {%  endif %}
     /**
 {% for property in fhir_entity.properties %}
@@ -62,11 +69,11 @@ class {{ fhir_entity.cleaned_name }} extends Resource {
 {% endfor %}
         }
     ) {
+{% if fhir_entity.cleaned_name != 'Element' %}
         super({});
-        // Create an object to store all props
-        Object.defineProperty(this, '__data', {
-          value: {}
-        }); // Define getters and setters as enumerable
+{% endif %}
+
+        // ---- Define getters and setters as enumerable ---
 
 {% for property in fhir_entity.properties %}
         /**

@@ -57,10 +57,8 @@ class Endpoint extends Resource {
         }
     ) {
         super({});
-        // Create an object to store all props
-        Object.defineProperty(this, '__data', {
-          value: {}
-        }); // Define getters and setters as enumerable
+
+        // ---- Define getters and setters as enumerable ---
 
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once

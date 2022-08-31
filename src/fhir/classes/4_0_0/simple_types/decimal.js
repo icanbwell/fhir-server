@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class decimal extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = decimal;
+/**
+ * A number, or a string containing a number.
+ * @typedef {Number} decimal
+ */

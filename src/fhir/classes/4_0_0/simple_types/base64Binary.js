@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class base64Binary extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = base64Binary;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} base64Binary
+ */
