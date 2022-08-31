@@ -10,6 +10,14 @@ CoverageEligibilityRequest.Insurance
     of the policy.
 */
 class CoverageEligibilityRequestInsurance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [focal],
+     * @param {Reference} coverage,
+     * @param {String|undefined} [businessArrangement],
+    */
     constructor(
         {
             id,

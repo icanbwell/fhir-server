@@ -8,6 +8,14 @@ Claim.Related
     reimbursement.
 */
 class ClaimRelated {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [claim],
+     * @param {CodeableConcept|undefined} [relationship],
+     * @param {Identifier|undefined} [reference],
+    */
     constructor(
         {
             id,

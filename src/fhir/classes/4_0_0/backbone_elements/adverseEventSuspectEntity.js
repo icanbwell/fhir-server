@@ -9,6 +9,13 @@ AdverseEvent.SuspectEntity
     hospitalization, or that results in death.
 */
 class AdverseEventSuspectEntity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} instance,
+     * @param {AdverseEventCausality[]|undefined} [causality],
+    */
     constructor(
         {
             id,

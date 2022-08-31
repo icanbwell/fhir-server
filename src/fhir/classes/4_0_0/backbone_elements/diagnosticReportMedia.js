@@ -10,6 +10,13 @@ DiagnosticReport.Media
     interpretations, and formatted representation of diagnostic reports.
 */
 class DiagnosticReportMedia {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [comment],
+     * @param {Reference} link,
+    */
     constructor(
         {
             id,

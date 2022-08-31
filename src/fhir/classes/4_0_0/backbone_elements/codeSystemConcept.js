@@ -8,6 +8,17 @@ CodeSystem.Concept
     define a part or all of its content.
 */
 class CodeSystemConcept {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {String|undefined} [display],
+     * @param {String|undefined} [definition],
+     * @param {CodeSystemDesignation[]|undefined} [designation],
+     * @param {CodeSystemProperty1[]|undefined} [property],
+     * @param {CodeSystemConcept[]|undefined} [concept],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,33 @@ ExampleScenario
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ExampleScenario {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [copyright],
+     * @param {markdown|undefined} [purpose],
+     * @param {ExampleScenarioActor[]|undefined} [actor],
+     * @param {ExampleScenarioInstance[]|undefined} [instance],
+     * @param {ExampleScenarioProcess[]|undefined} [process],
+     * @param {canonical[]|undefined} [workflow],
+    */
     constructor(
         {
             id,

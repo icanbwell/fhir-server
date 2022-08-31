@@ -9,6 +9,15 @@ ProductShelfLife
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ProductShelfLife {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept} type,
+     * @param {Quantity} period,
+     * @param {CodeableConcept[]|undefined} [specialPrecautionsForStorage],
+    */
     constructor(
         {
             id,

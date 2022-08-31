@@ -10,6 +10,16 @@ Meta
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Meta {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {id|undefined} [versionId],
+     * @param {instant|undefined} [lastUpdated],
+     * @param {uri|undefined} [source],
+     * @param {canonical[]|undefined} [profile],
+     * @param {Coding[]|undefined} [security],
+     * @param {Coding[]|undefined} [tag],
+    */
     constructor(
         {
             id,

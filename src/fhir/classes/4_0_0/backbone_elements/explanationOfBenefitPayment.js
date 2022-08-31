@@ -8,6 +8,17 @@ ExplanationOfBenefit.Payment
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitPayment {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Money|undefined} [adjustment],
+     * @param {CodeableConcept|undefined} [adjustmentReason],
+     * @param {date|undefined} [date],
+     * @param {Money|undefined} [amount],
+     * @param {Identifier|undefined} [identifier],
+    */
     constructor(
         {
             id,

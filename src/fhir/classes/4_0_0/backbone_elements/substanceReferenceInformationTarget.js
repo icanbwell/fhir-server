@@ -6,6 +6,21 @@ SubstanceReferenceInformation.Target
     Todo.
 */
 class SubstanceReferenceInformationTarget {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [target],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [interaction],
+     * @param {CodeableConcept|undefined} [organism],
+     * @param {CodeableConcept|undefined} [organismType],
+     * @param {Quantity|undefined} [amountQuantity],
+     * @param {Range|undefined} [amountRange],
+     * @param {String|undefined} [amountString],
+     * @param {CodeableConcept|undefined} [amountType],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

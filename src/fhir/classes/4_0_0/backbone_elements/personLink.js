@@ -7,6 +7,13 @@ Person.Link
     specific health-related context.
 */
 class PersonLink {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} target,
+     * @param {code|undefined} [assurance],
+    */
     constructor(
         {
             id,

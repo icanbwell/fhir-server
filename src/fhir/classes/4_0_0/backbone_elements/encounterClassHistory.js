@@ -7,6 +7,13 @@ Encounter.ClassHistory
     providing healthcare service(s) or assessing the health status of a patient.
 */
 class EncounterClassHistory {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding} class_,
+     * @param {Period} period,
+    */
     constructor(
         {
             id,

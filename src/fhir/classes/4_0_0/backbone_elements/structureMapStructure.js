@@ -7,6 +7,15 @@ StructureMap.Structure
     data.
 */
 class StructureMapStructure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {canonical} url,
+     * @param {code} mode,
+     * @param {String|undefined} [alias],
+     * @param {String|undefined} [documentation],
+    */
     constructor(
         {
             id,

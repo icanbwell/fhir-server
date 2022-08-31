@@ -7,6 +7,32 @@ ResearchElementDefinition.Characteristic
     knowledge (evidence, assertion, recommendation) is about.
 */
 class ResearchElementDefinitionCharacteristic {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [definitionCodeableConcept],
+     * @param {canonical|undefined} [definitionCanonical],
+     * @param {Expression|undefined} [definitionExpression],
+     * @param {DataRequirement|undefined} [definitionDataRequirement],
+     * @param {UsageContext[]|undefined} [usageContext],
+     * @param {Boolean|undefined} [exclude],
+     * @param {CodeableConcept|undefined} [unitOfMeasure],
+     * @param {String|undefined} [studyEffectiveDescription],
+     * @param {dateTime|undefined} [studyEffectiveDateTime],
+     * @param {Period|undefined} [studyEffectivePeriod],
+     * @param {Quantity|undefined} [studyEffectiveDuration],
+     * @param {Timing|undefined} [studyEffectiveTiming],
+     * @param {Quantity|undefined} [studyEffectiveTimeFromStart],
+     * @param {code|undefined} [studyEffectiveGroupMeasure],
+     * @param {String|undefined} [participantEffectiveDescription],
+     * @param {dateTime|undefined} [participantEffectiveDateTime],
+     * @param {Period|undefined} [participantEffectivePeriod],
+     * @param {Quantity|undefined} [participantEffectiveDuration],
+     * @param {Timing|undefined} [participantEffectiveTiming],
+     * @param {Quantity|undefined} [participantEffectiveTimeFromStart],
+     * @param {code|undefined} [participantEffectiveGroupMeasure],
+    */
     constructor(
         {
             id,

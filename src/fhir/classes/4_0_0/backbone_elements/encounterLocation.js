@@ -7,6 +7,15 @@ Encounter.Location
     providing healthcare service(s) or assessing the health status of a patient.
 */
 class EncounterLocation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} location,
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept|undefined} [physicalType],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

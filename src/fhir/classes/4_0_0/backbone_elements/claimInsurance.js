@@ -8,6 +8,18 @@ Claim.Insurance
     reimbursement.
 */
 class ClaimInsurance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {Boolean} focal,
+     * @param {Identifier|undefined} [identifier],
+     * @param {Reference} coverage,
+     * @param {String|undefined} [businessArrangement],
+     * @param {String[]|undefined} [preAuthRef],
+     * @param {Reference|undefined} [claimResponse],
+    */
     constructor(
         {
             id,

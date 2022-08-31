@@ -6,6 +6,14 @@ Task.Restriction
     A task to be performed.
 */
 class TaskRestriction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [repetitions],
+     * @param {Period|undefined} [period],
+     * @param {Reference[]|undefined} [recipient],
+    */
     constructor(
         {
             id,

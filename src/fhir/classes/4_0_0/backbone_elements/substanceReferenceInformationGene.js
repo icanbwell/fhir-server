@@ -6,6 +6,14 @@ SubstanceReferenceInformation.Gene
     Todo.
 */
 class SubstanceReferenceInformationGene {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [geneSequenceOrigin],
+     * @param {CodeableConcept|undefined} [gene],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

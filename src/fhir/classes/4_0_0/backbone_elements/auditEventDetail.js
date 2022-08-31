@@ -8,6 +8,14 @@ AuditEvent.Detail
     usage.
 */
 class AuditEventDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} type,
+     * @param {String|undefined} [valueString],
+     * @param {base64Binary|undefined} [valueBase64Binary],
+    */
     constructor(
         {
             id,

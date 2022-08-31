@@ -8,6 +8,17 @@ GraphDefinition.Link
     Definition resource defines a set and makes rules about the set.
 */
 class GraphDefinitionLink {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [path],
+     * @param {String|undefined} [sliceName],
+     * @param {Int|undefined} [min],
+     * @param {String|undefined} [max],
+     * @param {String|undefined} [description],
+     * @param {GraphDefinitionTarget[]|undefined} [target],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,19 @@ SubstanceSpecification.Moiety
     used for prescribing.
 */
 class SubstanceSpecificationMoiety {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [role],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [name],
+     * @param {CodeableConcept|undefined} [stereochemistry],
+     * @param {CodeableConcept|undefined} [opticalActivity],
+     * @param {String|undefined} [molecularFormula],
+     * @param {Quantity|undefined} [amountQuantity],
+     * @param {String|undefined} [amountString],
+    */
     constructor(
         {
             id,

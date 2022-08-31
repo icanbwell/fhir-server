@@ -7,6 +7,13 @@ TestScript.Link
     determine compliance against the FHIR specification.
 */
 class TestScriptLink {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {String|undefined} [description],
+    */
     constructor(
         {
             id,

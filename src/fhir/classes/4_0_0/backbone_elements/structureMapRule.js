@@ -7,6 +7,17 @@ StructureMap.Rule
     data.
 */
 class StructureMapRule {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} name,
+     * @param {StructureMapSource[]} source,
+     * @param {StructureMapTarget[]|undefined} [target],
+     * @param {StructureMapRule[]|undefined} [rule],
+     * @param {StructureMapDependent[]|undefined} [dependent],
+     * @param {String|undefined} [documentation],
+    */
     constructor(
         {
             id,

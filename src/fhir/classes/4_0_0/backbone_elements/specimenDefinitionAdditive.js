@@ -6,6 +6,13 @@ SpecimenDefinition.Additive
     A kind of specimen with associated set of requirements.
 */
 class SpecimenDefinitionAdditive {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [additiveCodeableConcept],
+     * @param {Reference|undefined} [additiveReference],
+    */
     constructor(
         {
             id,

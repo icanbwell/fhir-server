@@ -8,6 +8,15 @@ Coding
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Coding {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {uri|undefined} [system],
+     * @param {String|undefined} [version],
+     * @param {code|undefined} [code],
+     * @param {String|undefined} [display],
+     * @param {Boolean|undefined} [userSelected],
+    */
     constructor(
         {
             id,

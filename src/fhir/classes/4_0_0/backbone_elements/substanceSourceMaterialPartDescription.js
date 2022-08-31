@@ -19,6 +19,13 @@ SubstanceSourceMaterial.PartDescription
     annex.
 */
 class SubstanceSourceMaterialPartDescription {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [part],
+     * @param {CodeableConcept|undefined} [partLocation],
+    */
     constructor(
         {
             id,

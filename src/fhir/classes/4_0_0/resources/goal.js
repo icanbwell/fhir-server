@@ -9,6 +9,33 @@ Goal
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Goal {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} lifecycleStatus,
+     * @param {CodeableConcept|undefined} [achievementStatus],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept|undefined} [priority],
+     * @param {CodeableConcept} description,
+     * @param {Reference} subject,
+     * @param {date|undefined} [startDate],
+     * @param {CodeableConcept|undefined} [startCodeableConcept],
+     * @param {GoalTarget[]|undefined} [target],
+     * @param {date|undefined} [statusDate],
+     * @param {String|undefined} [statusReason],
+     * @param {Reference|undefined} [expressedBy],
+     * @param {Reference[]|undefined} [addresses],
+     * @param {Annotation[]|undefined} [note],
+     * @param {CodeableConcept[]|undefined} [outcomeCode],
+     * @param {Reference[]|undefined} [outcomeReference],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,16 @@ QuestionnaireResponse.Item
     of the questionnaire being responded to.
 */
 class QuestionnaireResponseItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} linkId,
+     * @param {uri|undefined} [definition],
+     * @param {String|undefined} [text],
+     * @param {QuestionnaireResponseAnswer[]|undefined} [answer],
+     * @param {QuestionnaireResponseItem[]|undefined} [item],
+    */
     constructor(
         {
             id,

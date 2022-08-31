@@ -9,6 +9,16 @@ MarketingStatus
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class MarketingStatus {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} country,
+     * @param {CodeableConcept|undefined} [jurisdiction],
+     * @param {CodeableConcept} status,
+     * @param {Period} dateRange,
+     * @param {dateTime|undefined} [restoreDate],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,15 @@ CoverageEligibilityResponse.Insurance
     CoverageEligibilityRequest resource.
 */
 class CoverageEligibilityResponseInsurance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} coverage,
+     * @param {Boolean|undefined} [inforce],
+     * @param {Period|undefined} [benefitPeriod],
+     * @param {CoverageEligibilityResponseItem[]|undefined} [item],
+    */
     constructor(
         {
             id,

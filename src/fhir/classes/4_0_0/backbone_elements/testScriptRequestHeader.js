@@ -7,6 +7,13 @@ TestScript.RequestHeader
     determine compliance against the FHIR specification.
 */
 class TestScriptRequestHeader {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} field,
+     * @param {String} value,
+    */
     constructor(
         {
             id,

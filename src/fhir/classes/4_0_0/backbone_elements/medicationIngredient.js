@@ -8,6 +8,15 @@ Medication.Ingredient
     medication as well as for making statements about medication use.
 */
 class MedicationIngredient {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+     * @param {Reference|undefined} [itemReference],
+     * @param {Boolean|undefined} [isActive],
+     * @param {Ratio|undefined} [strength],
+    */
     constructor(
         {
             id,

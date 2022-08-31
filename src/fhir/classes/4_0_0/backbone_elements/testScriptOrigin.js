@@ -7,6 +7,13 @@ TestScript.Origin
     determine compliance against the FHIR specification.
 */
 class TestScriptOrigin {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} index,
+     * @param {Coding} profile,
+    */
     constructor(
         {
             id,

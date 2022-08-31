@@ -7,6 +7,23 @@ MedicinalProductPharmaceutical
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicinalProductPharmaceutical {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} administrableDoseForm,
+     * @param {CodeableConcept|undefined} [unitOfPresentation],
+     * @param {Reference[]|undefined} [ingredient],
+     * @param {Reference[]|undefined} [device],
+     * @param {MedicinalProductPharmaceuticalCharacteristics[]|undefined} [characteristics],
+     * @param {MedicinalProductPharmaceuticalRouteOfAdministration[]} routeOfAdministration,
+    */
     constructor(
         {
             id,

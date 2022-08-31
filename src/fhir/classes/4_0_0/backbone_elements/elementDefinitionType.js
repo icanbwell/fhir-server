@@ -9,6 +9,16 @@ ElementDefinition.Type
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionType {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} code,
+     * @param {canonical[]|undefined} [profile],
+     * @param {canonical[]|undefined} [targetProfile],
+     * @param {code[]|undefined} [aggregation],
+     * @param {code|undefined} [versioning],
+    */
     constructor(
         {
             id,

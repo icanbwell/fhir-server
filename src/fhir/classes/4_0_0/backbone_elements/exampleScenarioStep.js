@@ -6,6 +6,15 @@ ExampleScenario.Step
     Example of workflow instance.
 */
 class ExampleScenarioStep {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ExampleScenarioProcess[]|undefined} [process],
+     * @param {Boolean|undefined} [pause],
+     * @param {ExampleScenarioOperation|undefined} [operation],
+     * @param {ExampleScenarioAlternative[]|undefined} [alternative],
+    */
     constructor(
         {
             id,

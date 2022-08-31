@@ -9,6 +9,15 @@ ImplementationGuide.Resource1
     publish a computable definition of all the parts.
 */
 class ImplementationGuideResource1 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} reference,
+     * @param {Boolean|undefined} [exampleBoolean],
+     * @param {canonical|undefined} [exampleCanonical],
+     * @param {url|undefined} [relativePath],
+    */
     constructor(
         {
             id,

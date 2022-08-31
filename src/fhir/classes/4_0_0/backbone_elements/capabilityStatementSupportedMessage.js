@@ -9,6 +9,13 @@ CapabilityStatement.SupportedMessage
     implementation.
 */
 class CapabilityStatementSupportedMessage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} mode,
+     * @param {canonical} definition,
+    */
     constructor(
         {
             id,

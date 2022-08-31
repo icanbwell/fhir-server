@@ -6,6 +6,17 @@ InsurancePlan.Plan
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanPlan {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference[]|undefined} [coverageArea],
+     * @param {Reference[]|undefined} [network],
+     * @param {InsurancePlanGeneralCost[]|undefined} [generalCost],
+     * @param {InsurancePlanSpecificCost[]|undefined} [specificCost],
+    */
     constructor(
         {
             id,

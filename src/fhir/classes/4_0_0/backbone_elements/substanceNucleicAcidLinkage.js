@@ -9,6 +9,15 @@ SubstanceNucleicAcid.Linkage
     direction.
 */
 class SubstanceNucleicAcidLinkage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [connectivity],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [residueSite],
+    */
     constructor(
         {
             id,

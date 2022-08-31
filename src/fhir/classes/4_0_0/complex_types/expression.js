@@ -10,6 +10,15 @@ Expression
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Expression {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String|undefined} [description],
+     * @param {id|undefined} [name],
+     * @param {code} language,
+     * @param {String|undefined} [expression],
+     * @param {uri|undefined} [reference],
+    */
     constructor(
         {
             id,

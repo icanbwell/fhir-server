@@ -7,6 +7,17 @@ OperationOutcome.Issue
     system action.
 */
 class OperationOutcomeIssue {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} severity,
+     * @param {code} code,
+     * @param {CodeableConcept|undefined} [details],
+     * @param {String|undefined} [diagnostics],
+     * @param {String[]|undefined} [location],
+     * @param {String[]|undefined} [expression],
+    */
     constructor(
         {
             id,

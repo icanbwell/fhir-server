@@ -8,6 +8,13 @@ Claim.Payee
     reimbursement.
 */
 class ClaimPayee {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {Reference|undefined} [party],
+    */
     constructor(
         {
             id,

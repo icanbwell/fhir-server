@@ -9,6 +9,19 @@ ValueSet.Parameter
     elements](terminologies.html).
 */
 class ValueSetParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [valueString],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {Int|undefined} [valueInteger],
+     * @param {decimal|undefined} [valueDecimal],
+     * @param {uri|undefined} [valueUri],
+     * @param {code|undefined} [valueCode],
+     * @param {dateTime|undefined} [valueDateTime],
+    */
     constructor(
         {
             id,

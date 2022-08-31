@@ -7,6 +7,15 @@ Invoice.LineItem
     individual and total price for Billing purpose.
 */
 class InvoiceLineItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [sequence],
+     * @param {Reference|undefined} [chargeItemReference],
+     * @param {CodeableConcept|undefined} [chargeItemCodeableConcept],
+     * @param {InvoicePriceComponent[]|undefined} [priceComponent],
+    */
     constructor(
         {
             id,

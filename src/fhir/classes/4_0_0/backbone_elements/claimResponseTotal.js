@@ -7,6 +7,13 @@ ClaimResponse.Total
     resource.
 */
 class ClaimResponseTotal {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} category,
+     * @param {Money} amount,
+    */
     constructor(
         {
             id,

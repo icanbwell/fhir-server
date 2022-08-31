@@ -6,6 +6,13 @@ MedicinalProductPharmaceutical.TargetSpecies
     A pharmaceutical product described in terms of its composition and dose form.
 */
 class MedicinalProductPharmaceuticalTargetSpecies {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {MedicinalProductPharmaceuticalWithdrawalPeriod[]|undefined} [withdrawalPeriod],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,15 @@ ChargeItemDefinition.PriceComponent
     a rough structure and requires profiling for each type of billing code system.
 */
 class ChargeItemDefinitionPriceComponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [amount],
+    */
     constructor(
         {
             id,

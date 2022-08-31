@@ -7,6 +7,19 @@ FamilyMemberHistory.Condition
     the context of care for the patient.
 */
 class FamilyMemberHistoryCondition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {CodeableConcept|undefined} [outcome],
+     * @param {Boolean|undefined} [contributedToDeath],
+     * @param {Quantity|undefined} [onsetAge],
+     * @param {Range|undefined} [onsetRange],
+     * @param {Period|undefined} [onsetPeriod],
+     * @param {String|undefined} [onsetString],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

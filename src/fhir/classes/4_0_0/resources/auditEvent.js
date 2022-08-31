@@ -9,6 +9,27 @@ AuditEvent
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class AuditEvent {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding} type,
+     * @param {Coding[]|undefined} [subtype],
+     * @param {code|undefined} [action],
+     * @param {Period|undefined} [period],
+     * @param {instant} recorded,
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [outcomeDesc],
+     * @param {CodeableConcept[]|undefined} [purposeOfEvent],
+     * @param {AuditEventAgent[]} agent,
+     * @param {AuditEventSource} source,
+     * @param {AuditEventEntity[]|undefined} [entity],
+    */
     constructor(
         {
             id,

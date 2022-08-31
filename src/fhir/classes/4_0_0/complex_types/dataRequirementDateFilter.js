@@ -9,6 +9,15 @@ DataRequirement.DateFilter
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class DataRequirementDateFilter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String|undefined} [path],
+     * @param {String|undefined} [searchParam],
+     * @param {dateTime|undefined} [valueDateTime],
+     * @param {Period|undefined} [valuePeriod],
+     * @param {Quantity|undefined} [valueDuration],
+    */
     constructor(
         {
             id,

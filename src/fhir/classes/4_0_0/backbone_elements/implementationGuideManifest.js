@@ -9,6 +9,16 @@ ImplementationGuide.Manifest
     publish a computable definition of all the parts.
 */
 class ImplementationGuideManifest {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {url|undefined} [rendering],
+     * @param {ImplementationGuideResource1[]} resource,
+     * @param {ImplementationGuidePage1[]|undefined} [page],
+     * @param {String[]|undefined} [image],
+     * @param {String[]|undefined} [other],
+    */
     constructor(
         {
             id,

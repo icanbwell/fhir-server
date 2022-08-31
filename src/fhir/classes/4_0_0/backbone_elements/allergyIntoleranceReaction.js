@@ -7,6 +7,18 @@ AllergyIntolerance.Reaction
     individual and associated with exposure to a substance.
 */
 class AllergyIntoleranceReaction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [substance],
+     * @param {CodeableConcept[]} manifestation,
+     * @param {String|undefined} [description],
+     * @param {dateTime|undefined} [onset],
+     * @param {code|undefined} [severity],
+     * @param {CodeableConcept|undefined} [exposureRoute],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

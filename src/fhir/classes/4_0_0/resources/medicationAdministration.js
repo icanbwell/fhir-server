@@ -11,6 +11,37 @@ MedicationAdministration
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicationAdministration {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {uri[]|undefined} [instantiates],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [context],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {MedicationAdministrationPerformer[]|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference|undefined} [request],
+     * @param {Reference[]|undefined} [device],
+     * @param {Annotation[]|undefined} [note],
+     * @param {MedicationAdministrationDosage|undefined} [dosage],
+     * @param {Reference[]|undefined} [eventHistory],
+    */
     constructor(
         {
             id,

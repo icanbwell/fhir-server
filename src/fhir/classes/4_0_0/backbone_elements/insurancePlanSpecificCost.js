@@ -6,6 +6,13 @@ InsurancePlan.SpecificCost
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanSpecificCost {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} category,
+     * @param {InsurancePlanBenefit1[]|undefined} [benefit],
+    */
     constructor(
         {
             id,

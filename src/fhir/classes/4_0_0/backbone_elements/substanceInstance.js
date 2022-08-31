@@ -6,6 +6,14 @@ Substance.Instance
     A homogeneous material with a definite composition.
 */
 class SubstanceInstance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {dateTime|undefined} [expiry],
+     * @param {Quantity|undefined} [quantity],
+    */
     constructor(
         {
             id,

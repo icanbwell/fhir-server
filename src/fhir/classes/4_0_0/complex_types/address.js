@@ -12,6 +12,20 @@ Address
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Address {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [use],
+     * @param {code|undefined} [type],
+     * @param {String|undefined} [text],
+     * @param {String[]|undefined} [line],
+     * @param {String|undefined} [city],
+     * @param {String|undefined} [district],
+     * @param {String|undefined} [state],
+     * @param {String|undefined} [postalCode],
+     * @param {String|undefined} [country],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

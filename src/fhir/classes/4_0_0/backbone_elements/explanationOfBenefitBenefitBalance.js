@@ -8,6 +8,19 @@ ExplanationOfBenefit.BenefitBalance
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitBenefitBalance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} category,
+     * @param {Boolean|undefined} [excluded],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [network],
+     * @param {CodeableConcept|undefined} [unit],
+     * @param {CodeableConcept|undefined} [term],
+     * @param {ExplanationOfBenefitFinancial[]|undefined} [financial],
+    */
     constructor(
         {
             id,

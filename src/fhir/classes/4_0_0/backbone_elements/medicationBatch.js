@@ -8,6 +8,13 @@ Medication.Batch
     medication as well as for making statements about medication use.
 */
 class MedicationBatch {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [lotNumber],
+     * @param {dateTime|undefined} [expirationDate],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,13 @@ MeasureReport.Component
     calculation.
 */
 class MeasureReportComponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {CodeableConcept} value,
+    */
     constructor(
         {
             id,

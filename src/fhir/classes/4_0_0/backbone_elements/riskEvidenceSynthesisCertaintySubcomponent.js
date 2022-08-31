@@ -8,6 +8,14 @@ RiskEvidenceSynthesis.CertaintySubcomponent
     combination of research studies.
 */
 class RiskEvidenceSynthesisCertaintySubcomponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [rating],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

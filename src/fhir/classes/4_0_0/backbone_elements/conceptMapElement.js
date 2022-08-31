@@ -8,6 +8,14 @@ ConceptMap.Element
     concepts, or classes in class models.
 */
 class ConceptMapElement {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [code],
+     * @param {String|undefined} [display],
+     * @param {ConceptMapTarget[]|undefined} [target],
+    */
     constructor(
         {
             id,

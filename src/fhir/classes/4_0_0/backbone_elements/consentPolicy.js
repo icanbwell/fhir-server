@@ -8,6 +8,13 @@ Consent.Policy
     within a given policy context, for specific purposes and periods of time.
 */
 class ConsentPolicy {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [authority],
+     * @param {uri|undefined} [uri],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,26 @@ DeviceMetric
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DeviceMetric {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [unit],
+     * @param {Reference|undefined} [source],
+     * @param {Reference|undefined} [parent],
+     * @param {code|undefined} [operationalStatus],
+     * @param {code|undefined} [color],
+     * @param {code} category,
+     * @param {Timing|undefined} [measurementPeriod],
+     * @param {DeviceMetricCalibration[]|undefined} [calibration],
+    */
     constructor(
         {
             id,

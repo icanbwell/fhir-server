@@ -8,6 +8,18 @@ Attachment
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Attachment {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [contentType],
+     * @param {code|undefined} [language],
+     * @param {base64Binary|undefined} [data],
+     * @param {url|undefined} [url],
+     * @param {unsignedInt|undefined} [size],
+     * @param {base64Binary|undefined} [hash],
+     * @param {String|undefined} [title],
+     * @param {dateTime|undefined} [creation],
+    */
     constructor(
         {
             id,

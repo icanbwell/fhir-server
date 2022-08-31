@@ -7,6 +7,14 @@ MedicinalProduct.Name
     direct patient care (e.g. regulatory use).
 */
 class MedicinalProductName {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} productName,
+     * @param {MedicinalProductNamePart[]|undefined} [namePart],
+     * @param {MedicinalProductCountryLanguage[]|undefined} [countryLanguage],
+    */
     constructor(
         {
             id,

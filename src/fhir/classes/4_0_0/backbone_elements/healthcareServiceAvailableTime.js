@@ -6,6 +6,15 @@ HealthcareService.AvailableTime
     The details of a healthcare service available at a location.
 */
 class HealthcareServiceAvailableTime {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code[]|undefined} [daysOfWeek],
+     * @param {Boolean|undefined} [allDay],
+     * @param {time|undefined} [availableStartTime],
+     * @param {time|undefined} [availableEndTime],
+    */
     constructor(
         {
             id,

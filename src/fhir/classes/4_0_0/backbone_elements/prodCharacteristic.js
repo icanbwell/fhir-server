@@ -9,6 +9,22 @@ ProdCharacteristic
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ProdCharacteristic {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [height],
+     * @param {Quantity|undefined} [width],
+     * @param {Quantity|undefined} [depth],
+     * @param {Quantity|undefined} [weight],
+     * @param {Quantity|undefined} [nominalVolume],
+     * @param {Quantity|undefined} [externalDiameter],
+     * @param {String|undefined} [shape],
+     * @param {String[]|undefined} [color],
+     * @param {String[]|undefined} [imprint],
+     * @param {Attachment[]|undefined} [image],
+     * @param {CodeableConcept|undefined} [scoring],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,39 @@ Communication
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Communication {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {Reference[]|undefined} [inResponseTo],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {code|undefined} [priority],
+     * @param {CodeableConcept[]|undefined} [medium],
+     * @param {Reference|undefined} [subject],
+     * @param {CodeableConcept|undefined} [topic],
+     * @param {Reference[]|undefined} [about],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [sent],
+     * @param {dateTime|undefined} [received],
+     * @param {Reference[]|undefined} [recipient],
+     * @param {Reference|undefined} [sender],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {CommunicationPayload[]|undefined} [payload],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

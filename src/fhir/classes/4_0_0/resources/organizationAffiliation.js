@@ -8,6 +8,28 @@ OrganizationAffiliation
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class OrganizationAffiliation {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [organization],
+     * @param {Reference|undefined} [participatingOrganization],
+     * @param {Reference[]|undefined} [network],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]|undefined} [location],
+     * @param {Reference[]|undefined} [healthcareService],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Reference[]|undefined} [endpoint],
+    */
     constructor(
         {
             id,

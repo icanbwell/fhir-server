@@ -8,6 +8,15 @@ Location.HoursOfOperation
     accommodated.
 */
 class LocationHoursOfOperation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code[]|undefined} [daysOfWeek],
+     * @param {Boolean|undefined} [allDay],
+     * @param {time|undefined} [openingTime],
+     * @param {time|undefined} [closingTime],
+    */
     constructor(
         {
             id,

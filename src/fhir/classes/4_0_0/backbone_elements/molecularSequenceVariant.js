@@ -6,6 +6,17 @@ MolecularSequence.Variant
     Raw data describing a biological sequence.
 */
 class MolecularSequenceVariant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [start],
+     * @param {Int|undefined} [end],
+     * @param {String|undefined} [observedAllele],
+     * @param {String|undefined} [referenceAllele],
+     * @param {String|undefined} [cigar],
+     * @param {Reference|undefined} [variantPointer],
+    */
     constructor(
         {
             id,

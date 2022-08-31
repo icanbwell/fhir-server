@@ -6,6 +6,14 @@ InsurancePlan.Benefit
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanBenefit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {String|undefined} [requirement],
+     * @param {InsurancePlanLimit[]|undefined} [limit],
+    */
     constructor(
         {
             id,

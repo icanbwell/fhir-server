@@ -8,6 +8,12 @@ ContactDetail
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ContactDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+    */
     constructor(
         {
             id,

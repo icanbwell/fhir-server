@@ -6,6 +6,14 @@ MedicationKnowledge.Kinetics
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeKinetics {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity[]|undefined} [areaUnderCurve],
+     * @param {Quantity[]|undefined} [lethalDose50],
+     * @param {Quantity|undefined} [halfLifePeriod],
+    */
     constructor(
         {
             id,

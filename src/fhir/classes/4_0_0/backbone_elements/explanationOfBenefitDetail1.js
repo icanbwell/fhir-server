@@ -8,6 +8,20 @@ ExplanationOfBenefit.Detail1
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitDetail1 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} productOrService,
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [net],
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ExplanationOfBenefitAdjudication[]|undefined} [adjudication],
+     * @param {ExplanationOfBenefitSubDetail1[]|undefined} [subDetail],
+    */
     constructor(
         {
             id,

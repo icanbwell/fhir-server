@@ -9,6 +9,19 @@ SubstanceNucleicAcid.Subunit
     direction.
 */
 class SubstanceNucleicAcidSubunit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [subunit],
+     * @param {String|undefined} [sequence],
+     * @param {Int|undefined} [length],
+     * @param {Attachment|undefined} [sequenceAttachment],
+     * @param {CodeableConcept|undefined} [fivePrime],
+     * @param {CodeableConcept|undefined} [threePrime],
+     * @param {SubstanceNucleicAcidLinkage[]|undefined} [linkage],
+     * @param {SubstanceNucleicAcidSugar[]|undefined} [sugar],
+    */
     constructor(
         {
             id,

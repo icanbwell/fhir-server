@@ -10,6 +10,15 @@ ImagingStudy.Instance
     ultrasound), but a study may have multiple series of different modalities.
 */
 class ImagingStudyInstance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} uid,
+     * @param {Coding} sopClass,
+     * @param {unsignedInt|undefined} [number],
+     * @param {String|undefined} [title],
+    */
     constructor(
         {
             id,

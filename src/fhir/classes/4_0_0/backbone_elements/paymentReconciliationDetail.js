@@ -7,6 +7,21 @@ PaymentReconciliation.Detail
     the payment items being paid.
 */
 class PaymentReconciliationDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {Identifier|undefined} [predecessor],
+     * @param {CodeableConcept} type,
+     * @param {Reference|undefined} [request],
+     * @param {Reference|undefined} [submitter],
+     * @param {Reference|undefined} [response],
+     * @param {date|undefined} [date],
+     * @param {Reference|undefined} [responsible],
+     * @param {Reference|undefined} [payee],
+     * @param {Money|undefined} [amount],
+    */
     constructor(
         {
             id,

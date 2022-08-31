@@ -7,6 +7,17 @@ NutritionOrder.OralDiet
     supplement to a patient/resident.
 */
 class NutritionOrderOralDiet {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {Timing[]|undefined} [schedule],
+     * @param {NutritionOrderNutrient[]|undefined} [nutrient],
+     * @param {NutritionOrderTexture[]|undefined} [texture],
+     * @param {CodeableConcept[]|undefined} [fluidConsistencyType],
+     * @param {String|undefined} [instruction],
+    */
     constructor(
         {
             id,

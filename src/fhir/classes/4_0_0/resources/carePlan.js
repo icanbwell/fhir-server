@@ -9,6 +9,39 @@ CarePlan
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CarePlan {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [replaces],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {code} intent,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {String|undefined} [title],
+     * @param {String|undefined} [description],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {Period|undefined} [period],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference|undefined} [author],
+     * @param {Reference[]|undefined} [contributor],
+     * @param {Reference[]|undefined} [careTeam],
+     * @param {Reference[]|undefined} [addresses],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Reference[]|undefined} [goal],
+     * @param {CarePlanActivity[]|undefined} [activity],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

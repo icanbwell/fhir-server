@@ -7,6 +7,13 @@ Invoice.Participant
     individual and total price for Billing purpose.
 */
 class InvoiceParticipant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [role],
+     * @param {Reference} actor,
+    */
     constructor(
         {
             id,

@@ -7,6 +7,13 @@ DeviceDefinition.Specialization
     component of a medical device.
 */
 class DeviceDefinitionSpecialization {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} systemType,
+     * @param {String|undefined} [version],
+    */
     constructor(
         {
             id,

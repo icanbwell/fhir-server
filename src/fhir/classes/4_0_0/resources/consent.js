@@ -9,6 +9,30 @@ Consent
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Consent {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} scope,
+     * @param {CodeableConcept[]} category,
+     * @param {Reference|undefined} [patient],
+     * @param {dateTime|undefined} [dateTime],
+     * @param {Reference[]|undefined} [performer],
+     * @param {Reference[]|undefined} [organization],
+     * @param {Attachment|undefined} [sourceAttachment],
+     * @param {Reference|undefined} [sourceReference],
+     * @param {ConsentPolicy[]|undefined} [policy],
+     * @param {CodeableConcept|undefined} [policyRule],
+     * @param {ConsentVerification[]|undefined} [verification],
+     * @param {ConsentProvision|undefined} [provision],
+    */
     constructor(
         {
             id,

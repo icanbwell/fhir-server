@@ -7,6 +7,18 @@ TestScript.Capability
     determine compliance against the FHIR specification.
 */
 class TestScriptCapability {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} required,
+     * @param {Boolean} validated,
+     * @param {String|undefined} [description],
+     * @param {Int[]|undefined} [origin],
+     * @param {Int|undefined} [destination],
+     * @param {uri[]|undefined} [link],
+     * @param {canonical} capabilities,
+    */
     constructor(
         {
             id,

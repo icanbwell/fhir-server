@@ -7,6 +7,14 @@ Encounter.Diagnosis
     providing healthcare service(s) or assessing the health status of a patient.
 */
 class EncounterDiagnosis {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} condition,
+     * @param {CodeableConcept|undefined} [use],
+     * @param {Int|undefined} [rank],
+    */
     constructor(
         {
             id,

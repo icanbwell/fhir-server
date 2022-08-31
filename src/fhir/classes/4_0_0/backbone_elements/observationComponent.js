@@ -7,6 +7,26 @@ Observation.Component
     subject.
 */
 class ObservationComponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {String|undefined} [valueString],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {Int|undefined} [valueInteger],
+     * @param {Range|undefined} [valueRange],
+     * @param {Ratio|undefined} [valueRatio],
+     * @param {SampledData|undefined} [valueSampledData],
+     * @param {time|undefined} [valueTime],
+     * @param {dateTime|undefined} [valueDateTime],
+     * @param {Period|undefined} [valuePeriod],
+     * @param {CodeableConcept|undefined} [dataAbsentReason],
+     * @param {CodeableConcept[]|undefined} [interpretation],
+     * @param {ObservationReferenceRange[]|undefined} [referenceRange],
+    */
     constructor(
         {
             id,

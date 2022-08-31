@@ -6,6 +6,17 @@ Bundle.Entry
     A container for a collection of resources.
 */
 class BundleEntry {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {BundleLink[]|undefined} [link],
+     * @param {uri|undefined} [fullUrl],
+     * @param {ResourceContainer|undefined} [resource],
+     * @param {BundleSearch|undefined} [search],
+     * @param {BundleRequest|undefined} [request],
+     * @param {BundleResponse|undefined} [response],
+    */
     constructor(
         {
             id,

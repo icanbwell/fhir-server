@@ -9,6 +9,19 @@ DataRequirement
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class DataRequirement {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code} type,
+     * @param {canonical[]|undefined} [profile],
+     * @param {CodeableConcept|undefined} [subjectCodeableConcept],
+     * @param {Reference|undefined} [subjectReference],
+     * @param {String[]|undefined} [mustSupport],
+     * @param {DataRequirementCodeFilter[]|undefined} [codeFilter],
+     * @param {DataRequirementDateFilter[]|undefined} [dateFilter],
+     * @param {Int|undefined} [limit],
+     * @param {DataRequirementSort[]|undefined} [sort],
+    */
     constructor(
         {
             id,

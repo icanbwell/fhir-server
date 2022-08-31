@@ -9,6 +9,13 @@ Parameters
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Parameters {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {ParametersParameter[]|undefined} [parameter],
+    */
     constructor(
         {
             id,

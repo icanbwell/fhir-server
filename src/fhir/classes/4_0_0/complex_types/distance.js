@@ -8,6 +8,13 @@ Distance
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Distance {
+    /**
+     * @param {decimal|undefined} [value],
+     * @param {code|undefined} [comparator],
+     * @param {String|undefined} [unit],
+     * @param {uri|undefined} [system],
+     * @param {code|undefined} [code],
+    */
     constructor(
         {
             value,

@@ -9,6 +9,15 @@ CapabilityStatement.SearchParam
     implementation.
 */
 class CapabilityStatementSearchParam {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {canonical|undefined} [definition],
+     * @param {code} type,
+     * @param {markdown|undefined} [documentation],
+    */
     constructor(
         {
             id,

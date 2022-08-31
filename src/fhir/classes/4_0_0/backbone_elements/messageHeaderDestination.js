@@ -10,6 +10,15 @@ MessageHeader.Destination
     bundle.
 */
 class MessageHeaderDestination {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [name],
+     * @param {Reference|undefined} [target],
+     * @param {url} endpoint,
+     * @param {Reference|undefined} [receiver],
+    */
     constructor(
         {
             id,

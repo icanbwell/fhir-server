@@ -7,6 +7,17 @@ StructureMap.Group
     data.
 */
 class StructureMapGroup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} name,
+     * @param {id|undefined} [extends_],
+     * @param {code} typeMode,
+     * @param {String|undefined} [documentation],
+     * @param {StructureMapInput[]} input,
+     * @param {StructureMapRule[]} rule,
+    */
     constructor(
         {
             id,

@@ -6,6 +6,15 @@ MedicationKnowledge.Ingredient
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeIngredient {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+     * @param {Reference|undefined} [itemReference],
+     * @param {Boolean|undefined} [isActive],
+     * @param {Ratio|undefined} [strength],
+    */
     constructor(
         {
             id,

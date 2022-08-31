@@ -8,6 +8,16 @@ Appointment.Participant
     more Encounter(s).
 */
 class AppointmentParticipant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {Reference|undefined} [actor],
+     * @param {code|undefined} [required],
+     * @param {code} status,
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,16 @@ BiologicallyDerivedProduct.Processing
     into another (possibly the same) biological entity.
 */
 class BiologicallyDerivedProductProcessing {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [procedure],
+     * @param {Reference|undefined} [additive],
+     * @param {dateTime|undefined} [timeDateTime],
+     * @param {Period|undefined} [timePeriod],
+    */
     constructor(
         {
             id,

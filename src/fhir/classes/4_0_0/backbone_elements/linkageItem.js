@@ -7,6 +7,13 @@ Linkage.Item
     real-world "occurrence".
 */
 class LinkageItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {Reference} resource,
+    */
     constructor(
         {
             id,

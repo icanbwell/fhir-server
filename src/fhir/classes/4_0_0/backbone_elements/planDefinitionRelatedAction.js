@@ -9,6 +9,15 @@ PlanDefinition.RelatedAction
     clinical decision support rules, order sets and protocols.
 */
 class PlanDefinitionRelatedAction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} actionId,
+     * @param {code} relationship,
+     * @param {Quantity|undefined} [offsetDuration],
+     * @param {Range|undefined} [offsetRange],
+    */
     constructor(
         {
             id,

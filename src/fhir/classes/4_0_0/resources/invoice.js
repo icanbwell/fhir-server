@@ -8,6 +8,32 @@ Invoice
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Invoice {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {String|undefined} [cancelledReason],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [recipient],
+     * @param {dateTime|undefined} [date],
+     * @param {InvoiceParticipant[]|undefined} [participant],
+     * @param {Reference|undefined} [issuer],
+     * @param {Reference|undefined} [account],
+     * @param {InvoiceLineItem[]|undefined} [lineItem],
+     * @param {InvoicePriceComponent[]|undefined} [totalPriceComponent],
+     * @param {Money|undefined} [totalNet],
+     * @param {Money|undefined} [totalGross],
+     * @param {markdown|undefined} [paymentTerms],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

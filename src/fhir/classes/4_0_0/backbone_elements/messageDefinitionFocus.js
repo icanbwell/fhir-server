@@ -8,6 +8,15 @@ MessageDefinition.Focus
     transmitted and what response(s), if any, are permitted.
 */
 class MessageDefinitionFocus {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {canonical|undefined} [profile],
+     * @param {unsignedInt} min,
+     * @param {String|undefined} [max],
+    */
     constructor(
         {
             id,

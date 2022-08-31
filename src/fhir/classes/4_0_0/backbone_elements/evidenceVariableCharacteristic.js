@@ -7,6 +7,26 @@ EvidenceVariable.Characteristic
     (evidence, assertion, recommendation) is about.
 */
 class EvidenceVariableCharacteristic {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {Reference|undefined} [definitionReference],
+     * @param {canonical|undefined} [definitionCanonical],
+     * @param {CodeableConcept|undefined} [definitionCodeableConcept],
+     * @param {Expression|undefined} [definitionExpression],
+     * @param {DataRequirement|undefined} [definitionDataRequirement],
+     * @param {TriggerDefinition|undefined} [definitionTriggerDefinition],
+     * @param {UsageContext[]|undefined} [usageContext],
+     * @param {Boolean|undefined} [exclude],
+     * @param {dateTime|undefined} [participantEffectiveDateTime],
+     * @param {Period|undefined} [participantEffectivePeriod],
+     * @param {Quantity|undefined} [participantEffectiveDuration],
+     * @param {Timing|undefined} [participantEffectiveTiming],
+     * @param {Quantity|undefined} [timeFromStart],
+     * @param {code|undefined} [groupMeasure],
+    */
     constructor(
         {
             id,

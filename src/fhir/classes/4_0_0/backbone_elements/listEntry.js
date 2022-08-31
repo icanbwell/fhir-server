@@ -6,6 +6,15 @@ List.Entry
     A list is a curated collection of resources.
 */
 class ListEntry {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [flag],
+     * @param {Boolean|undefined} [deleted],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference} item,
+    */
     constructor(
         {
             id,

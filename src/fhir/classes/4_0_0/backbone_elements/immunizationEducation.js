@@ -7,6 +7,15 @@ Immunization.Education
     an immunization as reported by a patient, a clinician or another party.
 */
 class ImmunizationEducation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [documentType],
+     * @param {uri|undefined} [reference],
+     * @param {dateTime|undefined} [publicationDate],
+     * @param {dateTime|undefined} [presentationDate],
+    */
     constructor(
         {
             id,

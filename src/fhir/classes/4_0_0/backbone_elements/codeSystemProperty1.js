@@ -8,6 +8,19 @@ CodeSystem.Property1
     define a part or all of its content.
 */
 class CodeSystemProperty1 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {code|undefined} [valueCode],
+     * @param {Coding|undefined} [valueCoding],
+     * @param {String|undefined} [valueString],
+     * @param {Int|undefined} [valueInteger],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {dateTime|undefined} [valueDateTime],
+     * @param {decimal|undefined} [valueDecimal],
+    */
     constructor(
         {
             id,

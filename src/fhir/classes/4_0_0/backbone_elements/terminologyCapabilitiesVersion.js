@@ -8,6 +8,17 @@ TerminologyCapabilities.Version
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesVersion {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [code],
+     * @param {Boolean|undefined} [isDefault],
+     * @param {Boolean|undefined} [compositional],
+     * @param {code[]|undefined} [language],
+     * @param {TerminologyCapabilitiesFilter[]|undefined} [filter],
+     * @param {code[]|undefined} [property],
+    */
     constructor(
         {
             id,

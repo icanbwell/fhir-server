@@ -9,6 +9,33 @@ GuidanceResponse
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class GuidanceResponse {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [requestIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {uri|undefined} [moduleUri],
+     * @param {canonical|undefined} [moduleCanonical],
+     * @param {CodeableConcept|undefined} [moduleCodeableConcept],
+     * @param {code} status,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Reference|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Reference[]|undefined} [evaluationMessage],
+     * @param {Reference|undefined} [outputParameters],
+     * @param {Reference|undefined} [result],
+     * @param {DataRequirement[]|undefined} [dataRequirement],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,12 @@ TestScript.Teardown
     determine compliance against the FHIR specification.
 */
 class TestScriptTeardown {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestScriptAction2[]} action,
+    */
     constructor(
         {
             id,

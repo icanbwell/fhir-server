@@ -6,6 +6,17 @@ MolecularSequence.Repository
     Raw data describing a biological sequence.
 */
 class MolecularSequenceRepository {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {uri|undefined} [url],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [datasetId],
+     * @param {String|undefined} [variantsetId],
+     * @param {String|undefined} [readsetId],
+    */
     constructor(
         {
             id,

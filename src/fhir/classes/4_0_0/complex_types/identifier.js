@@ -9,6 +9,16 @@ Identifier
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Identifier {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [use],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {uri|undefined} [system],
+     * @param {String|undefined} [value],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [assigner],
+    */
     constructor(
         {
             id,

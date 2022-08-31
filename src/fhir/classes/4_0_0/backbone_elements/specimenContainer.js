@@ -6,6 +6,18 @@ Specimen.Container
     A sample to be used for analysis.
 */
 class SpecimenContainer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [capacity],
+     * @param {Quantity|undefined} [specimenQuantity],
+     * @param {CodeableConcept|undefined} [additiveCodeableConcept],
+     * @param {Reference|undefined} [additiveReference],
+    */
     constructor(
         {
             id,

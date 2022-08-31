@@ -7,6 +7,16 @@ NutritionOrder.Supplement
     supplement to a patient/resident.
 */
 class NutritionOrderSupplement {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {String|undefined} [productName],
+     * @param {Timing[]|undefined} [schedule],
+     * @param {Quantity|undefined} [quantity],
+     * @param {String|undefined} [instruction],
+    */
     constructor(
         {
             id,

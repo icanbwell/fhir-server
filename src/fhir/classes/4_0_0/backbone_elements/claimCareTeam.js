@@ -8,6 +8,16 @@ Claim.CareTeam
     reimbursement.
 */
 class ClaimCareTeam {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {Reference} provider,
+     * @param {Boolean|undefined} [responsible],
+     * @param {CodeableConcept|undefined} [role],
+     * @param {CodeableConcept|undefined} [qualification],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,18 @@ ElementDefinition.Constraint
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionConstraint {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} key,
+     * @param {String|undefined} [requirements],
+     * @param {code} severity,
+     * @param {String} human,
+     * @param {String|undefined} [expression],
+     * @param {String|undefined} [xpath],
+     * @param {canonical|undefined} [source],
+    */
     constructor(
         {
             id,

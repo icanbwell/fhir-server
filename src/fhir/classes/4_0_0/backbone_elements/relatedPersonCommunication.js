@@ -8,6 +8,13 @@ RelatedPerson.Communication
     process.
 */
 class RelatedPersonCommunication {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} language,
+     * @param {Boolean|undefined} [preferred],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,28 @@ EpisodeOfCare
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class EpisodeOfCare {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {EpisodeOfCareStatusHistory[]|undefined} [statusHistory],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {EpisodeOfCareDiagnosis[]|undefined} [diagnosis],
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {Period|undefined} [period],
+     * @param {Reference[]|undefined} [referralRequest],
+     * @param {Reference|undefined} [careManager],
+     * @param {Reference[]|undefined} [team],
+     * @param {Reference[]|undefined} [account],
+    */
     constructor(
         {
             id,

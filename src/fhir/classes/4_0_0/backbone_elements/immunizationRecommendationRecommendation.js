@@ -7,6 +7,25 @@ ImmunizationRecommendation.Recommendation
     to a published schedule with optional supporting justification.
 */
 class ImmunizationRecommendationRecommendation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [vaccineCode],
+     * @param {CodeableConcept|undefined} [targetDisease],
+     * @param {CodeableConcept[]|undefined} [contraindicatedVaccineCode],
+     * @param {CodeableConcept} forecastStatus,
+     * @param {CodeableConcept[]|undefined} [forecastReason],
+     * @param {ImmunizationRecommendationDateCriterion[]|undefined} [dateCriterion],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [series],
+     * @param {Int|undefined} [doseNumberPositiveInt],
+     * @param {String|undefined} [doseNumberString],
+     * @param {Int|undefined} [seriesDosesPositiveInt],
+     * @param {String|undefined} [seriesDosesString],
+     * @param {Reference[]|undefined} [supportingImmunization],
+     * @param {Reference[]|undefined} [supportingPatientInformation],
+    */
     constructor(
         {
             id,

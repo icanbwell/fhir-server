@@ -7,6 +7,19 @@ VerificationResult.Attestation
     elements.
 */
 class VerificationResultAttestation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [who],
+     * @param {Reference|undefined} [onBehalfOf],
+     * @param {CodeableConcept|undefined} [communicationMethod],
+     * @param {date|undefined} [date],
+     * @param {String|undefined} [sourceIdentityCertificate],
+     * @param {String|undefined} [proxyIdentityCertificate],
+     * @param {Signature|undefined} [proxySignature],
+     * @param {Signature|undefined} [sourceSignature],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,41 @@ Condition
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Condition {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [clinicalStatus],
+     * @param {CodeableConcept|undefined} [verificationStatus],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept|undefined} [severity],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [bodySite],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [onsetDateTime],
+     * @param {Quantity|undefined} [onsetAge],
+     * @param {Period|undefined} [onsetPeriod],
+     * @param {Range|undefined} [onsetRange],
+     * @param {String|undefined} [onsetString],
+     * @param {dateTime|undefined} [abatementDateTime],
+     * @param {Quantity|undefined} [abatementAge],
+     * @param {Period|undefined} [abatementPeriod],
+     * @param {Range|undefined} [abatementRange],
+     * @param {String|undefined} [abatementString],
+     * @param {dateTime|undefined} [recordedDate],
+     * @param {Reference|undefined} [recorder],
+     * @param {Reference|undefined} [asserter],
+     * @param {ConditionStage[]|undefined} [stage],
+     * @param {ConditionEvidence[]|undefined} [evidence],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

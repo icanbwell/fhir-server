@@ -6,6 +6,15 @@ InsurancePlan.GeneralCost
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanGeneralCost {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Int|undefined} [groupSize],
+     * @param {Money|undefined} [cost],
+     * @param {String|undefined} [comment],
+    */
     constructor(
         {
             id,

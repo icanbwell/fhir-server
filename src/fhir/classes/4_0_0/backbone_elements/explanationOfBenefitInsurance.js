@@ -8,6 +8,14 @@ ExplanationOfBenefit.Insurance
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitInsurance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} focal,
+     * @param {Reference} coverage,
+     * @param {String[]|undefined} [preAuthRef],
+    */
     constructor(
         {
             id,

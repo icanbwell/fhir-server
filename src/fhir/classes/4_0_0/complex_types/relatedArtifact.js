@@ -9,6 +9,17 @@ RelatedArtifact
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class RelatedArtifact {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code} type,
+     * @param {String|undefined} [label],
+     * @param {String|undefined} [display],
+     * @param {markdown|undefined} [citation],
+     * @param {url|undefined} [url],
+     * @param {Attachment|undefined} [document],
+     * @param {canonical|undefined} [resource],
+    */
     constructor(
         {
             id,

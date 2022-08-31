@@ -7,6 +7,15 @@ CareTeam.Participant
     participate in the coordination and delivery of care for a patient.
 */
 class CareTeamParticipant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [role],
+     * @param {Reference|undefined} [member],
+     * @param {Reference|undefined} [onBehalfOf],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

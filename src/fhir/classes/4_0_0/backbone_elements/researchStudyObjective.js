@@ -11,6 +11,13 @@ ResearchStudy.Objective
     information about human or animal subjects.
 */
 class ResearchStudyObjective {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [name],
+     * @param {CodeableConcept|undefined} [type],
+    */
     constructor(
         {
             id,

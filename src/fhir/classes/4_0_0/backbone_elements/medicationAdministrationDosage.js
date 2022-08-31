@@ -10,6 +10,18 @@ MedicationAdministration.Dosage
     practitioner.
 */
 class MedicationAdministrationDosage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [text],
+     * @param {CodeableConcept|undefined} [site],
+     * @param {CodeableConcept|undefined} [route],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {Quantity|undefined} [dose],
+     * @param {Ratio|undefined} [rateRatio],
+     * @param {Quantity|undefined} [rateQuantity],
+    */
     constructor(
         {
             id,

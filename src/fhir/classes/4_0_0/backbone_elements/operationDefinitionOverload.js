@@ -7,6 +7,13 @@ OperationDefinition.Overload
     named query (using the search interaction).
 */
 class OperationDefinitionOverload {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String[]|undefined} [parameterName],
+     * @param {String|undefined} [comment],
+    */
     constructor(
         {
             id,

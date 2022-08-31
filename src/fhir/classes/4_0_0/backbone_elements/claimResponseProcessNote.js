@@ -7,6 +7,15 @@ ClaimResponse.ProcessNote
     resource.
 */
 class ClaimResponseProcessNote {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [number],
+     * @param {code|undefined} [type],
+     * @param {String} text,
+     * @param {CodeableConcept|undefined} [language],
+    */
     constructor(
         {
             id,

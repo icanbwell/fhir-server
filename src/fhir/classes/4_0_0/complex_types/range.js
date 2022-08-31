@@ -8,6 +8,12 @@ Range
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Range {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Quantity|undefined} [low],
+     * @param {Quantity|undefined} [high],
+    */
     constructor(
         {
             id,

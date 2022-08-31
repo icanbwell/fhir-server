@@ -7,6 +7,15 @@ StructureMap.Input
     data.
 */
 class StructureMapInput {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} name,
+     * @param {String|undefined} [type],
+     * @param {code} mode,
+     * @param {String|undefined} [documentation],
+    */
     constructor(
         {
             id,

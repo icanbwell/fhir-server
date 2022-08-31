@@ -10,6 +10,14 @@ MessageHeader.Response
     bundle.
 */
 class MessageHeaderResponse {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} identifier,
+     * @param {code} code,
+     * @param {Reference|undefined} [details],
+    */
     constructor(
         {
             id,

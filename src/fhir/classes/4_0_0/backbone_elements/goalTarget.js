@@ -8,6 +8,21 @@ Goal.Target
     herd immunity via immunization, meeting a process improvement objective, etc.
 */
 class GoalTarget {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [measure],
+     * @param {Quantity|undefined} [detailQuantity],
+     * @param {Range|undefined} [detailRange],
+     * @param {CodeableConcept|undefined} [detailCodeableConcept],
+     * @param {String|undefined} [detailString],
+     * @param {Boolean|undefined} [detailBoolean],
+     * @param {Int|undefined} [detailInteger],
+     * @param {Ratio|undefined} [detailRatio],
+     * @param {date|undefined} [dueDate],
+     * @param {Quantity|undefined} [dueDuration],
+    */
     constructor(
         {
             id,

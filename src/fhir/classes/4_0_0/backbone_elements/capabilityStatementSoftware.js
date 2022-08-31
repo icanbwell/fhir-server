@@ -9,6 +9,14 @@ CapabilityStatement.Software
     implementation.
 */
 class CapabilityStatementSoftware {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [version],
+     * @param {dateTime|undefined} [releaseDate],
+    */
     constructor(
         {
             id,

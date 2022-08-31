@@ -6,6 +6,14 @@ TestReport.Test
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportTest {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [description],
+     * @param {TestReportAction1[]} action,
+    */
     constructor(
         {
             id,

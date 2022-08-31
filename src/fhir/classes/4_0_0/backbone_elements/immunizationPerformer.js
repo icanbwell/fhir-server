@@ -7,6 +7,13 @@ Immunization.Performer
     an immunization as reported by a patient, a clinician or another party.
 */
 class ImmunizationPerformer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [function_],
+     * @param {Reference} actor,
+    */
     constructor(
         {
             id,

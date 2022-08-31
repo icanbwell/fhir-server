@@ -6,6 +6,15 @@ SubstancePolymer.Repeat
     Todo.
 */
 class SubstancePolymerRepeat {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [numberOfUnits],
+     * @param {String|undefined} [averageMolecularFormula],
+     * @param {CodeableConcept|undefined} [repeatUnitAmountType],
+     * @param {SubstancePolymerRepeatUnit[]|undefined} [repeatUnit],
+    */
     constructor(
         {
             id,

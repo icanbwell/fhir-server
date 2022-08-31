@@ -6,6 +6,16 @@ MedicinalProductIngredient.ReferenceStrength
     An ingredient of a manufactured item or pharmaceutical product.
 */
 class MedicinalProductIngredientReferenceStrength {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [substance],
+     * @param {Ratio} strength,
+     * @param {Ratio|undefined} [strengthLowLimit],
+     * @param {String|undefined} [measurementPoint],
+     * @param {CodeableConcept[]|undefined} [country],
+    */
     constructor(
         {
             id,

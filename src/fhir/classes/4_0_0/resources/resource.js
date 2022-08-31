@@ -6,6 +6,12 @@ Resource
     This is the base resource type for everything.
 */
 class Resource {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+    */
     constructor(
         {
             id,

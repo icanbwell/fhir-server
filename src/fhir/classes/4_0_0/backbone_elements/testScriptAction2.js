@@ -7,6 +7,12 @@ TestScript.Action2
     determine compliance against the FHIR specification.
 */
 class TestScriptAction2 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestScriptOperation} operation,
+    */
     constructor(
         {
             id,

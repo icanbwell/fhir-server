@@ -6,6 +6,15 @@ MedicinalProductIngredient.SpecifiedSubstance
     An ingredient of a manufactured item or pharmaceutical product.
 */
 class MedicinalProductIngredientSpecifiedSubstance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {CodeableConcept} group,
+     * @param {CodeableConcept|undefined} [confidentiality],
+     * @param {MedicinalProductIngredientStrength[]|undefined} [strength],
+    */
     constructor(
         {
             id,

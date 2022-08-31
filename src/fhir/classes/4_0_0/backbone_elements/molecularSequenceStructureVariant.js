@@ -6,6 +6,16 @@ MolecularSequence.StructureVariant
     Raw data describing a biological sequence.
 */
 class MolecularSequenceStructureVariant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [variantType],
+     * @param {Boolean|undefined} [exact],
+     * @param {Int|undefined} [length],
+     * @param {MolecularSequenceOuter|undefined} [outer],
+     * @param {MolecularSequenceInner|undefined} [inner],
+    */
     constructor(
         {
             id,

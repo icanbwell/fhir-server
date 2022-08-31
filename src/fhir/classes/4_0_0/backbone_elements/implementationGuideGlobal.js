@@ -9,6 +9,13 @@ ImplementationGuide.Global
     publish a computable definition of all the parts.
 */
 class ImplementationGuideGlobal {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {canonical} profile,
+    */
     constructor(
         {
             id,

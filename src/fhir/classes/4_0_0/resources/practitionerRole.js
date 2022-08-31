@@ -8,6 +8,30 @@ PractitionerRole
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class PractitionerRole {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [practitioner],
+     * @param {Reference|undefined} [organization],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]|undefined} [location],
+     * @param {Reference[]|undefined} [healthcareService],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {PractitionerRoleAvailableTime[]|undefined} [availableTime],
+     * @param {PractitionerRoleNotAvailable[]|undefined} [notAvailable],
+     * @param {String|undefined} [availabilityExceptions],
+     * @param {Reference[]|undefined} [endpoint],
+    */
     constructor(
         {
             id,

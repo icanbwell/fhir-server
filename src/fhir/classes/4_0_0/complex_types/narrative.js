@@ -9,6 +9,12 @@ Narrative
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Narrative {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code} status,
+     * @param {xhtml} div,
+    */
     constructor(
         {
             id,

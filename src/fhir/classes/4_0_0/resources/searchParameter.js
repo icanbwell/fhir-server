@@ -8,6 +8,42 @@ SearchParameter
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SearchParameter {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {canonical|undefined} [derivedFrom],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown} description,
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {code} code,
+     * @param {code[]} base,
+     * @param {code} type,
+     * @param {String|undefined} [expression],
+     * @param {String|undefined} [xpath],
+     * @param {code|undefined} [xpathUsage],
+     * @param {code[]|undefined} [target],
+     * @param {Boolean|undefined} [multipleOr],
+     * @param {Boolean|undefined} [multipleAnd],
+     * @param {code[]|undefined} [comparator],
+     * @param {code[]|undefined} [modifier],
+     * @param {String[]|undefined} [chain],
+     * @param {SearchParameterComponent[]|undefined} [component],
+    */
     constructor(
         {
             id,

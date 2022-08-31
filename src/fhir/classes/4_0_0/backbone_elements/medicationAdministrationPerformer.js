@@ -10,6 +10,13 @@ MedicationAdministration.Performer
     practitioner.
 */
 class MedicationAdministrationPerformer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [function_],
+     * @param {Reference} actor,
+    */
     constructor(
         {
             id,

@@ -14,6 +14,14 @@ Composition.Event
     Patient, Practitioner, Encounter, etc.).
 */
 class CompositionEvent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {Period|undefined} [period],
+     * @param {Reference[]|undefined} [detail],
+    */
     constructor(
         {
             id,

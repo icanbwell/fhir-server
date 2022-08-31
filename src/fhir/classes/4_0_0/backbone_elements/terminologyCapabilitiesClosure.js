@@ -8,6 +8,12 @@ TerminologyCapabilities.Closure
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesClosure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [translation],
+    */
     constructor(
         {
             id,

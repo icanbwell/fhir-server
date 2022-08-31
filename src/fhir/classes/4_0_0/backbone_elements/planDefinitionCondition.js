@@ -9,6 +9,13 @@ PlanDefinition.Condition
     clinical decision support rules, order sets and protocols.
 */
 class PlanDefinitionCondition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} kind,
+     * @param {Expression|undefined} [expression],
+    */
     constructor(
         {
             id,

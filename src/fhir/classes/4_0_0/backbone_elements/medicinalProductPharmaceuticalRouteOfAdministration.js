@@ -6,6 +6,18 @@ MedicinalProductPharmaceutical.RouteOfAdministration
     A pharmaceutical product described in terms of its composition and dose form.
 */
 class MedicinalProductPharmaceuticalRouteOfAdministration {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {Quantity|undefined} [firstDose],
+     * @param {Quantity|undefined} [maxSingleDose],
+     * @param {Quantity|undefined} [maxDosePerDay],
+     * @param {Ratio|undefined} [maxDosePerTreatmentPeriod],
+     * @param {Quantity|undefined} [maxTreatmentPeriod],
+     * @param {MedicinalProductPharmaceuticalTargetSpecies[]|undefined} [targetSpecies],
+    */
     constructor(
         {
             id,

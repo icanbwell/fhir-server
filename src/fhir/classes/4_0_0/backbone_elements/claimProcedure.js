@@ -8,6 +8,17 @@ Claim.Procedure
     reimbursement.
 */
 class ClaimProcedure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {dateTime|undefined} [date],
+     * @param {CodeableConcept|undefined} [procedureCodeableConcept],
+     * @param {Reference|undefined} [procedureReference],
+     * @param {Reference[]|undefined} [udi],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,27 @@ MeasureReport
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MeasureReport {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code} type,
+     * @param {canonical} measure,
+     * @param {Reference|undefined} [subject],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [reporter],
+     * @param {Period} period,
+     * @param {CodeableConcept|undefined} [improvementNotation],
+     * @param {MeasureReportGroup[]|undefined} [group],
+     * @param {Reference[]|undefined} [evaluatedResource],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,15 @@ SpecimenDefinition.Handling
     A kind of specimen with associated set of requirements.
 */
 class SpecimenDefinitionHandling {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [temperatureQualifier],
+     * @param {Range|undefined} [temperatureRange],
+     * @param {Quantity|undefined} [maxDuration],
+     * @param {String|undefined} [instruction],
+    */
     constructor(
         {
             id,

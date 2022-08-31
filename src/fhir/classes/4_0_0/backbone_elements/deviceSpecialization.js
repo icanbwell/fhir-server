@@ -8,6 +8,13 @@ Device.Specialization
     medical or non-medical device.
 */
 class DeviceSpecialization {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} systemType,
+     * @param {String|undefined} [version],
+    */
     constructor(
         {
             id,

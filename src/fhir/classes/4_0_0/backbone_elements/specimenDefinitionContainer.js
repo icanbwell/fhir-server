@@ -6,6 +6,20 @@ SpecimenDefinition.Container
     A kind of specimen with associated set of requirements.
 */
 class SpecimenDefinitionContainer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [material],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [cap],
+     * @param {String|undefined} [description],
+     * @param {Quantity|undefined} [capacity],
+     * @param {Quantity|undefined} [minimumVolumeQuantity],
+     * @param {String|undefined} [minimumVolumeString],
+     * @param {SpecimenDefinitionAdditive[]|undefined} [additive],
+     * @param {String|undefined} [preparation],
+    */
     constructor(
         {
             id,

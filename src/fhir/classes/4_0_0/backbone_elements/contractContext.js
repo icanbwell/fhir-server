@@ -7,6 +7,14 @@ Contract.Context
     a policy or agreement.
 */
 class ContractContext {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [reference],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {String|undefined} [text],
+    */
     constructor(
         {
             id,

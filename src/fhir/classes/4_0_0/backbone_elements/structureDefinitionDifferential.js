@@ -8,6 +8,12 @@ StructureDefinition.Differential
     extensions and constraints on resources and data types.
 */
 class StructureDefinitionDifferential {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ElementDefinition[]} element,
+    */
     constructor(
         {
             id,

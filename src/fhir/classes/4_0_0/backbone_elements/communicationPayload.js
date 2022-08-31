@@ -8,6 +8,14 @@ Communication.Payload
     reportable condition.
 */
 class CommunicationPayload {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [contentString],
+     * @param {Attachment|undefined} [contentAttachment],
+     * @param {Reference|undefined} [contentReference],
+    */
     constructor(
         {
             id,

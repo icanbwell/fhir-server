@@ -7,6 +7,38 @@ MedicationKnowledge
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicationKnowledge {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [manufacturer],
+     * @param {CodeableConcept|undefined} [doseForm],
+     * @param {Quantity|undefined} [amount],
+     * @param {String[]|undefined} [synonym],
+     * @param {MedicationKnowledgeRelatedMedicationKnowledge[]|undefined} [relatedMedicationKnowledge],
+     * @param {Reference[]|undefined} [associatedMedication],
+     * @param {CodeableConcept[]|undefined} [productType],
+     * @param {MedicationKnowledgeMonograph[]|undefined} [monograph],
+     * @param {MedicationKnowledgeIngredient[]|undefined} [ingredient],
+     * @param {markdown|undefined} [preparationInstruction],
+     * @param {CodeableConcept[]|undefined} [intendedRoute],
+     * @param {MedicationKnowledgeCost[]|undefined} [cost],
+     * @param {MedicationKnowledgeMonitoringProgram[]|undefined} [monitoringProgram],
+     * @param {MedicationKnowledgeAdministrationGuidelines[]|undefined} [administrationGuidelines],
+     * @param {MedicationKnowledgeMedicineClassification[]|undefined} [medicineClassification],
+     * @param {MedicationKnowledgePackaging|undefined} [packaging],
+     * @param {MedicationKnowledgeDrugCharacteristic[]|undefined} [drugCharacteristic],
+     * @param {Reference[]|undefined} [contraindication],
+     * @param {MedicationKnowledgeRegulatory[]|undefined} [regulatory],
+     * @param {MedicationKnowledgeKinetics[]|undefined} [kinetics],
+    */
     constructor(
         {
             id,

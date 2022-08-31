@@ -7,6 +7,19 @@ RiskAssessment.Prediction
     as the likelihood of each outcome.
 */
 class RiskAssessmentPrediction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [outcome],
+     * @param {decimal|undefined} [probabilityDecimal],
+     * @param {Range|undefined} [probabilityRange],
+     * @param {CodeableConcept|undefined} [qualitativeRisk],
+     * @param {decimal|undefined} [relativeRisk],
+     * @param {Period|undefined} [whenPeriod],
+     * @param {Range|undefined} [whenRange],
+     * @param {String|undefined} [rationale],
+    */
     constructor(
         {
             id,

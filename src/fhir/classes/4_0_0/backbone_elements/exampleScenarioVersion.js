@@ -6,6 +6,13 @@ ExampleScenario.Version
     Example of workflow instance.
 */
 class ExampleScenarioVersion {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} versionId,
+     * @param {markdown} description,
+    */
     constructor(
         {
             id,

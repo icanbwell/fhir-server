@@ -7,6 +7,18 @@ Immunization.ProtocolApplied
     an immunization as reported by a patient, a clinician or another party.
 */
 class ImmunizationProtocolApplied {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [series],
+     * @param {Reference|undefined} [authority],
+     * @param {CodeableConcept[]|undefined} [targetDisease],
+     * @param {Int|undefined} [doseNumberPositiveInt],
+     * @param {String|undefined} [doseNumberString],
+     * @param {Int|undefined} [seriesDosesPositiveInt],
+     * @param {String|undefined} [seriesDosesString],
+    */
     constructor(
         {
             id,

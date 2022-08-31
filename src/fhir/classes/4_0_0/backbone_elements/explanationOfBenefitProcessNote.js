@@ -8,6 +8,15 @@ ExplanationOfBenefit.ProcessNote
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitProcessNote {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [number],
+     * @param {code|undefined} [type],
+     * @param {String|undefined} [text],
+     * @param {CodeableConcept|undefined} [language],
+    */
     constructor(
         {
             id,

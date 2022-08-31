@@ -6,6 +6,13 @@ InsurancePlan.Limit
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanLimit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [value],
+     * @param {CodeableConcept|undefined} [code],
+    */
     constructor(
         {
             id,

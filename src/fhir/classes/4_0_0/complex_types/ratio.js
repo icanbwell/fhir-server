@@ -9,6 +9,12 @@ Ratio
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Ratio {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Quantity|undefined} [numerator],
+     * @param {Quantity|undefined} [denominator],
+    */
     constructor(
         {
             id,

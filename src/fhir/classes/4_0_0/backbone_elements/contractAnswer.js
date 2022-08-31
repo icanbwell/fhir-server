@@ -7,6 +7,23 @@ Contract.Answer
     a policy or agreement.
 */
 class ContractAnswer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {decimal|undefined} [valueDecimal],
+     * @param {Int|undefined} [valueInteger],
+     * @param {date|undefined} [valueDate],
+     * @param {dateTime|undefined} [valueDateTime],
+     * @param {time|undefined} [valueTime],
+     * @param {String|undefined} [valueString],
+     * @param {uri|undefined} [valueUri],
+     * @param {Attachment|undefined} [valueAttachment],
+     * @param {Coding|undefined} [valueCoding],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Reference|undefined} [valueReference],
+    */
     constructor(
         {
             id,

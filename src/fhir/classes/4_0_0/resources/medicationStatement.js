@@ -28,6 +28,35 @@ MedicationStatement
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicationStatement {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [context],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {dateTime|undefined} [dateAsserted],
+     * @param {Reference|undefined} [informationSource],
+     * @param {Reference[]|undefined} [derivedFrom],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Dosage[]|undefined} [dosage],
+    */
     constructor(
         {
             id,

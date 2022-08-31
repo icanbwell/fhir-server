@@ -12,6 +12,17 @@ Signature
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Signature {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Coding[]} type,
+     * @param {instant} when,
+     * @param {Reference} who,
+     * @param {Reference|undefined} [onBehalfOf],
+     * @param {code|undefined} [targetFormat],
+     * @param {code|undefined} [sigFormat],
+     * @param {base64Binary|undefined} [data],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,42 @@ Device
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Device {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference|undefined} [definition],
+     * @param {DeviceUdiCarrier[]|undefined} [udiCarrier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [statusReason],
+     * @param {String|undefined} [distinctIdentifier],
+     * @param {String|undefined} [manufacturer],
+     * @param {dateTime|undefined} [manufactureDate],
+     * @param {dateTime|undefined} [expirationDate],
+     * @param {String|undefined} [lotNumber],
+     * @param {String|undefined} [serialNumber],
+     * @param {DeviceDeviceName[]|undefined} [deviceName],
+     * @param {String|undefined} [modelNumber],
+     * @param {String|undefined} [partNumber],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {DeviceSpecialization[]|undefined} [specialization],
+     * @param {DeviceVersion[]|undefined} [version],
+     * @param {DeviceProperty[]|undefined} [property],
+     * @param {Reference|undefined} [patient],
+     * @param {Reference|undefined} [owner],
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {Reference|undefined} [location],
+     * @param {uri|undefined} [url],
+     * @param {Annotation[]|undefined} [note],
+     * @param {CodeableConcept[]|undefined} [safety],
+     * @param {Reference|undefined} [parent],
+    */
     constructor(
         {
             id,

@@ -14,6 +14,21 @@ Composition.Section
     Patient, Practitioner, Encounter, etc.).
 */
 class CompositionSection {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [title],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference[]|undefined} [author],
+     * @param {Reference|undefined} [focus],
+     * @param {Narrative|undefined} [text],
+     * @param {code|undefined} [mode],
+     * @param {CodeableConcept|undefined} [orderedBy],
+     * @param {Reference[]|undefined} [entry],
+     * @param {CodeableConcept|undefined} [emptyReason],
+     * @param {CompositionSection[]|undefined} [section],
+    */
     constructor(
         {
             id,

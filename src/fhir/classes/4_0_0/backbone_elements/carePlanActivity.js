@@ -8,6 +8,16 @@ CarePlan.Activity
     possibly limited to care for a specific condition or set of conditions.
 */
 class CarePlanActivity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [outcomeCodeableConcept],
+     * @param {Reference[]|undefined} [outcomeReference],
+     * @param {Annotation[]|undefined} [progress],
+     * @param {Reference|undefined} [reference],
+     * @param {CarePlanDetail|undefined} [detail],
+    */
     constructor(
         {
             id,

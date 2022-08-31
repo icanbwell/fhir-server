@@ -8,6 +8,13 @@ Device.DeviceName
     medical or non-medical device.
 */
 class DeviceDeviceName {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {code} type,
+    */
     constructor(
         {
             id,

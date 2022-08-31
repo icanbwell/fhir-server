@@ -8,6 +8,13 @@ EpisodeOfCare.StatusHistory
     level of responsibility for the patient during this time.
 */
 class EpisodeOfCareStatusHistory {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} status,
+     * @param {Period} period,
+    */
     constructor(
         {
             id,

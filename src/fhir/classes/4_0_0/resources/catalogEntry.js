@@ -7,6 +7,29 @@ CatalogEntry
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CatalogEntry {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Boolean} orderable,
+     * @param {Reference} referencedItem,
+     * @param {Identifier[]|undefined} [additionalIdentifier],
+     * @param {CodeableConcept[]|undefined} [classification],
+     * @param {code|undefined} [status],
+     * @param {Period|undefined} [validityPeriod],
+     * @param {dateTime|undefined} [validTo],
+     * @param {dateTime|undefined} [lastUpdated],
+     * @param {CodeableConcept[]|undefined} [additionalCharacteristic],
+     * @param {CodeableConcept[]|undefined} [additionalClassification],
+     * @param {CatalogEntryRelatedEntry[]|undefined} [relatedEntry],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,17 @@ SampledData
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class SampledData {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Quantity} origin,
+     * @param {decimal} period,
+     * @param {decimal|undefined} [factor],
+     * @param {decimal|undefined} [lowerLimit],
+     * @param {decimal|undefined} [upperLimit],
+     * @param {Int} dimensions,
+     * @param {String|undefined} [data],
+    */
     constructor(
         {
             id,

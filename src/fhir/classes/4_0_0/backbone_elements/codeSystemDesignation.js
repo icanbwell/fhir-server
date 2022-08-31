@@ -8,6 +8,14 @@ CodeSystem.Designation
     define a part or all of its content.
 */
 class CodeSystemDesignation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [language],
+     * @param {Coding|undefined} [use],
+     * @param {String} value,
+    */
     constructor(
         {
             id,

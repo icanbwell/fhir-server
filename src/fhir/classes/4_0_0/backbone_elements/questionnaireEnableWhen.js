@@ -8,6 +8,23 @@ Questionnaire.EnableWhen
     phraseology and grouping to allow coherent, consistent data collection.
 */
 class QuestionnaireEnableWhen {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} question,
+     * @param {code} operator,
+     * @param {Boolean|undefined} [answerBoolean],
+     * @param {decimal|undefined} [answerDecimal],
+     * @param {Int|undefined} [answerInteger],
+     * @param {date|undefined} [answerDate],
+     * @param {dateTime|undefined} [answerDateTime],
+     * @param {time|undefined} [answerTime],
+     * @param {String|undefined} [answerString],
+     * @param {Coding|undefined} [answerCoding],
+     * @param {Quantity|undefined} [answerQuantity],
+     * @param {Reference|undefined} [answerReference],
+    */
     constructor(
         {
             id,

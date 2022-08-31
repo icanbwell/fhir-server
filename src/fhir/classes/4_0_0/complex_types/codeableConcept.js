@@ -9,6 +9,12 @@ CodeableConcept
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class CodeableConcept {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Coding[]|undefined} [coding],
+     * @param {String|undefined} [text],
+    */
     constructor(
         {
             id,

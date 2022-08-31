@@ -10,6 +10,21 @@ SubstanceNucleicAcid
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SubstanceNucleicAcid {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [sequenceType],
+     * @param {Int|undefined} [numberOfSubunits],
+     * @param {String|undefined} [areaOfHybridisation],
+     * @param {CodeableConcept|undefined} [oligoNucleotideType],
+     * @param {SubstanceNucleicAcidSubunit[]|undefined} [subunit],
+    */
     constructor(
         {
             id,

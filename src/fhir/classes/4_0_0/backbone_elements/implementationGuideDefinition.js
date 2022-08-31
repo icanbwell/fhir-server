@@ -9,6 +9,16 @@ ImplementationGuide.Definition
     publish a computable definition of all the parts.
 */
 class ImplementationGuideDefinition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ImplementationGuideGrouping[]|undefined} [grouping],
+     * @param {ImplementationGuideResource[]} resource,
+     * @param {ImplementationGuidePage|undefined} [page],
+     * @param {ImplementationGuideParameter[]|undefined} [parameter],
+     * @param {ImplementationGuideTemplate[]|undefined} [template],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,32 @@ ClaimResponse.AddItem
     resource.
 */
 class ClaimResponseAddItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int[]|undefined} [itemSequence],
+     * @param {Int[]|undefined} [detailSequence],
+     * @param {Int[]|undefined} [subdetailSequence],
+     * @param {Reference[]|undefined} [provider],
+     * @param {CodeableConcept} productOrService,
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {CodeableConcept[]|undefined} [programCode],
+     * @param {date|undefined} [servicedDate],
+     * @param {Period|undefined} [servicedPeriod],
+     * @param {CodeableConcept|undefined} [locationCodeableConcept],
+     * @param {Address|undefined} [locationAddress],
+     * @param {Reference|undefined} [locationReference],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [net],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {CodeableConcept[]|undefined} [subSite],
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ClaimResponseAdjudication[]} adjudication,
+     * @param {ClaimResponseDetail1[]|undefined} [detail],
+    */
     constructor(
         {
             id,

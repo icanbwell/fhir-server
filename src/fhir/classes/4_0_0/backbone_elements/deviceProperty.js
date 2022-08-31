@@ -8,6 +8,14 @@ Device.Property
     medical or non-medical device.
 */
 class DeviceProperty {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {Quantity[]|undefined} [valueQuantity],
+     * @param {CodeableConcept[]|undefined} [valueCode],
+    */
     constructor(
         {
             id,

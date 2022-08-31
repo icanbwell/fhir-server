@@ -9,6 +9,14 @@ CapabilityStatement.Implementation
     implementation.
 */
 class CapabilityStatementImplementation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} description,
+     * @param {url|undefined} [url],
+     * @param {Reference|undefined} [custodian],
+    */
     constructor(
         {
             id,

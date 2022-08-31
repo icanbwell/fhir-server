@@ -8,6 +8,16 @@ GraphDefinition.Compartment
     Definition resource defines a set and makes rules about the set.
 */
 class GraphDefinitionCompartment {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} use,
+     * @param {code} code,
+     * @param {code} rule,
+     * @param {String|undefined} [expression],
+     * @param {String|undefined} [description],
+    */
     constructor(
         {
             id,

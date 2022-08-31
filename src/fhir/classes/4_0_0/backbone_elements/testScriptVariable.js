@@ -7,6 +7,19 @@ TestScript.Variable
     determine compliance against the FHIR specification.
 */
 class TestScriptVariable {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [defaultValue],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [expression],
+     * @param {String|undefined} [headerField],
+     * @param {String|undefined} [hint],
+     * @param {String|undefined} [path],
+     * @param {id|undefined} [sourceId],
+    */
     constructor(
         {
             id,

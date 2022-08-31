@@ -7,6 +7,15 @@ ClaimResponse.Error
     resource.
 */
 class ClaimResponseError {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [itemSequence],
+     * @param {Int|undefined} [detailSequence],
+     * @param {Int|undefined} [subDetailSequence],
+     * @param {CodeableConcept} code,
+    */
     constructor(
         {
             id,

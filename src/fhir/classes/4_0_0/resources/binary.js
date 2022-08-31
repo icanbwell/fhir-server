@@ -9,6 +9,15 @@ Binary
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Binary {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {code} contentType,
+     * @param {Reference|undefined} [securityContext],
+     * @param {base64Binary|undefined} [data],
+    */
     constructor(
         {
             id,

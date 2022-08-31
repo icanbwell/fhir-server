@@ -9,6 +9,13 @@ ElementDefinition.Discriminator
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionDiscriminator {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {String} path,
+    */
     constructor(
         {
             id,

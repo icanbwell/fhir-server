@@ -8,6 +8,13 @@ StructureDefinition.Context
     extensions and constraints on resources and data types.
 */
 class StructureDefinitionContext {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {String} expression,
+    */
     constructor(
         {
             id,

@@ -8,6 +8,29 @@ ObservationDefinition
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ObservationDefinition {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code[]|undefined} [permittedDataType],
+     * @param {Boolean|undefined} [multipleResultsAllowed],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {String|undefined} [preferredReportName],
+     * @param {ObservationDefinitionQuantitativeDetails|undefined} [quantitativeDetails],
+     * @param {ObservationDefinitionQualifiedInterval[]|undefined} [qualifiedInterval],
+     * @param {Reference|undefined} [validCodedValueSet],
+     * @param {Reference|undefined} [normalCodedValueSet],
+     * @param {Reference|undefined} [abnormalCodedValueSet],
+     * @param {Reference|undefined} [criticalCodedValueSet],
+    */
     constructor(
         {
             id,

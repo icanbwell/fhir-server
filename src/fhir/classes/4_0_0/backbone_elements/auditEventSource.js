@@ -8,6 +8,14 @@ AuditEvent.Source
     usage.
 */
 class AuditEventSource {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [site],
+     * @param {Reference} observer,
+     * @param {Coding[]|undefined} [type],
+    */
     constructor(
         {
             id,

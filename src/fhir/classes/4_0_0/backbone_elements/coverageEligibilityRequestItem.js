@@ -10,6 +10,21 @@ CoverageEligibilityRequest.Item
     of the policy.
 */
 class CoverageEligibilityRequestItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int[]|undefined} [supportingInfoSequence],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [productOrService],
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {Reference|undefined} [provider],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {Reference|undefined} [facility],
+     * @param {CoverageEligibilityRequestDiagnosis[]|undefined} [diagnosis],
+     * @param {Reference[]|undefined} [detail],
+    */
     constructor(
         {
             id,

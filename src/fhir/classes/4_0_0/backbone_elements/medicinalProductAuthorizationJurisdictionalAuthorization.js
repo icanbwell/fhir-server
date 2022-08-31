@@ -6,6 +6,16 @@ MedicinalProductAuthorization.JurisdictionalAuthorization
     The regulatory authorization of a medicinal product.
 */
 class MedicinalProductAuthorizationJurisdictionalAuthorization {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [country],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {CodeableConcept|undefined} [legalStatusOfSupply],
+     * @param {Period|undefined} [validityPeriod],
+    */
     constructor(
         {
             id,

@@ -20,6 +20,29 @@ SubstanceSourceMaterial
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SubstanceSourceMaterial {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [sourceMaterialClass],
+     * @param {CodeableConcept|undefined} [sourceMaterialType],
+     * @param {CodeableConcept|undefined} [sourceMaterialState],
+     * @param {Identifier|undefined} [organismId],
+     * @param {String|undefined} [organismName],
+     * @param {Identifier[]|undefined} [parentSubstanceId],
+     * @param {String[]|undefined} [parentSubstanceName],
+     * @param {CodeableConcept[]|undefined} [countryOfOrigin],
+     * @param {String[]|undefined} [geographicalLocation],
+     * @param {CodeableConcept|undefined} [developmentStage],
+     * @param {SubstanceSourceMaterialFractionDescription[]|undefined} [fractionDescription],
+     * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
+     * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
+    */
     constructor(
         {
             id,

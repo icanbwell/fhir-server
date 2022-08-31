@@ -7,6 +7,15 @@ Practitioner.Qualification
     healthcare.
 */
 class PractitionerQualification {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} code,
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [issuer],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,14 @@ ClaimResponse.SubDetail
     resource.
 */
 class ClaimResponseSubDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} subDetailSequence,
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ClaimResponseAdjudication[]|undefined} [adjudication],
+    */
     constructor(
         {
             id,

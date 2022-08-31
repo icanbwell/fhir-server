@@ -6,6 +6,13 @@ Bundle.Search
     A container for a collection of resources.
 */
 class BundleSearch {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [mode],
+     * @param {decimal|undefined} [score],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,14 @@ SubstanceSpecification.Official
     used for prescribing.
 */
 class SubstanceSpecificationOfficial {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [authority],
+     * @param {CodeableConcept|undefined} [status],
+     * @param {dateTime|undefined} [date],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,14 @@ CapabilityStatement.Operation
     implementation.
 */
 class CapabilityStatementOperation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {canonical} definition,
+     * @param {markdown|undefined} [documentation],
+    */
     constructor(
         {
             id,

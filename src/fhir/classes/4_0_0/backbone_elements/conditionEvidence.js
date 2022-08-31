@@ -7,6 +7,13 @@ Condition.Evidence
     clinical concept that has risen to a level of concern.
 */
 class ConditionEvidence {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {Reference[]|undefined} [detail],
+    */
     constructor(
         {
             id,

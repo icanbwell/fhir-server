@@ -6,6 +6,15 @@ SubstancePolymer.StartingMaterial
     Todo.
 */
 class SubstancePolymerStartingMaterial {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [material],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Boolean|undefined} [isDefining],
+     * @param {SubstanceAmount|undefined} [amount],
+    */
     constructor(
         {
             id,

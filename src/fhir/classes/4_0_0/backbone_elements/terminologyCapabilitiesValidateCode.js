@@ -8,6 +8,12 @@ TerminologyCapabilities.ValidateCode
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesValidateCode {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} translations,
+    */
     constructor(
         {
             id,

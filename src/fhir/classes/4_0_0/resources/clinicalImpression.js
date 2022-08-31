@@ -13,6 +13,37 @@ ClinicalImpression
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ClinicalImpression {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [description],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [assessor],
+     * @param {Reference|undefined} [previous],
+     * @param {Reference[]|undefined} [problem],
+     * @param {ClinicalImpressionInvestigation[]|undefined} [investigation],
+     * @param {uri[]|undefined} [protocol],
+     * @param {String|undefined} [summary],
+     * @param {ClinicalImpressionFinding[]|undefined} [finding],
+     * @param {CodeableConcept[]|undefined} [prognosisCodeableConcept],
+     * @param {Reference[]|undefined} [prognosisReference],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

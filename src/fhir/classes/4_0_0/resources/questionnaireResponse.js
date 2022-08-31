@@ -9,6 +9,27 @@ QuestionnaireResponse
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class QuestionnaireResponse {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {canonical|undefined} [questionnaire],
+     * @param {code} status,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [authored],
+     * @param {Reference|undefined} [author],
+     * @param {Reference|undefined} [source],
+     * @param {QuestionnaireResponseItem[]|undefined} [item],
+    */
     constructor(
         {
             id,

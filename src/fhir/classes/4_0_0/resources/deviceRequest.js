@@ -8,6 +8,43 @@ DeviceRequest
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DeviceRequest {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [priorRequest],
+     * @param {Identifier|undefined} [groupIdentifier],
+     * @param {code|undefined} [status],
+     * @param {code} intent,
+     * @param {code|undefined} [priority],
+     * @param {Reference|undefined} [codeReference],
+     * @param {CodeableConcept|undefined} [codeCodeableConcept],
+     * @param {DeviceRequestParameter[]|undefined} [parameter],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {CodeableConcept|undefined} [performerType],
+     * @param {Reference|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [insurance],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Reference[]|undefined} [relevantHistory],
+    */
     constructor(
         {
             id,

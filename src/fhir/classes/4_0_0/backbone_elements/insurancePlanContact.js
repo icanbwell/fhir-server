@@ -6,6 +6,15 @@ InsurancePlan.Contact
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanContact {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [purpose],
+     * @param {HumanName|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address|undefined} [address],
+    */
     constructor(
         {
             id,

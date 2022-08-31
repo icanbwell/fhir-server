@@ -10,6 +10,17 @@ ParameterDefinition
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ParameterDefinition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [name],
+     * @param {code} use,
+     * @param {Int|undefined} [min],
+     * @param {String|undefined} [max],
+     * @param {String|undefined} [documentation],
+     * @param {code} type,
+     * @param {canonical|undefined} [profile],
+    */
     constructor(
         {
             id,

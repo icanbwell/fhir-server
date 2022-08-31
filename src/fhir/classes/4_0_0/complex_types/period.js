@@ -8,6 +8,12 @@ Period
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Period {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {dateTime|undefined} [start],
+     * @param {dateTime|undefined} [end],
+    */
     constructor(
         {
             id,

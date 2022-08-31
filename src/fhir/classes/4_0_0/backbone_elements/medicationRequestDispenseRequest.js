@@ -10,6 +10,18 @@ MedicationRequest.DispenseRequest
     plans, etc., and to harmonize with workflow patterns.
 */
 class MedicationRequestDispenseRequest {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {MedicationRequestInitialFill|undefined} [initialFill],
+     * @param {Quantity|undefined} [dispenseInterval],
+     * @param {Period|undefined} [validityPeriod],
+     * @param {unsignedInt|undefined} [numberOfRepeatsAllowed],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Quantity|undefined} [expectedSupplyDuration],
+     * @param {Reference|undefined} [performer],
+    */
     constructor(
         {
             id,

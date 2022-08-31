@@ -6,6 +6,14 @@ CompartmentDefinition.Resource
     A compartment definition that defines how resources are accessed on a server.
 */
 class CompartmentDefinitionResource {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {String[]|undefined} [param],
+     * @param {String|undefined} [documentation],
+    */
     constructor(
         {
             id,

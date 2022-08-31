@@ -6,6 +6,14 @@ TestReport.Participant
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportParticipant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {uri} uri,
+     * @param {String|undefined} [display],
+    */
     constructor(
         {
             id,

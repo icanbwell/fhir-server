@@ -7,6 +7,19 @@ StructureMap.Target
     data.
 */
 class StructureMapTarget {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id|undefined} [context],
+     * @param {code|undefined} [contextType],
+     * @param {String|undefined} [element],
+     * @param {id|undefined} [variable],
+     * @param {code[]|undefined} [listMode],
+     * @param {id|undefined} [listRuleId],
+     * @param {code|undefined} [transform],
+     * @param {StructureMapParameter[]|undefined} [parameter],
+    */
     constructor(
         {
             id,

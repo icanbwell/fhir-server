@@ -8,6 +8,35 @@ SubstanceSpecification
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SubstanceSpecification {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [status],
+     * @param {CodeableConcept|undefined} [domain],
+     * @param {String|undefined} [description],
+     * @param {Reference[]|undefined} [source],
+     * @param {String|undefined} [comment],
+     * @param {SubstanceSpecificationMoiety[]|undefined} [moiety],
+     * @param {SubstanceSpecificationProperty[]|undefined} [property],
+     * @param {Reference|undefined} [referenceInformation],
+     * @param {SubstanceSpecificationStructure|undefined} [structure],
+     * @param {SubstanceSpecificationCode[]|undefined} [code],
+     * @param {SubstanceSpecificationName[]|undefined} [name],
+     * @param {SubstanceSpecificationMolecularWeight[]|undefined} [molecularWeight],
+     * @param {SubstanceSpecificationRelationship[]|undefined} [relationship],
+     * @param {Reference|undefined} [nucleicAcid],
+     * @param {Reference|undefined} [polymer],
+     * @param {Reference|undefined} [protein],
+     * @param {Reference|undefined} [sourceMaterial],
+    */
     constructor(
         {
             id,

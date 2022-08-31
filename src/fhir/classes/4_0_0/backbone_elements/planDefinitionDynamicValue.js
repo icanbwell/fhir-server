@@ -9,6 +9,13 @@ PlanDefinition.DynamicValue
     clinical decision support rules, order sets and protocols.
 */
 class PlanDefinitionDynamicValue {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [path],
+     * @param {Expression|undefined} [expression],
+    */
     constructor(
         {
             id,

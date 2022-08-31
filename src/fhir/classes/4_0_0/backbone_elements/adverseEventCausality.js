@@ -9,6 +9,15 @@ AdverseEvent.Causality
     hospitalization, or that results in death.
 */
 class AdverseEventCausality {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [assessment],
+     * @param {String|undefined} [productRelatedness],
+     * @param {Reference|undefined} [author],
+     * @param {CodeableConcept|undefined} [method],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,19 @@ MedicinalProduct.SpecialDesignation
     direct patient care (e.g. regulatory use).
 */
 class MedicinalProductSpecialDesignation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [intendedUse],
+     * @param {CodeableConcept|undefined} [indicationCodeableConcept],
+     * @param {Reference|undefined} [indicationReference],
+     * @param {CodeableConcept|undefined} [status],
+     * @param {dateTime|undefined} [date],
+     * @param {CodeableConcept|undefined} [species],
+    */
     constructor(
         {
             id,

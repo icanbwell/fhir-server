@@ -9,6 +9,17 @@ ValueSet.Expansion
     elements](terminologies.html).
 */
 class ValueSetExpansion {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [identifier],
+     * @param {dateTime} timestamp,
+     * @param {Int|undefined} [total],
+     * @param {Int|undefined} [offset],
+     * @param {ValueSetParameter[]|undefined} [parameter],
+     * @param {ValueSetContains[]|undefined} [contains],
+    */
     constructor(
         {
             id,

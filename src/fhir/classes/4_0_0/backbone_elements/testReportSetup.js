@@ -6,6 +6,12 @@ TestReport.Setup
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportSetup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestReportAction[]} action,
+    */
     constructor(
         {
             id,

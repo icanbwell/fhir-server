@@ -8,6 +8,28 @@ PaymentNotice
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class PaymentNotice {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Reference|undefined} [request],
+     * @param {Reference|undefined} [response],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [provider],
+     * @param {Reference} payment,
+     * @param {date|undefined} [paymentDate],
+     * @param {Reference|undefined} [payee],
+     * @param {Reference} recipient,
+     * @param {Money} amount,
+     * @param {CodeableConcept|undefined} [paymentStatus],
+    */
     constructor(
         {
             id,

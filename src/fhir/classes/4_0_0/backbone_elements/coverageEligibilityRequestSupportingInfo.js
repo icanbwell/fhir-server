@@ -10,6 +10,14 @@ CoverageEligibilityRequest.SupportingInfo
     of the policy.
 */
 class CoverageEligibilityRequestSupportingInfo {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {Reference} information,
+     * @param {Boolean|undefined} [appliesToAll],
+    */
     constructor(
         {
             id,

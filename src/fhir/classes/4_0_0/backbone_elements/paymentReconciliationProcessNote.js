@@ -7,6 +7,13 @@ PaymentReconciliation.ProcessNote
     the payment items being paid.
 */
 class PaymentReconciliationProcessNote {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [type],
+     * @param {String|undefined} [text],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,14 @@ Annotation
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Annotation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Reference|undefined} [authorReference],
+     * @param {String|undefined} [authorString],
+     * @param {dateTime|undefined} [time],
+     * @param {markdown} text,
+    */
     constructor(
         {
             id,

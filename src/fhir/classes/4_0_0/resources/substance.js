@@ -7,6 +7,23 @@ Substance
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Substance {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {String|undefined} [description],
+     * @param {SubstanceInstance[]|undefined} [instance],
+     * @param {SubstanceIngredient[]|undefined} [ingredient],
+    */
     constructor(
         {
             id,

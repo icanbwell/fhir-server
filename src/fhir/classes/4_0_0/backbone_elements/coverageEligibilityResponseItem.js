@@ -7,6 +7,25 @@ CoverageEligibilityResponse.Item
     CoverageEligibilityRequest resource.
 */
 class CoverageEligibilityResponseItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [productOrService],
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {Reference|undefined} [provider],
+     * @param {Boolean|undefined} [excluded],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [network],
+     * @param {CodeableConcept|undefined} [unit],
+     * @param {CodeableConcept|undefined} [term],
+     * @param {CoverageEligibilityResponseBenefit[]|undefined} [benefit],
+     * @param {Boolean|undefined} [authorizationRequired],
+     * @param {CodeableConcept[]|undefined} [authorizationSupporting],
+     * @param {uri|undefined} [authorizationUrl],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,12 @@ Money
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Money {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {decimal|undefined} [value],
+     * @param {code|undefined} [currency],
+    */
     constructor(
         {
             id,

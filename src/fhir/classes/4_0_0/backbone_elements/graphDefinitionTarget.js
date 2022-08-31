@@ -8,6 +8,16 @@ GraphDefinition.Target
     Definition resource defines a set and makes rules about the set.
 */
 class GraphDefinitionTarget {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {String|undefined} [params],
+     * @param {canonical|undefined} [profile],
+     * @param {GraphDefinitionCompartment[]|undefined} [compartment],
+     * @param {GraphDefinitionLink[]|undefined} [link],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,29 @@ List
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class List {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code} mode,
+     * @param {String|undefined} [title],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [source],
+     * @param {CodeableConcept|undefined} [orderedBy],
+     * @param {Annotation[]|undefined} [note],
+     * @param {ListEntry[]|undefined} [entry],
+     * @param {CodeableConcept|undefined} [emptyReason],
+    */
     constructor(
         {
             id,

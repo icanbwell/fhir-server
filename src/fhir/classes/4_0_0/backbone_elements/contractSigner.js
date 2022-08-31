@@ -7,6 +7,14 @@ Contract.Signer
     a policy or agreement.
 */
 class ContractSigner {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding} type,
+     * @param {Reference} party,
+     * @param {Signature[]} signature,
+    */
     constructor(
         {
             id,

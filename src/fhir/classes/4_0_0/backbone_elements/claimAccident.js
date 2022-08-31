@@ -8,6 +8,15 @@ Claim.Accident
     reimbursement.
 */
 class ClaimAccident {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {date} date,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Address|undefined} [locationAddress],
+     * @param {Reference|undefined} [locationReference],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,21 @@ ExampleScenario.Operation
     Example of workflow instance.
 */
 class ExampleScenarioOperation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} number,
+     * @param {String|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [initiator],
+     * @param {String|undefined} [receiver],
+     * @param {markdown|undefined} [description],
+     * @param {Boolean|undefined} [initiatorActive],
+     * @param {Boolean|undefined} [receiverActive],
+     * @param {ExampleScenarioContainedInstance|undefined} [request],
+     * @param {ExampleScenarioContainedInstance|undefined} [response],
+    */
     constructor(
         {
             id,

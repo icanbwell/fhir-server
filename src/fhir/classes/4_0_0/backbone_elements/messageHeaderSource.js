@@ -10,6 +10,16 @@ MessageHeader.Source
     bundle.
 */
 class MessageHeaderSource {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [software],
+     * @param {String|undefined} [version],
+     * @param {ContactPoint|undefined} [contact],
+     * @param {url} endpoint,
+    */
     constructor(
         {
             id,

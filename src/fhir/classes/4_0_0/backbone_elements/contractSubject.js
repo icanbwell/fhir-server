@@ -7,6 +7,13 @@ Contract.Subject
     a policy or agreement.
 */
 class ContractSubject {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]} reference,
+     * @param {CodeableConcept|undefined} [role],
+    */
     constructor(
         {
             id,

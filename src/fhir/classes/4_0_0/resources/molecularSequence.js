@@ -7,6 +7,32 @@ MolecularSequence
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MolecularSequence {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [type],
+     * @param {Int} coordinateSystem,
+     * @param {Reference|undefined} [patient],
+     * @param {Reference|undefined} [specimen],
+     * @param {Reference|undefined} [device],
+     * @param {Reference|undefined} [performer],
+     * @param {Quantity|undefined} [quantity],
+     * @param {MolecularSequenceReferenceSeq|undefined} [referenceSeq],
+     * @param {MolecularSequenceVariant[]|undefined} [variant],
+     * @param {String|undefined} [observedSeq],
+     * @param {MolecularSequenceQuality[]|undefined} [quality],
+     * @param {Int|undefined} [readCoverage],
+     * @param {MolecularSequenceRepository[]|undefined} [repository],
+     * @param {Reference[]|undefined} [pointer],
+     * @param {MolecularSequenceStructureVariant[]|undefined} [structureVariant],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,15 @@ BiologicallyDerivedProduct.Collection
     into another (possibly the same) biological entity.
 */
 class BiologicallyDerivedProductCollection {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [collector],
+     * @param {Reference|undefined} [source],
+     * @param {dateTime|undefined} [collectedDateTime],
+     * @param {Period|undefined} [collectedPeriod],
+    */
     constructor(
         {
             id,

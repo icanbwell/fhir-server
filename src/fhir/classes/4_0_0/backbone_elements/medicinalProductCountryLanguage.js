@@ -7,6 +7,14 @@ MedicinalProduct.CountryLanguage
     direct patient care (e.g. regulatory use).
 */
 class MedicinalProductCountryLanguage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} country,
+     * @param {CodeableConcept|undefined} [jurisdiction],
+     * @param {CodeableConcept} language,
+    */
     constructor(
         {
             id,

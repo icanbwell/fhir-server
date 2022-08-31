@@ -9,6 +9,43 @@ Claim
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Claim {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [subType],
+     * @param {code} use,
+     * @param {Reference} patient,
+     * @param {Period|undefined} [billablePeriod],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [enterer],
+     * @param {Reference|undefined} [insurer],
+     * @param {Reference} provider,
+     * @param {CodeableConcept} priority,
+     * @param {CodeableConcept|undefined} [fundsReserve],
+     * @param {ClaimRelated[]|undefined} [related],
+     * @param {Reference|undefined} [prescription],
+     * @param {Reference|undefined} [originalPrescription],
+     * @param {ClaimPayee|undefined} [payee],
+     * @param {Reference|undefined} [referral],
+     * @param {Reference|undefined} [facility],
+     * @param {ClaimCareTeam[]|undefined} [careTeam],
+     * @param {ClaimSupportingInfo[]|undefined} [supportingInfo],
+     * @param {ClaimDiagnosis[]|undefined} [diagnosis],
+     * @param {ClaimProcedure[]|undefined} [procedure],
+     * @param {ClaimInsurance[]} insurance,
+     * @param {ClaimAccident|undefined} [accident],
+     * @param {ClaimItem[]|undefined} [item],
+     * @param {Money|undefined} [total],
+    */
     constructor(
         {
             id,

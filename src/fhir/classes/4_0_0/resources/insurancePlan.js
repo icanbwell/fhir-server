@@ -7,6 +7,30 @@ InsurancePlan
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class InsurancePlan {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {String[]|undefined} [alias],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [ownedBy],
+     * @param {Reference|undefined} [administeredBy],
+     * @param {Reference[]|undefined} [coverageArea],
+     * @param {InsurancePlanContact[]|undefined} [contact],
+     * @param {Reference[]|undefined} [endpoint],
+     * @param {Reference[]|undefined} [network],
+     * @param {InsurancePlanCoverage[]|undefined} [coverage],
+     * @param {InsurancePlanPlan[]|undefined} [plan],
+    */
     constructor(
         {
             id,

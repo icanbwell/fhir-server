@@ -7,6 +7,15 @@ ObservationDefinition.QuantitativeDetails
     produced or consumed by an orderable health care service.
 */
 class ObservationDefinitionQuantitativeDetails {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [customaryUnit],
+     * @param {CodeableConcept|undefined} [unit],
+     * @param {decimal|undefined} [conversionFactor],
+     * @param {Int|undefined} [decimalPrecision],
+    */
     constructor(
         {
             id,

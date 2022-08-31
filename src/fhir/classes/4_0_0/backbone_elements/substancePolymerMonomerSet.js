@@ -6,6 +6,13 @@ SubstancePolymer.MonomerSet
     Todo.
 */
 class SubstancePolymerMonomerSet {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [ratioType],
+     * @param {SubstancePolymerStartingMaterial[]|undefined} [startingMaterial],
+    */
     constructor(
         {
             id,

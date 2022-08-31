@@ -7,6 +7,24 @@ Schedule
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Schedule {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {CodeableConcept[]|undefined} [serviceCategory],
+     * @param {CodeableConcept[]|undefined} [serviceType],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]} actor,
+     * @param {Period|undefined} [planningHorizon],
+     * @param {String|undefined} [comment],
+    */
     constructor(
         {
             id,

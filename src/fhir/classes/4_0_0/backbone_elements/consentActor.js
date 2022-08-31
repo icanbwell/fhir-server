@@ -8,6 +8,13 @@ Consent.Actor
     within a given policy context, for specific purposes and periods of time.
 */
 class ConsentActor {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} role,
+     * @param {Reference} reference,
+    */
     constructor(
         {
             id,

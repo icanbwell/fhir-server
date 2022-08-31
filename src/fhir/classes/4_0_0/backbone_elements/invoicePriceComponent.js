@@ -7,6 +7,15 @@ Invoice.PriceComponent
     individual and total price for Billing purpose.
 */
 class InvoicePriceComponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [amount],
+    */
     constructor(
         {
             id,

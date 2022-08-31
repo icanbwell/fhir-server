@@ -8,6 +8,17 @@ Device.UdiCarrier
     medical or non-medical device.
 */
 class DeviceUdiCarrier {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [deviceIdentifier],
+     * @param {uri|undefined} [issuer],
+     * @param {uri|undefined} [jurisdiction],
+     * @param {base64Binary|undefined} [carrierAIDC],
+     * @param {String|undefined} [carrierHRF],
+     * @param {code|undefined} [entryType],
+    */
     constructor(
         {
             id,

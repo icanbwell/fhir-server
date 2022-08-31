@@ -9,6 +9,15 @@ CapabilityStatement.Messaging
     implementation.
 */
 class CapabilityStatementMessaging {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CapabilityStatementEndpoint[]|undefined} [endpoint],
+     * @param {unsignedInt|undefined} [reliableCache],
+     * @param {markdown|undefined} [documentation],
+     * @param {CapabilityStatementSupportedMessage[]|undefined} [supportedMessage],
+    */
     constructor(
         {
             id,

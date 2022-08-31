@@ -7,6 +7,13 @@ MedicinalProductInteraction.Interactant
     other forms of interactions.
 */
 class MedicinalProductInteractionInteractant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [itemReference],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+    */
     constructor(
         {
             id,

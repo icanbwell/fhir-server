@@ -7,6 +7,14 @@ Immunization.Reaction
     an immunization as reported by a patient, a clinician or another party.
 */
 class ImmunizationReaction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [detail],
+     * @param {Boolean|undefined} [reported],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,13 @@ MedicinalProduct.NamePart
     direct patient care (e.g. regulatory use).
 */
 class MedicinalProductNamePart {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} part,
+     * @param {Coding} type,
+    */
     constructor(
         {
             id,

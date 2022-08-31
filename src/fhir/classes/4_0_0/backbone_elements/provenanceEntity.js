@@ -14,6 +14,14 @@ Provenance.Entity
     authenticated), all of which may impact security, privacy, and trust policies.
 */
 class ProvenanceEntity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} role,
+     * @param {Reference} what,
+     * @param {ProvenanceAgent[]|undefined} [agent],
+    */
     constructor(
         {
             id,

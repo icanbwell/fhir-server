@@ -6,6 +6,13 @@ MedicinalProductPackaged.BatchIdentifier
     A medicinal product in a container or package.
 */
 class MedicinalProductPackagedBatchIdentifier {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier} outerPackaging,
+     * @param {Identifier|undefined} [immediatePackaging],
+    */
     constructor(
         {
             id,

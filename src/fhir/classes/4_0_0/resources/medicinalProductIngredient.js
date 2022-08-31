@@ -7,6 +7,22 @@ MedicinalProductIngredient
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicinalProductIngredient {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept} role,
+     * @param {Boolean|undefined} [allergenicIndicator],
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {MedicinalProductIngredientSpecifiedSubstance[]|undefined} [specifiedSubstance],
+     * @param {MedicinalProductIngredientSubstance|undefined} [substance],
+    */
     constructor(
         {
             id,

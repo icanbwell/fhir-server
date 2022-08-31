@@ -7,6 +7,21 @@ SubstanceReferenceInformation
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SubstanceReferenceInformation {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [comment],
+     * @param {SubstanceReferenceInformationGene[]|undefined} [gene],
+     * @param {SubstanceReferenceInformationGeneElement[]|undefined} [geneElement],
+     * @param {SubstanceReferenceInformationClassification[]|undefined} [classification],
+     * @param {SubstanceReferenceInformationTarget[]|undefined} [target],
+    */
     constructor(
         {
             id,

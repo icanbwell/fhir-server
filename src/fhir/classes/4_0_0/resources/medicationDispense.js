@@ -11,6 +11,42 @@ MedicationDispense
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicationDispense {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReasonCodeableConcept],
+     * @param {Reference|undefined} [statusReasonReference],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [context],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {MedicationDispensePerformer[]|undefined} [performer],
+     * @param {Reference|undefined} [location],
+     * @param {Reference[]|undefined} [authorizingPrescription],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Quantity|undefined} [daysSupply],
+     * @param {dateTime|undefined} [whenPrepared],
+     * @param {dateTime|undefined} [whenHandedOver],
+     * @param {Reference|undefined} [destination],
+     * @param {Reference[]|undefined} [receiver],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Dosage[]|undefined} [dosageInstruction],
+     * @param {MedicationDispenseSubstitution|undefined} [substitution],
+     * @param {Reference[]|undefined} [detectedIssue],
+     * @param {Reference[]|undefined} [eventHistory],
+    */
     constructor(
         {
             id,

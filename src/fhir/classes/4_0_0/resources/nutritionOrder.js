@@ -8,6 +8,33 @@ NutritionOrder
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class NutritionOrder {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {uri[]|undefined} [instantiates],
+     * @param {code} status,
+     * @param {code} intent,
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime} dateTime,
+     * @param {Reference|undefined} [orderer],
+     * @param {Reference[]|undefined} [allergyIntolerance],
+     * @param {CodeableConcept[]|undefined} [foodPreferenceModifier],
+     * @param {CodeableConcept[]|undefined} [excludeFoodModifier],
+     * @param {NutritionOrderOralDiet|undefined} [oralDiet],
+     * @param {NutritionOrderSupplement[]|undefined} [supplement],
+     * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

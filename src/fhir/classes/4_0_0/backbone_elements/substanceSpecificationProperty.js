@@ -7,6 +7,18 @@ SubstanceSpecification.Property
     used for prescribing.
 */
 class SubstanceSpecificationProperty {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [parameters],
+     * @param {Reference|undefined} [definingSubstanceReference],
+     * @param {CodeableConcept|undefined} [definingSubstanceCodeableConcept],
+     * @param {Quantity|undefined} [amountQuantity],
+     * @param {String|undefined} [amountString],
+    */
     constructor(
         {
             id,

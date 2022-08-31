@@ -7,6 +7,13 @@ OperationDefinition.Binding
     named query (using the search interaction).
 */
 class OperationDefinitionBinding {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} strength,
+     * @param {canonical} valueSet,
+    */
     constructor(
         {
             id,

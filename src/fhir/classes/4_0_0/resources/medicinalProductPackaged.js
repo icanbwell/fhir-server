@@ -7,6 +7,25 @@ MedicinalProductPackaged
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicinalProductPackaged {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [subject],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [legalStatusOfSupply],
+     * @param {MarketingStatus[]|undefined} [marketingStatus],
+     * @param {Reference|undefined} [marketingAuthorization],
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {MedicinalProductPackagedBatchIdentifier[]|undefined} [batchIdentifier],
+     * @param {MedicinalProductPackagedPackageItem[]} packageItem,
+    */
     constructor(
         {
             id,

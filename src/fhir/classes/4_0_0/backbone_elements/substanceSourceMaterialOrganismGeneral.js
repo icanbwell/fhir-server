@@ -19,6 +19,15 @@ SubstanceSourceMaterial.OrganismGeneral
     annex.
 */
 class SubstanceSourceMaterialOrganismGeneral {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [kingdom],
+     * @param {CodeableConcept|undefined} [phylum],
+     * @param {CodeableConcept|undefined} [class_],
+     * @param {CodeableConcept|undefined} [order],
+    */
     constructor(
         {
             id,

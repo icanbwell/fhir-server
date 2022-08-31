@@ -7,6 +7,13 @@ Contract.Party
     a policy or agreement.
 */
 class ContractParty {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]} reference,
+     * @param {CodeableConcept} role,
+    */
     constructor(
         {
             id,

@@ -7,6 +7,17 @@ Observation.ReferenceRange
     subject.
 */
 class ObservationReferenceRange {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [low],
+     * @param {Quantity|undefined} [high],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [appliesTo],
+     * @param {Range|undefined} [age],
+     * @param {String|undefined} [text],
+    */
     constructor(
         {
             id,

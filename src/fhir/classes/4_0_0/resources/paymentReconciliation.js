@@ -8,6 +8,31 @@ PaymentReconciliation
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class PaymentReconciliation {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Period|undefined} [period],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [paymentIssuer],
+     * @param {Reference|undefined} [request],
+     * @param {Reference|undefined} [requestor],
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [disposition],
+     * @param {date} paymentDate,
+     * @param {Money} paymentAmount,
+     * @param {Identifier|undefined} [paymentIdentifier],
+     * @param {PaymentReconciliationDetail[]|undefined} [detail],
+     * @param {CodeableConcept|undefined} [formCode],
+     * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
+    */
     constructor(
         {
             id,

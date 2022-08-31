@@ -7,6 +7,14 @@ DeviceDefinition.Material
     component of a medical device.
 */
 class DeviceDefinitionMaterial {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} substance,
+     * @param {Boolean|undefined} [alternate],
+     * @param {Boolean|undefined} [allergenicIndicator],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,19 @@ ObservationDefinition.QualifiedInterval
     produced or consumed by an orderable health care service.
 */
 class ObservationDefinitionQualifiedInterval {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [category],
+     * @param {Range|undefined} [range],
+     * @param {CodeableConcept|undefined} [context],
+     * @param {CodeableConcept[]|undefined} [appliesTo],
+     * @param {code|undefined} [gender],
+     * @param {Range|undefined} [age],
+     * @param {Range|undefined} [gestationalAge],
+     * @param {String|undefined} [condition],
+    */
     constructor(
         {
             id,

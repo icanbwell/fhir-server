@@ -9,6 +9,14 @@ ElementDefinition.Base
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionBase {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} path,
+     * @param {unsignedInt} min,
+     * @param {String} max,
+    */
     constructor(
         {
             id,

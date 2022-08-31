@@ -9,6 +9,13 @@ CapabilityStatement.Interaction
     implementation.
 */
 class CapabilityStatementInteraction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {markdown|undefined} [documentation],
+    */
     constructor(
         {
             id,

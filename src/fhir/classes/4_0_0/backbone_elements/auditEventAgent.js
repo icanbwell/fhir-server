@@ -8,6 +8,22 @@ AuditEvent.Agent
     usage.
 */
 class AuditEventAgent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [role],
+     * @param {Reference|undefined} [who],
+     * @param {String|undefined} [altId],
+     * @param {String|undefined} [name],
+     * @param {Boolean} requestor,
+     * @param {Reference|undefined} [location],
+     * @param {uri[]|undefined} [policy],
+     * @param {Coding|undefined} [media],
+     * @param {AuditEventNetwork|undefined} [network],
+     * @param {CodeableConcept[]|undefined} [purposeOfUse],
+    */
     constructor(
         {
             id,

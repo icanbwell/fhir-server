@@ -9,6 +9,19 @@ CapabilityStatement.Rest
     implementation.
 */
 class CapabilityStatementRest {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} mode,
+     * @param {markdown|undefined} [documentation],
+     * @param {CapabilityStatementSecurity|undefined} [security],
+     * @param {CapabilityStatementResource[]|undefined} [resource],
+     * @param {CapabilityStatementInteraction1[]|undefined} [interaction],
+     * @param {CapabilityStatementSearchParam[]|undefined} [searchParam],
+     * @param {CapabilityStatementOperation[]|undefined} [operation],
+     * @param {canonical[]|undefined} [compartment],
+    */
     constructor(
         {
             id,

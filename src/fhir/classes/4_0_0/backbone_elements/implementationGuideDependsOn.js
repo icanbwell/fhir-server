@@ -9,6 +9,14 @@ ImplementationGuide.DependsOn
     publish a computable definition of all the parts.
 */
 class ImplementationGuideDependsOn {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {canonical} uri,
+     * @param {id|undefined} [packageId],
+     * @param {String|undefined} [version],
+    */
     constructor(
         {
             id,

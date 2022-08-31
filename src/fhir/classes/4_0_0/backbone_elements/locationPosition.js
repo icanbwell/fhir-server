@@ -8,6 +8,14 @@ Location.Position
     accommodated.
 */
 class LocationPosition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {decimal} longitude,
+     * @param {decimal} latitude,
+     * @param {decimal|undefined} [altitude],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,13 @@ TerminologyCapabilities.Filter
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesFilter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {code[]} op,
+    */
     constructor(
         {
             id,

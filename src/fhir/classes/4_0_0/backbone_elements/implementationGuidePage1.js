@@ -9,6 +9,14 @@ ImplementationGuide.Page1
     publish a computable definition of all the parts.
 */
 class ImplementationGuidePage1 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {String[]|undefined} [anchor],
+    */
     constructor(
         {
             id,

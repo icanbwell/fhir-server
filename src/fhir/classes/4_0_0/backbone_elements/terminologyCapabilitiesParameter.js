@@ -8,6 +8,13 @@ TerminologyCapabilities.Parameter
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} name,
+     * @param {String|undefined} [documentation],
+    */
     constructor(
         {
             id,

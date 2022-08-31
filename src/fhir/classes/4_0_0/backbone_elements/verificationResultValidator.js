@@ -7,6 +7,14 @@ VerificationResult.Validator
     elements.
 */
 class VerificationResultValidator {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} organization,
+     * @param {String|undefined} [identityCertificate],
+     * @param {Signature|undefined} [attestationSignature],
+    */
     constructor(
         {
             id,

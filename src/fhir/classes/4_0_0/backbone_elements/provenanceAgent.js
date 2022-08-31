@@ -14,6 +14,15 @@ Provenance.Agent
     authenticated), all of which may impact security, privacy, and trust policies.
 */
 class ProvenanceAgent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [role],
+     * @param {Reference} who,
+     * @param {Reference|undefined} [onBehalfOf],
+    */
     constructor(
         {
             id,

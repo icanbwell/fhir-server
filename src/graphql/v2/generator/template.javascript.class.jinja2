@@ -14,6 +14,32 @@
 {% endfor %}
 */
 class {{ fhir_entity.cleaned_name }} {
+    /**
+{% for property in fhir_entity.properties %}
+     * @param {{- ' {' -}}
+    {% if property.cleaned_type == "Extension" %}
+        {{- 'Extension' -}}
+    {% elif property.is_code %}
+        {{- 'code' -}}
+    {% else %}
+        {{- property.cleaned_type | replace(".","") -}}
+    {% endif %}
+    {% if property.is_list -%}
+        {{ '[]' -}}
+    {% endif -%}
+    {% if property.optional -%}
+        {{ '|undefined' -}}
+    {% endif %}
+    {{- '} ' -}}
+    {% if property.optional -%}
+        {{ '[' -}}
+    {% endif %}
+    {{- property.javascript_clean_name -}}
+    {% if property.optional -%}
+        {{ ']' -}}
+    {% endif %},
+{%  endfor %}
+    */
     constructor(
         {
 {% for property in fhir_entity.properties %}

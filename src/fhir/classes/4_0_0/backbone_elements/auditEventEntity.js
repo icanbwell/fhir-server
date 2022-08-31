@@ -8,6 +8,20 @@ AuditEvent.Entity
     usage.
 */
 class AuditEventEntity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [what],
+     * @param {Coding|undefined} [type],
+     * @param {Coding|undefined} [role],
+     * @param {Coding|undefined} [lifecycle],
+     * @param {Coding[]|undefined} [securityLabel],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [description],
+     * @param {base64Binary|undefined} [query],
+     * @param {AuditEventDetail[]|undefined} [detail],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,15 @@ Measure.SupplementalData
     The Measure resource provides the definition of a quality measure.
 */
 class MeasureSupplementalData {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [usage],
+     * @param {String|undefined} [description],
+     * @param {Expression} criteria,
+    */
     constructor(
         {
             id,

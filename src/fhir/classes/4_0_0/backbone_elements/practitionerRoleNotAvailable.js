@@ -7,6 +7,13 @@ PractitionerRole.NotAvailable
     perform at an organization for a period of time.
 */
 class PractitionerRoleNotAvailable {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} description,
+     * @param {Period|undefined} [during],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,33 @@ TestScript.Assert
     determine compliance against the FHIR specification.
 */
 class TestScriptAssert {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [label],
+     * @param {String|undefined} [description],
+     * @param {code|undefined} [direction],
+     * @param {String|undefined} [compareToSourceId],
+     * @param {String|undefined} [compareToSourceExpression],
+     * @param {String|undefined} [compareToSourcePath],
+     * @param {code|undefined} [contentType],
+     * @param {String|undefined} [expression],
+     * @param {String|undefined} [headerField],
+     * @param {String|undefined} [minimumId],
+     * @param {Boolean|undefined} [navigationLinks],
+     * @param {code|undefined} [operator],
+     * @param {String|undefined} [path],
+     * @param {code|undefined} [requestMethod],
+     * @param {String|undefined} [requestURL],
+     * @param {code|undefined} [resource],
+     * @param {code|undefined} [response],
+     * @param {String|undefined} [responseCode],
+     * @param {id|undefined} [sourceId],
+     * @param {id|undefined} [validateProfileId],
+     * @param {String|undefined} [value],
+     * @param {Boolean} warningOnly,
+    */
     constructor(
         {
             id,

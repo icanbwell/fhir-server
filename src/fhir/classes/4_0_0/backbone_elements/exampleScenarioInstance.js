@@ -6,6 +6,17 @@ ExampleScenario.Instance
     Example of workflow instance.
 */
 class ExampleScenarioInstance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} resourceId,
+     * @param {code} resourceType,
+     * @param {String|undefined} [name],
+     * @param {markdown|undefined} [description],
+     * @param {ExampleScenarioVersion[]|undefined} [version],
+     * @param {ExampleScenarioContainedInstance[]|undefined} [containedInstance],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,13 @@ DocumentManifest.Related
     applies to the collection.
 */
 class DocumentManifestRelated {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {Reference|undefined} [ref],
+    */
     constructor(
         {
             id,

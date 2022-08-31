@@ -12,6 +12,14 @@ Timing
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Timing {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {dateTime[]|undefined} [event],
+     * @param {TimingRepeat|undefined} [repeat],
+     * @param {CodeableConcept|undefined} [code],
+    */
     constructor(
         {
             id,

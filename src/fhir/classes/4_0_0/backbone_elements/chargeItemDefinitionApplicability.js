@@ -9,6 +9,14 @@ ChargeItemDefinition.Applicability
     a rough structure and requires profiling for each type of billing code system.
 */
 class ChargeItemDefinitionApplicability {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [language],
+     * @param {String|undefined} [expression],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,15 @@ ExampleScenario.Actor
     Example of workflow instance.
 */
 class ExampleScenarioActor {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} actorId,
+     * @param {code} type,
+     * @param {String|undefined} [name],
+     * @param {markdown|undefined} [description],
+    */
     constructor(
         {
             id,

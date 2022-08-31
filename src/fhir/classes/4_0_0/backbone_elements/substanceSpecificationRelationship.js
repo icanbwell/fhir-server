@@ -7,6 +7,22 @@ SubstanceSpecification.Relationship
     used for prescribing.
 */
 class SubstanceSpecificationRelationship {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [substanceReference],
+     * @param {CodeableConcept|undefined} [substanceCodeableConcept],
+     * @param {CodeableConcept|undefined} [relationship],
+     * @param {Boolean|undefined} [isDefining],
+     * @param {Quantity|undefined} [amountQuantity],
+     * @param {Range|undefined} [amountRange],
+     * @param {Ratio|undefined} [amountRatio],
+     * @param {String|undefined} [amountString],
+     * @param {Ratio|undefined} [amountRatioLowLimit],
+     * @param {CodeableConcept|undefined} [amountType],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

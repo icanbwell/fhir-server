@@ -7,6 +7,18 @@ VerificationResult.PrimarySource
     elements.
 */
 class VerificationResultPrimarySource {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [who],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [communicationMethod],
+     * @param {CodeableConcept|undefined} [validationStatus],
+     * @param {dateTime|undefined} [validationDate],
+     * @param {CodeableConcept|undefined} [canPushUpdates],
+     * @param {CodeableConcept[]|undefined} [pushTypeAvailable],
+    */
     constructor(
         {
             id,

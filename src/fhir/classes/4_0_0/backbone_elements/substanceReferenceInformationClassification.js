@@ -6,6 +6,15 @@ SubstanceReferenceInformation.Classification
     Todo.
 */
 class SubstanceReferenceInformationClassification {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [domain],
+     * @param {CodeableConcept|undefined} [classification],
+     * @param {CodeableConcept[]|undefined} [subtype],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

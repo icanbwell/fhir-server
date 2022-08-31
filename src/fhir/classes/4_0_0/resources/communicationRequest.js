@@ -9,6 +9,39 @@ CommunicationRequest
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CommunicationRequest {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [replaces],
+     * @param {Identifier|undefined} [groupIdentifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {code|undefined} [priority],
+     * @param {Boolean|undefined} [doNotPerform],
+     * @param {CodeableConcept[]|undefined} [medium],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference[]|undefined} [about],
+     * @param {Reference|undefined} [encounter],
+     * @param {CommunicationRequestPayload[]|undefined} [payload],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {Reference[]|undefined} [recipient],
+     * @param {Reference|undefined} [sender],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

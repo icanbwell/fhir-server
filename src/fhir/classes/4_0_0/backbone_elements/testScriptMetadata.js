@@ -7,6 +7,13 @@ TestScript.Metadata
     determine compliance against the FHIR specification.
 */
 class TestScriptMetadata {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestScriptLink[]|undefined} [link],
+     * @param {TestScriptCapability[]} capability,
+    */
     constructor(
         {
             id,

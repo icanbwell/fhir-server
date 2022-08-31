@@ -8,6 +8,18 @@ RiskEvidenceSynthesis.RiskEstimate
     combination of research studies.
 */
 class RiskEvidenceSynthesisRiskEstimate {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {decimal|undefined} [value],
+     * @param {CodeableConcept|undefined} [unitOfMeasure],
+     * @param {Int|undefined} [denominatorCount],
+     * @param {Int|undefined} [numeratorCount],
+     * @param {RiskEvidenceSynthesisPrecisionEstimate[]|undefined} [precisionEstimate],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,22 @@ Consent.Provision
     within a given policy context, for specific purposes and periods of time.
 */
 class ConsentProvision {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [type],
+     * @param {Period|undefined} [period],
+     * @param {ConsentActor[]|undefined} [actor],
+     * @param {CodeableConcept[]|undefined} [action],
+     * @param {Coding[]|undefined} [securityLabel],
+     * @param {Coding[]|undefined} [purpose],
+     * @param {Coding[]|undefined} [class_],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {Period|undefined} [dataPeriod],
+     * @param {ConsentData[]|undefined} [data],
+     * @param {ConsentProvision[]|undefined} [provision],
+    */
     constructor(
         {
             id,

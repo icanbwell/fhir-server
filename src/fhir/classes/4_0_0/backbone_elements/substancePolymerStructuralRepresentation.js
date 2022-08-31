@@ -6,6 +6,14 @@ SubstancePolymer.StructuralRepresentation
     Todo.
 */
 class SubstancePolymerStructuralRepresentation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {String|undefined} [representation],
+     * @param {Attachment|undefined} [attachment],
+    */
     constructor(
         {
             id,

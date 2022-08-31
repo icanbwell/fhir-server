@@ -6,6 +6,13 @@ MolecularSequence.Outer
     Raw data describing a biological sequence.
 */
 class MolecularSequenceOuter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [start],
+     * @param {Int|undefined} [end],
+    */
     constructor(
         {
             id,

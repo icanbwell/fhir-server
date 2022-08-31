@@ -8,6 +8,39 @@ Media
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Media {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [modality],
+     * @param {CodeableConcept|undefined} [view],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [createdDateTime],
+     * @param {Period|undefined} [createdPeriod],
+     * @param {instant|undefined} [issued],
+     * @param {Reference|undefined} [operator],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {String|undefined} [deviceName],
+     * @param {Reference|undefined} [device],
+     * @param {Int|undefined} [height],
+     * @param {Int|undefined} [width],
+     * @param {Int|undefined} [frames],
+     * @param {decimal|undefined} [duration],
+     * @param {Attachment} content,
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

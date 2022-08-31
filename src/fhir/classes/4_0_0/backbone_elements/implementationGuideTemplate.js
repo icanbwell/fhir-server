@@ -9,6 +9,14 @@ ImplementationGuide.Template
     publish a computable definition of all the parts.
 */
 class ImplementationGuideTemplate {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {String} source,
+     * @param {String|undefined} [scope],
+    */
     constructor(
         {
             id,

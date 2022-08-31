@@ -7,6 +7,15 @@ Coverage.CostToBeneficiary
     products and services. Includes both insurance and self-payment.
 */
 class CoverageCostToBeneficiary {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Money|undefined} [valueMoney],
+     * @param {CoverageException[]|undefined} [exception],
+    */
     constructor(
         {
             id,

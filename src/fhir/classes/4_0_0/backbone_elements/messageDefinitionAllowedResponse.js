@@ -8,6 +8,13 @@ MessageDefinition.AllowedResponse
     transmitted and what response(s), if any, are permitted.
 */
 class MessageDefinitionAllowedResponse {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {canonical} message,
+     * @param {markdown|undefined} [situation],
+    */
     constructor(
         {
             id,

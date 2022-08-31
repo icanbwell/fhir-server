@@ -6,6 +6,14 @@ TestReport.Assert
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportAssert {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} result,
+     * @param {markdown|undefined} [message],
+     * @param {String|undefined} [detail],
+    */
     constructor(
         {
             id,

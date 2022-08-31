@@ -8,6 +8,42 @@ FamilyMemberHistory
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class FamilyMemberHistory {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [dataAbsentReason],
+     * @param {Reference} patient,
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [name],
+     * @param {CodeableConcept} relationship,
+     * @param {CodeableConcept|undefined} [sex],
+     * @param {Period|undefined} [bornPeriod],
+     * @param {date|undefined} [bornDate],
+     * @param {String|undefined} [bornString],
+     * @param {Quantity|undefined} [ageAge],
+     * @param {Range|undefined} [ageRange],
+     * @param {String|undefined} [ageString],
+     * @param {Boolean|undefined} [estimatedAge],
+     * @param {Boolean|undefined} [deceasedBoolean],
+     * @param {Quantity|undefined} [deceasedAge],
+     * @param {Range|undefined} [deceasedRange],
+     * @param {date|undefined} [deceasedDate],
+     * @param {String|undefined} [deceasedString],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {FamilyMemberHistoryCondition[]|undefined} [condition],
+    */
     constructor(
         {
             id,

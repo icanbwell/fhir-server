@@ -8,6 +8,29 @@ CareTeam
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CareTeam {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {String|undefined} [name],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {Period|undefined} [period],
+     * @param {CareTeamParticipant[]|undefined} [participant],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [managingOrganization],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

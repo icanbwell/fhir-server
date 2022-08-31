@@ -9,6 +9,14 @@ ElementDefinition.Binding
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionBinding {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} strength,
+     * @param {String|undefined} [description],
+     * @param {canonical|undefined} [valueSet],
+    */
     constructor(
         {
             id,

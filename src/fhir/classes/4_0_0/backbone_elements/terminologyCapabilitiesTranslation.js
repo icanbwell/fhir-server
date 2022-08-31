@@ -8,6 +8,12 @@ TerminologyCapabilities.Translation
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesTranslation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} needsMap,
+    */
     constructor(
         {
             id,

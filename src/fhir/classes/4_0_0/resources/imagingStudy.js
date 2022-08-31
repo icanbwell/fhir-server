@@ -11,6 +11,36 @@ ImagingStudy
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ImagingStudy {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Coding[]|undefined} [modality],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [started],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference|undefined} [referrer],
+     * @param {Reference[]|undefined} [interpreter],
+     * @param {Reference[]|undefined} [endpoint],
+     * @param {unsignedInt|undefined} [numberOfSeries],
+     * @param {unsignedInt|undefined} [numberOfInstances],
+     * @param {Reference|undefined} [procedureReference],
+     * @param {CodeableConcept[]|undefined} [procedureCode],
+     * @param {Reference|undefined} [location],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {String|undefined} [description],
+     * @param {ImagingStudySeries[]|undefined} [series],
+    */
     constructor(
         {
             id,

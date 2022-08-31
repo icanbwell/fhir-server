@@ -9,6 +9,15 @@ ContactPoint
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ContactPoint {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [system],
+     * @param {String|undefined} [value],
+     * @param {code|undefined} [use],
+     * @param {Int|undefined} [rank],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

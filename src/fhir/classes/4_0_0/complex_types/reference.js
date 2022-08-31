@@ -8,6 +8,14 @@ Reference
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Reference {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String|undefined} [reference],
+     * @param {uri|undefined} [type],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [display],
+    */
     constructor(
         {
             id,

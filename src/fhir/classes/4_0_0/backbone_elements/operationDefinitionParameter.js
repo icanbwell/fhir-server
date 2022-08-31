@@ -7,6 +7,22 @@ OperationDefinition.Parameter
     named query (using the search interaction).
 */
 class OperationDefinitionParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} name,
+     * @param {code} use,
+     * @param {Int} min,
+     * @param {String} max,
+     * @param {String|undefined} [documentation],
+     * @param {code|undefined} [type],
+     * @param {canonical[]|undefined} [targetProfile],
+     * @param {code|undefined} [searchType],
+     * @param {OperationDefinitionBinding|undefined} [binding],
+     * @param {OperationDefinitionReferencedFrom[]|undefined} [referencedFrom],
+     * @param {OperationDefinitionParameter[]|undefined} [part],
+    */
     constructor(
         {
             id,

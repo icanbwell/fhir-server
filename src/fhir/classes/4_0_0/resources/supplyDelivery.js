@@ -7,6 +7,29 @@ SupplyDelivery
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SupplyDelivery {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [patient],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {SupplyDeliverySuppliedItem|undefined} [suppliedItem],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {Reference|undefined} [supplier],
+     * @param {Reference|undefined} [destination],
+     * @param {Reference[]|undefined} [receiver],
+    */
     constructor(
         {
             id,

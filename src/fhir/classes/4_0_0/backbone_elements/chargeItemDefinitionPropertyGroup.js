@@ -9,6 +9,13 @@ ChargeItemDefinition.PropertyGroup
     a rough structure and requires profiling for each type of billing code system.
 */
 class ChargeItemDefinitionPropertyGroup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ChargeItemDefinitionApplicability[]|undefined} [applicability],
+     * @param {ChargeItemDefinitionPriceComponent[]|undefined} [priceComponent],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,20 @@ Specimen.Collection
     A sample to be used for analysis.
 */
 class SpecimenCollection {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference|undefined} [collector],
+     * @param {dateTime|undefined} [collectedDateTime],
+     * @param {Period|undefined} [collectedPeriod],
+     * @param {Quantity|undefined} [duration],
+     * @param {Quantity|undefined} [quantity],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {CodeableConcept|undefined} [fastingStatusCodeableConcept],
+     * @param {Quantity|undefined} [fastingStatusDuration],
+    */
     constructor(
         {
             id,

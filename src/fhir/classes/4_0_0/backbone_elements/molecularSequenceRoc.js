@@ -6,6 +6,18 @@ MolecularSequence.Roc
     Raw data describing a biological sequence.
 */
 class MolecularSequenceRoc {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int[]|undefined} [score],
+     * @param {Int[]|undefined} [numTP],
+     * @param {Int[]|undefined} [numFP],
+     * @param {Int[]|undefined} [numFN],
+     * @param {decimal[]|undefined} [precision],
+     * @param {decimal[]|undefined} [sensitivity],
+     * @param {decimal[]|undefined} [fMeasure],
+    */
     constructor(
         {
             id,

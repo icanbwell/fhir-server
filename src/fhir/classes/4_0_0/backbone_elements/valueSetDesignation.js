@@ -9,6 +9,14 @@ ValueSet.Designation
     elements](terminologies.html).
 */
 class ValueSetDesignation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [language],
+     * @param {Coding|undefined} [use],
+     * @param {String} value,
+    */
     constructor(
         {
             id,

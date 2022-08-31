@@ -7,6 +7,12 @@ TestScript.Setup
     determine compliance against the FHIR specification.
 */
 class TestScriptSetup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestScriptAction[]} action,
+    */
     constructor(
         {
             id,

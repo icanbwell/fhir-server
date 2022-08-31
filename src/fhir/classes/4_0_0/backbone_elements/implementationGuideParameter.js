@@ -9,6 +9,13 @@ ImplementationGuide.Parameter
     publish a computable definition of all the parts.
 */
 class ImplementationGuideParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {String} value,
+    */
     constructor(
         {
             id,

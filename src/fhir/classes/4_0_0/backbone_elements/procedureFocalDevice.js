@@ -8,6 +8,13 @@ Procedure.FocalDevice
     counseling, or hypnotherapy.
 */
 class ProcedureFocalDevice {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [action],
+     * @param {Reference} manipulated,
+    */
     constructor(
         {
             id,

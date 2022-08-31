@@ -6,6 +6,15 @@ Measure.Group
     The Measure resource provides the definition of a quality measure.
 */
 class MeasureGroup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [description],
+     * @param {MeasurePopulation[]|undefined} [population],
+     * @param {MeasureStratifier[]|undefined} [stratifier],
+    */
     constructor(
         {
             id,

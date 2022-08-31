@@ -8,6 +8,10 @@ Element
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Element {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,16 @@ ClaimResponse.Insurance
     resource.
 */
 class ClaimResponseInsurance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {Boolean} focal,
+     * @param {Reference} coverage,
+     * @param {String|undefined} [businessArrangement],
+     * @param {Reference|undefined} [claimResponse],
+    */
     constructor(
         {
             id,

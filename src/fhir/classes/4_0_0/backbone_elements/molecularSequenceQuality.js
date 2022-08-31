@@ -6,6 +6,26 @@ MolecularSequence.Quality
     Raw data describing a biological sequence.
 */
 class MolecularSequenceQuality {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {CodeableConcept|undefined} [standardSequence],
+     * @param {Int|undefined} [start],
+     * @param {Int|undefined} [end],
+     * @param {Quantity|undefined} [score],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {decimal|undefined} [truthTP],
+     * @param {decimal|undefined} [queryTP],
+     * @param {decimal|undefined} [truthFN],
+     * @param {decimal|undefined} [queryFP],
+     * @param {decimal|undefined} [gtFP],
+     * @param {decimal|undefined} [precision],
+     * @param {decimal|undefined} [recall],
+     * @param {decimal|undefined} [fScore],
+     * @param {MolecularSequenceRoc|undefined} [roc],
+    */
     constructor(
         {
             id,

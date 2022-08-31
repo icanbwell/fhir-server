@@ -8,6 +8,31 @@ CarePlan.Detail
     possibly limited to care for a specific condition or set of conditions.
 */
 class CarePlanDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [kind],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [goal],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {Boolean|undefined} [doNotPerform],
+     * @param {Timing|undefined} [scheduledTiming],
+     * @param {Period|undefined} [scheduledPeriod],
+     * @param {String|undefined} [scheduledString],
+     * @param {Reference|undefined} [location],
+     * @param {Reference[]|undefined} [performer],
+     * @param {CodeableConcept|undefined} [productCodeableConcept],
+     * @param {Reference|undefined} [productReference],
+     * @param {Quantity|undefined} [dailyAmount],
+     * @param {Quantity|undefined} [quantity],
+     * @param {String|undefined} [description],
+    */
     constructor(
         {
             id,

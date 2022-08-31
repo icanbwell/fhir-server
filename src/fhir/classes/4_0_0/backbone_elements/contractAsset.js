@@ -7,6 +7,26 @@ Contract.Asset
     a policy or agreement.
 */
 class ContractAsset {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [scope],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {Reference[]|undefined} [typeReference],
+     * @param {CodeableConcept[]|undefined} [subtype],
+     * @param {Coding|undefined} [relationship],
+     * @param {ContractContext[]|undefined} [context],
+     * @param {String|undefined} [condition],
+     * @param {CodeableConcept[]|undefined} [periodType],
+     * @param {Period[]|undefined} [period],
+     * @param {Period[]|undefined} [usePeriod],
+     * @param {String|undefined} [text],
+     * @param {String[]|undefined} [linkId],
+     * @param {ContractAnswer[]|undefined} [answer],
+     * @param {unsignedInt[]|undefined} [securityLabelNumber],
+     * @param {ContractValuedItem[]|undefined} [valuedItem],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,15 @@ EffectEvidenceSynthesis.ResultsByExposure
     from a combination of research studies.
 */
 class EffectEvidenceSynthesisResultsByExposure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {code|undefined} [exposureState],
+     * @param {CodeableConcept|undefined} [variantState],
+     * @param {Reference} riskEvidenceSynthesis,
+    */
     constructor(
         {
             id,

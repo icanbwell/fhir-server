@@ -7,6 +7,13 @@ TestScript.Action
     determine compliance against the FHIR specification.
 */
 class TestScriptAction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestScriptOperation|undefined} [operation],
+     * @param {TestScriptAssert|undefined} [assert],
+    */
     constructor(
         {
             id,

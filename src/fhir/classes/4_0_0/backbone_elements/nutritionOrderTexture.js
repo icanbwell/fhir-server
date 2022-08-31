@@ -7,6 +7,13 @@ NutritionOrder.Texture
     supplement to a patient/resident.
 */
 class NutritionOrderTexture {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [modifier],
+     * @param {CodeableConcept|undefined} [foodType],
+    */
     constructor(
         {
             id,

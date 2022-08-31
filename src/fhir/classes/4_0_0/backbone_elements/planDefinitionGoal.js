@@ -9,6 +9,18 @@ PlanDefinition.Goal
     clinical decision support rules, order sets and protocols.
 */
 class PlanDefinitionGoal {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept} description,
+     * @param {CodeableConcept|undefined} [priority],
+     * @param {CodeableConcept|undefined} [start],
+     * @param {CodeableConcept[]|undefined} [addresses],
+     * @param {RelatedArtifact[]|undefined} [documentation],
+     * @param {PlanDefinitionTarget[]|undefined} [target],
+    */
     constructor(
         {
             id,

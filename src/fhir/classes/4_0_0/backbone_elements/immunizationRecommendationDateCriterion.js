@@ -7,6 +7,13 @@ ImmunizationRecommendation.DateCriterion
     to a published schedule with optional supporting justification.
 */
 class ImmunizationRecommendationDateCriterion {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {dateTime} value,
+    */
     constructor(
         {
             id,

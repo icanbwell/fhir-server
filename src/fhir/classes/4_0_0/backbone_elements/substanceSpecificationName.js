@@ -7,6 +7,22 @@ SubstanceSpecification.Name
     used for prescribing.
 */
 class SubstanceSpecificationName {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [status],
+     * @param {Boolean|undefined} [preferred],
+     * @param {CodeableConcept[]|undefined} [language],
+     * @param {CodeableConcept[]|undefined} [domain],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {SubstanceSpecificationName[]|undefined} [synonym],
+     * @param {SubstanceSpecificationName[]|undefined} [translation],
+     * @param {SubstanceSpecificationOfficial[]|undefined} [official],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

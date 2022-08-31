@@ -9,6 +9,16 @@ ValueSet.Include
     elements](terminologies.html).
 */
 class ValueSetInclude {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [system],
+     * @param {String|undefined} [version],
+     * @param {ValueSetConcept[]|undefined} [concept],
+     * @param {ValueSetFilter[]|undefined} [filter],
+     * @param {canonical[]|undefined} [valueSet],
+    */
     constructor(
         {
             id,

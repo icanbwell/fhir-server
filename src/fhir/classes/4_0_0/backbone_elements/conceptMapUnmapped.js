@@ -8,6 +8,15 @@ ConceptMap.Unmapped
     concepts, or classes in class models.
 */
 class ConceptMapUnmapped {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} mode,
+     * @param {code|undefined} [code],
+     * @param {String|undefined} [display],
+     * @param {canonical|undefined} [url],
+    */
     constructor(
         {
             id,

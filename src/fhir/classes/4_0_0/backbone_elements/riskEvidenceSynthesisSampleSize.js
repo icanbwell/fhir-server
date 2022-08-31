@@ -8,6 +8,14 @@ RiskEvidenceSynthesis.SampleSize
     combination of research studies.
 */
 class RiskEvidenceSynthesisSampleSize {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {Int|undefined} [numberOfStudies],
+     * @param {Int|undefined} [numberOfParticipants],
+    */
     constructor(
         {
             id,

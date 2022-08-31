@@ -8,6 +8,13 @@ MeasureReport.Stratifier
     calculation.
 */
 class MeasureReportStratifier {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {MeasureReportStratum[]|undefined} [stratum],
+    */
     constructor(
         {
             id,

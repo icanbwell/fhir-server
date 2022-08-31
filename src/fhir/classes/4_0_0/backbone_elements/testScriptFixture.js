@@ -7,6 +7,14 @@ TestScript.Fixture
     determine compliance against the FHIR specification.
 */
 class TestScriptFixture {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} autocreate,
+     * @param {Boolean} autodelete,
+     * @param {Reference|undefined} [resource],
+    */
     constructor(
         {
             id,

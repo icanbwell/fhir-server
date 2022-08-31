@@ -8,6 +8,23 @@ Claim.Detail
     reimbursement.
 */
 class ClaimDetail {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {CodeableConcept|undefined} [revenue],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept} productOrService,
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {CodeableConcept[]|undefined} [programCode],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [net],
+     * @param {Reference[]|undefined} [udi],
+     * @param {ClaimSubDetail[]|undefined} [subDetail],
+    */
     constructor(
         {
             id,

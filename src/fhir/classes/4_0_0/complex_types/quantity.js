@@ -10,6 +10,15 @@ Quantity
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Quantity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {decimal|undefined} [value],
+     * @param {code|undefined} [comparator],
+     * @param {String|undefined} [unit],
+     * @param {uri|undefined} [system],
+     * @param {code|undefined} [code],
+    */
     constructor(
         {
             id,

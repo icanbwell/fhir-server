@@ -8,6 +8,16 @@ TerminologyCapabilities.Expansion
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesExpansion {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [hierarchical],
+     * @param {Boolean|undefined} [paging],
+     * @param {Boolean|undefined} [incomplete],
+     * @param {TerminologyCapabilitiesParameter[]|undefined} [parameter],
+     * @param {markdown|undefined} [textFilter],
+    */
     constructor(
         {
             id,

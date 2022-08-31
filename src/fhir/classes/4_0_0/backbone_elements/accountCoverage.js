@@ -7,6 +7,13 @@ Account.Coverage
     healthcare field, used to track charges for a patient, cost centers, etc.
 */
 class AccountCoverage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} coverage,
+     * @param {Int|undefined} [priority],
+    */
     constructor(
         {
             id,

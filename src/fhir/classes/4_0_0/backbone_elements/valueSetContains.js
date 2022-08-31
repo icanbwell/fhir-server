@@ -9,6 +9,19 @@ ValueSet.Contains
     elements](terminologies.html).
 */
 class ValueSetContains {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [system],
+     * @param {Boolean|undefined} [abstract],
+     * @param {Boolean|undefined} [inactive],
+     * @param {String|undefined} [version],
+     * @param {code|undefined} [code],
+     * @param {String|undefined} [display],
+     * @param {ValueSetDesignation[]|undefined} [designation],
+     * @param {ValueSetContains[]|undefined} [contains],
+    */
     constructor(
         {
             id,

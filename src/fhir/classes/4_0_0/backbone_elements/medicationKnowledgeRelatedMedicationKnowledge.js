@@ -6,6 +6,13 @@ MedicationKnowledge.RelatedMedicationKnowledge
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeRelatedMedicationKnowledge {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {Reference[]} reference,
+    */
     constructor(
         {
             id,

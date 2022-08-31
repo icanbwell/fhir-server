@@ -8,6 +8,39 @@ DeviceDefinition
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DeviceDefinition {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {DeviceDefinitionUdiDeviceIdentifier[]|undefined} [udiDeviceIdentifier],
+     * @param {String|undefined} [manufacturerString],
+     * @param {Reference|undefined} [manufacturerReference],
+     * @param {DeviceDefinitionDeviceName[]|undefined} [deviceName],
+     * @param {String|undefined} [modelNumber],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {DeviceDefinitionSpecialization[]|undefined} [specialization],
+     * @param {String[]|undefined} [version],
+     * @param {CodeableConcept[]|undefined} [safety],
+     * @param {ProductShelfLife[]|undefined} [shelfLifeStorage],
+     * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
+     * @param {CodeableConcept[]|undefined} [languageCode],
+     * @param {DeviceDefinitionCapability[]|undefined} [capability],
+     * @param {DeviceDefinitionProperty[]|undefined} [property],
+     * @param {Reference|undefined} [owner],
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {uri|undefined} [url],
+     * @param {uri|undefined} [onlineInformation],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Reference|undefined} [parentDevice],
+     * @param {DeviceDefinitionMaterial[]|undefined} [material],
+    */
     constructor(
         {
             id,

@@ -14,6 +14,14 @@ Composition.Attester
     Patient, Practitioner, Encounter, etc.).
 */
 class CompositionAttester {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} mode,
+     * @param {dateTime|undefined} [time],
+     * @param {Reference|undefined} [party],
+    */
     constructor(
         {
             id,

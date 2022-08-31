@@ -8,6 +8,17 @@ ConceptMap.Group
     concepts, or classes in class models.
 */
 class ConceptMapGroup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [source],
+     * @param {String|undefined} [sourceVersion],
+     * @param {uri|undefined} [target],
+     * @param {String|undefined} [targetVersion],
+     * @param {ConceptMapElement[]} element,
+     * @param {ConceptMapUnmapped|undefined} [unmapped],
+    */
     constructor(
         {
             id,

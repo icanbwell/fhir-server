@@ -8,6 +8,17 @@ Dosage.DoseAndRate
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class DosageDoseAndRate {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Range|undefined} [doseRange],
+     * @param {Quantity|undefined} [doseQuantity],
+     * @param {Ratio|undefined} [rateRatio],
+     * @param {Range|undefined} [rateRange],
+     * @param {Quantity|undefined} [rateQuantity],
+    */
     constructor(
         {
             id,

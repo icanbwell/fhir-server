@@ -6,6 +6,14 @@ SupplyDelivery.SuppliedItem
     Record of delivery of what is supplied.
 */
 class SupplyDeliverySuppliedItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [quantity],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+     * @param {Reference|undefined} [itemReference],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,14 @@ Group.Member
     Organization.
 */
 class GroupMember {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} entity,
+     * @param {Period|undefined} [period],
+     * @param {Boolean|undefined} [inactive],
+    */
     constructor(
         {
             id,

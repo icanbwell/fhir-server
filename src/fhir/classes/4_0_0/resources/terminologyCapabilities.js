@@ -9,6 +9,40 @@ TerminologyCapabilities
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class TerminologyCapabilities {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime} date,
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {code} kind,
+     * @param {TerminologyCapabilitiesSoftware|undefined} [software],
+     * @param {TerminologyCapabilitiesImplementation|undefined} [implementation],
+     * @param {Boolean|undefined} [lockedDate],
+     * @param {TerminologyCapabilitiesCodeSystem[]|undefined} [codeSystem],
+     * @param {TerminologyCapabilitiesExpansion|undefined} [expansion],
+     * @param {code|undefined} [codeSearch],
+     * @param {TerminologyCapabilitiesValidateCode|undefined} [validateCode],
+     * @param {TerminologyCapabilitiesTranslation|undefined} [translation],
+     * @param {TerminologyCapabilitiesClosure|undefined} [closure],
+    */
     constructor(
         {
             id,

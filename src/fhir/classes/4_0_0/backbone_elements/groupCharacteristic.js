@@ -9,6 +9,19 @@ Group.Characteristic
     Organization.
 */
 class GroupCharacteristic {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Range|undefined} [valueRange],
+     * @param {Reference|undefined} [valueReference],
+     * @param {Boolean} exclude,
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

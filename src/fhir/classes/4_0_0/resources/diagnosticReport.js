@@ -11,6 +11,35 @@ DiagnosticReport
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DiagnosticReport {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {instant|undefined} [issued],
+     * @param {Reference[]|undefined} [performer],
+     * @param {Reference[]|undefined} [resultsInterpreter],
+     * @param {Reference[]|undefined} [specimen],
+     * @param {Reference[]|undefined} [result],
+     * @param {Reference[]|undefined} [imagingStudy],
+     * @param {DiagnosticReportMedia[]|undefined} [media],
+     * @param {String|undefined} [conclusion],
+     * @param {CodeableConcept[]|undefined} [conclusionCode],
+     * @param {Attachment[]|undefined} [presentedForm],
+    */
     constructor(
         {
             id,

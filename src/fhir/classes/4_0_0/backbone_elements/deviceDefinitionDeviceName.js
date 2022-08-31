@@ -7,6 +7,13 @@ DeviceDefinition.DeviceName
     component of a medical device.
 */
 class DeviceDefinitionDeviceName {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {code} type,
+    */
     constructor(
         {
             id,

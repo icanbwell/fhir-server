@@ -10,6 +10,15 @@ Subscription.Channel
     "channel" so that another system can take an appropriate action.
 */
 class SubscriptionChannel {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {url|undefined} [endpoint],
+     * @param {code|undefined} [payload],
+     * @param {String[]|undefined} [header],
+    */
     constructor(
         {
             id,

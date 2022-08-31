@@ -8,6 +8,39 @@ Encounter
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Encounter {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {EncounterStatusHistory[]|undefined} [statusHistory],
+     * @param {Coding} class_,
+     * @param {EncounterClassHistory[]|undefined} [classHistory],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {CodeableConcept|undefined} [serviceType],
+     * @param {CodeableConcept|undefined} [priority],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference[]|undefined} [episodeOfCare],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {EncounterParticipant[]|undefined} [participant],
+     * @param {Reference[]|undefined} [appointment],
+     * @param {Period|undefined} [period],
+     * @param {Quantity|undefined} [length],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {EncounterDiagnosis[]|undefined} [diagnosis],
+     * @param {Reference[]|undefined} [account],
+     * @param {EncounterHospitalization|undefined} [hospitalization],
+     * @param {EncounterLocation[]|undefined} [location],
+     * @param {Reference|undefined} [serviceProvider],
+     * @param {Reference|undefined} [partOf],
+    */
     constructor(
         {
             id,

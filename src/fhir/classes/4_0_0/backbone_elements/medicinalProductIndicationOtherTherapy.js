@@ -6,6 +6,14 @@ MedicinalProductIndication.OtherTherapy
     Indication for the Medicinal Product.
 */
 class MedicinalProductIndicationOtherTherapy {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} therapyRelationshipType,
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+    */
     constructor(
         {
             id,

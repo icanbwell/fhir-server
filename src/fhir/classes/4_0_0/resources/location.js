@@ -9,6 +9,33 @@ Location
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Location {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {Coding|undefined} [operationalStatus],
+     * @param {String|undefined} [name],
+     * @param {String[]|undefined} [alias],
+     * @param {String|undefined} [description],
+     * @param {code|undefined} [mode],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address|undefined} [address],
+     * @param {CodeableConcept|undefined} [physicalType],
+     * @param {LocationPosition|undefined} [position],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {Reference|undefined} [partOf],
+     * @param {LocationHoursOfOperation[]|undefined} [hoursOfOperation],
+     * @param {String|undefined} [availabilityExceptions],
+     * @param {Reference[]|undefined} [endpoint],
+    */
     constructor(
         {
             id,

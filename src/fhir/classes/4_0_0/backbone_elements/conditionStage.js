@@ -7,6 +7,14 @@ Condition.Stage
     clinical concept that has risen to a level of concern.
 */
 class ConditionStage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [summary],
+     * @param {Reference[]|undefined} [assessment],
+     * @param {CodeableConcept|undefined} [type],
+    */
     constructor(
         {
             id,

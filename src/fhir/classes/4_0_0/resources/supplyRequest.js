@@ -8,6 +8,34 @@ SupplyRequest
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class SupplyRequest {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {code|undefined} [priority],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+     * @param {Reference|undefined} [itemReference],
+     * @param {Quantity} quantity,
+     * @param {SupplyRequestParameter[]|undefined} [parameter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {Reference[]|undefined} [supplier],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference|undefined} [deliverFrom],
+     * @param {Reference|undefined} [deliverTo],
+    */
     constructor(
         {
             id,

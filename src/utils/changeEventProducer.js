@@ -92,7 +92,6 @@ class ChangeEventProducer {
                    }
     ) {
         return new AuditEvent({
-            'resourceType': 'AuditEvent',
             'id': generateUUID(),
             'action': isCreate ? 'C' : 'U',
             'period':

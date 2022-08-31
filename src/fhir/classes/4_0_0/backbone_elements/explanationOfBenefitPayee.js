@@ -8,6 +8,13 @@ ExplanationOfBenefit.Payee
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitPayee {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [party],
+    */
     constructor(
         {
             id,

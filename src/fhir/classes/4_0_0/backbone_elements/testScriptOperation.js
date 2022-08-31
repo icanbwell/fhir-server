@@ -7,6 +7,28 @@ TestScript.Operation
     determine compliance against the FHIR specification.
 */
 class TestScriptOperation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding|undefined} [type],
+     * @param {code|undefined} [resource],
+     * @param {String|undefined} [label],
+     * @param {String|undefined} [description],
+     * @param {code|undefined} [accept],
+     * @param {code|undefined} [contentType],
+     * @param {Int|undefined} [destination],
+     * @param {Boolean} encodeRequestUrl,
+     * @param {code|undefined} [method],
+     * @param {Int|undefined} [origin],
+     * @param {String|undefined} [params],
+     * @param {TestScriptRequestHeader[]|undefined} [requestHeader],
+     * @param {id|undefined} [requestId],
+     * @param {id|undefined} [responseId],
+     * @param {id|undefined} [sourceId],
+     * @param {id|undefined} [targetId],
+     * @param {String|undefined} [url],
+    */
     constructor(
         {
             id,

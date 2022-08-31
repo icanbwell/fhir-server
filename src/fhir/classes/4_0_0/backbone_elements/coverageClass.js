@@ -7,6 +7,14 @@ Coverage.Class
     products and services. Includes both insurance and self-payment.
 */
 class CoverageClass {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {String} value,
+     * @param {String|undefined} [name],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,17 @@ HumanName
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class HumanName {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code|undefined} [use],
+     * @param {String|undefined} [text],
+     * @param {String|undefined} [family],
+     * @param {String[]|undefined} [given],
+     * @param {String[]|undefined} [prefix],
+     * @param {String[]|undefined} [suffix],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

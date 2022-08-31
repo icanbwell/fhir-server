@@ -7,6 +7,16 @@ SubstanceSpecification.Code
     used for prescribing.
 */
 class SubstanceSpecificationCode {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {CodeableConcept|undefined} [status],
+     * @param {dateTime|undefined} [statusDate],
+     * @param {String|undefined} [comment],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

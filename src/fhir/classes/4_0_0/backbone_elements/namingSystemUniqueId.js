@@ -8,6 +8,16 @@ NamingSystem.UniqueId
     within the Identifier and Coding data types.
 */
 class NamingSystemUniqueId {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {String} value,
+     * @param {Boolean|undefined} [preferred],
+     * @param {String|undefined} [comment],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

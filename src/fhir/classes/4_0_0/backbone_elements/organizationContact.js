@@ -9,6 +9,15 @@ Organization.Contact
     healthcare practice groups, payer/insurer, etc.
 */
 class OrganizationContact {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [purpose],
+     * @param {HumanName|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address|undefined} [address],
+    */
     constructor(
         {
             id,

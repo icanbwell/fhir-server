@@ -8,6 +8,17 @@ ConceptMap.Target
     concepts, or classes in class models.
 */
 class ConceptMapTarget {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [code],
+     * @param {String|undefined} [display],
+     * @param {code} equivalence,
+     * @param {String|undefined} [comment],
+     * @param {ConceptMapDependsOn[]|undefined} [dependsOn],
+     * @param {ConceptMapDependsOn[]|undefined} [product],
+    */
     constructor(
         {
             id,

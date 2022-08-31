@@ -7,6 +7,26 @@ Contract.ValuedItem
     a policy or agreement.
 */
 class ContractValuedItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [entityCodeableConcept],
+     * @param {Reference|undefined} [entityReference],
+     * @param {Identifier|undefined} [identifier],
+     * @param {dateTime|undefined} [effectiveTime],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {decimal|undefined} [points],
+     * @param {Money|undefined} [net],
+     * @param {String|undefined} [payment],
+     * @param {dateTime|undefined} [paymentDate],
+     * @param {Reference|undefined} [responsible],
+     * @param {Reference|undefined} [recipient],
+     * @param {String[]|undefined} [linkId],
+     * @param {unsignedInt[]|undefined} [securityLabelNumber],
+    */
     constructor(
         {
             id,

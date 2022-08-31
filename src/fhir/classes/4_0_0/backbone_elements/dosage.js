@@ -8,6 +8,25 @@ Dosage
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Dosage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [sequence],
+     * @param {String|undefined} [text],
+     * @param {CodeableConcept[]|undefined} [additionalInstruction],
+     * @param {String|undefined} [patientInstruction],
+     * @param {Timing|undefined} [timing],
+     * @param {Boolean|undefined} [asNeededBoolean],
+     * @param {CodeableConcept|undefined} [asNeededCodeableConcept],
+     * @param {CodeableConcept|undefined} [site],
+     * @param {CodeableConcept|undefined} [route],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {DosageDoseAndRate[]|undefined} [doseAndRate],
+     * @param {Ratio|undefined} [maxDosePerPeriod],
+     * @param {Quantity|undefined} [maxDosePerAdministration],
+     * @param {Quantity|undefined} [maxDosePerLifetime],
+    */
     constructor(
         {
             id,

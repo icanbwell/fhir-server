@@ -6,6 +6,13 @@ MedicationKnowledge.MaxDispense
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeMaxDispense {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity} quantity,
+     * @param {Quantity|undefined} [period],
+    */
     constructor(
         {
             id,

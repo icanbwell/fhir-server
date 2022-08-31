@@ -7,6 +7,16 @@ StructureMap.Parameter
     data.
 */
 class StructureMapParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id|undefined} [valueId],
+     * @param {String|undefined} [valueString],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {Int|undefined} [valueInteger],
+     * @param {decimal|undefined} [valueDecimal],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,13 @@ ExampleScenario.ContainedInstance
     Example of workflow instance.
 */
 class ExampleScenarioContainedInstance {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} resourceId,
+     * @param {String|undefined} [versionId],
+    */
     constructor(
         {
             id,

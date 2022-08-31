@@ -19,6 +19,19 @@ SubstanceSourceMaterial.Organism
     annex.
 */
 class SubstanceSourceMaterialOrganism {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [family],
+     * @param {CodeableConcept|undefined} [genus],
+     * @param {CodeableConcept|undefined} [species],
+     * @param {CodeableConcept|undefined} [intraspecificType],
+     * @param {String|undefined} [intraspecificDescription],
+     * @param {SubstanceSourceMaterialAuthor[]|undefined} [author],
+     * @param {SubstanceSourceMaterialHybrid|undefined} [hybrid],
+     * @param {SubstanceSourceMaterialOrganismGeneral|undefined} [organismGeneral],
+    */
     constructor(
         {
             id,

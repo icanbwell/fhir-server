@@ -8,6 +8,17 @@ EffectEvidenceSynthesis.EffectEstimate
     from a combination of research studies.
 */
 class EffectEvidenceSynthesisEffectEstimate {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [variantState],
+     * @param {decimal|undefined} [value],
+     * @param {CodeableConcept|undefined} [unitOfMeasure],
+     * @param {EffectEvidenceSynthesisPrecisionEstimate[]|undefined} [precisionEstimate],
+    */
     constructor(
         {
             id,

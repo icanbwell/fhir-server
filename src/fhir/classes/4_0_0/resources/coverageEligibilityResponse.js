@@ -8,6 +8,32 @@ CoverageEligibilityResponse
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CoverageEligibilityResponse {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code[]} purpose,
+     * @param {Reference} patient,
+     * @param {date|undefined} [servicedDate],
+     * @param {Period|undefined} [servicedPeriod],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [requestor],
+     * @param {Reference} request,
+     * @param {code} outcome,
+     * @param {String|undefined} [disposition],
+     * @param {Reference} insurer,
+     * @param {CoverageEligibilityResponseInsurance[]|undefined} [insurance],
+     * @param {String|undefined} [preAuthRef],
+     * @param {CodeableConcept|undefined} [form],
+     * @param {CoverageEligibilityResponseError[]|undefined} [error],
+    */
     constructor(
         {
             id,

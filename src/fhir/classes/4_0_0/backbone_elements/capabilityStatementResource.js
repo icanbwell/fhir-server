@@ -9,6 +9,28 @@ CapabilityStatement.Resource
     implementation.
 */
 class CapabilityStatementResource {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {canonical|undefined} [profile],
+     * @param {canonical[]|undefined} [supportedProfile],
+     * @param {markdown|undefined} [documentation],
+     * @param {CapabilityStatementInteraction[]|undefined} [interaction],
+     * @param {code|undefined} [versioning],
+     * @param {Boolean|undefined} [readHistory],
+     * @param {Boolean|undefined} [updateCreate],
+     * @param {Boolean|undefined} [conditionalCreate],
+     * @param {code|undefined} [conditionalRead],
+     * @param {Boolean|undefined} [conditionalUpdate],
+     * @param {code|undefined} [conditionalDelete],
+     * @param {code[]|undefined} [referencePolicy],
+     * @param {String[]|undefined} [searchInclude],
+     * @param {String[]|undefined} [searchRevInclude],
+     * @param {CapabilityStatementSearchParam[]|undefined} [searchParam],
+     * @param {CapabilityStatementOperation[]|undefined} [operation],
+    */
     constructor(
         {
             id,

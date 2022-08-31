@@ -11,6 +11,14 @@ ResearchStudy.Arm
     information about human or animal subjects.
 */
 class ResearchStudyArm {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {String|undefined} [description],
+    */
     constructor(
         {
             id,

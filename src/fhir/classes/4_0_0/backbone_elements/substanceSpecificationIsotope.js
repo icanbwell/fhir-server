@@ -7,6 +7,16 @@ SubstanceSpecification.Isotope
     used for prescribing.
 */
 class SubstanceSpecificationIsotope {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [name],
+     * @param {CodeableConcept|undefined} [substitution],
+     * @param {Quantity|undefined} [halfLife],
+     * @param {SubstanceSpecificationMolecularWeight|undefined} [molecularWeight],
+    */
     constructor(
         {
             id,

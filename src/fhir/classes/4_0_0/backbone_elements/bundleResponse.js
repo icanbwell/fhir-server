@@ -6,6 +6,16 @@ Bundle.Response
     A container for a collection of resources.
 */
 class BundleResponse {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} status,
+     * @param {uri|undefined} [location],
+     * @param {String|undefined} [etag],
+     * @param {instant|undefined} [lastModified],
+     * @param {ResourceContainer|undefined} [outcome],
+    */
     constructor(
         {
             id,

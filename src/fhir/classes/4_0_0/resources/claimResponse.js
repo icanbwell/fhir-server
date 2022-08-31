@@ -8,6 +8,43 @@ ClaimResponse
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ClaimResponse {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [subType],
+     * @param {code} use,
+     * @param {Reference} patient,
+     * @param {dateTime} created,
+     * @param {Reference} insurer,
+     * @param {Reference|undefined} [requestor],
+     * @param {Reference|undefined} [request],
+     * @param {code} outcome,
+     * @param {String|undefined} [disposition],
+     * @param {String|undefined} [preAuthRef],
+     * @param {Period|undefined} [preAuthPeriod],
+     * @param {CodeableConcept|undefined} [payeeType],
+     * @param {ClaimResponseItem[]|undefined} [item],
+     * @param {ClaimResponseAddItem[]|undefined} [addItem],
+     * @param {ClaimResponseAdjudication[]|undefined} [adjudication],
+     * @param {ClaimResponseTotal[]|undefined} [total],
+     * @param {ClaimResponsePayment|undefined} [payment],
+     * @param {CodeableConcept|undefined} [fundsReserve],
+     * @param {CodeableConcept|undefined} [formCode],
+     * @param {Attachment|undefined} [form],
+     * @param {ClaimResponseProcessNote[]|undefined} [processNote],
+     * @param {Reference[]|undefined} [communicationRequest],
+     * @param {ClaimResponseInsurance[]|undefined} [insurance],
+     * @param {ClaimResponseError[]|undefined} [error],
+    */
     constructor(
         {
             id,

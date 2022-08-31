@@ -6,6 +6,14 @@ MedicinalProductPharmaceutical.WithdrawalPeriod
     A pharmaceutical product described in terms of its composition and dose form.
 */
 class MedicinalProductPharmaceuticalWithdrawalPeriod {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} tissue,
+     * @param {Quantity} value,
+     * @param {String|undefined} [supportingInformation],
+    */
     constructor(
         {
             id,

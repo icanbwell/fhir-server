@@ -7,6 +7,14 @@ SubstanceSpecification.MolecularWeight
     used for prescribing.
 */
 class SubstanceSpecificationMolecularWeight {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [amount],
+    */
     constructor(
         {
             id,

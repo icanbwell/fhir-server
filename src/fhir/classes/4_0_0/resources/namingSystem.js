@@ -9,6 +9,29 @@ NamingSystem
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class NamingSystem {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {code} status,
+     * @param {code} kind,
+     * @param {dateTime} date,
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {String|undefined} [responsible],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {String|undefined} [usage],
+     * @param {NamingSystemUniqueId[]} uniqueId,
+    */
     constructor(
         {
             id,

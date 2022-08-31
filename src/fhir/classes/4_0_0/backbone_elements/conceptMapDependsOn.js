@@ -8,6 +8,15 @@ ConceptMap.DependsOn
     concepts, or classes in class models.
 */
 class ConceptMapDependsOn {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} property,
+     * @param {canonical|undefined} [system],
+     * @param {String} value,
+     * @param {String|undefined} [display],
+    */
     constructor(
         {
             id,

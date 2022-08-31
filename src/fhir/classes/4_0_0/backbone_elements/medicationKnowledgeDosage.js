@@ -6,6 +6,13 @@ MedicationKnowledge.Dosage
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeDosage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {Dosage[]} dosage,
+    */
     constructor(
         {
             id,

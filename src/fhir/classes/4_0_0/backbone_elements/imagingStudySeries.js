@@ -10,6 +10,23 @@ ImagingStudy.Series
     ultrasound), but a study may have multiple series of different modalities.
 */
 class ImagingStudySeries {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} uid,
+     * @param {unsignedInt|undefined} [number],
+     * @param {Coding} modality,
+     * @param {String|undefined} [description],
+     * @param {unsignedInt|undefined} [numberOfInstances],
+     * @param {Reference[]|undefined} [endpoint],
+     * @param {Coding|undefined} [bodySite],
+     * @param {Coding|undefined} [laterality],
+     * @param {Reference[]|undefined} [specimen],
+     * @param {dateTime|undefined} [started],
+     * @param {ImagingStudyPerformer[]|undefined} [performer],
+     * @param {ImagingStudyInstance[]|undefined} [instance],
+    */
     constructor(
         {
             id,

@@ -13,6 +13,17 @@ SubstanceAmount
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class SubstanceAmount {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [amountQuantity],
+     * @param {Range|undefined} [amountRange],
+     * @param {String|undefined} [amountString],
+     * @param {CodeableConcept|undefined} [amountType],
+     * @param {String|undefined} [amountText],
+     * @param {SubstanceAmountReferenceRange|undefined} [referenceRange],
+    */
     constructor(
         {
             id,

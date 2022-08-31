@@ -7,6 +7,14 @@ DeviceMetric.Calibration
     device.
 */
 class DeviceMetricCalibration {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code|undefined} [type],
+     * @param {code|undefined} [state],
+     * @param {instant|undefined} [time],
+    */
     constructor(
         {
             id,

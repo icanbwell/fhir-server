@@ -7,6 +7,13 @@ Contract.Friendly
     a policy or agreement.
 */
 class ContractFriendly {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Attachment|undefined} [contentAttachment],
+     * @param {Reference|undefined} [contentReference],
+    */
     constructor(
         {
             id,

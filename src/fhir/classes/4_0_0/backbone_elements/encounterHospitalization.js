@@ -7,6 +7,20 @@ Encounter.Hospitalization
     providing healthcare service(s) or assessing the health status of a patient.
 */
 class EncounterHospitalization {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [preAdmissionIdentifier],
+     * @param {Reference|undefined} [origin],
+     * @param {CodeableConcept|undefined} [admitSource],
+     * @param {CodeableConcept|undefined} [reAdmission],
+     * @param {CodeableConcept[]|undefined} [dietPreference],
+     * @param {CodeableConcept[]|undefined} [specialCourtesy],
+     * @param {CodeableConcept[]|undefined} [specialArrangement],
+     * @param {Reference|undefined} [destination],
+     * @param {CodeableConcept|undefined} [dischargeDisposition],
+    */
     constructor(
         {
             id,

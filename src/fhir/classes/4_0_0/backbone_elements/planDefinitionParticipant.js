@@ -9,6 +9,13 @@ PlanDefinition.Participant
     clinical decision support rules, order sets and protocols.
 */
 class PlanDefinitionParticipant {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} type,
+     * @param {CodeableConcept|undefined} [role],
+    */
     constructor(
         {
             id,

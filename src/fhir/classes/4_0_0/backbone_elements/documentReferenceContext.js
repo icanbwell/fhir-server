@@ -10,6 +10,18 @@ DocumentReference.Context
     specific documents like policy text.
 */
 class DocumentReferenceContext {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [encounter],
+     * @param {CodeableConcept[]|undefined} [event],
+     * @param {Period|undefined} [period],
+     * @param {CodeableConcept|undefined} [facilityType],
+     * @param {CodeableConcept|undefined} [practiceSetting],
+     * @param {Reference|undefined} [sourcePatientInfo],
+     * @param {Reference[]|undefined} [related],
+    */
     constructor(
         {
             id,

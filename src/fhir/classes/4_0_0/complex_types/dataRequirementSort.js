@@ -9,6 +9,12 @@ DataRequirement.Sort
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class DataRequirementSort {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String} path,
+     * @param {code} direction,
+    */
     constructor(
         {
             id,

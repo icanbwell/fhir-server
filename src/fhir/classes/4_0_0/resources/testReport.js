@@ -7,6 +7,28 @@ TestReport
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class TestReport {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [name],
+     * @param {code} status,
+     * @param {Reference} testScript,
+     * @param {code} result,
+     * @param {decimal|undefined} [score],
+     * @param {String|undefined} [tester],
+     * @param {dateTime|undefined} [issued],
+     * @param {TestReportParticipant[]|undefined} [participant],
+     * @param {TestReportSetup|undefined} [setup],
+     * @param {TestReportTest[]|undefined} [test],
+     * @param {TestReportTeardown|undefined} [teardown],
+    */
     constructor(
         {
             id,

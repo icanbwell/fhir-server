@@ -8,6 +8,13 @@ TerminologyCapabilities.Software
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesSoftware {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [version],
+    */
     constructor(
         {
             id,

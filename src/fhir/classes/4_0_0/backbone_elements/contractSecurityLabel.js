@@ -7,6 +7,15 @@ Contract.SecurityLabel
     a policy or agreement.
 */
 class ContractSecurityLabel {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {unsignedInt[]|undefined} [number],
+     * @param {Coding} classification,
+     * @param {Coding[]|undefined} [category],
+     * @param {Coding[]|undefined} [control],
+    */
     constructor(
         {
             id,

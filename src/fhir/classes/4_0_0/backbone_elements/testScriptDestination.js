@@ -7,6 +7,13 @@ TestScript.Destination
     determine compliance against the FHIR specification.
 */
 class TestScriptDestination {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} index,
+     * @param {Coding} profile,
+    */
     constructor(
         {
             id,

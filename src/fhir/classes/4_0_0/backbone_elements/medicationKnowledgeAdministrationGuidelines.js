@@ -6,6 +6,15 @@ MedicationKnowledge.AdministrationGuidelines
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeAdministrationGuidelines {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {MedicationKnowledgeDosage[]|undefined} [dosage],
+     * @param {CodeableConcept|undefined} [indicationCodeableConcept],
+     * @param {Reference|undefined} [indicationReference],
+     * @param {MedicationKnowledgePatientCharacteristics[]|undefined} [patientCharacteristics],
+    */
     constructor(
         {
             id,

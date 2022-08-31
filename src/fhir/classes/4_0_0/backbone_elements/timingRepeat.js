@@ -12,6 +12,28 @@ Timing.Repeat
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class TimingRepeat {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [boundsDuration],
+     * @param {Range|undefined} [boundsRange],
+     * @param {Period|undefined} [boundsPeriod],
+     * @param {Int|undefined} [count],
+     * @param {Int|undefined} [countMax],
+     * @param {decimal|undefined} [duration],
+     * @param {decimal|undefined} [durationMax],
+     * @param {code|undefined} [durationUnit],
+     * @param {Int|undefined} [frequency],
+     * @param {Int|undefined} [frequencyMax],
+     * @param {decimal|undefined} [period],
+     * @param {decimal|undefined} [periodMax],
+     * @param {code|undefined} [periodUnit],
+     * @param {code[]|undefined} [dayOfWeek],
+     * @param {time[]|undefined} [timeOfDay],
+     * @param {code[]|undefined} [when],
+     * @param {unsignedInt|undefined} [offset],
+    */
     constructor(
         {
             id,

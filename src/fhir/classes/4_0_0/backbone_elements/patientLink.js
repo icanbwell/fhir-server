@@ -7,6 +7,13 @@ Patient.Link
     animal receiving care or other health-related services.
 */
 class PatientLink {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} other,
+     * @param {code} type,
+    */
     constructor(
         {
             id,

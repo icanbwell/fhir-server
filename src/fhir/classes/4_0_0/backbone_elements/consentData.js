@@ -8,6 +8,13 @@ Consent.Data
     within a given policy context, for specific purposes and periods of time.
 */
 class ConsentData {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} meaning,
+     * @param {Reference} reference,
+    */
     constructor(
         {
             id,

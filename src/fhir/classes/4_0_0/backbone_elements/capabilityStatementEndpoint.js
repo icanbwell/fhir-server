@@ -9,6 +9,13 @@ CapabilityStatement.Endpoint
     implementation.
 */
 class CapabilityStatementEndpoint {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding} protocol,
+     * @param {url} address,
+    */
     constructor(
         {
             id,

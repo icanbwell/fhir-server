@@ -9,6 +9,14 @@ CapabilityStatement.Document
     implementation.
 */
 class CapabilityStatementDocument {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} mode,
+     * @param {markdown|undefined} [documentation],
+     * @param {canonical} profile,
+    */
     constructor(
         {
             id,

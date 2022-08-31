@@ -8,6 +8,15 @@ MeasureReport.Group
     calculation.
 */
 class MeasureReportGroup {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {MeasureReportPopulation[]|undefined} [population],
+     * @param {Quantity|undefined} [measureScore],
+     * @param {MeasureReportStratifier[]|undefined} [stratifier],
+    */
     constructor(
         {
             id,

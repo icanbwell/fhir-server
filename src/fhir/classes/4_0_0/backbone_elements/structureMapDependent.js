@@ -7,6 +7,13 @@ StructureMap.Dependent
     data.
 */
 class StructureMapDependent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} name,
+     * @param {String[]} variable,
+    */
     constructor(
         {
             id,

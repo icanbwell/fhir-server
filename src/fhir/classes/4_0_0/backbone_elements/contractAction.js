@@ -7,6 +7,34 @@ Contract.Action
     a policy or agreement.
 */
 class ContractAction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [doNotPerform],
+     * @param {CodeableConcept} type,
+     * @param {ContractSubject[]|undefined} [subject],
+     * @param {CodeableConcept} intent,
+     * @param {String[]|undefined} [linkId],
+     * @param {CodeableConcept} status,
+     * @param {Reference|undefined} [context],
+     * @param {String[]|undefined} [contextLinkId],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {Reference[]|undefined} [requester],
+     * @param {String[]|undefined} [requesterLinkId],
+     * @param {CodeableConcept[]|undefined} [performerType],
+     * @param {CodeableConcept|undefined} [performerRole],
+     * @param {Reference|undefined} [performer],
+     * @param {String[]|undefined} [performerLinkId],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {String[]|undefined} [reason],
+     * @param {String[]|undefined} [reasonLinkId],
+     * @param {Annotation[]|undefined} [note],
+     * @param {unsignedInt[]|undefined} [securityLabelNumber],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,15 @@ BiologicallyDerivedProduct.Storage
     into another (possibly the same) biological entity.
 */
 class BiologicallyDerivedProductStorage {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {decimal|undefined} [temperature],
+     * @param {code|undefined} [scale],
+     * @param {Period|undefined} [duration],
+    */
     constructor(
         {
             id,

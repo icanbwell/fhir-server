@@ -7,6 +7,13 @@ SearchParameter.Component
     search/filter on a resource.
 */
 class SearchParameterComponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {canonical} definition,
+     * @param {String} expression,
+    */
     constructor(
         {
             id,

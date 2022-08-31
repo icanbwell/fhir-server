@@ -7,6 +7,20 @@ ClaimResponse.Detail1
     resource.
 */
 class ClaimResponseDetail1 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} productOrService,
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [net],
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ClaimResponseAdjudication[]} adjudication,
+     * @param {ClaimResponseSubDetail1[]|undefined} [subDetail],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,14 @@ SubstanceReferenceInformation.GeneElement
     Todo.
 */
 class SubstanceReferenceInformationGeneElement {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Identifier|undefined} [element],
+     * @param {Reference[]|undefined} [source],
+    */
     constructor(
         {
             id,

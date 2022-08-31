@@ -19,6 +19,16 @@ SubstanceSourceMaterial.Hybrid
     annex.
 */
 class SubstanceSourceMaterialHybrid {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [maternalOrganismId],
+     * @param {String|undefined} [maternalOrganismName],
+     * @param {String|undefined} [paternalOrganismId],
+     * @param {String|undefined} [paternalOrganismName],
+     * @param {CodeableConcept|undefined} [hybridType],
+    */
     constructor(
         {
             id,

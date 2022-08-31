@@ -7,6 +7,18 @@ Patient.Contact
     animal receiving care or other health-related services.
 */
 class PatientContact {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [relationship],
+     * @param {HumanName|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address|undefined} [address],
+     * @param {code|undefined} [gender],
+     * @param {Reference|undefined} [organization],
+     * @param {Period|undefined} [period],
+    */
     constructor(
         {
             id,

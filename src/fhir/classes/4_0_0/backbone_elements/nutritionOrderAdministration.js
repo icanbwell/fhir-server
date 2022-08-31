@@ -7,6 +7,15 @@ NutritionOrder.Administration
     supplement to a patient/resident.
 */
 class NutritionOrderAdministration {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Timing|undefined} [schedule],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Quantity|undefined} [rateQuantity],
+     * @param {Ratio|undefined} [rateRatio],
+    */
     constructor(
         {
             id,

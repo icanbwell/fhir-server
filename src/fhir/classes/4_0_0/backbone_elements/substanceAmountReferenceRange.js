@@ -13,6 +13,13 @@ SubstanceAmount.ReferenceRange
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class SubstanceAmountReferenceRange {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [lowLimit],
+     * @param {Quantity|undefined} [highLimit],
+    */
     constructor(
         {
             id,

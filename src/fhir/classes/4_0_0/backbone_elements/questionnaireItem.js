@@ -8,6 +8,27 @@ Questionnaire.Item
     phraseology and grouping to allow coherent, consistent data collection.
 */
 class QuestionnaireItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} linkId,
+     * @param {uri|undefined} [definition],
+     * @param {Coding[]|undefined} [code],
+     * @param {String|undefined} [prefix],
+     * @param {String|undefined} [text],
+     * @param {code} type,
+     * @param {QuestionnaireEnableWhen[]|undefined} [enableWhen],
+     * @param {code|undefined} [enableBehavior],
+     * @param {Boolean|undefined} [required],
+     * @param {Boolean|undefined} [repeats],
+     * @param {Boolean|undefined} [readOnly],
+     * @param {Int|undefined} [maxLength],
+     * @param {canonical|undefined} [answerValueSet],
+     * @param {QuestionnaireAnswerOption[]|undefined} [answerOption],
+     * @param {QuestionnaireInitial[]|undefined} [initial],
+     * @param {QuestionnaireItem[]|undefined} [item],
+    */
     constructor(
         {
             id,

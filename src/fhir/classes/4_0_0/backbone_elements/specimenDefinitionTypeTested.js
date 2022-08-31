@@ -6,6 +6,19 @@ SpecimenDefinition.TypeTested
     A kind of specimen with associated set of requirements.
 */
 class SpecimenDefinitionTypeTested {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [isDerived],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {code} preference,
+     * @param {SpecimenDefinitionContainer|undefined} [container],
+     * @param {String|undefined} [requirement],
+     * @param {Quantity|undefined} [retentionTime],
+     * @param {CodeableConcept[]|undefined} [rejectionCriterion],
+     * @param {SpecimenDefinitionHandling[]|undefined} [handling],
+    */
     constructor(
         {
             id,

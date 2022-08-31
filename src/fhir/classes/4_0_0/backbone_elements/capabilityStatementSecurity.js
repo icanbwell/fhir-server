@@ -9,6 +9,14 @@ CapabilityStatement.Security
     implementation.
 */
 class CapabilityStatementSecurity {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [cors],
+     * @param {CodeableConcept[]|undefined} [service],
+     * @param {markdown|undefined} [description],
+    */
     constructor(
         {
             id,

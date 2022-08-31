@@ -11,6 +11,32 @@ DocumentReference
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DocumentReference {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [masterIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code|undefined} [docStatus],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {Reference|undefined} [subject],
+     * @param {instant|undefined} [date],
+     * @param {Reference[]|undefined} [author],
+     * @param {Reference|undefined} [authenticator],
+     * @param {Reference|undefined} [custodian],
+     * @param {DocumentReferenceRelatesTo[]|undefined} [relatesTo],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept[]|undefined} [securityLabel],
+     * @param {DocumentReferenceContent[]} content,
+     * @param {DocumentReferenceContext|undefined} [context],
+    */
     constructor(
         {
             id,

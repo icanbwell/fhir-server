@@ -6,6 +6,13 @@ HealthcareService.NotAvailable
     The details of a healthcare service available at a location.
 */
 class HealthcareServiceNotAvailable {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} description,
+     * @param {Period|undefined} [during],
+    */
     constructor(
         {
             id,

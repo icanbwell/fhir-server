@@ -8,6 +8,13 @@ TerminologyCapabilities.Implementation
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesImplementation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} description,
+     * @param {url|undefined} [url],
+    */
     constructor(
         {
             id,

@@ -11,6 +11,15 @@ UsageContext
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class UsageContext {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Coding} code,
+     * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Range|undefined} [valueRange],
+     * @param {Reference|undefined} [valueReference],
+    */
     constructor(
         {
             id,

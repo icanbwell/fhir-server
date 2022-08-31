@@ -6,6 +6,20 @@ MolecularSequence.ReferenceSeq
     Raw data describing a biological sequence.
 */
 class MolecularSequenceReferenceSeq {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [chromosome],
+     * @param {String|undefined} [genomeBuild],
+     * @param {code|undefined} [orientation],
+     * @param {CodeableConcept|undefined} [referenceSeqId],
+     * @param {Reference|undefined} [referenceSeqPointer],
+     * @param {String|undefined} [referenceSeqString],
+     * @param {code|undefined} [strand],
+     * @param {Int|undefined} [windowStart],
+     * @param {Int|undefined} [windowEnd],
+    */
     constructor(
         {
             id,

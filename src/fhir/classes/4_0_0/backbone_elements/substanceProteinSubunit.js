@@ -13,6 +13,19 @@ SubstanceProtein.Subunit
     vaccines, and immunomodulators.
 */
 class SubstanceProteinSubunit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [subunit],
+     * @param {String|undefined} [sequence],
+     * @param {Int|undefined} [length],
+     * @param {Attachment|undefined} [sequenceAttachment],
+     * @param {Identifier|undefined} [nTerminalModificationId],
+     * @param {String|undefined} [nTerminalModification],
+     * @param {Identifier|undefined} [cTerminalModificationId],
+     * @param {String|undefined} [cTerminalModification],
+    */
     constructor(
         {
             id,

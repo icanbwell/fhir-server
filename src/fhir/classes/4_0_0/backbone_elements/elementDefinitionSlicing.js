@@ -9,6 +9,15 @@ ElementDefinition.Slicing
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionSlicing {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ElementDefinitionDiscriminator[]|undefined} [discriminator],
+     * @param {String|undefined} [description],
+     * @param {Boolean|undefined} [ordered],
+     * @param {code} rules,
+    */
     constructor(
         {
             id,

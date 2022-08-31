@@ -7,6 +7,13 @@ VisionPrescription.Prism
     patient.
 */
 class VisionPrescriptionPrism {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {decimal} amount,
+     * @param {code} base,
+    */
     constructor(
         {
             id,

@@ -9,6 +9,14 @@ ValueSet.Filter
     elements](terminologies.html).
 */
 class ValueSetFilter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} property,
+     * @param {code} op,
+     * @param {String} value,
+    */
     constructor(
         {
             id,

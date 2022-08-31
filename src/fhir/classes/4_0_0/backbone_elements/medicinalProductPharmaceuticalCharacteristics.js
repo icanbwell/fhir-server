@@ -6,6 +6,13 @@ MedicinalProductPharmaceutical.Characteristics
     A pharmaceutical product described in terms of its composition and dose form.
 */
 class MedicinalProductPharmaceuticalCharacteristics {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+     * @param {CodeableConcept|undefined} [status],
+    */
     constructor(
         {
             id,

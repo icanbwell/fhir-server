@@ -9,6 +9,27 @@ BiologicallyDerivedProduct
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class BiologicallyDerivedProduct {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [productCategory],
+     * @param {CodeableConcept|undefined} [productCode],
+     * @param {code|undefined} [status],
+     * @param {Reference[]|undefined} [request],
+     * @param {Int|undefined} [quantity],
+     * @param {Reference[]|undefined} [parent],
+     * @param {BiologicallyDerivedProductCollection|undefined} [collection],
+     * @param {BiologicallyDerivedProductProcessing[]|undefined} [processing],
+     * @param {BiologicallyDerivedProductManipulation|undefined} [manipulation],
+     * @param {BiologicallyDerivedProductStorage[]|undefined} [storage],
+    */
     constructor(
         {
             id,

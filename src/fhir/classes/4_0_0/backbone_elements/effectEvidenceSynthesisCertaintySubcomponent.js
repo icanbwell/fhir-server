@@ -8,6 +8,14 @@ EffectEvidenceSynthesis.CertaintySubcomponent
     from a combination of research studies.
 */
 class EffectEvidenceSynthesisCertaintySubcomponent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [rating],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

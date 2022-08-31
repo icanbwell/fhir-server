@@ -9,6 +9,15 @@ ElementDefinition.Mapping
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class ElementDefinitionMapping {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} identity,
+     * @param {code|undefined} [language],
+     * @param {String} map,
+     * @param {String|undefined} [comment],
+    */
     constructor(
         {
             id,

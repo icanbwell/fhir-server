@@ -10,6 +10,13 @@ DocumentReference.Content
     specific documents like policy text.
 */
 class DocumentReferenceContent {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Attachment} attachment,
+     * @param {Coding|undefined} [format],
+    */
     constructor(
         {
             id,

@@ -7,6 +7,21 @@ Contract.Offer
     a policy or agreement.
 */
 class ContractOffer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {ContractParty[]|undefined} [party],
+     * @param {Reference|undefined} [topic],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [decision],
+     * @param {CodeableConcept[]|undefined} [decisionMode],
+     * @param {ContractAnswer[]|undefined} [answer],
+     * @param {String|undefined} [text],
+     * @param {String[]|undefined} [linkId],
+     * @param {unsignedInt[]|undefined} [securityLabelNumber],
+    */
     constructor(
         {
             id,

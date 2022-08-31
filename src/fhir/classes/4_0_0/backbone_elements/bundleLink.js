@@ -6,6 +6,13 @@ Bundle.Link
     A container for a collection of resources.
 */
 class BundleLink {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} relation,
+     * @param {uri} url,
+    */
     constructor(
         {
             id,

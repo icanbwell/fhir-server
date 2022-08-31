@@ -7,6 +7,18 @@ CoverageEligibilityResponse.Benefit
     CoverageEligibilityRequest resource.
 */
 class CoverageEligibilityResponseBenefit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {unsignedInt|undefined} [allowedUnsignedInt],
+     * @param {String|undefined} [allowedString],
+     * @param {Money|undefined} [allowedMoney],
+     * @param {unsignedInt|undefined} [usedUnsignedInt],
+     * @param {String|undefined} [usedString],
+     * @param {Money|undefined} [usedMoney],
+    */
     constructor(
         {
             id,

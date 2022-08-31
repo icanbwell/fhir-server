@@ -6,6 +6,13 @@ MedicationKnowledge.MedicineClassification
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeMedicineClassification {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept[]|undefined} [classification],
+    */
     constructor(
         {
             id,

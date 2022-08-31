@@ -7,6 +7,19 @@ SubstanceSpecification.Structure
     used for prescribing.
 */
 class SubstanceSpecificationStructure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [stereochemistry],
+     * @param {CodeableConcept|undefined} [opticalActivity],
+     * @param {String|undefined} [molecularFormula],
+     * @param {String|undefined} [molecularFormulaByMoiety],
+     * @param {SubstanceSpecificationIsotope[]|undefined} [isotope],
+     * @param {SubstanceSpecificationMolecularWeight|undefined} [molecularWeight],
+     * @param {Reference[]|undefined} [source],
+     * @param {SubstanceSpecificationRepresentation[]|undefined} [representation],
+    */
     constructor(
         {
             id,

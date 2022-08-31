@@ -9,6 +9,27 @@ Endpoint
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Endpoint {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Coding} connectionType,
+     * @param {String|undefined} [name],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {Period|undefined} [period],
+     * @param {CodeableConcept[]} payloadType,
+     * @param {code[]|undefined} [payloadMimeType],
+     * @param {url} address,
+     * @param {String[]|undefined} [header],
+    */
     constructor(
         {
             id,

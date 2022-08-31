@@ -6,6 +6,16 @@ ExampleScenario.Process
     Example of workflow instance.
 */
 class ExampleScenarioProcess {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} title,
+     * @param {markdown|undefined} [description],
+     * @param {markdown|undefined} [preConditions],
+     * @param {markdown|undefined} [postConditions],
+     * @param {ExampleScenarioStep[]|undefined} [step],
+    */
     constructor(
         {
             id,

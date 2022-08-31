@@ -8,6 +8,28 @@ DocumentManifest
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DocumentManifest {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [masterIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference[]|undefined} [author],
+     * @param {Reference[]|undefined} [recipient],
+     * @param {uri|undefined} [source],
+     * @param {String|undefined} [description],
+     * @param {Reference[]} content,
+     * @param {DocumentManifestRelated[]|undefined} [related],
+    */
     constructor(
         {
             id,

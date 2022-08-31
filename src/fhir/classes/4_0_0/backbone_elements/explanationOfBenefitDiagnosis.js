@@ -8,6 +8,17 @@ ExplanationOfBenefit.Diagnosis
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitDiagnosis {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {CodeableConcept|undefined} [diagnosisCodeableConcept],
+     * @param {Reference|undefined} [diagnosisReference],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {CodeableConcept|undefined} [onAdmission],
+     * @param {CodeableConcept|undefined} [packageCode],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,12 @@ TestReport.Teardown
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportTeardown {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestReportAction2[]} action,
+    */
     constructor(
         {
             id,

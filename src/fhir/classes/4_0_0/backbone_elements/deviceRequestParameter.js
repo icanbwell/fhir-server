@@ -7,6 +7,16 @@ DeviceRequest.Parameter
     be an implantable device, or an external assistive device, such as a walker.
 */
 class DeviceRequestParameter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Range|undefined} [valueRange],
+     * @param {Boolean|undefined} [valueBoolean],
+    */
     constructor(
         {
             id,

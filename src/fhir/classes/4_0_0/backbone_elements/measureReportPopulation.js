@@ -8,6 +8,14 @@ MeasureReport.Population
     calculation.
 */
 class MeasureReportPopulation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Int|undefined} [count],
+     * @param {Reference|undefined} [subjectResults],
+    */
     constructor(
         {
             id,

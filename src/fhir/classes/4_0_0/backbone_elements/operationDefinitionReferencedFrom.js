@@ -7,6 +7,13 @@ OperationDefinition.ReferencedFrom
     named query (using the search interaction).
 */
 class OperationDefinitionReferencedFrom {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} source,
+     * @param {String|undefined} [sourceId],
+    */
     constructor(
         {
             id,

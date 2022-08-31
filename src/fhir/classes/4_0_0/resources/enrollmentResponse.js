@@ -8,6 +8,24 @@ EnrollmentResponse
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class EnrollmentResponse {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [request],
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [disposition],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference|undefined} [organization],
+     * @param {Reference|undefined} [requestProvider],
+    */
     constructor(
         {
             id,

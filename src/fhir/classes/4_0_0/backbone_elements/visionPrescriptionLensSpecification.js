@@ -7,6 +7,25 @@ VisionPrescription.LensSpecification
     patient.
 */
 class VisionPrescriptionLensSpecification {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} product,
+     * @param {code} eye,
+     * @param {decimal|undefined} [sphere],
+     * @param {decimal|undefined} [cylinder],
+     * @param {Int|undefined} [axis],
+     * @param {VisionPrescriptionPrism[]|undefined} [prism],
+     * @param {decimal|undefined} [add],
+     * @param {decimal|undefined} [power],
+     * @param {decimal|undefined} [backCurve],
+     * @param {decimal|undefined} [diameter],
+     * @param {Quantity|undefined} [duration],
+     * @param {String|undefined} [color],
+     * @param {String|undefined} [brand],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

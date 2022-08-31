@@ -8,6 +8,14 @@ EpisodeOfCare.Diagnosis
     level of responsibility for the patient during this time.
 */
 class EpisodeOfCareDiagnosis {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} condition,
+     * @param {CodeableConcept|undefined} [role],
+     * @param {Int|undefined} [rank],
+    */
     constructor(
         {
             id,

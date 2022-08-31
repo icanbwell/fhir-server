@@ -8,6 +8,34 @@ RiskAssessment
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class RiskAssessment {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference|undefined} [basedOn],
+     * @param {Reference|undefined} [parent],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [method],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Reference|undefined} [condition],
+     * @param {Reference|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [basis],
+     * @param {RiskAssessmentPrediction[]|undefined} [prediction],
+     * @param {String|undefined} [mitigation],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

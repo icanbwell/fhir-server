@@ -11,6 +11,28 @@ MessageHeader
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MessageHeader {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding|undefined} [eventCoding],
+     * @param {uri|undefined} [eventUri],
+     * @param {MessageHeaderDestination[]|undefined} [destination],
+     * @param {Reference|undefined} [sender],
+     * @param {Reference|undefined} [enterer],
+     * @param {Reference|undefined} [author],
+     * @param {MessageHeaderSource} source,
+     * @param {Reference|undefined} [responsible],
+     * @param {CodeableConcept|undefined} [reason],
+     * @param {MessageHeaderResponse|undefined} [response],
+     * @param {Reference[]|undefined} [focus],
+     * @param {canonical|undefined} [definition],
+    */
     constructor(
         {
             id,

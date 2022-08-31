@@ -6,6 +6,23 @@ MedicinalProductPackaged.PackageItem
     A medicinal product in a container or package.
 */
 class MedicinalProductPackagedPackageItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} type,
+     * @param {Quantity} quantity,
+     * @param {CodeableConcept[]|undefined} [material],
+     * @param {CodeableConcept[]|undefined} [alternateMaterial],
+     * @param {Reference[]|undefined} [device],
+     * @param {Reference[]|undefined} [manufacturedItem],
+     * @param {MedicinalProductPackagedPackageItem[]|undefined} [packageItem],
+     * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
+     * @param {CodeableConcept[]|undefined} [otherCharacteristics],
+     * @param {ProductShelfLife[]|undefined} [shelfLifeStorage],
+     * @param {Reference[]|undefined} [manufacturer],
+    */
     constructor(
         {
             id,

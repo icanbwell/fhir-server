@@ -7,6 +7,25 @@ MedicinalProductIndication
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class MedicinalProductIndication {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [subject],
+     * @param {CodeableConcept|undefined} [diseaseSymptomProcedure],
+     * @param {CodeableConcept|undefined} [diseaseStatus],
+     * @param {CodeableConcept[]|undefined} [comorbidity],
+     * @param {CodeableConcept|undefined} [intendedEffect],
+     * @param {Quantity|undefined} [duration],
+     * @param {MedicinalProductIndicationOtherTherapy[]|undefined} [otherTherapy],
+     * @param {Reference[]|undefined} [undesirableEffect],
+     * @param {Population[]|undefined} [population],
+    */
     constructor(
         {
             id,

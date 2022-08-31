@@ -10,6 +10,14 @@ MedicationRequest.Substitution
     plans, etc., and to harmonize with workflow patterns.
 */
 class MedicationRequestSubstitution {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [allowedBoolean],
+     * @param {CodeableConcept|undefined} [allowedCodeableConcept],
+     * @param {CodeableConcept|undefined} [reason],
+    */
     constructor(
         {
             id,

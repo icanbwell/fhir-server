@@ -8,6 +8,37 @@ ExplanationOfBenefit.Item
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {Int[]|undefined} [careTeamSequence],
+     * @param {Int[]|undefined} [diagnosisSequence],
+     * @param {Int[]|undefined} [procedureSequence],
+     * @param {Int[]|undefined} [informationSequence],
+     * @param {CodeableConcept|undefined} [revenue],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept} productOrService,
+     * @param {CodeableConcept[]|undefined} [modifier],
+     * @param {CodeableConcept[]|undefined} [programCode],
+     * @param {date|undefined} [servicedDate],
+     * @param {Period|undefined} [servicedPeriod],
+     * @param {CodeableConcept|undefined} [locationCodeableConcept],
+     * @param {Address|undefined} [locationAddress],
+     * @param {Reference|undefined} [locationReference],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Money|undefined} [unitPrice],
+     * @param {decimal|undefined} [factor],
+     * @param {Money|undefined} [net],
+     * @param {Reference[]|undefined} [udi],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {CodeableConcept[]|undefined} [subSite],
+     * @param {Reference[]|undefined} [encounter],
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ExplanationOfBenefitAdjudication[]|undefined} [adjudication],
+     * @param {ExplanationOfBenefitDetail[]|undefined} [detail],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,38 @@ Appointment
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Appointment {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [cancelationReason],
+     * @param {CodeableConcept[]|undefined} [serviceCategory],
+     * @param {CodeableConcept[]|undefined} [serviceType],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {CodeableConcept|undefined} [appointmentType],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {unsignedInt|undefined} [priority],
+     * @param {String|undefined} [description],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {instant|undefined} [start],
+     * @param {instant|undefined} [end],
+     * @param {Int|undefined} [minutesDuration],
+     * @param {Reference[]|undefined} [slot],
+     * @param {dateTime|undefined} [created],
+     * @param {String|undefined} [comment],
+     * @param {String|undefined} [patientInstruction],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {AppointmentParticipant[]} participant,
+     * @param {Period[]|undefined} [requestedPeriod],
+    */
     constructor(
         {
             id,

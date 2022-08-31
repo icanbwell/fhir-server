@@ -6,6 +6,15 @@ InsurancePlan.Cost
     Details of a Health Insurance product/plan provided by an organization.
 */
 class InsurancePlanCost {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [applicability],
+     * @param {CodeableConcept[]|undefined} [qualifiers],
+     * @param {Quantity|undefined} [value],
+    */
     constructor(
         {
             id,

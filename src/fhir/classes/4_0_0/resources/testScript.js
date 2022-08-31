@@ -8,6 +8,40 @@ TestScript
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class TestScript {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {TestScriptOrigin[]|undefined} [origin],
+     * @param {TestScriptDestination[]|undefined} [destination],
+     * @param {TestScriptMetadata|undefined} [metadata],
+     * @param {TestScriptFixture[]|undefined} [fixture],
+     * @param {Reference[]|undefined} [profile],
+     * @param {TestScriptVariable[]|undefined} [variable],
+     * @param {TestScriptSetup|undefined} [setup],
+     * @param {TestScriptTest[]|undefined} [test],
+     * @param {TestScriptTeardown|undefined} [teardown],
+    */
     constructor(
         {
             id,

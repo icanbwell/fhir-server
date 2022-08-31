@@ -8,6 +8,27 @@ Account
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Account {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {Reference[]|undefined} [subject],
+     * @param {Period|undefined} [servicePeriod],
+     * @param {AccountCoverage[]|undefined} [coverage],
+     * @param {Reference|undefined} [owner],
+     * @param {String|undefined} [description],
+     * @param {AccountGuarantor[]|undefined} [guarantor],
+     * @param {Reference|undefined} [partOf],
+    */
     constructor(
         {
             id,

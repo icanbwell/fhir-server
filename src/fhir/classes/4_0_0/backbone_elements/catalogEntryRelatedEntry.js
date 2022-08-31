@@ -6,6 +6,13 @@ CatalogEntry.RelatedEntry
     Catalog entries are wrappers that contextualize items included in a catalog.
 */
 class CatalogEntryRelatedEntry {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} relationtype,
+     * @param {Reference} item,
+    */
     constructor(
         {
             id,

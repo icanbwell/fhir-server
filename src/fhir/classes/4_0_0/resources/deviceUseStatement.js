@@ -8,6 +8,31 @@ DeviceUseStatement
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class DeviceUseStatement {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {code} status,
+     * @param {Reference} subject,
+     * @param {Reference[]|undefined} [derivedFrom],
+     * @param {Timing|undefined} [timingTiming],
+     * @param {Period|undefined} [timingPeriod],
+     * @param {dateTime|undefined} [timingDateTime],
+     * @param {dateTime|undefined} [recordedOn],
+     * @param {Reference|undefined} [source],
+     * @param {Reference} device,
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

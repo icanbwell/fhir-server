@@ -10,6 +10,13 @@ DocumentReference.RelatesTo
     specific documents like policy text.
 */
 class DocumentReferenceRelatesTo {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {Reference} target,
+    */
     constructor(
         {
             id,

@@ -6,6 +6,12 @@ TestReport.Action2
     A summary of information based on the results of executing a TestScript.
 */
 class TestReportAction2 {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {TestReportOperation} operation,
+    */
     constructor(
         {
             id,

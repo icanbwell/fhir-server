@@ -8,6 +8,22 @@ ExplanationOfBenefit.SupportingInfo
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitSupportingInfo {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} sequence,
+     * @param {CodeableConcept} category,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {date|undefined} [timingDate],
+     * @param {Period|undefined} [timingPeriod],
+     * @param {Boolean|undefined} [valueBoolean],
+     * @param {String|undefined} [valueString],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {Attachment|undefined} [valueAttachment],
+     * @param {Reference|undefined} [valueReference],
+     * @param {Coding|undefined} [reason],
+    */
     constructor(
         {
             id,

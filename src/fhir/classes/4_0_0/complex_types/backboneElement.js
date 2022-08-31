@@ -9,6 +9,11 @@ BackboneElement
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class BackboneElement {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+    */
     constructor(
         {
             id,

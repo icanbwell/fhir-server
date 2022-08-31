@@ -7,6 +7,24 @@ Contract.Term
     a policy or agreement.
 */
 class ContractTerm {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {dateTime|undefined} [issued],
+     * @param {Period|undefined} [applies],
+     * @param {CodeableConcept|undefined} [topicCodeableConcept],
+     * @param {Reference|undefined} [topicReference],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [subType],
+     * @param {String|undefined} [text],
+     * @param {ContractSecurityLabel[]|undefined} [securityLabel],
+     * @param {ContractOffer} offer,
+     * @param {ContractAsset[]|undefined} [asset],
+     * @param {ContractAction[]|undefined} [action],
+     * @param {ContractTerm[]|undefined} [group],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,15 @@ ExplanationOfBenefit.Accident
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitAccident {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {date|undefined} [date],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Address|undefined} [locationAddress],
+     * @param {Reference|undefined} [locationReference],
+    */
     constructor(
         {
             id,

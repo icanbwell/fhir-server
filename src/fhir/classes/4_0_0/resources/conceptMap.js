@@ -9,6 +9,36 @@ ConceptMap
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ConceptMap {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {uri|undefined} [sourceUri],
+     * @param {canonical|undefined} [sourceCanonical],
+     * @param {uri|undefined} [targetUri],
+     * @param {canonical|undefined} [targetCanonical],
+     * @param {ConceptMapGroup[]|undefined} [group],
+    */
     constructor(
         {
             id,

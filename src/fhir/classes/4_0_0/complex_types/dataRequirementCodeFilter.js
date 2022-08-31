@@ -9,6 +9,14 @@ DataRequirement.CodeFilter
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class DataRequirementCodeFilter {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {String|undefined} [path],
+     * @param {String|undefined} [searchParam],
+     * @param {canonical|undefined} [valueSet],
+     * @param {Coding[]|undefined} [code],
+    */
     constructor(
         {
             id,

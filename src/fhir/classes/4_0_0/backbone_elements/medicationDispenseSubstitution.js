@@ -10,6 +10,15 @@ MedicationDispense.Substitution
     medication order.
 */
 class MedicationDispenseSubstitution {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} wasSubstituted,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [reason],
+     * @param {Reference[]|undefined} [responsibleParty],
+    */
     constructor(
         {
             id,

@@ -14,6 +14,14 @@ Composition.RelatesTo
     Patient, Practitioner, Encounter, etc.).
 */
 class CompositionRelatesTo {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {Identifier|undefined} [targetIdentifier],
+     * @param {Reference|undefined} [targetReference],
+    */
     constructor(
         {
             id,

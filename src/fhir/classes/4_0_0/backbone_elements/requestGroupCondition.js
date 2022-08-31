@@ -7,6 +7,13 @@ RequestGroup.Condition
     that have inter-dependencies such as "give this medication after that one".
 */
 class RequestGroupCondition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} kind,
+     * @param {Expression|undefined} [expression],
+    */
     constructor(
         {
             id,

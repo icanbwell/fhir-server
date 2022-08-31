@@ -7,6 +7,17 @@ Contract.ContentDefinition
     a policy or agreement.
 */
 class ContractContentDefinition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [subType],
+     * @param {Reference|undefined} [publisher],
+     * @param {dateTime|undefined} [publicationDate],
+     * @param {code} publicationStatus,
+     * @param {markdown|undefined} [copyright],
+    */
     constructor(
         {
             id,

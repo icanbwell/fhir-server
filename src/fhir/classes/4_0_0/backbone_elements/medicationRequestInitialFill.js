@@ -10,6 +10,13 @@ MedicationRequest.InitialFill
     plans, etc., and to harmonize with workflow patterns.
 */
 class MedicationRequestInitialFill {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Quantity|undefined} [duration],
+    */
     constructor(
         {
             id,

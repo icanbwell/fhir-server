@@ -7,6 +7,30 @@ CompartmentDefinition
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class CompartmentDefinition {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {markdown|undefined} [purpose],
+     * @param {code} code,
+     * @param {Boolean} search,
+     * @param {CompartmentDefinitionResource[]|undefined} [resource],
+    */
     constructor(
         {
             id,

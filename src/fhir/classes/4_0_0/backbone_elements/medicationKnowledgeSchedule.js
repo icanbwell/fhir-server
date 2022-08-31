@@ -6,6 +6,12 @@ MedicationKnowledge.Schedule
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeSchedule {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} schedule,
+    */
     constructor(
         {
             id,

@@ -6,6 +6,14 @@ MedicationKnowledge.Cost
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeCost {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {String|undefined} [source],
+     * @param {Money} cost,
+    */
     constructor(
         {
             id,

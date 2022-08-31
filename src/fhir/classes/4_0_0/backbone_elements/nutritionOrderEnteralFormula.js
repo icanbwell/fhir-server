@@ -7,6 +7,20 @@ NutritionOrder.EnteralFormula
     supplement to a patient/resident.
 */
 class NutritionOrderEnteralFormula {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [baseFormulaType],
+     * @param {String|undefined} [baseFormulaProductName],
+     * @param {CodeableConcept|undefined} [additiveType],
+     * @param {String|undefined} [additiveProductName],
+     * @param {Quantity|undefined} [caloricDensity],
+     * @param {CodeableConcept|undefined} [routeofAdministration],
+     * @param {NutritionOrderAdministration[]|undefined} [administration],
+     * @param {Quantity|undefined} [maxVolumeToDeliver],
+     * @param {String|undefined} [administrationInstruction],
+    */
     constructor(
         {
             id,

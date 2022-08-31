@@ -8,6 +8,14 @@ Procedure.Performer
     counseling, or hypnotherapy.
 */
 class ProcedurePerformer {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [function_],
+     * @param {Reference} actor,
+     * @param {Reference|undefined} [onBehalfOf],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,14 @@ BiologicallyDerivedProduct.Manipulation
     into another (possibly the same) biological entity.
 */
 class BiologicallyDerivedProductManipulation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [description],
+     * @param {dateTime|undefined} [timeDateTime],
+     * @param {Period|undefined} [timePeriod],
+    */
     constructor(
         {
             id,

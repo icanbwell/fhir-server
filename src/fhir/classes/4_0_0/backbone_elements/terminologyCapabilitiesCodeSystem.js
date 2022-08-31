@@ -8,6 +8,14 @@ TerminologyCapabilities.CodeSystem
     functionality or a statement of required or desired server implementation.
 */
 class TerminologyCapabilitiesCodeSystem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {canonical|undefined} [uri],
+     * @param {TerminologyCapabilitiesVersion[]|undefined} [version],
+     * @param {Boolean|undefined} [subsumption],
+    */
     constructor(
         {
             id,

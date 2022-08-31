@@ -6,6 +6,14 @@ Substance.Ingredient
     A homogeneous material with a definite composition.
 */
 class SubstanceIngredient {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Ratio|undefined} [quantity],
+     * @param {CodeableConcept|undefined} [substanceCodeableConcept],
+     * @param {Reference|undefined} [substanceReference],
+    */
     constructor(
         {
             id,

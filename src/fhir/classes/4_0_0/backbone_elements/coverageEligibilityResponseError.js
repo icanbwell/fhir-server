@@ -7,6 +7,12 @@ CoverageEligibilityResponse.Error
     CoverageEligibilityRequest resource.
 */
 class CoverageEligibilityResponseError {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} code,
+    */
     constructor(
         {
             id,

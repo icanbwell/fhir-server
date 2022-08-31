@@ -8,6 +8,18 @@ Questionnaire.AnswerOption
     phraseology and grouping to allow coherent, consistent data collection.
 */
 class QuestionnaireAnswerOption {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int|undefined} [valueInteger],
+     * @param {date|undefined} [valueDate],
+     * @param {time|undefined} [valueTime],
+     * @param {String|undefined} [valueString],
+     * @param {Coding|undefined} [valueCoding],
+     * @param {Reference|undefined} [valueReference],
+     * @param {Boolean|undefined} [initialSelected],
+    */
     constructor(
         {
             id,

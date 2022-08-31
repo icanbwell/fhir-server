@@ -6,6 +6,15 @@ MedicationKnowledge.Regulatory
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeRegulatory {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference} regulatoryAuthority,
+     * @param {MedicationKnowledgeSubstitution[]|undefined} [substitution],
+     * @param {MedicationKnowledgeSchedule[]|undefined} [schedule],
+     * @param {MedicationKnowledgeMaxDispense|undefined} [maxDispense],
+    */
     constructor(
         {
             id,

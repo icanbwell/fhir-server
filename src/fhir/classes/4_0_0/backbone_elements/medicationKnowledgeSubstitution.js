@@ -6,6 +6,13 @@ MedicationKnowledge.Substitution
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeSubstitution {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} type,
+     * @param {Boolean} allowed,
+    */
     constructor(
         {
             id,

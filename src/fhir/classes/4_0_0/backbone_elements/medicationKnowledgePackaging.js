@@ -6,6 +6,13 @@ MedicationKnowledge.Packaging
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgePackaging {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [quantity],
+    */
     constructor(
         {
             id,

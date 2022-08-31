@@ -8,6 +8,12 @@ StructureDefinition.Snapshot
     extensions and constraints on resources and data types.
 */
 class StructureDefinitionSnapshot {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {ElementDefinition[]} element,
+    */
     constructor(
         {
             id,

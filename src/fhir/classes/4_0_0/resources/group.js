@@ -10,6 +10,26 @@ Group
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Group {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {code} type,
+     * @param {Boolean} actual,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [name],
+     * @param {unsignedInt|undefined} [quantity],
+     * @param {Reference|undefined} [managingEntity],
+     * @param {GroupCharacteristic[]|undefined} [characteristic],
+     * @param {GroupMember[]|undefined} [member],
+    */
     constructor(
         {
             id,

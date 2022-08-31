@@ -8,6 +8,13 @@ ActivityDefinition.DynamicValue
     context.
 */
 class ActivityDefinitionDynamicValue {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} path,
+     * @param {Expression} expression,
+    */
     constructor(
         {
             id,

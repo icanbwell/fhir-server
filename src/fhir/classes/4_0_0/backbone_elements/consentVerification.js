@@ -8,6 +8,14 @@ Consent.Verification
     within a given policy context, for specific purposes and periods of time.
 */
 class ConsentVerification {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean} verified,
+     * @param {Reference|undefined} [verifiedWith],
+     * @param {dateTime|undefined} [verificationDate],
+    */
     constructor(
         {
             id,

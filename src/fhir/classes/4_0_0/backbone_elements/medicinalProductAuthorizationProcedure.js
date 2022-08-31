@@ -6,6 +6,16 @@ MedicinalProductAuthorization.Procedure
     The regulatory authorization of a medicinal product.
 */
 class MedicinalProductAuthorizationProcedure {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept} type,
+     * @param {Period|undefined} [datePeriod],
+     * @param {dateTime|undefined} [dateDateTime],
+     * @param {MedicinalProductAuthorizationProcedure[]|undefined} [application],
+    */
     constructor(
         {
             id,

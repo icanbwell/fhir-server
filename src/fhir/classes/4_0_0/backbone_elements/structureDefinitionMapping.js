@@ -8,6 +8,15 @@ StructureDefinition.Mapping
     extensions and constraints on resources and data types.
 */
 class StructureDefinitionMapping {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} identity,
+     * @param {uri|undefined} [uri],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [comment],
+    */
     constructor(
         {
             id,

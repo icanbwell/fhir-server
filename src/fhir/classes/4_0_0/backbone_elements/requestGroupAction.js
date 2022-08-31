@@ -7,6 +7,35 @@ RequestGroup.Action
     that have inter-dependencies such as "give this medication after that one".
 */
 class RequestGroupAction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [prefix],
+     * @param {String|undefined} [title],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [textEquivalent],
+     * @param {code|undefined} [priority],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {RelatedArtifact[]|undefined} [documentation],
+     * @param {RequestGroupCondition[]|undefined} [condition],
+     * @param {RequestGroupRelatedAction[]|undefined} [relatedAction],
+     * @param {dateTime|undefined} [timingDateTime],
+     * @param {Quantity|undefined} [timingAge],
+     * @param {Period|undefined} [timingPeriod],
+     * @param {Quantity|undefined} [timingDuration],
+     * @param {Range|undefined} [timingRange],
+     * @param {Timing|undefined} [timingTiming],
+     * @param {Reference[]|undefined} [participant],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {code|undefined} [groupingBehavior],
+     * @param {code|undefined} [selectionBehavior],
+     * @param {code|undefined} [requiredBehavior],
+     * @param {code|undefined} [precheckBehavior],
+     * @param {code|undefined} [cardinalityBehavior],
+     * @param {Reference|undefined} [resource],
+     * @param {RequestGroupAction[]|undefined} [action],
+    */
     constructor(
         {
             id,

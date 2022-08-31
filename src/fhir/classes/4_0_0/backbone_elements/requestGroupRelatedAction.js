@@ -7,6 +7,15 @@ RequestGroup.RelatedAction
     that have inter-dependencies such as "give this medication after that one".
 */
 class RequestGroupRelatedAction {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {id} actionId,
+     * @param {code} relationship,
+     * @param {Quantity|undefined} [offsetDuration],
+     * @param {Range|undefined} [offsetRange],
+    */
     constructor(
         {
             id,

@@ -9,6 +9,31 @@ ImmunizationEvaluation
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ImmunizationEvaluation {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Reference} patient,
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [authority],
+     * @param {CodeableConcept} targetDisease,
+     * @param {Reference} immunizationEvent,
+     * @param {CodeableConcept} doseStatus,
+     * @param {CodeableConcept[]|undefined} [doseStatusReason],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [series],
+     * @param {Int|undefined} [doseNumberPositiveInt],
+     * @param {String|undefined} [doseNumberString],
+     * @param {Int|undefined} [seriesDosesPositiveInt],
+     * @param {String|undefined} [seriesDosesString],
+    */
     constructor(
         {
             id,

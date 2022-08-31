@@ -8,6 +8,33 @@ Coverage
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Coverage {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [policyHolder],
+     * @param {Reference|undefined} [subscriber],
+     * @param {String|undefined} [subscriberId],
+     * @param {Reference} beneficiary,
+     * @param {String|undefined} [dependent],
+     * @param {CodeableConcept|undefined} [relationship],
+     * @param {Period|undefined} [period],
+     * @param {Reference[]} payor,
+     * @param {CoverageClass[]|undefined} [class_],
+     * @param {Int|undefined} [order],
+     * @param {String|undefined} [network],
+     * @param {CoverageCostToBeneficiary[]|undefined} [costToBeneficiary],
+     * @param {Boolean|undefined} [subrogation],
+     * @param {Reference[]|undefined} [contract],
+    */
     constructor(
         {
             id,

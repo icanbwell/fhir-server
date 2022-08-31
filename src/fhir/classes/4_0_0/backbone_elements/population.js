@@ -8,6 +8,16 @@ Population
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class Population {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Range|undefined} [ageRange],
+     * @param {CodeableConcept|undefined} [ageCodeableConcept],
+     * @param {CodeableConcept|undefined} [gender],
+     * @param {CodeableConcept|undefined} [race],
+     * @param {CodeableConcept|undefined} [physiologicalCondition],
+    */
     constructor(
         {
             id,

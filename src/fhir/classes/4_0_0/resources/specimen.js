@@ -7,6 +7,29 @@ Specimen
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class Specimen {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Identifier|undefined} [accessionIdentifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {dateTime|undefined} [receivedTime],
+     * @param {Reference[]|undefined} [parent],
+     * @param {Reference[]|undefined} [request],
+     * @param {SpecimenCollection|undefined} [collection],
+     * @param {SpecimenProcessing[]|undefined} [processing],
+     * @param {SpecimenContainer[]|undefined} [container],
+     * @param {CodeableConcept[]|undefined} [condition],
+     * @param {Annotation[]|undefined} [note],
+    */
     constructor(
         {
             id,

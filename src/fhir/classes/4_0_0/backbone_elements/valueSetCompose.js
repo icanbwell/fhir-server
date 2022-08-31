@@ -9,6 +9,15 @@ ValueSet.Compose
     elements](terminologies.html).
 */
 class ValueSetCompose {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {date|undefined} [lockedDate],
+     * @param {Boolean|undefined} [inactive],
+     * @param {ValueSetInclude[]} include,
+     * @param {ValueSetInclude[]|undefined} [exclude],
+    */
     constructor(
         {
             id,

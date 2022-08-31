@@ -8,6 +8,15 @@ CodeSystem.Property
     define a part or all of its content.
 */
 class CodeSystemProperty {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} code,
+     * @param {uri|undefined} [uri],
+     * @param {String|undefined} [description],
+     * @param {code} type,
+    */
     constructor(
         {
             id,

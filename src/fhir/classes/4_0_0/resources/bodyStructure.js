@@ -8,6 +8,24 @@ BodyStructure
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class BodyStructure {
+    /**
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {CodeableConcept|undefined} [morphology],
+     * @param {CodeableConcept|undefined} [location],
+     * @param {CodeableConcept[]|undefined} [locationQualifier],
+     * @param {String|undefined} [description],
+     * @param {Attachment[]|undefined} [image],
+     * @param {Reference} patient,
+    */
     constructor(
         {
             id,

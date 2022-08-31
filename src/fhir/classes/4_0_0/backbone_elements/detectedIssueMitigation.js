@@ -8,6 +8,14 @@ DetectedIssue.Mitigation
     Ineffective treatment frequency, Procedure-condition conflict, etc.
 */
 class DetectedIssueMitigation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} action,
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [author],
+    */
     constructor(
         {
             id,

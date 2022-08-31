@@ -9,6 +9,13 @@ ImplementationGuide.Grouping
     publish a computable definition of all the parts.
 */
 class ImplementationGuideGrouping {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {String|undefined} [description],
+    */
     constructor(
         {
             id,

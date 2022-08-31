@@ -8,6 +8,15 @@ ExplanationOfBenefit.Adjudication
     informing the subscriber of the benefits provided.
 */
 class ExplanationOfBenefitAdjudication {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} category,
+     * @param {CodeableConcept|undefined} [reason],
+     * @param {Money|undefined} [amount],
+     * @param {decimal|undefined} [value],
+    */
     constructor(
         {
             id,

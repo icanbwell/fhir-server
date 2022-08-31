@@ -7,6 +7,15 @@ ClaimResponse.Item
     resource.
 */
 class ClaimResponseItem {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Int} itemSequence,
+     * @param {Int[]|undefined} [noteNumber],
+     * @param {ClaimResponseAdjudication[]} adjudication,
+     * @param {ClaimResponseDetail[]|undefined} [detail],
+    */
     constructor(
         {
             id,

@@ -8,6 +8,15 @@ MeasureReport.Stratum
     calculation.
 */
 class MeasureReportStratum {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [value],
+     * @param {MeasureReportComponent[]|undefined} [component],
+     * @param {MeasureReportPopulation1[]|undefined} [population],
+     * @param {Quantity|undefined} [measureScore],
+    */
     constructor(
         {
             id,

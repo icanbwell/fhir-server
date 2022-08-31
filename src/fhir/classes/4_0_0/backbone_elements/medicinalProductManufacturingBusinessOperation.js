@@ -7,6 +7,17 @@ MedicinalProduct.ManufacturingBusinessOperation
     direct patient care (e.g. regulatory use).
 */
 class MedicinalProductManufacturingBusinessOperation {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [operationType],
+     * @param {Identifier|undefined} [authorisationReferenceNumber],
+     * @param {dateTime|undefined} [effectiveDate],
+     * @param {CodeableConcept|undefined} [confidentialityIndicator],
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {Reference|undefined} [regulator],
+    */
     constructor(
         {
             id,

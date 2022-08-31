@@ -6,6 +6,16 @@ MedicationKnowledge.DrugCharacteristic
     Information about a medication that is used to support knowledge.
 */
 class MedicationKnowledgeDrugCharacteristic {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {String|undefined} [valueString],
+     * @param {Quantity|undefined} [valueQuantity],
+     * @param {base64Binary|undefined} [valueBase64Binary],
+    */
     constructor(
         {
             id,

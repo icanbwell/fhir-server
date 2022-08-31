@@ -9,6 +9,18 @@ TriggerDefinition
     defined elements, an @id referenced from the Narrative, or extensions
 */
 class TriggerDefinition {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {code} type,
+     * @param {String|undefined} [name],
+     * @param {Timing|undefined} [timingTiming],
+     * @param {Reference|undefined} [timingReference],
+     * @param {date|undefined} [timingDate],
+     * @param {dateTime|undefined} [timingDateTime],
+     * @param {DataRequirement[]|undefined} [data],
+     * @param {Expression|undefined} [condition],
+    */
     constructor(
         {
             id,

@@ -6,6 +6,16 @@ SubstancePolymer.RepeatUnit
     Todo.
 */
 class SubstancePolymerRepeatUnit {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [orientationOfPolymerisation],
+     * @param {String|undefined} [repeatUnit],
+     * @param {SubstanceAmount|undefined} [amount],
+     * @param {SubstancePolymerDegreeOfPolymerisation[]|undefined} [degreeOfPolymerisation],
+     * @param {SubstancePolymerStructuralRepresentation[]|undefined} [structuralRepresentation],
+    */
     constructor(
         {
             id,

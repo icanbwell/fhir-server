@@ -6,6 +6,14 @@ ExampleScenario.Alternative
     Example of workflow instance.
 */
 class ExampleScenarioAlternative {
+    /**
+     * @param {String|undefined} [id],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} title,
+     * @param {markdown|undefined} [description],
+     * @param {ExampleScenarioStep[]|undefined} [step],
+    */
     constructor(
         {
             id,
