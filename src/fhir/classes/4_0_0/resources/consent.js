@@ -537,6 +537,93 @@ class Consent extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Consent}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} scope,
+     * @param {CodeableConcept[]} category,
+     * @param {Reference|undefined} [patient],
+     * @param {dateTime|undefined} [dateTime],
+     * @param {Reference[]|undefined} [performer],
+     * @param {Reference[]|undefined} [organization],
+     * @param {Attachment|undefined} [sourceAttachment],
+     * @param {Reference|undefined} [sourceReference],
+     * @param {ConsentPolicy[]|undefined} [policy],
+     * @param {CodeableConcept|undefined} [policyRule],
+     * @param {ConsentVerification[]|undefined} [verification],
+     * @param {ConsentProvision|undefined} [provision],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            scope,
+            category,
+            patient,
+            dateTime,
+            performer,
+            organization,
+            sourceAttachment,
+            sourceReference,
+            policy,
+            policyRule,
+            verification,
+            provision,
+        }
+    ) {
+        return new Consent({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            scope,
+            category,
+            patient,
+            dateTime,
+            performer,
+            organization,
+            sourceAttachment,
+            sourceReference,
+            policy,
+            policyRule,
+            verification,
+            provision,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Consent}
+    */
+    copy() {
+        return new Consent(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

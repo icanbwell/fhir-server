@@ -758,6 +758,123 @@ class ResearchStudy extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ResearchStudy}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [title],
+     * @param {Reference[]|undefined} [protocol],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [primaryPurposeType],
+     * @param {CodeableConcept|undefined} [phase],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept[]|undefined} [focus],
+     * @param {CodeableConcept[]|undefined} [condition],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {RelatedArtifact[]|undefined} [relatedArtifact],
+     * @param {CodeableConcept[]|undefined} [keyword],
+     * @param {CodeableConcept[]|undefined} [location],
+     * @param {markdown|undefined} [description],
+     * @param {Reference[]|undefined} [enrollment],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [sponsor],
+     * @param {Reference|undefined} [principalInvestigator],
+     * @param {Reference[]|undefined} [site],
+     * @param {CodeableConcept|undefined} [reasonStopped],
+     * @param {Annotation[]|undefined} [note],
+     * @param {ResearchStudyArm[]|undefined} [arm],
+     * @param {ResearchStudyObjective[]|undefined} [objective],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            title,
+            protocol,
+            partOf,
+            status,
+            primaryPurposeType,
+            phase,
+            category,
+            focus,
+            condition,
+            contact,
+            relatedArtifact,
+            keyword,
+            location,
+            description,
+            enrollment,
+            period,
+            sponsor,
+            principalInvestigator,
+            site,
+            reasonStopped,
+            note,
+            arm,
+            objective,
+        }
+    ) {
+        return new ResearchStudy({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            title,
+            protocol,
+            partOf,
+            status,
+            primaryPurposeType,
+            phase,
+            category,
+            focus,
+            condition,
+            contact,
+            relatedArtifact,
+            keyword,
+            location,
+            description,
+            enrollment,
+            period,
+            sponsor,
+            principalInvestigator,
+            site,
+            reasonStopped,
+            note,
+            arm,
+            objective,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ResearchStudy}
+    */
+    copy() {
+        return new ResearchStudy(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

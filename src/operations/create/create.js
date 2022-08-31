@@ -254,11 +254,11 @@ class CreateOperation {
                 throw new BadRequestError(e);
             }
             // Save the resource to history
-
-            // Insert our resource record to history but don't assign _id
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {resourceType, base_version, useAtlas}
             ).insertHistoryForResourceAsync({doc: doc});
+
+            // log operation
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

@@ -490,6 +490,87 @@ class OrganizationAffiliation extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {OrganizationAffiliation}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [organization],
+     * @param {Reference|undefined} [participatingOrganization],
+     * @param {Reference[]|undefined} [network],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]|undefined} [location],
+     * @param {Reference[]|undefined} [healthcareService],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Reference[]|undefined} [endpoint],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            period,
+            organization,
+            participatingOrganization,
+            network,
+            code,
+            specialty,
+            location,
+            healthcareService,
+            telecom,
+            endpoint,
+        }
+    ) {
+        return new OrganizationAffiliation({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            period,
+            organization,
+            participatingOrganization,
+            network,
+            code,
+            specialty,
+            location,
+            healthcareService,
+            telecom,
+            endpoint,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {OrganizationAffiliation}
+    */
+    copy() {
+        return new OrganizationAffiliation(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

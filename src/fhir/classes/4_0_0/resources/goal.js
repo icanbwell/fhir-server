@@ -598,6 +598,102 @@ class Goal extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Goal}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} lifecycleStatus,
+     * @param {CodeableConcept|undefined} [achievementStatus],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept|undefined} [priority],
+     * @param {CodeableConcept} description,
+     * @param {Reference} subject,
+     * @param {date|undefined} [startDate],
+     * @param {CodeableConcept|undefined} [startCodeableConcept],
+     * @param {GoalTarget[]|undefined} [target],
+     * @param {date|undefined} [statusDate],
+     * @param {String|undefined} [statusReason],
+     * @param {Reference|undefined} [expressedBy],
+     * @param {Reference[]|undefined} [addresses],
+     * @param {Annotation[]|undefined} [note],
+     * @param {CodeableConcept[]|undefined} [outcomeCode],
+     * @param {Reference[]|undefined} [outcomeReference],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            lifecycleStatus,
+            achievementStatus,
+            category,
+            priority,
+            description,
+            subject,
+            startDate,
+            startCodeableConcept,
+            target,
+            statusDate,
+            statusReason,
+            expressedBy,
+            addresses,
+            note,
+            outcomeCode,
+            outcomeReference,
+        }
+    ) {
+        return new Goal({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            lifecycleStatus,
+            achievementStatus,
+            category,
+            priority,
+            description,
+            subject,
+            startDate,
+            startCodeableConcept,
+            target,
+            statusDate,
+            statusReason,
+            expressedBy,
+            addresses,
+            note,
+            outcomeCode,
+            outcomeReference,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Goal}
+    */
+    copy() {
+        return new Goal(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

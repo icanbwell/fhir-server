@@ -728,6 +728,120 @@ class CommunicationRequest extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CommunicationRequest}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [replaces],
+     * @param {Identifier|undefined} [groupIdentifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {code|undefined} [priority],
+     * @param {Boolean|undefined} [doNotPerform],
+     * @param {CodeableConcept[]|undefined} [medium],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference[]|undefined} [about],
+     * @param {Reference|undefined} [encounter],
+     * @param {CommunicationRequestPayload[]|undefined} [payload],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {Reference[]|undefined} [recipient],
+     * @param {Reference|undefined} [sender],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            replaces,
+            groupIdentifier,
+            status,
+            statusReason,
+            category,
+            priority,
+            doNotPerform,
+            medium,
+            subject,
+            about,
+            encounter,
+            payload,
+            occurrenceDateTime,
+            occurrencePeriod,
+            authoredOn,
+            requester,
+            recipient,
+            sender,
+            reasonCode,
+            reasonReference,
+            note,
+        }
+    ) {
+        return new CommunicationRequest({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            replaces,
+            groupIdentifier,
+            status,
+            statusReason,
+            category,
+            priority,
+            doNotPerform,
+            medium,
+            subject,
+            about,
+            encounter,
+            payload,
+            occurrenceDateTime,
+            occurrencePeriod,
+            authoredOn,
+            requester,
+            recipient,
+            sender,
+            reasonCode,
+            reasonReference,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CommunicationRequest}
+    */
+    copy() {
+        return new CommunicationRequest(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

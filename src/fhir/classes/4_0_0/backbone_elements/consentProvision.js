@@ -343,6 +343,7 @@ class ConsentProvision extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

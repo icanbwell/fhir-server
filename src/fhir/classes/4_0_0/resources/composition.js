@@ -567,6 +567,96 @@ class Composition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Composition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime} date,
+     * @param {Reference[]} author,
+     * @param {String} title,
+     * @param {code|undefined} [confidentiality],
+     * @param {CompositionAttester[]|undefined} [attester],
+     * @param {Reference|undefined} [custodian],
+     * @param {CompositionRelatesTo[]|undefined} [relatesTo],
+     * @param {CompositionEvent[]|undefined} [event],
+     * @param {CompositionSection[]|undefined} [section],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            category,
+            subject,
+            encounter,
+            date,
+            author,
+            title,
+            confidentiality,
+            attester,
+            custodian,
+            relatesTo,
+            event,
+            section,
+        }
+    ) {
+        return new Composition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            category,
+            subject,
+            encounter,
+            date,
+            author,
+            title,
+            confidentiality,
+            attester,
+            custodian,
+            relatesTo,
+            event,
+            section,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Composition}
+    */
+    copy() {
+        return new Composition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

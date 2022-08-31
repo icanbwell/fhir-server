@@ -342,6 +342,66 @@ class Basic extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Basic}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} code,
+     * @param {Reference|undefined} [subject],
+     * @param {date|undefined} [created],
+     * @param {Reference|undefined} [author],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            code,
+            subject,
+            created,
+            author,
+        }
+    ) {
+        return new Basic({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            code,
+            subject,
+            created,
+            author,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Basic}
+    */
+    copy() {
+        return new Basic(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -170,6 +170,7 @@ class EffectEvidenceSynthesisCertainty extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

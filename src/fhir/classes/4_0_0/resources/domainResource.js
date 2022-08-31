@@ -232,6 +232,51 @@ class DomainResource extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DomainResource}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+        }
+    ) {
+        return new DomainResource({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DomainResource}
+    */
+    copy() {
+        return new DomainResource(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -358,6 +358,69 @@ class SubstancePolymer extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SubstancePolymer}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [class_],
+     * @param {CodeableConcept|undefined} [geometry],
+     * @param {CodeableConcept[]|undefined} [copolymerConnectivity],
+     * @param {String[]|undefined} [modification],
+     * @param {SubstancePolymerMonomerSet[]|undefined} [monomerSet],
+     * @param {SubstancePolymerRepeat[]|undefined} [repeat],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            'class': class_,
+            geometry,
+            copolymerConnectivity,
+            modification,
+            monomerSet,
+            repeat,
+        }
+    ) {
+        return new SubstancePolymer({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            'class': class_,
+            geometry,
+            copolymerConnectivity,
+            modification,
+            monomerSet,
+            repeat,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SubstancePolymer}
+    */
+    copy() {
+        return new SubstancePolymer(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

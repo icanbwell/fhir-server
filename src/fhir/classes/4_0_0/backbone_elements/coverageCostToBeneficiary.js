@@ -191,6 +191,7 @@ class CoverageCostToBeneficiary extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

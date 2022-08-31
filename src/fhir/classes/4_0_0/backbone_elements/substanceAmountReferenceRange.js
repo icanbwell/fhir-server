@@ -154,6 +154,7 @@ class SubstanceAmountReferenceRange extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

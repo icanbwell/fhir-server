@@ -62,8 +62,6 @@ class DatabaseHistoryManager {
      */
     async insertHistoryForResourceAsync({doc}) {
         assertTypeEquals(doc, Resource);
-        // create a deep copy and change the id field
-
         const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
         await collection.insertOne(doc.toJSON());
     }

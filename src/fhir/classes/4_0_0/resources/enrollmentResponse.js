@@ -398,6 +398,75 @@ class EnrollmentResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {EnrollmentResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [request],
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [disposition],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference|undefined} [organization],
+     * @param {Reference|undefined} [requestProvider],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            request,
+            outcome,
+            disposition,
+            created,
+            organization,
+            requestProvider,
+        }
+    ) {
+        return new EnrollmentResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            request,
+            outcome,
+            disposition,
+            created,
+            organization,
+            requestProvider,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {EnrollmentResponse}
+    */
+    copy() {
+        return new EnrollmentResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

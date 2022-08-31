@@ -234,6 +234,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

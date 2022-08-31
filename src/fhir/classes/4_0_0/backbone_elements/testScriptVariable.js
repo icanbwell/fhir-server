@@ -272,6 +272,7 @@ class TestScriptVariable extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

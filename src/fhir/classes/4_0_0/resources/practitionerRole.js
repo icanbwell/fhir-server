@@ -534,6 +534,93 @@ class PractitionerRole extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {PractitionerRole}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [practitioner],
+     * @param {Reference|undefined} [organization],
+     * @param {CodeableConcept[]|undefined} [code],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]|undefined} [location],
+     * @param {Reference[]|undefined} [healthcareService],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {PractitionerRoleAvailableTime[]|undefined} [availableTime],
+     * @param {PractitionerRoleNotAvailable[]|undefined} [notAvailable],
+     * @param {String|undefined} [availabilityExceptions],
+     * @param {Reference[]|undefined} [endpoint],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            period,
+            practitioner,
+            organization,
+            code,
+            specialty,
+            location,
+            healthcareService,
+            telecom,
+            availableTime,
+            notAvailable,
+            availabilityExceptions,
+            endpoint,
+        }
+    ) {
+        return new PractitionerRole({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            period,
+            practitioner,
+            organization,
+            code,
+            specialty,
+            location,
+            healthcareService,
+            telecom,
+            availableTime,
+            notAvailable,
+            availabilityExceptions,
+            endpoint,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {PractitionerRole}
+    */
+    copy() {
+        return new PractitionerRole(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -799,6 +799,129 @@ class MedicationDispense extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicationDispense}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReasonCodeableConcept],
+     * @param {Reference|undefined} [statusReasonReference],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [context],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {MedicationDispensePerformer[]|undefined} [performer],
+     * @param {Reference|undefined} [location],
+     * @param {Reference[]|undefined} [authorizingPrescription],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Quantity|undefined} [daysSupply],
+     * @param {dateTime|undefined} [whenPrepared],
+     * @param {dateTime|undefined} [whenHandedOver],
+     * @param {Reference|undefined} [destination],
+     * @param {Reference[]|undefined} [receiver],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Dosage[]|undefined} [dosageInstruction],
+     * @param {MedicationDispenseSubstitution|undefined} [substitution],
+     * @param {Reference[]|undefined} [detectedIssue],
+     * @param {Reference[]|undefined} [eventHistory],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            partOf,
+            status,
+            statusReasonCodeableConcept,
+            statusReasonReference,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            supportingInformation,
+            performer,
+            location,
+            authorizingPrescription,
+            type,
+            quantity,
+            daysSupply,
+            whenPrepared,
+            whenHandedOver,
+            destination,
+            receiver,
+            note,
+            dosageInstruction,
+            substitution,
+            detectedIssue,
+            eventHistory,
+        }
+    ) {
+        return new MedicationDispense({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            partOf,
+            status,
+            statusReasonCodeableConcept,
+            statusReasonReference,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            supportingInformation,
+            performer,
+            location,
+            authorizingPrescription,
+            type,
+            quantity,
+            daysSupply,
+            whenPrepared,
+            whenHandedOver,
+            destination,
+            receiver,
+            note,
+            dosageInstruction,
+            substitution,
+            detectedIssue,
+            eventHistory,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicationDispense}
+    */
+    copy() {
+        return new MedicationDispense(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

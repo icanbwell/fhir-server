@@ -843,6 +843,138 @@ class ChargeItem extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ChargeItem}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {uri[]|undefined} [definitionUri],
+     * @param {canonical[]|undefined} [definitionCanonical],
+     * @param {code} status,
+     * @param {Reference[]|undefined} [partOf],
+     * @param {CodeableConcept} code,
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [context],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {ChargeItemPerformer[]|undefined} [performer],
+     * @param {Reference|undefined} [performingOrganization],
+     * @param {Reference|undefined} [requestingOrganization],
+     * @param {Reference|undefined} [costCenter],
+     * @param {Quantity|undefined} [quantity],
+     * @param {CodeableConcept[]|undefined} [bodysite],
+     * @param {decimal|undefined} [factorOverride],
+     * @param {Money|undefined} [priceOverride],
+     * @param {String|undefined} [overrideReason],
+     * @param {Reference|undefined} [enterer],
+     * @param {dateTime|undefined} [enteredDate],
+     * @param {CodeableConcept[]|undefined} [reason],
+     * @param {Reference[]|undefined} [service],
+     * @param {Reference|undefined} [productReference],
+     * @param {CodeableConcept|undefined} [productCodeableConcept],
+     * @param {Reference[]|undefined} [account],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Reference[]|undefined} [supportingInformation],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            definitionUri,
+            definitionCanonical,
+            status,
+            partOf,
+            code,
+            subject,
+            context,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            performer,
+            performingOrganization,
+            requestingOrganization,
+            costCenter,
+            quantity,
+            bodysite,
+            factorOverride,
+            priceOverride,
+            overrideReason,
+            enterer,
+            enteredDate,
+            reason,
+            service,
+            productReference,
+            productCodeableConcept,
+            account,
+            note,
+            supportingInformation,
+        }
+    ) {
+        return new ChargeItem({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            definitionUri,
+            definitionCanonical,
+            status,
+            partOf,
+            code,
+            subject,
+            context,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            performer,
+            performingOrganization,
+            requestingOrganization,
+            costCenter,
+            quantity,
+            bodysite,
+            factorOverride,
+            priceOverride,
+            overrideReason,
+            enterer,
+            enteredDate,
+            reason,
+            service,
+            productReference,
+            productCodeableConcept,
+            account,
+            note,
+            supportingInformation,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ChargeItem}
+    */
+    copy() {
+        return new ChargeItem(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

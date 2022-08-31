@@ -506,6 +506,90 @@ class CatalogEntry extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CatalogEntry}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Boolean} orderable,
+     * @param {Reference} referencedItem,
+     * @param {Identifier[]|undefined} [additionalIdentifier],
+     * @param {CodeableConcept[]|undefined} [classification],
+     * @param {code|undefined} [status],
+     * @param {Period|undefined} [validityPeriod],
+     * @param {dateTime|undefined} [validTo],
+     * @param {dateTime|undefined} [lastUpdated],
+     * @param {CodeableConcept[]|undefined} [additionalCharacteristic],
+     * @param {CodeableConcept[]|undefined} [additionalClassification],
+     * @param {CatalogEntryRelatedEntry[]|undefined} [relatedEntry],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            orderable,
+            referencedItem,
+            additionalIdentifier,
+            classification,
+            status,
+            validityPeriod,
+            validTo,
+            lastUpdated,
+            additionalCharacteristic,
+            additionalClassification,
+            relatedEntry,
+        }
+    ) {
+        return new CatalogEntry({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            orderable,
+            referencedItem,
+            additionalIdentifier,
+            classification,
+            status,
+            validityPeriod,
+            validTo,
+            lastUpdated,
+            additionalCharacteristic,
+            additionalClassification,
+            relatedEntry,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CatalogEntry}
+    */
+    copy() {
+        return new CatalogEntry(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

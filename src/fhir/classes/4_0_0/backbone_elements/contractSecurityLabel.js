@@ -193,6 +193,7 @@ class ContractSecurityLabel extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

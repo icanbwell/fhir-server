@@ -198,6 +198,7 @@ class ValueSetCompose extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

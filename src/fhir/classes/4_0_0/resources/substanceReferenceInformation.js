@@ -337,6 +337,66 @@ class SubstanceReferenceInformation extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SubstanceReferenceInformation}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String|undefined} [comment],
+     * @param {SubstanceReferenceInformationGene[]|undefined} [gene],
+     * @param {SubstanceReferenceInformationGeneElement[]|undefined} [geneElement],
+     * @param {SubstanceReferenceInformationClassification[]|undefined} [classification],
+     * @param {SubstanceReferenceInformationTarget[]|undefined} [target],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            comment,
+            gene,
+            geneElement,
+            classification,
+            target,
+        }
+    ) {
+        return new SubstanceReferenceInformation({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            comment,
+            gene,
+            geneElement,
+            classification,
+            target,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SubstanceReferenceInformation}
+    */
+    copy() {
+        return new SubstanceReferenceInformation(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

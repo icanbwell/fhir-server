@@ -719,6 +719,117 @@ class Questionnaire extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Questionnaire}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {canonical[]|undefined} [derivedFrom],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {code[]|undefined} [subjectType],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {date|undefined} [approvalDate],
+     * @param {date|undefined} [lastReviewDate],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {Coding[]|undefined} [code],
+     * @param {QuestionnaireItem[]|undefined} [item],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            derivedFrom,
+            status,
+            experimental,
+            subjectType,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            code,
+            item,
+        }
+    ) {
+        return new Questionnaire({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            derivedFrom,
+            status,
+            experimental,
+            subjectType,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            code,
+            item,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Questionnaire}
+    */
+    copy() {
+        return new Questionnaire(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

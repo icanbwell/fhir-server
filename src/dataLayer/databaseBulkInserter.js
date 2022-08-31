@@ -201,8 +201,31 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryForResourceAsync({resourceType, doc}) {
-        // do a deep copy and change id to guid
+    async insertOneHistoryAsync({resourceType, doc}) {
+        // Update version number if something with same version exists
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+         */
+        const existingHistoryOperationsForResourceType = this.historyOperationsByResourceTypeMap.get(resourceType);
+        /**
+         * @type {string[]}
+         */
+        const existingHistoryResourcesForId = existingHistoryOperationsForResourceType
+            .filter(o => o.insertOne.document.id === doc.id)
+            .map(o => o.insertOne.document.meta.versionId);
+        /**
+         * @type {string|null}
+         */
+        const latestVersionId = existingHistoryResourcesForId.length > 0 ?
+            existingHistoryResourcesForId[existingHistoryResourcesForId.length - 1] :
+            null;
+        if (latestVersionId) {
+            /**
+             * @type {string}
+             */
+            const newVersionId = String(parseInt(latestVersionId) + 1);
+            doc.meta.versionId = newVersionId;
+        }
         this.addHistoryOperationForResourceType({
                 resourceType,
                 operation: {

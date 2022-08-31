@@ -381,6 +381,72 @@ class MedicinalProductPharmaceutical extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductPharmaceutical}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} administrableDoseForm,
+     * @param {CodeableConcept|undefined} [unitOfPresentation],
+     * @param {Reference[]|undefined} [ingredient],
+     * @param {Reference[]|undefined} [device],
+     * @param {MedicinalProductPharmaceuticalCharacteristics[]|undefined} [characteristics],
+     * @param {MedicinalProductPharmaceuticalRouteOfAdministration[]} routeOfAdministration,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            administrableDoseForm,
+            unitOfPresentation,
+            ingredient,
+            device,
+            characteristics,
+            routeOfAdministration,
+        }
+    ) {
+        return new MedicinalProductPharmaceutical({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            administrableDoseForm,
+            unitOfPresentation,
+            ingredient,
+            device,
+            characteristics,
+            routeOfAdministration,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductPharmaceutical}
+    */
+    copy() {
+        return new MedicinalProductPharmaceutical(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

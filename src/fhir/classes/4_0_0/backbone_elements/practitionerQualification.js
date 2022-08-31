@@ -190,6 +190,7 @@ class PractitionerQualification extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

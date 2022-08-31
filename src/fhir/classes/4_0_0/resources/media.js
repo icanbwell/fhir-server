@@ -723,6 +723,120 @@ class Media extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Media}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [modality],
+     * @param {CodeableConcept|undefined} [view],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [createdDateTime],
+     * @param {Period|undefined} [createdPeriod],
+     * @param {instant|undefined} [issued],
+     * @param {Reference|undefined} [operator],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {String|undefined} [deviceName],
+     * @param {Reference|undefined} [device],
+     * @param {Int|undefined} [height],
+     * @param {Int|undefined} [width],
+     * @param {Int|undefined} [frames],
+     * @param {decimal|undefined} [duration],
+     * @param {Attachment} content,
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            type,
+            modality,
+            view,
+            subject,
+            encounter,
+            createdDateTime,
+            createdPeriod,
+            issued,
+            operator,
+            reasonCode,
+            bodySite,
+            deviceName,
+            device,
+            height,
+            width,
+            frames,
+            duration,
+            content,
+            note,
+        }
+    ) {
+        return new Media({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            type,
+            modality,
+            view,
+            subject,
+            encounter,
+            createdDateTime,
+            createdPeriod,
+            issued,
+            operator,
+            reasonCode,
+            bodySite,
+            deviceName,
+            device,
+            height,
+            width,
+            frames,
+            duration,
+            content,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Media}
+    */
+    copy() {
+        return new Media(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

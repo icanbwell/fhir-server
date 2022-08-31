@@ -814,6 +814,129 @@ class CapabilityStatement extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CapabilityStatement}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime} date,
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {code} kind,
+     * @param {canonical[]|undefined} [instantiates],
+     * @param {canonical[]|undefined} [imports],
+     * @param {CapabilityStatementSoftware|undefined} [software],
+     * @param {CapabilityStatementImplementation|undefined} [implementation],
+     * @param {code} fhirVersion,
+     * @param {code[]} format,
+     * @param {code[]|undefined} [patchFormat],
+     * @param {canonical[]|undefined} [implementationGuide],
+     * @param {CapabilityStatementRest[]|undefined} [rest],
+     * @param {CapabilityStatementMessaging[]|undefined} [messaging],
+     * @param {CapabilityStatementDocument[]|undefined} [document],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            kind,
+            instantiates,
+            imports,
+            software,
+            implementation,
+            fhirVersion,
+            format,
+            patchFormat,
+            implementationGuide,
+            rest,
+            messaging,
+            document,
+        }
+    ) {
+        return new CapabilityStatement({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            kind,
+            instantiates,
+            imports,
+            software,
+            implementation,
+            fhirVersion,
+            format,
+            patchFormat,
+            implementationGuide,
+            rest,
+            messaging,
+            document,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CapabilityStatement}
+    */
+    copy() {
+        return new CapabilityStatement(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

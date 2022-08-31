@@ -406,6 +406,75 @@ class Flag extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Flag}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {Reference} subject,
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [encounter],
+     * @param {Reference|undefined} [author],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            code,
+            subject,
+            period,
+            encounter,
+            author,
+        }
+    ) {
+        return new Flag({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            code,
+            subject,
+            period,
+            encounter,
+            author,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Flag}
+    */
+    copy() {
+        return new Flag(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

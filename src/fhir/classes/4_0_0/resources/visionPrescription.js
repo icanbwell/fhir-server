@@ -402,6 +402,75 @@ class VisionPrescription extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {VisionPrescription}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {dateTime} created,
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime} dateWritten,
+     * @param {Reference} prescriber,
+     * @param {VisionPrescriptionLensSpecification[]} lensSpecification,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            created,
+            patient,
+            encounter,
+            dateWritten,
+            prescriber,
+            lensSpecification,
+        }
+    ) {
+        return new VisionPrescription({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            created,
+            patient,
+            encounter,
+            dateWritten,
+            prescriber,
+            lensSpecification,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {VisionPrescription}
+    */
+    copy() {
+        return new VisionPrescription(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -670,6 +670,111 @@ class AllergyIntolerance extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {AllergyIntolerance}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [clinicalStatus],
+     * @param {CodeableConcept|undefined} [verificationStatus],
+     * @param {code|undefined} [type],
+     * @param {code[]|undefined} [category],
+     * @param {code|undefined} [criticality],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [onsetDateTime],
+     * @param {Quantity|undefined} [onsetAge],
+     * @param {Period|undefined} [onsetPeriod],
+     * @param {Range|undefined} [onsetRange],
+     * @param {String|undefined} [onsetString],
+     * @param {dateTime|undefined} [recordedDate],
+     * @param {Reference|undefined} [recorder],
+     * @param {Reference|undefined} [asserter],
+     * @param {dateTime|undefined} [lastOccurrence],
+     * @param {Annotation[]|undefined} [note],
+     * @param {AllergyIntoleranceReaction[]|undefined} [reaction],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            clinicalStatus,
+            verificationStatus,
+            type,
+            category,
+            criticality,
+            code,
+            patient,
+            encounter,
+            onsetDateTime,
+            onsetAge,
+            onsetPeriod,
+            onsetRange,
+            onsetString,
+            recordedDate,
+            recorder,
+            asserter,
+            lastOccurrence,
+            note,
+            reaction,
+        }
+    ) {
+        return new AllergyIntolerance({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            clinicalStatus,
+            verificationStatus,
+            type,
+            category,
+            criticality,
+            code,
+            patient,
+            encounter,
+            onsetDateTime,
+            onsetAge,
+            onsetPeriod,
+            onsetRange,
+            onsetString,
+            recordedDate,
+            recorder,
+            asserter,
+            lastOccurrence,
+            note,
+            reaction,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {AllergyIntolerance}
+    */
+    copy() {
+        return new AllergyIntolerance(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

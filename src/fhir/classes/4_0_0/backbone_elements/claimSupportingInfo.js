@@ -338,6 +338,7 @@ class ClaimSupportingInfo extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

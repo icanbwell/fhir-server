@@ -261,6 +261,7 @@ class PlanDefinitionGoal extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

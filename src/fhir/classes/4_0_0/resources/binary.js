@@ -199,6 +199,48 @@ class Binary extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Binary}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {code} contentType,
+     * @param {Reference|undefined} [securityContext],
+     * @param {base64Binary|undefined} [data],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            contentType,
+            securityContext,
+            data,
+        }
+    ) {
+        return new Binary({
+            id,
+            meta,
+            implicitRules,
+            language,
+            contentType,
+            securityContext,
+            data,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Binary}
+    */
+    copy() {
+        return new Binary(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

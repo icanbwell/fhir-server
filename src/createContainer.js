@@ -48,6 +48,7 @@ const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {ResourceCleaner} = require('./operations/common/resourceCleaner');
 const {getImageVersion} = require('./utils/getImageVersion');
+const {ResourceDuplicator} = require('./operations/common/resourceDuplicator');
 
 /**
  * Creates a container and sets up all the services
@@ -63,7 +64,7 @@ const createContainer = function () {
             scopesManager: c.scopesManager
         }
     ));
-
+    container.register('resourceDuplicator', () => new ResourceDuplicator());
     container.register('scopesValidator', c => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager
@@ -148,7 +149,8 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                resourceDuplicator: c.resourceDuplicator
             }
         )
     );

@@ -834,6 +834,132 @@ class StructureDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {StructureDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {Coding[]|undefined} [keyword],
+     * @param {code|undefined} [fhirVersion],
+     * @param {StructureDefinitionMapping[]|undefined} [mapping],
+     * @param {code} kind,
+     * @param {Boolean} abstract,
+     * @param {StructureDefinitionContext[]|undefined} [context],
+     * @param {String[]|undefined} [contextInvariant],
+     * @param {uri} type,
+     * @param {canonical|undefined} [baseDefinition],
+     * @param {code|undefined} [derivation],
+     * @param {StructureDefinitionSnapshot|undefined} [snapshot],
+     * @param {StructureDefinitionDifferential|undefined} [differential],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            keyword,
+            fhirVersion,
+            mapping,
+            kind,
+            abstract,
+            context,
+            contextInvariant,
+            type,
+            baseDefinition,
+            derivation,
+            snapshot,
+            differential,
+        }
+    ) {
+        return new StructureDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            keyword,
+            fhirVersion,
+            mapping,
+            kind,
+            abstract,
+            context,
+            contextInvariant,
+            type,
+            baseDefinition,
+            derivation,
+            snapshot,
+            differential,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {StructureDefinition}
+    */
+    copy() {
+        return new StructureDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

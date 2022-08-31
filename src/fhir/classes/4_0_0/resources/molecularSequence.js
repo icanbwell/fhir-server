@@ -579,6 +579,99 @@ class MolecularSequence extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MolecularSequence}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [type],
+     * @param {Int} coordinateSystem,
+     * @param {Reference|undefined} [patient],
+     * @param {Reference|undefined} [specimen],
+     * @param {Reference|undefined} [device],
+     * @param {Reference|undefined} [performer],
+     * @param {Quantity|undefined} [quantity],
+     * @param {MolecularSequenceReferenceSeq|undefined} [referenceSeq],
+     * @param {MolecularSequenceVariant[]|undefined} [variant],
+     * @param {String|undefined} [observedSeq],
+     * @param {MolecularSequenceQuality[]|undefined} [quality],
+     * @param {Int|undefined} [readCoverage],
+     * @param {MolecularSequenceRepository[]|undefined} [repository],
+     * @param {Reference[]|undefined} [pointer],
+     * @param {MolecularSequenceStructureVariant[]|undefined} [structureVariant],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            coordinateSystem,
+            patient,
+            specimen,
+            device,
+            performer,
+            quantity,
+            referenceSeq,
+            variant,
+            observedSeq,
+            quality,
+            readCoverage,
+            repository,
+            pointer,
+            structureVariant,
+        }
+    ) {
+        return new MolecularSequence({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            coordinateSystem,
+            patient,
+            specimen,
+            device,
+            performer,
+            quantity,
+            referenceSeq,
+            variant,
+            observedSeq,
+            quality,
+            readCoverage,
+            repository,
+            pointer,
+            structureVariant,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MolecularSequence}
+    */
+    copy() {
+        return new MolecularSequence(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

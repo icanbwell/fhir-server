@@ -167,6 +167,7 @@ class CompartmentDefinitionResource extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

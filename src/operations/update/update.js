@@ -302,12 +302,19 @@ class UpdateOperation {
                 {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
             // save to history
 
-            // Insert our resource record to history but don't assign _id
+            /**
+             * @type {Resource}
+             */
+            const historyResource = this.resourceDuplicator.duplicateResource(
+                {
+                    base_version,
+                    resource: doc
+                });
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
                     resourceType, base_version, useAtlas
                 }
-            ).insertHistoryForResourceAsync({doc: doc});
+            ).insertHistoryForResourceAsync({doc: historyResource});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs

@@ -554,6 +554,96 @@ class DeviceUseStatement extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DeviceUseStatement}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {code} status,
+     * @param {Reference} subject,
+     * @param {Reference[]|undefined} [derivedFrom],
+     * @param {Timing|undefined} [timingTiming],
+     * @param {Period|undefined} [timingPeriod],
+     * @param {dateTime|undefined} [timingDateTime],
+     * @param {dateTime|undefined} [recordedOn],
+     * @param {Reference|undefined} [source],
+     * @param {Reference} device,
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {CodeableConcept|undefined} [bodySite],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            status,
+            subject,
+            derivedFrom,
+            timingTiming,
+            timingPeriod,
+            timingDateTime,
+            recordedOn,
+            source,
+            device,
+            reasonCode,
+            reasonReference,
+            bodySite,
+            note,
+        }
+    ) {
+        return new DeviceUseStatement({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            status,
+            subject,
+            derivedFrom,
+            timingTiming,
+            timingPeriod,
+            timingDateTime,
+            recordedOn,
+            source,
+            device,
+            reasonCode,
+            reasonReference,
+            bodySite,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DeviceUseStatement}
+    */
+    copy() {
+        return new DeviceUseStatement(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

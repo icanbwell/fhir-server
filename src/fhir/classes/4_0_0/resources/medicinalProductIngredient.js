@@ -360,6 +360,69 @@ class MedicinalProductIngredient extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductIngredient}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept} role,
+     * @param {Boolean|undefined} [allergenicIndicator],
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {MedicinalProductIngredientSpecifiedSubstance[]|undefined} [specifiedSubstance],
+     * @param {MedicinalProductIngredientSubstance|undefined} [substance],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            role,
+            allergenicIndicator,
+            manufacturer,
+            specifiedSubstance,
+            substance,
+        }
+    ) {
+        return new MedicinalProductIngredient({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            role,
+            allergenicIndicator,
+            manufacturer,
+            specifiedSubstance,
+            substance,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductIngredient}
+    */
+    copy() {
+        return new MedicinalProductIngredient(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

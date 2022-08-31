@@ -301,6 +301,60 @@ class Linkage extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Linkage}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Boolean|undefined} [active],
+     * @param {Reference|undefined} [author],
+     * @param {LinkageItem[]} item,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            active,
+            author,
+            item,
+        }
+    ) {
+        return new Linkage({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            active,
+            author,
+            item,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Linkage}
+    */
+    copy() {
+        return new Linkage(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

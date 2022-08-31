@@ -446,6 +446,81 @@ class Group extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Group}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {code} type,
+     * @param {Boolean} actual,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [name],
+     * @param {unsignedInt|undefined} [quantity],
+     * @param {Reference|undefined} [managingEntity],
+     * @param {GroupCharacteristic[]|undefined} [characteristic],
+     * @param {GroupMember[]|undefined} [member],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            type,
+            actual,
+            code,
+            name,
+            quantity,
+            managingEntity,
+            characteristic,
+            member,
+        }
+    ) {
+        return new Group({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            type,
+            actual,
+            code,
+            name,
+            quantity,
+            managingEntity,
+            characteristic,
+            member,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Group}
+    */
+    copy() {
+        return new Group(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

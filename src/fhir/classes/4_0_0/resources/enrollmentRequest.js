@@ -379,6 +379,72 @@ class EnrollmentRequest extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {EnrollmentRequest}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference|undefined} [insurer],
+     * @param {Reference|undefined} [provider],
+     * @param {Reference|undefined} [candidate],
+     * @param {Reference|undefined} [coverage],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            created,
+            insurer,
+            provider,
+            candidate,
+            coverage,
+        }
+    ) {
+        return new EnrollmentRequest({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            created,
+            insurer,
+            provider,
+            candidate,
+            coverage,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {EnrollmentRequest}
+    */
+    copy() {
+        return new EnrollmentRequest(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

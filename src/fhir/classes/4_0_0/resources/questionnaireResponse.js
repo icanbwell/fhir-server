@@ -475,6 +475,84 @@ class QuestionnaireResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {QuestionnaireResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {canonical|undefined} [questionnaire],
+     * @param {code} status,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [authored],
+     * @param {Reference|undefined} [author],
+     * @param {Reference|undefined} [source],
+     * @param {QuestionnaireResponseItem[]|undefined} [item],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            questionnaire,
+            status,
+            subject,
+            encounter,
+            authored,
+            author,
+            source,
+            item,
+        }
+    ) {
+        return new QuestionnaireResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            questionnaire,
+            status,
+            subject,
+            encounter,
+            authored,
+            author,
+            source,
+            item,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {QuestionnaireResponse}
+    */
+    copy() {
+        return new QuestionnaireResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

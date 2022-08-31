@@ -511,6 +511,90 @@ class DetectedIssue extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DetectedIssue}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [code],
+     * @param {code|undefined} [severity],
+     * @param {Reference|undefined} [patient],
+     * @param {dateTime|undefined} [identifiedDateTime],
+     * @param {Period|undefined} [identifiedPeriod],
+     * @param {Reference|undefined} [author],
+     * @param {Reference[]|undefined} [implicated],
+     * @param {DetectedIssueEvidence[]|undefined} [evidence],
+     * @param {String|undefined} [detail],
+     * @param {uri|undefined} [reference],
+     * @param {DetectedIssueMitigation[]|undefined} [mitigation],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            code,
+            severity,
+            patient,
+            identifiedDateTime,
+            identifiedPeriod,
+            author,
+            implicated,
+            evidence,
+            detail,
+            reference,
+            mitigation,
+        }
+    ) {
+        return new DetectedIssue({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            code,
+            severity,
+            patient,
+            identifiedDateTime,
+            identifiedPeriod,
+            author,
+            implicated,
+            evidence,
+            detail,
+            reference,
+            mitigation,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DetectedIssue}
+    */
+    copy() {
+        return new DetectedIssue(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

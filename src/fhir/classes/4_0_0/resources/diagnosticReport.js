@@ -648,6 +648,108 @@ class DiagnosticReport extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DiagnosticReport}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {instant|undefined} [issued],
+     * @param {Reference[]|undefined} [performer],
+     * @param {Reference[]|undefined} [resultsInterpreter],
+     * @param {Reference[]|undefined} [specimen],
+     * @param {Reference[]|undefined} [result],
+     * @param {Reference[]|undefined} [imagingStudy],
+     * @param {DiagnosticReportMedia[]|undefined} [media],
+     * @param {String|undefined} [conclusion],
+     * @param {CodeableConcept[]|undefined} [conclusionCode],
+     * @param {Attachment[]|undefined} [presentedForm],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            status,
+            category,
+            code,
+            subject,
+            encounter,
+            effectiveDateTime,
+            effectivePeriod,
+            issued,
+            performer,
+            resultsInterpreter,
+            specimen,
+            result,
+            imagingStudy,
+            media,
+            conclusion,
+            conclusionCode,
+            presentedForm,
+        }
+    ) {
+        return new DiagnosticReport({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            status,
+            category,
+            code,
+            subject,
+            encounter,
+            effectiveDateTime,
+            effectivePeriod,
+            issued,
+            performer,
+            resultsInterpreter,
+            specimen,
+            result,
+            imagingStudy,
+            media,
+            conclusion,
+            conclusionCode,
+            presentedForm,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DiagnosticReport}
+    */
+    copy() {
+        return new DiagnosticReport(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

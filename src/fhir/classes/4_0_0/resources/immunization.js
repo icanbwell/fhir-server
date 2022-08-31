@@ -849,6 +849,138 @@ class Immunization extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Immunization}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept} vaccineCode,
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {String|undefined} [occurrenceString],
+     * @param {dateTime|undefined} [recorded],
+     * @param {Boolean|undefined} [primarySource],
+     * @param {CodeableConcept|undefined} [reportOrigin],
+     * @param {Reference|undefined} [location],
+     * @param {Reference|undefined} [manufacturer],
+     * @param {String|undefined} [lotNumber],
+     * @param {date|undefined} [expirationDate],
+     * @param {CodeableConcept|undefined} [site],
+     * @param {CodeableConcept|undefined} [route],
+     * @param {Quantity|undefined} [doseQuantity],
+     * @param {ImmunizationPerformer[]|undefined} [performer],
+     * @param {Annotation[]|undefined} [note],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Boolean|undefined} [isSubpotent],
+     * @param {CodeableConcept[]|undefined} [subpotentReason],
+     * @param {ImmunizationEducation[]|undefined} [education],
+     * @param {CodeableConcept[]|undefined} [programEligibility],
+     * @param {CodeableConcept|undefined} [fundingSource],
+     * @param {ImmunizationReaction[]|undefined} [reaction],
+     * @param {ImmunizationProtocolApplied[]|undefined} [protocolApplied],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusReason,
+            vaccineCode,
+            patient,
+            encounter,
+            occurrenceDateTime,
+            occurrenceString,
+            recorded,
+            primarySource,
+            reportOrigin,
+            location,
+            manufacturer,
+            lotNumber,
+            expirationDate,
+            site,
+            route,
+            doseQuantity,
+            performer,
+            note,
+            reasonCode,
+            reasonReference,
+            isSubpotent,
+            subpotentReason,
+            education,
+            programEligibility,
+            fundingSource,
+            reaction,
+            protocolApplied,
+        }
+    ) {
+        return new Immunization({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusReason,
+            vaccineCode,
+            patient,
+            encounter,
+            occurrenceDateTime,
+            occurrenceString,
+            recorded,
+            primarySource,
+            reportOrigin,
+            location,
+            manufacturer,
+            lotNumber,
+            expirationDate,
+            site,
+            route,
+            doseQuantity,
+            performer,
+            note,
+            reasonCode,
+            reasonReference,
+            isSubpotent,
+            subpotentReason,
+            education,
+            programEligibility,
+            fundingSource,
+            reaction,
+            protocolApplied,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Immunization}
+    */
+    copy() {
+        return new Immunization(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

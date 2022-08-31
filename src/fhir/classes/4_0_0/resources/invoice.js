@@ -575,6 +575,99 @@ class Invoice extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Invoice}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {String|undefined} [cancelledReason],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [recipient],
+     * @param {dateTime|undefined} [date],
+     * @param {InvoiceParticipant[]|undefined} [participant],
+     * @param {Reference|undefined} [issuer],
+     * @param {Reference|undefined} [account],
+     * @param {InvoiceLineItem[]|undefined} [lineItem],
+     * @param {InvoicePriceComponent[]|undefined} [totalPriceComponent],
+     * @param {Money|undefined} [totalNet],
+     * @param {Money|undefined} [totalGross],
+     * @param {markdown|undefined} [paymentTerms],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            cancelledReason,
+            type,
+            subject,
+            recipient,
+            date,
+            participant,
+            issuer,
+            account,
+            lineItem,
+            totalPriceComponent,
+            totalNet,
+            totalGross,
+            paymentTerms,
+            note,
+        }
+    ) {
+        return new Invoice({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            cancelledReason,
+            type,
+            subject,
+            recipient,
+            date,
+            participant,
+            issuer,
+            account,
+            lineItem,
+            totalPriceComponent,
+            totalNet,
+            totalGross,
+            paymentTerms,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Invoice}
+    */
+    copy() {
+        return new Invoice(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

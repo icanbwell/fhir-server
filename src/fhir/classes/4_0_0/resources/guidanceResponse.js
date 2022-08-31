@@ -610,6 +610,102 @@ class GuidanceResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {GuidanceResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [requestIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {uri|undefined} [moduleUri],
+     * @param {canonical|undefined} [moduleCanonical],
+     * @param {CodeableConcept|undefined} [moduleCodeableConcept],
+     * @param {code} status,
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Reference|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Reference[]|undefined} [evaluationMessage],
+     * @param {Reference|undefined} [outputParameters],
+     * @param {Reference|undefined} [result],
+     * @param {DataRequirement[]|undefined} [dataRequirement],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            requestIdentifier,
+            identifier,
+            moduleUri,
+            moduleCanonical,
+            moduleCodeableConcept,
+            status,
+            subject,
+            encounter,
+            occurrenceDateTime,
+            performer,
+            reasonCode,
+            reasonReference,
+            note,
+            evaluationMessage,
+            outputParameters,
+            result,
+            dataRequirement,
+        }
+    ) {
+        return new GuidanceResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            requestIdentifier,
+            identifier,
+            moduleUri,
+            moduleCanonical,
+            moduleCodeableConcept,
+            status,
+            subject,
+            encounter,
+            occurrenceDateTime,
+            performer,
+            reasonCode,
+            reasonReference,
+            note,
+            evaluationMessage,
+            outputParameters,
+            result,
+            dataRequirement,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {GuidanceResponse}
+    */
+    copy() {
+        return new GuidanceResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

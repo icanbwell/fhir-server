@@ -347,6 +347,66 @@ class SubstanceNucleicAcid extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SubstanceNucleicAcid}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [sequenceType],
+     * @param {Int|undefined} [numberOfSubunits],
+     * @param {String|undefined} [areaOfHybridisation],
+     * @param {CodeableConcept|undefined} [oligoNucleotideType],
+     * @param {SubstanceNucleicAcidSubunit[]|undefined} [subunit],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sequenceType,
+            numberOfSubunits,
+            areaOfHybridisation,
+            oligoNucleotideType,
+            subunit,
+        }
+    ) {
+        return new SubstanceNucleicAcid({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sequenceType,
+            numberOfSubunits,
+            areaOfHybridisation,
+            oligoNucleotideType,
+            subunit,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SubstanceNucleicAcid}
+    */
+    copy() {
+        return new SubstanceNucleicAcid(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

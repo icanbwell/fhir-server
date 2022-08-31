@@ -238,6 +238,7 @@ class NutritionOrderOralDiet extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

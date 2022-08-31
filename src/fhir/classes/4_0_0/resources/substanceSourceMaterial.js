@@ -539,6 +539,90 @@ class SubstanceSourceMaterial extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SubstanceSourceMaterial}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [sourceMaterialClass],
+     * @param {CodeableConcept|undefined} [sourceMaterialType],
+     * @param {CodeableConcept|undefined} [sourceMaterialState],
+     * @param {Identifier|undefined} [organismId],
+     * @param {String|undefined} [organismName],
+     * @param {Identifier[]|undefined} [parentSubstanceId],
+     * @param {String[]|undefined} [parentSubstanceName],
+     * @param {CodeableConcept[]|undefined} [countryOfOrigin],
+     * @param {String[]|undefined} [geographicalLocation],
+     * @param {CodeableConcept|undefined} [developmentStage],
+     * @param {SubstanceSourceMaterialFractionDescription[]|undefined} [fractionDescription],
+     * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
+     * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sourceMaterialClass,
+            sourceMaterialType,
+            sourceMaterialState,
+            organismId,
+            organismName,
+            parentSubstanceId,
+            parentSubstanceName,
+            countryOfOrigin,
+            geographicalLocation,
+            developmentStage,
+            fractionDescription,
+            organism,
+            partDescription,
+        }
+    ) {
+        return new SubstanceSourceMaterial({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sourceMaterialClass,
+            sourceMaterialType,
+            sourceMaterialState,
+            organismId,
+            organismName,
+            parentSubstanceId,
+            parentSubstanceName,
+            countryOfOrigin,
+            geographicalLocation,
+            developmentStage,
+            fractionDescription,
+            organism,
+            partDescription,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SubstanceSourceMaterial}
+    */
+    copy() {
+        return new SubstanceSourceMaterial(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

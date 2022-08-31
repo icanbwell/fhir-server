@@ -169,6 +169,7 @@ class ConceptMapElement extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

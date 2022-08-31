@@ -150,6 +150,42 @@ class Parameters extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Parameters}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {ParametersParameter[]|undefined} [parameter],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            parameter,
+        }
+    ) {
+        return new Parameters({
+            id,
+            meta,
+            implicitRules,
+            language,
+            parameter,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Parameters}
+    */
+    copy() {
+        return new Parameters(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

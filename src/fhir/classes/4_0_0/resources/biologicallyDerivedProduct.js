@@ -471,6 +471,84 @@ class BiologicallyDerivedProduct extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {BiologicallyDerivedProduct}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [productCategory],
+     * @param {CodeableConcept|undefined} [productCode],
+     * @param {code|undefined} [status],
+     * @param {Reference[]|undefined} [request],
+     * @param {Int|undefined} [quantity],
+     * @param {Reference[]|undefined} [parent],
+     * @param {BiologicallyDerivedProductCollection|undefined} [collection],
+     * @param {BiologicallyDerivedProductProcessing[]|undefined} [processing],
+     * @param {BiologicallyDerivedProductManipulation|undefined} [manipulation],
+     * @param {BiologicallyDerivedProductStorage[]|undefined} [storage],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            productCategory,
+            productCode,
+            status,
+            request,
+            quantity,
+            parent,
+            collection,
+            processing,
+            manipulation,
+            storage,
+        }
+    ) {
+        return new BiologicallyDerivedProduct({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            productCategory,
+            productCode,
+            status,
+            request,
+            quantity,
+            parent,
+            collection,
+            processing,
+            manipulation,
+            storage,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {BiologicallyDerivedProduct}
+    */
+    copy() {
+        return new BiologicallyDerivedProduct(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

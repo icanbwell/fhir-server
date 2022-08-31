@@ -777,6 +777,126 @@ class MessageDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MessageDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {canonical[]|undefined} [replaces],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime} date,
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {canonical|undefined} [base],
+     * @param {canonical[]|undefined} [parent],
+     * @param {Coding|undefined} [eventCoding],
+     * @param {uri|undefined} [eventUri],
+     * @param {code|undefined} [category],
+     * @param {MessageDefinitionFocus[]|undefined} [focus],
+     * @param {code|undefined} [responseRequired],
+     * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
+     * @param {canonical[]|undefined} [graph],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            replaces,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            base,
+            parent,
+            eventCoding,
+            eventUri,
+            category,
+            focus,
+            responseRequired,
+            allowedResponse,
+            graph,
+        }
+    ) {
+        return new MessageDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            replaces,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            base,
+            parent,
+            eventCoding,
+            eventUri,
+            category,
+            focus,
+            responseRequired,
+            allowedResponse,
+            graph,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MessageDefinition}
+    */
+    copy() {
+        return new MessageDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

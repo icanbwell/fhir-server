@@ -382,6 +382,72 @@ class MedicinalProductInteraction extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductInteraction}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [subject],
+     * @param {String|undefined} [description],
+     * @param {MedicinalProductInteractionInteractant[]|undefined} [interactant],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept|undefined} [effect],
+     * @param {CodeableConcept|undefined} [incidence],
+     * @param {CodeableConcept|undefined} [management],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            description,
+            interactant,
+            type,
+            effect,
+            incidence,
+            management,
+        }
+    ) {
+        return new MedicinalProductInteraction({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            description,
+            interactant,
+            type,
+            effect,
+            incidence,
+            management,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductInteraction}
+    */
+    copy() {
+        return new MedicinalProductInteraction(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

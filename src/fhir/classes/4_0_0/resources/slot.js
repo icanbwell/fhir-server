@@ -468,6 +468,84 @@ class Slot extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Slot}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept[]|undefined} [serviceCategory],
+     * @param {CodeableConcept[]|undefined} [serviceType],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {CodeableConcept|undefined} [appointmentType],
+     * @param {Reference} schedule,
+     * @param {code} status,
+     * @param {instant} start,
+     * @param {instant} end,
+     * @param {Boolean|undefined} [overbooked],
+     * @param {String|undefined} [comment],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            serviceCategory,
+            serviceType,
+            specialty,
+            appointmentType,
+            schedule,
+            status,
+            start,
+            end,
+            overbooked,
+            comment,
+        }
+    ) {
+        return new Slot({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            serviceCategory,
+            serviceType,
+            specialty,
+            appointmentType,
+            schedule,
+            status,
+            start,
+            end,
+            overbooked,
+            comment,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Slot}
+    */
+    copy() {
+        return new Slot(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -423,6 +423,78 @@ class MedicinalProductPackaged extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductPackaged}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [subject],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept|undefined} [legalStatusOfSupply],
+     * @param {MarketingStatus[]|undefined} [marketingStatus],
+     * @param {Reference|undefined} [marketingAuthorization],
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {MedicinalProductPackagedBatchIdentifier[]|undefined} [batchIdentifier],
+     * @param {MedicinalProductPackagedPackageItem[]} packageItem,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            subject,
+            description,
+            legalStatusOfSupply,
+            marketingStatus,
+            marketingAuthorization,
+            manufacturer,
+            batchIdentifier,
+            packageItem,
+        }
+    ) {
+        return new MedicinalProductPackaged({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            subject,
+            description,
+            legalStatusOfSupply,
+            marketingStatus,
+            marketingAuthorization,
+            manufacturer,
+            batchIdentifier,
+            packageItem,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductPackaged}
+    */
+    copy() {
+        return new MedicinalProductPackaged(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -408,6 +408,75 @@ class Schedule extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Schedule}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {CodeableConcept[]|undefined} [serviceCategory],
+     * @param {CodeableConcept[]|undefined} [serviceType],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]} actor,
+     * @param {Period|undefined} [planningHorizon],
+     * @param {String|undefined} [comment],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            serviceCategory,
+            serviceType,
+            specialty,
+            actor,
+            planningHorizon,
+            comment,
+        }
+    ) {
+        return new Schedule({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            serviceCategory,
+            serviceType,
+            specialty,
+            actor,
+            planningHorizon,
+            comment,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Schedule}
+    */
+    copy() {
+        return new Schedule(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

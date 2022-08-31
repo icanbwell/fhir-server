@@ -286,6 +286,7 @@ class Address extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

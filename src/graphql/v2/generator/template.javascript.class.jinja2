@@ -175,6 +175,67 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     }
 {%  endif %}
 
+{% if fhir_entity.is_resource %}
+    /**
+     * @description Creates a blank new resource
+     * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
+{% for property in fhir_entity.properties %}
+     * @param {{- ' {' -}}
+    {% if property.cleaned_type == "Extension" %}
+        {{- 'Extension' -}}
+    {% elif property.is_code %}
+        {{- 'code' -}}
+    {% else %}
+        {{- property.cleaned_type | replace(".","") -}}
+    {% endif %}
+    {% if property.is_list -%}
+        {{ '[]' -}}
+    {% endif -%}
+    {% if property.optional -%}
+        {{ '|undefined' -}}
+    {% endif %}
+    {{- '} ' -}}
+    {% if property.optional -%}
+        {{ '[' -}}
+    {% endif %}
+    {{- property.javascript_clean_name -}}
+    {% if property.optional -%}
+        {{ ']' -}}
+    {% endif %},
+{%  endfor %}
+    */
+    create(
+            {
+{% for property in fhir_entity.properties %}
+    {%  if property.name != property.javascript_clean_name %}
+            '{{ property.name -}}': {{ property.javascript_clean_name -}},
+    {%  else %}
+            {{ property.name -}},
+    {%  endif %}
+{% endfor %}
+        }
+    ) {
+        return new {{ fhir_entity.cleaned_name }}({
+{% for property in fhir_entity.properties %}
+    {%  if property.name != property.javascript_clean_name %}
+            '{{ property.name -}}': {{ property.javascript_clean_name -}},
+    {%  else %}
+            {{ property.name -}},
+    {%  endif %}
+{% endfor %}
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
+    */
+    copy() {
+        return new {{ fhir_entity.cleaned_name }}(this.toJSON());
+    }
+
+{%  endif %}
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

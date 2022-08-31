@@ -633,6 +633,105 @@ class StructureMap extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {StructureMap}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {StructureMapStructure[]|undefined} [structure],
+     * @param {canonical[]|undefined} [import_],
+     * @param {StructureMapGroup[]} group,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            structure,
+            'import': import_,
+            group,
+        }
+    ) {
+        return new StructureMap({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            structure,
+            'import': import_,
+            group,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {StructureMap}
+    */
+    copy() {
+        return new StructureMap(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

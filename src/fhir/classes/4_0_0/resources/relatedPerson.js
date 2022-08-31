@@ -486,6 +486,87 @@ class RelatedPerson extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {RelatedPerson}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Reference} patient,
+     * @param {CodeableConcept[]|undefined} [relationship],
+     * @param {HumanName[]|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {code|undefined} [gender],
+     * @param {date|undefined} [birthDate],
+     * @param {Address[]|undefined} [address],
+     * @param {Attachment[]|undefined} [photo],
+     * @param {Period|undefined} [period],
+     * @param {RelatedPersonCommunication[]|undefined} [communication],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            patient,
+            relationship,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            address,
+            photo,
+            period,
+            communication,
+        }
+    ) {
+        return new RelatedPerson({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            patient,
+            relationship,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            address,
+            photo,
+            period,
+            communication,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {RelatedPerson}
+    */
+    copy() {
+        return new RelatedPerson(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

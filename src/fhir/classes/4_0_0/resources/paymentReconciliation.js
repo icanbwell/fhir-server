@@ -546,6 +546,96 @@ class PaymentReconciliation extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {PaymentReconciliation}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Period|undefined} [period],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [paymentIssuer],
+     * @param {Reference|undefined} [request],
+     * @param {Reference|undefined} [requestor],
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [disposition],
+     * @param {date} paymentDate,
+     * @param {Money} paymentAmount,
+     * @param {Identifier|undefined} [paymentIdentifier],
+     * @param {PaymentReconciliationDetail[]|undefined} [detail],
+     * @param {CodeableConcept|undefined} [formCode],
+     * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            period,
+            created,
+            paymentIssuer,
+            request,
+            requestor,
+            outcome,
+            disposition,
+            paymentDate,
+            paymentAmount,
+            paymentIdentifier,
+            detail,
+            formCode,
+            processNote,
+        }
+    ) {
+        return new PaymentReconciliation({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            period,
+            created,
+            paymentIssuer,
+            request,
+            requestor,
+            outcome,
+            disposition,
+            paymentDate,
+            paymentAmount,
+            paymentIdentifier,
+            detail,
+            formCode,
+            processNote,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {PaymentReconciliation}
+    */
+    copy() {
+        return new PaymentReconciliation(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -465,6 +465,84 @@ class AuditEvent extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {AuditEvent}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding} type,
+     * @param {Coding[]|undefined} [subtype],
+     * @param {code|undefined} [action],
+     * @param {Period|undefined} [period],
+     * @param {instant} recorded,
+     * @param {code|undefined} [outcome],
+     * @param {String|undefined} [outcomeDesc],
+     * @param {CodeableConcept[]|undefined} [purposeOfEvent],
+     * @param {AuditEventAgent[]} agent,
+     * @param {AuditEventSource} source,
+     * @param {AuditEventEntity[]|undefined} [entity],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            type,
+            subtype,
+            action,
+            period,
+            recorded,
+            outcome,
+            outcomeDesc,
+            purposeOfEvent,
+            agent,
+            source,
+            entity,
+        }
+    ) {
+        return new AuditEvent({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            type,
+            subtype,
+            action,
+            period,
+            recorded,
+            outcome,
+            outcomeDesc,
+            purposeOfEvent,
+            agent,
+            source,
+            entity,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {AuditEvent}
+    */
+    copy() {
+        return new AuditEvent(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

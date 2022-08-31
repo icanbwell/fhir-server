@@ -689,6 +689,114 @@ class ClinicalImpression extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ClinicalImpression}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {String|undefined} [description],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [assessor],
+     * @param {Reference|undefined} [previous],
+     * @param {Reference[]|undefined} [problem],
+     * @param {ClinicalImpressionInvestigation[]|undefined} [investigation],
+     * @param {uri[]|undefined} [protocol],
+     * @param {String|undefined} [summary],
+     * @param {ClinicalImpressionFinding[]|undefined} [finding],
+     * @param {CodeableConcept[]|undefined} [prognosisCodeableConcept],
+     * @param {Reference[]|undefined} [prognosisReference],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusReason,
+            code,
+            description,
+            subject,
+            encounter,
+            effectiveDateTime,
+            effectivePeriod,
+            date,
+            assessor,
+            previous,
+            problem,
+            investigation,
+            protocol,
+            summary,
+            finding,
+            prognosisCodeableConcept,
+            prognosisReference,
+            supportingInfo,
+            note,
+        }
+    ) {
+        return new ClinicalImpression({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusReason,
+            code,
+            description,
+            subject,
+            encounter,
+            effectiveDateTime,
+            effectivePeriod,
+            date,
+            assessor,
+            previous,
+            problem,
+            investigation,
+            protocol,
+            summary,
+            finding,
+            prognosisCodeableConcept,
+            prognosisReference,
+            supportingInfo,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ClinicalImpression}
+    */
+    copy() {
+        return new ClinicalImpression(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

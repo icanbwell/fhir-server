@@ -148,6 +148,7 @@ class ContractSubject extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

@@ -401,6 +401,75 @@ class ResearchSubject extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ResearchSubject}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Period|undefined} [period],
+     * @param {Reference} study,
+     * @param {Reference} individual,
+     * @param {String|undefined} [assignedArm],
+     * @param {String|undefined} [actualArm],
+     * @param {Reference|undefined} [consent],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            period,
+            study,
+            individual,
+            assignedArm,
+            actualArm,
+            consent,
+        }
+    ) {
+        return new ResearchSubject({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            period,
+            study,
+            individual,
+            assignedArm,
+            actualArm,
+            consent,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ResearchSubject}
+    */
+    copy() {
+        return new ResearchSubject(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

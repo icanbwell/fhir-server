@@ -805,6 +805,132 @@ class DeviceRequest extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DeviceRequest}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [priorRequest],
+     * @param {Identifier|undefined} [groupIdentifier],
+     * @param {code|undefined} [status],
+     * @param {code} intent,
+     * @param {code|undefined} [priority],
+     * @param {Reference|undefined} [codeReference],
+     * @param {CodeableConcept|undefined} [codeCodeableConcept],
+     * @param {DeviceRequestParameter[]|undefined} [parameter],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {CodeableConcept|undefined} [performerType],
+     * @param {Reference|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [insurance],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Reference[]|undefined} [relevantHistory],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            priorRequest,
+            groupIdentifier,
+            status,
+            intent,
+            priority,
+            codeReference,
+            codeCodeableConcept,
+            parameter,
+            subject,
+            encounter,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            authoredOn,
+            requester,
+            performerType,
+            performer,
+            reasonCode,
+            reasonReference,
+            insurance,
+            supportingInfo,
+            note,
+            relevantHistory,
+        }
+    ) {
+        return new DeviceRequest({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            priorRequest,
+            groupIdentifier,
+            status,
+            intent,
+            priority,
+            codeReference,
+            codeCodeableConcept,
+            parameter,
+            subject,
+            encounter,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            authoredOn,
+            requester,
+            performerType,
+            performer,
+            reasonCode,
+            reasonReference,
+            insurance,
+            supportingInfo,
+            note,
+            relevantHistory,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DeviceRequest}
+    */
+    copy() {
+        return new DeviceRequest(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

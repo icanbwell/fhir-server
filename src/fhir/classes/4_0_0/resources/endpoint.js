@@ -470,6 +470,84 @@ class Endpoint extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Endpoint}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Coding} connectionType,
+     * @param {String|undefined} [name],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {Period|undefined} [period],
+     * @param {CodeableConcept[]} payloadType,
+     * @param {code[]|undefined} [payloadMimeType],
+     * @param {url} address,
+     * @param {String[]|undefined} [header],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            connectionType,
+            name,
+            managingOrganization,
+            contact,
+            period,
+            payloadType,
+            payloadMimeType,
+            address,
+            header,
+        }
+    ) {
+        return new Endpoint({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            connectionType,
+            name,
+            managingOrganization,
+            contact,
+            period,
+            payloadType,
+            payloadMimeType,
+            address,
+            header,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Endpoint}
+    */
+    copy() {
+        return new Endpoint(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

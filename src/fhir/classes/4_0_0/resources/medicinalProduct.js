@@ -662,6 +662,111 @@ class MedicinalProduct extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProduct}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Coding|undefined} [domain],
+     * @param {CodeableConcept|undefined} [combinedPharmaceuticalDoseForm],
+     * @param {CodeableConcept|undefined} [legalStatusOfSupply],
+     * @param {CodeableConcept|undefined} [additionalMonitoringIndicator],
+     * @param {String[]|undefined} [specialMeasures],
+     * @param {CodeableConcept|undefined} [paediatricUseIndicator],
+     * @param {CodeableConcept[]|undefined} [productClassification],
+     * @param {MarketingStatus[]|undefined} [marketingStatus],
+     * @param {Reference[]|undefined} [pharmaceuticalProduct],
+     * @param {Reference[]|undefined} [packagedMedicinalProduct],
+     * @param {Reference[]|undefined} [attachedDocument],
+     * @param {Reference[]|undefined} [masterFile],
+     * @param {Reference[]|undefined} [contact],
+     * @param {Reference[]|undefined} [clinicalTrial],
+     * @param {MedicinalProductName[]} name,
+     * @param {Identifier[]|undefined} [crossReference],
+     * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
+     * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            domain,
+            combinedPharmaceuticalDoseForm,
+            legalStatusOfSupply,
+            additionalMonitoringIndicator,
+            specialMeasures,
+            paediatricUseIndicator,
+            productClassification,
+            marketingStatus,
+            pharmaceuticalProduct,
+            packagedMedicinalProduct,
+            attachedDocument,
+            masterFile,
+            contact,
+            clinicalTrial,
+            name,
+            crossReference,
+            manufacturingBusinessOperation,
+            specialDesignation,
+        }
+    ) {
+        return new MedicinalProduct({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            domain,
+            combinedPharmaceuticalDoseForm,
+            legalStatusOfSupply,
+            additionalMonitoringIndicator,
+            specialMeasures,
+            paediatricUseIndicator,
+            productClassification,
+            marketingStatus,
+            pharmaceuticalProduct,
+            packagedMedicinalProduct,
+            attachedDocument,
+            masterFile,
+            contact,
+            clinicalTrial,
+            name,
+            crossReference,
+            manufacturingBusinessOperation,
+            specialDesignation,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProduct}
+    */
+    copy() {
+        return new MedicinalProduct(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

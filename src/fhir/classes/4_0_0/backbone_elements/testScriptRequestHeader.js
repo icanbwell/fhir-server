@@ -146,6 +146,7 @@ class TestScriptRequestHeader extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

@@ -10,8 +10,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertStatusCode, assertResponse } = require('../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {assertStatusCode, assertResponse} = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -36,6 +36,11 @@ describe('Practitioner Tests', () => {
             practitioner1Resource['active'] = false;
             const id1 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[0].resource.id = id1;
+
+            await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+                // .expect(assertResponse({expected: practitioner1Resource}));
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));

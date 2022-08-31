@@ -275,6 +275,7 @@ class SubstanceSpecificationStructure extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

@@ -126,6 +126,39 @@ class Resource extends ResourceContainer {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Resource}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+        }
+    ) {
+        return new Resource({
+            id,
+            meta,
+            implicitRules,
+            language,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Resource}
+    */
+    copy() {
+        return new Resource(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

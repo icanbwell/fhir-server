@@ -338,6 +338,63 @@ class SubstanceProtein extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SubstanceProtein}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [sequenceType],
+     * @param {Int|undefined} [numberOfSubunits],
+     * @param {String[]|undefined} [disulfideLinkage],
+     * @param {SubstanceProteinSubunit[]|undefined} [subunit],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sequenceType,
+            numberOfSubunits,
+            disulfideLinkage,
+            subunit,
+        }
+    ) {
+        return new SubstanceProtein({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            sequenceType,
+            numberOfSubunits,
+            disulfideLinkage,
+            subunit,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SubstanceProtein}
+    */
+    copy() {
+        return new SubstanceProtein(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

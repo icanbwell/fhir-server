@@ -667,6 +667,111 @@ class AdverseEvent extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {AdverseEvent}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {code} actuality,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept|undefined} [event],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [date],
+     * @param {dateTime|undefined} [detected],
+     * @param {dateTime|undefined} [recordedDate],
+     * @param {Reference[]|undefined} [resultingCondition],
+     * @param {Reference|undefined} [location],
+     * @param {CodeableConcept|undefined} [seriousness],
+     * @param {CodeableConcept|undefined} [severity],
+     * @param {CodeableConcept|undefined} [outcome],
+     * @param {Reference|undefined} [recorder],
+     * @param {Reference[]|undefined} [contributor],
+     * @param {AdverseEventSuspectEntity[]|undefined} [suspectEntity],
+     * @param {Reference[]|undefined} [subjectMedicalHistory],
+     * @param {Reference[]|undefined} [referenceDocument],
+     * @param {Reference[]|undefined} [study],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            actuality,
+            category,
+            event,
+            subject,
+            encounter,
+            date,
+            detected,
+            recordedDate,
+            resultingCondition,
+            location,
+            seriousness,
+            severity,
+            outcome,
+            recorder,
+            contributor,
+            suspectEntity,
+            subjectMedicalHistory,
+            referenceDocument,
+            study,
+        }
+    ) {
+        return new AdverseEvent({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            actuality,
+            category,
+            event,
+            subject,
+            encounter,
+            date,
+            detected,
+            recordedDate,
+            resultingCondition,
+            location,
+            seriousness,
+            severity,
+            outcome,
+            recorder,
+            contributor,
+            suspectEntity,
+            subjectMedicalHistory,
+            referenceDocument,
+            study,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {AdverseEvent}
+    */
+    copy() {
+        return new AdverseEvent(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -873,6 +873,138 @@ class EventDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {EventDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {String|undefined} [subtitle],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {CodeableConcept|undefined} [subjectCodeableConcept],
+     * @param {Reference|undefined} [subjectReference],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {String|undefined} [usage],
+     * @param {markdown|undefined} [copyright],
+     * @param {date|undefined} [approvalDate],
+     * @param {date|undefined} [lastReviewDate],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {ContactDetail[]|undefined} [author],
+     * @param {ContactDetail[]|undefined} [editor],
+     * @param {ContactDetail[]|undefined} [reviewer],
+     * @param {ContactDetail[]|undefined} [endorser],
+     * @param {RelatedArtifact[]|undefined} [relatedArtifact],
+     * @param {TriggerDefinition[]} trigger,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            subtitle,
+            status,
+            experimental,
+            subjectCodeableConcept,
+            subjectReference,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            usage,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            topic,
+            author,
+            editor,
+            reviewer,
+            endorser,
+            relatedArtifact,
+            trigger,
+        }
+    ) {
+        return new EventDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            subtitle,
+            status,
+            experimental,
+            subjectCodeableConcept,
+            subjectReference,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            usage,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            topic,
+            author,
+            editor,
+            reviewer,
+            endorser,
+            relatedArtifact,
+            trigger,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {EventDefinition}
+    */
+    copy() {
+        return new EventDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

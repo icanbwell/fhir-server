@@ -383,6 +383,72 @@ class MedicinalProductManufactured extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductManufactured}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept} manufacturedDoseForm,
+     * @param {CodeableConcept|undefined} [unitOfPresentation],
+     * @param {Quantity} quantity,
+     * @param {Reference[]|undefined} [manufacturer],
+     * @param {Reference[]|undefined} [ingredient],
+     * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
+     * @param {CodeableConcept[]|undefined} [otherCharacteristics],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            manufacturedDoseForm,
+            unitOfPresentation,
+            quantity,
+            manufacturer,
+            ingredient,
+            physicalCharacteristics,
+            otherCharacteristics,
+        }
+    ) {
+        return new MedicinalProductManufactured({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            manufacturedDoseForm,
+            unitOfPresentation,
+            quantity,
+            manufacturer,
+            ingredient,
+            physicalCharacteristics,
+            otherCharacteristics,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductManufactured}
+    */
+    copy() {
+        return new MedicinalProductManufactured(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

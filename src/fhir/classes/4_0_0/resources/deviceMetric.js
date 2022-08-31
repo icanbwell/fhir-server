@@ -465,6 +465,81 @@ class DeviceMetric extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DeviceMetric}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [unit],
+     * @param {Reference|undefined} [source],
+     * @param {Reference|undefined} [parent],
+     * @param {code|undefined} [operationalStatus],
+     * @param {code|undefined} [color],
+     * @param {code} category,
+     * @param {Timing|undefined} [measurementPeriod],
+     * @param {DeviceMetricCalibration[]|undefined} [calibration],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            unit,
+            source,
+            parent,
+            operationalStatus,
+            color,
+            category,
+            measurementPeriod,
+            calibration,
+        }
+    ) {
+        return new DeviceMetric({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            type,
+            unit,
+            source,
+            parent,
+            operationalStatus,
+            color,
+            category,
+            measurementPeriod,
+            calibration,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DeviceMetric}
+    */
+    copy() {
+        return new DeviceMetric(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

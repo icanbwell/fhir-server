@@ -669,6 +669,111 @@ class ConceptMap extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ConceptMap}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {markdown|undefined} [copyright],
+     * @param {uri|undefined} [sourceUri],
+     * @param {canonical|undefined} [sourceCanonical],
+     * @param {uri|undefined} [targetUri],
+     * @param {canonical|undefined} [targetCanonical],
+     * @param {ConceptMapGroup[]|undefined} [group],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            sourceUri,
+            sourceCanonical,
+            targetUri,
+            targetCanonical,
+            group,
+        }
+    ) {
+        return new ConceptMap({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            copyright,
+            sourceUri,
+            sourceCanonical,
+            targetUri,
+            targetCanonical,
+            group,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ConceptMap}
+    */
+    copy() {
+        return new ConceptMap(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -511,6 +511,90 @@ class Specimen extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Specimen}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Identifier|undefined} [accessionIdentifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {dateTime|undefined} [receivedTime],
+     * @param {Reference[]|undefined} [parent],
+     * @param {Reference[]|undefined} [request],
+     * @param {SpecimenCollection|undefined} [collection],
+     * @param {SpecimenProcessing[]|undefined} [processing],
+     * @param {SpecimenContainer[]|undefined} [container],
+     * @param {CodeableConcept[]|undefined} [condition],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            accessionIdentifier,
+            status,
+            type,
+            subject,
+            receivedTime,
+            parent,
+            request,
+            collection,
+            processing,
+            container,
+            condition,
+            note,
+        }
+    ) {
+        return new Specimen({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            accessionIdentifier,
+            status,
+            type,
+            subject,
+            receivedTime,
+            parent,
+            request,
+            collection,
+            processing,
+            container,
+            condition,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Specimen}
+    */
+    copy() {
+        return new Specimen(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

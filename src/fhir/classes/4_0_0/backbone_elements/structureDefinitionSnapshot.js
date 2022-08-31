@@ -128,6 +128,7 @@ class StructureDefinitionSnapshot extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

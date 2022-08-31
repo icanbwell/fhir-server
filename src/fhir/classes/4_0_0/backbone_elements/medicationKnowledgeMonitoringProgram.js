@@ -146,6 +146,7 @@ class MedicationKnowledgeMonitoringProgram extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

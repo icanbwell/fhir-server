@@ -546,6 +546,96 @@ class ImmunizationEvaluation extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ImmunizationEvaluation}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Reference} patient,
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [authority],
+     * @param {CodeableConcept} targetDisease,
+     * @param {Reference} immunizationEvent,
+     * @param {CodeableConcept} doseStatus,
+     * @param {CodeableConcept[]|undefined} [doseStatusReason],
+     * @param {String|undefined} [description],
+     * @param {String|undefined} [series],
+     * @param {Int|undefined} [doseNumberPositiveInt],
+     * @param {String|undefined} [doseNumberString],
+     * @param {Int|undefined} [seriesDosesPositiveInt],
+     * @param {String|undefined} [seriesDosesString],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            patient,
+            date,
+            authority,
+            targetDisease,
+            immunizationEvent,
+            doseStatus,
+            doseStatusReason,
+            description,
+            series,
+            doseNumberPositiveInt,
+            doseNumberString,
+            seriesDosesPositiveInt,
+            seriesDosesString,
+        }
+    ) {
+        return new ImmunizationEvaluation({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            patient,
+            date,
+            authority,
+            targetDisease,
+            immunizationEvent,
+            doseStatus,
+            doseStatusReason,
+            description,
+            series,
+            doseNumberPositiveInt,
+            doseNumberString,
+            seriesDosesPositiveInt,
+            seriesDosesString,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ImmunizationEvaluation}
+    */
+    copy() {
+        return new ImmunizationEvaluation(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

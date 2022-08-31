@@ -531,6 +531,93 @@ class InsurancePlan extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {InsurancePlan}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {String[]|undefined} [alias],
+     * @param {Period|undefined} [period],
+     * @param {Reference|undefined} [ownedBy],
+     * @param {Reference|undefined} [administeredBy],
+     * @param {Reference[]|undefined} [coverageArea],
+     * @param {InsurancePlanContact[]|undefined} [contact],
+     * @param {Reference[]|undefined} [endpoint],
+     * @param {Reference[]|undefined} [network],
+     * @param {InsurancePlanCoverage[]|undefined} [coverage],
+     * @param {InsurancePlanPlan[]|undefined} [plan],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            name,
+            alias,
+            period,
+            ownedBy,
+            administeredBy,
+            coverageArea,
+            contact,
+            endpoint,
+            network,
+            coverage,
+            plan,
+        }
+    ) {
+        return new InsurancePlan({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            name,
+            alias,
+            period,
+            ownedBy,
+            administeredBy,
+            coverageArea,
+            contact,
+            endpoint,
+            network,
+            coverage,
+            plan,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {InsurancePlan}
+    */
+    copy() {
+        return new InsurancePlan(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -513,6 +513,90 @@ class ObservationDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ObservationDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code[]|undefined} [permittedDataType],
+     * @param {Boolean|undefined} [multipleResultsAllowed],
+     * @param {CodeableConcept|undefined} [method],
+     * @param {String|undefined} [preferredReportName],
+     * @param {ObservationDefinitionQuantitativeDetails|undefined} [quantitativeDetails],
+     * @param {ObservationDefinitionQualifiedInterval[]|undefined} [qualifiedInterval],
+     * @param {Reference|undefined} [validCodedValueSet],
+     * @param {Reference|undefined} [normalCodedValueSet],
+     * @param {Reference|undefined} [abnormalCodedValueSet],
+     * @param {Reference|undefined} [criticalCodedValueSet],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            category,
+            code,
+            identifier,
+            permittedDataType,
+            multipleResultsAllowed,
+            method,
+            preferredReportName,
+            quantitativeDetails,
+            qualifiedInterval,
+            validCodedValueSet,
+            normalCodedValueSet,
+            abnormalCodedValueSet,
+            criticalCodedValueSet,
+        }
+    ) {
+        return new ObservationDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            category,
+            code,
+            identifier,
+            permittedDataType,
+            multipleResultsAllowed,
+            method,
+            preferredReportName,
+            quantitativeDetails,
+            qualifiedInterval,
+            validCodedValueSet,
+            normalCodedValueSet,
+            abnormalCodedValueSet,
+            criticalCodedValueSet,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ObservationDefinition}
+    */
+    copy() {
+        return new ObservationDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

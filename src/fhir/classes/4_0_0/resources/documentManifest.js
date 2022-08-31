@@ -495,6 +495,87 @@ class DocumentManifest extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DocumentManifest}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [masterIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {Reference|undefined} [subject],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference[]|undefined} [author],
+     * @param {Reference[]|undefined} [recipient],
+     * @param {uri|undefined} [source],
+     * @param {String|undefined} [description],
+     * @param {Reference[]} content,
+     * @param {DocumentManifestRelated[]|undefined} [related],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            masterIdentifier,
+            identifier,
+            status,
+            type,
+            subject,
+            created,
+            author,
+            recipient,
+            source,
+            description,
+            content,
+            related,
+        }
+    ) {
+        return new DocumentManifest({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            masterIdentifier,
+            identifier,
+            status,
+            type,
+            subject,
+            created,
+            author,
+            recipient,
+            source,
+            description,
+            content,
+            related,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DocumentManifest}
+    */
+    copy() {
+        return new DocumentManifest(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

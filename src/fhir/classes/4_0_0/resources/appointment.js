@@ -727,6 +727,117 @@ class Appointment extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Appointment}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [cancelationReason],
+     * @param {CodeableConcept[]|undefined} [serviceCategory],
+     * @param {CodeableConcept[]|undefined} [serviceType],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {CodeableConcept|undefined} [appointmentType],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {unsignedInt|undefined} [priority],
+     * @param {String|undefined} [description],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {instant|undefined} [start],
+     * @param {instant|undefined} [end],
+     * @param {Int|undefined} [minutesDuration],
+     * @param {Reference[]|undefined} [slot],
+     * @param {dateTime|undefined} [created],
+     * @param {String|undefined} [comment],
+     * @param {String|undefined} [patientInstruction],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {AppointmentParticipant[]} participant,
+     * @param {Period[]|undefined} [requestedPeriod],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            cancelationReason,
+            serviceCategory,
+            serviceType,
+            specialty,
+            appointmentType,
+            reasonCode,
+            reasonReference,
+            priority,
+            description,
+            supportingInformation,
+            start,
+            end,
+            minutesDuration,
+            slot,
+            created,
+            comment,
+            patientInstruction,
+            basedOn,
+            participant,
+            requestedPeriod,
+        }
+    ) {
+        return new Appointment({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            cancelationReason,
+            serviceCategory,
+            serviceType,
+            specialty,
+            appointmentType,
+            reasonCode,
+            reasonReference,
+            priority,
+            description,
+            supportingInformation,
+            start,
+            end,
+            minutesDuration,
+            slot,
+            created,
+            comment,
+            patientInstruction,
+            basedOn,
+            participant,
+            requestedPeriod,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Appointment}
+    */
+    copy() {
+        return new Appointment(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

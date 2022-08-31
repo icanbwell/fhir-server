@@ -231,6 +231,7 @@ class MolecularSequenceRepository extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

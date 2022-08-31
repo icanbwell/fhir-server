@@ -27,6 +27,7 @@ const {omitProperty} = require('../../utils/omitProperties');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const {ResourceDuplicator} = require('../common/resourceDuplicator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -39,6 +40,7 @@ class MergeManager {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
+     * @param {ResourceDuplicator} resourceDuplicator
      */
     constructor(
         {
@@ -46,7 +48,8 @@ class MergeManager {
             auditLogger,
             databaseBulkInserter,
             databaseBulkLoader,
-            scopesManager
+            scopesManager,
+            resourceDuplicator
         }
     ) {
         /**
@@ -74,6 +77,12 @@ class MergeManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {ResourceDuplicator}
+         */
+        this.resourceDuplicator = resourceDuplicator;
+        assertTypeEquals(resourceDuplicator, ResourceDuplicator);
     }
 
     /**
@@ -206,7 +215,11 @@ class MergeManager {
                 id,
                 'merge_' + meta.versionId + '_' + requestId);
         }
-        await this.performMergeDbUpdateAsync({resourceToMerge: patched_resource_incoming});
+        await this.performMergeDbUpdateAsync({
+                base_version,
+                resourceToMerge: patched_resource_incoming
+            }
+        );
     }
 
     /**
@@ -248,7 +261,10 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
 
-        await this.performMergeDbInsertAsync({resourceToMerge});
+        await this.performMergeDbInsertAsync({
+            base_version,
+            resourceToMerge
+        });
     }
 
     /**
@@ -485,19 +501,19 @@ class MergeManager {
 
     /**
      * performs the db update
+     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
+            base_version,
             resourceToMerge
         }
     ) {
         let id = resourceToMerge.id;
 
         await preSaveAsync(resourceToMerge);
-
-        // delete doc['_id'];
 
         // Insert/update our resource record
         // When using the $set operator, only the specified fields are updated
@@ -513,20 +529,30 @@ class MergeManager {
             }
         );
 
-        // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryForResourceAsync(
+        /**
+         * @type {Resource}
+         */
+        const historyResource = this.resourceDuplicator.duplicateResource(
             {
-                resourceType: resourceToMerge.resourceType, doc: resourceToMerge
+                base_version,
+                resource: resourceToMerge
+            });
+
+        await this.databaseBulkInserter.insertOneHistoryAsync(
+            {
+                resourceType: resourceToMerge.resourceType, doc: historyResource
             });
     }
 
     /**
      * performs the db insert
+     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
+            base_version,
             resourceToMerge
         }) {
         await preSaveAsync(resourceToMerge);
@@ -538,10 +564,15 @@ class MergeManager {
             }
         );
 
-        // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryForResourceAsync({
+        const historyResource = this.resourceDuplicator.duplicateResource(
+            {
+                base_version,
+                resource: resourceToMerge
+            });
+
+        await this.databaseBulkInserter.insertOneHistoryAsync({
                 resourceType: resourceToMerge.resourceType,
-                doc: resourceToMerge
+                doc: historyResource
             }
         );
     }

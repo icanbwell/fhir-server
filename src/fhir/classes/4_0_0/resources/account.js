@@ -469,6 +469,84 @@ class Account extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Account}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {Reference[]|undefined} [subject],
+     * @param {Period|undefined} [servicePeriod],
+     * @param {AccountCoverage[]|undefined} [coverage],
+     * @param {Reference|undefined} [owner],
+     * @param {String|undefined} [description],
+     * @param {AccountGuarantor[]|undefined} [guarantor],
+     * @param {Reference|undefined} [partOf],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            name,
+            subject,
+            servicePeriod,
+            coverage,
+            owner,
+            description,
+            guarantor,
+            partOf,
+        }
+    ) {
+        return new Account({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            name,
+            subject,
+            servicePeriod,
+            coverage,
+            owner,
+            description,
+            guarantor,
+            partOf,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Account}
+    */
+    copy() {
+        return new Account(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

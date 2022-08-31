@@ -615,6 +615,105 @@ class RequestGroup extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {RequestGroup}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [replaces],
+     * @param {Identifier|undefined} [groupIdentifier],
+     * @param {code} status,
+     * @param {code} intent,
+     * @param {code|undefined} [priority],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [author],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {RequestGroupAction[]|undefined} [action],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            replaces,
+            groupIdentifier,
+            status,
+            intent,
+            priority,
+            code,
+            subject,
+            encounter,
+            authoredOn,
+            author,
+            reasonCode,
+            reasonReference,
+            note,
+            action,
+        }
+    ) {
+        return new RequestGroup({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            replaces,
+            groupIdentifier,
+            status,
+            intent,
+            priority,
+            code,
+            subject,
+            encounter,
+            authoredOn,
+            author,
+            reasonCode,
+            reasonReference,
+            note,
+            action,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {RequestGroup}
+    */
+    copy() {
+        return new RequestGroup(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

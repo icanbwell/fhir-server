@@ -854,6 +854,135 @@ class Evidence extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Evidence}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [title],
+     * @param {String|undefined} [shortTitle],
+     * @param {String|undefined} [subtitle],
+     * @param {code} status,
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {Annotation[]|undefined} [note],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [copyright],
+     * @param {date|undefined} [approvalDate],
+     * @param {date|undefined} [lastReviewDate],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {ContactDetail[]|undefined} [author],
+     * @param {ContactDetail[]|undefined} [editor],
+     * @param {ContactDetail[]|undefined} [reviewer],
+     * @param {ContactDetail[]|undefined} [endorser],
+     * @param {RelatedArtifact[]|undefined} [relatedArtifact],
+     * @param {Reference} exposureBackground,
+     * @param {Reference[]|undefined} [exposureVariant],
+     * @param {Reference[]|undefined} [outcome],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            shortTitle,
+            subtitle,
+            status,
+            date,
+            publisher,
+            contact,
+            description,
+            note,
+            useContext,
+            jurisdiction,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            topic,
+            author,
+            editor,
+            reviewer,
+            endorser,
+            relatedArtifact,
+            exposureBackground,
+            exposureVariant,
+            outcome,
+        }
+    ) {
+        return new Evidence({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            name,
+            title,
+            shortTitle,
+            subtitle,
+            status,
+            date,
+            publisher,
+            contact,
+            description,
+            note,
+            useContext,
+            jurisdiction,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            topic,
+            author,
+            editor,
+            reviewer,
+            endorser,
+            relatedArtifact,
+            exposureBackground,
+            exposureVariant,
+            outcome,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Evidence}
+    */
+    copy() {
+        return new Evidence(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

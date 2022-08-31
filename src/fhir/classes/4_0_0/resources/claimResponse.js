@@ -811,6 +811,132 @@ class ClaimResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ClaimResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {CodeableConcept} type,
+     * @param {CodeableConcept|undefined} [subType],
+     * @param {code} use,
+     * @param {Reference} patient,
+     * @param {dateTime} created,
+     * @param {Reference} insurer,
+     * @param {Reference|undefined} [requestor],
+     * @param {Reference|undefined} [request],
+     * @param {code} outcome,
+     * @param {String|undefined} [disposition],
+     * @param {String|undefined} [preAuthRef],
+     * @param {Period|undefined} [preAuthPeriod],
+     * @param {CodeableConcept|undefined} [payeeType],
+     * @param {ClaimResponseItem[]|undefined} [item],
+     * @param {ClaimResponseAddItem[]|undefined} [addItem],
+     * @param {ClaimResponseAdjudication[]|undefined} [adjudication],
+     * @param {ClaimResponseTotal[]|undefined} [total],
+     * @param {ClaimResponsePayment|undefined} [payment],
+     * @param {CodeableConcept|undefined} [fundsReserve],
+     * @param {CodeableConcept|undefined} [formCode],
+     * @param {Attachment|undefined} [form],
+     * @param {ClaimResponseProcessNote[]|undefined} [processNote],
+     * @param {Reference[]|undefined} [communicationRequest],
+     * @param {ClaimResponseInsurance[]|undefined} [insurance],
+     * @param {ClaimResponseError[]|undefined} [error],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            subType,
+            use,
+            patient,
+            created,
+            insurer,
+            requestor,
+            request,
+            outcome,
+            disposition,
+            preAuthRef,
+            preAuthPeriod,
+            payeeType,
+            item,
+            addItem,
+            adjudication,
+            total,
+            payment,
+            fundsReserve,
+            formCode,
+            form,
+            processNote,
+            communicationRequest,
+            insurance,
+            error,
+        }
+    ) {
+        return new ClaimResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            type,
+            subType,
+            use,
+            patient,
+            created,
+            insurer,
+            requestor,
+            request,
+            outcome,
+            disposition,
+            preAuthRef,
+            preAuthPeriod,
+            payeeType,
+            item,
+            addItem,
+            adjudication,
+            total,
+            payment,
+            fundsReserve,
+            formCode,
+            form,
+            processNote,
+            communicationRequest,
+            insurance,
+            error,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ClaimResponse}
+    */
+    copy() {
+        return new ClaimResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -410,6 +410,75 @@ class Medication extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Medication}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [manufacturer],
+     * @param {CodeableConcept|undefined} [form],
+     * @param {Ratio|undefined} [amount],
+     * @param {MedicationIngredient[]|undefined} [ingredient],
+     * @param {MedicationBatch|undefined} [batch],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            code,
+            status,
+            manufacturer,
+            form,
+            amount,
+            ingredient,
+            batch,
+        }
+    ) {
+        return new Medication({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            code,
+            status,
+            manufacturer,
+            form,
+            amount,
+            ingredient,
+            batch,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Medication}
+    */
+    copy() {
+        return new Medication(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

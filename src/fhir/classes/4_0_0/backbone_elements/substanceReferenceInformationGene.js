@@ -168,6 +168,7 @@ class SubstanceReferenceInformationGene extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

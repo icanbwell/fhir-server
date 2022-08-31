@@ -170,6 +170,7 @@ class LocationPosition extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

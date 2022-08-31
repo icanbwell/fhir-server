@@ -383,6 +383,72 @@ class MedicinalProductContraindication extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductContraindication}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [subject],
+     * @param {CodeableConcept|undefined} [disease],
+     * @param {CodeableConcept|undefined} [diseaseStatus],
+     * @param {CodeableConcept[]|undefined} [comorbidity],
+     * @param {Reference[]|undefined} [therapeuticIndication],
+     * @param {MedicinalProductContraindicationOtherTherapy[]|undefined} [otherTherapy],
+     * @param {Population[]|undefined} [population],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            disease,
+            diseaseStatus,
+            comorbidity,
+            therapeuticIndication,
+            otherTherapy,
+            population,
+        }
+    ) {
+        return new MedicinalProductContraindication({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            disease,
+            diseaseStatus,
+            comorbidity,
+            therapeuticIndication,
+            otherTherapy,
+            population,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductContraindication}
+    */
+    copy() {
+        return new MedicinalProductContraindication(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

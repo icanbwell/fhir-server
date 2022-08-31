@@ -442,6 +442,81 @@ class Person extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Person}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {HumanName[]|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {code|undefined} [gender],
+     * @param {date|undefined} [birthDate],
+     * @param {Address[]|undefined} [address],
+     * @param {Attachment|undefined} [photo],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {Boolean|undefined} [active],
+     * @param {PersonLink[]|undefined} [link],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            address,
+            photo,
+            managingOrganization,
+            active,
+            link,
+        }
+    ) {
+        return new Person({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            address,
+            photo,
+            managingOrganization,
+            active,
+            link,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Person}
+    */
+    copy() {
+        return new Person(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

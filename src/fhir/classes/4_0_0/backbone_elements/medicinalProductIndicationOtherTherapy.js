@@ -169,6 +169,7 @@ class MedicinalProductIndicationOtherTherapy extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

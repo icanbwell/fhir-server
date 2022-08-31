@@ -249,6 +249,7 @@ class CoverageEligibilityResponseBenefit extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

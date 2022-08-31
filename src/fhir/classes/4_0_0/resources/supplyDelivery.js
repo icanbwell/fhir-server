@@ -507,6 +507,90 @@ class SupplyDelivery extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SupplyDelivery}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [patient],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {SupplyDeliverySuppliedItem|undefined} [suppliedItem],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {Reference|undefined} [supplier],
+     * @param {Reference|undefined} [destination],
+     * @param {Reference[]|undefined} [receiver],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            patient,
+            type,
+            suppliedItem,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            supplier,
+            destination,
+            receiver,
+        }
+    ) {
+        return new SupplyDelivery({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            patient,
+            type,
+            suppliedItem,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            supplier,
+            destination,
+            receiver,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SupplyDelivery}
+    */
+    copy() {
+        return new SupplyDelivery(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

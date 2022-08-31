@@ -449,6 +449,81 @@ class Practitioner extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Practitioner}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {HumanName[]|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address[]|undefined} [address],
+     * @param {code|undefined} [gender],
+     * @param {date|undefined} [birthDate],
+     * @param {Attachment[]|undefined} [photo],
+     * @param {PractitionerQualification[]|undefined} [qualification],
+     * @param {CodeableConcept[]|undefined} [communication],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            name,
+            telecom,
+            address,
+            gender,
+            birthDate,
+            photo,
+            qualification,
+            communication,
+        }
+    ) {
+        return new Practitioner({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            name,
+            telecom,
+            address,
+            gender,
+            birthDate,
+            photo,
+            qualification,
+            communication,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Practitioner}
+    */
+    copy() {
+        return new Practitioner(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

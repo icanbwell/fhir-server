@@ -407,6 +407,75 @@ class AppointmentResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {AppointmentResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference} appointment,
+     * @param {instant|undefined} [start],
+     * @param {instant|undefined} [end],
+     * @param {CodeableConcept[]|undefined} [participantType],
+     * @param {Reference|undefined} [actor],
+     * @param {code} participantStatus,
+     * @param {String|undefined} [comment],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            appointment,
+            start,
+            end,
+            participantType,
+            actor,
+            participantStatus,
+            comment,
+        }
+    ) {
+        return new AppointmentResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            appointment,
+            start,
+            end,
+            participantType,
+            actor,
+            participantStatus,
+            comment,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {AppointmentResponse}
+    */
+    copy() {
+        return new AppointmentResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

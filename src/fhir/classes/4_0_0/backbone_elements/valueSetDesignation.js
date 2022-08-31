@@ -169,6 +169,7 @@ class ValueSetDesignation extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

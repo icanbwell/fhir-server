@@ -690,6 +690,114 @@ class MedicationAdministration extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicationAdministration}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {uri[]|undefined} [instantiates],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [context],
+     * @param {Reference[]|undefined} [supportingInformation],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {MedicationAdministrationPerformer[]|undefined} [performer],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference|undefined} [request],
+     * @param {Reference[]|undefined} [device],
+     * @param {Annotation[]|undefined} [note],
+     * @param {MedicationAdministrationDosage|undefined} [dosage],
+     * @param {Reference[]|undefined} [eventHistory],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiates,
+            partOf,
+            status,
+            statusReason,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            supportingInformation,
+            effectiveDateTime,
+            effectivePeriod,
+            performer,
+            reasonCode,
+            reasonReference,
+            request,
+            device,
+            note,
+            dosage,
+            eventHistory,
+        }
+    ) {
+        return new MedicationAdministration({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiates,
+            partOf,
+            status,
+            statusReason,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            supportingInformation,
+            effectiveDateTime,
+            effectivePeriod,
+            performer,
+            reasonCode,
+            reasonReference,
+            request,
+            device,
+            note,
+            dosage,
+            eventHistory,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicationAdministration}
+    */
+    copy() {
+        return new MedicationAdministration(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

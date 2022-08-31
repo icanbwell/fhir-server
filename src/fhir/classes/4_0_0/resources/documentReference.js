@@ -586,6 +586,99 @@ class DocumentReference extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DocumentReference}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [masterIdentifier],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code|undefined} [docStatus],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {Reference|undefined} [subject],
+     * @param {instant|undefined} [date],
+     * @param {Reference[]|undefined} [author],
+     * @param {Reference|undefined} [authenticator],
+     * @param {Reference|undefined} [custodian],
+     * @param {DocumentReferenceRelatesTo[]|undefined} [relatesTo],
+     * @param {String|undefined} [description],
+     * @param {CodeableConcept[]|undefined} [securityLabel],
+     * @param {DocumentReferenceContent[]} content,
+     * @param {DocumentReferenceContext|undefined} [context],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            masterIdentifier,
+            identifier,
+            status,
+            docStatus,
+            type,
+            category,
+            subject,
+            date,
+            author,
+            authenticator,
+            custodian,
+            relatesTo,
+            description,
+            securityLabel,
+            content,
+            context,
+        }
+    ) {
+        return new DocumentReference({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            masterIdentifier,
+            identifier,
+            status,
+            docStatus,
+            type,
+            category,
+            subject,
+            date,
+            author,
+            authenticator,
+            custodian,
+            relatesTo,
+            description,
+            securityLabel,
+            content,
+            context,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DocumentReference}
+    */
+    copy() {
+        return new DocumentReference(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

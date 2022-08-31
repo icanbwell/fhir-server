@@ -799,6 +799,129 @@ class OperationDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {OperationDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri|undefined} [url],
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {code} kind,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [purpose],
+     * @param {Boolean|undefined} [affectsState],
+     * @param {code} code,
+     * @param {markdown|undefined} [comment],
+     * @param {canonical|undefined} [base],
+     * @param {code[]|undefined} [resource],
+     * @param {Boolean} system,
+     * @param {Boolean} type,
+     * @param {Boolean} instance,
+     * @param {canonical|undefined} [inputProfile],
+     * @param {canonical|undefined} [outputProfile],
+     * @param {OperationDefinitionParameter[]|undefined} [parameter],
+     * @param {OperationDefinitionOverload[]|undefined} [overload],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            kind,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            affectsState,
+            code,
+            comment,
+            base,
+            resource,
+            system,
+            type,
+            instance,
+            inputProfile,
+            outputProfile,
+            parameter,
+            overload,
+        }
+    ) {
+        return new OperationDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            kind,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            purpose,
+            affectsState,
+            code,
+            comment,
+            base,
+            resource,
+            system,
+            type,
+            instance,
+            inputProfile,
+            outputProfile,
+            parameter,
+            overload,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {OperationDefinition}
+    */
+    copy() {
+        return new OperationDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -270,6 +270,7 @@ class ValueSetParameter extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

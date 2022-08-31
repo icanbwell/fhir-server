@@ -496,6 +496,87 @@ class MessageHeader extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MessageHeader}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Coding|undefined} [eventCoding],
+     * @param {uri|undefined} [eventUri],
+     * @param {MessageHeaderDestination[]|undefined} [destination],
+     * @param {Reference|undefined} [sender],
+     * @param {Reference|undefined} [enterer],
+     * @param {Reference|undefined} [author],
+     * @param {MessageHeaderSource} source,
+     * @param {Reference|undefined} [responsible],
+     * @param {CodeableConcept|undefined} [reason],
+     * @param {MessageHeaderResponse|undefined} [response],
+     * @param {Reference[]|undefined} [focus],
+     * @param {canonical|undefined} [definition],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            eventCoding,
+            eventUri,
+            destination,
+            sender,
+            enterer,
+            author,
+            source,
+            responsible,
+            reason,
+            response,
+            focus,
+            definition,
+        }
+    ) {
+        return new MessageHeader({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            eventCoding,
+            eventUri,
+            destination,
+            sender,
+            enterer,
+            author,
+            source,
+            responsible,
+            reason,
+            response,
+            focus,
+            definition,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MessageHeader}
+    */
+    copy() {
+        return new MessageHeader(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

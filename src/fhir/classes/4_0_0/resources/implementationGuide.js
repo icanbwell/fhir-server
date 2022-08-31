@@ -684,6 +684,111 @@ class ImplementationGuide extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ImplementationGuide}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {String|undefined} [title],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [copyright],
+     * @param {id} packageId,
+     * @param {code|undefined} [license],
+     * @param {code[]} fhirVersion,
+     * @param {ImplementationGuideDependsOn[]|undefined} [dependsOn],
+     * @param {ImplementationGuideGlobal[]|undefined} [global],
+     * @param {ImplementationGuideDefinition|undefined} [definition],
+     * @param {ImplementationGuideManifest|undefined} [manifest],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            copyright,
+            packageId,
+            license,
+            fhirVersion,
+            dependsOn,
+            global,
+            definition,
+            manifest,
+        }
+    ) {
+        return new ImplementationGuide({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            title,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            copyright,
+            packageId,
+            license,
+            fhirVersion,
+            dependsOn,
+            global,
+            definition,
+            manifest,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ImplementationGuide}
+    */
+    copy() {
+        return new ImplementationGuide(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

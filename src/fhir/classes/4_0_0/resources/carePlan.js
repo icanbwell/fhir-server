@@ -730,6 +730,120 @@ class CarePlan extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CarePlan}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {canonical[]|undefined} [instantiatesCanonical],
+     * @param {uri[]|undefined} [instantiatesUri],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [replaces],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {code} intent,
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {String|undefined} [title],
+     * @param {String|undefined} [description],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {Period|undefined} [period],
+     * @param {dateTime|undefined} [created],
+     * @param {Reference|undefined} [author],
+     * @param {Reference[]|undefined} [contributor],
+     * @param {Reference[]|undefined} [careTeam],
+     * @param {Reference[]|undefined} [addresses],
+     * @param {Reference[]|undefined} [supportingInfo],
+     * @param {Reference[]|undefined} [goal],
+     * @param {CarePlanActivity[]|undefined} [activity],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            replaces,
+            partOf,
+            status,
+            intent,
+            category,
+            title,
+            description,
+            subject,
+            encounter,
+            period,
+            created,
+            author,
+            contributor,
+            careTeam,
+            addresses,
+            supportingInfo,
+            goal,
+            activity,
+            note,
+        }
+    ) {
+        return new CarePlan({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            instantiatesCanonical,
+            instantiatesUri,
+            basedOn,
+            replaces,
+            partOf,
+            status,
+            intent,
+            category,
+            title,
+            description,
+            subject,
+            encounter,
+            period,
+            created,
+            author,
+            contributor,
+            careTeam,
+            addresses,
+            supportingInfo,
+            goal,
+            activity,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CarePlan}
+    */
+    copy() {
+        return new CarePlan(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

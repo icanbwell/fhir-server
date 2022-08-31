@@ -160,14 +160,20 @@ class PatchOperation {
                 throw new BadRequestError(e);
             }
             // Save to history
-
-            // Insert our resource record to history but don't assign _id
+            /**
+             * @type {Resource}
+             */
+            const historyResource = this.resourceDuplicator.duplicateResource(
+                {
+                    base_version,
+                    resource: doc
+                });
             try {
                 await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version, useAtlas
                     }
-                ).insertHistoryForResourceAsync({doc: resource});
+                ).insertHistoryForResourceAsync({doc: historyResource});
             } catch (e) {
                 throw new BadRequestError(e);
             }

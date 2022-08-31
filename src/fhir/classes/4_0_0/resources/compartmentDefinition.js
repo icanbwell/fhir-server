@@ -543,6 +543,93 @@ class CompartmentDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CompartmentDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {String|undefined} [version],
+     * @param {String} name,
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {markdown|undefined} [purpose],
+     * @param {code} code,
+     * @param {Boolean} search,
+     * @param {CompartmentDefinitionResource[]|undefined} [resource],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            purpose,
+            code,
+            search,
+            resource,
+        }
+    ) {
+        return new CompartmentDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            version,
+            name,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            purpose,
+            code,
+            search,
+            resource,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CompartmentDefinition}
+    */
+    copy() {
+        return new CompartmentDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

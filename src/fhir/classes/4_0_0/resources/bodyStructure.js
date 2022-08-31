@@ -403,6 +403,75 @@ class BodyStructure extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {BodyStructure}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {CodeableConcept|undefined} [morphology],
+     * @param {CodeableConcept|undefined} [location],
+     * @param {CodeableConcept[]|undefined} [locationQualifier],
+     * @param {String|undefined} [description],
+     * @param {Attachment[]|undefined} [image],
+     * @param {Reference} patient,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            morphology,
+            location,
+            locationQualifier,
+            description,
+            image,
+            patient,
+        }
+    ) {
+        return new BodyStructure({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            morphology,
+            location,
+            locationQualifier,
+            description,
+            image,
+            patient,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {BodyStructure}
+    */
+    copy() {
+        return new BodyStructure(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

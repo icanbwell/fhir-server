@@ -423,6 +423,78 @@ class MedicinalProductIndication extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductIndication}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [subject],
+     * @param {CodeableConcept|undefined} [diseaseSymptomProcedure],
+     * @param {CodeableConcept|undefined} [diseaseStatus],
+     * @param {CodeableConcept[]|undefined} [comorbidity],
+     * @param {CodeableConcept|undefined} [intendedEffect],
+     * @param {Quantity|undefined} [duration],
+     * @param {MedicinalProductIndicationOtherTherapy[]|undefined} [otherTherapy],
+     * @param {Reference[]|undefined} [undesirableEffect],
+     * @param {Population[]|undefined} [population],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            diseaseSymptomProcedure,
+            diseaseStatus,
+            comorbidity,
+            intendedEffect,
+            duration,
+            otherTherapy,
+            undesirableEffect,
+            population,
+        }
+    ) {
+        return new MedicinalProductIndication({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            diseaseSymptomProcedure,
+            diseaseStatus,
+            comorbidity,
+            intendedEffect,
+            duration,
+            otherTherapy,
+            undesirableEffect,
+            population,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductIndication}
+    */
+    copy() {
+        return new MedicinalProductIndication(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

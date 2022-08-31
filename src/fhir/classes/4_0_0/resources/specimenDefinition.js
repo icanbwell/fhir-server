@@ -358,6 +358,69 @@ class SpecimenDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SpecimenDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier|undefined} [identifier],
+     * @param {CodeableConcept|undefined} [typeCollected],
+     * @param {CodeableConcept[]|undefined} [patientPreparation],
+     * @param {String|undefined} [timeAspect],
+     * @param {CodeableConcept[]|undefined} [collection],
+     * @param {SpecimenDefinitionTypeTested[]|undefined} [typeTested],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            typeCollected,
+            patientPreparation,
+            timeAspect,
+            collection,
+            typeTested,
+        }
+    ) {
+        return new SpecimenDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            typeCollected,
+            patientPreparation,
+            timeAspect,
+            collection,
+            typeTested,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SpecimenDefinition}
+    */
+    copy() {
+        return new SpecimenDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

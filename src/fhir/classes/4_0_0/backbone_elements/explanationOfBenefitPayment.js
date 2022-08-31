@@ -233,6 +233,7 @@ class ExplanationOfBenefitPayment extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

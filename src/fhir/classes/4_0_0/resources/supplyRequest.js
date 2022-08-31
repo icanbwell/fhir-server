@@ -613,6 +613,105 @@ class SupplyRequest extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {SupplyRequest}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {code|undefined} [priority],
+     * @param {CodeableConcept|undefined} [itemCodeableConcept],
+     * @param {Reference|undefined} [itemReference],
+     * @param {Quantity} quantity,
+     * @param {SupplyRequestParameter[]|undefined} [parameter],
+     * @param {dateTime|undefined} [occurrenceDateTime],
+     * @param {Period|undefined} [occurrencePeriod],
+     * @param {Timing|undefined} [occurrenceTiming],
+     * @param {dateTime|undefined} [authoredOn],
+     * @param {Reference|undefined} [requester],
+     * @param {Reference[]|undefined} [supplier],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference|undefined} [deliverFrom],
+     * @param {Reference|undefined} [deliverTo],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            priority,
+            itemCodeableConcept,
+            itemReference,
+            quantity,
+            parameter,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            authoredOn,
+            requester,
+            supplier,
+            reasonCode,
+            reasonReference,
+            deliverFrom,
+            deliverTo,
+        }
+    ) {
+        return new SupplyRequest({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            priority,
+            itemCodeableConcept,
+            itemReference,
+            quantity,
+            parameter,
+            occurrenceDateTime,
+            occurrencePeriod,
+            occurrenceTiming,
+            authoredOn,
+            requester,
+            supplier,
+            reasonCode,
+            reasonReference,
+            deliverFrom,
+            deliverTo,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {SupplyRequest}
+    */
+    copy() {
+        return new SupplyRequest(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

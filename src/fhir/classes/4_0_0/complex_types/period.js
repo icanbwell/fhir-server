@@ -117,6 +117,7 @@ class Period extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

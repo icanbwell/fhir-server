@@ -616,6 +616,105 @@ class Patient extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Patient}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {HumanName[]|undefined} [name],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {code|undefined} [gender],
+     * @param {date|undefined} [birthDate],
+     * @param {Boolean|undefined} [deceasedBoolean],
+     * @param {dateTime|undefined} [deceasedDateTime],
+     * @param {Address[]|undefined} [address],
+     * @param {CodeableConcept|undefined} [maritalStatus],
+     * @param {Boolean|undefined} [multipleBirthBoolean],
+     * @param {Int|undefined} [multipleBirthInteger],
+     * @param {Attachment[]|undefined} [photo],
+     * @param {PatientContact[]|undefined} [contact],
+     * @param {PatientCommunication[]|undefined} [communication],
+     * @param {Reference[]|undefined} [generalPractitioner],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {PatientLink[]|undefined} [link],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            deceasedBoolean,
+            deceasedDateTime,
+            address,
+            maritalStatus,
+            multipleBirthBoolean,
+            multipleBirthInteger,
+            photo,
+            contact,
+            communication,
+            generalPractitioner,
+            managingOrganization,
+            link,
+        }
+    ) {
+        return new Patient({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            name,
+            telecom,
+            gender,
+            birthDate,
+            deceasedBoolean,
+            deceasedDateTime,
+            address,
+            maritalStatus,
+            multipleBirthBoolean,
+            multipleBirthInteger,
+            photo,
+            contact,
+            communication,
+            generalPractitioner,
+            managingOrganization,
+            link,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Patient}
+    */
+    copy() {
+        return new Patient(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

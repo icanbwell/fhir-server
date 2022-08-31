@@ -527,6 +527,93 @@ class VerificationResult extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {VerificationResult}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [target],
+     * @param {String[]|undefined} [targetLocation],
+     * @param {CodeableConcept|undefined} [need],
+     * @param {code} status,
+     * @param {dateTime|undefined} [statusDate],
+     * @param {CodeableConcept|undefined} [validationType],
+     * @param {CodeableConcept[]|undefined} [validationProcess],
+     * @param {Timing|undefined} [frequency],
+     * @param {dateTime|undefined} [lastPerformed],
+     * @param {date|undefined} [nextScheduled],
+     * @param {CodeableConcept|undefined} [failureAction],
+     * @param {VerificationResultPrimarySource[]|undefined} [primarySource],
+     * @param {VerificationResultAttestation|undefined} [attestation],
+     * @param {VerificationResultValidator[]|undefined} [validator],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            target,
+            targetLocation,
+            need,
+            status,
+            statusDate,
+            validationType,
+            validationProcess,
+            frequency,
+            lastPerformed,
+            nextScheduled,
+            failureAction,
+            primarySource,
+            attestation,
+            validator,
+        }
+    ) {
+        return new VerificationResult({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            target,
+            targetLocation,
+            need,
+            status,
+            statusDate,
+            validationType,
+            validationProcess,
+            frequency,
+            lastPerformed,
+            nextScheduled,
+            failureAction,
+            primarySource,
+            attestation,
+            validator,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {VerificationResult}
+    */
+    copy() {
+        return new VerificationResult(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -146,6 +146,7 @@ class HealthcareServiceEligibility extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

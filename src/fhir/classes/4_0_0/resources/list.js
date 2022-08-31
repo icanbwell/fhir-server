@@ -508,6 +508,90 @@ class List extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {List}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code} mode,
+     * @param {String|undefined} [title],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [date],
+     * @param {Reference|undefined} [source],
+     * @param {CodeableConcept|undefined} [orderedBy],
+     * @param {Annotation[]|undefined} [note],
+     * @param {ListEntry[]|undefined} [entry],
+     * @param {CodeableConcept|undefined} [emptyReason],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            mode,
+            title,
+            code,
+            subject,
+            encounter,
+            date,
+            source,
+            orderedBy,
+            note,
+            entry,
+            emptyReason,
+        }
+    ) {
+        return new List({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            mode,
+            title,
+            code,
+            subject,
+            encounter,
+            date,
+            source,
+            orderedBy,
+            note,
+            entry,
+            emptyReason,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {List}
+    */
+    copy() {
+        return new List(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -384,6 +384,72 @@ class Subscription extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Subscription}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {code} status,
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {instant|undefined} [end],
+     * @param {String} reason,
+     * @param {String} criteria,
+     * @param {String|undefined} [error],
+     * @param {SubscriptionChannel} channel,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            status,
+            contact,
+            end,
+            reason,
+            criteria,
+            error,
+            channel,
+        }
+    ) {
+        return new Subscription({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            status,
+            contact,
+            end,
+            reason,
+            criteria,
+            error,
+            channel,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Subscription}
+    */
+    copy() {
+        return new Subscription(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

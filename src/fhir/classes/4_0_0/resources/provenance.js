@@ -477,6 +477,84 @@ class Provenance extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Provenance}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]} target,
+     * @param {Period|undefined} [occurredPeriod],
+     * @param {dateTime|undefined} [occurredDateTime],
+     * @param {instant} recorded,
+     * @param {uri[]|undefined} [policy],
+     * @param {Reference|undefined} [location],
+     * @param {CodeableConcept[]|undefined} [reason],
+     * @param {CodeableConcept|undefined} [activity],
+     * @param {ProvenanceAgent[]} agent,
+     * @param {ProvenanceEntity[]|undefined} [entity],
+     * @param {Signature[]|undefined} [signature],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            target,
+            occurredPeriod,
+            occurredDateTime,
+            recorded,
+            policy,
+            location,
+            reason,
+            activity,
+            agent,
+            entity,
+            signature,
+        }
+    ) {
+        return new Provenance({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            target,
+            occurredPeriod,
+            occurredDateTime,
+            recorded,
+            policy,
+            location,
+            reason,
+            activity,
+            agent,
+            entity,
+            signature,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Provenance}
+    */
+    copy() {
+        return new Provenance(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

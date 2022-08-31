@@ -381,6 +381,72 @@ class Substance extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Substance}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept} code,
+     * @param {String|undefined} [description],
+     * @param {SubstanceInstance[]|undefined} [instance],
+     * @param {SubstanceIngredient[]|undefined} [ingredient],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            code,
+            description,
+            instance,
+            ingredient,
+        }
+    ) {
+        return new Substance({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            code,
+            description,
+            instance,
+            ingredient,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Substance}
+    */
+    copy() {
+        return new Substance(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

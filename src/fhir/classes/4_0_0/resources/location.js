@@ -598,6 +598,102 @@ class Location extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Location}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {Coding|undefined} [operationalStatus],
+     * @param {String|undefined} [name],
+     * @param {String[]|undefined} [alias],
+     * @param {String|undefined} [description],
+     * @param {code|undefined} [mode],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address|undefined} [address],
+     * @param {CodeableConcept|undefined} [physicalType],
+     * @param {LocationPosition|undefined} [position],
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {Reference|undefined} [partOf],
+     * @param {LocationHoursOfOperation[]|undefined} [hoursOfOperation],
+     * @param {String|undefined} [availabilityExceptions],
+     * @param {Reference[]|undefined} [endpoint],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            operationalStatus,
+            name,
+            alias,
+            description,
+            mode,
+            type,
+            telecom,
+            address,
+            physicalType,
+            position,
+            managingOrganization,
+            partOf,
+            hoursOfOperation,
+            availabilityExceptions,
+            endpoint,
+        }
+    ) {
+        return new Location({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            operationalStatus,
+            name,
+            alias,
+            description,
+            mode,
+            type,
+            telecom,
+            address,
+            physicalType,
+            position,
+            managingOrganization,
+            partOf,
+            hoursOfOperation,
+            availabilityExceptions,
+            endpoint,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Location}
+    */
+    copy() {
+        return new Location(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

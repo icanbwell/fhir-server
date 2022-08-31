@@ -662,6 +662,108 @@ class MedicationStatement extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicationStatement}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference[]|undefined} [partOf],
+     * @param {code} status,
+     * @param {CodeableConcept[]|undefined} [statusReason],
+     * @param {CodeableConcept|undefined} [category],
+     * @param {CodeableConcept|undefined} [medicationCodeableConcept],
+     * @param {Reference|undefined} [medicationReference],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [context],
+     * @param {dateTime|undefined} [effectiveDateTime],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {dateTime|undefined} [dateAsserted],
+     * @param {Reference|undefined} [informationSource],
+     * @param {Reference[]|undefined} [derivedFrom],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Dosage[]|undefined} [dosage],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            statusReason,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            effectiveDateTime,
+            effectivePeriod,
+            dateAsserted,
+            informationSource,
+            derivedFrom,
+            reasonCode,
+            reasonReference,
+            note,
+            dosage,
+        }
+    ) {
+        return new MedicationStatement({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            basedOn,
+            partOf,
+            status,
+            statusReason,
+            category,
+            medicationCodeableConcept,
+            medicationReference,
+            subject,
+            context,
+            effectiveDateTime,
+            effectivePeriod,
+            dateAsserted,
+            informationSource,
+            derivedFrom,
+            reasonCode,
+            reasonReference,
+            note,
+            dosage,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicationStatement}
+    */
+    copy() {
+        return new MedicationStatement(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -571,6 +571,99 @@ class CoverageEligibilityResponse extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CoverageEligibilityResponse}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {code[]} purpose,
+     * @param {Reference} patient,
+     * @param {date|undefined} [servicedDate],
+     * @param {Period|undefined} [servicedPeriod],
+     * @param {dateTime} created,
+     * @param {Reference|undefined} [requestor],
+     * @param {Reference} request,
+     * @param {code} outcome,
+     * @param {String|undefined} [disposition],
+     * @param {Reference} insurer,
+     * @param {CoverageEligibilityResponseInsurance[]|undefined} [insurance],
+     * @param {String|undefined} [preAuthRef],
+     * @param {CodeableConcept|undefined} [form],
+     * @param {CoverageEligibilityResponseError[]|undefined} [error],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            purpose,
+            patient,
+            servicedDate,
+            servicedPeriod,
+            created,
+            requestor,
+            request,
+            outcome,
+            disposition,
+            insurer,
+            insurance,
+            preAuthRef,
+            form,
+            error,
+        }
+    ) {
+        return new CoverageEligibilityResponse({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            purpose,
+            patient,
+            servicedDate,
+            servicedPeriod,
+            created,
+            requestor,
+            request,
+            outcome,
+            disposition,
+            insurer,
+            insurance,
+            preAuthRef,
+            form,
+            error,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CoverageEligibilityResponse}
+    */
+    copy() {
+        return new CoverageEligibilityResponse(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

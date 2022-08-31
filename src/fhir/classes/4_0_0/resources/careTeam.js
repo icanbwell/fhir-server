@@ -512,6 +512,90 @@ class CareTeam extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {CareTeam}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code|undefined} [status],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {String|undefined} [name],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference|undefined} [encounter],
+     * @param {Period|undefined} [period],
+     * @param {CareTeamParticipant[]|undefined} [participant],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Reference[]|undefined} [managingOrganization],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Annotation[]|undefined} [note],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            name,
+            subject,
+            encounter,
+            period,
+            participant,
+            reasonCode,
+            reasonReference,
+            managingOrganization,
+            telecom,
+            note,
+        }
+    ) {
+        return new CareTeam({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            category,
+            name,
+            subject,
+            encounter,
+            period,
+            participant,
+            reasonCode,
+            reasonReference,
+            managingOrganization,
+            telecom,
+            note,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {CareTeam}
+    */
+    copy() {
+        return new CareTeam(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

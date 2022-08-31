@@ -446,6 +446,81 @@ class Organization extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Organization}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {String|undefined} [name],
+     * @param {String[]|undefined} [alias],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Address[]|undefined} [address],
+     * @param {Reference|undefined} [partOf],
+     * @param {OrganizationContact[]|undefined} [contact],
+     * @param {Reference[]|undefined} [endpoint],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            type,
+            name,
+            alias,
+            telecom,
+            address,
+            partOf,
+            contact,
+            endpoint,
+        }
+    ) {
+        return new Organization({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            type,
+            name,
+            alias,
+            telecom,
+            address,
+            partOf,
+            contact,
+            endpoint,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Organization}
+    */
+    copy() {
+        return new Organization(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

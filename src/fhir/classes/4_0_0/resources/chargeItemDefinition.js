@@ -748,6 +748,120 @@ class ChargeItemDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ChargeItemDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {uri} url,
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {String|undefined} [version],
+     * @param {String|undefined} [title],
+     * @param {uri[]|undefined} [derivedFromUri],
+     * @param {canonical[]|undefined} [partOf],
+     * @param {canonical[]|undefined} [replaces],
+     * @param {code} status,
+     * @param {Boolean|undefined} [experimental],
+     * @param {dateTime|undefined} [date],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {markdown|undefined} [copyright],
+     * @param {date|undefined} [approvalDate],
+     * @param {date|undefined} [lastReviewDate],
+     * @param {Period|undefined} [effectivePeriod],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {Reference[]|undefined} [instance],
+     * @param {ChargeItemDefinitionApplicability[]|undefined} [applicability],
+     * @param {ChargeItemDefinitionPropertyGroup[]|undefined} [propertyGroup],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            title,
+            derivedFromUri,
+            partOf,
+            replaces,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            code,
+            instance,
+            applicability,
+            propertyGroup,
+        }
+    ) {
+        return new ChargeItemDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            url,
+            identifier,
+            version,
+            title,
+            derivedFromUri,
+            partOf,
+            replaces,
+            status,
+            experimental,
+            date,
+            publisher,
+            contact,
+            description,
+            useContext,
+            jurisdiction,
+            copyright,
+            approvalDate,
+            lastReviewDate,
+            effectivePeriod,
+            code,
+            instance,
+            applicability,
+            propertyGroup,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ChargeItemDefinition}
+    */
+    copy() {
+        return new ChargeItemDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

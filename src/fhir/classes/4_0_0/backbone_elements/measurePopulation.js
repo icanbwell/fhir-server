@@ -168,6 +168,7 @@ class MeasurePopulation extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

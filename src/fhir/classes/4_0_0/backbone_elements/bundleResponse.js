@@ -211,6 +211,7 @@ class BundleResponse extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

@@ -127,6 +127,7 @@ class TestScriptAction2 extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

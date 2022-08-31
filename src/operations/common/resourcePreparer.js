@@ -19,12 +19,11 @@ class ResourcePreparer {
     /**
      * handles selection of specific elements
      * @param {Object} args
-     * @param {function(?Object): Resource} Resource
      * @param {Resource} element
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements(args, Resource, element, resourceType) {
+    selectSpecificElements({args, element, resourceType}) {
         /**
          * @type {string}
          */
@@ -36,7 +35,7 @@ class ResourcePreparer {
         /**
          * @type {Resource}
          */
-        const element_to_return = new Resource(null);
+        const element_to_return = element.create({});
         /**
          * @type {string}
          */
@@ -58,14 +57,15 @@ class ResourcePreparer {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object} args
-     * @param {function(?Object): Resource} ResourceCreator
      * @param {Resource} element
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync(user, scope, args,
-                               ResourceCreator, element, resourceType, useAccessIndex) {
+    async prepareResourceAsync({
+                                   user, scope, args,
+                                   element, resourceType, useAccessIndex
+                               }) {
         let resources = [];
         if (args['_elements']) {
             if (!useAccessIndex || !resourceHasAccessIndex(resourceType)) {
@@ -74,12 +74,15 @@ class ResourcePreparer {
                     return [];
                 }
             }
-
+            /**
+             * @type {Resource}
+             */
             const element_to_return = this.selectSpecificElements(
-                args,
-                ResourceCreator,
-                element,
-                resourceType
+                {
+                    args,
+                    element,
+                    resourceType
+                }
             );
             resources.push(element_to_return);
         } else {
@@ -88,13 +91,9 @@ class ResourcePreparer {
                 return [];
             }
             /**
-             * @type  {Resource}
-             */
-            const resource = new ResourceCreator(element);
-            /**
              * @type {Resource[]}
              */
-            const enrichedResources = await enrich([resource], resourceType);
+            const enrichedResources = await enrich([element], resourceType);
             resources = resources.concat(enrichedResources);
         }
         return resources;

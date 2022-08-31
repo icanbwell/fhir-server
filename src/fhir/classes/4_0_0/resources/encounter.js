@@ -743,6 +743,120 @@ class Encounter extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {Encounter}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {EncounterStatusHistory[]|undefined} [statusHistory],
+     * @param {Coding} class_,
+     * @param {EncounterClassHistory[]|undefined} [classHistory],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {CodeableConcept|undefined} [serviceType],
+     * @param {CodeableConcept|undefined} [priority],
+     * @param {Reference|undefined} [subject],
+     * @param {Reference[]|undefined} [episodeOfCare],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {EncounterParticipant[]|undefined} [participant],
+     * @param {Reference[]|undefined} [appointment],
+     * @param {Period|undefined} [period],
+     * @param {Quantity|undefined} [length],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {EncounterDiagnosis[]|undefined} [diagnosis],
+     * @param {Reference[]|undefined} [account],
+     * @param {EncounterHospitalization|undefined} [hospitalization],
+     * @param {EncounterLocation[]|undefined} [location],
+     * @param {Reference|undefined} [serviceProvider],
+     * @param {Reference|undefined} [partOf],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusHistory,
+            'class': class_,
+            classHistory,
+            type,
+            serviceType,
+            priority,
+            subject,
+            episodeOfCare,
+            basedOn,
+            participant,
+            appointment,
+            period,
+            length,
+            reasonCode,
+            reasonReference,
+            diagnosis,
+            account,
+            hospitalization,
+            location,
+            serviceProvider,
+            partOf,
+        }
+    ) {
+        return new Encounter({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusHistory,
+            'class': class_,
+            classHistory,
+            type,
+            serviceType,
+            priority,
+            subject,
+            episodeOfCare,
+            basedOn,
+            participant,
+            appointment,
+            period,
+            length,
+            reasonCode,
+            reasonReference,
+            diagnosis,
+            account,
+            hospitalization,
+            location,
+            serviceProvider,
+            partOf,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {Encounter}
+    */
+    copy() {
+        return new Encounter(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

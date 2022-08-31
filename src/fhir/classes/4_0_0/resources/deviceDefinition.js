@@ -724,6 +724,120 @@ class DeviceDefinition extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {DeviceDefinition}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {DeviceDefinitionUdiDeviceIdentifier[]|undefined} [udiDeviceIdentifier],
+     * @param {String|undefined} [manufacturerString],
+     * @param {Reference|undefined} [manufacturerReference],
+     * @param {DeviceDefinitionDeviceName[]|undefined} [deviceName],
+     * @param {String|undefined} [modelNumber],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {DeviceDefinitionSpecialization[]|undefined} [specialization],
+     * @param {String[]|undefined} [version],
+     * @param {CodeableConcept[]|undefined} [safety],
+     * @param {ProductShelfLife[]|undefined} [shelfLifeStorage],
+     * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
+     * @param {CodeableConcept[]|undefined} [languageCode],
+     * @param {DeviceDefinitionCapability[]|undefined} [capability],
+     * @param {DeviceDefinitionProperty[]|undefined} [property],
+     * @param {Reference|undefined} [owner],
+     * @param {ContactPoint[]|undefined} [contact],
+     * @param {uri|undefined} [url],
+     * @param {uri|undefined} [onlineInformation],
+     * @param {Annotation[]|undefined} [note],
+     * @param {Quantity|undefined} [quantity],
+     * @param {Reference|undefined} [parentDevice],
+     * @param {DeviceDefinitionMaterial[]|undefined} [material],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            udiDeviceIdentifier,
+            manufacturerString,
+            manufacturerReference,
+            deviceName,
+            modelNumber,
+            type,
+            specialization,
+            version,
+            safety,
+            shelfLifeStorage,
+            physicalCharacteristics,
+            languageCode,
+            capability,
+            property,
+            owner,
+            contact,
+            url,
+            onlineInformation,
+            note,
+            quantity,
+            parentDevice,
+            material,
+        }
+    ) {
+        return new DeviceDefinition({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            udiDeviceIdentifier,
+            manufacturerString,
+            manufacturerReference,
+            deviceName,
+            modelNumber,
+            type,
+            specialization,
+            version,
+            safety,
+            shelfLifeStorage,
+            physicalCharacteristics,
+            languageCode,
+            capability,
+            property,
+            owner,
+            contact,
+            url,
+            onlineInformation,
+            note,
+            quantity,
+            parentDevice,
+            material,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {DeviceDefinition}
+    */
+    copy() {
+        return new DeviceDefinition(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

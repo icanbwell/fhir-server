@@ -176,6 +176,7 @@ class CompositionRelatesTo extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

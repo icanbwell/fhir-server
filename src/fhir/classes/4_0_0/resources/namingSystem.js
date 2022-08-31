@@ -519,6 +519,90 @@ class NamingSystem extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {NamingSystem}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {String} name,
+     * @param {code} status,
+     * @param {code} kind,
+     * @param {dateTime} date,
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
+     * @param {String|undefined} [responsible],
+     * @param {CodeableConcept|undefined} [type],
+     * @param {markdown|undefined} [description],
+     * @param {UsageContext[]|undefined} [useContext],
+     * @param {CodeableConcept[]|undefined} [jurisdiction],
+     * @param {String|undefined} [usage],
+     * @param {NamingSystemUniqueId[]} uniqueId,
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            name,
+            status,
+            kind,
+            date,
+            publisher,
+            contact,
+            responsible,
+            type,
+            description,
+            useContext,
+            jurisdiction,
+            usage,
+            uniqueId,
+        }
+    ) {
+        return new NamingSystem({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            name,
+            status,
+            kind,
+            date,
+            publisher,
+            contact,
+            responsible,
+            type,
+            description,
+            useContext,
+            jurisdiction,
+            usage,
+            uniqueId,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {NamingSystem}
+    */
+    copy() {
+        return new NamingSystem(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

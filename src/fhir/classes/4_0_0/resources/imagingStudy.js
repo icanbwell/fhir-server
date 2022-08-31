@@ -671,6 +671,111 @@ class ImagingStudy extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {ImagingStudy}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {Coding[]|undefined} [modality],
+     * @param {Reference} subject,
+     * @param {Reference|undefined} [encounter],
+     * @param {dateTime|undefined} [started],
+     * @param {Reference[]|undefined} [basedOn],
+     * @param {Reference|undefined} [referrer],
+     * @param {Reference[]|undefined} [interpreter],
+     * @param {Reference[]|undefined} [endpoint],
+     * @param {unsignedInt|undefined} [numberOfSeries],
+     * @param {unsignedInt|undefined} [numberOfInstances],
+     * @param {Reference|undefined} [procedureReference],
+     * @param {CodeableConcept[]|undefined} [procedureCode],
+     * @param {Reference|undefined} [location],
+     * @param {CodeableConcept[]|undefined} [reasonCode],
+     * @param {Reference[]|undefined} [reasonReference],
+     * @param {Annotation[]|undefined} [note],
+     * @param {String|undefined} [description],
+     * @param {ImagingStudySeries[]|undefined} [series],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            modality,
+            subject,
+            encounter,
+            started,
+            basedOn,
+            referrer,
+            interpreter,
+            endpoint,
+            numberOfSeries,
+            numberOfInstances,
+            procedureReference,
+            procedureCode,
+            location,
+            reasonCode,
+            reasonReference,
+            note,
+            description,
+            series,
+        }
+    ) {
+        return new ImagingStudy({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            modality,
+            subject,
+            encounter,
+            started,
+            basedOn,
+            referrer,
+            interpreter,
+            endpoint,
+            numberOfSeries,
+            numberOfInstances,
+            procedureReference,
+            procedureCode,
+            location,
+            reasonCode,
+            reasonReference,
+            note,
+            description,
+            series,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {ImagingStudy}
+    */
+    copy() {
+        return new ImagingStudy(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

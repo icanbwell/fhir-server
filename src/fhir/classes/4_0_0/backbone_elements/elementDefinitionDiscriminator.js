@@ -150,6 +150,7 @@ class ElementDefinitionDiscriminator extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

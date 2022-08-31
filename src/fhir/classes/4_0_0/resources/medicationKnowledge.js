@@ -710,6 +710,117 @@ class MedicationKnowledge extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicationKnowledge}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {CodeableConcept|undefined} [code],
+     * @param {code|undefined} [status],
+     * @param {Reference|undefined} [manufacturer],
+     * @param {CodeableConcept|undefined} [doseForm],
+     * @param {Quantity|undefined} [amount],
+     * @param {String[]|undefined} [synonym],
+     * @param {MedicationKnowledgeRelatedMedicationKnowledge[]|undefined} [relatedMedicationKnowledge],
+     * @param {Reference[]|undefined} [associatedMedication],
+     * @param {CodeableConcept[]|undefined} [productType],
+     * @param {MedicationKnowledgeMonograph[]|undefined} [monograph],
+     * @param {MedicationKnowledgeIngredient[]|undefined} [ingredient],
+     * @param {markdown|undefined} [preparationInstruction],
+     * @param {CodeableConcept[]|undefined} [intendedRoute],
+     * @param {MedicationKnowledgeCost[]|undefined} [cost],
+     * @param {MedicationKnowledgeMonitoringProgram[]|undefined} [monitoringProgram],
+     * @param {MedicationKnowledgeAdministrationGuidelines[]|undefined} [administrationGuidelines],
+     * @param {MedicationKnowledgeMedicineClassification[]|undefined} [medicineClassification],
+     * @param {MedicationKnowledgePackaging|undefined} [packaging],
+     * @param {MedicationKnowledgeDrugCharacteristic[]|undefined} [drugCharacteristic],
+     * @param {Reference[]|undefined} [contraindication],
+     * @param {MedicationKnowledgeRegulatory[]|undefined} [regulatory],
+     * @param {MedicationKnowledgeKinetics[]|undefined} [kinetics],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            code,
+            status,
+            manufacturer,
+            doseForm,
+            amount,
+            synonym,
+            relatedMedicationKnowledge,
+            associatedMedication,
+            productType,
+            monograph,
+            ingredient,
+            preparationInstruction,
+            intendedRoute,
+            cost,
+            monitoringProgram,
+            administrationGuidelines,
+            medicineClassification,
+            packaging,
+            drugCharacteristic,
+            contraindication,
+            regulatory,
+            kinetics,
+        }
+    ) {
+        return new MedicationKnowledge({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            code,
+            status,
+            manufacturer,
+            doseForm,
+            amount,
+            synonym,
+            relatedMedicationKnowledge,
+            associatedMedication,
+            productType,
+            monograph,
+            ingredient,
+            preparationInstruction,
+            intendedRoute,
+            cost,
+            monitoringProgram,
+            administrationGuidelines,
+            medicineClassification,
+            packaging,
+            drugCharacteristic,
+            contraindication,
+            regulatory,
+            kinetics,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicationKnowledge}
+    */
+    copy() {
+        return new MedicationKnowledge(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

@@ -147,6 +147,7 @@ class TestReportAction extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

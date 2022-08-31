@@ -388,6 +388,7 @@ class ExplanationOfBenefitSubDetail extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

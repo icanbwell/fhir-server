@@ -751,6 +751,123 @@ class HealthcareService extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {HealthcareService}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {Boolean|undefined} [active],
+     * @param {Reference|undefined} [providedBy],
+     * @param {CodeableConcept[]|undefined} [category],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {CodeableConcept[]|undefined} [specialty],
+     * @param {Reference[]|undefined} [location],
+     * @param {String|undefined} [name],
+     * @param {String|undefined} [comment],
+     * @param {markdown|undefined} [extraDetails],
+     * @param {Attachment|undefined} [photo],
+     * @param {ContactPoint[]|undefined} [telecom],
+     * @param {Reference[]|undefined} [coverageArea],
+     * @param {CodeableConcept[]|undefined} [serviceProvisionCode],
+     * @param {HealthcareServiceEligibility[]|undefined} [eligibility],
+     * @param {CodeableConcept[]|undefined} [program],
+     * @param {CodeableConcept[]|undefined} [characteristic],
+     * @param {CodeableConcept[]|undefined} [communication],
+     * @param {CodeableConcept[]|undefined} [referralMethod],
+     * @param {Boolean|undefined} [appointmentRequired],
+     * @param {HealthcareServiceAvailableTime[]|undefined} [availableTime],
+     * @param {HealthcareServiceNotAvailable[]|undefined} [notAvailable],
+     * @param {String|undefined} [availabilityExceptions],
+     * @param {Reference[]|undefined} [endpoint],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            providedBy,
+            category,
+            type,
+            specialty,
+            location,
+            name,
+            comment,
+            extraDetails,
+            photo,
+            telecom,
+            coverageArea,
+            serviceProvisionCode,
+            eligibility,
+            program,
+            characteristic,
+            communication,
+            referralMethod,
+            appointmentRequired,
+            availableTime,
+            notAvailable,
+            availabilityExceptions,
+            endpoint,
+        }
+    ) {
+        return new HealthcareService({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            active,
+            providedBy,
+            category,
+            type,
+            specialty,
+            location,
+            name,
+            comment,
+            extraDetails,
+            photo,
+            telecom,
+            coverageArea,
+            serviceProvisionCode,
+            eligibility,
+            program,
+            characteristic,
+            communication,
+            referralMethod,
+            appointmentRequired,
+            availableTime,
+            notAvailable,
+            availabilityExceptions,
+            endpoint,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {HealthcareService}
+    */
+    copy() {
+        return new HealthcareService(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

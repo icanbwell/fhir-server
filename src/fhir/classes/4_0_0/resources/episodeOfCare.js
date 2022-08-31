@@ -494,6 +494,87 @@ class EpisodeOfCare extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {EpisodeOfCare}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Identifier[]|undefined} [identifier],
+     * @param {code} status,
+     * @param {EpisodeOfCareStatusHistory[]|undefined} [statusHistory],
+     * @param {CodeableConcept[]|undefined} [type],
+     * @param {EpisodeOfCareDiagnosis[]|undefined} [diagnosis],
+     * @param {Reference} patient,
+     * @param {Reference|undefined} [managingOrganization],
+     * @param {Period|undefined} [period],
+     * @param {Reference[]|undefined} [referralRequest],
+     * @param {Reference|undefined} [careManager],
+     * @param {Reference[]|undefined} [team],
+     * @param {Reference[]|undefined} [account],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusHistory,
+            type,
+            diagnosis,
+            patient,
+            managingOrganization,
+            period,
+            referralRequest,
+            careManager,
+            team,
+            account,
+        }
+    ) {
+        return new EpisodeOfCare({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            identifier,
+            status,
+            statusHistory,
+            type,
+            diagnosis,
+            patient,
+            managingOrganization,
+            period,
+            referralRequest,
+            careManager,
+            team,
+            account,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {EpisodeOfCare}
+    */
+    copy() {
+        return new EpisodeOfCare(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */

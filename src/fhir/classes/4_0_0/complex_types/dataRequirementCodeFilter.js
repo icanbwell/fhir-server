@@ -172,6 +172,7 @@ class DataRequirementCodeFilter extends Element {
     }
 
 
+
     /**
      * Returns JSON representation of entity
      * @return {Object}

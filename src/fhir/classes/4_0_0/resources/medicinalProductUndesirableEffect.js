@@ -338,6 +338,66 @@ class MedicinalProductUndesirableEffect extends Resource {
     }
 
     /**
+     * @description Creates a blank new resource
+     * @returns {MedicinalProductUndesirableEffect}
+     * @param {id|undefined} [id],
+     * @param {Meta|undefined} [meta],
+     * @param {uri|undefined} [implicitRules],
+     * @param {code|undefined} [language],
+     * @param {Narrative|undefined} [text],
+     * @param {ResourceContainer[]|undefined} [contained],
+     * @param {Extension[]|undefined} [extension],
+     * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Reference[]|undefined} [subject],
+     * @param {CodeableConcept|undefined} [symptomConditionEffect],
+     * @param {CodeableConcept|undefined} [classification],
+     * @param {CodeableConcept|undefined} [frequencyOfOccurrence],
+     * @param {Population[]|undefined} [population],
+    */
+    create(
+            {
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            symptomConditionEffect,
+            classification,
+            frequencyOfOccurrence,
+            population,
+        }
+    ) {
+        return new MedicinalProductUndesirableEffect({
+            id,
+            meta,
+            implicitRules,
+            language,
+            text,
+            contained,
+            extension,
+            modifierExtension,
+            subject,
+            symptomConditionEffect,
+            classification,
+            frequencyOfOccurrence,
+            population,
+        });
+    }
+
+    /**
+     * @description creates a copy of this resource
+     * @returns {MedicinalProductUndesirableEffect}
+    */
+    copy() {
+        return new MedicinalProductUndesirableEffect(this.toJSON());
+    }
+
+
+    /**
      * Returns JSON representation of entity
      * @return {Object}
      */
