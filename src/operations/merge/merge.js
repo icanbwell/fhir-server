@@ -17,6 +17,10 @@ const {getResource} = require('../common/getResource');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ResourceCleaner} = require('../common/resourceCleaner');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 
 class MergeOperation {
     /**
@@ -207,7 +211,7 @@ class MergeOperation {
              */
             const scopes = this.scopesManager.parseScopes(scope);
             /**
-             * @type {function(OperationOutcome): Resource}
+             * @type {function(Object): Resource}
              */
             const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
 
@@ -227,19 +231,20 @@ class MergeOperation {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = {
+                    const operationOutcome = new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
-                            {
-                                severity: 'error',
-                                code: 'structure',
-                                details: {
-                                    text: 'Invalid parameter list'
+                            new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'structure',
+                                    details: new CodeableConcept({
+                                        text: 'Invalid parameter list'
+                                    })
                                 }
-                            }
+                            )
                         ]
-                    };
+                    });
                     return new OperationOutcomeResourceCreator(operationOutcome);
                 }
                 // find the actual resource in the parameter called resource
@@ -248,19 +253,19 @@ class MergeOperation {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = {
+                    const operationOutcome = new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
-                            {
+                            new OperationOutcomeIssue({
                                 severity: 'error',
                                 code: 'structure',
-                                details: {
+                                details: new CodeableConcept({
                                     text: 'Invalid parameter list'
-                                }
-                            }
+                                })
+                            })
                         ]
-                    };
+                    });
                     return new OperationOutcomeResourceCreator(operationOutcome);
                 }
                 resourcesIncoming = resourceParameters.map(r => r.resource);
@@ -384,36 +389,44 @@ class MergeOperation {
                  * @type {OperationOutcome[]}
                  */
                 const operationOutcomes = mergeResults.map(m => {
-                        return m.issue ? {
-                            id: m.id,
-                            resourceType: m.resourceType,
-                            issue: m.issue
-                        } : {
+                        return m.issue ? new OperationOutcome({
                             id: m.id,
                             resourceType: m.resourceType,
                             issue: [
-                                {
+                                new OperationOutcomeIssue({
                                     severity: 'information',
                                     code: 'informational',
-                                    details: {
-                                        coding: [
-                                            {
-                                                // https://hl7.org/fhir/http.html#update
-                                                // The server SHALL return either a 200 OK HTTP status code if the
-                                                // resource was updated, or a 201 Created status code if the
-                                                // resource was created
-                                                system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
-                                                code: m.created ? '201' : m.updated ? '200' : '304',
-                                                display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
-                                            }
+                                    details: new CodeableConcept(
+                                        {text: 'OK'}
+                                    )
+                                })]
+                        }) : new OperationOutcome({
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: [
+                                new OperationOutcomeIssue({
+                                        severity: 'information',
+                                        code: 'informational',
+                                        details: new CodeableConcept({
+                                            coding: [
+                                                new Coding({
+                                                    // https://hl7.org/fhir/http.html#update
+                                                    // The server SHALL return either a 200 OK HTTP status code if the
+                                                    // resource was updated, or a 201 Created status code if the
+                                                    // resource was created
+                                                    system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                                    code: m.created ? '201' : m.updated ? '200' : '304',
+                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                                })
+                                            ]
+                                        }),
+                                        expression: [
+                                            `${m.resourceType}/${m.id}`
                                         ]
-                                    },
-                                    expression: [
-                                        `${m.resourceType}/${m.id}`
-                                    ]
-                                }
+                                    }
+                                )
                             ]
-                        };
+                        });
                     }
                 );
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(

@@ -5,6 +5,9 @@ const {getResource} = require('../common/getResource');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {getFirstElementOrNull} = require('../../utils/list.util');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 
 class ValidateOperation {
     /**
@@ -59,7 +62,7 @@ class ValidateOperation {
         let resource_incoming = args.resource ? args.resource : requestInfo.body;
 
         /**
-         * @type {function(OperationOutcome): Resource}
+         * @type {function(Object): Resource}
          */
         const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
 
@@ -73,19 +76,19 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = {
+                const operationOutcome = new OperationOutcome({
                     id: 'validationfail',
                     resourceType: 'OperationOutcome',
                     issue: [
-                        {
+                        new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'structure',
-                            details: {
+                            details: new CodeableConcept({
                                 text: 'Invalid parameter list'
-                            }
-                        }
+                            })
+                        })
                     ]
-                };
+                });
                 return new OperationOutcomeResourceCreator(operationOutcome);
             }
             // find the actual resource in the parameter called resource
@@ -94,19 +97,19 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = {
+                const operationOutcome = new OperationOutcome({
                     id: 'validationfail',
                     resourceType: 'OperationOutcome',
                     issue: [
-                        {
+                        new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'structure',
-                            details: {
+                            details: new CodeableConcept({
                                 text: 'Invalid parameter list'
-                            }
-                        }
+                            })
+                        })
                     ]
-                };
+                });
                 return new OperationOutcomeResourceCreator(operationOutcome);
             }
             resource_incoming = resourceParameter.resource;

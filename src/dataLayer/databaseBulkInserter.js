@@ -339,7 +339,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         mergeResultEntry.issue = new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'exception',
-                            details: {text: mergeResultForResourceType.error.message},
+                            details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
                             diagnostics: diagnostics,
                             expression: [
                                 resourceType + '/' + id

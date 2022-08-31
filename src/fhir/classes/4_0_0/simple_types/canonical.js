@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class canonical extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = canonical;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} canonical
+ */

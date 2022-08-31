@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class xhtml extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = xhtml;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} xhtml
+ */

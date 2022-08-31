@@ -72,7 +72,7 @@ class SearchBundleOperation {
      * @param {Object} args
      * @param {string} resourceType
      * @param {boolean} filter
-     * @return {Promise<{entry:{resource: Resource}[]}>} array of resources or a bundle
+     * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
         requestInfo, args, resourceType,
@@ -280,6 +280,9 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
+            /**
+             * @type {Bundle}
+             */
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',

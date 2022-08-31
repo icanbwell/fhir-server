@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class uuid extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = uuid;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} uuid
+ */

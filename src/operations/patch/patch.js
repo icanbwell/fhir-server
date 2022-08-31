@@ -4,7 +4,6 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
-const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
@@ -146,11 +145,7 @@ class PatchOperation {
             /**
              * @type {Resource}
              */
-            let cleaned = removeNull(resource.toJSON());
-            /**
-             * @type {Resource}
-             */
-            let doc = cleaned;
+            let doc = resource;
 
             // Insert/update our resource record
             let res;
@@ -169,7 +164,7 @@ class PatchOperation {
             /**
              * @type {Resource}
              */
-            let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
+            let history_resource = Object.assign(resource, {_id: id + resource.meta.versionId});
 
             // Insert our resource record to history but don't assign _id
             try {

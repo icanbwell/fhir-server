@@ -11,9 +11,8 @@ const schemasR4 = require('./classes/4_0_0/resources');
  *
  * @param {String} version
  * @param {String} schema
+ * @returns {function(Object): Resource}
  */
-
-
 const resolveSchema = (version = '4_0_0', schema = '') => {
     const lowercaseSchema = schema.toLowerCase();
 

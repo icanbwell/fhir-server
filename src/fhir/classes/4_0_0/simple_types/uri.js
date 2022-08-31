@@ -1,9 +1,5 @@
-const Element = require('./element');
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} uri
+ */
 
-class uri extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = uri;

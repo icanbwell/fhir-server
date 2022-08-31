@@ -5,14 +5,14 @@ const {assertIsValid} = require('../../utils/assertType');
 class FhirBundleWriter extends Transform {
     /**
      * Streams the incoming data inside a FHIR Bundle
-     * @param {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
+     * @param {function (string | null, number): Bundle} fnBundle
      * @param {string | null} url
      * @param {AbortSignal} signal
      */
     constructor({fnBundle, url, signal}) {
         super({objectMode: true});
         /**
-         * @type {function (string | null, number): {entry: {resource: Resource}[]}}
+         * @type {function (string | null, number): Bundle}
          * @private
          */
         this._fnBundle = fnBundle;
@@ -91,7 +91,7 @@ class FhirBundleWriter extends Transform {
             const stopTime = Date.now();
 
             /**
-             * @type {{entry: {resource: Resource}[]}}
+             * @type {Bundle}
              */
             const bundle = this._fnBundle(this._lastid, stopTime);
 

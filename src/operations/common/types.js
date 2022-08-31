@@ -1,8 +1,8 @@
 /**
  * @typedef MergeResultEntry
  * @type {Object}
- * @property {OperationOutcome|null|undefined} operationOutcome
- * @property {OperationOutcomeIssue|null|undefined} issue
+ * @property {OperationOutcome|undefined} [operationOutcome]
+ * @property {OperationOutcomeIssue|undefined} [issue]
  * @property {boolean} created
  * @property {string} id
  * @property {string} resourceType

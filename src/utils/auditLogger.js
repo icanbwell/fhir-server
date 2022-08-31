@@ -6,7 +6,6 @@ const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
 const {getResource} = require('../operations/common/getResource');
 const {generateUUID} = require('./uid.util');
-const {removeNull} = require('./nullRemover');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
 const {PostRequestProcessor} = require('./postRequestProcessor');
@@ -83,7 +82,7 @@ class AuditLogger {
         };
 
         // Get current record
-        let Resource = getResource(base_version, 'AuditEvent');
+        let ResourceCreator = getResource(base_version, 'AuditEvent');
 
         const maxNumberOfIds = env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
         const document = {
@@ -137,13 +136,12 @@ class AuditLogger {
                 };
             })
         };
-        let resource = new Resource(document);
+        let resource = new ResourceCreator(document);
 
         let id = generateUUID();
+        resource.id = id;
 
-        let doc = removeNull(resource.toJSON());
-        Object.assign(doc, {id: id});
-        return doc;
+        return resource;
     }
 
     /**

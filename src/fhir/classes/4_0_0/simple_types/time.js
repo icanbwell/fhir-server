@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class time extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = time;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} time
+ */

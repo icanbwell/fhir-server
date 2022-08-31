@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class markdown extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = markdown;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} markdown
+ */

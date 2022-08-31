@@ -5,7 +5,6 @@ const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const env = require('var');
 const moment = require('moment-timezone');
-const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -235,7 +234,7 @@ class GraphHelper {
 
         while (await cursor.hasNext()) {
             const element = await cursor.next();
-            const relatedResource = removeNull(new RelatedResource(element).toJSON());
+            const relatedResource = new RelatedResource(element);
 
             // create a class to hold information about this resource
             const relatedEntityAndContained = new ResourceEntityAndContained(
@@ -394,7 +393,7 @@ class GraphHelper {
                                 requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
                             }),
                         includeInOutput: true,
-                        resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                        resource: new RelatedResource(relatedResourcePropertyCurrent),
                         containedEntries: []
                     }
                 );
@@ -775,10 +774,12 @@ class GraphHelper {
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
-            result = result.concat([{
-                fullUrl: entityAndContained.fullUrl,
-                resource: entityAndContained.resource
-            }]);
+            result = result.concat([
+                new BundleEntry({
+                    fullUrl: entityAndContained.fullUrl,
+                    resource: entityAndContained.resource
+                })
+            ]);
         }
 
         // now recurse
@@ -890,7 +891,7 @@ class GraphHelper {
                     {
                         requestInfo, base_version, parentEntity: startResource
                     }),
-                resource: removeNull(startResource.toJSON())
+                resource: startResource
             });
             entries = entries.concat([current_entity]);
             topLevelBundleEntries.push(current_entity);

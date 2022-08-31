@@ -187,10 +187,6 @@ class UpdateOperation {
             /**
              * @type {Resource|null}
              */
-            let cleaned;
-            /**
-             * @type {Resource|null}
-             */
             let doc;
 
             // check if resource was found in database or not
@@ -262,8 +258,7 @@ class UpdateOperation {
                 await preSaveAsync(resource_incoming);
 
                 // Same as update from this point on
-                cleaned = removeNull(resource_incoming.toJSON());
-                doc = cleaned;
+                doc = resource_incoming;
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
             } else {
                 // not found so insert
@@ -292,8 +287,7 @@ class UpdateOperation {
 
                 await preSaveAsync(resource_incoming);
 
-                cleaned = removeNull(resource_incoming.toJSON());
-                doc = cleaned;
+                doc = resource_incoming;
             }
 
             doc = omitProperty(doc, '_id');
@@ -313,7 +307,7 @@ class UpdateOperation {
             /**
              * @type {Resource}
              */
-            let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
+            let history_resource = Object.assign(resource_incoming, {_id: id + resource_incoming.meta.versionId});
             // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
 
             // Insert our resource record to history but don't assign _id

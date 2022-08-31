@@ -20,6 +20,7 @@ class ResourceCleaner {
          */
         let ResourceCreator = getResource(base_version, resource.resourceType);
         const resourceCreator = new ResourceCreator(resource);
+        // noinspection JSValidateTypes
         return removeNull(resourceCreator.toJSON());
     }
 }

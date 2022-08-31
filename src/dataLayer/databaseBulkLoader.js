@@ -1,4 +1,4 @@
-const {groupByLambda, getFirstElementOrNull} = require('../utils/list.util');
+const {groupByLambda, getFirstResourceOrNull} = require('../utils/list.util');
 const async = require('async');
 const {getResource} = require('../operations/common/getResource');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
@@ -129,7 +129,7 @@ class DatabaseBulkLoader {
          */
         const cacheEntryResources = this.bulkCache.get(resourceType);
         if (cacheEntryResources) {
-            return getFirstElementOrNull(
+            return getFirstResourceOrNull(
                 cacheEntryResources.filter(e => e.id === id.toString())
             );
         } else {

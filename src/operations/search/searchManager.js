@@ -799,7 +799,7 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
-     * @param {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
+     * @param {function (string | null, number): Bundle} fnBundle
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
      * @param {string | null} scope
@@ -813,7 +813,9 @@ class SearchManager {
     async streamBundleFromCursorAsync(
         {
             requestId,
-            cursor, url, fnBundle,
+            cursor,
+            url,
+            fnBundle,
             res, user, scope,
             args, ResourceCreator, resourceType,
             useAccessIndex,

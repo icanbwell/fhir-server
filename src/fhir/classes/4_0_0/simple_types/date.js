@@ -1,9 +1,4 @@
-const Element = require('./element');
-
-class date extends Element {
-    constructor(ops) {
-        super(ops);
-    }
-}
-
-module.exports = date;
+/**
+ * A number, or a string containing a number.
+ * @typedef {string} date
+ */

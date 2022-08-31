@@ -6,6 +6,12 @@ const {KafkaClient} = require('./kafkaClient');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {logSystemEventAsync} = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
+const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
+const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
+const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
+const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
+const Period = require('../fhir/classes/4_0_0/complex_types/period');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -91,39 +97,49 @@ class ChangeEventProducer {
                        eventName
                    }
     ) {
-        return new AuditEvent({
-            'id': generateUUID(),
-            'action': isCreate ? 'C' : 'U',
-            'period':
-                {
-                    'start': timestamp,
-                    'end': timestamp
-                },
-            'purposeOfEvent':
-                [
-                    {
-                        'coding':
-                            [
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+        return new AuditEvent(
+            {
+                'id': generateUUID(),
+                'action': isCreate ? 'C' : 'U',
+                type: new Coding({
+                    code: '110100'
+                }),
+                recorded: currentDate,
+                'period':
+                    new Period({
+                        'start': timestamp,
+                        'end': timestamp
+                    }),
+                purposeOfEvent:
+                    [
+                        new CodeableConcept({
+                            'coding':
+                                [
+                                    new Coding({
+                                        'system': 'https://www.icanbwell.com/event-purpose',
+                                        'code': eventName
+                                    })
+                                ]
+                        })
+                    ],
+                agent:
+                    [
+                        new AuditEventAgent({
+                            who: new Reference(
                                 {
-                                    'system': 'https://www.icanbwell.com/event-purpose',
-                                    'code': eventName
-                                }
-                            ]
-                    }
-                ],
-            'agent':
-                [
-                    {
-                        'who':
-                            {
-                                'reference': `${resourceType}/${id}`
-                            }
-                    }
-                ],
-            'source': {
-                'site': requestId
-            }
-        });
+                                    'reference': `${resourceType}/${id}`
+                                }),
+                            requestor: true
+                        })
+                    ],
+                source: new AuditEventSource({
+                    'site': requestId,
+                    observer: new Reference(
+                        {reference: 'Organization/bwell'}
+                    )
+                })
+            });
     }
 
     /**

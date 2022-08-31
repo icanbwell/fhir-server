@@ -39,10 +39,9 @@ class ResourceContainer {
             },
         });
 
-        Object.assign(this, opts); // Define a default non-writable resourceType property
+        Object.assign(this, opts);
     }
 }
 
-module.exports = {
-    ResourceContainer,
-};
+module.exports = ResourceContainer;
+

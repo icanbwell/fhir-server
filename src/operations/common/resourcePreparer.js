@@ -1,4 +1,3 @@
-const {removeNull} = require('../../utils/nullRemover');
 const {enrich} = require('../../enrich/enrich');
 const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -59,14 +58,14 @@ class ResourcePreparer {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object} args
-     * @param {function(?Object): Resource} Resource
+     * @param {function(?Object): Resource} ResourceCreator
      * @param {Resource} element
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync(user, scope, args,
-                               Resource, element, resourceType, useAccessIndex) {
+                               ResourceCreator, element, resourceType, useAccessIndex) {
         let resources = [];
         if (args['_elements']) {
             if (!useAccessIndex || !resourceHasAccessIndex(resourceType)) {
@@ -78,7 +77,7 @@ class ResourcePreparer {
 
             const element_to_return = this.selectSpecificElements(
                 args,
-                Resource,
+                ResourceCreator,
                 element,
                 resourceType
             );
@@ -91,15 +90,11 @@ class ResourcePreparer {
             /**
              * @type  {Resource}
              */
-            const resource = new Resource(element);
-            /**
-             * @type {Object}
-             */
-            const cleanResource = removeNull(resource.toJSON());
+            const resource = new ResourceCreator(element);
             /**
              * @type {Resource[]}
              */
-            const enrichedResources = await enrich([cleanResource], resourceType);
+            const enrichedResources = await enrich([resource], resourceType);
             resources = resources.concat(enrichedResources);
         }
         return resources;
