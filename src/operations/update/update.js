@@ -305,11 +305,8 @@ class UpdateOperation {
             /**
              * @type {Resource}
              */
-            const historyResource = this.resourceDuplicator.duplicateResource(
-                {
-                    base_version,
-                    resource: doc
-                });
+            const historyResource = doc.copy();
+
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
                     resourceType, base_version, useAtlas

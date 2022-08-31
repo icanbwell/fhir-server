@@ -39,8 +39,8 @@ describe('Practitioner Tests', () => {
 
             await request
                 .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-                // .expect(assertResponse({expected: practitioner1Resource}));
+                .set(getHeaders())
+                .expect(assertResponse({expected: practitioner1Resource}));
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));

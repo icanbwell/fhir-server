@@ -27,7 +27,6 @@ const {omitProperty} = require('../../utils/omitProperties');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const {ResourceDuplicator} = require('../common/resourceDuplicator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -40,7 +39,6 @@ class MergeManager {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
-     * @param {ResourceDuplicator} resourceDuplicator
      */
     constructor(
         {
@@ -49,7 +47,6 @@ class MergeManager {
             databaseBulkInserter,
             databaseBulkLoader,
             scopesManager,
-            resourceDuplicator
         }
     ) {
         /**
@@ -77,12 +74,6 @@ class MergeManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
-
-        /**
-         * @type {ResourceDuplicator}
-         */
-        this.resourceDuplicator = resourceDuplicator;
-        assertTypeEquals(resourceDuplicator, ResourceDuplicator);
     }
 
     /**
@@ -216,7 +207,6 @@ class MergeManager {
                 'merge_' + meta.versionId + '_' + requestId);
         }
         await this.performMergeDbUpdateAsync({
-                base_version,
                 resourceToMerge: patched_resource_incoming
             }
         );
@@ -262,7 +252,6 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            base_version,
             resourceToMerge
         });
     }
@@ -501,13 +490,11 @@ class MergeManager {
 
     /**
      * performs the db update
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
-            base_version,
             resourceToMerge
         }
     ) {
@@ -532,11 +519,7 @@ class MergeManager {
         /**
          * @type {Resource}
          */
-        const historyResource = this.resourceDuplicator.duplicateResource(
-            {
-                base_version,
-                resource: resourceToMerge
-            });
+        const historyResource = resourceToMerge.copy();
 
         await this.databaseBulkInserter.insertOneHistoryAsync(
             {
@@ -546,13 +529,11 @@ class MergeManager {
 
     /**
      * performs the db insert
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
-            base_version,
             resourceToMerge
         }) {
         await preSaveAsync(resourceToMerge);
@@ -564,11 +545,7 @@ class MergeManager {
             }
         );
 
-        const historyResource = this.resourceDuplicator.duplicateResource(
-            {
-                base_version,
-                resource: resourceToMerge
-            });
+        const historyResource = resourceToMerge.copy();
 
         await this.databaseBulkInserter.insertOneHistoryAsync({
                 resourceType: resourceToMerge.resourceType,
