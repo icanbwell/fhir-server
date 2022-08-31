@@ -7,12 +7,12 @@
 {% endmacro %}
 
 {% for fhir_entity in fhir_entities %}
-const {{ fhir_entity.cleaned_name }} = require('./{{ lower_case_first_letter(fhir_entity.cleaned_name) }}');
+const {{ fhir_entity.cleaned_name | lower }} = require('./{{ lower_case_first_letter(fhir_entity.cleaned_name) }}');
 {%  endfor %}
 
 module.exports = {
 {% for fhir_entity in fhir_entities %}
-    {{ fhir_entity.cleaned_name }},
+    {{ fhir_entity.cleaned_name | lower }},
 {%  endfor %}
 };
 
