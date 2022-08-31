@@ -203,7 +203,7 @@ class AuditLogger {
          * @type {string}
          */
         const resourceType = 'AuditEvent';
-        for (const doc of this.queue) {
+        for (const /** @type {Resource} */ doc of this.queue) {
             await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
         }
         this.queue = [];

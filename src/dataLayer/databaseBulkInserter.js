@@ -122,6 +122,8 @@ class DatabaseBulkInserter extends EventEmitter {
     addOperationForResourceType({resourceType, operation}) {
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
+        assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
+        assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
         // If there is no entry for this collection then create one
         if (!(this.operationsByResourceTypeMap.has(resourceType))) {
             this.operationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -186,7 +188,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc
+                        document: doc.toJSON()
                     }
                 }
             }
